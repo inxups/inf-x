@@ -1,0 +1,13 @@
+{
+  "itemGroup.infx": "Example Mod Tab",
+  "block.infx.example_block": "Example Block",
+  "item.infx.example_item": "Example Item",
+
+  "infx.configuration.title": "InfiniteX Configs",
+  "infx.configuration.section.infx.common.toml": "InfiniteX Configs",
+  "infx.configuration.section.infx.common.toml.title": "InfiniteX Configs",
+  "infx.configuration.items": "Item List",
+  "infx.configuration.logDirtBlock": "Log Dirt Block",
+  "infx.configuration.magicNumberIntroduction": "Magic Number Text",
+  "infx.configuration.magicNumber": "Magic Number"
+}
