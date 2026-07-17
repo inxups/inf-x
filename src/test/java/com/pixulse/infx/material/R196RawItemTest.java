@@ -1,7 +1,6 @@
 package com.pixulse.infx.material;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,18 +39,15 @@ class R196RawItemTest {
             expected("gold_coin", "Gold Coin", "金币", R196RawItem.Kind.COIN, R196Material.GOLD, 100),
             expected("ancient_metal_coin", "Ancient Metal Coin", "远古金属币", R196RawItem.Kind.COIN, R196Material.ANCIENT_METAL, 500),
             expected("mithril_coin", "Mithril Coin", "秘银币", R196RawItem.Kind.COIN, R196Material.MITHRIL, 2_500),
-            expected("adamantium_coin", "Adamantium Coin", "艾德曼币", R196RawItem.Kind.COIN, R196Material.ADAMANTIUM, 10_000),
-            expected("creeper_frags", "Creeper Frags", "苦力怕碎片", R196RawItem.Kind.MONSTER_FRAG, null, 0),
-            expected("infernal_creeper_frags", "Infernal Creeper Frags", "地狱苦力怕碎片", R196RawItem.Kind.MONSTER_FRAG, null, 0),
-            expected("netherspawn_frags", "Netherspawn Frags", "下界虫碎片", R196RawItem.Kind.MONSTER_FRAG, null, 0));
+            expected("adamantium_coin", "Adamantium Coin", "艾德曼币", R196RawItem.Kind.COIN, R196Material.ADAMANTIUM, 10_000));
 
     @Test
     void rawCatalogHasExactApprovedDefinitions() {
         assertEquals(EXPECTED.stream().map(ExpectedRawItem::path).toList(),
                 List.of(R196RawItem.values()).stream().map(R196RawItem::path).toList());
-        assertEquals(33, R196RawItem.values().length);
+        assertEquals(30, R196RawItem.values().length);
         Set<String> unique = List.of(R196RawItem.values()).stream().map(R196RawItem::path).collect(Collectors.toSet());
-        assertEquals(33, unique.size());
+        assertEquals(30, unique.size());
 
         for (int index = 0; index < EXPECTED.size(); index++) {
             ExpectedRawItem expected = EXPECTED.get(index);
@@ -67,7 +63,7 @@ class R196RawItemTest {
 
     @Test
     void kindValuesHaveExactApprovedOrder() {
-        assertEquals(List.of("SHARD", "BINDING", "FERTILIZER", "NUGGET", "INGOT", "CHAIN", "COIN", "MONSTER_FRAG"),
+        assertEquals(List.of("SHARD", "BINDING", "FERTILIZER", "NUGGET", "INGOT", "CHAIN", "COIN"),
                 List.of(R196RawItem.Kind.values()).stream().map(Enum::name).toList());
     }
 
@@ -80,7 +76,6 @@ class R196RawItemTest {
         assertEquals(2_500, R196RawItem.MITHRIL_COIN.coinXp());
         assertEquals(10_000, R196RawItem.ADAMANTIUM_COIN.coinXp());
         assertEquals(R196Material.FLINT, R196RawItem.FLINT_CHIP.material().orElseThrow());
-        assertTrue(R196RawItem.CREEPER_FRAGS.material().isEmpty());
     }
 
     private static ExpectedRawItem expected(

@@ -38,7 +38,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(394, lines.size(), "header plus 393 selected destinations");
+        assertEquals(391, lines.size(), "header plus 390 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -63,7 +63,8 @@ class R196TextureProvenanceTest {
         if (!Files.isDirectory(reference)) {
             return;
         }
-        for (String line : Files.readAllLines(MANIFEST, UTF_8).subList(1, 394)) {
+        List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
+        for (String line : lines.subList(1, lines.size())) {
             String[] fields = line.split("\t", -1);
             Path sourceRoot = switch (fields[0]) {
                 case "resource-pack" -> reference.resolve("mite- resource-pack/assets/minecraft/textures");
@@ -89,5 +90,6 @@ class R196TextureProvenanceTest {
         assertFalse(destinations.stream().anyMatch(path -> path.contains("stone_dagger")));
         assertFalse(destinations.stream().anyMatch(path -> path.contains("chip_flint_knife")));
         assertFalse(destinations.stream().anyMatch(path -> path.contains("iron_coin")));
+        assertFalse(destinations.stream().anyMatch(path -> path.endsWith("_frags.png")));
     }
 }
