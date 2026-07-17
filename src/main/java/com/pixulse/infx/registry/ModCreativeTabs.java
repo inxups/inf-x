@@ -19,8 +19,12 @@ public final class ModCreativeTabs {
                     .title(Component.translatable("itemGroup.infx"))
                     .withTabsBefore(CreativeModeTabs.COMBAT)
                     .icon(ModItems.FLINT_CHIP::toStack)
-                    .displayItems((parameters, output) -> ModItems.ITEMS.getEntries()
-                            .forEach(item -> output.accept(item.value())))
+                    .displayItems((parameters, output) -> {
+                        ModItems.catalog().rawEntries().forEach(entry -> output.accept(entry.holder().value()));
+                        output.accept(ModItems.FLINT_WORKBENCH.value());
+                        output.accept(ModItems.COPPER_WORKBENCH.value());
+                        ModItems.catalog().equipmentEntries().forEach(entry -> output.accept(entry.holder().value()));
+                    })
                     .build());
 
     private ModCreativeTabs() {}

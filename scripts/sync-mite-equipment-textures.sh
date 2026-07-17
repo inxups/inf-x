@@ -1,0 +1,213 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PACK_TEXTURES="${1:-$ROOT/codex/reference/mite- resource-pack/assets/minecraft/textures}"
+SOURCE_TEXTURES="${2:-$ROOT/codex/reference/mite-src/assets/minecraft/textures}"
+ASSET_ROOT="$ROOT/src/main/resources/assets/infx"
+DEST_TEXTURES="$ASSET_ROOT/textures"
+MANIFEST="$ASSET_ROOT/mite_texture_manifest.tsv"
+ROWS="$(mktemp)"
+trap 'rm -f "$ROWS" "$MANIFEST.tmp"' EXIT
+
+if [[ -f "$MANIFEST" ]]; then
+  tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r _ _ destination _; do
+    [[ -n "$destination" ]] && rm -f "$ASSET_ROOT/$destination"
+  done
+fi
+
+sync() {
+  local source_kind="$1" source_rel="$2" destination_rel="$3" source_root source hash
+  case "$source_kind" in
+    resource-pack) source_root="$PACK_TEXTURES" ;;
+    mite-src) source_root="$SOURCE_TEXTURES" ;;
+    *) echo "Unknown source kind: $source_kind" >&2; exit 1 ;;
+  esac
+  source="$source_root/$source_rel"
+  [[ -f "$source" ]] || { echo "Missing approved source: $source" >&2; exit 1; }
+  mkdir -p "$DEST_TEXTURES/$(dirname "$destination_rel")"
+  cp "$source" "$DEST_TEXTURES/$destination_rel"
+  if command -v sha256sum >/dev/null 2>&1; then
+    hash="$(sha256sum "$source" | awk '{print $1}')"
+  else
+    hash="$(shasum -a 256 "$source" | awk '{print $1}')"
+  fi
+  printf '%s\t%s\t%s\t%s\n' "$source_kind" "$source_rel" "textures/$destination_rel" "$hash" >> "$ROWS"
+}
+
+sync resource-pack items/shards/flint.png item/flint_chip.png
+sync resource-pack items/shards/obsidian.png item/obsidian_shard.png
+sync resource-pack items/shards/emerald.png item/emerald_shard.png
+sync resource-pack items/shards/diamond.png item/diamond_shard.png
+sync resource-pack items/shards/quartz.png item/nether_quartz_shard.png
+sync resource-pack items/shards/glass.png item/glass_shard.png
+sync resource-pack items/sinew.png item/sinew.png
+sync resource-pack items/manure.png item/manure.png
+sync resource-pack items/nuggets/silver.png item/silver_nugget.png
+sync resource-pack items/nuggets/mithril.png item/mithril_nugget.png
+sync resource-pack items/nuggets/adamantium.png item/adamantium_nugget.png
+sync resource-pack items/nuggets/ancient_metal.png item/ancient_metal_nugget.png
+sync resource-pack items/ingots/silver.png item/silver_ingot.png
+sync resource-pack items/ingots/mithril.png item/mithril_ingot.png
+sync resource-pack items/ingots/adamantium.png item/adamantium_ingot.png
+sync resource-pack items/ingots/ancient_metal.png item/ancient_metal_ingot.png
+
+for material in copper silver gold rusted_iron iron ancient_metal mithril adamantium; do
+  sync resource-pack "items/chains/$material.png" "item/${material}_chain.png"
+done
+for material in copper silver gold ancient_metal mithril adamantium; do
+  sync resource-pack "items/coins/$material.png" "item/${material}_coin.png"
+done
+sync resource-pack items/frag/creeper.png item/creeper_frags.png
+sync resource-pack items/frag/infernal_creeper.png item/infernal_creeper_frags.png
+sync resource-pack items/frag/netherspawn.png item/netherspawn_frags.png
+
+METALS=(copper silver gold rusted_iron iron ancient_metal mithril adamantium)
+SHOVELS=(wood flint obsidian "${METALS[@]}")
+ROCK_AND_METAL=(flint obsidian "${METALS[@]}")
+FISHING=(flint obsidian copper silver gold iron ancient_metal mithril adamantium)
+ARROWS=(flint obsidian copper silver gold rusted_iron iron ancient_metal mithril adamantium)
+PLATE=(leather copper silver gold rusted_iron iron ancient_metal mithril adamantium)
+HORSE=(copper silver gold iron ancient_metal mithril adamantium)
+BOWS=(wood ancient_metal mithril)
+PIECES=(helmet chestplate leggings boots)
+
+sync_tool() {
+  local material="$1" type="$2" key="${1}_${2}"
+  case "$key" in
+    wood_shovel)
+      sync mite-src items/wood_shovel.png item/wood_shovel.png
+      ;;
+    iron_pickaxe|iron_shovel|iron_axe|iron_hoe|iron_sword)
+      sync resource-pack "items/$key.png" "item/$key.png"
+      ;;
+    iron_shears)
+      sync resource-pack items/shears.png item/iron_shears.png
+      ;;
+    *)
+      sync resource-pack "items/tools/$key.png" "item/$key.png"
+      ;;
+  esac
+}
+
+for material in "${METALS[@]}"; do sync_tool "$material" pickaxe; done
+for material in "${SHOVELS[@]}"; do sync_tool "$material" shovel; done
+for type in hatchet axe; do
+  for material in "${ROCK_AND_METAL[@]}"; do sync_tool "$material" "$type"; done
+done
+for type in hoe mattock battle_axe war_hammer scythe shears; do
+  for material in "${METALS[@]}"; do sync_tool "$material" "$type"; done
+done
+sync_tool wood cudgel
+sync_tool wood club
+for material in flint obsidian; do sync_tool "$material" knife; done
+for type in sword dagger; do
+  for material in "${METALS[@]}"; do sync_tool "$material" "$type"; done
+done
+
+for material in "${FISHING[@]}"; do
+  sync resource-pack "items/fishing_rods/${material}_uncast.png" "item/${material}_fishing_rod.png"
+done
+sync resource-pack items/fishing_rod_cast.png item/fishing_rod_cast.png
+
+for material in "${ARROWS[@]}"; do
+  sync resource-pack "items/arrows/${material}_arrow.png" "item/${material}_arrow.png"
+done
+
+for bow in "${BOWS[@]}"; do
+  sync resource-pack "items/bows/$bow/standby.png" "item/${bow}_bow.png"
+  for arrow in "${ARROWS[@]}"; do
+    for frame in 0 1 2; do
+      sync resource-pack \
+        "items/bows/$bow/${arrow}_arrow_${frame}.png" \
+        "item/${bow}_bow/${arrow}_${frame}.png"
+    done
+  done
+done
+
+for material in "${PLATE[@]}"; do
+  for piece in "${PIECES[@]}"; do
+    case "$material" in
+      leather|iron)
+        sync resource-pack "items/${material}_${piece}.png" "item/${material}_${piece}.png"
+        ;;
+      *)
+        sync resource-pack "items/armor/${material}_${piece}.png" "item/${material}_${piece}.png"
+        ;;
+    esac
+    if [[ "$material" == leather ]]; then
+      sync resource-pack \
+        "items/leather_${piece}_overlay.png" \
+        "item/leather_${piece}_overlay.png"
+    fi
+  done
+done
+
+for material in "${METALS[@]}"; do
+  for piece in "${PIECES[@]}"; do
+    if [[ "$material" == iron ]]; then
+      sync resource-pack \
+        "items/chainmail_${piece}.png" \
+        "item/iron_chainmail_${piece}.png"
+    else
+      sync resource-pack \
+        "items/armor/${material}_chainmail_${piece}.png" \
+        "item/${material}_chainmail_${piece}.png"
+    fi
+  done
+done
+
+for material in "${HORSE[@]}"; do
+  case "$material" in
+    gold|iron)
+      sync resource-pack "items/${material}_horse_armor.png" "item/${material}_horse_armor.png"
+      ;;
+    *)
+      sync resource-pack "items/armor/horse/${material}.png" "item/${material}_horse_armor.png"
+      ;;
+  esac
+done
+
+for material in "${PLATE[@]}"; do
+  sync resource-pack \
+    "models/armor/${material}_layer_1.png" \
+    "entity/equipment/humanoid/${material}.png"
+  sync resource-pack \
+    "models/armor/${material}_layer_1.png" \
+    "entity/equipment/humanoid_baby/${material}.png"
+  sync resource-pack \
+    "models/armor/${material}_layer_2.png" \
+    "entity/equipment/humanoid_leggings/${material}.png"
+done
+sync resource-pack models/armor/leather_layer_1_overlay.png entity/equipment/humanoid/leather_overlay.png
+sync resource-pack models/armor/leather_layer_1_overlay.png entity/equipment/humanoid_baby/leather_overlay.png
+sync resource-pack models/armor/leather_layer_2_overlay.png entity/equipment/humanoid_leggings/leather_overlay.png
+
+for material in "${METALS[@]}"; do
+  source_stem="${material}_chainmail"
+  [[ "$material" == iron ]] && source_stem=chainmail
+  sync resource-pack \
+    "models/armor/${source_stem}_layer_1.png" \
+    "entity/equipment/humanoid/${material}_chainmail.png"
+  sync resource-pack \
+    "models/armor/${source_stem}_layer_1.png" \
+    "entity/equipment/humanoid_baby/${material}_chainmail.png"
+  sync resource-pack \
+    "models/armor/${source_stem}_layer_2.png" \
+    "entity/equipment/humanoid_leggings/${material}_chainmail.png"
+done
+
+for material in "${HORSE[@]}"; do
+  sync resource-pack \
+    "entity/horse/armor/horse_armor_${material}.png" \
+    "entity/equipment/horse_body/${material}.png"
+done
+
+row_count="$(wc -l < "$ROWS" | tr -d ' ')"
+[[ "$row_count" == 393 ]] || { echo "Expected 393 textures, got $row_count" >&2; exit 1; }
+{
+  printf 'source_root\tsource\tdestination\tsha256\n'
+  LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"
+} > "$MANIFEST.tmp"
+mv "$MANIFEST.tmp" "$MANIFEST"
+printf 'Synchronized %s approved MITE textures\n' "$row_count"
