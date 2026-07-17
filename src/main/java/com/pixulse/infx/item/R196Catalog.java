@@ -85,7 +85,7 @@ public final class R196Catalog {
         }
         DeferredItem<R196ToolItem> holder = items.registerItem(
                 key.path(),
-                properties -> new R196ToolItem(key.type().blockDecay(), properties),
+                properties -> new R196ToolItem(key, properties),
                 properties -> R196ItemProperties.forEquipment(key, properties));
         return new EquipmentEntry(key, holder, R196ToolItem.class);
     }

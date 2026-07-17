@@ -1,6 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.harvest.ToolWearCalculator;
 import com.pixulse.infx.material.R196Material;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +57,10 @@ public record R196EquipmentKey(R196Material material, R196EquipmentType type) {
 
     public int attackWear() {
         return Math.max((int) (100.0F * type.attackDecay()), 1);
+    }
+
+    public int damageForBreaking(float hardness) {
+        return ToolWearCalculator.damageForBreaking(hardness, type.blockDecay());
     }
 
     public double arrowBaseDamage() {

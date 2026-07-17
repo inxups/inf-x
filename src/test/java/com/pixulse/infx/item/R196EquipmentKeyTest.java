@@ -107,4 +107,17 @@ class R196EquipmentKeyTest {
                 key(R196Material.MITHRIL, R196EquipmentType.CHAINMAIL_CHESTPLATE)
                         .equipmentAsset().identifier().toString());
     }
+
+    @Test
+    void ordinaryToolBehaviorsAreMappedWithoutVanillaConstructorMutation() {
+        assertEquals(R196UseAction.AXE, R196EquipmentType.HATCHET.useAction());
+        assertEquals(R196UseAction.AXE, R196EquipmentType.AXE.useAction());
+        assertEquals(R196UseAction.AXE, R196EquipmentType.BATTLE_AXE.useAction());
+        assertEquals(R196UseAction.SHOVEL, R196EquipmentType.SHOVEL.useAction());
+        assertEquals(R196UseAction.HOE, R196EquipmentType.HOE.useAction());
+        assertEquals(R196UseAction.MATTOCK, R196EquipmentType.MATTOCK.useAction());
+        assertEquals(133, key(R196Material.FLINT, R196EquipmentType.HATCHET).damageForBreaking(1.0F));
+        assertEquals(20, key(R196Material.COPPER, R196EquipmentType.MATTOCK).damageForBreaking(.5F));
+        assertEquals(0, key(R196Material.IRON, R196EquipmentType.PICKAXE).damageForBreaking(0.0F));
+    }
 }
