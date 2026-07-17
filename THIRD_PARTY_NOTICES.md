@@ -1,22 +1,9 @@
 # Third-Party Notices
 
-## MITE 1.6.4 resource-pack textures
+## MITE R196 material and equipment textures
 
-InfiniteX includes twelve texture files copied byte-for-byte from the local resource pack described by its metadata as “A Minecraft New Pack For 1.6.4-MITE Version:1.0.3 By Modded MITE Community.” Only their resource paths and filenames were adapted for modern Minecraft.
+InfiniteX includes a selected material-and-equipment texture set copied byte-for-byte from the locally supplied MITE R196 resource pack described by its metadata as “A Minecraft New Pack For 1.6.4-MITE Version:1.0.3 By Modded MITE Community.” Resource paths and filenames were adapted to the `infx` namespace for modern Minecraft.
 
-The included InfiniteX files are:
+`assets/infx/mite_texture_manifest.tsv` is the complete machine-readable list of included source paths, destination paths, and SHA-256 hashes. Every listed file uses the `resource-pack` source root except `items/wood_shovel.png`. That inherited base bitmap is absent from the overlay pack and is copied byte-for-byte from the supplied R196 source asset tree, recorded as the `mite-src` root.
 
-- `assets/infx/textures/item/flint_chip.png`
-- `assets/infx/textures/item/obsidian_shard.png`
-- `assets/infx/textures/item/emerald_shard.png`
-- `assets/infx/textures/item/sinew.png`
-- `assets/infx/textures/item/silver_nugget.png`
-- `assets/infx/textures/item/mithril_nugget.png`
-- `assets/infx/textures/item/adamantium_nugget.png`
-- `assets/infx/textures/item/flint_hatchet.png`
-- `assets/infx/textures/item/copper_pickaxe.png`
-- `assets/infx/textures/block/flint_workbench_top.png`
-- `assets/infx/textures/block/copper_workbench_front.png`
-- `assets/infx/textures/block/copper_workbench_side.png`
-
-The locally supplied source bundle did not contain a named license. The InfiniteX project owner confirmed on 2026-07-17 that these selected textures may be copied and distributed with this project. This notice applies only to the twelve files listed above and makes no statement about the remainder of the reference resource pack.
+The supplied bundles did not contain a named license. The InfiniteX project owner confirmed on 2026-07-17 that this selected texture set may be copied and distributed with this project. This notice applies only to files listed in the manifest and makes no statement about unselected files in either reference bundle.
