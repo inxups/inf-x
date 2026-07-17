@@ -1,8 +1,11 @@
 {
   "required": true,
+  "minVersion": "0.8",
   "package": "com.pixulse.infx.mixin",
-  "compatibilityLevel": "JAVA_25",
-  "mixins": [],
+  "mixins": [
+    "AbstractContainerMenuMixin",
+    "InventoryMenuMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },

@@ -12,6 +12,7 @@ Implement the first playable InfiniteX progression slice on NeoForge 26.2:
 - A modded tool is accepted only when its `Tool` component can harvest the target and it belongs to an appropriate `infx:tool_tier/*` tag.
 - Vanilla copper nuggets and ingots are shared resources. InfiniteX owns the MITE-style tools and workbenches.
 - Only named vanilla recipe IDs are disabled. Recipes from other mods are never scanned or removed.
+- InfiniteX loads after NeoForge so its same-ID `neoforge:never` resources also override NeoForge's c-tag rewrites of vanilla equipment recipes.
 - Two narrow Mixins connect timed crafting to the player inventory. Custom workbenches use normal mod-owned menus. No Coremod is used.
 
 ## Harvest behavior

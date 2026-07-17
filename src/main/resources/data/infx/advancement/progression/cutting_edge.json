@@ -1,0 +1,15 @@
+{
+  "parent": "infx:progression/stick_picker",
+  "criteria": {
+    "crafted_hatchet": {
+      "conditions": {"recipe_id": "infx:flint_hatchet"},
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {"translate": "advancements.infx.cutting_edge.description"},
+    "icon": {"id": "infx:flint_hatchet"},
+    "title": {"translate": "advancements.infx.cutting_edge.title"}
+  },
+  "requirements": [["crafted_hatchet"]]
+}

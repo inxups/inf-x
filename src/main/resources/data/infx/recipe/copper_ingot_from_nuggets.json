@@ -1,0 +1,16 @@
+{
+  "type": "infx:crafting_shaped",
+  "required_bench": "flint",
+  "difficulty": 400.0,
+  "key": {
+    "N": "minecraft:copper_nugget"
+  },
+  "pattern": [
+    "NNN",
+    "NNN",
+    "NNN"
+  ],
+  "result": {
+    "id": "minecraft:copper_ingot"
+  }
+}

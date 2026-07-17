@@ -1,0 +1,15 @@
+{
+  "parent": "infx:progression/build_work_bench",
+  "criteria": {
+    "has_copper_nugget": {
+      "conditions": {"items": [{"items": "minecraft:copper_nugget"}]},
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {"translate": "advancements.infx.nuggets.description"},
+    "icon": {"id": "minecraft:copper_nugget"},
+    "title": {"translate": "advancements.infx.nuggets.title"}
+  },
+  "requirements": [["has_copper_nugget"]]
+}

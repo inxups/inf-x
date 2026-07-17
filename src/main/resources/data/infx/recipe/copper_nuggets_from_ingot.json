@@ -1,0 +1,10 @@
+{
+  "type": "infx:crafting_shapeless",
+  "required_bench": "flint",
+  "difficulty": 400.0,
+  "ingredients": ["minecraft:copper_ingot"],
+  "result": {
+    "count": 9,
+    "id": "minecraft:copper_nugget"
+  }
+}

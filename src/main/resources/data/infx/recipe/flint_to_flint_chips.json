@@ -1,0 +1,12 @@
+{
+  "type": "infx:crafting_shapeless",
+  "required_bench": "hand",
+  "difficulty": 100.0,
+  "ingredients": [
+    "minecraft:flint"
+  ],
+  "result": {
+    "count": 4,
+    "id": "infx:flint_chip"
+  }
+}

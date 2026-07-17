@@ -2,9 +2,14 @@ package com.pixulse.infx;
 
 import com.mojang.logging.LogUtils;
 import com.pixulse.infx.harvest.HarvestEvents;
+import com.pixulse.infx.crafting.TimedCraftingEvents;
+import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.registry.ModCreativeTabs;
+import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
+import com.pixulse.infx.registry.ModRecipes;
+import com.pixulse.infx.registry.ModMenus;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -18,10 +23,15 @@ public final class InfiniteX {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public InfiniteX(IEventBus modBus) {
+        ModBlocks.register(modBus);
         ModItems.register(modBus);
         ModLootModifiers.register(modBus);
+        ModRecipes.register(modBus);
+        ModMenus.register(modBus);
         ModCreativeTabs.register(modBus);
+        ModGameTests.register(modBus);
         HarvestEvents.register(NeoForge.EVENT_BUS);
+        TimedCraftingEvents.register(NeoForge.EVENT_BUS);
     }
 
     public static Identifier id(String path) {

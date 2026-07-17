@@ -95,6 +95,13 @@ neoForge {
             sourceSet(sourceSets.main)
         }
     }
+
+    // Put Minecraft/NeoForge on the JUnit classpath so focused compatibility
+    // tests can exercise recipe wrappers without starting a GameTest server.
+    unitTest {
+        testedMod = mods.getByName(mod_id)
+        enable()
+    }
 }
 
 // Sets up a dependency configuration called 'localRuntime'.

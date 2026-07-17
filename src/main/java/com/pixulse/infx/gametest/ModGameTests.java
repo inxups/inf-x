@@ -1,0 +1,534 @@
+package com.pixulse.infx.gametest;
+
+import com.mojang.authlib.GameProfile;
+import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.block.TieredWorkbenchBlock;
+import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.crafting.TimedCraftingEngine;
+import com.pixulse.infx.crafting.TimedCraftingMenu;
+import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.ModItems;
+import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.gametest.framework.FunctionGameTestInstance;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.gametest.framework.TestData;
+import net.minecraft.gametest.framework.TestEnvironmentDefinition;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+public final class ModGameTests {
+    private static final BlockPos WORK_POS = new BlockPos(1, 1, 1);
+    private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
+    private static final List<String> DISABLED_VANILLA_RECIPES = List.of(
+            "acacia_planks",
+            "bamboo_planks",
+            "birch_planks",
+            "cherry_planks",
+            "copper_axe",
+            "copper_boots",
+            "copper_chestplate",
+            "copper_helmet",
+            "copper_hoe",
+            "copper_ingot_from_blasting_copper_ore",
+            "copper_ingot_from_blasting_deepslate_copper_ore",
+            "copper_ingot_from_blasting_raw_copper",
+            "copper_ingot_from_nuggets",
+            "copper_ingot_from_smelting_copper_ore",
+            "copper_ingot_from_smelting_deepslate_copper_ore",
+            "copper_ingot_from_smelting_raw_copper",
+            "copper_leggings",
+            "copper_nugget",
+            "copper_nugget_from_blasting",
+            "copper_nugget_from_smelting",
+            "copper_pickaxe",
+            "copper_shovel",
+            "copper_spear",
+            "copper_sword",
+            "crafting_table",
+            "crimson_planks",
+            "dark_oak_planks",
+            "diamond_spear",
+            "furnace",
+            "golden_spear",
+            "iron_spear",
+            "jungle_planks",
+            "mangrove_planks",
+            "netherite_spear_smithing",
+            "oak_planks",
+            "pale_oak_planks",
+            "spruce_planks",
+            "stone_axe",
+            "stone_hoe",
+            "stone_pickaxe",
+            "stone_shovel",
+            "stone_spear",
+            "stone_sword",
+            "warped_planks",
+            "wooden_axe",
+            "wooden_hoe",
+            "wooden_pickaxe",
+            "wooden_shovel",
+            "wooden_spear",
+            "wooden_sword");
+
+    private static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTIONS =
+            DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
+
+    private static final ResourceKey<Consumer<GameTestHelper>> HARVEST_RESTRICTIONS =
+            functionKey("harvest_restrictions");
+    private static final ResourceKey<Consumer<GameTestHelper>> BENCH_HIERARCHY =
+            functionKey("bench_hierarchy");
+    private static final ResourceKey<Consumer<GameTestHelper>> TIMED_CRAFTING =
+            functionKey("timed_crafting");
+    private static final ResourceKey<Consumer<GameTestHelper>> TIMED_RESETS =
+            functionKey("timed_resets");
+    private static final ResourceKey<Consumer<GameTestHelper>> FULL_INVENTORY_DROP =
+            functionKey("full_inventory_drop");
+    private static final ResourceKey<Consumer<GameTestHelper>> RECIPE_BOUNDARIES =
+            functionKey("recipe_boundaries");
+    private static final ResourceKey<Consumer<GameTestHelper>> COPPER_LOOP =
+            functionKey("copper_loop");
+
+    static {
+        TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
+        TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
+        TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
+        TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
+        TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
+        TEST_FUNCTIONS.register("recipe_boundaries", () -> ModGameTests::recipeBoundaries);
+        TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
+    }
+
+    private ModGameTests() {}
+
+    public static void register(IEventBus modBus) {
+        TEST_FUNCTIONS.register(modBus);
+        modBus.addListener(ModGameTests::registerTests);
+    }
+
+    private static void registerTests(RegisterGameTestsEvent event) {
+        Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
+                InfiniteX.id("m1"), new TestEnvironmentDefinition.AllOf());
+        registerTest(event, HARVEST_RESTRICTIONS, environment, 40);
+        registerTest(event, BENCH_HIERARCHY, environment, 80);
+        registerTest(event, TIMED_CRAFTING, environment, 200);
+        registerTest(event, TIMED_RESETS, environment, 120);
+        registerTest(event, FULL_INVENTORY_DROP, environment, 100);
+        registerTest(event, RECIPE_BOUNDARIES, environment, 40);
+        registerTest(event, COPPER_LOOP, environment, 400);
+    }
+
+    private static void registerTest(
+            RegisterGameTestsEvent event,
+            ResourceKey<Consumer<GameTestHelper>> function,
+            Holder<TestEnvironmentDefinition<?>> environment,
+            int maxTicks) {
+        TestData<Holder<TestEnvironmentDefinition<?>>> data = new TestData<>(
+                environment,
+                Identifier.withDefaultNamespace("empty"),
+                maxTicks,
+                0,
+                true,
+                Rotation.NONE);
+        event.registerTest(function.identifier(), new FunctionGameTestInstance(function, data));
+    }
+
+    private static void harvestRestrictions(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos absolutePos = helper.absolutePos(WORK_POS);
+
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.setBlock(WORK_POS, Blocks.OAK_LOG);
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "empty hand must not break logs");
+        helper.assertTrue(helper.getBlockState(WORK_POS).is(Blocks.OAK_LOG), "cancelled log break must keep the block");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.FLINT_HATCHET.get().getDefaultInstance());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "flint hatchet must break logs");
+        helper.assertTrue(helper.getBlockState(WORK_POS).isAir(), "allowed log break must remove the block");
+
+        helper.setBlock(WORK_POS, Blocks.STONE);
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "flint tier must not break pickaxe blocks");
+        helper.assertTrue(helper.getBlockState(WORK_POS).is(Blocks.STONE), "cancelled stone break must keep the block");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.COPPER_PICKAXE.get().getDefaultInstance());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break stone");
+
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.setBlock(WORK_POS, Blocks.OAK_LOG);
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "creative players must bypass harvest restrictions");
+
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "workbenches must be recoverable with an empty hand");
+
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void benchHierarchy(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+
+        TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        hand.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
+        helper.assertTrue(TimedCraftingEngine.refreshResult(hand, player, true), "hand recipe must resolve in the 2x2 grid");
+        assertResult(helper, hand, ModItems.SINEW.get(), "hand recipe result");
+
+        clearGrid(hand.infx$craftingContainer());
+        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS.above(), Blocks.STONE);
+        helper.assertTrue(
+                TieredWorkbenchBlock.isObstructed(helper.getLevel(), helper.absolutePos(WORK_POS)),
+                "a full block above the workbench must obstruct it");
+        helper.setBlock(WORK_POS.above(), Blocks.AIR);
+        helper.assertFalse(
+                TieredWorkbenchBlock.isObstructed(helper.getLevel(), helper.absolutePos(WORK_POS)),
+                "clearing the block above must clear the obstruction");
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 1);
+        player.containerMenu = flint;
+        fillCopperPickaxe(flint.infx$craftingContainer());
+        helper.assertFalse(TimedCraftingEngine.refreshResult(flint, player, true), "flint bench must reject copper-tier recipes");
+
+        clearGrid(flint.infx$craftingContainer());
+        flint.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
+        helper.assertTrue(TimedCraftingEngine.refreshResult(flint, player, true), "flint bench must accept hand recipes");
+        assertResult(helper, flint, ModItems.SINEW.get(), "flint bench lower-tier result");
+
+        flint.removed(player);
+        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        TimedWorkbenchMenu copper = workbenchMenu(player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 2);
+        player.containerMenu = copper;
+        copper.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
+        helper.assertTrue(TimedCraftingEngine.refreshResult(copper, player, true), "copper bench must accept hand recipes");
+
+        clearGrid(copper.infx$craftingContainer());
+        fillCopperPickaxe(copper.infx$craftingContainer());
+        helper.assertTrue(TimedCraftingEngine.refreshResult(copper, player, true), "copper bench must accept copper recipes");
+        assertResult(helper, copper, ModItems.COPPER_PICKAXE.get(), "copper bench result");
+
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void timedCrafting(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        menu.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
+        helper.assertTrue(TimedCraftingEngine.refreshResult(menu, player, true), "leather recipe must have a timed preview");
+
+        player.inventoryMenu.clicked(0, 1, ContainerInput.PICKUP, player);
+        helper.assertTrue(player.inventoryMenu.getCarried().isEmpty(), "right click must not take a timed result");
+        helper.assertTrue(menu.infx$craftingContainer().getItem(0).getCount() == 1, "right click must not consume timed inputs");
+        helper.assertFalse(menu.infx$craftingState().isRunning(), "right click must not start timed crafting");
+
+        player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
+        helper.assertTrue(menu.infx$craftingState().isRunning(), "left click must start timed crafting");
+        helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "result click must not craft immediately");
+        helper.assertTrue(menu.infx$craftingContainer().getItem(0).getCount() == 1, "input must remain until completion");
+
+        int[] pausedProgress = new int[1];
+        helper.startSequence()
+                .thenExecuteAfter(10, () -> {
+                    helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "result must still be delayed");
+                    player.getFoodData().setFoodLevel(0);
+                    pausedProgress[0] = menu.infx$craftingState().progressTicks();
+                })
+                .thenExecuteAfter(10, () -> {
+                    helper.assertTrue(
+                            menu.infx$craftingState().progressTicks() == pausedProgress[0],
+                            "zero hunger must pause without losing progress");
+                    player.getFoodData().setFoodLevel(20);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.SINEW.get()) == 4,
+                        "completion must place four sinew in the inventory"))
+                .thenExecute(() -> {
+                    helper.assertTrue(menu.infx$craftingContainer().getItem(0).isEmpty(), "completion must consume leather");
+                    helper.assertFalse(menu.infx$craftingState().isRunning(), "exhausted ingredients must stop repetition");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void fullInventoryDrop(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        player.experienceLevel = 1000;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            player.getInventory().setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
+        }
+
+        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        menu.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
+        helper.assertTrue(TimedCraftingEngine.refreshResult(menu, player, true), "full inventory test recipe must resolve");
+        player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    var nearbyItems = helper.getLevel().getEntities(
+                            EntityTypes.ITEM, player.getBoundingBox().inflate(4.0), entity -> entity.isAlive());
+                    helper.assertTrue(
+                            nearbyItems.stream().anyMatch(entity -> entity.getItem().is(ModItems.SINEW.get())),
+                            "a full inventory must drop the crafted result at the player; progress="
+                                    + menu.infx$craftingState().progressTicks()
+                                    + "/"
+                                    + menu.infx$craftingState().requiredTicks()
+                                    + ", running="
+                                    + menu.infx$craftingState().isRunning()
+                                    + ", inventorySinew="
+                                    + countItem(player.getInventory(), ModItems.SINEW.get())
+                                    + ", nearby="
+                                    + nearbyItems.stream().map(entity -> entity.getItem().toString()).toList());
+                })
+                .thenExecute(() -> {
+                    helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "full inventory must not retain the result");
+                    helper.assertTrue(menu.infx$craftingContainer().getItem(0).isEmpty(), "dropped crafting must still consume its input");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void timedResets(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        menu.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
+        TimedCraftingEngine.refreshResult(menu, player, true);
+        player.inventoryMenu.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
+        helper.assertTrue(menu.infx$craftingState().isRunning(), "shift-click must start timed crafting");
+
+        helper.startSequence()
+                .thenExecuteAfter(5, () -> {
+                    menu.infx$craftingContainer().setItem(0, Items.FLINT.getDefaultInstance());
+                    TimedCraftingEngine.refreshResult(menu, player, true);
+                    helper.assertFalse(menu.infx$craftingState().isRunning(), "changing recipe must reset crafting");
+                    helper.assertTrue(menu.infx$craftingState().progressTicks() == 0, "recipe change must clear progress");
+                    assertResult(helper, menu, ModItems.FLINT_CHIP.get(), "changed recipe preview");
+                    player.inventoryMenu.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
+                    helper.assertTrue(menu.infx$craftingState().isRunning(), "shift-click must restart the changed recipe");
+                })
+                .thenExecuteAfter(5, () -> {
+                    player.closeContainer();
+                    helper.assertFalse(menu.infx$craftingState().isRunning(), "closing the menu must reset crafting");
+                    helper.assertTrue(menu.infx$craftingState().requiredTicks() == 0, "closing must clear required ticks");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void recipeBoundaries(GameTestHelper helper) {
+        var recipes = helper.getLevel().recipeAccess().recipeMap();
+        for (String path : DISABLED_VANILLA_RECIPES) {
+            var loaded = recipes.byKey(recipeKey("minecraft", path));
+            if (loaded != null) {
+                List<String> sources = helper.getLevel()
+                        .getServer()
+                        .getResourceManager()
+                        .getResourceStack(Identifier.fromNamespaceAndPath("minecraft", "recipe/" + path + ".json"))
+                        .stream()
+                        .map(resource -> resource.sourcePackId())
+                        .toList();
+                helper.fail("minecraft:" + path + " must be disabled; loaded "
+                        + loaded.value().getClass().getName() + " from resource stack " + sources);
+            }
+        }
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_ingot_from_nuggets")) != null, "InfiniteX copper conversion must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_pickaxe")) != null, "InfiniteX copper pickaxe recipe must exist");
+        helper.succeed();
+    }
+
+    private static void copperLoop(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        player.experienceLevel = 1000;
+        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 1);
+        player.containerMenu = flint;
+        CraftingContainer grid = flint.infx$craftingContainer();
+        for (int slot = 0; slot < grid.getContainerSize(); slot++) {
+            grid.setItem(slot, new ItemStack(Items.COPPER_NUGGET, 4));
+        }
+        helper.assertTrue(TimedCraftingEngine.refreshResult(flint, player, true), "36 nuggets must match the ingot recipe");
+        flint.clicked(0, 0, ContainerInput.PICKUP, player);
+
+        TimedWorkbenchMenu[] copperMenu = new TimedWorkbenchMenu[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.COPPER_INGOT) == 4,
+                        "36 nuggets must continuously craft into exactly four ingots"))
+                .thenExecute(() -> {
+                    helper.assertTrue(countGridItem(grid, Items.COPPER_NUGGET) == 0, "all 36 nuggets must be consumed");
+                    ItemStack ingot = takeItem(helper, player.getInventory(), Items.COPPER_INGOT, 1);
+                    grid.setItem(0, ingot);
+                    grid.setItem(1, Items.LEATHER.getDefaultInstance());
+                    grid.setItem(3, Items.STICK.getDefaultInstance());
+                    grid.setItem(4, Blocks.OAK_PLANKS.asItem().getDefaultInstance());
+                    helper.assertTrue(TimedCraftingEngine.refreshResult(flint, player, true), "four loop ingots must unlock the copper bench recipe");
+                    flint.clicked(0, 0, ContainerInput.PICKUP, player);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.COPPER_WORKBENCH.get()) == 1,
+                        "one ingot must craft the copper workbench"))
+                .thenExecute(() -> {
+                    takeItem(helper, player.getInventory(), ModItems.COPPER_WORKBENCH.get(), 1);
+                    player.closeContainer();
+                    helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+
+                    TimedWorkbenchMenu copper = workbenchMenu(
+                            player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 2);
+                    copperMenu[0] = copper;
+                    player.containerMenu = copper;
+                    ItemStack ingots = takeItem(helper, player.getInventory(), Items.COPPER_INGOT, 3);
+                    copper.infx$craftingContainer().setItem(0, ingots.split(1));
+                    copper.infx$craftingContainer().setItem(1, ingots.split(1));
+                    copper.infx$craftingContainer().setItem(2, ingots.split(1));
+                    copper.infx$craftingContainer().setItem(4, Items.STICK.getDefaultInstance());
+                    copper.infx$craftingContainer().setItem(7, Items.STICK.getDefaultInstance());
+                    helper.assertTrue(TimedCraftingEngine.refreshResult(copper, player, true), "remaining three ingots must match the copper pickaxe");
+                    copper.clicked(0, 0, ContainerInput.PICKUP, player);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.COPPER_PICKAXE.get()) == 1,
+                        "copper workbench must finish the InfiniteX copper pickaxe"))
+                .thenExecute(() -> {
+                    helper.assertTrue(countItem(player.getInventory(), Items.COPPER_INGOT) == 0, "the loop must use exactly four ingots");
+                    helper.assertTrue(countGridItem(copperMenu[0].infx$craftingContainer(), Items.COPPER_INGOT) == 0, "pickaxe must consume three ingots");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static ServerPlayer createPlayer(GameTestHelper helper) {
+        String name = "infx-test-" + PLAYER_SEQUENCE.incrementAndGet();
+        GameProfile profile = new GameProfile(UUID.randomUUID(), name);
+        CommonListenerCookie cookie = CommonListenerCookie.createInitial(profile, false);
+        ServerPlayer player = new ServerPlayer(
+                helper.getLevel().getServer(), helper.getLevel(), profile, cookie.clientInformation());
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        new EmbeddedChannel(connection);
+        helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        player.getFoodData().setFoodLevel(20);
+        Vec3 position = helper.absoluteVec(Vec3.atBottomCenterOf(WORK_POS.above()));
+        player.snapTo(position.x, position.y, position.z, 0.0F, 0.0F);
+        return player;
+    }
+
+    private static void removePlayer(ServerPlayer player) {
+        if (player.containerMenu != player.inventoryMenu) {
+            player.closeContainer();
+        }
+        player.level().getServer().getPlayerList().remove(player);
+    }
+
+    private static TimedWorkbenchMenu workbenchMenu(
+            ServerPlayer player,
+            GameTestHelper helper,
+            BenchTier tier,
+            Block block,
+            int containerId) {
+        return TimedWorkbenchMenu.server(
+                containerId,
+                player.getInventory(),
+                tier,
+                ContainerLevelAccess.create(helper.getLevel(), helper.absolutePos(WORK_POS)),
+                block);
+    }
+
+    private static void assertResult(GameTestHelper helper, TimedCraftingMenu menu, Item item, String description) {
+        helper.assertTrue(menu.infx$resultContainer().getItem(0).is(item), description);
+    }
+
+    private static void fillCopperPickaxe(CraftingContainer grid) {
+        grid.setItem(0, Items.COPPER_INGOT.getDefaultInstance());
+        grid.setItem(1, Items.COPPER_INGOT.getDefaultInstance());
+        grid.setItem(2, Items.COPPER_INGOT.getDefaultInstance());
+        grid.setItem(4, Items.STICK.getDefaultInstance());
+        grid.setItem(7, Items.STICK.getDefaultInstance());
+    }
+
+    private static void clearGrid(CraftingContainer grid) {
+        for (int slot = 0; slot < grid.getContainerSize(); slot++) {
+            grid.setItem(slot, ItemStack.EMPTY);
+        }
+    }
+
+    private static int countItem(Inventory inventory, Item item) {
+        return inventory.getNonEquipmentItems().stream()
+                .filter(stack -> stack.is(item))
+                .mapToInt(ItemStack::getCount)
+                .sum();
+    }
+
+    private static int countGridItem(CraftingContainer grid, Item item) {
+        int count = 0;
+        for (ItemStack stack : grid.getItems()) {
+            if (stack.is(item)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
+    private static ItemStack takeItem(GameTestHelper helper, Inventory inventory, Item item, int count) {
+        int remaining = count;
+        for (ItemStack stack : inventory.getNonEquipmentItems()) {
+            if (!stack.is(item)) {
+                continue;
+            }
+            int removed = Math.min(remaining, stack.getCount());
+            stack.shrink(removed);
+            remaining -= removed;
+            if (remaining == 0) {
+                break;
+            }
+        }
+        helper.assertTrue(remaining == 0, "expected inventory material was missing: " + item);
+        return new ItemStack(item, count);
+    }
+
+    private static ResourceKey<Consumer<GameTestHelper>> functionKey(String path) {
+        return ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(path));
+    }
+
+    private static ResourceKey<Recipe<?>> recipeKey(String namespace, String path) {
+        return ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(namespace, path));
+    }
+}

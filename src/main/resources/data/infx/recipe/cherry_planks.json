@@ -1,0 +1,9 @@
+{
+  "type": "infx:crafting_shapeless",
+  "required_bench": "flint",
+  "difficulty": 120.0,
+  "category": "building",
+  "group": "planks",
+  "ingredients": ["#minecraft:cherry_logs"],
+  "result": {"count": 4, "id": "minecraft:cherry_planks"}
+}

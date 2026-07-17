@@ -1,0 +1,19 @@
+{
+  "type": "infx:crafting_shaped",
+  "required_bench": "hand",
+  "difficulty": 270.0,
+  "category": "building",
+  "key": {
+    "F": "minecraft:flint",
+    "B": "#infx:bindings",
+    "S": "minecraft:stick",
+    "L": "#minecraft:logs"
+  },
+  "pattern": [
+    "FB",
+    "SL"
+  ],
+  "result": {
+    "id": "infx:flint_workbench"
+  }
+}
