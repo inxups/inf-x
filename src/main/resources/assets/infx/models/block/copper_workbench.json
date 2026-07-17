@@ -2,11 +2,11 @@
   "parent": "minecraft:block/cube",
   "textures": {
     "down": "minecraft:block/copper_block",
-    "east": "minecraft:block/crafting_table_side",
-    "north": "minecraft:block/crafting_table_front",
+    "east": "infx:block/copper_workbench_side",
+    "north": "infx:block/copper_workbench_front",
     "particle": "minecraft:block/copper_block",
-    "south": "minecraft:block/crafting_table_side",
+    "south": "infx:block/copper_workbench_front",
     "up": "minecraft:block/copper_block",
-    "west": "minecraft:block/crafting_table_front"
+    "west": "infx:block/copper_workbench_side"
   }
 }
