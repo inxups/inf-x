@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Register and render the complete approved R196 catalog of 33 raw materials and 204 equipment items, with exact baseline formulas, modern item behavior, stable lookup APIs, translations, tags, and auditable MITE textures.
+**Goal:** Register and render the complete approved R196 catalog of 30 raw materials and 204 equipment items, with exact baseline formulas, modern item behavior, stable lookup APIs, translations, tags, and auditable MITE textures.
 
 **Architecture:** Immutable `R196Material`, `R196RawItem`, `R196EquipmentType`, and `R196EquipmentKey` definitions form the sole content catalog. `R196Catalog` registers that catalog through NeoForge deferred holders, while focused item subclasses adapt modern tool actions, shearing, fishing, bows, and arrows without allowing vanilla constructors to overwrite R196 components. Catalog-driven data providers generate tags, language, item definitions, models, and equipment assets; a committed texture manifest and generated-resource test suite make packaging fail closed.
 
@@ -16,12 +16,12 @@ This plan implements milestone 1 from `docs/superpowers/specs/2026-07-17-mite-ma
 
 The catalog must finish with exactly:
 
-- 33 mod-owned raw-material items;
+- 30 mod-owned raw-material items;
 - 96 tools;
 - 33 weapons and ammunition items;
 - 68 player-armor pieces;
 - 7 horse-armors;
-- 237 catalog-owned items total, plus the two existing workbench block items outside the catalog.
+- 234 catalog-owned items total, plus the two existing workbench block items outside the catalog.
 
 The only approved texture-source exception is `wood_shovel.png`: the resource-pack overlay does not contain that inherited vanilla bitmap, so its byte-identical R196 base asset comes from `codex/reference/mite-src/assets`. The provenance manifest records that distinct source root. All other catalog bitmaps come from `codex/reference/mite- resource-pack/assets`.
 
@@ -31,7 +31,7 @@ The only approved texture-source exception is `wood_shovel.png`: the resource-pa
 
 - `src/main/java/com/pixulse/infx/material/R196Quality.java`: ordered R196 quality ceiling values.
 - `src/main/java/com/pixulse/infx/material/R196Material.java`: immutable material profiles, flags, repair identity, and material formulas.
-- `src/main/java/com/pixulse/infx/material/R196RawItem.java`: the exact 33 raw-item definitions and coin XP metadata.
+- `src/main/java/com/pixulse/infx/material/R196RawItem.java`: the exact 30 raw-item definitions and coin XP metadata.
 - `src/main/java/com/pixulse/infx/item/R196EquipmentCategory.java`: catalog category ordering.
 - `src/main/java/com/pixulse/infx/item/R196MiningFamily.java`: block tags and component rules for each mining family.
 - `src/main/java/com/pixulse/infx/item/R196UseAction.java`: delegation to modern axe, shovel, and hoe interactions.
@@ -48,7 +48,7 @@ The only approved texture-source exception is `wood_shovel.png`: the resource-pa
 - `src/main/java/com/pixulse/infx/data/ModModelProvider.java`: ordinary, fishing-rod, and material-arrow bow models.
 - `src/main/java/com/pixulse/infx/data/ModEquipmentAssetProvider.java`: humanoid, leggings, baby, and horse equipment layers.
 - `src/main/java/com/pixulse/infx/gametest/ModEquipmentGameTests.java`: representative runtime behavior and regression GameTests.
-- `src/test/resources/r196/catalog-paths.txt`: independent golden list of all 237 catalog IDs.
+- `src/test/resources/r196/catalog-paths.txt`: independent golden list of all 234 catalog IDs.
 - `src/test/java/com/pixulse/infx/material/R196MaterialTest.java`: exact source profile and material-formula tests.
 - `src/test/java/com/pixulse/infx/material/R196RawItemTest.java`: raw count, ID, name, material, and coin-value tests.
 - `src/test/java/com/pixulse/infx/item/R196EquipmentTypeTest.java`: allowed matrices, category counts, type values, and exclusions.
@@ -57,8 +57,8 @@ The only approved texture-source exception is `wood_shovel.png`: the resource-pa
 - `src/test/java/com/pixulse/infx/client/R196GeneratedResourceTest.java`: generated model, language, equipment, texture, and packaging contracts.
 - `src/test/java/com/pixulse/infx/client/R196TextureProvenanceTest.java`: committed PNG hash, dimensions, source comparison, and namespace rules.
 - `scripts/sync-mite-equipment-textures.sh`: deterministic selected-asset copier and SHA-256 manifest writer.
-- `src/main/resources/assets/infx/mite_texture_manifest.tsv`: source-to-destination provenance for exactly 393 PNG destinations.
-- 384 additional selected PNG destinations below `src/main/resources/assets/infx/textures` (nine selected catalog textures already exist).
+- `src/main/resources/assets/infx/mite_texture_manifest.tsv`: source-to-destination provenance for exactly 390 PNG destinations.
+- 381 additional selected PNG destinations below `src/main/resources/assets/infx/textures` (nine selected catalog textures already exist).
 
 ### Modify
 
@@ -265,7 +265,7 @@ git add src/main/java/com/pixulse/infx/material src/test/java/com/pixulse/infx/m
 git commit -m "feat: define R196 material profiles"
 ```
 
-### Task 2: Define all 33 raw-material items
+### Task 2: Define all 30 raw-material items
 
 **Files:**
 
@@ -294,15 +294,14 @@ class R196RawItemTest {
             "silver_nugget", "mithril_nugget", "adamantium_nugget", "ancient_metal_nugget",
             "silver_ingot", "mithril_ingot", "adamantium_ingot", "ancient_metal_ingot",
             "copper_chain", "silver_chain", "gold_chain", "rusted_iron_chain", "iron_chain", "ancient_metal_chain", "mithril_chain", "adamantium_chain",
-            "copper_coin", "silver_coin", "gold_coin", "ancient_metal_coin", "mithril_coin", "adamantium_coin",
-            "creeper_frags", "infernal_creeper_frags", "netherspawn_frags");
+            "copper_coin", "silver_coin", "gold_coin", "ancient_metal_coin", "mithril_coin", "adamantium_coin");
 
     @Test
     void rawCatalogHasExactApprovedIds() {
         assertEquals(PATHS, List.of(R196RawItem.values()).stream().map(R196RawItem::path).toList());
-        assertEquals(33, R196RawItem.values().length);
+        assertEquals(30, R196RawItem.values().length);
         Set<String> unique = List.of(R196RawItem.values()).stream().map(R196RawItem::path).collect(Collectors.toSet());
-        assertEquals(33, unique.size());
+        assertEquals(30, unique.size());
     }
 
     @Test
@@ -314,7 +313,6 @@ class R196RawItemTest {
         assertEquals(2_500, R196RawItem.MITHRIL_COIN.coinXp());
         assertEquals(10_000, R196RawItem.ADAMANTIUM_COIN.coinXp());
         assertTrue(R196RawItem.FLINT_CHIP.material().contains(R196Material.FLINT));
-        assertTrue(R196RawItem.CREEPER_FRAGS.material().isEmpty());
     }
 }
 ```
@@ -364,12 +362,9 @@ public enum R196RawItem {
     GOLD_COIN("gold_coin", "Gold Coin", "金币", Kind.COIN, R196Material.GOLD, 100),
     ANCIENT_METAL_COIN("ancient_metal_coin", "Ancient Metal Coin", "远古金属币", Kind.COIN, R196Material.ANCIENT_METAL, 500),
     MITHRIL_COIN("mithril_coin", "Mithril Coin", "秘银币", Kind.COIN, R196Material.MITHRIL, 2_500),
-    ADAMANTIUM_COIN("adamantium_coin", "Adamantium Coin", "艾德曼币", Kind.COIN, R196Material.ADAMANTIUM, 10_000),
-    CREEPER_FRAGS("creeper_frags", "Creeper Frags", "苦力怕碎片", Kind.MONSTER_FRAG, null, 0),
-    INFERNAL_CREEPER_FRAGS("infernal_creeper_frags", "Infernal Creeper Frags", "地狱苦力怕碎片", Kind.MONSTER_FRAG, null, 0),
-    NETHERSPAWN_FRAGS("netherspawn_frags", "Netherspawn Frags", "下界虫碎片", Kind.MONSTER_FRAG, null, 0);
+    ADAMANTIUM_COIN("adamantium_coin", "Adamantium Coin", "艾德曼币", Kind.COIN, R196Material.ADAMANTIUM, 10_000);
 
-    public enum Kind { SHARD, BINDING, FERTILIZER, NUGGET, INGOT, CHAIN, COIN, MONSTER_FRAG }
+    public enum Kind { SHARD, BINDING, FERTILIZER, NUGGET, INGOT, CHAIN, COIN }
 
     private final String path;
     private final String englishName;
@@ -417,9 +412,6 @@ Use these exact names:
 | `silver_ingot`, `mithril_ingot`, `adamantium_ingot`, `ancient_metal_ingot` | Silver/Mithril/Adamantium/Ancient Metal Ingot | 银/秘银/艾德曼/远古金属锭 |
 | eight chains | Copper, Silver, Golden, Rusted Iron, Iron, Ancient Metal, Mithril, Adamantium Chain | 铜锁链、银锁链、金锁链、锈铁链、铁锁链、远古金属锁链、秘银锁链、艾德曼锁链 |
 | six coins | Copper, Silver, Gold, Ancient Metal, Mithril, Adamantium Coin | 铜币、银币、金币、远古金属币、秘银币、艾德曼币 |
-| `creeper_frags` | Creeper Frags | 苦力怕碎片 |
-| `infernal_creeper_frags` | Infernal Creeper Frags | 地狱苦力怕碎片 |
-| `netherspawn_frags` | Netherspawn Frags | 下界虫碎片 |
 
 Associate shards with FLINT or OBSIDIAN only when those two equipment materials exist. Associate every nugget, ingot, chain, and coin with its material. All other definitions expose `Optional.empty()`. Only coin constants have non-zero `coinXp`.
 
@@ -451,7 +443,7 @@ git commit -m "feat: define R196 raw material catalog"
 - Test: `src/test/java/com/pixulse/infx/item/R196EquipmentTypeTest.java`
 - Test: `src/test/java/com/pixulse/infx/item/R196EquipmentKeyTest.java`
 
-- [ ] **Step 1: Add the independent 237-ID golden file**
+- [ ] **Step 1: Add the independent 234-ID golden file**
 
 Create `src/test/resources/r196/catalog-paths.txt` with exactly these lines and no comments:
 
@@ -486,9 +478,6 @@ gold_coin
 ancient_metal_coin
 mithril_coin
 adamantium_coin
-creeper_frags
-infernal_creeper_frags
-netherspawn_frags
 leather_helmet
 leather_chestplate
 leather_leggings
@@ -1025,7 +1014,7 @@ bash gradlew test --tests 'com.pixulse.infx.item.R196Equipment*Test'
 wc -l src/test/resources/r196/catalog-paths.txt
 ```
 
-Expected: tests pass; `wc` prints `237` for the golden file.
+Expected: tests pass; `wc` prints `234` for the golden file.
 
 - [ ] **Step 8: Commit the equipment definitions**
 
@@ -1092,9 +1081,9 @@ class R196CatalogTest {
     void catalogMatchesTheIndependentGoldenManifest() throws Exception {
         List<String> actual = catalog().entries().stream().map(R196Catalog.Entry::path).toList();
         assertEquals(goldenPaths(), actual);
-        assertEquals(237, actual.size());
-        assertEquals(237, new HashSet<>(actual).size());
-        assertEquals(33, catalog().rawEntries().size());
+        assertEquals(234, actual.size());
+        assertEquals(234, new HashSet<>(actual).size());
+        assertEquals(30, catalog().rawEntries().size());
         assertEquals(204, catalog().equipmentEntries().size());
     }
 
@@ -1277,7 +1266,7 @@ public record EquipmentEntry(
 }
 ```
 
-Register all 33 raw definitions first, then `R196EquipmentKey.all()` in its material/type order. Use `ITEMS.registerItem(path, factory, properties -> R196ItemProperties.forEquipment(key, properties))`, which ensures NeoForge supplies a properties instance with the registry `ResourceKey<Item>` already set. Factories are:
+Register all 30 raw definitions first, then `R196EquipmentKey.all()` in its material/type order. Use `ITEMS.registerItem(path, factory, properties -> R196ItemProperties.forEquipment(key, properties))`, which ensures NeoForge supplies a properties instance with the registry `ResourceKey<Item>` already set. Factories are:
 
 - `FactoryKind.PLAIN` -> plain `Item`, because `EQUIPPABLE` owns modern armor behavior;
 - every other factory kind -> `R196ToolItem` during this registration task, using its existing float constructor and the type's block-decay value.
@@ -1796,7 +1785,7 @@ Append:
 @Test
 void orderedViewsAreStableForDataGenerationAndCreativeTabs() {
     assertEquals("flint_chip", catalog().rawEntries().getFirst().path());
-    assertEquals("netherspawn_frags", catalog().rawEntries().getLast().path());
+    assertEquals("adamantium_coin", catalog().rawEntries().getLast().path());
     assertEquals("leather_helmet", catalog().equipmentEntries().getFirst().path());
     assertEquals("adamantium_horse_armor", catalog().equipmentEntries().getLast().path());
     assertEquals("repair_materials/rusted_iron", ModTags.Items.repairMaterial(R196Material.RUSTED_IRON).location().getPath());
@@ -2015,7 +2004,7 @@ git rm src/main/resources/assets/infx/lang/en_us.json src/main/resources/assets/
 bash gradlew runData
 ```
 
-Expected: `src/generated/resources/assets/infx/lang/en_us.json` and `zh_cn.json` exist; each has 237 `item.infx.*` catalog entries plus all pre-existing non-catalog keys. Data generation reports no duplicate translation key.
+Expected: `src/generated/resources/assets/infx/lang/en_us.json` and `zh_cn.json` exist; each has 234 `item.infx.*` catalog entries plus all pre-existing non-catalog keys. Data generation reports no duplicate translation key.
 
 - [ ] **Step 4: Run tests and commit**
 
@@ -2173,7 +2162,7 @@ find src/generated/resources/assets/infx/models/item -type f -name '*.json' | wc
 find src/generated/resources/assets/infx/equipment -type f -name '*.json' | wc -l
 ```
 
-Expected counts: 237 item definitions, 340 item models (237 base + 90 bow pull + 9 fishing cast + 4 leather dyed), and 17 equipment assets.
+Expected counts: 234 item definitions, 337 item models (234 base + 90 bow pull + 9 fishing cast + 4 leather dyed), and 17 equipment assets.
 
 - [ ] **Step 6: Commit model generation**
 
@@ -2229,7 +2218,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(394, lines.size(), "header plus 393 selected destinations");
+        assertEquals(391, lines.size(), "header plus 390 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -2252,7 +2241,7 @@ class R196TextureProvenanceTest {
             reference = Path.of("/Users/inxups/IdeaProjects/mc/inf-x/codex/reference");
         }
         if (!Files.isDirectory(reference)) return;
-        for (String line : Files.readAllLines(MANIFEST, UTF_8).subList(1, 394)) {
+        for (String line : Files.readAllLines(MANIFEST, UTF_8).subList(1, 391)) {
             String[] fields = line.split("\\t", -1);
             Path sourceRoot = switch (fields[0]) {
                 case "resource-pack" -> reference.resolve("mite- resource-pack/assets/minecraft/textures");
@@ -2354,9 +2343,6 @@ done
 for material in copper silver gold ancient_metal mithril adamantium; do
   sync resource-pack "items/coins/$material.png" "item/${material}_coin.png"
 done
-sync resource-pack items/frag/creeper.png item/creeper_frags.png
-sync resource-pack items/frag/infernal_creeper.png item/infernal_creeper_frags.png
-sync resource-pack items/frag/netherspawn.png item/netherspawn_frags.png
 
 METALS=(copper silver gold rusted_iron iron ancient_metal mithril adamantium)
 SHOVELS=(wood flint obsidian "${METALS[@]}")
@@ -2519,7 +2505,7 @@ After copying, sort rows by destination, prepend the header, atomically move the
 
 ```bash
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 393 ]] || { echo "Expected 393 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 390 ]] || { echo "Expected 390 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"
@@ -2537,7 +2523,7 @@ bash scripts/sync-mite-equipment-textures.sh \
 bash gradlew test --tests com.pixulse.infx.client.R196TextureProvenanceTest
 ```
 
-Expected: the script reports 393 selected destinations; all three provenance tests pass.
+Expected: the script reports 390 selected destinations; all three provenance tests pass.
 
 - [ ] **Step 5: Expand the third-party notice**
 
@@ -2627,8 +2613,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(237, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(340, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(234, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -2707,7 +2693,7 @@ class R196GeneratedResourceTest {
     void manifestHasOnlyCatalogOrApprovedDerivedTextures() throws Exception {
         Set<String> destinations = new HashSet<>();
         for (String line : Files.readAllLines(
-                STATIC.resolve("assets/infx/mite_texture_manifest.tsv"), UTF_8).subList(1, 394)) {
+                STATIC.resolve("assets/infx/mite_texture_manifest.tsv"), UTF_8).subList(1, 391)) {
             destinations.add(line.split("\\t", -1)[2]);
         }
         for (R196Catalog.Entry entry : ModItems.catalog().entries()) {
@@ -3213,9 +3199,9 @@ Expected: every command exits 0 and reports `BUILD SUCCESSFUL`.
 - [ ] **Step 2: Audit exact counts and forbidden IDs**
 
 ```bash
-test "$(wc -l < src/test/resources/r196/catalog-paths.txt | tr -d ' ')" = 237
-test "$(find src/generated/resources/assets/infx/items -type f -name '*.json' | wc -l | tr -d ' ')" = 237
-test "$(find src/generated/resources/assets/infx/models/item -type f -name '*.json' | wc -l | tr -d ' ')" = 340
+test "$(wc -l < src/test/resources/r196/catalog-paths.txt | tr -d ' ')" = 234
+test "$(find src/generated/resources/assets/infx/items -type f -name '*.json' | wc -l | tr -d ' ')" = 234
+test "$(find src/generated/resources/assets/infx/models/item -type f -name '*.json' | wc -l | tr -d ' ')" = 337
 test "$(find src/generated/resources/assets/infx/equipment -type f -name '*.json' | wc -l | tr -d ' ')" = 17
 if rg -n 'diamond_(pickaxe|shovel|axe|hoe|sword|helmet|chestplate|leggings|boots)|iron_knife|stone_dagger|chip_flint_knife|iron_coin' \
     src/main src/generated/resources/assets/infx src/test/resources/r196/catalog-paths.txt; then
@@ -3245,7 +3231,7 @@ Exit the client normally after the checklist passes.
 
 - [ ] **Step 4: Request code review against the approved design**
 
-Use `superpowers:requesting-code-review`. The reviewer must compare the diff to the design acceptance criteria, check the 237-path golden file, confirm the one source-asset exception, and verify no later-milestone behavior slipped into milestone 1. Resolve every concrete finding and rerun the affected focused command plus the complete sequence from Step 1.
+Use `superpowers:requesting-code-review`. The reviewer must compare the diff to the design acceptance criteria, check the 234-path golden file, confirm the one source-asset exception, and verify no later-milestone behavior slipped into milestone 1. Resolve every concrete finding and rerun the affected focused command plus the complete sequence from Step 1.
 
 - [ ] **Step 5: Commit only verified review fixes**
 

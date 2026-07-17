@@ -58,9 +58,6 @@ done
 for material in copper silver gold ancient_metal mithril adamantium; do
   sync resource-pack "items/coins/$material.png" "item/${material}_coin.png"
 done
-sync resource-pack items/frag/creeper.png item/creeper_frags.png
-sync resource-pack items/frag/infernal_creeper.png item/infernal_creeper_frags.png
-sync resource-pack items/frag/netherspawn.png item/netherspawn_frags.png
 
 METALS=(copper silver gold rusted_iron iron ancient_metal mithril adamantium)
 SHOVELS=(wood flint obsidian "${METALS[@]}")
@@ -204,7 +201,7 @@ for material in "${HORSE[@]}"; do
 done
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 393 ]] || { echo "Expected 393 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 390 ]] || { echo "Expected 390 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

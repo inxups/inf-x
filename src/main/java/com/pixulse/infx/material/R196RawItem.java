@@ -32,12 +32,9 @@ public enum R196RawItem {
     GOLD_COIN("gold_coin", "Gold Coin", "金币", Kind.COIN, R196Material.GOLD, 100),
     ANCIENT_METAL_COIN("ancient_metal_coin", "Ancient Metal Coin", "远古金属币", Kind.COIN, R196Material.ANCIENT_METAL, 500),
     MITHRIL_COIN("mithril_coin", "Mithril Coin", "秘银币", Kind.COIN, R196Material.MITHRIL, 2_500),
-    ADAMANTIUM_COIN("adamantium_coin", "Adamantium Coin", "艾德曼币", Kind.COIN, R196Material.ADAMANTIUM, 10_000),
-    CREEPER_FRAGS("creeper_frags", "Creeper Frags", "苦力怕碎片", Kind.MONSTER_FRAG, null, 0),
-    INFERNAL_CREEPER_FRAGS("infernal_creeper_frags", "Infernal Creeper Frags", "地狱苦力怕碎片", Kind.MONSTER_FRAG, null, 0),
-    NETHERSPAWN_FRAGS("netherspawn_frags", "Netherspawn Frags", "下界虫碎片", Kind.MONSTER_FRAG, null, 0);
+    ADAMANTIUM_COIN("adamantium_coin", "Adamantium Coin", "艾德曼币", Kind.COIN, R196Material.ADAMANTIUM, 10_000);
 
-    public enum Kind { SHARD, BINDING, FERTILIZER, NUGGET, INGOT, CHAIN, COIN, MONSTER_FRAG }
+    public enum Kind { SHARD, BINDING, FERTILIZER, NUGGET, INGOT, CHAIN, COIN }
 
     private final String path;
     private final String englishName;

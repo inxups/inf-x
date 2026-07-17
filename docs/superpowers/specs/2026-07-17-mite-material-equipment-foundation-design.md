@@ -46,7 +46,7 @@ The user selected the following boundaries:
 - Include rusted-iron equipment that exists as monster equipment or loot even
   when it has no normal crafting recipe.
 - Include all in-scope non-food raw materials, including shards, metal forms,
-  chains, coins, monster frags, sinew, and manure.
+  chains, coins, sinew, and manure.
 - Include the diamond shard, but never add diamond equipment.
 - Exclude disabled or unfinished artifacts.
 - Ultimately provide full survival acquisition, but implement that through the
@@ -92,6 +92,7 @@ family. Its survival source must be explicitly designed in milestone 2.
 - Metal knives; only flint and obsidian knives are active.
 - Stone dagger and the `chip_flint_knife` texture-only artifact.
 - Iron coin and other texture-only coin variants.
+- Creeper, infernal-creeper, and netherspawn fragment items.
 - Buckets, doors, functional blocks, and material carrot-on-a-stick variants.
 - Thrown web and bottle of disenchanting, which are miscellaneous functional
   items rather than raw materials or equipment in the approved boundary.
@@ -181,8 +182,7 @@ stacks belong to a later global inventory/balance decision.
 | Missing ingots | `silver_ingot`, `mithril_ingot`, `adamantium_ingot`, `ancient_metal_ingot` | 4 |
 | Chains | copper, silver, gold, rusted iron, iron, ancient metal, mithril, and adamantium `*_chain` | 8 |
 | Coins | copper, silver, gold, ancient metal, mithril, and adamantium `*_coin` | 6 |
-| Monster frags | `creeper_frags`, `infernal_creeper_frags`, `netherspawn_frags` | 3 |
-| **Total** |  | **33** |
+| **Total** |  | **30** |
 
 Coins store their R196 XP values in catalog metadata for milestone 5, but they
 do not grant, consume, or exchange XP in this milestone. Manure is a normal
@@ -259,10 +259,10 @@ Each player-armor row expands to helmet, chestplate, leggings, and boots.
 | Horse armor | copper, silver, gold, iron, ancient metal, mithril, adamantium | 7 |
 | **Total** |  | **75** |
 
-The catalog therefore owns 204 equipment items and 33 raw-material items, for
-237 catalog-owned mod items. Nine already exist in the current project (seven
+The catalog therefore owns 204 equipment items and 30 raw-material items, for
+234 catalog-owned mod items. Nine already exist in the current project (seven
 raw items plus the flint hatchet and copper pickaxe), so this milestone adds
-228 new registry entries while preserving those nine IDs.
+225 new registry entries while preserving those nine IDs.
 
 ## Basic properties and behavior
 
@@ -486,7 +486,7 @@ source-to-destination comparison runs when the reference directory is present.
 - Check every material value and harvest-tier mapping.
 - Check durability, mining speed, damage, reach, armor, bow, arrow, and fishing
   formulas at low, middle, and high material tiers.
-- Compare the catalog against an independent golden manifest of all 237
+- Compare the catalog against an independent golden manifest of all 234
   expected registry paths.
 - Check exact tool, weapon, armor, and raw-item counts.
 - Check ID uniqueness, allowed matrices, exclusions, and compatibility aliases.
@@ -536,7 +536,7 @@ reference source, and no unapproved texture.
 
 ## Acceptance criteria
 
-- The catalog contains exactly 237 approved mod-owned items: 33 raw materials
+- The catalog contains exactly 234 approved mod-owned items: 30 raw materials
   and 204 equipment items.
 - All 96 tools, 33 weapons/ammunition items, 68 player-armor pieces, and 7
   horse-armors are registered and basic-usable.

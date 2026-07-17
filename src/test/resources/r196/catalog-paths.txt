@@ -28,9 +28,6 @@ gold_coin
 ancient_metal_coin
 mithril_coin
 adamantium_coin
-creeper_frags
-infernal_creeper_frags
-netherspawn_frags
 leather_helmet
 leather_chestplate
 leather_leggings

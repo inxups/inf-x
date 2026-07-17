@@ -33,9 +33,9 @@ class R196CatalogTest {
     void catalogMatchesTheIndependentGoldenManifest() throws Exception {
         List<String> actual = catalog().entries().stream().map(R196Catalog.Entry::path).toList();
         assertEquals(goldenPaths(), actual);
-        assertEquals(237, actual.size());
-        assertEquals(237, new HashSet<>(actual).size());
-        assertEquals(33, catalog().rawEntries().size());
+        assertEquals(234, actual.size());
+        assertEquals(234, new HashSet<>(actual).size());
+        assertEquals(30, catalog().rawEntries().size());
         assertEquals(204, catalog().equipmentEntries().size());
     }
 
@@ -79,6 +79,7 @@ class R196CatalogTest {
                 () -> catalog().equipment(R196Material.WOOD, R196EquipmentType.PICKAXE));
         assertTrue(equipment.getMessage().contains("wood_pickaxe"));
         assertFalse(catalog().entries().stream().anyMatch(entry -> entry.path().contains("diamond_helmet")));
+        assertFalse(catalog().entries().stream().anyMatch(entry -> entry.path().endsWith("_frags")));
     }
 
     @Test
@@ -107,7 +108,7 @@ class R196CatalogTest {
     @Test
     void orderedViewsAreStableForDataGenerationAndCreativeTabs() {
         assertEquals("flint_chip", catalog().rawEntries().getFirst().path());
-        assertEquals("netherspawn_frags", catalog().rawEntries().getLast().path());
+        assertEquals("adamantium_coin", catalog().rawEntries().getLast().path());
         assertEquals("leather_helmet", catalog().equipmentEntries().getFirst().path());
         assertEquals("adamantium_horse_armor", catalog().equipmentEntries().getLast().path());
         assertEquals(
