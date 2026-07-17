@@ -12,6 +12,8 @@ public interface TimedCraftingRecipe extends Recipe<CraftingInput> {
 
     float difficulty();
 
+    CraftingRecipe delegate();
+
     default NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
         return CraftingRecipe.defaultCraftingReminder(input);
     }
