@@ -39,14 +39,24 @@ public class R196ToolItem extends Item {
 
     @Override
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
+        applyMiningWear(key, stack, level, state, pos, owner);
+        return stack.has(DataComponents.TOOL);
+    }
+
+    static void applyMiningWear(
+            R196EquipmentKey key,
+            ItemStack stack,
+            Level level,
+            BlockState state,
+            BlockPos pos,
+            LivingEntity owner) {
         if (!level.isClientSide() && state.getDestroySpeed(level, pos) != 0.0F
-                && getDestroySpeed(stack, state) > 1.0F) {
+                && stack.getDestroySpeed(state) > 1.0F) {
             ToolWearApplication.afterHarvestSnapshot(
                     state.getDestroySpeed(level, pos),
-                    key.type().blockDecay(),
+                    key.type().blockDecay(state),
                     damage -> stack.hurtAndBreak(damage, owner, EquipmentSlot.MAINHAND));
         }
-        return stack.has(DataComponents.TOOL);
     }
 
     @Override

@@ -79,4 +79,17 @@ class R196CatalogTest {
         assertTrue(equipment.getMessage().contains("wood_pickaxe"));
         assertFalse(catalog().entries().stream().anyMatch(entry -> entry.path().contains("diamond_helmet")));
     }
+
+    @Test
+    void specialtyFactoriesAreNotCollapsedToPlainItems() {
+        assertEquals(
+                R196ShearsItem.class,
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.SHEARS).itemClass());
+        assertEquals(
+                R196FishingRodItem.class,
+                catalog().equipment(R196Material.FLINT, R196EquipmentType.FISHING_ROD).itemClass());
+        assertEquals(
+                R196ToolItem.class,
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).itemClass());
+    }
 }

@@ -78,16 +78,34 @@ public final class R196Catalog {
     }
 
     private static EquipmentEntry registerEquipment(DeferredRegister.Items items, R196EquipmentKey key) {
-        if (key.type().factoryKind() == R196EquipmentType.FactoryKind.PLAIN) {
-            DeferredItem<Item> holder = items.registerItem(
-                    key.path(), Item::new, properties -> R196ItemProperties.forEquipment(key, properties));
-            return new EquipmentEntry(key, holder, Item.class);
-        }
-        DeferredItem<R196ToolItem> holder = items.registerItem(
-                key.path(),
-                properties -> new R196ToolItem(key, properties),
-                properties -> R196ItemProperties.forEquipment(key, properties));
-        return new EquipmentEntry(key, holder, R196ToolItem.class);
+        return switch (key.type().factoryKind()) {
+            case PLAIN -> {
+                DeferredItem<Item> holder = items.registerItem(
+                        key.path(), Item::new, properties -> R196ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, Item.class);
+            }
+            case SHEARS -> {
+                DeferredItem<R196ShearsItem> holder = items.registerItem(
+                        key.path(),
+                        properties -> new R196ShearsItem(key, properties),
+                        properties -> R196ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, R196ShearsItem.class);
+            }
+            case FISHING_ROD -> {
+                DeferredItem<R196FishingRodItem> holder = items.registerItem(
+                        key.path(),
+                        properties -> new R196FishingRodItem(key, properties),
+                        properties -> R196ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, R196FishingRodItem.class);
+            }
+            case ORDINARY, BOW, ARROW -> {
+                DeferredItem<R196ToolItem> holder = items.registerItem(
+                        key.path(),
+                        properties -> new R196ToolItem(key, properties),
+                        properties -> R196ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, R196ToolItem.class);
+            }
+        };
     }
 
     public List<RawEntry> rawEntries() {

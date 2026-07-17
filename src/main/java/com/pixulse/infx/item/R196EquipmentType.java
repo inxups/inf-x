@@ -5,7 +5,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.level.block.state.BlockState;
 
 public enum R196EquipmentType {
     PICKAXE("pickaxe", "Pickaxe", "镐", R196EquipmentCategory.TOOL, metals(),
@@ -203,6 +205,16 @@ public enum R196EquipmentType {
     public boolean hasAttackSpeedModifier() { return !Float.isNaN(attackSpeedModifier); }
 
     public float blockDecay() { return blockDecay; }
+
+    public float blockDecay(BlockState state) {
+        if (this == SCYTHE && state.is(BlockTags.CROPS)) {
+            return .5F;
+        }
+        if (this == KNIFE && state.is(BlockTags.SWORD_EFFICIENT)) {
+            return .5F;
+        }
+        return blockDecay;
+    }
 
     public float attackDecay() { return attackDecay; }
 
