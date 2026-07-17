@@ -8,6 +8,8 @@
 
 **Tech Stack:** Minecraft/NeoForge resource JSON, 16x16 PNG assets, Java 25, JUnit Jupiter 5.13.4, Gson, Gradle ModDev.
 
+> **Execution override (2026-07-17):** The project owner requested direct replacement without tests. The implementation therefore removes the two resource-contract test classes introduced during execution and skips all remaining Gradle, data-generation, build, and client verification steps. The approved PNG and model mappings remain unchanged.
+
 ---
 
 ## File map
