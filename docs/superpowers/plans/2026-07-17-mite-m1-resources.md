@@ -231,9 +231,9 @@ class M1ModelTexturesTest {
                     "east", "minecraft:block/crafting_table_side",
                     "north", "minecraft:block/crafting_table_front",
                     "particle", "minecraft:block/crafting_table_front",
-                    "south", "minecraft:block/crafting_table_front",
+                    "south", "minecraft:block/crafting_table_side",
                     "up", "infx:block/flint_workbench_top",
-                    "west", "minecraft:block/crafting_table_side"),
+                    "west", "minecraft:block/crafting_table_front"),
             "/assets/infx/models/block/copper_workbench.json",
             Map.of(
                     "down", "minecraft:block/copper_block",
@@ -356,9 +356,9 @@ Replace `src/main/resources/assets/infx/models/block/flint_workbench.json` with:
     "east": "minecraft:block/crafting_table_side",
     "north": "minecraft:block/crafting_table_front",
     "particle": "minecraft:block/crafting_table_front",
-    "south": "minecraft:block/crafting_table_front",
+    "south": "minecraft:block/crafting_table_side",
     "up": "infx:block/flint_workbench_top",
-    "west": "minecraft:block/crafting_table_side"
+    "west": "minecraft:block/crafting_table_front"
   }
 }
 ```

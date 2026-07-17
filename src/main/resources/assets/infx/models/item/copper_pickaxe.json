@@ -1,1 +1,1 @@
-{"parent": "minecraft:item/handheld", "textures": {"layer0": "minecraft:item/copper_pickaxe"}}
+{"parent": "minecraft:item/handheld", "textures": {"layer0": "infx:item/copper_pickaxe"}}

@@ -1,1 +1,1 @@
-{"parent": "minecraft:item/generated", "textures": {"layer0": "minecraft:item/prismarine_crystals"}}
+{"parent": "minecraft:item/generated", "textures": {"layer0": "infx:item/mithril_nugget"}}
