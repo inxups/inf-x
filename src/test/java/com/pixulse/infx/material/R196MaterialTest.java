@@ -2,6 +2,7 @@ package com.pixulse.infx.material;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.pixulse.infx.harvest.HarvestTier;
 import java.util.List;
@@ -67,6 +68,17 @@ class R196MaterialTest {
                     "adamantium", 10, 7, Set.of(R196Material.Flag.METAL, R196Material.Flag.LAVA_SAFE)));
 
     @Test
+    void qualityOrderMatchesR196() {
+        assertEquals(List.of(
+                R196Quality.POOR,
+                R196Quality.FINE,
+                R196Quality.EXCELLENT,
+                R196Quality.SUPERB,
+                R196Quality.MASTERWORK,
+                R196Quality.LEGENDARY), List.of(R196Quality.values()));
+    }
+
+    @Test
     void profilesMatchR196() {
         assertEquals(List.of(
                 R196Material.LEATHER,
@@ -113,5 +125,11 @@ class R196MaterialTest {
         assertEquals(3.0F, R196Material.FLINT.meleeDamage(2.0F));
         assertEquals(6.0F, R196Material.IRON.meleeDamage(2.0F));
         assertEquals(8.0F, R196Material.ADAMANTIUM.meleeDamage(2.0F));
+    }
+
+    @Test
+    void flagsAreImmutable() {
+        assertThrows(UnsupportedOperationException.class,
+                () -> R196Material.SILVER.flags().add(R196Material.Flag.ROCKY));
     }
 }
