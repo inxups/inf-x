@@ -1,0 +1,41 @@
+package com.pixulse.infx.tag;
+
+import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.harvest.HarvestTier;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+
+public final class ModTags {
+    private ModTags() {}
+
+    public static final class Blocks {
+        public static final TagKey<Block> RESTRICTED_HARVEST = create("restricted_harvest");
+
+        private Blocks() {}
+
+        public static TagKey<Block> requiredTier(HarvestTier tier) {
+            return create("requires_tier/" + tier.path());
+        }
+
+        private static TagKey<Block> create(String path) {
+            return TagKey.create(Registries.BLOCK, InfiniteX.id(path));
+        }
+    }
+
+    public static final class Items {
+        public static final TagKey<Item> BINDINGS = create("bindings");
+
+        private Items() {}
+
+        public static TagKey<Item> toolTier(HarvestTier tier) {
+            return create("tool_tier/" + tier.path());
+        }
+
+        private static TagKey<Item> create(String path) {
+            return TagKey.create(Registries.ITEM, InfiniteX.id(path));
+        }
+    }
+}

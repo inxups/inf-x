@@ -1,0 +1,15 @@
+{
+  "parent": "infx:progression/mine_wood",
+  "criteria": {
+    "crafted_bench": {
+      "conditions": {"recipe_id": "infx:flint_workbench"},
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {"translate": "advancements.infx.build_work_bench.description"},
+    "icon": {"id": "infx:flint_workbench"},
+    "title": {"translate": "advancements.infx.build_work_bench.title"}
+  },
+  "requirements": [["crafted_bench"]]
+}

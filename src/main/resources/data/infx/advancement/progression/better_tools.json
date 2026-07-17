@@ -1,0 +1,15 @@
+{
+  "parent": "infx:progression/nuggets",
+  "criteria": {
+    "crafted_copper_bench": {
+      "conditions": {"recipe_id": "infx:copper_workbench"},
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {"translate": "advancements.infx.better_tools.description"},
+    "icon": {"id": "infx:copper_workbench"},
+    "title": {"translate": "advancements.infx.better_tools.title"}
+  },
+  "requirements": [["crafted_copper_bench"]]
+}
