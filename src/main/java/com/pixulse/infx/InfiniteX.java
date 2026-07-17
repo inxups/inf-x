@@ -6,6 +6,7 @@ import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.crafting.TimedCraftingEvents;
 import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.registry.ModCreativeTabs;
+import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
@@ -25,6 +26,7 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         ModBlocks.register(modBus);
+        ModDataComponents.register(modBus);
         ModItems.register(modBus);
         ModLootModifiers.register(modBus);
         ModRecipes.register(modBus);

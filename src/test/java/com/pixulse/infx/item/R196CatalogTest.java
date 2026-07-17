@@ -92,4 +92,14 @@ class R196CatalogTest {
                 R196ToolItem.class,
                 catalog().equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).itemClass());
     }
+
+    @Test
+    void projectileFactoriesRetainCatalogIdentity() {
+        assertEquals(
+                R196BowItem.class,
+                catalog().equipment(R196Material.WOOD, R196EquipmentType.BOW).itemClass());
+        assertEquals(
+                R196ArrowItem.class,
+                catalog().equipment(R196Material.ADAMANTIUM, R196EquipmentType.ARROW).itemClass());
+    }
 }

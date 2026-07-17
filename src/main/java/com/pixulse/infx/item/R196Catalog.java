@@ -98,7 +98,21 @@ public final class R196Catalog {
                         properties -> R196ItemProperties.forEquipment(key, properties));
                 yield new EquipmentEntry(key, holder, R196FishingRodItem.class);
             }
-            case ORDINARY, BOW, ARROW -> {
+            case BOW -> {
+                DeferredItem<R196BowItem> holder = items.registerItem(
+                        key.path(),
+                        properties -> new R196BowItem(key, properties),
+                        properties -> R196ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, R196BowItem.class);
+            }
+            case ARROW -> {
+                DeferredItem<R196ArrowItem> holder = items.registerItem(
+                        key.path(),
+                        properties -> new R196ArrowItem(key, properties),
+                        properties -> R196ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, R196ArrowItem.class);
+            }
+            case ORDINARY -> {
                 DeferredItem<R196ToolItem> holder = items.registerItem(
                         key.path(),
                         properties -> new R196ToolItem(key, properties),
