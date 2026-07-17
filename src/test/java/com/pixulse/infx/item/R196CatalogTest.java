@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.tag.ModTags;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -101,5 +102,19 @@ class R196CatalogTest {
         assertEquals(
                 R196ArrowItem.class,
                 catalog().equipment(R196Material.ADAMANTIUM, R196EquipmentType.ARROW).itemClass());
+    }
+
+    @Test
+    void orderedViewsAreStableForDataGenerationAndCreativeTabs() {
+        assertEquals("flint_chip", catalog().rawEntries().getFirst().path());
+        assertEquals("netherspawn_frags", catalog().rawEntries().getLast().path());
+        assertEquals("leather_helmet", catalog().equipmentEntries().getFirst().path());
+        assertEquals("adamantium_horse_armor", catalog().equipmentEntries().getLast().path());
+        assertEquals(
+                "repair_materials/rusted_iron",
+                ModTags.Items.repairMaterial(R196Material.RUSTED_IRON).location().getPath());
+        assertEquals(
+                "equipment/war_hammer",
+                ModTags.Items.equipmentType(R196EquipmentType.WAR_HAMMER).location().getPath());
     }
 }
