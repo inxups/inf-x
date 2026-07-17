@@ -111,6 +111,8 @@ public enum R196Material {
 
     public float horseProtection() { return horseProtection; }
 
+    public Set<Flag> flags() { return flags; }
+
     public boolean has(Flag flag) { return flags.contains(flag); }
 
     public int toolDurability(int components) {
