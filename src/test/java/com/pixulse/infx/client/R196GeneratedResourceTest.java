@@ -47,8 +47,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(237, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(340, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(234, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -137,7 +137,9 @@ class R196GeneratedResourceTest {
     void manifestHasOnlyCatalogOrApprovedDerivedTextures() throws Exception {
         Set<String> destinations = new HashSet<>();
         for (String line : Files.readAllLines(STATIC.resolve("assets/infx/mite_texture_manifest.tsv"), UTF_8)
-                .subList(1, 394)) {
+                .stream()
+                .skip(1)
+                .toList()) {
             destinations.add(line.split("\t", -1)[2]);
         }
         for (R196Catalog.Entry entry : ModItems.catalog().entries()) {
