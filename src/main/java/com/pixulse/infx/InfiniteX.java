@@ -1,6 +1,7 @@
 package com.pixulse.infx;
 
 import com.mojang.logging.LogUtils;
+import com.pixulse.infx.data.ModDataGenerators;
 import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.crafting.TimedCraftingEvents;
 import com.pixulse.infx.gametest.ModGameTests;
@@ -30,6 +31,7 @@ public final class InfiniteX {
         ModMenus.register(modBus);
         ModCreativeTabs.register(modBus);
         ModGameTests.register(modBus);
+        modBus.addListener(ModDataGenerators::gatherData);
         HarvestEvents.register(NeoForge.EVENT_BUS);
         TimedCraftingEvents.register(NeoForge.EVENT_BUS);
     }
