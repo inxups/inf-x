@@ -117,4 +117,34 @@ class R196CatalogTest {
                 "equipment/war_hammer",
                 ModTags.Items.equipmentType(R196EquipmentType.WAR_HAMMER).location().getPath());
     }
+
+    @Test
+    void everyDefinitionHasTwoNamesAndApprovedTerminology() {
+        for (R196Catalog.Entry entry : catalog().entries()) {
+            assertFalse(entry.englishName().isBlank(), entry.path());
+            assertFalse(entry.chineseName().isBlank(), entry.path());
+        }
+        assertEquals(
+                "InfiniteX Copper Pickaxe",
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).englishName());
+        assertEquals(
+                "InfiniteX 铜镐",
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).chineseName());
+        assertEquals(
+                "Ancient Metal War Hammer",
+                catalog().equipment(R196Material.ANCIENT_METAL, R196EquipmentType.WAR_HAMMER).englishName());
+        assertEquals(
+                "远古金属锁链胸甲",
+                catalog().equipment(R196Material.ANCIENT_METAL, R196EquipmentType.CHAINMAIL_CHESTPLATE).chineseName());
+        assertEquals(
+                "Gold Horse Armor",
+                catalog().equipment(R196Material.GOLD, R196EquipmentType.HORSE_ARMOR).englishName());
+        assertEquals("Bow", catalog().equipment(R196Material.WOOD, R196EquipmentType.BOW).englishName());
+        assertEquals(
+                "Fishing Rod",
+                catalog().equipment(R196Material.ADAMANTIUM, R196EquipmentType.FISHING_ROD).englishName());
+        assertEquals(
+                "钓鱼竿",
+                catalog().equipment(R196Material.FLINT, R196EquipmentType.FISHING_ROD).chineseName());
+    }
 }
