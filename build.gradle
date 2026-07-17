@@ -23,6 +23,19 @@ sourceSets.main.resources {
 
 repositories {
     mavenCentral()
+
+    repositories {
+        exclusiveContent {
+            forRepository {
+                maven {
+                    url "https://cursemaven.com"
+                }
+            }
+            filter {
+                includeGroup "curse.maven"
+            }
+        }
+    }
 }
 
 base {
@@ -116,6 +129,8 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.13.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation "curse.maven:jei-238222:8444991"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
