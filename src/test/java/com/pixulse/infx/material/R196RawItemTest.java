@@ -79,7 +79,7 @@ class R196RawItemTest {
         assertEquals(500, R196RawItem.ANCIENT_METAL_COIN.coinXp());
         assertEquals(2_500, R196RawItem.MITHRIL_COIN.coinXp());
         assertEquals(10_000, R196RawItem.ADAMANTIUM_COIN.coinXp());
-        assertTrue(R196RawItem.FLINT_CHIP.material().contains(R196Material.FLINT));
+        assertEquals(R196Material.FLINT, R196RawItem.FLINT_CHIP.material().orElseThrow());
         assertTrue(R196RawItem.CREEPER_FRAGS.material().isEmpty());
     }
 
