@@ -175,7 +175,27 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.named('test', Test).configure {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'generated-resources'
+    }
+}
+
+tasks.register('resourceTest', Test) { resourceTest ->
+    def unitTest = tasks.named('test', Test).get()
+    unitTest.copyTo(resourceTest)
+    resourceTest.jvmArgumentProviders.addAll(unitTest.jvmArgumentProviders)
+    dependsOn tasks.named('downloadAssets'), tasks.named('prepareNeoForgeTestFiles')
+    description = 'Validates resources produced by runData.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'generated-resources'
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn tasks.named('resourceTest')
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
