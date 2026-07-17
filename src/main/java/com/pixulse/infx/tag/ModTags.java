@@ -2,6 +2,7 @@ package com.pixulse.infx.tag;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.harvest.HarvestTier;
+import com.pixulse.infx.material.R196Material;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -32,6 +33,10 @@ public final class ModTags {
 
         public static TagKey<Item> toolTier(HarvestTier tier) {
             return create("tool_tier/" + tier.path());
+        }
+
+        public static TagKey<Item> repairMaterial(R196Material material) {
+            return create("repair_materials/" + material.path());
         }
 
         private static TagKey<Item> create(String path) {
