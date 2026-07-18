@@ -1,8 +1,8 @@
 package com.pixulse.infx.block.entity;
 
 import com.pixulse.infx.registry.ModBlockEntityTypes;
-import com.pixulse.infx.registry.ModBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -18,9 +18,7 @@ public final class R196FurnaceBlockEntity extends AbstractFurnaceBlockEntity {
 
     @Override
     protected Component getDefaultName() {
-        String path = getBlockState().is(ModBlocks.CLAY_FURNACE.get())
-                ? "clay_furnace"
-                : "sandstone_furnace";
+        String path = BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock()).getPath();
         return Component.translatable("container.infx." + path);
     }
 

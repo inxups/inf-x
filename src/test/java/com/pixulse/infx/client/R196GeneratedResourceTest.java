@@ -156,10 +156,15 @@ class R196GeneratedResourceTest {
     }
 
     @Test
-    void earlyFurnacesHaveGeneratedAssetsRecipesLootAndTranslations() throws Exception {
+    void r196FurnacesHaveGeneratedAssetsRecipesLootAndTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
-        for (String path : List.of("clay_furnace", "sandstone_furnace")) {
+        for (String path : List.of(
+                "clay_furnace",
+                "sandstone_furnace",
+                "hardened_clay_furnace",
+                "obsidian_furnace",
+                "netherrack_furnace")) {
             assertAll(
                     path,
                     () -> assertTrue(Files.isRegularFile(
@@ -188,17 +193,27 @@ class R196GeneratedResourceTest {
 
         JsonObject clay = json(GENERATED.resolve("data/infx/recipe/clay_furnace.json"));
         JsonObject sandstone = json(GENERATED.resolve("data/infx/recipe/sandstone_furnace.json"));
+        JsonObject hardenedClay =
+                json(GENERATED.resolve("data/infx/recipe/hardened_clay_furnace.json"));
+        JsonObject obsidian = json(GENERATED.resolve("data/infx/recipe/obsidian_furnace.json"));
+        JsonObject netherrack = json(GENERATED.resolve("data/infx/recipe/netherrack_furnace.json"));
         assertAll(
                 "R196 furnace crafting",
                 () -> assertEquals("hand", clay.get("required_bench").getAsString()),
                 () -> assertEquals(320.0F, clay.get("difficulty").getAsFloat()),
                 () -> assertEquals("flint", sandstone.get("required_bench").getAsString()),
-                () -> assertEquals(640.0F, sandstone.get("difficulty").getAsFloat()));
+                () -> assertEquals(640.0F, sandstone.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", hardenedClay.get("required_bench").getAsString()),
+                () -> assertEquals(1440.0F, hardenedClay.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", obsidian.get("required_bench").getAsString()),
+                () -> assertEquals(1920.0F, obsidian.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", netherrack.get("required_bench").getAsString()),
+                () -> assertEquals(1280.0F, netherrack.get("difficulty").getAsFloat()));
     }
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(236, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(239, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -306,7 +321,7 @@ class R196GeneratedResourceTest {
                 "textures/block/(flint|obsidian)_workbench_top\\.png"
                         + "|textures/block/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_workbench_(front|side)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
-                "textures/block/(clay|sandstone)_furnace_(front|front_on|side|top)\\.png")));
+                "textures/block/(clay|hardened_clay|sandstone|obsidian|netherrack)_furnace_(front|front_on|side|top)\\.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));

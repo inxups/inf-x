@@ -211,7 +211,7 @@ for material in copper silver gold iron ancient_metal mithril adamantium; do
     "block/${material}_workbench_side.png"
 done
 
-for furnace in clay sandstone; do
+for furnace in clay hardened_clay sandstone obsidian netherrack; do
   sync resource-pack \
     "blocks/furnace/$furnace/front_off.png" \
     "block/${furnace}_furnace_front.png"
@@ -227,7 +227,7 @@ for furnace in clay sandstone; do
 done
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 414 ]] || { echo "Expected 414 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 426 ]] || { echo "Expected 426 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

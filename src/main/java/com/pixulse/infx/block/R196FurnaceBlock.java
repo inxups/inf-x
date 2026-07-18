@@ -21,8 +21,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 public abstract class R196FurnaceBlock extends AbstractFurnaceBlock {
-    protected R196FurnaceBlock(BlockBehaviour.Properties properties) {
+    private final int maximumHeat;
+    private final boolean acceptsLargeItems;
+
+    protected R196FurnaceBlock(
+            BlockBehaviour.Properties properties, int maximumHeat, boolean acceptsLargeItems) {
         super(properties);
+        this.maximumHeat = maximumHeat;
+        this.acceptsLargeItems = acceptsLargeItems;
+    }
+
+    public final int maximumHeat() {
+        return maximumHeat;
+    }
+
+    public final boolean acceptsLargeItems() {
+        return acceptsLargeItems;
     }
 
     @Override

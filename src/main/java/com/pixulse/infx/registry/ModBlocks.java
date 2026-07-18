@@ -7,8 +7,11 @@ import com.pixulse.infx.block.CopperWorkbenchBlock;
 import com.pixulse.infx.block.ClayFurnaceBlock;
 import com.pixulse.infx.block.FlintWorkbenchBlock;
 import com.pixulse.infx.block.GoldWorkbenchBlock;
+import com.pixulse.infx.block.HardenedClayFurnaceBlock;
 import com.pixulse.infx.block.IronWorkbenchBlock;
 import com.pixulse.infx.block.MithrilWorkbenchBlock;
+import com.pixulse.infx.block.NetherrackFurnaceBlock;
+import com.pixulse.infx.block.ObsidianFurnaceBlock;
 import com.pixulse.infx.block.ObsidianWorkbenchBlock;
 import com.pixulse.infx.block.R196FurnaceBlock;
 import com.pixulse.infx.block.SandstoneFurnaceBlock;
@@ -45,8 +48,44 @@ public final class ModBlocks {
                     .sound(SoundType.STONE)
                     .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
 
+    public static final DeferredBlock<HardenedClayFurnaceBlock> HARDENED_CLAY_FURNACE =
+            BLOCKS.registerBlock(
+                    "hardened_clay_furnace",
+                    HardenedClayFurnaceBlock::new,
+                    properties -> properties
+                            .mapColor(MapColor.TERRACOTTA_ORANGE)
+                            .strength(1.0F)
+                            .sound(SoundType.STONE)
+                            .requiresCorrectToolForDrops()
+                            .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
+
+    public static final DeferredBlock<ObsidianFurnaceBlock> OBSIDIAN_FURNACE = BLOCKS.registerBlock(
+            "obsidian_furnace",
+            ObsidianFurnaceBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.COLOR_BLACK)
+                    .strength(4.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
+
+    public static final DeferredBlock<NetherrackFurnaceBlock> NETHERRACK_FURNACE = BLOCKS.registerBlock(
+            "netherrack_furnace",
+            NetherrackFurnaceBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.NETHER)
+                    .strength(8.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
+
     public static final List<DeferredBlock<? extends R196FurnaceBlock>> FURNACES =
-            List.of(CLAY_FURNACE, SANDSTONE_FURNACE);
+            List.of(
+                    CLAY_FURNACE,
+                    SANDSTONE_FURNACE,
+                    HARDENED_CLAY_FURNACE,
+                    OBSIDIAN_FURNACE,
+                    NETHERRACK_FURNACE);
 
     public static final DeferredBlock<FlintWorkbenchBlock> FLINT_WORKBENCH = BLOCKS.registerBlock(
             "flint_workbench",

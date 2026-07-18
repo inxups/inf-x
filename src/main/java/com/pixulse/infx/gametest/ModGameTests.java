@@ -7,6 +7,7 @@ import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
+import com.pixulse.infx.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
@@ -157,6 +158,8 @@ public final class ModGameTests {
             functionKey("furnace_heat_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_TIER_RULES =
             functionKey("furnace_tier_rules");
+    private static final ResourceKey<Consumer<GameTestHelper>> ADVANCED_FURNACE_RULES =
+            functionKey("advanced_furnace_rules");
 
     static {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
@@ -170,6 +173,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("core_tool_recipes", () -> ModGameTests::coreToolRecipes);
         TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
+        TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
     }
 
     private ModGameTests() {}
@@ -193,6 +197,7 @@ public final class ModGameTests {
         registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
         registerTest(event, FURNACE_HEAT_RULES, environment, 600);
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
+        registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
     }
 
     private static void registerTest(
@@ -840,6 +845,84 @@ public final class ModGameTests {
                             "the heat-2 glass batch must consume four sand");
                     removePlayer(player);
                 })
+                .thenSucceed();
+    }
+
+    private static void advancedFurnaceRules(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        helper.setBlock(
+                FURNACE_POS,
+                ModBlocks.HARDENED_CLAY_FURNACE.get()
+                        .defaultBlockState()
+                        .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
+        R196FurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class)
+        };
+
+        helper.assertTrue(
+                furnace[0].canPlaceItem(0, new ItemStack(Items.SAND, 4)),
+                "the large clay oven must accept full blocks");
+        helper.assertTrue(
+                furnace[0].canPlaceItem(1, Items.OAK_LOG.getDefaultInstance()),
+                "the large clay oven must accept large heat-1 fuel");
+        helper.assertFalse(
+                furnace[0].canPlaceItem(1, Items.COAL.getDefaultInstance()),
+                "the large clay oven must reject heat-2 coal");
+
+        player.openMenu(furnace[0]);
+        helper.assertTrue(
+                player.containerMenu.getSlot(0).mayPlace(new ItemStack(Items.SAND, 4)),
+                "the large clay oven menu must accept full blocks");
+        helper.assertFalse(
+                player.containerMenu.getSlot(1).mayPlace(Items.COAL.getDefaultInstance()),
+                "the large clay oven menu must enforce its heat-1 ceiling");
+        player.closeContainer();
+
+        helper.setBlock(FURNACE_POS, Blocks.AIR);
+        helper.setBlock(
+                FURNACE_POS,
+                ModBlocks.OBSIDIAN_FURNACE.get()
+                        .defaultBlockState()
+                        .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
+        furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+        helper.assertTrue(
+                furnace[0].canPlaceItem(1, Items.LAVA_BUCKET.getDefaultInstance()),
+                "the obsidian furnace must accept heat-3 lava");
+        helper.assertFalse(
+                furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
+                "the obsidian furnace must reject heat-4 blaze rods");
+        furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
+        furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        ((FurnaceHeatAccess) (Object) furnace[0]).infx$currentHeat() == 3,
+                        "the obsidian furnace must burn lava at heat 3"))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        furnace[0].getItem(2).is(Items.IRON_INGOT),
+                        "heat-3 lava must smelt ordinary ore in the obsidian furnace"))
+                .thenExecute(() -> {
+                    helper.setBlock(FURNACE_POS, Blocks.AIR);
+                    helper.setBlock(
+                            FURNACE_POS,
+                            ModBlocks.NETHERRACK_FURNACE.get()
+                                    .defaultBlockState()
+                                    .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+                    helper.assertTrue(
+                            furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
+                            "the netherrack furnace must accept heat-4 blaze rods");
+                    furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
+                    furnace[0].setItem(1, Items.BLAZE_ROD.getDefaultInstance());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        ((FurnaceHeatAccess) (Object) furnace[0]).infx$currentHeat() == 4,
+                        "the netherrack furnace must burn blaze rods at heat 4"))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        furnace[0].getItem(2).is(Items.IRON_INGOT),
+                        "heat-4 blaze fuel must smelt ordinary ore in the netherrack furnace"))
+                .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
     }
 

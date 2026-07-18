@@ -83,6 +83,36 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('S', Ingredient.of(Blocks.SANDSTONE)),
                 List.of("SSS", "S S", "SSS"));
+        addShaped(
+                "hardened_clay_furnace",
+                BenchTier.FLINT,
+                1440.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.HARDENED_CLAY_FURNACE,
+                1,
+                Map.of('T', Ingredient.of(Blocks.TERRACOTTA)),
+                List.of("TTT", "T T", "TTT"));
+        addShaped(
+                "obsidian_furnace",
+                BenchTier.FLINT,
+                1920.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.OBSIDIAN_FURNACE,
+                1,
+                Map.of('O', Ingredient.of(Blocks.OBSIDIAN)),
+                List.of("OOO", "O O", "OOO"));
+        addShaped(
+                "netherrack_furnace",
+                BenchTier.FLINT,
+                1280.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.NETHERRACK_FURNACE,
+                1,
+                Map.of('N', Ingredient.of(Blocks.NETHERRACK)),
+                List.of("NNN", "N N", "NNN"));
         SimpleCookingRecipeBuilder.smelting(
                         Ingredient.of(Blocks.SAND),
                         RecipeCategory.BUILDING_BLOCKS,

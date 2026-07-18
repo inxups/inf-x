@@ -1,6 +1,6 @@
 package com.pixulse.infx.furnace;
 
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.block.R196FurnaceBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BoatItem;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +19,7 @@ public final class FurnaceItemPolicy {
     private FurnaceItemPolicy() {}
 
     public static boolean acceptsLargeItems(BlockState state) {
-        return !state.is(ModBlocks.CLAY_FURNACE.get());
+        return !(state.getBlock() instanceof R196FurnaceBlock furnace) || furnace.acceptsLargeItems();
     }
 
     public static boolean canPlaceItem(BlockState state, ItemStack stack) {

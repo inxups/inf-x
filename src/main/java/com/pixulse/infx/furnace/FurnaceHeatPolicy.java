@@ -1,6 +1,6 @@
 package com.pixulse.infx.furnace;
 
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.block.R196FurnaceBlock;
 import com.pixulse.infx.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -23,8 +23,8 @@ public final class FurnaceHeatPolicy {
         if (state.is(Blocks.FURNACE)) {
             return HEAT_COAL;
         }
-        if (state.is(ModBlocks.CLAY_FURNACE.get()) || state.is(ModBlocks.SANDSTONE_FURNACE.get())) {
-            return HEAT_WOOD;
+        if (state.getBlock() instanceof R196FurnaceBlock furnace) {
+            return furnace.maximumHeat();
         }
         return 0;
     }
