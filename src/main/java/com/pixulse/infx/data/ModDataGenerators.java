@@ -1,5 +1,6 @@
 package com.pixulse.infx.data;
 
+import com.pixulse.infx.InfiniteX;
 import java.util.List;
 import java.util.Set;
 
@@ -12,8 +13,9 @@ public final class ModDataGenerators {
     private ModDataGenerators() {}
 
     public static void gatherData(GatherDataEvent.Client event) {
-        event.createDatapackRegistryObjects(ModWorldGen.builder());
+        event.createDatapackRegistryObjects(ModWorldGen.builder(), Set.of(InfiniteX.MOD_ID, "minecraft"));
         event.createProvider(ModBlockTagsProvider::new);
+        event.createProvider(ModBiomeTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.EN_US));
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.ZH_CN));
