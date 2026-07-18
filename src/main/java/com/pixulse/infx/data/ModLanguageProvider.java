@@ -9,6 +9,53 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 final class ModLanguageProvider extends LanguageProvider {
+    private static final Map<String, String[]> REMAINING_ADVANCEMENTS = Map.ofEntries(
+            Map.entry("kill_cow", names("Cow Tipper", "斗牛士")),
+            Map.entry("kill_enemy", names("Monster Hunter", "怪物猎人")),
+            Map.entry("snipe_skeleton", names("Sniper Duel", "狙击手的对决")),
+            Map.entry("fly_pig", names("When Pigs Fly", "当猪飞的时候")),
+            Map.entry("flour", names("The Basic Ingredient", "基础成分")),
+            Map.entry("make_bread", names("Bake Bread", "烤面包")),
+            Map.entry("bake_cake", names("The Lie", "蛋糕是个谎言")),
+            Map.entry("on_a_rail", names("On a Rail", "在铁路上")),
+            Map.entry("obsidian_furnace", names("Lava Time", "岩浆烧制时刻")),
+            Map.entry("mithril_ingot", names("Mythical Age", "神话时代")),
+            Map.entry("diamonds", names("Diamonds!", "钻石")),
+            Map.entry("emeralds", names("Emeralds!", "绿宝石")),
+            Map.entry("enchantments", names("Enchanter", "附魔师")),
+            Map.entry("overkill", names("Overkill", "赶尽杀绝")),
+            Map.entry("bookcase", names("Knowledge is Power", "知识就是力量")),
+            Map.entry("enlightenment", names("Enlightenment", "启蒙之书")),
+            Map.entry("portal", names("The Underworld", "地下世界")),
+            Map.entry("portal_to_nether", names("A Long Way Down", "长路漫漫")),
+            Map.entry("ghast", names("Return to Sender", "见鬼去吧")),
+            Map.entry("blaze_rod", names("Into Fire", "与火共舞")),
+            Map.entry("potion", names("Local Brewery", "本地的酿造厂")),
+            Map.entry("the_end", names("The End?", "末地？")),
+            Map.entry("the_end2", names("The End.", "末地。")),
+            Map.entry("netherrack_furnace", names("Ultimate Furnace", "最强的熔炉")),
+            Map.entry("adamantium_ingot", names("Ultimate Metal", "最强的金属")),
+            Map.entry("crystal_breaker", names("Crystal Breaker", "末影水晶破坏者")),
+            Map.entry("runegate", names("The Power of Runes", "符文的力量")),
+            Map.entry("seeds", names("Scavenger", "拾荒者")),
+            Map.entry("eggs", names("Eat an Egg", "吃鸡蛋")),
+            Map.entry("build_oven", names("Clay Craft", "粘土工艺")),
+            Map.entry("flint_finder", names("Flint Finder", "燧石寻找者")),
+            Map.entry("build_torches", names("Light It Up", "让一切亮起来吧")),
+            Map.entry("soil_enrichment", names("Soil Enrichment", "土壤增肥")),
+            Map.entry("make_mycelium", names("Keep It Dark", "保持黑暗")),
+            Map.entry("supersize_me", names("Supersize Me", "喂蘑菇")),
+            Map.entry("plant_doctor", names("Plant Doctor", "植物医生")),
+            Map.entry("well_rested", names("Well Rested", "休息充沛")),
+            Map.entry("seaworthy", names("Seaworthy", "航海家")),
+            Map.entry("explorer", names("Explorer", "探险家")),
+            Map.entry("fishing_rod", names("Go Fishing", "去钓鱼")),
+            Map.entry("cook_fish", names("Delicious Fish", "美味的鱼儿")),
+            Map.entry("fine_dining", names("Fine Dining", "美食")));
+
+    private static String[] names(String english, String chinese) {
+        return new String[]{english, chinese};
+    }
     enum Locale {
         EN_US("en_us", Map.ofEntries(
                 Map.entry("itemGroup.infx", "InfiniteX"),
@@ -22,8 +69,9 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("block.infx.adamantium_workbench", "Adamantium Workbench"),
                 Map.entry("block.infx.obsidian_workbench", "Obsidian Workbench"),
                 Map.entry("block.infx.clay_furnace", "Clay Oven"),
+                Map.entry("block.infx.large_clay_oven", "Large Clay Oven"),
                 Map.entry("block.infx.sandstone_furnace", "Sandstone Oven"),
-                Map.entry("block.infx.hardened_clay_furnace", "Large Clay Oven"),
+                Map.entry("block.infx.hardened_clay_furnace", "Hardened Clay Furnace"),
                 Map.entry("block.infx.obsidian_furnace", "Obsidian Furnace"),
                 Map.entry("block.infx.netherrack_furnace", "Netherrack Furnace"),
                 Map.entry("block.infx.silver_ore", "Silver Ore"),
@@ -39,6 +87,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("container.infx.adamantium_workbench", "Adamantium Workbench"),
                 Map.entry("container.infx.obsidian_workbench", "Obsidian Workbench"),
                 Map.entry("container.infx.clay_furnace", "Clay Oven"),
+                Map.entry("container.infx.large_clay_oven", "Large Clay Oven"),
                 Map.entry("container.infx.sandstone_furnace", "Sandstone Oven"),
                 Map.entry("container.infx.hardened_clay_furnace", "Large Clay Oven"),
                 Map.entry("container.infx.obsidian_furnace", "Obsidian Furnace"),
@@ -120,6 +169,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("block.infx.adamantium_workbench", "艾德曼工具台"),
                 Map.entry("block.infx.obsidian_workbench", "黑曜石工具台"),
                 Map.entry("block.infx.clay_furnace", "粘土炉"),
+                Map.entry("block.infx.large_clay_oven", "大型粘土烤炉"),
                 Map.entry("block.infx.sandstone_furnace", "沙石炉"),
                 Map.entry("block.infx.hardened_clay_furnace", "陶瓦炉"),
                 Map.entry("block.infx.obsidian_furnace", "黑曜石熔炉"),
@@ -137,6 +187,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("container.infx.adamantium_workbench", "艾德曼工具台"),
                 Map.entry("container.infx.obsidian_workbench", "黑曜石工具台"),
                 Map.entry("container.infx.clay_furnace", "粘土炉"),
+                Map.entry("container.infx.large_clay_oven", "大型粘土烤炉"),
                 Map.entry("container.infx.sandstone_furnace", "沙石炉"),
                 Map.entry("container.infx.hardened_clay_furnace", "陶瓦炉"),
                 Map.entry("container.infx.obsidian_furnace", "黑曜石熔炉"),
@@ -224,6 +275,15 @@ final class ModLanguageProvider extends LanguageProvider {
                 "entity.infx." + entity.path(),
                 locale == Locale.EN_US ? entity.english() : entity.chinese()));
         locale.baseTranslations.forEach(this::add);
+        REMAINING_ADVANCEMENTS.forEach((path, names) -> {
+            String name = names[locale == Locale.EN_US ? 0 : 1];
+            add("advancements.infx." + path + ".title", name);
+            add(
+                    "advancements.infx." + path + ".description",
+                    locale == Locale.EN_US
+                            ? "Complete the R196 requirement: " + name
+                            : "完成 R196 条件：" + name);
+        });
         for (var anvil : com.pixulse.infx.registry.ModBlocks.METAL_ANVILS) {
             String material = anvil.get().material().path();
             String name = locale == Locale.EN_US
@@ -236,8 +296,33 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.ancient_metal_block", locale == Locale.EN_US ? "Block of Ancient Metal" : "远古金属块");
         add("block.infx.mithril_block", locale == Locale.EN_US ? "Block of Mithril" : "秘银块");
         add("block.infx.adamantium_block", locale == Locale.EN_US ? "Block of Adamantium" : "艾德曼块");
+        add("block.infx.mantle", locale == Locale.EN_US ? "Mantle" : "地幔");
+        add("block.infx.mithril_rune_stone", locale == Locale.EN_US ? "Mithril Rune Stone" : "秘银符文石");
+        add("block.infx.adamantium_rune_stone", locale == Locale.EN_US ? "Adamantium Rune Stone" : "艾德曼符文石");
+        add("message.infx.rune_selected", locale == Locale.EN_US ? "Rune pattern: %s" : "符文图案：%s");
+        add("message.infx.underworld_bed_unsafe", locale == Locale.EN_US
+                ? "It is not safe to sleep in the Underworld"
+                : "地下世界不适合睡眠");
+        add("message.infx.creative_disabled", locale == Locale.EN_US
+                ? "Creative mode is disabled in R196 survival worlds"
+                : "R196 生存世界禁止创造模式");
+        add("key.categories.infx.controls", locale == Locale.EN_US ? "InfiniteX" : "InfiniteX");
+        add("key.infx.lock_sprint", locale == Locale.EN_US ? "Lock Sprint" : "锁定疾跑");
+        add("key.infx.zoom", locale == Locale.EN_US ? "Zoom" : "拉近镜头");
+        add("key.infx.reload_chunks", locale == Locale.EN_US ? "Reload Chunks" : "重载区块");
+        add("key.infx.smart_pickup", locale == Locale.EN_US ? "Smart Harvest" : "智能采集模式");
+        add("key.infx.smart_use", locale == Locale.EN_US ? "Smart Use" : "智能使用模式");
+        add("key.infx.place_fluid_source", locale == Locale.EN_US ? "Place Fluid Source" : "放置流体源");
+        add("message.infx.sprint_lock", locale == Locale.EN_US ? "Sprint lock: %s" : "疾跑锁定：%s");
+        add("message.infx.smart_pickup", locale == Locale.EN_US ? "Smart harvest: %s" : "智能采集：%s");
+        add("message.infx.smart_use", locale == Locale.EN_US ? "Smart use: %s" : "智能使用：%s");
+        add("message.infx.chunks_reloaded", locale == Locale.EN_US ? "Chunks reloaded" : "区块已重载");
+        add("gui.infx.status", locale == Locale.EN_US
+                ? "MITE Lv.%s  XP %s  HP %s  Food %s"
+                : "MITE 等级 %s  经验 %s  生命 %s  食物 %s");
         for (com.pixulse.infx.material.R196Quality quality : com.pixulse.infx.material.R196Quality.values()) {
             String english = switch (quality) {
+                case WRETCHED -> "Wretched Quality";
                 case POOR -> "Poor Quality";
                 case FINE -> "Fine Quality";
                 case EXCELLENT -> "Excellent Quality";
@@ -246,6 +331,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 case LEGENDARY -> "Legendary";
             };
             String chinese = switch (quality) {
+                case WRETCHED -> "破烂品质";
                 case POOR -> "粗劣品质";
                 case FINE -> "精良品质";
                 case EXCELLENT -> "优秀品质";
@@ -255,5 +341,19 @@ final class ModLanguageProvider extends LanguageProvider {
             };
             add("quality.infx." + quality.getSerializedName(), locale == Locale.EN_US ? english : chinese);
         }
+        for (com.pixulse.infx.material.R196Material material : com.pixulse.infx.material.R196Material.values()) {
+            add(
+                    "material.infx." + material.path(),
+                    locale == Locale.EN_US ? material.englishNoun() : material.chinesePrefix());
+        }
+        add("tooltip.infx.material", locale == Locale.EN_US ? "Material: %s" : "材料：%s");
+        add("tooltip.infx.damage", locale == Locale.EN_US ? "R196 damage: %s" : "R196 伤害：%s");
+        add("tooltip.infx.reach", locale == Locale.EN_US ? "Melee reach: %s blocks" : "近战距离：%s 格");
+        add("tooltip.infx.protection", locale == Locale.EN_US ? "Fixed protection: %s" : "固定防护：%s");
+        add("tooltip.infx.repair", locale == Locale.EN_US ? "Repair with %s nuggets" : "使用%s粒修理");
+        add("tooltip.infx.fuel_heat", locale == Locale.EN_US ? "Fuel heat: %s" : "燃料热量：%s");
+        add("tooltip.infx.recipe_heat", locale == Locale.EN_US ? "Required heat: %s" : "所需热量：%s");
+        add("tooltip.infx.furnace_heat", locale == Locale.EN_US ? "Maximum heat: %s" : "最高热量：%s");
+        add("enchantment.infx.clumsiness", locale == Locale.EN_US ? "Curse of Clumsiness" : "笨拙诅咒");
     }
 }

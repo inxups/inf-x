@@ -75,6 +75,8 @@ public final class TimedCraftingEngine {
                 holder.value().difficulty(), timedMenu.infx$selectedQualityCode());
         int requiredTicks = CraftingTimeCalculator.requiredTicks(
                 adjustedDifficulty, player.experienceLevel, timedMenu.infx$benchTier());
+        requiredTicks = CraftingEnvironment.applyClumsiness(
+                requiredTicks, CraftingEnvironment.hasClumsiness(player));
         timedMenu.infx$craftingState().start(recipeId(holder.id()), requiredTicks);
         timedMenu.infx$syncCraftingData();
     }
@@ -196,6 +198,8 @@ public final class TimedCraftingEngine {
                     recipe.difficulty(), timedMenu.infx$selectedQualityCode());
             int requiredTicks = CraftingTimeCalculator.requiredTicks(
                     adjustedDifficulty, player.experienceLevel, timedMenu.infx$benchTier());
+            requiredTicks = CraftingEnvironment.applyClumsiness(
+                    requiredTicks, CraftingEnvironment.hasClumsiness(player));
             timedMenu.infx$craftingState().start(recipeId(holder.id()), requiredTicks);
         } else {
             timedMenu.infx$resetTimedCrafting();

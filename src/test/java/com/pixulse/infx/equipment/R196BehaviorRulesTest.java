@@ -40,4 +40,22 @@ class R196BehaviorRulesTest {
         assertEquals(.02F, R196EquipmentBehaviors.armorDurabilityFactor(99, 100), .0001F);
         assertEquals(1.0F, R196EquipmentBehaviors.armorDurabilityFactor(0, 0));
     }
+
+    @Test
+    void fixedPointArmorAlwaysLeavesAtLeastOneDamage() {
+        assertEquals(0.0F, R196EquipmentBehaviors.fixedArmorReduction(1.0F, 20.0F));
+        assertEquals(4.0F, R196EquipmentBehaviors.fixedArmorReduction(5.0F, 20.0F));
+        assertEquals(3.0F, R196EquipmentBehaviors.fixedArmorReduction(10.0F, 3.0F));
+        assertEquals(0.0F, R196EquipmentBehaviors.r196ArmorReduction(10.0F, 20.0F, true));
+    }
+
+    @Test
+    void corrosionDestroysLeatherAcceleratesMetalAndExemptsAdamantium() {
+        assertEquals(160, R196EquipmentBehaviors.corrosionDamage(
+                R196Material.LEATHER, 160, 2.0F, true, false, false));
+        assertEquals(20, R196EquipmentBehaviors.corrosionDamage(
+                R196Material.IRON, 2400, 2.0F, false, true, false));
+        assertEquals(0, R196EquipmentBehaviors.corrosionDamage(
+                R196Material.ADAMANTIUM, 80_000, 20.0F, false, true, true));
+    }
 }

@@ -8,7 +8,10 @@
     "FurnaceFuelSlotMixin",
     "FurnaceInputSlotMixin",
     "GameTestServerMixin",
-    "InventoryMenuMixin"
+    "InventoryMenuMixin",
+    "HopperBlockEntityMixin",
+    "PlayerExperienceMixin",
+    "PlayerAttackRangeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

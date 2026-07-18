@@ -9,6 +9,7 @@ import com.pixulse.infx.block.FlintWorkbenchBlock;
 import com.pixulse.infx.block.GoldWorkbenchBlock;
 import com.pixulse.infx.block.HardenedClayFurnaceBlock;
 import com.pixulse.infx.block.IronWorkbenchBlock;
+import com.pixulse.infx.block.LargeClayOvenBlock;
 import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.NetherrackFurnaceBlock;
 import com.pixulse.infx.block.ObsidianFurnaceBlock;
@@ -19,6 +20,7 @@ import com.pixulse.infx.block.SilverWorkbenchBlock;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
+import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.material.R196Material;
 import java.util.List;
@@ -64,6 +66,32 @@ public final class ModBlocks {
             UnderworldPortalBlock::new,
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
 
+    public static final DeferredBlock<Block> MANTLE = BLOCKS.registerSimpleBlock(
+            "mantle",
+            properties -> properties
+                    .mapColor(MapColor.FIRE)
+                    .strength(-1.0F, 3_600_000.0F)
+                    .sound(SoundType.BASALT)
+                    .lightLevel(state -> 12));
+    public static final DeferredBlock<RuneStoneBlock> MITHRIL_RUNE_STONE = BLOCKS.registerBlock(
+            "mithril_rune_stone",
+            RuneStoneBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.DIAMOND)
+                    .strength(8.0F, 1_200.0F)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops());
+    public static final DeferredBlock<RuneStoneBlock> ADAMANTIUM_RUNE_STONE = BLOCKS.registerBlock(
+            "adamantium_rune_stone",
+            RuneStoneBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.EMERALD)
+                    .strength(12.0F, 3_600.0F)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops());
+    public static final List<DeferredBlock<? extends Block>> WORLD_BLOCKS =
+            List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
+
     public static final DeferredBlock<Block> SILVER_BLOCK = metalStorageBlock("silver_block", MapColor.METAL, 4.0F);
     public static final DeferredBlock<Block> ANCIENT_METAL_BLOCK =
             metalStorageBlock("ancient_metal_block", MapColor.COLOR_BROWN, 5.0F);
@@ -100,6 +128,15 @@ public final class ModBlocks {
             properties -> properties
                     .mapColor(MapColor.CLAY)
                     .strength(0.5F)
+                    .sound(SoundType.STONE)
+                    .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
+
+    public static final DeferredBlock<LargeClayOvenBlock> LARGE_CLAY_OVEN = BLOCKS.registerBlock(
+            "large_clay_oven",
+            LargeClayOvenBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.CLAY)
+                    .strength(0.75F)
                     .sound(SoundType.STONE)
                     .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
 
@@ -146,6 +183,7 @@ public final class ModBlocks {
     public static final List<DeferredBlock<? extends R196FurnaceBlock>> FURNACES =
             List.of(
                     CLAY_FURNACE,
+                    LARGE_CLAY_OVEN,
                     SANDSTONE_FURNACE,
                     HARDENED_CLAY_FURNACE,
                     OBSIDIAN_FURNACE,

@@ -4,6 +4,7 @@ import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.crafting.TimedCraftingState;
+import com.pixulse.infx.crafting.CraftingEnvironment;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -93,7 +94,7 @@ public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements
 
     @Override
     public boolean infx$isCraftingContextValid(Player player) {
-        return player.containerMenu == (Object) this;
+        return player.containerMenu == (Object) this && CraftingEnvironment.canCraft(player);
     }
 
     @Override
