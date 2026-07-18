@@ -66,10 +66,28 @@ public final class ModItems {
             CATALOG.equipment(R196Material.FLINT, R196EquipmentType.HATCHET).holderAs(R196ToolItem.class);
     public static final DeferredItem<R196ToolItem> FLINT_SHOVEL =
             CATALOG.equipment(R196Material.FLINT, R196EquipmentType.SHOVEL).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> FLINT_AXE =
+            CATALOG.equipment(R196Material.FLINT, R196EquipmentType.AXE).holderAs(R196ToolItem.class);
     public static final DeferredItem<R196ToolItem> COPPER_PICKAXE =
             CATALOG.equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> COPPER_SHOVEL =
+            CATALOG.equipment(R196Material.COPPER, R196EquipmentType.SHOVEL).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> COPPER_AXE =
+            CATALOG.equipment(R196Material.COPPER, R196EquipmentType.AXE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> COPPER_HOE =
+            CATALOG.equipment(R196Material.COPPER, R196EquipmentType.HOE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> COPPER_SWORD =
+            CATALOG.equipment(R196Material.COPPER, R196EquipmentType.SWORD).holderAs(R196ToolItem.class);
     public static final DeferredItem<R196ToolItem> IRON_PICKAXE =
             CATALOG.equipment(R196Material.IRON, R196EquipmentType.PICKAXE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> IRON_SHOVEL =
+            CATALOG.equipment(R196Material.IRON, R196EquipmentType.SHOVEL).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> IRON_AXE =
+            CATALOG.equipment(R196Material.IRON, R196EquipmentType.AXE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> IRON_HOE =
+            CATALOG.equipment(R196Material.IRON, R196EquipmentType.HOE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> IRON_SWORD =
+            CATALOG.equipment(R196Material.IRON, R196EquipmentType.SWORD).holderAs(R196ToolItem.class);
 
     private ModItems() {}
 

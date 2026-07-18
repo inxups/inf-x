@@ -33,6 +33,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
 final class ModRecipeProvider extends RecipeProvider {
+    private static final float STICK_DIFFICULTY = 25.0F;
+
     private ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
     }
@@ -84,6 +86,19 @@ final class ModRecipeProvider extends RecipeProvider {
                         'S', Ingredient.of(Items.STICK),
                         'B', ingredient(ModTags.Items.BINDINGS)),
                 List.of("F ", "S ", "SB"));
+        addShaped(
+                "flint_axe",
+                BenchTier.FLINT,
+                375.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                ModItems.FLINT_AXE,
+                1,
+                Map.of(
+                        'F', Ingredient.of(Items.FLINT),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("FF", "FS", "BS"));
         addShaped(
                 "flint_workbench",
                 BenchTier.HAND,
@@ -163,18 +178,16 @@ final class ModRecipeProvider extends RecipeProvider {
         addPlanks("spruce", Items.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS, 4);
         addPlanks("warped", Items.WARPED_PLANKS, ItemTags.WARPED_STEMS, 4);
 
-        addShaped(
-                "copper_pickaxe",
+        addCoreMetalTools(
+                "copper",
                 BenchTier.COPPER,
-                1250.0F,
-                CraftingBookCategory.EQUIPMENT,
-                "",
+                400.0F,
+                Items.COPPER_INGOT,
                 ModItems.COPPER_PICKAXE,
-                1,
-                Map.of(
-                        'I', Ingredient.of(Items.COPPER_INGOT),
-                        'S', Ingredient.of(Items.STICK)),
-                List.of("III", " S ", " S "));
+                ModItems.COPPER_SHOVEL,
+                ModItems.COPPER_AXE,
+                ModItems.COPPER_HOE,
+                ModItems.COPPER_SWORD);
         addShaped(
                 "cobblestone_furnace",
                 BenchTier.COPPER,
@@ -185,18 +198,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('C', Ingredient.of(Blocks.COBBLESTONE)),
                 List.of("CCC", "C C", "CCC"));
-        addShaped(
-                "iron_pickaxe",
+        addCoreMetalTools(
+                "iron",
                 BenchTier.IRON,
-                2450.0F,
-                CraftingBookCategory.EQUIPMENT,
-                "",
+                800.0F,
+                Items.IRON_INGOT,
                 ModItems.IRON_PICKAXE,
-                1,
-                Map.of(
-                        'I', Ingredient.of(Items.IRON_INGOT),
-                        'S', Ingredient.of(Items.STICK)),
-                List.of("III", " S ", " S "));
+                ModItems.IRON_SHOVEL,
+                ModItems.IRON_AXE,
+                ModItems.IRON_HOE,
+                ModItems.IRON_SWORD);
     }
 
     private void addPlanks(String wood, ItemLike result, TagKey<Item> logs, int count) {
@@ -209,6 +220,71 @@ final class ModRecipeProvider extends RecipeProvider {
                 result,
                 count,
                 List.of(ingredient(logs)));
+    }
+
+    private void addCoreMetalTools(
+            String material,
+            BenchTier requiredBench,
+            float ingotDifficulty,
+            ItemLike ingot,
+            ItemLike pickaxe,
+            ItemLike shovel,
+            ItemLike axe,
+            ItemLike hoe,
+            ItemLike sword) {
+        Map<Character, Ingredient> key = Map.of(
+                'I', Ingredient.of(ingot),
+                'S', Ingredient.of(Items.STICK));
+        addShaped(
+                material + "_pickaxe",
+                requiredBench,
+                ingotDifficulty * 3.0F + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                pickaxe,
+                1,
+                key,
+                List.of("III", " S ", " S "));
+        addShaped(
+                material + "_shovel",
+                requiredBench,
+                ingotDifficulty + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                shovel,
+                1,
+                key,
+                List.of("I", "S", "S"));
+        addShaped(
+                material + "_axe",
+                requiredBench,
+                ingotDifficulty * 3.0F + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                axe,
+                1,
+                key,
+                List.of("II", "IS", " S"));
+        addShaped(
+                material + "_hoe",
+                requiredBench,
+                ingotDifficulty * 2.0F + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                hoe,
+                1,
+                key,
+                List.of("II", " S", " S"));
+        addShaped(
+                material + "_sword",
+                requiredBench,
+                ingotDifficulty * 2.0F + STICK_DIFFICULTY,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                sword,
+                1,
+                key,
+                List.of("I", "I", "S"));
     }
 
     private void addMetalWorkbench(

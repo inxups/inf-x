@@ -86,8 +86,12 @@ public final class ModGameTests {
             "iron_ingot_from_blasting_deepslate_iron_ore",
             "iron_ingot_from_blasting_iron_ore",
             "iron_ingot_from_blasting_raw_iron",
+            "iron_axe",
+            "iron_hoe",
             "iron_pickaxe",
+            "iron_shovel",
             "iron_spear",
+            "iron_sword",
             "jungle_planks",
             "mangrove_planks",
             "netherite_spear_smithing",
@@ -107,6 +111,18 @@ public final class ModGameTests {
             "wooden_shovel",
             "wooden_spear",
             "wooden_sword");
+    private static final List<String> CORE_TOOL_RECIPES = List.of(
+            "flint_axe",
+            "copper_pickaxe",
+            "copper_shovel",
+            "copper_axe",
+            "copper_hoe",
+            "copper_sword",
+            "iron_pickaxe",
+            "iron_shovel",
+            "iron_axe",
+            "iron_hoe",
+            "iron_sword");
 
     private static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
@@ -127,6 +143,8 @@ public final class ModGameTests {
             functionKey("copper_loop");
     private static final ResourceKey<Consumer<GameTestHelper>> IRON_LOOP =
             functionKey("iron_loop");
+    private static final ResourceKey<Consumer<GameTestHelper>> CORE_TOOL_RECIPES_TEST =
+            functionKey("core_tool_recipes");
 
     static {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
@@ -137,6 +155,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("recipe_boundaries", () -> ModGameTests::recipeBoundaries);
         TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
         TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
+        TEST_FUNCTIONS.register("core_tool_recipes", () -> ModGameTests::coreToolRecipes);
     }
 
     private ModGameTests() {}
@@ -157,6 +176,7 @@ public final class ModGameTests {
         registerTest(event, RECIPE_BOUNDARIES, environment, 40);
         registerTest(event, COPPER_LOOP, environment, 400);
         registerTest(event, IRON_LOOP, environment, 500);
+        registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
     }
 
     private static void registerTest(
@@ -380,10 +400,13 @@ public final class ModGameTests {
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
         helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_ingot_from_nuggets")) != null, "InfiniteX copper conversion must exist");
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_pickaxe")) != null, "InfiniteX copper pickaxe recipe must exist");
+        for (String path : CORE_TOOL_RECIPES) {
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", path)) != null,
+                    "InfiniteX core tool recipe must exist: " + path);
+        }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
         helper.assertTrue(recipes.byKey(recipeKey("infx", "cobblestone_furnace")) != null, "InfiniteX furnace recipe must exist");
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "iron_pickaxe")) != null, "InfiniteX iron pickaxe recipe must exist");
         helper.assertTrue(
                 recipes.byKey(recipeKey("minecraft", "iron_ingot_from_smelting_raw_iron")) != null,
                 "raw iron must retain its furnace recipe");
@@ -546,6 +569,68 @@ public final class ModGameTests {
                 .thenSucceed();
     }
 
+    private static void coreToolRecipes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        player.experienceLevel = 1000;
+        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+
+        TimedWorkbenchMenu flint = workbenchMenu(
+                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 5);
+        player.containerMenu = flint;
+        fillFlintAxe(flint.infx$craftingContainer());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(flint, player, true),
+                "three flint, two sticks, and binding must match the flint axe recipe");
+        assertResult(helper, flint, ModItems.FLINT_AXE.get(), "flint axe preview");
+        flint.clicked(0, 0, ContainerInput.PICKUP, player);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.FLINT_AXE.get()) == 1,
+                        "flint workbench must finish the flint axe"))
+                .thenExecute(() -> {
+                    assertAdvancementDone(helper, player, "build_axe", "crafting a full axe must grant Lumberjack");
+                    takeItem(helper, player.getInventory(), ModItems.FLINT_AXE.get(), 1);
+                    player.closeContainer();
+                    helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+
+                    TimedWorkbenchMenu copper = workbenchMenu(
+                            player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 6);
+                    player.containerMenu = copper;
+                    fillMetalHoe(copper.infx$craftingContainer(), Items.COPPER_INGOT);
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(copper, player, true),
+                            "two copper ingots and two sticks must match the copper hoe recipe");
+                    assertResult(helper, copper, ModItems.COPPER_HOE.get(), "copper hoe preview");
+                    copper.clicked(0, 0, ContainerInput.PICKUP, player);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.COPPER_HOE.get()) == 1,
+                        "copper workbench must finish the copper hoe"))
+                .thenExecute(() -> {
+                    assertAdvancementDone(helper, player, "build_hoe", "crafting a hoe must grant Time to Farm");
+                    takeItem(helper, player.getInventory(), ModItems.COPPER_HOE.get(), 1);
+                    player.closeContainer();
+                    helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+
+                    TimedWorkbenchMenu iron = workbenchMenu(
+                            player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 7);
+                    player.containerMenu = iron;
+                    fillMetalSword(iron.infx$craftingContainer(), Items.IRON_INGOT);
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(iron, player, true),
+                            "two iron ingots and one stick must match the iron sword recipe");
+                    assertResult(helper, iron, ModItems.IRON_SWORD.get(), "iron sword preview");
+                    iron.clicked(0, 0, ContainerInput.PICKUP, player);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.IRON_SWORD.get()) == 1,
+                        "iron workbench must finish the InfiniteX iron sword"))
+                .thenExecute(() -> removePlayer(player))
+                .thenSucceed();
+    }
+
     private static ServerPlayer createPlayer(GameTestHelper helper) {
         String name = "infx-test-" + PLAYER_SEQUENCE.incrementAndGet();
         GameProfile profile = new GameProfile(UUID.randomUUID(), name);
@@ -587,12 +672,46 @@ public final class ModGameTests {
         helper.assertTrue(menu.infx$resultContainer().getItem(0).is(item), description);
     }
 
+    private static void assertAdvancementDone(
+            GameTestHelper helper, ServerPlayer player, String path, String description) {
+        var advancement = helper.getLevel()
+                .getServer()
+                .getAdvancements()
+                .get(InfiniteX.id("progression/" + path));
+        helper.assertTrue(advancement != null, path + " advancement must be loaded");
+        helper.assertTrue(
+                player.getAdvancements().getOrStartProgress(advancement).isDone(),
+                description);
+    }
+
     private static void fillCopperPickaxe(CraftingContainer grid) {
         grid.setItem(0, Items.COPPER_INGOT.getDefaultInstance());
         grid.setItem(1, Items.COPPER_INGOT.getDefaultInstance());
         grid.setItem(2, Items.COPPER_INGOT.getDefaultInstance());
         grid.setItem(4, Items.STICK.getDefaultInstance());
         grid.setItem(7, Items.STICK.getDefaultInstance());
+    }
+
+    private static void fillFlintAxe(CraftingContainer grid) {
+        grid.setItem(0, Items.FLINT.getDefaultInstance());
+        grid.setItem(1, Items.FLINT.getDefaultInstance());
+        grid.setItem(3, Items.FLINT.getDefaultInstance());
+        grid.setItem(4, Items.STICK.getDefaultInstance());
+        grid.setItem(6, ModItems.SINEW.get().getDefaultInstance());
+        grid.setItem(7, Items.STICK.getDefaultInstance());
+    }
+
+    private static void fillMetalHoe(CraftingContainer grid, Item ingot) {
+        grid.setItem(0, ingot.getDefaultInstance());
+        grid.setItem(1, ingot.getDefaultInstance());
+        grid.setItem(4, Items.STICK.getDefaultInstance());
+        grid.setItem(7, Items.STICK.getDefaultInstance());
+    }
+
+    private static void fillMetalSword(CraftingContainer grid, Item ingot) {
+        grid.setItem(0, ingot.getDefaultInstance());
+        grid.setItem(3, ingot.getDefaultInstance());
+        grid.setItem(6, Items.STICK.getDefaultInstance());
     }
 
     private static void fillFurnace(CraftingContainer grid) {

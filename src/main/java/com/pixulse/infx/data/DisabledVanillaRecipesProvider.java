@@ -63,7 +63,11 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "iron_ingot_from_blasting_deepslate_iron_ore",
             "iron_ingot_from_blasting_iron_ore",
             "iron_ingot_from_blasting_raw_iron",
+            "iron_axe",
+            "iron_hoe",
             "iron_pickaxe",
+            "iron_shovel",
+            "iron_sword",
             "crafting_table",
             "furnace");
 
