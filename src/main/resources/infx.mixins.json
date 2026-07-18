@@ -5,6 +5,8 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "AbstractFurnaceBlockEntityMixin",
+    "FurnaceFuelSlotMixin",
+    "FurnaceInputSlotMixin",
     "InventoryMenuMixin"
   ],
   "injectors": {

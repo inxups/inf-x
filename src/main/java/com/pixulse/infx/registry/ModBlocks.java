@@ -4,16 +4,20 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.AdamantiumWorkbenchBlock;
 import com.pixulse.infx.block.AncientMetalWorkbenchBlock;
 import com.pixulse.infx.block.CopperWorkbenchBlock;
+import com.pixulse.infx.block.ClayFurnaceBlock;
 import com.pixulse.infx.block.FlintWorkbenchBlock;
 import com.pixulse.infx.block.GoldWorkbenchBlock;
 import com.pixulse.infx.block.IronWorkbenchBlock;
 import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.ObsidianWorkbenchBlock;
+import com.pixulse.infx.block.R196FurnaceBlock;
+import com.pixulse.infx.block.SandstoneFurnaceBlock;
 import com.pixulse.infx.block.SilverWorkbenchBlock;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.crafting.BenchTier;
 import java.util.List;
 
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
@@ -22,6 +26,27 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(InfiniteX.MOD_ID);
+
+    public static final DeferredBlock<ClayFurnaceBlock> CLAY_FURNACE = BLOCKS.registerBlock(
+            "clay_furnace",
+            ClayFurnaceBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.CLAY)
+                    .strength(0.5F)
+                    .sound(SoundType.STONE)
+                    .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
+
+    public static final DeferredBlock<SandstoneFurnaceBlock> SANDSTONE_FURNACE = BLOCKS.registerBlock(
+            "sandstone_furnace",
+            SandstoneFurnaceBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.SAND)
+                    .strength(1.0F)
+                    .sound(SoundType.STONE)
+                    .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
+
+    public static final List<DeferredBlock<? extends R196FurnaceBlock>> FURNACES =
+            List.of(CLAY_FURNACE, SANDSTONE_FURNACE);
 
     public static final DeferredBlock<FlintWorkbenchBlock> FLINT_WORKBENCH = BLOCKS.registerBlock(
             "flint_workbench",
