@@ -65,8 +65,14 @@ class R196CatalogTest {
                 ModItems.FLINT_HATCHET,
                 catalog().equipment(R196Material.FLINT, R196EquipmentType.HATCHET).holder());
         assertSame(
+                ModItems.FLINT_SHOVEL,
+                catalog().equipment(R196Material.FLINT, R196EquipmentType.SHOVEL).holder());
+        assertSame(
                 ModItems.COPPER_PICKAXE,
                 catalog().equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).holder());
+        assertSame(
+                ModItems.IRON_PICKAXE,
+                catalog().equipment(R196Material.IRON, R196EquipmentType.PICKAXE).holder());
     }
 
     @Test

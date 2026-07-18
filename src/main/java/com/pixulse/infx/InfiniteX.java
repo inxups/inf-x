@@ -13,6 +13,7 @@ import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
 import com.pixulse.infx.registry.ModRecipes;
 import com.pixulse.infx.registry.ModMenus;
+import com.pixulse.infx.progression.ProgressionEvents;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -38,6 +39,7 @@ public final class InfiniteX {
         modBus.addListener(ModDataGenerators::gatherData);
         HarvestEvents.register(NeoForge.EVENT_BUS);
         TimedCraftingEvents.register(NeoForge.EVENT_BUS);
+        ProgressionEvents.register(NeoForge.EVENT_BUS);
     }
 
     public static Identifier id(String path) {

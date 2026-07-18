@@ -60,6 +60,10 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "copper_nugget_from_smelting",
             "copper_nugget",
             "copper_ingot_from_nuggets",
+            "iron_ingot_from_blasting_deepslate_iron_ore",
+            "iron_ingot_from_blasting_iron_ore",
+            "iron_ingot_from_blasting_raw_iron",
+            "iron_pickaxe",
             "crafting_table",
             "furnace");
 

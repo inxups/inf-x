@@ -33,6 +33,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.FurnaceResultSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -41,6 +42,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
@@ -48,6 +50,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModGameTests {
     private static final BlockPos WORK_POS = new BlockPos(1, 1, 1);
+    private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
     private static final List<String> DISABLED_VANILLA_RECIPES = List.of(
             "acacia_planks",
@@ -80,6 +83,10 @@ public final class ModGameTests {
             "diamond_spear",
             "furnace",
             "golden_spear",
+            "iron_ingot_from_blasting_deepslate_iron_ore",
+            "iron_ingot_from_blasting_iron_ore",
+            "iron_ingot_from_blasting_raw_iron",
+            "iron_pickaxe",
             "iron_spear",
             "jungle_planks",
             "mangrove_planks",
@@ -118,6 +125,8 @@ public final class ModGameTests {
             functionKey("recipe_boundaries");
     private static final ResourceKey<Consumer<GameTestHelper>> COPPER_LOOP =
             functionKey("copper_loop");
+    private static final ResourceKey<Consumer<GameTestHelper>> IRON_LOOP =
+            functionKey("iron_loop");
 
     static {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
@@ -127,6 +136,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
         TEST_FUNCTIONS.register("recipe_boundaries", () -> ModGameTests::recipeBoundaries);
         TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
+        TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
     }
 
     private ModGameTests() {}
@@ -146,6 +156,7 @@ public final class ModGameTests {
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
         registerTest(event, RECIPE_BOUNDARIES, environment, 40);
         registerTest(event, COPPER_LOOP, environment, 400);
+        registerTest(event, IRON_LOOP, environment, 500);
     }
 
     private static void registerTest(
@@ -370,6 +381,12 @@ public final class ModGameTests {
         helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
         helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_ingot_from_nuggets")) != null, "InfiniteX copper conversion must exist");
         helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_pickaxe")) != null, "InfiniteX copper pickaxe recipe must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "cobblestone_furnace")) != null, "InfiniteX furnace recipe must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "iron_pickaxe")) != null, "InfiniteX iron pickaxe recipe must exist");
+        helper.assertTrue(
+                recipes.byKey(recipeKey("minecraft", "iron_ingot_from_smelting_raw_iron")) != null,
+                "raw iron must retain its furnace recipe");
         helper.succeed();
     }
 
@@ -435,6 +452,100 @@ public final class ModGameTests {
                 .thenSucceed();
     }
 
+    private static void ironLoop(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        player.experienceLevel = 1000;
+        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+
+        TimedWorkbenchMenu copper = workbenchMenu(
+                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 3);
+        player.containerMenu = copper;
+        CraftingContainer grid = copper.infx$craftingContainer();
+        fillFurnace(grid);
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(copper, player, true),
+                "eight cobblestone must match the copper-tier furnace recipe");
+        copper.clicked(0, 0, ContainerInput.PICKUP, player);
+
+        FurnaceBlockEntity[] furnace = new FurnaceBlockEntity[1];
+        TimedWorkbenchMenu[] ironMenu = new TimedWorkbenchMenu[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.FURNACE) == 1,
+                        "copper workbench must finish the cobblestone furnace"))
+                .thenExecute(() -> {
+                    takeItem(helper, player.getInventory(), Items.FURNACE, 1);
+                    helper.setBlock(FURNACE_POS, Blocks.FURNACE);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class);
+                    furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
+                    furnace[0].setItem(1, Items.COAL.getDefaultInstance());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        furnace[0].getItem(2).is(Items.IRON_INGOT),
+                        "the crafted furnace must smelt raw iron"))
+                .thenExecute(() -> {
+                    FurnaceResultSlot resultSlot = new FurnaceResultSlot(player, furnace[0], 2, 0, 0);
+                    ItemStack smelted = resultSlot.remove(1);
+                    helper.assertTrue(smelted.is(Items.IRON_INGOT), "furnace output must be an iron ingot");
+                    resultSlot.onTake(player, smelted);
+                    var acquireIron = helper.getLevel()
+                            .getServer()
+                            .getAdvancements()
+                            .get(InfiniteX.id("progression/acquire_iron"));
+                    helper.assertTrue(acquireIron != null, "acquire iron advancement must be loaded");
+                    helper.assertTrue(
+                            player.getAdvancements().getOrStartProgress(acquireIron).isDone(),
+                            "taking furnace output must grant acquire iron");
+                    player.getInventory().add(smelted);
+                    player.getInventory().add(new ItemStack(Items.IRON_INGOT, 3));
+
+                    clearGrid(grid);
+                    grid.setItem(0, takeItem(helper, player.getInventory(), Items.IRON_INGOT, 1));
+                    grid.setItem(1, Items.LEATHER.getDefaultInstance());
+                    grid.setItem(3, Items.STICK.getDefaultInstance());
+                    grid.setItem(4, Blocks.OAK_PLANKS.asItem().getDefaultInstance());
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(copper, player, true),
+                            "the first iron ingot must unlock the iron workbench");
+                    copper.clicked(0, 0, ContainerInput.PICKUP, player);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.IRON_WORKBENCH.get()) == 1,
+                        "copper workbench must finish the iron workbench"))
+                .thenExecute(() -> {
+                    takeItem(helper, player.getInventory(), ModItems.IRON_WORKBENCH.get(), 1);
+                    player.closeContainer();
+                    helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+
+                    TimedWorkbenchMenu iron = workbenchMenu(
+                            player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 4);
+                    ironMenu[0] = iron;
+                    player.containerMenu = iron;
+                    CraftingContainer ironGrid = iron.infx$craftingContainer();
+                    ItemStack ingots = takeItem(helper, player.getInventory(), Items.IRON_INGOT, 3);
+                    ironGrid.setItem(0, ingots.split(1));
+                    ironGrid.setItem(1, ingots.split(1));
+                    ironGrid.setItem(2, ingots.split(1));
+                    ironGrid.setItem(4, Items.STICK.getDefaultInstance());
+                    ironGrid.setItem(7, Items.STICK.getDefaultInstance());
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(iron, player, true),
+                            "three iron ingots must match the iron pickaxe recipe");
+                    iron.clicked(0, 0, ContainerInput.PICKUP, player);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), ModItems.IRON_PICKAXE.get()) == 1,
+                        "iron workbench must finish the InfiniteX iron pickaxe"))
+                .thenExecute(() -> {
+                    helper.assertTrue(
+                            countGridItem(ironMenu[0].infx$craftingContainer(), Items.IRON_INGOT) == 0,
+                            "iron pickaxe must consume three ingots");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
     private static ServerPlayer createPlayer(GameTestHelper helper) {
         String name = "infx-test-" + PLAYER_SEQUENCE.incrementAndGet();
         GameProfile profile = new GameProfile(UUID.randomUUID(), name);
@@ -482,6 +593,12 @@ public final class ModGameTests {
         grid.setItem(2, Items.COPPER_INGOT.getDefaultInstance());
         grid.setItem(4, Items.STICK.getDefaultInstance());
         grid.setItem(7, Items.STICK.getDefaultInstance());
+    }
+
+    private static void fillFurnace(CraftingContainer grid) {
+        for (int slot : List.of(0, 1, 2, 3, 5, 6, 7, 8)) {
+            grid.setItem(slot, Blocks.COBBLESTONE.asItem().getDefaultInstance());
+        }
     }
 
     private static void clearGrid(CraftingContainer grid) {
