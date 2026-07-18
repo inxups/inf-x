@@ -116,6 +116,7 @@ public final class ModGameTests {
             "oak_planks",
             "pale_oak_planks",
             "sandstone",
+            "shears",
             "smooth_sandstone",
             "spruce_planks",
             "stone_axe",
@@ -168,6 +169,10 @@ public final class ModGameTests {
             "adamantium_axe",
             "adamantium_hoe",
             "adamantium_sword");
+    private static final List<String> METAL_MATERIALS = List.of(
+            "copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium");
+    private static final List<String> SPECIAL_TOOL_TYPES =
+            List.of("mattock", "battle_axe", "war_hammer", "scythe", "hatchet", "shears");
 
     private static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
@@ -192,6 +197,8 @@ public final class ModGameTests {
             functionKey("core_tool_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> ADVANCED_CORE_TOOL_RECIPES =
             functionKey("advanced_core_tool_recipes");
+    private static final ResourceKey<Consumer<GameTestHelper>> SPECIAL_TOOL_RECIPES =
+            functionKey("special_tool_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_HEAT_RULES =
             functionKey("furnace_heat_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_TIER_RULES =
@@ -210,6 +217,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
         TEST_FUNCTIONS.register("core_tool_recipes", () -> ModGameTests::coreToolRecipes);
         TEST_FUNCTIONS.register("advanced_core_tool_recipes", () -> ModGameTests::advancedCoreToolRecipes);
+        TEST_FUNCTIONS.register("special_tool_recipes", () -> ModGameTests::specialToolRecipes);
         TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
@@ -235,6 +243,7 @@ public final class ModGameTests {
         registerTest(event, IRON_LOOP, environment, 500);
         registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
         registerTest(event, ADVANCED_CORE_TOOL_RECIPES, environment, 80);
+        registerTest(event, SPECIAL_TOOL_RECIPES, environment, 80);
         registerTest(event, FURNACE_HEAT_RULES, environment, 600);
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
@@ -466,8 +475,7 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
-        for (String material : List.of(
-                "copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium")) {
+        for (String material : METAL_MATERIALS) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", material + "_ingot_from_nuggets")) != null,
                     "InfiniteX ingot conversion must exist: " + material);
@@ -479,6 +487,19 @@ public final class ModGameTests {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", path)) != null,
                     "InfiniteX core tool recipe must exist: " + path);
+        }
+        for (String material : METAL_MATERIALS) {
+            for (String type : SPECIAL_TOOL_TYPES) {
+                String path = material + "_" + type;
+                helper.assertTrue(
+                        recipes.byKey(recipeKey("infx", path)) != null,
+                        "InfiniteX special tool recipe must exist: " + path);
+            }
+        }
+        for (String path : List.of("obsidian_hatchet", "obsidian_shovel", "obsidian_axe")) {
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", path)) != null,
+                    "InfiniteX obsidian tool recipe must exist: " + path);
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
         helper.assertTrue(recipes.byKey(recipeKey("infx", "cobblestone_furnace")) != null, "InfiniteX furnace recipe must exist");
@@ -787,6 +808,112 @@ public final class ModGameTests {
                 adamantium,
                 equipment(R196Material.ADAMANTIUM, R196EquipmentType.SWORD),
                 "adamantium sword preview");
+
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void specialToolRecipes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        player.experienceLevel = 1000;
+
+        TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        hand.infx$craftingContainer().setItem(0, Items.OBSIDIAN.getDefaultInstance());
+        hand.infx$craftingContainer().setItem(1, Items.STICK.getDefaultInstance());
+        hand.infx$craftingContainer().setItem(2, ModItems.SINEW.toStack());
+        hand.infx$craftingContainer().setItem(3, Items.STICK.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(hand, player, true),
+                "obsidian hatchets must resolve in the hand crafting grid");
+        assertResult(
+                helper,
+                hand,
+                equipment(R196Material.OBSIDIAN, R196EquipmentType.HATCHET),
+                "obsidian hatchet preview");
+        clearGrid(hand.infx$craftingContainer());
+
+        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        TimedWorkbenchMenu flint = workbenchMenu(
+                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 12);
+        player.containerMenu = flint;
+        CraftingContainer flintGrid = flint.infx$craftingContainer();
+        flintGrid.setItem(0, Items.OBSIDIAN.getDefaultInstance());
+        flintGrid.setItem(1, Items.OBSIDIAN.getDefaultInstance());
+        flintGrid.setItem(3, Items.OBSIDIAN.getDefaultInstance());
+        flintGrid.setItem(4, Items.STICK.getDefaultInstance());
+        flintGrid.setItem(6, ModItems.SINEW.toStack());
+        flintGrid.setItem(7, Items.STICK.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(flint, player, true),
+                "obsidian axes must resolve on a flint workbench");
+        assertResult(
+                helper,
+                flint,
+                equipment(R196Material.OBSIDIAN, R196EquipmentType.AXE),
+                "obsidian axe preview");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        TimedWorkbenchMenu copper = workbenchMenu(
+                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 13);
+        player.containerMenu = copper;
+        CraftingContainer copperGrid = copper.infx$craftingContainer();
+        copperGrid.setItem(1, ModItems.SILVER_INGOT.toStack());
+        copperGrid.setItem(3, ModItems.SILVER_INGOT.toStack());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(copper, player, true),
+                "copper-tier workbenches must accept silver shears");
+        assertResult(
+                helper,
+                copper,
+                equipment(R196Material.SILVER, R196EquipmentType.SHEARS),
+                "silver shears preview");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+        TimedWorkbenchMenu iron = workbenchMenu(
+                player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 14);
+        player.containerMenu = iron;
+        fillWarHammer(iron.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        helper.assertFalse(
+                TimedCraftingEngine.refreshResult(iron, player, true),
+                "iron workbenches must reject mithril war hammers");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        TimedWorkbenchMenu mithril = workbenchMenu(
+                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 15);
+        player.containerMenu = mithril;
+        fillWarHammer(mithril.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(mithril, player, true),
+                "mithril workbenches must accept mithril war hammers");
+        assertResult(
+                helper,
+                mithril,
+                equipment(R196Material.MITHRIL, R196EquipmentType.WAR_HAMMER),
+                "mithril war hammer preview");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.ADAMANTIUM_WORKBENCH.get());
+        TimedWorkbenchMenu adamantium = workbenchMenu(
+                player, helper, BenchTier.ADAMANTIUM, ModBlocks.ADAMANTIUM_WORKBENCH.get(), 16);
+        player.containerMenu = adamantium;
+        CraftingContainer adamantiumGrid = adamantium.infx$craftingContainer();
+        adamantiumGrid.setItem(0, Items.STICK.getDefaultInstance());
+        adamantiumGrid.setItem(1, ModItems.ADAMANTIUM_INGOT.toStack());
+        adamantiumGrid.setItem(3, Items.STICK.getDefaultInstance());
+        adamantiumGrid.setItem(5, ModItems.ADAMANTIUM_INGOT.toStack());
+        adamantiumGrid.setItem(6, Items.STICK.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(adamantium, player, true),
+                "adamantium workbenches must accept adamantium scythes");
+        assertResult(
+                helper,
+                adamantium,
+                equipment(R196Material.ADAMANTIUM, R196EquipmentType.SCYTHE),
+                "adamantium scythe preview");
 
         removePlayer(player);
         helper.succeed();
@@ -1163,6 +1290,14 @@ public final class ModGameTests {
         grid.setItem(0, ingot.getDefaultInstance());
         grid.setItem(3, ingot.getDefaultInstance());
         grid.setItem(6, Items.STICK.getDefaultInstance());
+    }
+
+    private static void fillWarHammer(CraftingContainer grid, Item ingot) {
+        for (int slot : List.of(0, 1, 2, 3, 5)) {
+            grid.setItem(slot, ingot.getDefaultInstance());
+        }
+        grid.setItem(4, Items.STICK.getDefaultInstance());
+        grid.setItem(7, Items.STICK.getDefaultInstance());
     }
 
     private static void fillFurnace(CraftingContainer grid) {

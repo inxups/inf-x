@@ -77,6 +77,7 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "golden_pickaxe",
             "golden_shovel",
             "golden_sword",
+            "shears",
             "crafting_table",
             "furnace",
             "glass",
