@@ -285,53 +285,47 @@ final class ModWorldGen {
             HolderGetter<NormalNoise.NoiseParameters> noises,
             DensityFunction firstCave) {
         DensityFunction entrances = underworldEntrances(noises);
-        DensityFunction firstCaveEntranceReach = DensityFunctions.yClampedGradient(
-                UNDERWORLD_FIRST_CAVE_END_Y - 8,
-                UNDERWORLD_FIRST_CAVE_END_Y - 1,
-                0.0,
-                1.0);
-        DensityFunction firstCaveWithEntrances = DensityFunctions.lerp(
-                firstCaveEntranceReach,
-                firstCave,
-                DensityFunctions.min(firstCave, entrances));
-
-        DensityFunction separator = DensityFunctions.min(DensityFunctions.constant(0.45), entrances);
-        DensityFunction firstToSeparator = DensityFunctions.yClampedGradient(
-                UNDERWORLD_FIRST_CAVE_END_Y - 1,
-                UNDERWORLD_FIRST_CAVE_END_Y,
-                0.0,
-                1.0);
-        DensityFunction lowerLayers = DensityFunctions.lerp(
-                firstToSeparator,
-                firstCaveWithEntrances,
-                separator);
-
         DensityFunction upperCave = underworldUpperCave(noises);
-        DensityFunction upperEntranceReach = DensityFunctions.yClampedGradient(
-                UNDERWORLD_SEPARATOR_END_Y,
-                UNDERWORLD_SEPARATOR_END_Y + 10,
-                1.0,
-                0.0);
-        DensityFunction upperCaveWithEntrances = DensityFunctions.lerp(
-                upperEntranceReach,
-                upperCave,
-                DensityFunctions.min(upperCave, entrances));
-        DensityFunction separatorToUpper = DensityFunctions.yClampedGradient(
-                UNDERWORLD_SEPARATOR_END_Y - 1,
-                UNDERWORLD_SEPARATOR_END_Y,
-                0.0,
-                1.0);
-        DensityFunction caveLayers = DensityFunctions.lerp(
-                separatorToUpper,
-                lowerLayers,
-                upperCaveWithEntrances);
 
-        // Positive density is stone; Y=128 switches directly from the solid lower stratum to caves.
-        DensityFunction solidToCaves = DensityFunctions.yClampedGradient(
-                UNDERWORLD_FIRST_CAVE_MIN_Y - 1,
-                UNDERWORLD_FIRST_CAVE_MIN_Y,
-                0.0,
-                1.0);
+        // Morph the cave fields across a broad window so an opening never changes style on one Y plane.
+        DensityFunction caveMorph = naturalTransition(
+                noises, 204, 242, Noises.CAVE_LAYER, 0.07, 0.18);
+        DensityFunction blendedCaves = DensityFunctions.lerp(caveMorph, firstCave, upperCave);
+
+        DensityFunction entranceRise = naturalTransition(
+                noises, 196, 208, Noises.SPAGHETTI_2D, 0.12, 0.24);
+        DensityFunction entranceRelease = naturalTransition(
+                noises, 238, 250, Noises.PILLAR, 0.10, 0.22);
+        DensityFunction entranceFall = DensityFunctions.add(
+                DensityFunctions.constant(1.0),
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), entranceRelease));
+        DensityFunction entranceWindow = DensityFunctions.min(entranceRise, entranceFall);
+        DensityFunction cavesWithEntrances = DensityFunctions.lerp(
+                entranceWindow,
+                blendedCaves,
+                DensityFunctions.min(blendedCaves, entrances));
+
+        // Two noisy signed surfaces form a variable-thickness rock band; ravines and tunnels cut through both.
+        DensityFunction separatorFloor = naturalTransition(
+                noises, 204, 222, Noises.PILLAR, 0.09, 0.40);
+        DensityFunction separatorFloorDensity = DensityFunctions.add(
+                DensityFunctions.mul(DensityFunctions.constant(2.0), separatorFloor),
+                DensityFunctions.constant(-1.0));
+        DensityFunction separatorCeiling = naturalTransition(
+                noises, 222, 242, Noises.SPAGHETTI_2D, 0.08, 0.40);
+        DensityFunction separatorCeilingDensity = DensityFunctions.add(
+                DensityFunctions.constant(1.0),
+                DensityFunctions.mul(DensityFunctions.constant(-2.0), separatorCeiling));
+        DensityFunction separatorBand = DensityFunctions.min(
+                separatorFloorDensity,
+                separatorCeilingDensity);
+        DensityFunction caveLayers = DensityFunctions.max(
+                cavesWithEntrances,
+                DensityFunctions.min(separatorBand, entrances));
+
+        // Positive density is stone; the first cave opens gradually without carving below Y=128.
+        DensityFunction solidToCaves = naturalTransition(
+                noises, UNDERWORLD_FIRST_CAVE_MIN_Y - 1, 136, Noises.PILLAR, 0.09, 0.18);
         DensityFunction layeredTerrain = DensityFunctions.lerp(solidToCaves, 1.0, caveLayers);
         DensityFunction roofClosure = DensityFunctions.yClampedGradient(
                 UNDERWORLD_ROOF_START_Y,
@@ -396,21 +390,44 @@ final class ModWorldGen {
     }
 
     private static DensityFunction underworldEntrances(HolderGetter<NormalNoise.NoiseParameters> noises) {
-        DensityFunction primary = airPassage(
-                DensityFunctions.flatCache(DensityFunctions.shiftedNoise2d(
-                        DensityFunctions.zero(),
-                        DensityFunctions.zero(),
-                        0.85,
-                        noises.getOrThrow(Noises.CAVE_ENTRANCE))),
-                0.015);
-        DensityFunction secondary = airPassage(
-                DensityFunctions.flatCache(DensityFunctions.shiftedNoise2d(
-                        DensityFunctions.zero(),
-                        DensityFunctions.zero(),
-                        0.55,
-                        noises.getOrThrow(Noises.PILLAR))),
-                0.012);
-        return DensityFunctions.min(primary, secondary).clamp(-1.0, 1.0);
+        DensityFunction ravines = airPassage(
+                DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_ENTRANCE), 0.45, 0.40),
+                0.03);
+        DensityFunction tunnelA = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_1), 0.85, 0.45);
+        DensityFunction tunnelB = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_2), 0.85, 0.45);
+        DensityFunction tunnels = DensityFunctions.add(
+                DensityFunctions.max(tunnelA.abs(), tunnelB.abs()),
+                DensityFunctions.constant(-0.045));
+        return DensityFunctions.interpolated(DensityFunctions.min(ravines, tunnels))
+                .clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction naturalTransition(
+            HolderGetter<NormalNoise.NoiseParameters> noises,
+            int fromY,
+            int toY,
+            ResourceKey<NormalNoise.NoiseParameters> roughnessNoise,
+            double xzScale,
+            double roughness) {
+        // The triangular envelope keeps the horizontal displacement at zero outside the transition window.
+        DensityFunction progress = DensityFunctions.yClampedGradient(fromY, toY, 0.0, 1.0);
+        DensityFunction remaining = DensityFunctions.add(
+                DensityFunctions.constant(1.0),
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), progress));
+        DensityFunction envelope = DensityFunctions.mul(
+                DensityFunctions.constant(2.0),
+                DensityFunctions.min(progress, remaining));
+        DensityFunction horizontalRoughness = DensityFunctions.flatCache(DensityFunctions.shiftedNoise2d(
+                DensityFunctions.zero(),
+                DensityFunctions.zero(),
+                xzScale,
+                noises.getOrThrow(roughnessNoise)));
+        DensityFunction perturbation = DensityFunctions.mul(
+                envelope,
+                DensityFunctions.mul(DensityFunctions.constant(roughness), horizontalRoughness));
+        return DensityFunctions.add(progress, perturbation).clamp(0.0, 1.0);
     }
 
     private static DensityFunction underworldUpperCave(HolderGetter<NormalNoise.NoiseParameters> noises) {
