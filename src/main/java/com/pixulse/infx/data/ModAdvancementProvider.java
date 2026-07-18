@@ -86,6 +86,21 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .addCriterion(
                         "crafted_iron_axe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_axe")))
+                .addCriterion(
+                        "crafted_silver_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_axe")))
+                .addCriterion(
+                        "crafted_gold_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_axe")))
+                .addCriterion(
+                        "crafted_ancient_metal_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_axe")))
+                .addCriterion(
+                        "crafted_mithril_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_axe")))
+                .addCriterion(
+                        "crafted_adamantium_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_axe")))
                 .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/build_axe")));
 
@@ -117,6 +132,21 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .addCriterion(
                         "crafted_iron_hoe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_hoe")))
+                .addCriterion(
+                        "crafted_silver_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_hoe")))
+                .addCriterion(
+                        "crafted_gold_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_hoe")))
+                .addCriterion(
+                        "crafted_ancient_metal_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_hoe")))
+                .addCriterion(
+                        "crafted_mithril_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_hoe")))
+                .addCriterion(
+                        "crafted_adamantium_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_hoe")))
                 .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/build_hoe")));
 
@@ -124,6 +154,13 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .addCriterion(
                         "crafted_pickaxe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_pickaxe")))
+                .addCriterion(
+                        "crafted_silver_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_pickaxe")))
+                .addCriterion(
+                        "crafted_gold_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_pickaxe")))
+                .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/build_pickaxe"));
         output.accept(buildPickaxe);
 
@@ -145,6 +182,16 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .addCriterion(
                         "crafted_iron_pickaxe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_pickaxe")))
+                .addCriterion(
+                        "crafted_ancient_metal_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_pickaxe")))
+                .addCriterion(
+                        "crafted_mithril_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_pickaxe")))
+                .addCriterion(
+                        "crafted_adamantium_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_pickaxe")))
+                .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/build_better_pickaxe")));
     }
 

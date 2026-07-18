@@ -8,6 +8,8 @@ import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.furnace.FurnaceHeatAccess;
+import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
@@ -90,15 +92,24 @@ public final class ModGameTests {
             "furnace",
             "golden_spear",
             "glass",
+            "gold_ingot_from_nuggets",
+            "gold_nugget",
+            "golden_axe",
+            "golden_hoe",
+            "golden_pickaxe",
+            "golden_shovel",
+            "golden_sword",
             "iron_ingot_from_blasting_deepslate_iron_ore",
             "iron_ingot_from_blasting_iron_ore",
             "iron_ingot_from_blasting_raw_iron",
+            "iron_ingot_from_nuggets",
             "iron_axe",
             "iron_hoe",
             "iron_pickaxe",
             "iron_shovel",
             "iron_spear",
             "iron_sword",
+            "iron_nugget",
             "jungle_planks",
             "mangrove_planks",
             "netherite_spear_smithing",
@@ -131,7 +142,32 @@ public final class ModGameTests {
             "iron_shovel",
             "iron_axe",
             "iron_hoe",
-            "iron_sword");
+            "iron_sword",
+            "silver_pickaxe",
+            "silver_shovel",
+            "silver_axe",
+            "silver_hoe",
+            "silver_sword",
+            "gold_pickaxe",
+            "gold_shovel",
+            "gold_axe",
+            "gold_hoe",
+            "gold_sword",
+            "ancient_metal_pickaxe",
+            "ancient_metal_shovel",
+            "ancient_metal_axe",
+            "ancient_metal_hoe",
+            "ancient_metal_sword",
+            "mithril_pickaxe",
+            "mithril_shovel",
+            "mithril_axe",
+            "mithril_hoe",
+            "mithril_sword",
+            "adamantium_pickaxe",
+            "adamantium_shovel",
+            "adamantium_axe",
+            "adamantium_hoe",
+            "adamantium_sword");
 
     private static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
@@ -154,6 +190,8 @@ public final class ModGameTests {
             functionKey("iron_loop");
     private static final ResourceKey<Consumer<GameTestHelper>> CORE_TOOL_RECIPES_TEST =
             functionKey("core_tool_recipes");
+    private static final ResourceKey<Consumer<GameTestHelper>> ADVANCED_CORE_TOOL_RECIPES =
+            functionKey("advanced_core_tool_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_HEAT_RULES =
             functionKey("furnace_heat_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_TIER_RULES =
@@ -171,6 +209,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
         TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
         TEST_FUNCTIONS.register("core_tool_recipes", () -> ModGameTests::coreToolRecipes);
+        TEST_FUNCTIONS.register("advanced_core_tool_recipes", () -> ModGameTests::advancedCoreToolRecipes);
         TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
@@ -195,6 +234,7 @@ public final class ModGameTests {
         registerTest(event, COPPER_LOOP, environment, 400);
         registerTest(event, IRON_LOOP, environment, 500);
         registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
+        registerTest(event, ADVANCED_CORE_TOOL_RECIPES, environment, 80);
         registerTest(event, FURNACE_HEAT_RULES, environment, 600);
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
@@ -426,7 +466,15 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "copper_ingot_from_nuggets")) != null, "InfiniteX copper conversion must exist");
+        for (String material : List.of(
+                "copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium")) {
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", material + "_ingot_from_nuggets")) != null,
+                    "InfiniteX ingot conversion must exist: " + material);
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", material + "_nuggets_from_ingot")) != null,
+                    "InfiniteX nugget conversion must exist: " + material);
+        }
         for (String path : CORE_TOOL_RECIPES) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", path)) != null,
@@ -656,6 +704,92 @@ public final class ModGameTests {
                         "iron workbench must finish the InfiniteX iron sword"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
+    }
+
+    private static void advancedCoreToolRecipes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        player.experienceLevel = 1000;
+
+        TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        hand.infx$craftingContainer().setItem(0, ModItems.ADAMANTIUM_INGOT.toStack());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(hand, player, true),
+                "metal ingots must split into nuggets in the hand crafting grid");
+        assertResult(helper, hand, ModItems.ADAMANTIUM_NUGGET.get(), "adamantium nugget preview");
+        clearGrid(hand.infx$craftingContainer());
+
+        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        TimedWorkbenchMenu copper = workbenchMenu(
+                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 8);
+        player.containerMenu = copper;
+        fillMetalSword(copper.infx$craftingContainer(), ModItems.SILVER_INGOT.get());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(copper, player, true),
+                "copper-tier workbenches must accept silver core tools");
+        assertResult(
+                helper,
+                copper,
+                equipment(R196Material.SILVER, R196EquipmentType.SWORD),
+                "silver sword preview");
+        clearGrid(copper.infx$craftingContainer());
+        fillMetalHoe(copper.infx$craftingContainer(), Items.GOLD_INGOT);
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(copper, player, true),
+                "copper-tier workbenches must accept gold core tools");
+        assertResult(
+                helper,
+                copper,
+                equipment(R196Material.GOLD, R196EquipmentType.HOE),
+                "gold hoe preview");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.ANCIENT_METAL_WORKBENCH.get());
+        TimedWorkbenchMenu ancientMetal = workbenchMenu(
+                player, helper, BenchTier.ANCIENT_METAL, ModBlocks.ANCIENT_METAL_WORKBENCH.get(), 9);
+        player.containerMenu = ancientMetal;
+        fillMetalSword(ancientMetal.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        helper.assertFalse(
+                TimedCraftingEngine.refreshResult(ancientMetal, player, true),
+                "ancient metal workbenches must reject mithril core tools");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        TimedWorkbenchMenu mithril = workbenchMenu(
+                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 10);
+        player.containerMenu = mithril;
+        fillMetalSword(mithril.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(mithril, player, true),
+                "mithril workbenches must accept mithril core tools");
+        assertResult(
+                helper,
+                mithril,
+                equipment(R196Material.MITHRIL, R196EquipmentType.SWORD),
+                "mithril sword preview");
+        clearGrid(mithril.infx$craftingContainer());
+        fillMetalSword(mithril.infx$craftingContainer(), ModItems.ADAMANTIUM_INGOT.get());
+        helper.assertFalse(
+                TimedCraftingEngine.refreshResult(mithril, player, true),
+                "mithril workbenches must reject adamantium core tools");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.ADAMANTIUM_WORKBENCH.get());
+        TimedWorkbenchMenu adamantium = workbenchMenu(
+                player, helper, BenchTier.ADAMANTIUM, ModBlocks.ADAMANTIUM_WORKBENCH.get(), 11);
+        player.containerMenu = adamantium;
+        fillMetalSword(adamantium.infx$craftingContainer(), ModItems.ADAMANTIUM_INGOT.get());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(adamantium, player, true),
+                "adamantium workbenches must accept adamantium core tools");
+        assertResult(
+                helper,
+                adamantium,
+                equipment(R196Material.ADAMANTIUM, R196EquipmentType.SWORD),
+                "adamantium sword preview");
+
+        removePlayer(player);
+        helper.succeed();
     }
 
     private static void furnaceHeatRules(GameTestHelper helper) {
@@ -1041,6 +1175,10 @@ public final class ModGameTests {
         for (int slot = 0; slot < grid.getContainerSize(); slot++) {
             grid.setItem(slot, ItemStack.EMPTY);
         }
+    }
+
+    private static Item equipment(R196Material material, R196EquipmentType type) {
+        return ModItems.catalog().equipment(material, type).holder().get();
     }
 
     private static int countItem(Inventory inventory, Item item) {
