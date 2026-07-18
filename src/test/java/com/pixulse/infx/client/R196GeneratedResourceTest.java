@@ -241,6 +241,133 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void specialToolRecipesKeepR196DifficultiesAndBenchTiers() throws Exception {
+        Map<String, Float> ingotDifficulties = Map.ofEntries(
+                Map.entry("copper", 400.0F),
+                Map.entry("silver", 400.0F),
+                Map.entry("gold", 400.0F),
+                Map.entry("iron", 800.0F),
+                Map.entry("ancient_metal", 1600.0F),
+                Map.entry("mithril", 6400.0F),
+                Map.entry("adamantium", 25600.0F));
+        Map<String, String> benches = Map.ofEntries(
+                Map.entry("copper", "copper"),
+                Map.entry("silver", "copper"),
+                Map.entry("gold", "copper"),
+                Map.entry("iron", "iron"),
+                Map.entry("ancient_metal", "ancient_metal"),
+                Map.entry("mithril", "mithril"),
+                Map.entry("adamantium", "adamantium"));
+        Map<String, Integer> ingotCounts = Map.of(
+                "mattock", 4,
+                "battle_axe", 4,
+                "war_hammer", 5,
+                "scythe", 2,
+                "hatchet", 1,
+                "shears", 2);
+        Map<String, Integer> stickCounts = Map.of(
+                "mattock", 2,
+                "battle_axe", 2,
+                "war_hammer", 2,
+                "scythe", 3,
+                "hatchet", 2,
+                "shears", 0);
+        for (var material : ingotDifficulties.entrySet()) {
+            for (String type : ingotCounts.keySet()) {
+                String recipeName = material.getKey() + "_" + type;
+                JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+                float expectedDifficulty = material.getValue() * ingotCounts.get(type)
+                        + 25.0F * stickCounts.get(type);
+                assertAll(
+                        recipeName,
+                        () -> assertEquals(expectedDifficulty, recipe.get("difficulty").getAsFloat()),
+                        () -> assertEquals(benches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                        () -> assertEquals(
+                                "infx:" + recipeName,
+                                recipe.getAsJsonObject("result").get("id").getAsString()));
+            }
+        }
+
+        Map<String, Float> obsidianDifficulties = Map.of(
+                "obsidian_hatchet", 315.0F,
+                "obsidian_shovel", 315.0F,
+                "obsidian_axe", 795.0F);
+        for (var entry : obsidianDifficulties.entrySet()) {
+            JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + entry.getKey() + ".json"));
+            String requiredBench = entry.getKey().equals("obsidian_hatchet") ? "hand" : "flint";
+            assertAll(
+                    entry.getKey(),
+                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals(requiredBench, recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            "infx:" + entry.getKey(),
+                            recipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+        assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/shears.json")));
+
+        Map<String, List<String>> advancementRecipes = Map.of(
+                "build_axe",
+                List.of(
+                        "copper_battle_axe",
+                        "silver_battle_axe",
+                        "gold_battle_axe",
+                        "iron_battle_axe",
+                        "ancient_metal_battle_axe",
+                        "mithril_battle_axe",
+                        "adamantium_battle_axe"),
+                "build_shovel",
+                List.of(
+                        "obsidian_shovel",
+                        "copper_shovel",
+                        "silver_shovel",
+                        "gold_shovel",
+                        "iron_shovel",
+                        "ancient_metal_shovel",
+                        "mithril_shovel",
+                        "adamantium_shovel"),
+                "build_hoe",
+                List.of(
+                        "copper_mattock",
+                        "silver_mattock",
+                        "gold_mattock",
+                        "iron_mattock",
+                        "ancient_metal_mattock",
+                        "mithril_mattock",
+                        "adamantium_mattock"),
+                "build_scythe",
+                List.of(
+                        "copper_scythe",
+                        "silver_scythe",
+                        "gold_scythe",
+                        "iron_scythe",
+                        "ancient_metal_scythe",
+                        "mithril_scythe",
+                        "adamantium_scythe"),
+                "build_better_pickaxe",
+                List.of(
+                        "iron_war_hammer",
+                        "ancient_metal_war_hammer",
+                        "mithril_war_hammer",
+                        "adamantium_war_hammer"));
+        for (var advancement : advancementRecipes.entrySet()) {
+            String contents = Files.readString(
+                    GENERATED.resolve("data/infx/advancement/progression/" + advancement.getKey() + ".json"),
+                    UTF_8);
+            for (String recipe : advancement.getValue()) {
+                assertTrue(contents.contains("infx:" + recipe), advancement.getKey() + " must accept " + recipe);
+            }
+        }
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        assertAll(
+                "build scythe translations",
+                () -> assertTrue(english.has("advancements.infx.build_scythe.title")),
+                () -> assertTrue(english.has("advancements.infx.build_scythe.description")),
+                () -> assertTrue(chinese.has("advancements.infx.build_scythe.title")),
+                () -> assertTrue(chinese.has("advancements.infx.build_scythe.description")));
+    }
+
+    @Test
     void furnaceHeatTagsSeparateCoalFromLowHeatFuel() throws Exception {
         String heatTwoFuels = Files.readString(
                 GENERATED.resolve("data/infx/tags/item/furnace_fuels/heat_2.json"), UTF_8);

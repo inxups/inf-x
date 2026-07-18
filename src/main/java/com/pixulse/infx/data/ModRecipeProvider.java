@@ -201,6 +201,45 @@ final class ModRecipeProvider extends RecipeProvider {
                         'B', ingredient(ModTags.Items.BINDINGS)),
                 List.of("FF", "FS", "BS"));
         addShaped(
+                "obsidian_hatchet",
+                BenchTier.HAND,
+                315.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.OBSIDIAN, R196EquipmentType.HATCHET),
+                1,
+                Map.of(
+                        'O', Ingredient.of(Items.OBSIDIAN),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("OS", "BS"));
+        addShaped(
+                "obsidian_shovel",
+                BenchTier.FLINT,
+                315.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.OBSIDIAN, R196EquipmentType.SHOVEL),
+                1,
+                Map.of(
+                        'O', Ingredient.of(Items.OBSIDIAN),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("O ", "S ", "SB"));
+        addShaped(
+                "obsidian_axe",
+                BenchTier.FLINT,
+                795.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.OBSIDIAN, R196EquipmentType.AXE),
+                1,
+                Map.of(
+                        'O', Ingredient.of(Items.OBSIDIAN),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("OO", "OS", "BS"));
+        addShaped(
                 "flint_workbench",
                 BenchTier.HAND,
                 270.0F,
@@ -316,6 +355,28 @@ final class ModRecipeProvider extends RecipeProvider {
         addCatalogCoreMetalTools(
                 "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
         addCatalogCoreMetalTools(
+                "adamantium",
+                R196Material.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                25600.0F,
+                ModItems.ADAMANTIUM_INGOT);
+        addCatalogSpecialMetalTools(
+                "copper", R196Material.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
+        addCatalogSpecialMetalTools(
+                "silver", R196Material.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
+        addCatalogSpecialMetalTools(
+                "gold", R196Material.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+        addCatalogSpecialMetalTools(
+                "iron", R196Material.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
+        addCatalogSpecialMetalTools(
+                "ancient_metal",
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1600.0F,
+                ModItems.ANCIENT_METAL_INGOT);
+        addCatalogSpecialMetalTools(
+                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
+        addCatalogSpecialMetalTools(
                 "adamantium",
                 R196Material.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
@@ -442,6 +503,77 @@ final class ModRecipeProvider extends RecipeProvider {
                 equipment(equipmentMaterial, R196EquipmentType.AXE),
                 equipment(equipmentMaterial, R196EquipmentType.HOE),
                 equipment(equipmentMaterial, R196EquipmentType.SWORD));
+    }
+
+    private void addCatalogSpecialMetalTools(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float ingotDifficulty,
+            ItemLike ingot) {
+        Map<Character, Ingredient> key = Map.of(
+                'I', Ingredient.of(ingot),
+                'S', Ingredient.of(Items.STICK));
+        addShaped(
+                material + "_mattock",
+                requiredBench,
+                ingotDifficulty * 4.0F + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.MATTOCK),
+                1,
+                key,
+                List.of("III", " SI", " S "));
+        addShaped(
+                material + "_battle_axe",
+                requiredBench,
+                ingotDifficulty * 4.0F + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.BATTLE_AXE),
+                1,
+                key,
+                List.of("I I", "ISI", " S "));
+        addShaped(
+                material + "_war_hammer",
+                requiredBench,
+                ingotDifficulty * 5.0F + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.WAR_HAMMER),
+                1,
+                key,
+                List.of("III", "ISI", " S "));
+        addShaped(
+                material + "_scythe",
+                requiredBench,
+                ingotDifficulty * 2.0F + STICK_DIFFICULTY * 3.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.SCYTHE),
+                1,
+                key,
+                List.of("SI ", "S I", "S  "));
+        addShaped(
+                material + "_hatchet",
+                requiredBench,
+                ingotDifficulty + STICK_DIFFICULTY * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.HATCHET),
+                1,
+                key,
+                List.of("SI", "S "));
+        addShaped(
+                material + "_shears",
+                requiredBench,
+                ingotDifficulty * 2.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.SHEARS),
+                1,
+                Map.of('I', Ingredient.of(ingot)),
+                List.of(" I", "I "));
     }
 
     private static ItemLike equipment(R196Material material, R196EquipmentType type) {

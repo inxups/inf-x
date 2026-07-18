@@ -65,15 +65,17 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("advancements.infx.build_work_bench.title", "Build Work Bench"),
                 Map.entry("advancements.infx.build_work_bench.description", "Craft a flint workbench"),
                 Map.entry("advancements.infx.build_axe.title", "Lumberjack"),
-                Map.entry("advancements.infx.build_axe.description", "Craft a flint or metal axe"),
+                Map.entry("advancements.infx.build_axe.description", "Craft a full axe or battle axe"),
                 Map.entry("advancements.infx.build_shovel.title", "Explore the Surface"),
-                Map.entry("advancements.infx.build_shovel.description", "Craft a flint shovel"),
+                Map.entry("advancements.infx.build_shovel.description", "Craft a shovel"),
                 Map.entry("advancements.infx.nuggets.title", "Nuggets"),
                 Map.entry("advancements.infx.nuggets.description", "Recover a copper nugget from gravel"),
                 Map.entry("advancements.infx.better_tools.title", "Better Tools"),
                 Map.entry("advancements.infx.better_tools.description", "Build a copper workbench"),
                 Map.entry("advancements.infx.build_hoe.title", "Time to Farm!"),
-                Map.entry("advancements.infx.build_hoe.description", "Craft a metal hoe"),
+                Map.entry("advancements.infx.build_hoe.description", "Craft a metal hoe or mattock"),
+                Map.entry("advancements.infx.build_scythe.title", "Reaper"),
+                Map.entry("advancements.infx.build_scythe.description", "Make a scythe to harvest wheat"),
                 Map.entry("advancements.infx.build_pickaxe.title", "Build Pickaxe"),
                 Map.entry("advancements.infx.build_pickaxe.description", "Craft an InfiniteX copper pickaxe"),
                 Map.entry("advancements.infx.build_furnace.title", "Hot Topic"),
@@ -81,7 +83,9 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("advancements.infx.acquire_iron.title", "Acquire Hardware"),
                 Map.entry("advancements.infx.acquire_iron.description", "Smelt an iron ingot"),
                 Map.entry("advancements.infx.build_better_pickaxe.title", "Getting an Upgrade"),
-                Map.entry("advancements.infx.build_better_pickaxe.description", "Craft an InfiniteX iron pickaxe"))) {
+                Map.entry(
+                        "advancements.infx.build_better_pickaxe.description",
+                        "Craft an iron-or-better pickaxe or war hammer"))) {
             @Override
             String name(R196Catalog.Entry entry) {
                 return entry.englishName();
@@ -143,15 +147,17 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("advancements.infx.build_work_bench.title", "搭建工具台"),
                 Map.entry("advancements.infx.build_work_bench.description", "制作燧石工具台"),
                 Map.entry("advancements.infx.build_axe.title", "伐木工"),
-                Map.entry("advancements.infx.build_axe.description", "制作一把燧石斧或金属斧"),
+                Map.entry("advancements.infx.build_axe.description", "制作一把斧或战斧"),
                 Map.entry("advancements.infx.build_shovel.title", "探索地表"),
-                Map.entry("advancements.infx.build_shovel.description", "制作一把燧石锹"),
+                Map.entry("advancements.infx.build_shovel.description", "制作一把锹"),
                 Map.entry("advancements.infx.nuggets.title", "铜粒"),
                 Map.entry("advancements.infx.nuggets.description", "从沙砾中取得一粒铜"),
                 Map.entry("advancements.infx.better_tools.title", "更好的工具"),
                 Map.entry("advancements.infx.better_tools.description", "搭建铜工具台"),
                 Map.entry("advancements.infx.build_hoe.title", "农耕时间到"),
-                Map.entry("advancements.infx.build_hoe.description", "用金属锭和木棍制作一把锄"),
+                Map.entry("advancements.infx.build_hoe.description", "制作一把金属锄或鹤嘴锄"),
+                Map.entry("advancements.infx.build_scythe.title", "收割者"),
+                Map.entry("advancements.infx.build_scythe.description", "合成一把镰刀收割小麦"),
                 Map.entry("advancements.infx.build_pickaxe.title", "制作铜镐"),
                 Map.entry("advancements.infx.build_pickaxe.description", "制作 InfiniteX 铜镐"),
                 Map.entry("advancements.infx.build_furnace.title", "温暖的炉火"),
@@ -159,7 +165,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("advancements.infx.acquire_iron.title", "铁器时代"),
                 Map.entry("advancements.infx.acquire_iron.description", "冶炼一块铁锭"),
                 Map.entry("advancements.infx.build_better_pickaxe.title", "获得升级"),
-                Map.entry("advancements.infx.build_better_pickaxe.description", "制作 InfiniteX 铁镐"))) {
+                Map.entry("advancements.infx.build_better_pickaxe.description", "制作铁级或更高级的镐或战锤"))) {
             @Override
             String name(R196Catalog.Entry entry) {
                 return entry.chineseName();
