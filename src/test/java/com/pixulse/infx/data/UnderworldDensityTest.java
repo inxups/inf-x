@@ -26,7 +26,7 @@ class UnderworldDensityTest {
     private static final int SAMPLE_STEP = 32;
 
     @Test
-    void caveLayersKeepTheRequestedOpennessAndConnections() {
+    void miteFirstCaveKeepsTheRequestedOpennessAndConnections() {
         HolderLookup.Provider registries = VanillaRegistries.createLookup();
         var noises = registries.lookupOrThrow(Registries.NOISE);
         var router = ModWorldGen.underworldNoiseRouter(noises);
