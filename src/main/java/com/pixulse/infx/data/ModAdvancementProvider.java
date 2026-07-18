@@ -14,10 +14,13 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.predicates.ItemPredicate;
+import net.minecraft.advancements.predicates.entity.EntityEquipmentPredicate;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.advancements.triggers.ImpossibleTrigger;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
+import net.minecraft.advancements.triggers.PlayerTrigger;
 import net.minecraft.advancements.triggers.RecipeCraftedTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -162,6 +165,78 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/better_tools"));
         output.accept(betterTools);
 
+        Advancement.Builder wearLeather = child(
+                "wear_leather",
+                buildWorkbench,
+                equipment(R196Material.LEATHER, R196EquipmentType.CHESTPLATE));
+        for (R196EquipmentType piece : R196EquipmentType.platePieces()) {
+            wearLeather.addCriterion(
+                    "wearing_leather_" + piece.path(),
+                    wearingPiece(items, R196Material.LEATHER, piece));
+        }
+        output.accept(wearLeather
+                .requirements(AdvancementRequirements.Strategy.OR)
+                .build(InfiniteX.id("progression/wear_leather")));
+
+        List<R196Material> chainMaterials = List.of(
+                R196Material.COPPER,
+                R196Material.SILVER,
+                R196Material.GOLD,
+                R196Material.RUSTED_IRON,
+                R196Material.IRON,
+                R196Material.ANCIENT_METAL,
+                R196Material.MITHRIL,
+                R196Material.ADAMANTIUM);
+        Advancement.Builder buildChainMail = child(
+                "build_chain_mail",
+                betterTools,
+                equipment(R196Material.IRON, R196EquipmentType.CHAINMAIL_CHESTPLATE));
+        for (R196Material material : chainMaterials) {
+            for (R196EquipmentType piece : R196EquipmentType.chainPieces()) {
+                String recipe = material.path() + "_" + piece.path();
+                buildChainMail.addCriterion(
+                        "crafted_" + recipe,
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey(recipe)));
+            }
+        }
+        AdvancementHolder buildChainMailHolder = buildChainMail
+                .requirements(AdvancementRequirements.Strategy.OR)
+                .build(InfiniteX.id("progression/build_chain_mail"));
+        output.accept(buildChainMailHolder);
+
+        List<R196Material> plateMaterials = List.of(
+                R196Material.COPPER,
+                R196Material.SILVER,
+                R196Material.GOLD,
+                R196Material.IRON,
+                R196Material.ANCIENT_METAL,
+                R196Material.MITHRIL,
+                R196Material.ADAMANTIUM);
+        AdvancementHolder wearAllPlateArmor = child(
+                        "wear_all_plate_armor",
+                        buildChainMailHolder,
+                        equipment(R196Material.IRON, R196EquipmentType.CHESTPLATE))
+                .addCriterion("wearing_full_plate", wearingPlateSet(items, plateMaterials))
+                .build(InfiniteX.id("progression/wear_all_plate_armor"));
+        output.accept(wearAllPlateArmor);
+
+        AdvancementHolder wearAllAdamantiumPlateArmor = Advancement.Builder.recipeAdvancement()
+                .parent(wearAllPlateArmor)
+                .display(
+                        equipment(R196Material.ADAMANTIUM, R196EquipmentType.CHESTPLATE),
+                        title("wear_all_adamantium_plate_armor"),
+                        description("wear_all_adamantium_plate_armor"),
+                        null,
+                        AdvancementType.CHALLENGE,
+                        true,
+                        true,
+                        false)
+                .addCriterion(
+                        "wearing_full_adamantium_plate",
+                        wearingPlateSet(items, List.of(R196Material.ADAMANTIUM)))
+                .build(InfiniteX.id("progression/wear_all_adamantium_plate_armor"));
+        output.accept(wearAllAdamantiumPlateArmor);
+
         Advancement.Builder buildHoeBuilder = child("build_hoe", betterTools, ModItems.COPPER_HOE)
                 .addCriterion(
                         "crafted_copper_hoe",
@@ -296,6 +371,49 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                         Optional.empty(),
                         InventoryChangeTrigger.TriggerInstance.Slots.ANY,
                         List.of()));
+    }
+
+    private static Criterion<PlayerTrigger.TriggerInstance> wearingPiece(
+            HolderLookup.RegistryLookup<Item> items,
+            R196Material material,
+            R196EquipmentType piece) {
+        ItemPredicate.Builder predicate = ItemPredicate.Builder.item().of(items, equipment(material, piece));
+        EntityEquipmentPredicate.Builder equipment = EntityEquipmentPredicate.Builder.equipment();
+        switch (piece) {
+            case HELMET -> equipment.head(predicate);
+            case CHESTPLATE -> equipment.chest(predicate);
+            case LEGGINGS -> equipment.legs(predicate);
+            case BOOTS -> equipment.feet(predicate);
+            default -> throw new IllegalArgumentException("Not a plate armor piece: " + piece);
+        }
+        return PlayerTrigger.TriggerInstance.located(
+                EntityPredicate.Builder.entity().equipment(equipment));
+    }
+
+    private static Criterion<PlayerTrigger.TriggerInstance> wearingPlateSet(
+            HolderLookup.RegistryLookup<Item> items,
+            List<R196Material> materials) {
+        EntityEquipmentPredicate.Builder equipment = EntityEquipmentPredicate.Builder.equipment()
+                .head(platePredicate(items, materials, R196EquipmentType.HELMET))
+                .chest(platePredicate(items, materials, R196EquipmentType.CHESTPLATE))
+                .legs(platePredicate(items, materials, R196EquipmentType.LEGGINGS))
+                .feet(platePredicate(items, materials, R196EquipmentType.BOOTS));
+        return PlayerTrigger.TriggerInstance.located(
+                EntityPredicate.Builder.entity().equipment(equipment));
+    }
+
+    private static ItemPredicate.Builder platePredicate(
+            HolderLookup.RegistryLookup<Item> items,
+            List<R196Material> materials,
+            R196EquipmentType piece) {
+        ItemLike[] allowed = materials.stream()
+                .map(material -> equipment(material, piece))
+                .toArray(ItemLike[]::new);
+        return ItemPredicate.Builder.item().of(items, allowed);
+    }
+
+    private static ItemLike equipment(R196Material material, R196EquipmentType type) {
+        return ModItems.catalog().equipment(material, type).holder();
     }
 
     private static Component title(String name) {

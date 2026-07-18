@@ -34,6 +34,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
@@ -97,7 +98,11 @@ public final class ModGameTests {
             "gold_ingot_from_nuggets",
             "gold_nugget",
             "golden_axe",
+            "golden_boots",
+            "golden_chestplate",
+            "golden_helmet",
             "golden_hoe",
+            "golden_leggings",
             "golden_pickaxe",
             "golden_shovel",
             "golden_sword",
@@ -106,13 +111,21 @@ public final class ModGameTests {
             "iron_ingot_from_blasting_raw_iron",
             "iron_ingot_from_nuggets",
             "iron_axe",
+            "iron_boots",
+            "iron_chestplate",
+            "iron_helmet",
             "iron_hoe",
+            "iron_leggings",
             "iron_pickaxe",
             "iron_shovel",
             "iron_spear",
             "iron_sword",
             "iron_nugget",
             "jungle_planks",
+            "leather_boots",
+            "leather_chestplate",
+            "leather_helmet",
+            "leather_leggings",
             "mangrove_planks",
             "netherite_spear_smithing",
             "oak_planks",
@@ -144,6 +157,13 @@ public final class ModGameTests {
             "mithril_bow");
     private static final List<String> ARROW_MATERIALS = List.of(
             "flint", "obsidian", "copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium");
+    private static final List<String> PLATE_ARMOR_MATERIALS = List.of(
+            "leather", "copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium");
+    private static final List<String> CHAIN_ARMOR_MATERIALS = List.of(
+            "copper", "silver", "gold", "rusted_iron", "iron", "ancient_metal", "mithril", "adamantium");
+    private static final List<String> PLATE_ARMOR_PIECES = List.of("helmet", "chestplate", "leggings", "boots");
+    private static final List<String> CHAIN_ARMOR_PIECES =
+            List.of("chainmail_helmet", "chainmail_chestplate", "chainmail_leggings", "chainmail_boots");
     private static final List<String> CORE_TOOL_RECIPES = List.of(
             "flint_axe",
             "copper_pickaxe",
@@ -213,6 +233,8 @@ public final class ModGameTests {
             functionKey("special_tool_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> WEAPON_RECIPES_TEST =
             functionKey("weapon_recipes");
+    private static final ResourceKey<Consumer<GameTestHelper>> ARMOR_RECIPES_TEST =
+            functionKey("armor_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_HEAT_RULES =
             functionKey("furnace_heat_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_TIER_RULES =
@@ -233,6 +255,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("advanced_core_tool_recipes", () -> ModGameTests::advancedCoreToolRecipes);
         TEST_FUNCTIONS.register("special_tool_recipes", () -> ModGameTests::specialToolRecipes);
         TEST_FUNCTIONS.register("weapon_recipes", () -> ModGameTests::weaponRecipes);
+        TEST_FUNCTIONS.register("armor_recipes", () -> ModGameTests::armorRecipes);
         TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
@@ -260,6 +283,7 @@ public final class ModGameTests {
         registerTest(event, ADVANCED_CORE_TOOL_RECIPES, environment, 80);
         registerTest(event, SPECIAL_TOOL_RECIPES, environment, 80);
         registerTest(event, WEAPON_RECIPES_TEST, environment, 80);
+        registerTest(event, ARMOR_RECIPES_TEST, environment, 120);
         registerTest(event, FURNACE_HEAT_RULES, environment, 600);
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
@@ -533,6 +557,30 @@ public final class ModGameTests {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", path)) != null,
                     "InfiniteX arrow recipe must exist: " + path);
+        }
+        for (String material : METAL_MATERIALS) {
+            for (String conversion : List.of("chain_from_nuggets", "nuggets_from_chain")) {
+                String path = material + "_" + conversion;
+                helper.assertTrue(
+                        recipes.byKey(recipeKey("infx", path)) != null,
+                        "InfiniteX chain conversion must exist: " + path);
+            }
+        }
+        for (String material : PLATE_ARMOR_MATERIALS) {
+            for (String piece : PLATE_ARMOR_PIECES) {
+                String path = material + "_" + piece;
+                helper.assertTrue(
+                        recipes.byKey(recipeKey("infx", path)) != null,
+                        "InfiniteX plate armor recipe must exist: " + path);
+            }
+        }
+        for (String material : CHAIN_ARMOR_MATERIALS) {
+            for (String piece : CHAIN_ARMOR_PIECES) {
+                String path = material + "_" + piece;
+                helper.assertTrue(
+                        recipes.byKey(recipeKey("infx", path)) != null,
+                        "InfiniteX chain armor recipe must exist: " + path);
+            }
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
         helper.assertTrue(recipes.byKey(recipeKey("infx", "cobblestone_furnace")) != null, "InfiniteX furnace recipe must exist");
@@ -1042,6 +1090,145 @@ public final class ModGameTests {
 
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static void armorRecipes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        player.experienceLevel = 1000;
+
+        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        TimedWorkbenchMenu flint = workbenchMenu(
+                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 21);
+        player.containerMenu = flint;
+        CraftingContainer flintGrid = flint.infx$craftingContainer();
+        for (int slot : List.of(0, 1, 2, 3, 5)) {
+            flintGrid.setItem(slot, Items.LEATHER.getDefaultInstance());
+        }
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(flint, player, true),
+                "leather helmets must resolve on a flint workbench");
+        assertResult(
+                helper,
+                flint,
+                equipment(R196Material.LEATHER, R196EquipmentType.HELMET),
+                "leather helmet preview");
+        clearGrid(flintGrid);
+        for (int slot : List.of(1, 3, 5, 7)) {
+            flintGrid.setItem(slot, Items.COPPER_NUGGET.getDefaultInstance());
+        }
+        helper.assertFalse(
+                TimedCraftingEngine.refreshResult(flint, player, true),
+                "flint workbenches must reject copper chain crafting");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        TimedWorkbenchMenu copper = workbenchMenu(
+                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 22);
+        player.containerMenu = copper;
+        CraftingContainer copperGrid = copper.infx$craftingContainer();
+        for (int slot : List.of(1, 3, 5, 7)) {
+            copperGrid.setItem(slot, Items.COPPER_NUGGET.getDefaultInstance());
+        }
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(copper, player, true),
+                "copper workbenches must accept copper chain crafting");
+        assertResult(
+                helper,
+                copper,
+                ModItems.catalog().raw("copper_chain").holder().get(),
+                "copper chain preview");
+        clearGrid(copperGrid);
+        for (int slot : List.of(0, 2, 3, 5)) {
+            copperGrid.setItem(slot, ModItems.catalog().raw("copper_chain").holder().get().getDefaultInstance());
+        }
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(copper, player, true),
+                "copper chainmail boots must resolve on a copper workbench");
+        assertResult(
+                helper,
+                copper,
+                equipment(R196Material.COPPER, R196EquipmentType.CHAINMAIL_BOOTS),
+                "copper chainmail boots preview");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+        TimedWorkbenchMenu iron = workbenchMenu(
+                player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 23);
+        player.containerMenu = iron;
+        CraftingContainer ironGrid = iron.infx$craftingContainer();
+        for (int slot : List.of(0, 1, 2, 3, 5)) {
+            ironGrid.setItem(slot, ModItems.MITHRIL_INGOT.toStack());
+        }
+        helper.assertFalse(
+                TimedCraftingEngine.refreshResult(iron, player, true),
+                "iron workbenches must reject mithril plate armor");
+
+        player.closeContainer();
+        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        TimedWorkbenchMenu mithril = workbenchMenu(
+                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 24);
+        player.containerMenu = mithril;
+        CraftingContainer mithrilGrid = mithril.infx$craftingContainer();
+        for (int slot : List.of(0, 1, 2, 3, 5)) {
+            mithrilGrid.setItem(slot, ModItems.MITHRIL_INGOT.toStack());
+        }
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(mithril, player, true),
+                "mithril workbenches must accept mithril plate armor");
+        assertResult(
+                helper,
+                mithril,
+                equipment(R196Material.MITHRIL, R196EquipmentType.HELMET),
+                "mithril helmet preview");
+        player.closeContainer();
+
+        player.setItemSlot(
+                EquipmentSlot.CHEST,
+                equipment(R196Material.LEATHER, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+        helper.startSequence()
+                .thenWaitUntil(() -> assertAdvancementDone(
+                        helper, player, "wear_leather", "wearing leather armor must grant Suiting Up"))
+                .thenExecute(() -> {
+                    player.setItemSlot(
+                            EquipmentSlot.HEAD,
+                            equipment(R196Material.COPPER, R196EquipmentType.HELMET).getDefaultInstance());
+                    player.setItemSlot(
+                            EquipmentSlot.CHEST,
+                            equipment(R196Material.GOLD, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                    player.setItemSlot(
+                            EquipmentSlot.LEGS,
+                            equipment(R196Material.IRON, R196EquipmentType.LEGGINGS).getDefaultInstance());
+                    player.setItemSlot(
+                            EquipmentSlot.FEET,
+                            equipment(R196Material.MITHRIL, R196EquipmentType.BOOTS).getDefaultInstance());
+                })
+                .thenWaitUntil(() -> assertAdvancementDone(
+                        helper,
+                        player,
+                        "wear_all_plate_armor",
+                        "a mixed full metal plate set must grant Tin Can"))
+                .thenExecute(() -> {
+                    player.setItemSlot(
+                            EquipmentSlot.HEAD,
+                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.HELMET).getDefaultInstance());
+                    player.setItemSlot(
+                            EquipmentSlot.CHEST,
+                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                    player.setItemSlot(
+                            EquipmentSlot.LEGS,
+                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.LEGGINGS).getDefaultInstance());
+                    player.setItemSlot(
+                            EquipmentSlot.FEET,
+                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.BOOTS).getDefaultInstance());
+                })
+                .thenWaitUntil(() -> assertAdvancementDone(
+                        helper,
+                        player,
+                        "wear_all_adamantium_plate_armor",
+                        "a full adamantium plate set must grant Juggernaut"))
+                .thenExecute(() -> removePlayer(player))
+                .thenSucceed();
     }
 
     private static void furnaceHeatRules(GameTestHelper helper) {
