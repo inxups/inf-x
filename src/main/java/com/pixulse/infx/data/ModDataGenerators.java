@@ -26,8 +26,11 @@ public final class ModDataGenerators {
         event.createProvider((output, lookup) -> new LootTableProvider(
                 output,
                 Set.of(),
-                List.of(new LootTableProvider.SubProviderEntry(
-                        ModBlockLootSubProvider::new, LootContextParamSets.BLOCK)),
+                List.of(
+                        new LootTableProvider.SubProviderEntry(
+                                ModBlockLootSubProvider::new, LootContextParamSets.BLOCK),
+                        new LootTableProvider.SubProviderEntry(
+                                ModHorseArmorLootSubProvider::new, LootContextParamSets.CHEST)),
                 lookup));
         event.createProvider(ModGlobalLootModifierProvider::new);
     }
