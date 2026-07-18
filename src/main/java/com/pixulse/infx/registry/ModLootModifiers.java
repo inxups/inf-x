@@ -5,6 +5,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.loot.GravelLootModifier;
 import com.pixulse.infx.loot.GlassShardLootModifier;
 import com.pixulse.infx.loot.UnderworldDungeonLootModifier;
+import com.pixulse.infx.loot.ModernProgressionLootFilter;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
@@ -26,6 +27,10 @@ public final class ModLootModifiers {
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<UnderworldDungeonLootModifier>>
             UNDERWORLD_DUNGEON =
                     SERIALIZERS.register("underworld_dungeon", () -> UnderworldDungeonLootModifier.CODEC);
+    public static final DeferredHolder<
+                    MapCodec<? extends IGlobalLootModifier>, MapCodec<ModernProgressionLootFilter>>
+            MODERN_PROGRESSION_FILTER = SERIALIZERS.register(
+                    "modern_progression_filter", () -> ModernProgressionLootFilter.CODEC);
 
     private ModLootModifiers() {}
 

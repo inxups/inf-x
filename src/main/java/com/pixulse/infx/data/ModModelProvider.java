@@ -58,7 +58,8 @@ final class ModModelProvider extends ModelProvider {
                         ModBlocks.FURNACES.stream().map(block -> (Block) block.value()),
                         ModBlocks.ORES.stream().map(block -> (Block) block.value()),
                         ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()))
+                        ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
+                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
@@ -73,18 +74,37 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.FURNACES.stream().map(item -> (Item) item.value()),
                         ModItems.ORES.stream().map(item -> (Item) item.value()),
                         ModItems.METAL_STORAGE_BLOCKS.stream().map(item -> (Item) item.value()),
-                        ModItems.METAL_ANVILS.stream().map(item -> (Item) item.value()))
+                        ModItems.METAL_ANVILS.stream().map(item -> (Item) item.value()),
+                        ModItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()))
                 .flatMap(stream -> stream)
                 .map(BuiltInRegistries.ITEM::wrapAsHolder);
     }
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        ModBlocks.FURNACES.forEach(
-                furnace -> blockModels.createFurnace(furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
+        ModBlocks.FURNACES.stream()
+                .filter(furnace -> furnace.value() != ModBlocks.LARGE_CLAY_OVEN.value())
+                .forEach(furnace -> blockModels.createFurnace(
+                        furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
+        generateLargeClayOven(blockModels);
         ModBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         ModBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
+        blockModels.createTrivialBlock(
+                ModBlocks.MANTLE.value(),
+                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
+                        TextureSlot.ALL,
+                        new Material(Identifier.withDefaultNamespace("block/magma")))));
+        blockModels.createTrivialBlock(
+                ModBlocks.MITHRIL_RUNE_STONE.value(),
+                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
+                        TextureSlot.ALL,
+                        new Material(InfiniteX.id("block/mithril_block")))));
+        blockModels.createTrivialBlock(
+                ModBlocks.ADAMANTIUM_RUNE_STONE.value(),
+                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
+                        TextureSlot.ALL,
+                        new Material(InfiniteX.id("block/adamantium_block")))));
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(ModBlocks.UNDERWORLD_PORTAL.value())
                         .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
@@ -114,6 +134,21 @@ final class ModModelProvider extends ModelProvider {
                 case BOW -> generateMaterialBow(itemModels, entry);
             }
         }
+    }
+
+    private static void generateLargeClayOven(BlockModelGenerators models) {
+        var normal = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.getModelLocation(ModBlocks.CLAY_FURNACE.value()));
+        var lit = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.getModelLocation(ModBlocks.CLAY_FURNACE.value(), "_on"));
+        models.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(ModBlocks.LARGE_CLAY_OVEN.value())
+                        .with(BlockModelGenerators.createBooleanModelDispatch(
+                                BlockStateProperties.LIT, lit, normal))
+                        .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
+        models.registerSimpleItemModel(
+                ModBlocks.LARGE_CLAY_OVEN.value(),
+                ModelLocationUtils.getModelLocation(ModBlocks.CLAY_FURNACE.value()));
     }
 
     private static void generateMetalAnvil(BlockModelGenerators models, MetalAnvilBlock block) {

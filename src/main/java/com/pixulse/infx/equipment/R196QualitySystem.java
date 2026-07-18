@@ -5,12 +5,21 @@ import com.pixulse.infx.item.R196EquipmentKey;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
+import java.util.List;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public final class R196QualitySystem {
     public static final int AVERAGE_CODE = 0;
+    private static final List<R196Quality> QUALITY_CYCLE = List.of(
+            R196Quality.FINE,
+            R196Quality.EXCELLENT,
+            R196Quality.SUPERB,
+            R196Quality.MASTERWORK,
+            R196Quality.LEGENDARY,
+            R196Quality.WRETCHED,
+            R196Quality.POOR);
 
     private R196QualitySystem() {}
 
@@ -41,17 +50,25 @@ public final class R196QualitySystem {
             return AVERAGE_CODE;
         }
         R196Quality current = fromCode(currentCode);
-        R196Quality candidate = current == null || current == R196Quality.POOR
-                ? R196Quality.FINE
-                : current.ordinal() + 1 < R196Quality.values().length
-                        ? R196Quality.values()[current.ordinal() + 1]
-                        : null;
-        if (candidate == null
-                || !candidate.isAtMost(key.material().maximumQuality())
-                || player.totalExperience < experienceCost(difficulty, candidate)) {
-            return AVERAGE_CODE;
-        }
+        R196Quality candidate = nextSelectableQuality(
+                current, key.material().maximumQuality(), player.totalExperience, difficulty);
         return toCode(candidate);
+    }
+
+    static R196Quality nextSelectableQuality(
+            R196Quality current,
+            R196Quality maximum,
+            int totalExperience,
+            float difficulty) {
+        int start = current == null ? 0 : QUALITY_CYCLE.indexOf(current) + 1;
+        for (int index = Math.max(0, start); index < QUALITY_CYCLE.size(); index++) {
+            R196Quality candidate = QUALITY_CYCLE.get(index);
+            if (candidate.isAtMost(maximum)
+                    && totalExperience >= experienceCost(difficulty, candidate)) {
+                return candidate;
+            }
+        }
+        return null;
     }
 
     public static int clampCode(ItemStack output, Player player, float difficulty, int requestedCode) {
@@ -60,8 +77,7 @@ public final class R196QualitySystem {
         if (key == null || requested == null) {
             return AVERAGE_CODE;
         }
-        if (requested == R196Quality.POOR
-                || !requested.isAtMost(key.material().maximumQuality())
+        if (!requested.isAtMost(key.material().maximumQuality())
                 || player.totalExperience < experienceCost(difficulty, requested)) {
             return AVERAGE_CODE;
         }
@@ -70,14 +86,14 @@ public final class R196QualitySystem {
 
     public static float adjustedDifficulty(float difficulty, int qualityCode) {
         R196Quality quality = fromCode(qualityCode);
-        if (quality == null || quality == R196Quality.POOR) {
+        if (quality == null || quality == R196Quality.WRETCHED || quality == R196Quality.POOR) {
             return difficulty;
         }
-        return difficulty * (1 << quality.ordinal());
+        return difficulty * quality.craftingDifficultyMultiplier();
     }
 
     public static int experienceCost(float difficulty, R196Quality quality) {
-        if (quality == null || quality == R196Quality.POOR) {
+        if (quality == null || quality == R196Quality.WRETCHED || quality == R196Quality.POOR) {
             return 0;
         }
         return Math.round(adjustedDifficulty(difficulty, toCode(quality)) / 5.0F);
@@ -86,7 +102,7 @@ public final class R196QualitySystem {
     public static int applySelectedQuality(ItemStack stack, int qualityCode) {
         R196EquipmentKey key = key(stack);
         R196Quality quality = fromCode(qualityCode);
-        if (key == null || quality == null || quality == R196Quality.POOR) {
+        if (key == null || quality == null) {
             if (key != null && key.material() != com.pixulse.infx.material.R196Material.RUSTED_IRON) {
                 stack.remove(ModDataComponents.QUALITY.get());
                 stack.set(DataComponents.MAX_DAMAGE, key.durability());

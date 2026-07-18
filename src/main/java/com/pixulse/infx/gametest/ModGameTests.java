@@ -67,12 +67,14 @@ public final class ModGameTests {
             "bamboo_planks",
             "birch_planks",
             "bow",
+            "bundle",
             "cherry_planks",
             "copper_axe",
             "copper_boots",
             "copper_chestplate",
             "copper_helmet",
             "copper_hoe",
+            "copper_ingot",
             "copper_ingot_from_blasting_copper_ore",
             "copper_ingot_from_blasting_deepslate_copper_ore",
             "copper_ingot_from_blasting_raw_copper",
@@ -80,6 +82,7 @@ public final class ModGameTests {
             "copper_ingot_from_smelting_copper_ore",
             "copper_ingot_from_smelting_deepslate_copper_ore",
             "copper_ingot_from_smelting_raw_copper",
+            "copper_ingot_from_waxed_copper_block",
             "copper_leggings",
             "copper_nugget",
             "copper_nugget_from_blasting",
@@ -88,6 +91,7 @@ public final class ModGameTests {
             "copper_shovel",
             "copper_spear",
             "copper_sword",
+            "crafter",
             "crafting_table",
             "crimson_planks",
             "dark_oak_planks",
@@ -128,8 +132,16 @@ public final class ModGameTests {
             "leather_leggings",
             "mangrove_planks",
             "netherite_spear_smithing",
+            "netherite_block",
+            "netherite_ingot",
+            "netherite_ingot_from_netherite_block",
+            "netherite_scrap",
+            "netherite_scrap_from_blasting",
+            "netherite_upgrade_smithing_template",
             "oak_planks",
             "pale_oak_planks",
+            "raw_copper",
+            "raw_copper_block",
             "sandstone",
             "shears",
             "smooth_sandstone",
@@ -1439,7 +1451,7 @@ public final class ModGameTests {
         helper.onEachTick(player::doTick);
         helper.setBlock(
                 FURNACE_POS,
-                ModBlocks.HARDENED_CLAY_FURNACE.get()
+                ModBlocks.LARGE_CLAY_OVEN.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
         R196FurnaceBlockEntity[] furnace = {

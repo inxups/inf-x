@@ -10,12 +10,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 public final class HarvestEvents {
     private HarvestEvents() {}
 
     public static void register(IEventBus gameBus) {
         gameBus.addListener(EventPriority.HIGHEST, HarvestEvents::enforceRestrictions);
+        gameBus.addListener(HarvestEvents::applyBreakSpeedRules);
     }
 
     private static void enforceRestrictions(BreakBlockEvent event) {
@@ -23,7 +25,7 @@ public final class HarvestEvents {
         BlockState state = event.getState();
         ItemStack tool = player.getMainHandItem();
 
-        boolean allowed = HarvestPolicy.allows(
+        boolean allowed = state.is(ModTags.Blocks.PORTABLE_HAND_HARVEST) || HarvestPolicy.allows(
                 player.getAbilities().instabuild,
                 state.is(ModTags.Blocks.RESTRICTED_HARVEST),
                 tool.isCorrectToolForDrops(state),
@@ -36,6 +38,18 @@ public final class HarvestEvents {
                 event.setNotifyClient(true);
             }
         }
+    }
+
+    private static void applyBreakSpeedRules(PlayerEvent.BreakSpeed event) {
+        Player player = event.getEntity();
+        float multiplier = HarvestSpeedRules.multiplier(
+                player.experienceLevel,
+                player.isInWater(),
+                !player.onGround(),
+                player.getFoodData().getFoodLevel() <= 0,
+                HarvestSpeedRules.isParalyzed(player),
+                HarvestSpeedRules.isInCobweb(player));
+        event.setNewSpeed(event.getOriginalSpeed() * multiplier);
     }
 
     private static Optional<HarvestTier> highestToolTier(ItemStack tool) {

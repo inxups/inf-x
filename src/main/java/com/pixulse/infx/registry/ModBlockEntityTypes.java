@@ -17,6 +17,7 @@ public final class ModBlockEntityTypes {
             TYPES.register("furnace", () -> new BlockEntityType<>(
                     R196FurnaceBlockEntity::new,
                     ModBlocks.CLAY_FURNACE.get(),
+                    ModBlocks.LARGE_CLAY_OVEN.get(),
                     ModBlocks.SANDSTONE_FURNACE.get(),
                     ModBlocks.HARDENED_CLAY_FURNACE.get(),
                     ModBlocks.OBSIDIAN_FURNACE.get(),

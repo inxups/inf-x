@@ -3,10 +3,13 @@ package com.pixulse.infx.gametest;
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.MetalAnvilBlock;
+import com.pixulse.infx.block.RuneStoneBlock;
+import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.equipment.R196QualitySystem;
+import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.item.R196ArrowItem;
 import com.pixulse.infx.item.R196CoinItem;
 import com.pixulse.infx.item.R196EquipmentType;
@@ -45,6 +48,10 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.ExperienceOrb;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
@@ -53,6 +60,10 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.Vec3;
@@ -64,7 +75,14 @@ public final class ModR196CompletionGameTests {
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
     private static final List<String> NAMES = List.of(
-            "r196_special_behaviors", "r196_quality_coin", "r196_metal_anvil", "r196_underworld");
+            "r196_special_behaviors",
+            "r196_quality_coin",
+            "r196_metal_anvil",
+            "r196_underworld",
+            "r196_portals",
+            "r196_livestock",
+            "r196_gravel_loot",
+            "r196_hopper_xp");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -72,6 +90,10 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_quality_coin", () -> ModR196CompletionGameTests::qualityAndCoin);
         FUNCTIONS.register("r196_metal_anvil", () -> ModR196CompletionGameTests::metalAnvil);
         FUNCTIONS.register("r196_underworld", () -> ModR196CompletionGameTests::underworld);
+        FUNCTIONS.register("r196_portals", () -> ModR196CompletionGameTests::portals);
+        FUNCTIONS.register("r196_livestock", () -> ModR196CompletionGameTests::livestock);
+        FUNCTIONS.register("r196_gravel_loot", () -> ModR196CompletionGameTests::gravelLoot);
+        FUNCTIONS.register("r196_hopper_xp", () -> ModR196CompletionGameTests::hopperExperience);
     }
 
     private ModR196CompletionGameTests() {}
@@ -94,7 +116,7 @@ public final class ModR196CompletionGameTests {
                             new TestData<>(
                                     environment,
                                     Identifier.withDefaultNamespace("empty"),
-                                    400,
+                                    800,
                                     0,
                                     true,
                                     Rotation.NONE)));
@@ -311,13 +333,13 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.BIOME), "Underworld biome registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.NOISE_SETTINGS).containsKey(Underworld.NOISE), "Underworld noise registered");
 
-        // GameTestServer intentionally builds a flat world from an empty extra-dimension set.
-        // Verify that the portal fails safely in that harness; normal server startup verifies
-        // that the generated LevelStem is materialized as infx:underworld.
+        // A non-bottom Overworld gate is the first of the five ordinary R196 routes: it
+        // returns to the shared world spawn without needing a second dimension.
         helper.assertTrue(helper.getLevel().getServer().getLevel(Underworld.LEVEL) == null, "GameTest has no custom levels");
         TeleportTransition transition = ModBlocks.UNDERWORLD_PORTAL.get()
                 .getPortalDestination(helper.getLevel(), player, player.blockPosition());
-        helper.assertTrue(transition == null, "portal must fail safely when the target level is unavailable");
+        helper.assertTrue(transition != null, "non-bottom Overworld portal must return a spawn transition");
+        helper.assertTrue(transition.newLevel() == helper.getLevel(), "spawn route stays in the Overworld");
 
         BlockPos frameBase = helper.absolutePos(new BlockPos(14, 0, 14));
         frameBase = new BlockPos(frameBase.getX(), helper.getLevel().getMinY() + 1, frameBase.getZ());
@@ -332,6 +354,11 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 helper.getLevel().getBlockState(eligibleOrigin).is(ModBlocks.UNDERWORLD_PORTAL.get()),
                 "eligible portal interior converted");
+        helper.assertTrue(
+                ModBlocks.UNDERWORLD_PORTAL.get()
+                                .getPortalDestination(helper.getLevel(), player, eligibleOrigin)
+                        == null,
+                "bottom portal fails safely when the GameTest harness has no Underworld level");
 
         BlockPos raisedBase = frameBase.offset(6, 1, 0);
         BlockPos ineligibleOrigin = buildObsidianFrame(helper, raisedBase, false);
@@ -357,6 +384,194 @@ public final class ModR196CompletionGameTests {
         helper.succeed();
     }
 
+    private static void portals(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos base = helper.absolutePos(new BlockPos(4, 2, 12));
+        BlockPos origin = buildObsidianFrame(helper, base, false);
+        PortalShape shape = PortalShape.findEmptyPortalShape(helper.getLevel(), origin, Direction.Axis.X)
+                .orElseThrow();
+        helper.assertTrue(
+                UnderworldPortalEvents.tryCreateR196Portal(helper.getLevel(), origin, shape),
+                "ordinary Overworld frame must become an R196 portal");
+
+        BlockPos[] corners = {
+            base,
+            base.offset(3, 0, 0),
+            base.offset(0, 4, 0),
+            base.offset(3, 4, 0)
+        };
+        for (int i = 0; i < corners.length; i++) {
+            helper.getLevel().setBlock(
+                    corners[i],
+                    ModBlocks.MITHRIL_RUNE_STONE.get()
+                            .defaultBlockState()
+                            .setValue(RuneStoneBlock.RUNE, i * 5),
+                    3);
+        }
+        helper.assertTrue(
+                UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
+                "four same-material corner runes must override the ordinary gate");
+        helper.assertTrue(
+                helper.getLevel().getBlockState(corners[3]).getValue(RuneStoneBlock.RUNE) == 15,
+                "all sixteen rune states persist in the frame");
+
+        helper.getLevel().setBlock(
+                corners[0], ModBlocks.ADAMANTIUM_RUNE_STONE.get().defaultBlockState(), 3);
+        helper.assertFalse(
+                UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
+                "mixed rune materials must not form a rune gate");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void livestock(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        var level = helper.getLevel();
+        Cow cow = helper.spawn(EntityTypes.COW, new BlockPos(2, 2, 8));
+        helper.assertTrue(cow.getMaxHealth() == 20.0F, "R196 cows must have twenty health");
+        helper.setBlock(new BlockPos(3, 1, 8), Blocks.WATER);
+        ItemEntity wheat = new ItemEntity(
+                level, cow.getX(), cow.getY(), cow.getZ(), new ItemStack(Items.WHEAT));
+        level.addFreshEntity(wheat);
+        R196Livestock.Needs needs = R196Livestock.update(level, cow);
+        helper.assertTrue(needs.watered(), "nearby water must satisfy livestock thirst");
+        helper.assertTrue(
+                needs.fed() && (wheat.getItem().isEmpty() || !wheat.isAlive()),
+                "livestock must consume suitable dropped food");
+
+        cow.getPersistentData().putBoolean("infx_livestock_healthy", true);
+        cow.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
+        interactAt(player, cow);
+        helper.assertTrue(player.getMainHandItem().is(Items.MILK_BUCKET), "healthy cow produces its daily milk bucket");
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
+        interactAt(player, cow);
+        helper.assertTrue(player.getMainHandItem().is(Items.BUCKET), "a second same-day milk bucket must be denied");
+
+        Sheep sheep = helper.spawn(EntityTypes.SHEEP, new BlockPos(4, 2, 8));
+        sheep.getPersistentData().putBoolean("infx_livestock_healthy", true);
+        sheep.getPersistentData().putBoolean("infx_livestock_diseased", true);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
+        interactAt(player, sheep);
+        helper.assertFalse(sheep.isSheared(), "diseased sheep must not be shearable");
+        sheep.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        sheep.hurtServer(level, level.damageSources().inFire(), 1.0F);
+        helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
+
+        Chicken chicken = helper.spawn(EntityTypes.CHICKEN, new BlockPos(6, 2, 8));
+        chicken.setAge(0);
+        chicken.getPersistentData().putBoolean("infx_livestock_healthy", true);
+        chicken.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
+        com.pixulse.infx.entity.R196AnimalEvents.updateChicken(level, chicken);
+        helper.assertTrue(
+                !level.getEntitiesOfClass(
+                                ItemEntity.class,
+                                chicken.getBoundingBox().inflate(3.0),
+                                item -> item.getItem().is(Items.FEATHER))
+                        .isEmpty(),
+                "healthy chickens must naturally shed feathers");
+
+        Cow seeker = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(8, 2, 4));
+        seeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
+        seeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime());
+        for (int x = 7; x <= 13; x++) {
+            for (int z = 3; z <= 5; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+            }
+        }
+        BlockPos water = new BlockPos(13, 1, 4);
+        helper.setBlock(water, Blocks.WATER);
+        R196Livestock.Needs thirsty = R196Livestock.update(level, seeker);
+        helper.assertFalse(thirsty.watered(), "seeker setup must begin thirsty");
+        R196Livestock.NeedsGoal waterGoal = new R196Livestock.NeedsGoal(seeker);
+        R196Livestock.panic(level, cow);
+        helper.assertFalse(
+                chicken.getPersistentData().getBooleanOr("infx_livestock_healthy", true),
+                "panic must propagate across animal species");
+        helper.startSequence()
+                .thenExecuteAfter(2, () -> {
+                    helper.assertTrue(
+                            waterGoal.canUse(),
+                            "thirsty livestock must select a reachable water approach");
+                    BlockPos selectedTarget = waterGoal.selectedTarget();
+                    boolean targetTouchesWater = selectedTarget != null
+                            && BlockPos.betweenClosedStream(
+                                            selectedTarget.offset(-1, -1, -1),
+                                            selectedTarget.offset(1, 1, 1))
+                                    .anyMatch(pos -> level.getFluidState(pos)
+                                            .is(net.minecraft.tags.FluidTags.WATER));
+                    helper.assertTrue(
+                            targetTouchesWater,
+                            "thirsty livestock must path toward a standable position beside water");
+                    waterGoal.start();
+                    helper.assertFalse(
+                            seeker.getNavigation().isDone(),
+                            "water-seeking navigation must start");
+                    removePlayer(player);
+                    seeker.discard();
+                })
+                .thenSucceed();
+    }
+
+    private static void gravelLoot(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos relative = new BlockPos(4, 2, 4);
+        helper.setBlock(relative, Blocks.GRAVEL);
+        BlockPos absolute = helper.absolutePos(relative);
+        int gravel = 0;
+        int alternate = 0;
+        boolean foundCopper = false;
+        for (int sample = 0; sample < 2_048; sample++) {
+            List<ItemStack> drops = Block.getDrops(
+                    Blocks.GRAVEL.defaultBlockState(),
+                    helper.getLevel(),
+                    absolute,
+                    null,
+                    player,
+                    player.getMainHandItem());
+            helper.assertTrue(!drops.isEmpty(), "player-mined gravel must produce a real loot-table result");
+            for (ItemStack stack : drops) {
+                if (stack.is(Items.GRAVEL)) gravel += stack.getCount();
+                else alternate += stack.getCount();
+                if (stack.is(Items.COPPER_NUGGET)) foundCopper = true;
+            }
+        }
+        double gravelRate = gravel / (double) (gravel + alternate);
+        helper.assertTrue(gravelRate > .70 && gravelRate < .80, "real gravel rate must converge near 3/4: " + gravelRate);
+        helper.assertTrue(foundCopper, "real gravel loot must reach the copper branch");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void hopperExperience(GameTestHelper helper) {
+        BlockPos furnacePos = new BlockPos(6, 3, 6);
+        BlockPos hopperPos = furnacePos.below();
+        helper.setBlock(
+                furnacePos,
+                Blocks.FURNACE.defaultBlockState()
+                        .setValue(net.minecraft.world.level.block.AbstractFurnaceBlock.FACING, Direction.NORTH));
+        helper.setBlock(
+                hopperPos,
+                Blocks.HOPPER.defaultBlockState().setValue(HopperBlock.FACING, Direction.DOWN));
+        FurnaceBlockEntity furnace = helper.getBlockEntity(furnacePos, FurnaceBlockEntity.class);
+        HopperBlockEntity hopper = helper.getBlockEntity(hopperPos, HopperBlockEntity.class);
+        furnace.setItem(0, new ItemStack(Items.RAW_GOLD, 2));
+        furnace.setItem(1, Items.COAL.getDefaultInstance());
+        BlockPos absolute = helper.absolutePos(furnacePos);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        hopper.getItem(0).is(Items.GOLD_INGOT) && hopper.getItem(0).getCount() >= 2,
+                        "hopper must extract both furnace outputs"))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        !helper.getLevel().getEntitiesOfClass(
+                                        ExperienceOrb.class,
+                                        new AABB(absolute).inflate(4.0))
+                                .isEmpty(),
+                        "automated output must pop accumulated XP at the furnace mouth"))
+                .thenSucceed();
+    }
+
     private static BlockPos buildObsidianFrame(GameTestHelper helper, BlockPos base, boolean addBedrock) {
         for (int x = 0; x < 4; x++) {
             if (addBedrock) {
@@ -374,7 +589,15 @@ public final class ModR196CompletionGameTests {
         return base.offset(1, 1, 0);
     }
 
-    private static ServerPlayer createPlayer(GameTestHelper helper) {
+    private static void interactAt(ServerPlayer player, net.minecraft.world.entity.Mob target) {
+        var result = net.neoforged.neoforge.common.CommonHooks.onInteractEntityAt(
+                player, target, target.position(), InteractionHand.MAIN_HAND);
+        if (result == null) {
+            target.interact(player, InteractionHand.MAIN_HAND, target.position());
+        }
+    }
+
+    static ServerPlayer createPlayer(GameTestHelper helper) {
         GameProfile profile = new GameProfile(
                 UUID.randomUUID(), "infx-r196-" + PLAYER_SEQUENCE.incrementAndGet());
         CommonListenerCookie cookie = CommonListenerCookie.createInitial(profile, false);
@@ -389,7 +612,7 @@ public final class ModR196CompletionGameTests {
         return player;
     }
 
-    private static void removePlayer(ServerPlayer player) {
+    static void removePlayer(ServerPlayer player) {
         if (player.containerMenu != player.inventoryMenu) {
             player.closeContainer();
         }

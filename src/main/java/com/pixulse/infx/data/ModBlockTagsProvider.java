@@ -28,24 +28,48 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.SILVER_BLOCK.getKey())
                 .add(ModBlocks.ANCIENT_METAL_BLOCK.getKey())
                 .add(ModBlocks.MITHRIL_BLOCK.getKey())
-                .add(ModBlocks.ADAMANTIUM_BLOCK.getKey());
+                .add(ModBlocks.ADAMANTIUM_BLOCK.getKey())
+                .add(ModBlocks.MITHRIL_RUNE_STONE.getKey())
+                .add(ModBlocks.ADAMANTIUM_RUNE_STONE.getKey());
         ModBlocks.METAL_ANVILS.forEach(anvil -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(anvil.getKey()));
         tag(ModTags.Blocks.RESTRICTED_HARVEST)
                 .addTag(BlockTags.LOGS)
-                .addTag(BlockTags.MINEABLE_WITH_PICKAXE);
-        tag(ModTags.Blocks.requiredTier(HarvestTier.FLINT)).addTag(BlockTags.LOGS);
+                .addTag(BlockTags.MINEABLE_WITH_PICKAXE)
+                .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
+                .addTag(BlockTags.MINEABLE_WITH_AXE)
+                .addTag(BlockTags.MINEABLE_WITH_HOE)
+                .addTag(BlockTags.CROPS);
+        var portable = tag(ModTags.Blocks.PORTABLE_HAND_HARVEST);
+        ModBlocks.WORKBENCHES.forEach(block -> portable.add(block.getKey()));
+        ModBlocks.FURNACES.forEach(block -> portable.add(block.getKey()));
+        tag(ModTags.Blocks.requiredTier(HarvestTier.FLINT))
+                .addTag(BlockTags.LOGS)
+                .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
+                .addTag(BlockTags.MINEABLE_WITH_AXE)
+                .addTag(BlockTags.MINEABLE_WITH_HOE)
+                .addTag(BlockTags.CROPS);
         tag(ModTags.Blocks.requiredTier(HarvestTier.COPPER)).addTag(BlockTags.MINEABLE_WITH_PICKAXE);
         tag(ModTags.Blocks.requiredTier(HarvestTier.IRON))
+                .add(net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                        .getResourceKey(net.minecraft.world.level.block.Blocks.EMERALD_ORE).orElseThrow())
+                .add(net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                        .getResourceKey(net.minecraft.world.level.block.Blocks.DEEPSLATE_EMERALD_ORE).orElseThrow())
                 .add(ModBlocks.OBSIDIAN_FURNACE.getKey())
                 .add(ModBlocks.MITHRIL_ORE.getKey())
                 .add(ModBlocks.ANCIENT_METAL_BLOCK.getKey())
                 .add(ModBlocks.ANCIENT_METAL_ANVIL.getKey());
         tag(ModTags.Blocks.requiredTier(HarvestTier.ANCIENT_METAL))
                 .add(ModBlocks.MITHRIL_BLOCK.getKey())
-                .add(ModBlocks.MITHRIL_ANVIL.getKey());
+                .add(ModBlocks.MITHRIL_ANVIL.getKey())
+                .add(ModBlocks.MITHRIL_RUNE_STONE.getKey());
         tag(ModTags.Blocks.requiredTier(HarvestTier.MITHRIL))
+                .add(net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                        .getResourceKey(net.minecraft.world.level.block.Blocks.DIAMOND_ORE).orElseThrow())
+                .add(net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                        .getResourceKey(net.minecraft.world.level.block.Blocks.DEEPSLATE_DIAMOND_ORE).orElseThrow())
                 .add(ModBlocks.ADAMANTIUM_ORE.getKey())
                 .add(ModBlocks.ADAMANTIUM_BLOCK.getKey())
-                .add(ModBlocks.ADAMANTIUM_ANVIL.getKey());
+                .add(ModBlocks.ADAMANTIUM_ANVIL.getKey())
+                .add(ModBlocks.ADAMANTIUM_RUNE_STONE.getKey());
     }
 }

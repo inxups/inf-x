@@ -25,6 +25,8 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         add("glass_shards", new GlassShardLootModifier(new LootItemCondition[0], 2000));
         add("underworld_dungeon", new com.pixulse.infx.loot.UnderworldDungeonLootModifier(
                 new LootItemCondition[0], 1500));
+        add("modern_progression_filter", new com.pixulse.infx.loot.ModernProgressionLootFilter(
+                new LootItemCondition[0], 3000));
         addHorseArmor("simple_dungeon");
         addHorseArmor("nether_bridge");
         addHorseArmor("desert_pyramid");

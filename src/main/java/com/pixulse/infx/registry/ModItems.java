@@ -35,6 +35,14 @@ public final class ModItems {
     public static final List<DeferredItem<BlockItem>> METAL_STORAGE_BLOCKS =
             List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
 
+    public static final DeferredItem<BlockItem> MANTLE = ITEMS.registerSimpleBlockItem(ModBlocks.MANTLE);
+    public static final DeferredItem<BlockItem> MITHRIL_RUNE_STONE =
+            ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_RUNE_STONE);
+    public static final DeferredItem<BlockItem> ADAMANTIUM_RUNE_STONE =
+            ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_RUNE_STONE, properties -> properties.fireResistant());
+    public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
+            List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
+
     public static final List<DeferredItem<BlockItem>> METAL_ANVILS = ModBlocks.METAL_ANVILS.stream()
             .map(anvil -> ITEMS.registerItem(
                     anvil.getId().getPath(),
@@ -67,6 +75,8 @@ public final class ModItems {
             ITEMS.registerSimpleBlockItem(ModBlocks.OBSIDIAN_WORKBENCH);
     public static final DeferredItem<BlockItem> CLAY_FURNACE =
             ITEMS.registerSimpleBlockItem(ModBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
+    public static final DeferredItem<BlockItem> LARGE_CLAY_OVEN =
+            ITEMS.registerSimpleBlockItem(ModBlocks.LARGE_CLAY_OVEN, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> SANDSTONE_FURNACE =
             ITEMS.registerSimpleBlockItem(ModBlocks.SANDSTONE_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> HARDENED_CLAY_FURNACE =
@@ -89,6 +99,7 @@ public final class ModItems {
 
     public static final List<DeferredItem<BlockItem>> FURNACES = List.of(
             CLAY_FURNACE,
+            LARGE_CLAY_OVEN,
             SANDSTONE_FURNACE,
             HARDENED_CLAY_FURNACE,
             OBSIDIAN_FURNACE,

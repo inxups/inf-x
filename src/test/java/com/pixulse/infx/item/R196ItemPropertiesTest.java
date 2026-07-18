@@ -48,4 +48,11 @@ class R196ItemPropertiesTest {
                 key(R196Material.ADAMANTIUM, R196EquipmentType.HORSE_ARMOR));
         assertEquals(7.0, armor.compute(Attributes.ARMOR, 0.0, EquipmentSlot.BODY));
     }
+
+    @Test
+    void toolAttackRangeStartsAtTheR196MeleeBaselineAndKeepsItsReachBonus() {
+        assertEquals(1.5F, R196ItemProperties.attackRange(R196EquipmentType.FISHING_ROD).maxReach());
+        assertEquals(2.5F, R196ItemProperties.attackRange(R196EquipmentType.SCYTHE).maxReach());
+        assertEquals(1.75F, R196ItemProperties.attackRange(R196EquipmentType.KNIFE).maxReach());
+    }
 }

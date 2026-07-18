@@ -2,11 +2,17 @@ package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.R196Mob;
+import com.pixulse.infx.entity.R196MonsterTactics;
+import com.pixulse.infx.entity.R196MonsterEvents;
+import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModEntityTypes;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -23,6 +29,9 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -32,6 +41,7 @@ public final class ModMonsterGameTests {
     private static final String ROSTER = "r196_monster_roster";
     private static final String REPLACEMENT = "r196_monster_replacement";
     private static final String BEHAVIORS = "r196_monster_behaviors";
+    private static final String TACTICS = "r196_monster_tactics";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -39,6 +49,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ROSTER, () -> ModMonsterGameTests::roster);
         FUNCTIONS.register(REPLACEMENT, () -> ModMonsterGameTests::replacement);
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
+        FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
     }
 
     private ModMonsterGameTests() {}
@@ -51,7 +62,7 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, REPLACEMENT, BEHAVIORS)) {
+        for (String name : List.of(ROSTER, REPLACEMENT, BEHAVIORS, TACTICS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -78,16 +89,24 @@ public final class ModMonsterGameTests {
             entity.discard();
         }
         helper.assertTrue(
-                ModEntityTypes.R196_ZOMBIE.get().builtInRegistryHolder().is(EntityTypeTags.UNDEAD),
+                BuiltInRegistries.ENTITY_TYPE
+                        .wrapAsHolder(ModEntityTypes.R196_ZOMBIE.get())
+                        .is(EntityTypeTags.UNDEAD),
                 "replacement zombies must retain vanilla undead semantics");
         helper.assertTrue(
-                ModEntityTypes.R196_SKELETON.get().builtInRegistryHolder().is(EntityTypeTags.SKELETONS),
+                BuiltInRegistries.ENTITY_TYPE
+                        .wrapAsHolder(ModEntityTypes.R196_SKELETON.get())
+                        .is(EntityTypeTags.SKELETONS),
                 "replacement skeletons must retain the vanilla skeleton family tag");
         helper.assertTrue(
-                ModEntityTypes.PHASE_SPIDER.get().builtInRegistryHolder().is(EntityTypeTags.ARTHROPOD),
+                BuiltInRegistries.ENTITY_TYPE
+                        .wrapAsHolder(ModEntityTypes.PHASE_SPIDER.get())
+                        .is(EntityTypeTags.ARTHROPOD),
                 "R196 spiders must retain arthropod semantics");
         helper.assertTrue(
-                ModEntityTypes.R196_SQUID.get().builtInRegistryHolder().is(EntityTypeTags.AQUATIC),
+                BuiltInRegistries.ENTITY_TYPE
+                        .wrapAsHolder(ModEntityTypes.R196_SQUID.get())
+                        .is(EntityTypeTags.AQUATIC),
                 "replacement squid must retain aquatic semantics");
         helper.succeed();
     }
@@ -96,7 +115,10 @@ public final class ModMonsterGameTests {
         BlockPos naturalPos = new BlockPos(2, 2, 2);
         BlockPos explicitPos = new BlockPos(5, 2, 2);
         helper.spawn(EntityTypes.ZOMBIE, naturalPos, EntitySpawnReason.NATURAL);
-        helper.spawn(EntityTypes.ZOMBIE, explicitPos, EntitySpawnReason.COMMAND);
+        var explicit = EntityTypes.ZOMBIE.create(helper.getLevel(), EntitySpawnReason.COMMAND);
+        Vec3 explicitLocation = helper.absoluteVec(Vec3.atBottomCenterOf(explicitPos));
+        explicit.snapTo(explicitLocation.x, explicitLocation.y, explicitLocation.z, 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(explicit);
         helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
         helper.succeedWhen(() -> {
             helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
@@ -139,6 +161,44 @@ public final class ModMonsterGameTests {
                 3.0F,
                 Level.ExplosionInteraction.MOB);
         helper.assertTrue(cow.getHealth() < before, "infernal creeper explosions must use the amplified six-block radius");
+        helper.succeed();
+    }
+
+    private static void tactics(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var player = ModR196CompletionGameTests.createPlayer(helper);
+        Vec3 playerPos = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(7, 2, 7)));
+        player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
+
+        var leader = helper.spawn(
+                ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 2));
+        var ally = helper.spawn(
+                ModEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 2));
+        leader.setTarget(player);
+        R196MonsterEvents.propagateTarget(level, leader, player);
+        helper.assertTrue(ally.getTarget() == player, "R196 monsters must share a newly acquired player target");
+        leader.setTarget(null);
+        ally.setTarget(null);
+        level.gameEvent(GameEvent.BLOCK_DESTROY, player.position(), GameEvent.Context.of(player));
+        helper.assertTrue(leader.getTarget() == player, "player block noise must attract nearby monsters");
+        helper.assertTrue(ally.getTarget() == player, "activity attraction applies across hostile families");
+
+        var digger = helper.spawnWithNoFreeWill(
+                ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 7));
+        digger.setItemSlot(
+                net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                ModItems.catalog()
+                        .equipment(R196Material.IRON, R196EquipmentType.PICKAXE)
+                        .holder()
+                        .toStack());
+        digger.setTarget(player);
+        BlockPos wall = new BlockPos(4, 3, 7);
+        helper.setBlock(wall, Blocks.STONE);
+        for (int attempt = 0; attempt < 30 && !helper.getBlockState(wall).isAir(); attempt++) {
+            R196MonsterTactics.tryDig(level, digger);
+        }
+        helper.assertTrue(helper.getBlockState(wall).isAir(), "tool-equipped blocked monster must mine through stone");
+        ModR196CompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 }

@@ -1,6 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.entity.R196Livestock;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -33,7 +34,7 @@ public final class R196ManureEvents {
         long next = animal.getPersistentData().getLong(NEXT_DROP_TAG).orElse(0L);
         if (next == 0L) {
             animal.getPersistentData().putLong(NEXT_DROP_TAG, now + interval);
-        } else if (now >= next) {
+        } else if (now >= next && R196Livestock.isProductive(animal)) {
             animal.spawnAtLocation(level, ModItems.catalog().raw("manure").holder());
             animal.getPersistentData().putLong(NEXT_DROP_TAG, now + interval);
         }

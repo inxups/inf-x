@@ -37,7 +37,8 @@ public enum R196MiningFamily {
                     true);
             case SWORD -> new Tool(
                     List.of(
-                            Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F),
+                            Tool.Rule.minesAndDrops(
+                                    HolderSet.direct(BuiltInRegistries.BLOCK.wrapAsHolder(Blocks.COBWEB)), 15.0F),
                             Tool.Rule.overrideSpeed(
                                     blocks.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE),
                             Tool.Rule.overrideSpeed(blocks.getOrThrow(BlockTags.SWORD_EFFICIENT), speed)),
@@ -46,7 +47,8 @@ public enum R196MiningFamily {
                     true);
             case SHEARS -> new Tool(
                     List.of(
-                            Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F),
+                            Tool.Rule.minesAndDrops(
+                                    HolderSet.direct(BuiltInRegistries.BLOCK.wrapAsHolder(Blocks.COBWEB)), 15.0F),
                             Tool.Rule.overrideSpeed(
                                     blocks.getOrThrow(BlockTags.SHEARS_EXTREME_BREAKING_SPEED), 15.0F),
                             Tool.Rule.overrideSpeed(

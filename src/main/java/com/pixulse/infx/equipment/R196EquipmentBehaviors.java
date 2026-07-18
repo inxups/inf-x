@@ -9,6 +9,7 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -22,7 +23,20 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import com.pixulse.infx.entity.R196Slime;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import java.util.List;
+import com.pixulse.infx.block.R196FurnaceBlock;
+import com.pixulse.infx.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.tag.ModTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Items;
 
 public final class R196EquipmentBehaviors {
     private static final String RECOVERY_CHECKED = "infxArrowRecoveryChecked";
@@ -33,11 +47,13 @@ public final class R196EquipmentBehaviors {
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applySilverBonus);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::onProjectileImpact);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyArmorDecay);
+        NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyFixedPointArmor);
+        NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyElementalCorrosion);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::addQualityTooltip);
     }
 
     static void applySilverBonus(LivingIncomingDamageEvent event) {
-        if (!event.getEntity().getType().builtInRegistryHolder().is(EntityTypeTags.UNDEAD)
+        if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(event.getEntity().getType()).is(EntityTypeTags.UNDEAD)
                 || !hasSilverAspect(event)) {
             return;
         }
@@ -122,11 +138,149 @@ public final class R196EquipmentBehaviors {
         return Math.min(1.0F, remaining * 2.0F);
     }
 
+    static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof net.minecraft.world.entity.player.Player player)
+                || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) {
+            return;
+        }
+        float armorPoints = (float) player.getAttributeValue(Attributes.ARMOR);
+        if (armorPoints <= 0.0F) {
+            return;
+        }
+        boolean fire = event.getSource().is(DamageTypeTags.IS_FIRE);
+        event.getContainer().addModifier(
+                DamageContainer.Reduction.ARMOR,
+                (container, vanillaReduction) -> r196ArmorReduction(
+                        container.getNewDamage(), armorPoints, fire));
+    }
+
+    static float r196ArmorReduction(float incomingDamage, float armorPoints, boolean fire) {
+        return fire ? 0.0F : fixedArmorReduction(incomingDamage, armorPoints);
+    }
+
+    public static float fixedArmorReduction(float incomingDamage, float armorPoints) {
+        if (incomingDamage <= 1.0F || armorPoints <= 0.0F) {
+            return 0.0F;
+        }
+        return Math.min(armorPoints, incomingDamage - 1.0F);
+    }
+
+    static void applyElementalCorrosion(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        boolean lava = event.getSource().is(DamageTypes.LAVA);
+        boolean fire = event.getSource().is(DamageTypeTags.IS_FIRE);
+        boolean acid = event.getSource().getEntity() instanceof R196Slime slime
+                && (slime.variant() == R196Slime.Variant.OOZE
+                        || slime.variant() == R196Slime.Variant.PUDDING);
+        if (!lava && !fire && !acid) {
+            return;
+        }
+
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            damageForCorrosion(player, player.getItemBySlot(slot), slot, event.getAmount(), fire, lava, acid);
+        }
+        if (lava || acid) {
+            for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
+                if (stack.isDamageableItem() && player.getRandom().nextInt(4) == 0) {
+                    int damage = corrosionDamage(stack, event.getAmount(), fire, lava, acid);
+                    if (damage > 0) {
+                        stack.hurtAndBreak(damage, player.level(), player, ignored -> {});
+                    }
+                }
+            }
+        }
+    }
+
+    private static void damageForCorrosion(
+            ServerPlayer player,
+            ItemStack stack,
+            EquipmentSlot slot,
+            float damage,
+            boolean fire,
+            boolean lava,
+            boolean acid) {
+        int wear = corrosionDamage(stack, damage, fire, lava, acid);
+        if (wear > 0) {
+            stack.hurtAndBreak(wear, player, slot);
+        }
+    }
+
+    public static int corrosionDamage(
+            ItemStack stack, float incomingDamage, boolean fire, boolean lava, boolean acid) {
+        R196Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+        if (entry == null || !stack.isDamageableItem()) {
+            return 0;
+        }
+        return corrosionDamage(
+                entry.key().material(), stack.getMaxDamage(), incomingDamage, fire, lava, acid);
+    }
+
+    static int corrosionDamage(
+            R196Material material,
+            int maxDamage,
+            float incomingDamage,
+            boolean fire,
+            boolean lava,
+            boolean acid) {
+        if (material == R196Material.ADAMANTIUM) {
+            return 0;
+        }
+        if (material == R196Material.LEATHER && (fire || lava || acid)) {
+            return maxDamage;
+        }
+        if (lava) {
+            return Math.max(1, Math.round(incomingDamage * 10.0F));
+        }
+        if (acid) {
+            return Math.max(1, Math.round(incomingDamage * 4.0F));
+        }
+        return 0;
+    }
+
     static void addQualityTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
         R196Quality quality = event.getItemStack().get(ModDataComponents.QUALITY.get());
         if (quality != null) {
             event.getToolTip().add(1, Component.translatable("quality.infx." + quality.getSerializedName())
                     .withStyle(quality.color()));
         }
+        R196Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+        if (entry != null) {
+            R196EquipmentKey key = entry.key();
+            event.getToolTip().add(Component.translatable(
+                    "tooltip.infx.material", Component.translatable("material.infx." + key.material().path())));
+            if (key.type().baseDamage() > 0.0F) {
+                event.getToolTip().add(Component.translatable("tooltip.infx.damage", key.meleeDamage()));
+                event.getToolTip().add(Component.translatable(
+                        "tooltip.infx.reach", 1.5F + key.type().reachBonus()));
+            }
+            if (key.armorProtection() > 0.0F) {
+                event.getToolTip().add(Component.translatable("tooltip.infx.protection", key.armorProtection()));
+            }
+            if (stack.isDamageableItem()) {
+                event.getToolTip().add(Component.translatable(
+                        "tooltip.infx.repair", Component.translatable("material.infx." + key.material().path())));
+            }
+        }
+
+        int fuelHeat = tooltipFuelHeat(stack);
+        if (fuelHeat > 0) event.getToolTip().add(Component.translatable("tooltip.infx.fuel_heat", fuelHeat));
+        int recipeHeat = FurnaceHeatPolicy.requiredHeat(stack);
+        if (recipeHeat > 1) event.getToolTip().add(Component.translatable("tooltip.infx.recipe_heat", recipeHeat));
+        if (stack.getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock() instanceof R196FurnaceBlock furnace) {
+            event.getToolTip().add(Component.translatable("tooltip.infx.furnace_heat", furnace.maximumHeat()));
+        }
+    }
+
+    private static int tooltipFuelHeat(ItemStack stack) {
+        if (stack.is(Items.BLAZE_ROD)) return FurnaceHeatPolicy.HEAT_BLAZE;
+        if (stack.is(Items.LAVA_BUCKET)) return FurnaceHeatPolicy.HEAT_LAVA;
+        if (stack.is(ModTags.Items.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
+        if (stack.is(ItemTags.LOGS) || stack.is(ItemTags.PLANKS)) return FurnaceHeatPolicy.HEAT_WOOD;
+        return 0;
     }
 }

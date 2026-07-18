@@ -25,6 +25,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Direction;
 
 @Mixin(AbstractFurnaceBlockEntity.class)
 public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAccess {
@@ -33,6 +38,9 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
 
     @Shadow
     private int cookingTimer;
+
+    @Shadow
+    private Reference2IntOpenHashMap<ResourceKey<Recipe<?>>> recipesUsed;
 
     @Unique
     private int infx$currentHeat;
@@ -60,6 +68,22 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
     @Override
     public void infx$setCookingTimer(int ticks) {
         cookingTimer = ticks;
+    }
+
+    @Override
+    public void infx$popAutomationExperience(ServerLevel level) {
+        AbstractFurnaceBlockEntity entity = (AbstractFurnaceBlockEntity) (Object) this;
+        if (recipesUsed.isEmpty()) {
+            return;
+        }
+        BlockState state = entity.getBlockState();
+        Direction facing = state.hasProperty(AbstractFurnaceBlock.FACING)
+                ? state.getValue(AbstractFurnaceBlock.FACING)
+                : Direction.NORTH;
+        entity.getRecipesToAwardAndPopExperience(
+                level, Vec3.atCenterOf(entity.getBlockPos().relative(facing)));
+        recipesUsed.clear();
+        entity.setChanged();
     }
 
     @Inject(method = "loadAdditional", at = @At("TAIL"))
