@@ -10,7 +10,7 @@ Clay and sandstone ovens provide the R196 heat-1 alternatives. The clay oven onl
 
 The remaining R196 furnace shells are also available. The large clay oven accepts full blocks but remains capped at heat 1, the obsidian furnace accepts lava at heat 3, and the netherrack furnace is the only furnace that accepts heat-4 blaze rods.
 
-Mithril and adamantium ore blocks now restore the R196 hardness, harvesting, self-drop, and furnace progression. Mithril requires an iron-tier InfiniteX tool and heat 3; it generates in Overworld stone between Y=0 and Y=32 with a low-depth bias and three-block base veins. Adamantium requires a mithril-tier InfiniteX tool and heat 4. Its natural generation remains intentionally disabled until InfiniteX has MITE's Underworld dimension, where R196 originally placed the ore.
+Silver, mithril, and adamantium ore blocks restore the R196 hardness, harvesting, self-drop, and furnace progression. Silver requires a copper-tier InfiniteX tool and heat 2; it generates in Overworld stone between Y=0 and Y=96 with a low-depth bias and six-block base veins. Mithril requires an iron-tier tool and heat 3, generating between Y=0 and Y=32 with the same bias and three-block base veins. Adamantium requires a mithril-tier tool and heat 4. Its natural generation remains intentionally disabled until InfiniteX has MITE's Underworld dimension, where R196 originally placed the ore.
 
 The implementation uses InfiniteX-owned tags and NeoForge events instead of replacing vanilla harvest tags. Third-party tools can opt in with `infx:tool_tier/<tier>` and a correct vanilla `Tool` component.
 

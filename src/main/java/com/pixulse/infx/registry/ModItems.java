@@ -17,12 +17,14 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(InfiniteX.MOD_ID);
 
+    public static final DeferredItem<BlockItem> SILVER_ORE =
+            ITEMS.registerSimpleBlockItem(ModBlocks.SILVER_ORE);
     public static final DeferredItem<BlockItem> MITHRIL_ORE =
             ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_ORE);
     public static final DeferredItem<BlockItem> ADAMANTIUM_ORE =
             ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_ORE, properties -> properties.fireResistant());
 
-    public static final List<DeferredItem<BlockItem>> ORES = List.of(MITHRIL_ORE, ADAMANTIUM_ORE);
+    public static final List<DeferredItem<BlockItem>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
 
     public static final DeferredItem<BlockItem> FLINT_WORKBENCH =
             ITEMS.registerSimpleBlockItem(ModBlocks.FLINT_WORKBENCH);
