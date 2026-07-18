@@ -2,13 +2,15 @@ package com.pixulse.infx;
 
 import com.mojang.logging.LogUtils;
 import com.pixulse.infx.data.ModDataGenerators;
+import com.pixulse.infx.furnace.FurnaceEvents;
 import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.crafting.TimedCraftingEvents;
 import com.pixulse.infx.gametest.ModEquipmentGameTests;
 import com.pixulse.infx.gametest.ModGameTests;
+import com.pixulse.infx.registry.ModBlockEntityTypes;
+import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
-import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
 import com.pixulse.infx.registry.ModRecipes;
@@ -28,6 +30,7 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         ModBlocks.register(modBus);
+        ModBlockEntityTypes.register(modBus);
         ModDataComponents.register(modBus);
         ModItems.register(modBus);
         ModLootModifiers.register(modBus);
@@ -37,6 +40,7 @@ public final class InfiniteX {
         ModGameTests.register(modBus);
         ModEquipmentGameTests.register(modBus);
         modBus.addListener(ModDataGenerators::gatherData);
+        FurnaceEvents.register(NeoForge.EVENT_BUS);
         HarvestEvents.register(NeoForge.EVENT_BUS);
         TimedCraftingEvents.register(NeoForge.EVENT_BUS);
         ProgressionEvents.register(NeoForge.EVENT_BUS);

@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
@@ -36,17 +38,23 @@ final class ModModelProvider extends ModelProvider {
 
     @Override
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
-        return Stream.empty();
+        return ModBlocks.FURNACES.stream()
+                .map(furnace -> BuiltInRegistries.BLOCK.wrapAsHolder(furnace.value()));
     }
 
     @Override
     protected Stream<? extends Holder<Item>> getKnownItems() {
-        return ModItems.catalog().entries().stream()
-                .map(entry -> BuiltInRegistries.ITEM.wrapAsHolder(entry.holder().value()));
+        return Stream.concat(
+                ModItems.catalog().entries().stream()
+                        .map(entry -> BuiltInRegistries.ITEM.wrapAsHolder(entry.holder().value())),
+                ModItems.FURNACES.stream()
+                        .map(furnace -> BuiltInRegistries.ITEM.wrapAsHolder(furnace.value())));
     }
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
+        ModBlocks.FURNACES.forEach(
+                furnace -> blockModels.createFurnace(furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
