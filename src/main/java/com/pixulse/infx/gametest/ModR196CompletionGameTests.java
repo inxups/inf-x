@@ -39,6 +39,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -294,6 +295,18 @@ public final class ModR196CompletionGameTests {
     private static void underworld(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         var registries = helper.getLevel().registryAccess();
+        helper.assertTrue(helper.getLevel().getMinY() == -16, "Overworld bottom is Y=-16");
+        var biomes = registries.lookupOrThrow(Registries.BIOME);
+        for (var tag : List.of(
+                BiomeTags.HAS_ANCIENT_CITY,
+                BiomeTags.HAS_BURIED_TREASURE,
+                BiomeTags.HAS_MINESHAFT,
+                BiomeTags.HAS_MINESHAFT_MESA,
+                BiomeTags.HAS_STRONGHOLD,
+                BiomeTags.HAS_TRAIL_RUINS,
+                BiomeTags.HAS_TRIAL_CHAMBERS)) {
+            helper.assertTrue(biomes.getOrThrow(tag).size() == 0, tag.location() + " is empty");
+        }
         helper.assertTrue(registries.lookupOrThrow(Registries.DIMENSION_TYPE).containsKey(Underworld.TYPE), "Underworld type registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.BIOME), "Underworld biome registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.NOISE_SETTINGS).containsKey(Underworld.NOISE), "Underworld noise registered");

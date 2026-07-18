@@ -3,8 +3,8 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.world.Underworld;
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
@@ -12,15 +12,21 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.SurfaceRuleData;
+import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.attribute.AmbientSounds;
+import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.BedRule;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.clock.WorldClock;
+import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.CardinalLighting;
@@ -32,10 +38,14 @@ import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -56,6 +66,8 @@ import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 final class ModWorldGen {
+    private static final int OVERWORLD_MIN_Y = -16;
+    private static final int OVERWORLD_HEIGHT = 336;
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
@@ -160,6 +172,38 @@ final class ModWorldGen {
     private static void bootstrapDimensionTypes(BootstrapContext<DimensionType> context) {
         HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
         HolderGetter<Timeline> timelines = context.lookup(Registries.TIMELINE);
+        HolderGetter<WorldClock> clocks = context.lookup(Registries.WORLD_CLOCK);
+        EnvironmentAttributeMap overworldAttributes = EnvironmentAttributeMap.builder()
+                .set(EnvironmentAttributes.FOG_COLOR, -4_138_753)
+                .set(EnvironmentAttributes.SKY_COLOR, OverworldBiomes.calculateSkyColor(0.8F))
+                .set(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, -16_119_286)
+                .set(EnvironmentAttributes.CLOUD_COLOR, ARGB.white(0.8F))
+                .set(EnvironmentAttributes.CLOUD_HEIGHT, 192.33F)
+                .set(EnvironmentAttributes.BACKGROUND_MUSIC, BackgroundMusic.OVERWORLD)
+                .set(EnvironmentAttributes.BED_RULE, BedRule.CAN_SLEEP_WHEN_DARK)
+                .set(EnvironmentAttributes.RESPAWN_ANCHOR_WORKS, false)
+                .set(EnvironmentAttributes.NETHER_PORTAL_SPAWNS_PIGLINS, true)
+                .set(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
+                .build();
+        context.register(
+                BuiltinDimensionTypes.OVERWORLD,
+                new DimensionType(
+                        false,
+                        true,
+                        false,
+                        false,
+                        1.0,
+                        OVERWORLD_MIN_Y,
+                        OVERWORLD_HEIGHT,
+                        OVERWORLD_HEIGHT,
+                        blocks.getOrThrow(BlockTags.INFINIBURN_OVERWORLD),
+                        0.0F,
+                        new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
+                        DimensionType.Skybox.OVERWORLD,
+                        CardinalLighting.Type.DEFAULT,
+                        overworldAttributes,
+                        timelines.getOrThrow(TimelineTags.IN_OVERWORLD),
+                        Optional.of(clocks.getOrThrow(WorldClocks.OVERWORLD))));
         context.register(
                 Underworld.TYPE,
                 new DimensionType(
@@ -190,6 +234,9 @@ final class ModWorldGen {
     }
 
     private static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
+        registerOverworldNoiseSettings(context, NoiseGeneratorSettings.OVERWORLD, false, false);
+        registerOverworldNoiseSettings(context, NoiseGeneratorSettings.LARGE_BIOMES, false, true);
+        registerOverworldNoiseSettings(context, NoiseGeneratorSettings.AMPLIFIED, true, false);
         NoiseGeneratorSettings caves = NoiseGeneratorSettings.caves(context);
         context.register(
                 Underworld.NOISE,
@@ -205,6 +252,51 @@ final class ModWorldGen {
                         false,
                         false,
                         true));
+    }
+
+    private static void registerOverworldNoiseSettings(
+            BootstrapContext<NoiseGeneratorSettings> context,
+            ResourceKey<NoiseGeneratorSettings> key,
+            boolean amplified,
+            boolean largeBiomes) {
+        NoiseGeneratorSettings vanilla = NoiseGeneratorSettings.overworld(context, amplified, largeBiomes);
+        context.register(
+                key,
+                new NoiseGeneratorSettings(
+                        NoiseSettings.create(OVERWORLD_MIN_Y, OVERWORLD_HEIGHT, 1, 2),
+                        vanilla.defaultBlock(),
+                        vanilla.defaultFluid(),
+                        withRaisedOverworldFloor(vanilla.noiseRouter()),
+                        vanilla.surfaceRule(),
+                        vanilla.spawnTarget(),
+                        vanilla.seaLevel(),
+                        vanilla.disableMobGeneration(),
+                        vanilla.aquifersEnabled(),
+                        vanilla.oreVeinsEnabled(),
+                        vanilla.useLegacyRandomSource()));
+    }
+
+    private static NoiseRouter withRaisedOverworldFloor(NoiseRouter vanilla) {
+        DensityFunction bottomTransition = DensityFunctions.yClampedGradient(
+                OVERWORLD_MIN_Y, OVERWORLD_MIN_Y + 24, 0.0, 1.0);
+        DensityFunction finalDensity = DensityFunctions.lerp(
+                bottomTransition, 0.1171875, vanilla.finalDensity());
+        return new NoiseRouter(
+                vanilla.barrierNoise(),
+                vanilla.fluidLevelFloodednessNoise(),
+                vanilla.fluidLevelSpreadNoise(),
+                vanilla.lavaNoise(),
+                vanilla.temperature(),
+                vanilla.vegetation(),
+                vanilla.continents(),
+                vanilla.erosion(),
+                vanilla.depth(),
+                vanilla.ridges(),
+                vanilla.preliminarySurfaceLevel(),
+                finalDensity,
+                vanilla.veinToggle(),
+                vanilla.veinRidged(),
+                vanilla.veinGap());
     }
 
     private static void bootstrapLevelStems(BootstrapContext<LevelStem> context) {

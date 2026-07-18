@@ -866,6 +866,54 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void overworldStopsAtMinusSixteenAndExcludesUndergroundStructures() throws Exception {
+        JsonObject dimensionType = json(GENERATED.resolve("data/minecraft/dimension_type/overworld.json"));
+        assertAll(
+                "Overworld build height",
+                () -> assertEquals(-16, dimensionType.get("min_y").getAsInt()),
+                () -> assertEquals(336, dimensionType.get("height").getAsInt()),
+                () -> assertEquals(336, dimensionType.get("logical_height").getAsInt()),
+                () -> assertEquals(
+                        320,
+                        dimensionType.get("min_y").getAsInt()
+                                + dimensionType.get("height").getAsInt()));
+
+        for (String settings : List.of("overworld", "large_biomes", "amplified")) {
+            JsonObject noise = json(GENERATED.resolve(
+                    "data/minecraft/worldgen/noise_settings/" + settings + ".json"));
+            JsonObject shape = noise.getAsJsonObject("noise");
+            assertAll(
+                    settings,
+                    () -> assertEquals(-16, shape.get("min_y").getAsInt()),
+                    () -> assertEquals(336, shape.get("height").getAsInt()),
+                    () -> assertTrue(noise.getAsJsonObject("noise_router")
+                            .get("final_density")
+                            .toString()
+                            .contains("\"from_y\":-16")),
+                    () -> assertTrue(noise.getAsJsonObject("noise_router")
+                            .get("final_density")
+                            .toString()
+                            .contains("\"to_y\":8")));
+        }
+
+        for (String structure : List.of(
+                "ancient_city",
+                "buried_treasure",
+                "mineshaft",
+                "mineshaft_mesa",
+                "stronghold",
+                "trail_ruins",
+                "trial_chambers")) {
+            JsonObject tag = json(GENERATED.resolve(
+                    "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json"));
+            assertAll(
+                    structure,
+                    () -> assertTrue(tag.get("replace").getAsBoolean()),
+                    () -> assertEquals(0, tag.getAsJsonArray("values").size()));
+        }
+    }
+
+    @Test
     void metalAnvilsAndTheirComponentsKeepR196ResourcesAndDifficulties() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
