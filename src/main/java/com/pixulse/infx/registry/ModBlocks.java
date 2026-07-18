@@ -21,6 +21,7 @@ import com.pixulse.infx.crafting.BenchTier;
 import java.util.List;
 
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
@@ -29,6 +30,23 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(InfiniteX.MOD_ID);
+
+    public static final DeferredBlock<Block> MITHRIL_ORE = BLOCKS.registerSimpleBlock(
+            "mithril_ore",
+            properties -> properties
+                    .mapColor(MapColor.DIAMOND)
+                    .strength(3.5F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> ADAMANTIUM_ORE = BLOCKS.registerSimpleBlock(
+            "adamantium_ore",
+            properties -> properties
+                    .mapColor(MapColor.EMERALD)
+                    .strength(4.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops());
+
+    public static final List<DeferredBlock<Block>> ORES = List.of(MITHRIL_ORE, ADAMANTIUM_ORE);
 
     public static final DeferredBlock<ClayFurnaceBlock> CLAY_FURNACE = BLOCKS.registerBlock(
             "clay_furnace",

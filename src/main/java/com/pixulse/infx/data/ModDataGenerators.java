@@ -12,6 +12,7 @@ public final class ModDataGenerators {
     private ModDataGenerators() {}
 
     public static void gatherData(GatherDataEvent.Client event) {
+        event.createDatapackRegistryObjects(ModWorldGen.builder());
         event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.EN_US));

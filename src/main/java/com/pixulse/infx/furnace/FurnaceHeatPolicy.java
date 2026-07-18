@@ -49,6 +49,12 @@ public final class FurnaceHeatPolicy {
         if (input.isEmpty()) {
             return 0;
         }
+        if (input.is(ModTags.Items.SMELTING_INPUTS_HEAT_4)) {
+            return HEAT_BLAZE;
+        }
+        if (input.is(ModTags.Items.SMELTING_INPUTS_HEAT_3)) {
+            return HEAT_LAVA;
+        }
         return input.is(ModTags.Items.SMELTING_INPUTS_HEAT_2) ? HEAT_COAL : HEAT_WOOD;
     }
 

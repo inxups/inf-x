@@ -892,7 +892,7 @@ public final class ModGameTests {
         helper.assertFalse(
                 furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                 "the obsidian furnace must reject heat-4 blaze rods");
-        furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
+        furnace[0].setItem(0, ModItems.MITHRIL_ORE.toStack());
         furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
 
         helper.startSequence()
@@ -900,8 +900,8 @@ public final class ModGameTests {
                         ((FurnaceHeatAccess) (Object) furnace[0]).infx$currentHeat() == 3,
                         "the obsidian furnace must burn lava at heat 3"))
                 .thenWaitUntil(() -> helper.assertTrue(
-                        furnace[0].getItem(2).is(Items.IRON_INGOT),
-                        "heat-3 lava must smelt ordinary ore in the obsidian furnace"))
+                        furnace[0].getItem(2).is(ModItems.MITHRIL_INGOT),
+                        "heat-3 lava must smelt mithril ore in the obsidian furnace"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
                     helper.setBlock(
@@ -913,15 +913,24 @@ public final class ModGameTests {
                     helper.assertTrue(
                             furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                             "the netherrack furnace must accept heat-4 blaze rods");
-                    furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
+                    furnace[0].setItem(0, ModItems.ADAMANTIUM_ORE.toStack());
+                    furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
+                })
+                .thenExecuteAfter(40, () -> {
+                    helper.assertTrue(
+                            furnace[0].getItem(0).is(ModItems.ADAMANTIUM_ORE),
+                            "heat-3 lava must not start heat-4 adamantium ore");
+                    helper.assertTrue(
+                            furnace[0].getItem(1).is(Items.LAVA_BUCKET),
+                            "insufficient heat must not consume the lava bucket");
                     furnace[0].setItem(1, Items.BLAZE_ROD.getDefaultInstance());
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
                         ((FurnaceHeatAccess) (Object) furnace[0]).infx$currentHeat() == 4,
                         "the netherrack furnace must burn blaze rods at heat 4"))
                 .thenWaitUntil(() -> helper.assertTrue(
-                        furnace[0].getItem(2).is(Items.IRON_INGOT),
-                        "heat-4 blaze fuel must smelt ordinary ore in the netherrack furnace"))
+                        furnace[0].getItem(2).is(ModItems.ADAMANTIUM_INGOT),
+                        "heat-4 blaze fuel must smelt adamantium ore in the netherrack furnace"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
     }

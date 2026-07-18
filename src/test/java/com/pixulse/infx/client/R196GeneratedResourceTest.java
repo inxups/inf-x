@@ -156,6 +156,51 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void highHeatOresHaveCompleteResourcesAndProgressionData() throws Exception {
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        for (String ore : List.of("mithril_ore", "adamantium_ore")) {
+            assertAll(
+                    ore,
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/blockstates/" + ore + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/items/" + ore + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/models/block/" + ore + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("data/infx/loot_table/blocks/" + ore + ".json"))),
+                    () -> assertTrue(english.has("block.infx." + ore)),
+                    () -> assertTrue(chinese.has("block.infx." + ore)));
+        }
+
+        String heatThreeInputs = Files.readString(
+                GENERATED.resolve("data/infx/tags/item/smelting_inputs/heat_3.json"), UTF_8);
+        String heatFourInputs = Files.readString(
+                GENERATED.resolve("data/infx/tags/item/smelting_inputs/heat_4.json"), UTF_8);
+        assertAll(
+                "high-heat smelting",
+                () -> assertTrue(heatThreeInputs.contains("infx:mithril_ore")),
+                () -> assertTrue(heatFourInputs.contains("infx:adamantium_ore")),
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/recipe/mithril_ingot_from_smelting_mithril_ore.json"))),
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/recipe/adamantium_ingot_from_smelting_adamantium_ore.json"))));
+
+        String placedFeature = Files.readString(
+                GENERATED.resolve("data/infx/worldgen/placed_feature/mithril_ore.json"), UTF_8);
+        assertAll(
+                "mithril overworld generation",
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/worldgen/configured_feature/mithril_ore.json"))),
+                () -> assertTrue(placedFeature.contains("minecraft:biased_to_bottom")),
+                () -> assertTrue(placedFeature.contains("\"absolute\": 0")),
+                () -> assertTrue(placedFeature.contains("\"absolute\": 32")),
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/neoforge/biome_modifier/add_mithril_ore.json"))));
+    }
+
+    @Test
     void r196FurnacesHaveGeneratedAssetsRecipesLootAndTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -213,7 +258,7 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(239, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(241, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -322,6 +367,8 @@ class R196GeneratedResourceTest {
                         + "|textures/block/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_workbench_(front|side)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(clay|hardened_clay|sandstone|obsidian|netherrack)_furnace_(front|front_on|side|top)\\.png")));
+        assertTrue(destinations.remove("textures/block/mithril_ore.png"));
+        assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));

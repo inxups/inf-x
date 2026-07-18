@@ -53,6 +53,8 @@ final class ModItemTagsProvider extends ItemTagsProvider {
                 .add(itemKey(Blocks.DEEPSLATE_DIAMOND_ORE.asItem()))
                 .add(itemKey(Blocks.NETHER_QUARTZ_ORE.asItem()))
                 .add(itemKey(Blocks.SANDSTONE.asItem()));
+        tag(ModTags.Items.SMELTING_INPUTS_HEAT_3).add(ModItems.MITHRIL_ORE.getKey());
+        tag(ModTags.Items.SMELTING_INPUTS_HEAT_4).add(ModItems.ADAMANTIUM_ORE.getKey());
 
         for (R196Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(ModTags.Items.material(material), entry));

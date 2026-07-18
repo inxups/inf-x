@@ -131,6 +131,24 @@ final class ModRecipeProvider extends RecipeProvider {
                         200)
                 .unlockedBy("has_sandstone", has(Blocks.SANDSTONE))
                 .save(output, recipeKey("sandstone_to_glass"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(ModBlocks.MITHRIL_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        ModItems.MITHRIL_INGOT,
+                        0.7F,
+                        200)
+                .unlockedBy("has_mithril_ore", has(ModBlocks.MITHRIL_ORE))
+                .save(output, recipeKey("mithril_ingot_from_smelting_mithril_ore"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(ModBlocks.ADAMANTIUM_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        ModItems.ADAMANTIUM_INGOT,
+                        0.7F,
+                        200)
+                .unlockedBy("has_adamantium_ore", has(ModBlocks.ADAMANTIUM_ORE))
+                .save(output, recipeKey("adamantium_ingot_from_smelting_adamantium_ore"));
 
         addShaped(
                 "flint_hatchet",

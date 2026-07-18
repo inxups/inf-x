@@ -18,13 +18,16 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
     protected void generate() {
         ModBlocks.WORKBENCHES.forEach(workbench -> dropSelf(workbench.get()));
         ModBlocks.FURNACES.forEach(furnace -> dropSelf(furnace.get()));
+        ModBlocks.ORES.forEach(ore -> dropSelf(ore.get()));
     }
 
     @Override
     protected Iterable<Block> getKnownBlocks() {
         return Stream.concat(
-                        ModBlocks.WORKBENCHES.stream().map(workbench -> (Block) workbench.get()),
-                        ModBlocks.FURNACES.stream().map(furnace -> (Block) furnace.get()))
+                        Stream.concat(
+                                ModBlocks.WORKBENCHES.stream().map(workbench -> (Block) workbench.get()),
+                                ModBlocks.FURNACES.stream().map(furnace -> (Block) furnace.get())),
+                        ModBlocks.ORES.stream().map(ore -> (Block) ore.get()))
                 .toList();
     }
 }

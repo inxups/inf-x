@@ -38,23 +38,28 @@ final class ModModelProvider extends ModelProvider {
 
     @Override
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
-        return ModBlocks.FURNACES.stream()
-                .map(furnace -> BuiltInRegistries.BLOCK.wrapAsHolder(furnace.value()));
+        return Stream.concat(
+                ModBlocks.FURNACES.stream()
+                        .map(furnace -> BuiltInRegistries.BLOCK.wrapAsHolder(furnace.value())),
+                ModBlocks.ORES.stream().map(ore -> BuiltInRegistries.BLOCK.wrapAsHolder(ore.value())));
     }
 
     @Override
     protected Stream<? extends Holder<Item>> getKnownItems() {
         return Stream.concat(
-                ModItems.catalog().entries().stream()
-                        .map(entry -> BuiltInRegistries.ITEM.wrapAsHolder(entry.holder().value())),
-                ModItems.FURNACES.stream()
-                        .map(furnace -> BuiltInRegistries.ITEM.wrapAsHolder(furnace.value())));
+                Stream.concat(
+                        ModItems.catalog().entries().stream()
+                                .map(entry -> BuiltInRegistries.ITEM.wrapAsHolder(entry.holder().value())),
+                        ModItems.FURNACES.stream()
+                                .map(furnace -> BuiltInRegistries.ITEM.wrapAsHolder(furnace.value()))),
+                ModItems.ORES.stream().map(ore -> BuiltInRegistries.ITEM.wrapAsHolder(ore.value())));
     }
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
         ModBlocks.FURNACES.forEach(
                 furnace -> blockModels.createFurnace(furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
+        ModBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {

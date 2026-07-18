@@ -31,6 +31,8 @@ public final class ModTags {
         public static final TagKey<Item> BINDINGS = create("bindings");
         public static final TagKey<Item> FURNACE_FUELS_HEAT_2 = create("furnace_fuels/heat_2");
         public static final TagKey<Item> SMELTING_INPUTS_HEAT_2 = create("smelting_inputs/heat_2");
+        public static final TagKey<Item> SMELTING_INPUTS_HEAT_3 = create("smelting_inputs/heat_3");
+        public static final TagKey<Item> SMELTING_INPUTS_HEAT_4 = create("smelting_inputs/heat_4");
 
         private Items() {}
 
