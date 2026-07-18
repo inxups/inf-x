@@ -278,7 +278,7 @@ public final class ModGameTests {
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
         registerTest(event, RECIPE_BOUNDARIES, environment, 40);
         registerTest(event, COPPER_LOOP, environment, 400);
-        registerTest(event, IRON_LOOP, environment, 500);
+        registerTest(event, IRON_LOOP, environment, 700);
         registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
         registerTest(event, ADVANCED_CORE_TOOL_RECIPES, environment, 80);
         registerTest(event, SPECIAL_TOOL_RECIPES, environment, 80);

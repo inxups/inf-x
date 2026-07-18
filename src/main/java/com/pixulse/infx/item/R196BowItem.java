@@ -8,6 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.projectile.Projectile;
+import org.jspecify.annotations.Nullable;
 
 public final class R196BowItem extends BowItem {
     private final R196EquipmentKey key;
@@ -19,6 +21,37 @@ public final class R196BowItem extends BowItem {
 
     public R196EquipmentKey key() {
         return key;
+    }
+
+    public float velocityMultiplier() {
+        return velocityMultiplier(key.material());
+    }
+
+    public static float velocityMultiplier(com.pixulse.infx.material.R196Material material) {
+        return switch (material) {
+            case ANCIENT_METAL -> 1.10F;
+            case MITHRIL -> 1.25F;
+            default -> 1.0F;
+        };
+    }
+
+    @Override
+    protected void shootProjectile(
+            LivingEntity shooter,
+            Projectile projectile,
+            int index,
+            float power,
+            float uncertainty,
+            float angle,
+            @Nullable LivingEntity targetOverride) {
+        super.shootProjectile(
+                shooter,
+                projectile,
+                index,
+                power * velocityMultiplier(),
+                uncertainty,
+                angle,
+                targetOverride);
     }
 
     @Override

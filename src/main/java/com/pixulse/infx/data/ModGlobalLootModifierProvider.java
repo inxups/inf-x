@@ -2,6 +2,7 @@ package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.loot.GravelLootModifier;
+import com.pixulse.infx.loot.GlassShardLootModifier;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
@@ -21,11 +22,16 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     @Override
     protected void start() {
         add("gravel", new GravelLootModifier(new LootItemCondition[0], 2000));
+        add("glass_shards", new GlassShardLootModifier(new LootItemCondition[0], 2000));
+        add("underworld_dungeon", new com.pixulse.infx.loot.UnderworldDungeonLootModifier(
+                new LootItemCondition[0], 1500));
         addHorseArmor("simple_dungeon");
         addHorseArmor("nether_bridge");
         addHorseArmor("desert_pyramid");
         addHorseArmor("jungle_temple");
         addHorseArmor("stronghold_corridor");
+        addRustedIron("simple_dungeon");
+        addRustedIron("abandoned_mineshaft");
     }
 
     private void addHorseArmor(String structure) {
@@ -39,5 +45,18 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         conditions,
                         1000,
                         ModHorseArmorLootSubProvider.tableKey(structure)));
+    }
+
+    private void addRustedIron(String structure) {
+        Identifier target = Identifier.withDefaultNamespace("chests/" + structure);
+        LootItemCondition[] conditions = {
+            LootTableIdCondition.builder(target).build()
+        };
+        add(
+                "rusted_iron_" + structure,
+                new AddTableLootModifier(
+                        conditions,
+                        1000,
+                        ModRustedIronLootSubProvider.tableKey(structure)));
     }
 }

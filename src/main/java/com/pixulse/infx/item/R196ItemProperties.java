@@ -17,11 +17,20 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.equipment.Equippable;
+import com.pixulse.infx.material.R196Quality;
+import com.pixulse.infx.registry.ModDataComponents;
 
 public final class R196ItemProperties {
     private R196ItemProperties() {}
 
     public static Item.Properties forEquipment(R196EquipmentKey key, Item.Properties properties) {
+        if (key.material().has(com.pixulse.infx.material.R196Material.Flag.LAVA_SAFE)) {
+            properties.fireResistant();
+        }
+        if (key.material() == com.pixulse.infx.material.R196Material.RUSTED_IRON
+                && key.durability() > 0) {
+            properties.component(ModDataComponents.QUALITY.get(), R196Quality.POOR);
+        }
         return switch (key.type().armorForm()) {
             case PLATE, CHAIN -> armor(key, properties);
             case HORSE -> horseArmor(key, properties);
@@ -119,7 +128,10 @@ public final class R196ItemProperties {
     }
 
     private static Item.Properties commonDamageable(R196EquipmentKey key, Item.Properties properties) {
-        properties.durability(key.durability()).repairable(ModTags.Items.repairMaterial(key.material()));
+        int durability = key.material() == com.pixulse.infx.material.R196Material.RUSTED_IRON
+                ? Math.max(1, Math.round(key.durability() * R196Quality.POOR.durabilityMultiplier()))
+                : key.durability();
+        properties.durability(durability).repairable(ModTags.Items.repairMaterial(key.material()));
         if (key.material().enchantability() > 0) {
             properties.enchantable(key.material().enchantability());
         }

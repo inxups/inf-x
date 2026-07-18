@@ -8,6 +8,7 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
@@ -31,6 +32,9 @@ public final class R196ArrowItem extends ArrowItem {
     public AbstractArrow createArrow(
             Level level, ItemStack stack, LivingEntity owner, @Nullable ItemStack weapon) {
         Arrow arrow = new Arrow(level, owner, stack.copyWithCount(1), weapon);
+        if (!stack.has(DataComponents.INTANGIBLE_PROJECTILE)) {
+            arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
+        }
         arrow.setBaseDamage(baseDamage());
         return arrow;
     }
@@ -38,7 +42,7 @@ public final class R196ArrowItem extends ArrowItem {
     @Override
     public Projectile asProjectile(Level level, Position position, ItemStack stack, Direction direction) {
         Arrow arrow = new Arrow(level, position.x(), position.y(), position.z(), stack.copyWithCount(1), null);
-        arrow.pickup = AbstractArrow.Pickup.ALLOWED;
+        arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
         arrow.setBaseDamage(baseDamage());
         return arrow;
     }

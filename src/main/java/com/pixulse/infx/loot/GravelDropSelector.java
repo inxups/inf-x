@@ -29,7 +29,7 @@ public final class GravelDropSelector {
             return GravelDrop.EMERALD_SHARD;
         }
         if (nextInt.applyAsInt(3) > 0) {
-            return GravelDrop.GRAVEL;
+            return GravelDrop.DIAMOND_SHARD;
         }
         if (nextInt.applyAsInt(3) > 0) {
             return GravelDrop.MITHRIL_NUGGET;

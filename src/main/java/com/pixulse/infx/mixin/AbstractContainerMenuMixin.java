@@ -25,6 +25,8 @@ public abstract class AbstractContainerMenuMixin {
             if (buttonNum == 0
                     && (input == ContainerInput.PICKUP || input == ContainerInput.QUICK_MOVE)) {
                 timedMenu.infx$startTimedCrafting(player);
+            } else if (buttonNum == 1 && input == ContainerInput.PICKUP) {
+                timedMenu.infx$cycleQuality(player);
             }
             callback.cancel();
         }

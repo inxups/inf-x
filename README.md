@@ -1,26 +1,24 @@
 # InfiniteX
 
-InfiniteX is a NeoForge 26.2 survival-progression overhaul inspired by the behavior of MITE R196 and rewritten for modern Minecraft APIs.
+InfiniteX 是面向 Minecraft 26.2 / NeoForge 26.2 的生存进度改造模组，以 MITE R196 的已确认行为为依据，并使用现代公共 API、数据包注册表与最小范围的 Mixin 重写。
 
-The current playable progression runs from flint gathering through the first mithril ingot: flint tools, restricted harvesting, timed tiered-workbench crafting, gravel copper, a cobblestone furnace, iron smelting, the first iron pickaxe, and high-heat mithril metallurgy. Along that path, InfiniteX provides R196-shaped recipes for the flint axe and the core copper/iron pickaxe, shovel, axe, hoe, and sword sets.
+当前生存链已从燧石阶段贯通到 Underworld 与艾德曼阶段：九级工具台、六类炉体、热量 1–4、七种金属的基础/特殊工具、武器、板甲与锁链甲、银/秘银/艾德曼矿物，以及 Underworld 地牢中的远古金属来源均已接通。Underworld 使用独立维度类型、洞穴噪声、生物群系、怪物房和专属艾德曼矿；主世界底部接触基岩的黑曜石门负责双向进入与安全返回。
 
-The cobblestone furnace enforces the R196 heat-2 ceiling: wood and charcoal handle low-heat cooking, coal can smelt ordinary metal ores, lava and blaze rods exceed the furnace capacity, and the furnace mouth must remain unobstructed.
+R196 长期装备行为也已启用：银制近战与银箭对亡灵造成 1.25 倍伤害；远古金属弓和秘银弓分别获得 10% 与 25% 弹速加成；十种材料箭按材料执行单次回收判定；玩家护甲在后半耐久区间线性衰减；所有艾德曼物品抗火与熔岩。装备品质作为持久、同步的数据组件存在，平均品质以无组件兼容旧物品，非平均品质包括 Poor、Fine、Excellent、Superb、Masterwork 与 Legendary。
 
-Clay and sandstone ovens provide the R196 heat-1 alternatives. The clay oven only accepts small inputs and fuels, while the sandstone oven accepts full blocks. Sand is processed four at a time: heat 1 produces sandstone and heat 2 produces glass.
+七种金属砧提供 R196 专用修复流程。砧由 3 个对应金属块和 4 个锭（共 31 锭）制造，修复时使用对应金属粒，保留名称、附魔、品质与其他组件；砧能力不能低于装备材料，并会按修复耐久累计损伤，在 50% 和 80% 进入破损阶段，100% 销毁。
 
-The remaining R196 furnace shells are also available. The large clay oven accepts full blocks but remains capped at heat 1, the obsidian furnace accepts lava at heat 3, and the netherrack furnace is the only furnace that accepts heat-4 blaze rods.
+目录型原材料已经形成闭环：钻石/下界石英/玻璃碎片可 9 合 1 并反向拆分；玻璃块和玻璃板破坏后分别产出 6 和 1 个玻璃碎片；牛、猪、羊和鸡按 R196 周期产生可用于可施肥方块的肥料；硬币可在服务端单次消费并兑换经验。锈铁不使用虚构的环境计时腐蚀，而是按 R196 真实来源出现在怪物装备、骷髅箭、普通地牢和废弃矿井中。
 
-Silver, mithril, and adamantium ore blocks restore the R196 hardness, harvesting, self-drop, and furnace progression. Silver requires a copper-tier InfiniteX tool and heat 2; it generates in Overworld stone between Y=0 and Y=96 with a low-depth bias and six-block base veins. Mithril requires an iron-tier tool and heat 3, generating between Y=0 and Y=32 with the same bias and three-block base veins. Adamantium requires a mithril-tier tool and heat 4. Its natural generation remains intentionally disabled until InfiniteX has MITE's Underworld dimension, where R196 originally placed the ore.
+实现使用 InfiniteX 自有采掘标签与 NeoForge 事件，不替换原版采掘标签。第三方工具可通过 `infx:tool_tier/<tier>` 与正确的现代 `Tool` 组件接入。
 
-The implementation uses InfiniteX-owned tags and NeoForge events instead of replacing vanilla harvest tags. Third-party tools can opt in with `infx:tool_tier/<tier>` and a correct vanilla `Tool` component.
-
-## Development
+## 开发
 
 ```text
 bash gradlew test
-bash gradlew runData
+bash gradlew runData resourceTest
 bash gradlew runGameTestServer
 bash gradlew build
 ```
 
-This project does not redistribute MITE source code. Selected project-owner-approved MITE R196 textures are recorded in `assets/infx/mite_texture_manifest.tsv`.
+正式任务状态、依赖、验收标准与排除项见 [ROADMAP.md](ROADMAP.md)。项目不重新分发 MITE 源码；所有采用的项目所有者批准材质均记录在 `assets/infx/mite_texture_manifest.tsv`，并固定来源路径与 SHA-256。

@@ -30,7 +30,11 @@ public final class ModDataGenerators {
                         new LootTableProvider.SubProviderEntry(
                                 ModBlockLootSubProvider::new, LootContextParamSets.BLOCK),
                         new LootTableProvider.SubProviderEntry(
-                                ModHorseArmorLootSubProvider::new, LootContextParamSets.CHEST)),
+                                ModHorseArmorLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
+                                ModRustedIronLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
+                                ModUnderworldLootSubProvider::new, LootContextParamSets.CHEST)),
                 lookup));
         event.createProvider(ModGlobalLootModifierProvider::new);
     }

@@ -19,6 +19,8 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         ModBlocks.WORKBENCHES.forEach(workbench -> dropSelf(workbench.get()));
         ModBlocks.FURNACES.forEach(furnace -> dropSelf(furnace.get()));
         ModBlocks.ORES.forEach(ore -> dropSelf(ore.get()));
+        ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> dropSelf(block.get()));
+        ModBlocks.METAL_ANVILS.forEach(anvil -> dropSelf(anvil.get()));
     }
 
     @Override
@@ -27,7 +29,11 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                         Stream.concat(
                                 ModBlocks.WORKBENCHES.stream().map(workbench -> (Block) workbench.get()),
                                 ModBlocks.FURNACES.stream().map(furnace -> (Block) furnace.get())),
-                        ModBlocks.ORES.stream().map(ore -> (Block) ore.get()))
+                        Stream.concat(
+                                ModBlocks.ORES.stream().map(ore -> (Block) ore.get()),
+                                Stream.concat(
+                                        ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.get()),
+                                        ModBlocks.METAL_ANVILS.stream().map(anvil -> (Block) anvil.get()))))
                 .toList();
     }
 }

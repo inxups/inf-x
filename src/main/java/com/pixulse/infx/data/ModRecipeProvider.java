@@ -64,6 +64,9 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.SINEW,
                 4,
                 List.of(Ingredient.of(Items.LEATHER)));
+        addShardRecipes("diamond", raw("diamond_shard"), Items.DIAMOND, 1600.0F);
+        addShardRecipes("nether_quartz", raw("nether_quartz_shard"), Items.QUARTZ, 900.0F);
+        addShardRecipes("glass", raw("glass_shard"), Blocks.GLASS_PANE, 200.0F);
 
         addShaped(
                 "clay_furnace",
@@ -359,6 +362,13 @@ final class ModRecipeProvider extends RecipeProvider {
                 25805.0F,
                 ModItems.ADAMANTIUM_INGOT,
                 ModBlocks.ADAMANTIUM_WORKBENCH);
+        addMetalStorageRecipes("silver", ModItems.SILVER_INGOT, ModBlocks.SILVER_BLOCK, 3_600.0F);
+        addMetalStorageRecipes(
+                "ancient_metal", ModItems.ANCIENT_METAL_INGOT, ModBlocks.ANCIENT_METAL_BLOCK, 14_400.0F);
+        addMetalStorageRecipes("mithril", ModItems.MITHRIL_INGOT, ModBlocks.MITHRIL_BLOCK, 57_600.0F);
+        addMetalStorageRecipes(
+                "adamantium", ModItems.ADAMANTIUM_INGOT, ModBlocks.ADAMANTIUM_BLOCK, 230_400.0F);
+        addMetalAnvilRecipes();
         addMetalConversions("copper", 400.0F, Items.COPPER_NUGGET, Items.COPPER_INGOT);
         addMetalConversions("silver", 400.0F, ModItems.SILVER_NUGGET, ModItems.SILVER_INGOT);
         addMetalConversions("gold", 400.0F, Items.GOLD_NUGGET, Items.GOLD_INGOT);
@@ -671,6 +681,28 @@ final class ModRecipeProvider extends RecipeProvider {
         return ModItems.catalog().raw(path).holder();
     }
 
+    private void addShardRecipes(String name, ItemLike shard, ItemLike whole, float difficulty) {
+        addShaped(
+                name + "_from_shards",
+                BenchTier.FLINT,
+                difficulty,
+                CraftingBookCategory.MISC,
+                "",
+                whole,
+                1,
+                Map.of('S', Ingredient.of(shard)),
+                List.of("SSS", "SSS", "SSS"));
+        addShapeless(
+                name + "_to_shards",
+                BenchTier.HAND,
+                difficulty,
+                CraftingBookCategory.MISC,
+                "",
+                shard,
+                9,
+                List.of(Ingredient.of(whole)));
+    }
+
     private void addPlanks(String wood, ItemLike result, TagKey<Item> logs, int count) {
         addShapeless(
                 wood + "_planks",
@@ -919,6 +951,77 @@ final class ModRecipeProvider extends RecipeProvider {
                         'S', Ingredient.of(Items.STICK),
                         'P', ingredient(ItemTags.PLANKS)),
                 List.of("IL", "SP"));
+    }
+
+    private void addMetalStorageRecipes(
+            String name, ItemLike ingot, ItemLike block, float difficulty) {
+        addShaped(
+                name + "_block",
+                BenchTier.FLINT,
+                difficulty,
+                CraftingBookCategory.BUILDING,
+                "",
+                block,
+                1,
+                Map.of('I', Ingredient.of(ingot)),
+                List.of("III", "III", "III"));
+        addShapeless(
+                name + "_block_to_ingots",
+                BenchTier.HAND,
+                difficulty,
+                CraftingBookCategory.MISC,
+                "",
+                ingot,
+                9,
+                List.of(Ingredient.of(block)));
+    }
+
+    private void addMetalAnvilRecipes() {
+        addMetalAnvil(
+                R196Material.COPPER,
+                BenchTier.COPPER,
+                Items.COPPER_INGOT,
+                Blocks.COPPER_BLOCK.weathering().unaffected(),
+                12_400.0F);
+        addMetalAnvil(R196Material.SILVER, BenchTier.SILVER, ModItems.SILVER_INGOT, ModBlocks.SILVER_BLOCK, 12_400.0F);
+        addMetalAnvil(R196Material.GOLD, BenchTier.GOLD, Items.GOLD_INGOT, Blocks.GOLD_BLOCK, 12_400.0F);
+        addMetalAnvil(R196Material.IRON, BenchTier.IRON, Items.IRON_INGOT, Blocks.IRON_BLOCK, 24_800.0F);
+        addMetalAnvil(
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                ModItems.ANCIENT_METAL_INGOT,
+                ModBlocks.ANCIENT_METAL_BLOCK,
+                49_600.0F);
+        addMetalAnvil(
+                R196Material.MITHRIL,
+                BenchTier.MITHRIL,
+                ModItems.MITHRIL_INGOT,
+                ModBlocks.MITHRIL_BLOCK,
+                198_400.0F);
+        addMetalAnvil(
+                R196Material.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                ModItems.ADAMANTIUM_INGOT,
+                ModBlocks.ADAMANTIUM_BLOCK,
+                793_600.0F);
+    }
+
+    private void addMetalAnvil(
+            R196Material material,
+            BenchTier bench,
+            ItemLike ingot,
+            ItemLike storageBlock,
+            float difficulty) {
+        addShaped(
+                material.path() + "_anvil",
+                bench,
+                difficulty,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.metalAnvil(material),
+                1,
+                Map.of('B', Ingredient.of(storageBlock), 'I', Ingredient.of(ingot)),
+                List.of("BBB", "I I", "I I"));
     }
 
     private void addShaped(

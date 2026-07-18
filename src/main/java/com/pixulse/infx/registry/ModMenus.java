@@ -3,6 +3,7 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.menu.MetalAnvilMenu;
 import java.util.List;
 
 import net.minecraft.core.registries.Registries;
@@ -15,6 +16,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModMenus {
     private static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(Registries.MENU, InfiniteX.MOD_ID);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<MetalAnvilMenu>> METAL_ANVIL = MENUS.register(
+            "metal_anvil",
+            () -> IMenuTypeExtension.create(MetalAnvilMenu::client));
 
     public static final DeferredHolder<MenuType<?>, MenuType<TimedWorkbenchMenu>> FLINT_WORKBENCH = MENUS.register(
             "flint_workbench",

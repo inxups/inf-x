@@ -3,6 +3,8 @@ package com.pixulse.infx.registry;
 import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.loot.GravelLootModifier;
+import com.pixulse.infx.loot.GlassShardLootModifier;
+import com.pixulse.infx.loot.UnderworldDungeonLootModifier;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
@@ -17,6 +19,13 @@ public final class ModLootModifiers {
     public static final DeferredHolder<
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<GravelLootModifier>>
             GRAVEL = SERIALIZERS.register("gravel", () -> GravelLootModifier.CODEC);
+    public static final DeferredHolder<
+                    MapCodec<? extends IGlobalLootModifier>, MapCodec<GlassShardLootModifier>>
+            GLASS_SHARDS = SERIALIZERS.register("glass_shards", () -> GlassShardLootModifier.CODEC);
+    public static final DeferredHolder<
+                    MapCodec<? extends IGlobalLootModifier>, MapCodec<UnderworldDungeonLootModifier>>
+            UNDERWORLD_DUNGEON =
+                    SERIALIZERS.register("underworld_dungeon", () -> UnderworldDungeonLootModifier.CODEC);
 
     private ModLootModifiers() {}
 
