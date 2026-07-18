@@ -16,8 +16,10 @@ import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.tag.ModTags;
 import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -51,6 +53,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
@@ -68,7 +74,8 @@ public final class ModEquipmentGameTests {
             "material_arrows",
             "material_bows",
             "fishing_rods",
-            "armor_and_horse_armor");
+            "armor_and_horse_armor",
+            "horse_armor_loot");
 
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -80,6 +87,7 @@ public final class ModEquipmentGameTests {
         TEST_FUNCTIONS.register("material_bows", () -> ModEquipmentGameTests::materialBows);
         TEST_FUNCTIONS.register("fishing_rods", () -> ModEquipmentGameTests::fishingRods);
         TEST_FUNCTIONS.register("armor_and_horse_armor", () -> ModEquipmentGameTests::armorAndHorseArmor);
+        TEST_FUNCTIONS.register("horse_armor_loot", () -> ModEquipmentGameTests::horseArmorLoot);
     }
 
     private ModEquipmentGameTests() {}
@@ -410,6 +418,41 @@ public final class ModEquipmentGameTests {
 
         horse.discard();
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void horseArmorLoot(GameTestHelper helper) {
+        Map<String, Set<R196Material>> expected = Map.of(
+                "simple_dungeon", Set.of(R196Material.COPPER, R196Material.GOLD, R196Material.IRON),
+                "nether_bridge", Set.of(R196Material.COPPER, R196Material.GOLD, R196Material.IRON),
+                "desert_pyramid", Set.of(R196Material.SILVER, R196Material.GOLD, R196Material.IRON),
+                "jungle_temple", Set.of(R196Material.SILVER, R196Material.GOLD, R196Material.IRON),
+                "stronghold_corridor", Set.of(R196Material.COPPER, R196Material.IRON));
+        LootParams params = new LootParams.Builder(helper.getLevel())
+                .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO))
+                .create(LootContextParamSets.CHEST);
+        for (var structure : expected.entrySet()) {
+            ResourceKey<LootTable> key = ResourceKey.create(
+                    Registries.LOOT_TABLE,
+                    Identifier.withDefaultNamespace("chests/" + structure.getKey()));
+            LootTable table = helper.getLevel().getServer().reloadableRegistries().getLootTable(key);
+            Set<R196Material> found = new HashSet<>();
+            for (long seed = 0; seed < 2000 && !found.equals(structure.getValue()); seed++) {
+                for (ItemStack stack : table.getRandomItems(params, seed)) {
+                    for (R196Material material : structure.getValue()) {
+                        if (stack.is(ModItems.catalog()
+                                .equipment(material, R196EquipmentType.HORSE_ARMOR)
+                                .holder()
+                                .get())) {
+                            found.add(material);
+                        }
+                    }
+                }
+            }
+            helper.assertTrue(
+                    found.equals(structure.getValue()),
+                    structure.getKey() + " must expose exactly its R196 horse armor set, found " + found);
+        }
         helper.succeed();
     }
 

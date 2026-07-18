@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -633,6 +634,93 @@ class R196GeneratedResourceTest {
                 () -> assertEquals(
                         "世界主宰",
                         chinese.get("advancements.infx.wear_all_adamantium_plate_armor.title").getAsString()));
+    }
+
+    @Test
+    void horseArmorLootSupplementsKeepR196StructuresWeightsAndRolls() throws Exception {
+        Map<String, Map<String, Integer>> expectedEntries = Map.of(
+                "simple_dungeon",
+                Map.of(
+                        "minecraft:empty", 147,
+                        "infx:gold_horse_armor", 2,
+                        "infx:copper_horse_armor", 5,
+                        "infx:iron_horse_armor", 1),
+                "nether_bridge",
+                Map.of(
+                        "minecraft:empty", 50,
+                        "infx:gold_horse_armor", 8,
+                        "infx:copper_horse_armor", 5,
+                        "infx:iron_horse_armor", 3),
+                "desert_pyramid",
+                Map.of(
+                        "minecraft:empty", 65,
+                        "infx:iron_horse_armor", 1,
+                        "infx:silver_horse_armor", 1,
+                        "infx:gold_horse_armor", 1),
+                "jungle_temple",
+                Map.of(
+                        "minecraft:empty", 60,
+                        "infx:iron_horse_armor", 1,
+                        "infx:silver_horse_armor", 1,
+                        "infx:gold_horse_armor", 1),
+                "stronghold_corridor",
+                Map.of(
+                        "minecraft:empty", 188,
+                        "infx:copper_horse_armor", 1,
+                        "infx:iron_horse_armor", 1));
+        Map<String, List<Float>> expectedRolls = Map.of(
+                "simple_dungeon", List.of(8.0F, 8.0F),
+                "nether_bridge", List.of(2.0F, 5.0F),
+                "desert_pyramid", List.of(2.0F, 6.0F),
+                "jungle_temple", List.of(2.0F, 6.0F),
+                "stronghold_corridor", List.of(2.0F, 3.0F));
+
+        for (var structure : expectedEntries.entrySet()) {
+            String path = structure.getKey();
+            JsonObject table = json(GENERATED.resolve(
+                    "data/infx/loot_table/chests/horse_armor/" + path + ".json"));
+            JsonObject pool = table.getAsJsonArray("pools").get(0).getAsJsonObject();
+            Map<String, Integer> entries = pool.getAsJsonArray("entries").asList().stream()
+                    .map(JsonElement::getAsJsonObject)
+                    .collect(Collectors.toMap(
+                            entry -> entry.has("name")
+                                    ? entry.get("name").getAsString()
+                                    : "minecraft:empty",
+                            entry -> entry.has("weight")
+                                    ? entry.get("weight").getAsInt()
+                                    : 1));
+            JsonElement rolls = pool.get("rolls");
+            float minRolls = rolls.isJsonObject()
+                    ? rolls.getAsJsonObject().get("min").getAsFloat()
+                    : rolls.getAsFloat();
+            float maxRolls = rolls.isJsonObject()
+                    ? rolls.getAsJsonObject().get("max").getAsFloat()
+                    : rolls.getAsFloat();
+            assertAll(
+                    path,
+                    () -> assertEquals(structure.getValue(), entries),
+                    () -> assertEquals(expectedRolls.get(path).get(0), minRolls),
+                    () -> assertEquals(expectedRolls.get(path).get(1), maxRolls),
+                    () -> assertFalse(table.toString().contains("ancient_metal_horse_armor")),
+                    () -> assertFalse(table.toString().contains("mithril_horse_armor")),
+                    () -> assertFalse(table.toString().contains("adamantium_horse_armor")));
+
+            JsonObject modifier = json(GENERATED.resolve(
+                    "data/infx/loot_modifiers/horse_armor_" + path + ".json"));
+            JsonObject condition = modifier.getAsJsonArray("conditions").get(0).getAsJsonObject();
+            assertAll(
+                    path + " modifier",
+                    () -> assertEquals("neoforge:add_table", modifier.get("type").getAsString()),
+                    () -> assertEquals(
+                            "infx:chests/horse_armor/" + path,
+                            modifier.get("table").getAsString()),
+                    () -> assertEquals(
+                            "minecraft:chests/" + path,
+                            condition.get("loot_table_id").getAsString()));
+        }
+        assertEquals(
+                5,
+                jsonCount(GENERATED.resolve("data/infx/loot_table/chests/horse_armor")));
     }
 
     @Test
