@@ -64,8 +64,12 @@ public final class ModItems {
             CATALOG.raw("adamantium_ingot").holderAs(Item.class);
     public static final DeferredItem<R196ToolItem> FLINT_HATCHET =
             CATALOG.equipment(R196Material.FLINT, R196EquipmentType.HATCHET).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> FLINT_SHOVEL =
+            CATALOG.equipment(R196Material.FLINT, R196EquipmentType.SHOVEL).holderAs(R196ToolItem.class);
     public static final DeferredItem<R196ToolItem> COPPER_PICKAXE =
             CATALOG.equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).holderAs(R196ToolItem.class);
+    public static final DeferredItem<R196ToolItem> IRON_PICKAXE =
+            CATALOG.equipment(R196Material.IRON, R196EquipmentType.PICKAXE).holderAs(R196ToolItem.class);
 
     private ModItems() {}
 

@@ -18,6 +18,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -66,6 +67,31 @@ class R196GeneratedResourceTest {
                     () -> assertTrue(english.has("container.infx." + path)),
                     () -> assertTrue(chinese.has("block.infx." + path)),
                     () -> assertTrue(chinese.has("container.infx." + path)));
+        }
+    }
+
+    @Test
+    void copperToIronProgressionDataIsComplete() throws Exception {
+        for (String recipe : List.of("flint_shovel", "cobblestone_furnace", "iron_pickaxe")) {
+            assertTrue(
+                    Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")),
+                    recipe);
+        }
+        for (String advancement : List.of(
+                "build_shovel", "build_furnace", "acquire_iron", "build_better_pickaxe")) {
+            assertTrue(
+                    Files.isRegularFile(
+                            GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
+                    advancement);
+        }
+        for (String disabled : List.of(
+                "iron_ingot_from_blasting_deepslate_iron_ore",
+                "iron_ingot_from_blasting_iron_ore",
+                "iron_ingot_from_blasting_raw_iron",
+                "iron_pickaxe")) {
+            assertTrue(
+                    Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled);
         }
     }
 

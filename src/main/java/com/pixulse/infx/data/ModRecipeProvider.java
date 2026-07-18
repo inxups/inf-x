@@ -30,6 +30,7 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 final class ModRecipeProvider extends RecipeProvider {
     private ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
@@ -70,6 +71,19 @@ final class ModRecipeProvider extends RecipeProvider {
                         'S', Ingredient.of(Items.STICK),
                         'B', ingredient(ModTags.Items.BINDINGS)),
                 List.of("FS", "BS"));
+        addShaped(
+                "flint_shovel",
+                BenchTier.FLINT,
+                150.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                ModItems.FLINT_SHOVEL,
+                1,
+                Map.of(
+                        'F', Ingredient.of(Items.FLINT),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("F ", "S ", "SB"));
         addShaped(
                 "flint_workbench",
                 BenchTier.HAND,
@@ -159,6 +173,28 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of(
                         'I', Ingredient.of(Items.COPPER_INGOT),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("III", " S ", " S "));
+        addShaped(
+                "cobblestone_furnace",
+                BenchTier.COPPER,
+                800.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.FURNACE,
+                1,
+                Map.of('C', Ingredient.of(Blocks.COBBLESTONE)),
+                List.of("CCC", "C C", "CCC"));
+        addShaped(
+                "iron_pickaxe",
+                BenchTier.IRON,
+                2450.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                ModItems.IRON_PICKAXE,
+                1,
+                Map.of(
+                        'I', Ingredient.of(Items.IRON_INGOT),
                         'S', Ingredient.of(Items.STICK)),
                 List.of("III", " S ", " S "));
     }

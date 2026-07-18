@@ -13,6 +13,7 @@ import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.advancements.triggers.ImpossibleTrigger;
 import net.minecraft.advancements.triggers.InventoryChangeTrigger;
 import net.minecraft.advancements.triggers.RecipeCraftedTrigger;
 import net.minecraft.core.HolderLookup;
@@ -74,7 +75,14 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/build_work_bench"));
         output.accept(buildWorkbench);
 
-        AdvancementHolder nuggets = child("nuggets", buildWorkbench, Items.COPPER_NUGGET)
+        AdvancementHolder buildShovel = child("build_shovel", buildWorkbench, ModItems.FLINT_SHOVEL)
+                .addCriterion(
+                        "crafted_shovel",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_shovel")))
+                .build(InfiniteX.id("progression/build_shovel"));
+        output.accept(buildShovel);
+
+        AdvancementHolder nuggets = child("nuggets", buildShovel, Items.COPPER_NUGGET)
                 .addCriterion(
                         "has_copper_nugget",
                         InventoryChangeTrigger.TriggerInstance.hasItems(Items.COPPER_NUGGET))
@@ -88,11 +96,32 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/better_tools"));
         output.accept(betterTools);
 
-        output.accept(child("build_pickaxe", betterTools, ModItems.COPPER_PICKAXE)
+        AdvancementHolder buildPickaxe = child("build_pickaxe", betterTools, ModItems.COPPER_PICKAXE)
                 .addCriterion(
                         "crafted_pickaxe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_pickaxe")))
-                .build(InfiniteX.id("progression/build_pickaxe")));
+                .build(InfiniteX.id("progression/build_pickaxe"));
+        output.accept(buildPickaxe);
+
+        AdvancementHolder buildFurnace = child("build_furnace", buildPickaxe, Items.FURNACE)
+                .addCriterion(
+                        "crafted_furnace",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("cobblestone_furnace")))
+                .build(InfiniteX.id("progression/build_furnace"));
+        output.accept(buildFurnace);
+
+        AdvancementHolder acquireIron = child("acquire_iron", buildFurnace, Items.IRON_INGOT)
+                .addCriterion(
+                        "smelted_iron",
+                        CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance()))
+                .build(InfiniteX.id("progression/acquire_iron"));
+        output.accept(acquireIron);
+
+        output.accept(child("build_better_pickaxe", acquireIron, ModItems.IRON_PICKAXE)
+                .addCriterion(
+                        "crafted_iron_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_pickaxe")))
+                .build(InfiniteX.id("progression/build_better_pickaxe")));
     }
 
     private static Advancement.Builder child(String name, AdvancementHolder parent, ItemLike icon) {
