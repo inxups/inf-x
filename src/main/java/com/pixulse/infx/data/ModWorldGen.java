@@ -48,6 +48,7 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -60,6 +61,7 @@ import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.timeline.Timeline;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
@@ -70,7 +72,11 @@ final class ModWorldGen {
     private static final int OVERWORLD_HEIGHT = 336;
     private static final int UNDERWORLD_MIN_Y = -192;
     private static final int UNDERWORLD_HEIGHT = 512;
-    private static final int UNDERWORLD_STONE_CEILING = 128;
+    private static final int UNDERWORLD_FIRST_CAVE_MIN_Y = 128;
+    private static final int UNDERWORLD_FIRST_CAVE_END_Y = 216;
+    private static final int UNDERWORLD_SEPARATOR_END_Y = 226;
+    private static final int UNDERWORLD_ROOF_START_Y = 296;
+    private static final int UNDERWORLD_TOP_Y = UNDERWORLD_MIN_Y + UNDERWORLD_HEIGHT - 1;
     private static final int UNDERWORLD_SEA_LEVEL = 140;
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
@@ -247,7 +253,7 @@ final class ModWorldGen {
                         NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
-                        underworldNoiseRouter(),
+                        underworldNoiseRouter(context.lookup(Registries.NOISE)),
                         underworldSurfaceRule(),
                         List.of(),
                         UNDERWORLD_SEA_LEVEL,
@@ -257,19 +263,154 @@ final class ModWorldGen {
                         true));
     }
 
-    private static NoiseRouter underworldNoiseRouter() {
-        DensityFunction finalDensity = DensityFunctions.yClampedGradient(
-                UNDERWORLD_STONE_CEILING - 1,
-                UNDERWORLD_STONE_CEILING,
+    static NoiseRouter underworldNoiseRouter(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        DensityFunction entrances = underworldEntrances(noises);
+        DensityFunction firstCave = underworldFirstCave(noises);
+        DensityFunction firstCaveEntranceReach = DensityFunctions.yClampedGradient(
+                UNDERWORLD_FIRST_CAVE_END_Y - 8,
+                UNDERWORLD_FIRST_CAVE_END_Y - 1,
+                0.0,
+                1.0);
+        DensityFunction firstCaveWithEntrances = DensityFunctions.lerp(
+                firstCaveEntranceReach,
+                firstCave,
+                DensityFunctions.min(firstCave, entrances));
+
+        DensityFunction separator = DensityFunctions.min(DensityFunctions.constant(0.45), entrances);
+        DensityFunction firstToSeparator = DensityFunctions.yClampedGradient(
+                UNDERWORLD_FIRST_CAVE_END_Y - 1,
+                UNDERWORLD_FIRST_CAVE_END_Y,
+                0.0,
+                1.0);
+        DensityFunction lowerLayers = DensityFunctions.lerp(
+                firstToSeparator,
+                firstCaveWithEntrances,
+                separator);
+
+        DensityFunction upperCave = underworldUpperCave(noises);
+        DensityFunction upperEntranceReach = DensityFunctions.yClampedGradient(
+                UNDERWORLD_SEPARATOR_END_Y,
+                UNDERWORLD_SEPARATOR_END_Y + 10,
                 1.0,
-                -1.0);
+                0.0);
+        DensityFunction upperCaveWithEntrances = DensityFunctions.lerp(
+                upperEntranceReach,
+                upperCave,
+                DensityFunctions.min(upperCave, entrances));
+        DensityFunction separatorToUpper = DensityFunctions.yClampedGradient(
+                UNDERWORLD_SEPARATOR_END_Y - 1,
+                UNDERWORLD_SEPARATOR_END_Y,
+                0.0,
+                1.0);
+        DensityFunction caveLayers = DensityFunctions.lerp(
+                separatorToUpper,
+                lowerLayers,
+                upperCaveWithEntrances);
+
+        // Positive density is stone; Y=128 switches directly from the solid lower stratum to caves.
+        DensityFunction solidToCaves = DensityFunctions.yClampedGradient(
+                UNDERWORLD_FIRST_CAVE_MIN_Y - 1,
+                UNDERWORLD_FIRST_CAVE_MIN_Y,
+                0.0,
+                1.0);
+        DensityFunction layeredTerrain = DensityFunctions.lerp(solidToCaves, 1.0, caveLayers);
+        DensityFunction roofClosure = DensityFunctions.yClampedGradient(
+                UNDERWORLD_ROOF_START_Y,
+                UNDERWORLD_TOP_Y,
+                -1.0,
+                1.0);
+        DensityFunction finalDensity = DensityFunctions.max(layeredTerrain, roofClosure).clamp(-1.0, 1.0);
         return withFinalDensity(NoiseRouterData.none(), finalDensity);
+    }
+
+    private static DensityFunction underworldFirstCave(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        DensityFunction chambers = DensityFunctions.add(
+                DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_CHEESE), 0.75, 0.45),
+                DensityFunctions.constant(-0.18));
+        DensityFunction layeredDividers = stoneBand(
+                DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 1.15, 2.8),
+                0.045);
+        DensityFunction wallDividers = stoneBand(
+                DensityFunctions.shiftedNoise2d(
+                        DensityFunctions.zero(),
+                        DensityFunctions.zero(),
+                        0.55,
+                        noises.getOrThrow(Noises.SPAGHETTI_2D)),
+                0.05);
+        DensityFunction pillars = DensityFunctions.add(
+                DensityFunctions.noise(noises.getOrThrow(Noises.PILLAR), 2.5, 0.18),
+                DensityFunctions.constant(-0.42));
+        DensityFunction dividedChambers = DensityFunctions.max(
+                DensityFunctions.max(chambers, layeredDividers),
+                DensityFunctions.max(wallDividers, pillars));
+        return DensityFunctions.interpolated(dividedChambers).clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction underworldEntrances(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        DensityFunction primary = airPassage(
+                DensityFunctions.flatCache(DensityFunctions.shiftedNoise2d(
+                        DensityFunctions.zero(),
+                        DensityFunctions.zero(),
+                        0.85,
+                        noises.getOrThrow(Noises.CAVE_ENTRANCE))),
+                0.015);
+        DensityFunction secondary = airPassage(
+                DensityFunctions.flatCache(DensityFunctions.shiftedNoise2d(
+                        DensityFunctions.zero(),
+                        DensityFunctions.zero(),
+                        0.55,
+                        noises.getOrThrow(Noises.PILLAR))),
+                0.012);
+        return DensityFunctions.min(primary, secondary).clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction underworldUpperCave(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        DensityFunction compactChambers = DensityFunctions.add(
+                DensityFunctions.add(
+                        DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_CHEESE), 1.35, 0.95),
+                        DensityFunctions.constant(0.22)),
+                DensityFunctions.mul(
+                        DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 1.8, 2.4),
+                        DensityFunctions.constant(0.18)));
+        DensityFunction stonePartitions = stoneBand(
+                DensityFunctions.shiftedNoise2d(
+                        DensityFunctions.zero(),
+                        DensityFunctions.zero(),
+                        0.8,
+                        noises.getOrThrow(Noises.SPAGHETTI_2D)),
+                0.055);
+        DensityFunction tunnelA = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_1), 1.4, 1.1);
+        DensityFunction tunnelB = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_2), 1.4, 1.1);
+        DensityFunction tunnels = DensityFunctions.add(
+                DensityFunctions.max(tunnelA.abs(), tunnelB.abs()),
+                DensityFunctions.constant(-0.06));
+        DensityFunction partitionedChambers = DensityFunctions.max(compactChambers, stonePartitions);
+        return DensityFunctions.interpolated(DensityFunctions.min(partitionedChambers, tunnels))
+                .clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction stoneBand(DensityFunction noise, double halfWidth) {
+        return DensityFunctions.add(
+                DensityFunctions.constant(halfWidth),
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), noise.abs()));
+    }
+
+    private static DensityFunction airPassage(DensityFunction noise, double halfWidth) {
+        return DensityFunctions.add(noise.abs(), DensityFunctions.constant(-halfWidth));
     }
 
     private static SurfaceRules.RuleSource underworldSurfaceRule() {
         SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
         SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
         return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.verticalGradient(
+                                "bedrock_roof",
+                                VerticalAnchor.belowTop(5),
+                                VerticalAnchor.top())),
+                        bedrock),
                 SurfaceRules.ifTrue(
                         SurfaceRules.verticalGradient(
                                 "bedrock_floor",

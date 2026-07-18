@@ -812,11 +812,21 @@ class R196GeneratedResourceTest {
         JsonObject finalDensity = noise.getAsJsonObject("noise_router").getAsJsonObject("final_density");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
         var surfaceSequence = surfaceRule.getAsJsonArray("sequence");
-        JsonObject bedrockRule = surfaceSequence.get(0).getAsJsonObject();
-        JsonObject deepslateRule = surfaceSequence.get(1).getAsJsonObject();
+        JsonObject roofBedrockRule = surfaceSequence.get(0).getAsJsonObject();
+        JsonObject roofGradient = roofBedrockRule
+                .getAsJsonObject("if_true")
+                .getAsJsonObject("invert");
+        JsonObject floorBedrockRule = surfaceSequence.get(1).getAsJsonObject();
+        JsonObject deepslateRule = surfaceSequence.get(2).getAsJsonObject();
         JsonObject deepslateCutoff = deepslateRule
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
+        Set<String> terrainNoises = new HashSet<>();
+        visit(finalDensity, (key, value) -> {
+            if (key.equals("noise")) {
+                terrainNoises.add(value);
+            }
+        });
         assertAll(
                 "Underworld dimension",
                 () -> assertEquals("infx:underworld", dimension.get("type").getAsString()),
@@ -840,13 +850,40 @@ class R196GeneratedResourceTest {
                 () -> assertFalse(noise.get("aquifers_enabled").getAsBoolean()),
                 () -> assertEquals(-192, noiseShape.get("min_y").getAsInt()),
                 () -> assertEquals(512, noiseShape.get("height").getAsInt()),
-                () -> assertEquals("minecraft:y_clamped_gradient", finalDensity.get("type").getAsString()),
-                () -> assertEquals(127, finalDensity.get("from_y").getAsInt()),
-                () -> assertEquals(128, finalDensity.get("to_y").getAsInt()),
-                () -> assertEquals(1.0, finalDensity.get("from_value").getAsDouble()),
-                () -> assertEquals(-1.0, finalDensity.get("to_value").getAsDouble()),
-                () -> assertEquals(2, surfaceSequence.size()),
-                () -> assertEquals("minecraft:bedrock", bedrockRule
+                () -> assertEquals("minecraft:clamp", finalDensity.get("type").getAsString()),
+                () -> assertEquals(-1.0, finalDensity.get("min").getAsDouble()),
+                () -> assertEquals(1.0, finalDensity.get("max").getAsDouble()),
+                () -> assertTrue(hasGradient(finalDensity, 127, 128, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 208, 215, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 215, 216, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 225, 226, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 226, 236, 1.0, 0.0)),
+                () -> assertTrue(hasGradient(finalDensity, 296, 319, -1.0, 1.0)),
+                () -> assertEquals(Set.of(
+                        "minecraft:cave_cheese",
+                        "minecraft:cave_entrance",
+                        "minecraft:cave_layer",
+                        "minecraft:pillar",
+                        "minecraft:spaghetti_2d",
+                        "minecraft:spaghetti_3d_1",
+                        "minecraft:spaghetti_3d_2"), terrainNoises),
+                () -> assertTrue(finalDensity.toString().contains("minecraft:interpolated")),
+                () -> assertEquals(3, surfaceSequence.size()),
+                () -> assertEquals("minecraft:vertical_gradient", roofGradient.get("type").getAsString()),
+                () -> assertEquals(5, roofGradient
+                        .getAsJsonObject("true_at_and_below")
+                        .get("below_top")
+                        .getAsInt()),
+                () -> assertEquals(0, roofGradient
+                        .getAsJsonObject("false_at_and_above")
+                        .get("below_top")
+                        .getAsInt()),
+                () -> assertEquals("minecraft:bedrock", roofBedrockRule
+                        .getAsJsonObject("then_run")
+                        .getAsJsonObject("result_state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals("minecraft:bedrock", floorBedrockRule
                         .getAsJsonObject("then_run")
                         .getAsJsonObject("result_state")
                         .get("Name")
@@ -1226,6 +1263,40 @@ class R196GeneratedResourceTest {
                 visit(entry.getValue(), strings);
             });
         }
+    }
+
+    private static boolean hasGradient(
+            JsonElement element,
+            int fromY,
+            int toY,
+            double fromValue,
+            double toValue) {
+        if (element.isJsonArray()) {
+            for (JsonElement child : element.getAsJsonArray()) {
+                if (hasGradient(child, fromY, toY, fromValue, toValue)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (!element.isJsonObject()) {
+            return false;
+        }
+        JsonObject object = element.getAsJsonObject();
+        if (object.has("type")
+                && object.get("type").getAsString().equals("minecraft:y_clamped_gradient")
+                && object.get("from_y").getAsInt() == fromY
+                && object.get("to_y").getAsInt() == toY
+                && object.get("from_value").getAsDouble() == fromValue
+                && object.get("to_value").getAsDouble() == toValue) {
+            return true;
+        }
+        for (var entry : object.entrySet()) {
+            if (hasGradient(entry.getValue(), fromY, toY, fromValue, toValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Path findProjectRoot() {
