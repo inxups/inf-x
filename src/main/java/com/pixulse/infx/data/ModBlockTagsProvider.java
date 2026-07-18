@@ -22,6 +22,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.HARDENED_CLAY_FURNACE.getKey())
                 .add(ModBlocks.OBSIDIAN_FURNACE.getKey())
                 .add(ModBlocks.NETHERRACK_FURNACE.getKey())
+                .add(ModBlocks.SILVER_ORE.getKey())
                 .add(ModBlocks.MITHRIL_ORE.getKey())
                 .add(ModBlocks.ADAMANTIUM_ORE.getKey());
         tag(ModTags.Blocks.RESTRICTED_HARVEST)

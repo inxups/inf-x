@@ -31,6 +31,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(InfiniteX.MOD_ID);
 
+    public static final DeferredBlock<Block> SILVER_ORE = BLOCKS.registerSimpleBlock(
+            "silver_ore",
+            properties -> properties
+                    .mapColor(MapColor.METAL)
+                    .strength(2.5F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops());
     public static final DeferredBlock<Block> MITHRIL_ORE = BLOCKS.registerSimpleBlock(
             "mithril_ore",
             properties -> properties
@@ -46,7 +53,7 @@ public final class ModBlocks {
                     .sound(SoundType.STONE)
                     .requiresCorrectToolForDrops());
 
-    public static final List<DeferredBlock<Block>> ORES = List.of(MITHRIL_ORE, ADAMANTIUM_ORE);
+    public static final List<DeferredBlock<Block>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
 
     public static final DeferredBlock<ClayFurnaceBlock> CLAY_FURNACE = BLOCKS.registerBlock(
             "clay_furnace",

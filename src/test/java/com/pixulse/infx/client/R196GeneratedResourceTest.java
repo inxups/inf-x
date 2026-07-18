@@ -152,14 +152,17 @@ class R196GeneratedResourceTest {
                 () -> assertTrue(heatTwoInputs.contains("minecraft:raw_iron")),
                 () -> assertTrue(heatTwoInputs.contains("minecraft:iron_ore")),
                 () -> assertTrue(heatTwoInputs.contains("minecraft:nether_quartz_ore")),
-                () -> assertTrue(heatTwoInputs.contains("minecraft:sandstone")));
+                () -> assertTrue(heatTwoInputs.contains("minecraft:sandstone")),
+                () -> assertTrue(heatTwoInputs.contains("infx:silver_ore")),
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/recipe/silver_ingot_from_smelting_silver_ore.json"))));
     }
 
     @Test
-    void highHeatOresHaveCompleteResourcesAndProgressionData() throws Exception {
+    void miteOresHaveCompleteResourcesAndProgressionData() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
-        for (String ore : List.of("mithril_ore", "adamantium_ore")) {
+        for (String ore : List.of("silver_ore", "mithril_ore", "adamantium_ore")) {
             assertAll(
                     ore,
                     () -> assertTrue(Files.isRegularFile(
@@ -189,8 +192,18 @@ class R196GeneratedResourceTest {
 
         String placedFeature = Files.readString(
                 GENERATED.resolve("data/infx/worldgen/placed_feature/mithril_ore.json"), UTF_8);
+        String silverConfigured = Files.readString(
+                GENERATED.resolve("data/infx/worldgen/configured_feature/silver_ore.json"), UTF_8);
+        String silverPlaced = Files.readString(
+                GENERATED.resolve("data/infx/worldgen/placed_feature/silver_ore.json"), UTF_8);
         assertAll(
-                "mithril overworld generation",
+                "overworld ore generation",
+                () -> assertTrue(silverConfigured.contains("\"size\": 6")),
+                () -> assertTrue(silverConfigured.contains("infx:silver_ore")),
+                () -> assertTrue(silverPlaced.contains("minecraft:biased_to_bottom")),
+                () -> assertTrue(silverPlaced.contains("\"absolute\": 96")),
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/neoforge/biome_modifier/add_silver_ore.json"))),
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
                         "data/infx/worldgen/configured_feature/mithril_ore.json"))),
                 () -> assertTrue(placedFeature.contains("minecraft:biased_to_bottom")),
@@ -258,7 +271,7 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(241, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(242, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -367,6 +380,7 @@ class R196GeneratedResourceTest {
                         + "|textures/block/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_workbench_(front|side)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(clay|hardened_clay|sandstone|obsidian|netherrack)_furnace_(front|front_on|side|top)\\.png")));
+        assertTrue(destinations.remove("textures/block/silver_ore.png"));
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);

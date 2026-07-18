@@ -236,6 +236,12 @@ public final class ModGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.COPPER_PICKAXE.get().getDefaultInstance());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break stone");
 
+        helper.setBlock(WORK_POS, ModBlocks.SILVER_ORE.get());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break silver ore");
+        helper.assertTrue(
+                helper.getBlockState(WORK_POS).isAir(),
+                "a harvested silver ore block must be removed");
+
         player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         helper.setBlock(WORK_POS, Blocks.OAK_LOG);
@@ -689,6 +695,13 @@ public final class ModGameTests {
                 .thenWaitUntil(() -> helper.assertTrue(
                         furnace[0].getItem(2).is(Items.IRON_INGOT),
                         "heat-2 coal must smelt raw iron"))
+                .thenExecute(() -> {
+                    furnace[0].setItem(2, ItemStack.EMPTY);
+                    furnace[0].setItem(0, ModItems.SILVER_ORE.toStack());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        furnace[0].getItem(2).is(ModItems.SILVER_INGOT),
+                        "heat-2 coal must smelt silver ore"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
                     helper.setBlock(FURNACE_POS, furnaceState);
