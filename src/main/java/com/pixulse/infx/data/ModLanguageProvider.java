@@ -2,6 +2,7 @@ package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.R196Catalog;
+import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
@@ -219,6 +220,9 @@ final class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         ModItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
+        ModEntityTypes.names().forEach(entity -> add(
+                "entity.infx." + entity.path(),
+                locale == Locale.EN_US ? entity.english() : entity.chinese()));
         locale.baseTranslations.forEach(this::add);
         for (var anvil : com.pixulse.infx.registry.ModBlocks.METAL_ANVILS) {
             String material = anvil.get().material().path();

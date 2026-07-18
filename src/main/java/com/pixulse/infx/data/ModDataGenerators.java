@@ -16,6 +16,7 @@ public final class ModDataGenerators {
         event.createDatapackRegistryObjects(ModWorldGen.builder(), Set.of(InfiniteX.MOD_ID, "minecraft"));
         event.createProvider(ModBlockTagsProvider::new);
         event.createProvider(ModBiomeTagsProvider::new);
+        event.createProvider(ModEntityTypeTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.EN_US));
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.ZH_CN));
@@ -36,7 +37,9 @@ public final class ModDataGenerators {
                         new LootTableProvider.SubProviderEntry(
                                 ModRustedIronLootSubProvider::new, LootContextParamSets.CHEST),
                         new LootTableProvider.SubProviderEntry(
-                                ModUnderworldLootSubProvider::new, LootContextParamSets.CHEST)),
+                                ModUnderworldLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
+                                ModEntityLootSubProvider::new, LootContextParamSets.ENTITY)),
                 lookup));
         event.createProvider(ModGlobalLootModifierProvider::new);
     }

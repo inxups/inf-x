@@ -7,11 +7,13 @@ import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.crafting.TimedCraftingEvents;
 import com.pixulse.infx.gametest.ModEquipmentGameTests;
 import com.pixulse.infx.gametest.ModGameTests;
+import com.pixulse.infx.gametest.ModMonsterGameTests;
 import com.pixulse.infx.gametest.ModR196CompletionGameTests;
 import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
+import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
 import com.pixulse.infx.registry.ModRecipes;
@@ -20,6 +22,7 @@ import com.pixulse.infx.progression.ProgressionEvents;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.item.R196ManureEvents;
 import com.pixulse.infx.equipment.R196RustedIronSources;
+import com.pixulse.infx.entity.R196MonsterEvents;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 
 import net.minecraft.resources.Identifier;
@@ -38,6 +41,7 @@ public final class InfiniteX {
         ModBlockEntityTypes.register(modBus);
         ModDataComponents.register(modBus);
         ModItems.register(modBus);
+        ModEntityTypes.register(modBus);
         ModLootModifiers.register(modBus);
         ModRecipes.register(modBus);
         ModMenus.register(modBus);
@@ -45,6 +49,7 @@ public final class InfiniteX {
         ModGameTests.register(modBus);
         ModEquipmentGameTests.register(modBus);
         ModR196CompletionGameTests.register(modBus);
+        ModMonsterGameTests.register(modBus);
         modBus.addListener(ModDataGenerators::gatherData);
         FurnaceEvents.register(NeoForge.EVENT_BUS);
         HarvestEvents.register(NeoForge.EVENT_BUS);
@@ -53,6 +58,7 @@ public final class InfiniteX {
         R196EquipmentBehaviors.register(modBus);
         R196ManureEvents.register(NeoForge.EVENT_BUS);
         R196RustedIronSources.register(NeoForge.EVENT_BUS);
+        R196MonsterEvents.register(modBus, NeoForge.EVENT_BUS);
         UnderworldPortalEvents.register(NeoForge.EVENT_BUS);
     }
 
