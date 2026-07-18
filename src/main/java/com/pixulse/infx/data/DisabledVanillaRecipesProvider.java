@@ -5,13 +5,14 @@ import com.google.gson.JsonObject;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 
 final class DisabledVanillaRecipesProvider implements DataProvider {
-    private static final List<String> DISABLED_RECIPES = List.of(
+    private static final List<String> BASE_DISABLED_RECIPES = List.of(
             "acacia_planks",
             "arrow",
             "bamboo_planks",
@@ -52,6 +53,32 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "golden_spear",
             "diamond_spear",
             "netherite_spear_smithing",
+            "netherite_axe_smithing",
+            "netherite_boots_smithing",
+            "netherite_chestplate_smithing",
+            "netherite_helmet_smithing",
+            "netherite_hoe_smithing",
+            "netherite_leggings_smithing",
+            "netherite_pickaxe_smithing",
+            "netherite_shovel_smithing",
+            "netherite_sword_smithing",
+            "diamond_axe",
+            "diamond_boots",
+            "diamond_chestplate",
+            "diamond_helmet",
+            "diamond_hoe",
+            "diamond_leggings",
+            "diamond_pickaxe",
+            "diamond_shovel",
+            "diamond_spear",
+            "diamond_sword",
+            "shield",
+            "blast_furnace",
+            "smoker",
+            "smithing_table",
+            "stonecutter",
+            "spyglass",
+            "mace",
             "copper_ingot_from_blasting_copper_ore",
             "copper_ingot_from_blasting_deepslate_copper_ore",
             "copper_ingot_from_blasting_raw_copper",
@@ -97,6 +124,51 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "glass",
             "sandstone",
             "smooth_sandstone");
+    private static final List<String> MODERN_BYPASS_RECIPES = List.of(
+            "black_bundle",
+            "blue_bundle",
+            "brown_bundle",
+            "bundle",
+            "copper_bars",
+            "copper_block",
+            "copper_bulb",
+            "copper_chain",
+            "copper_chest",
+            "copper_door",
+            "copper_grate",
+            "copper_ingot",
+            "copper_ingot_from_waxed_copper_block",
+            "copper_lantern",
+            "copper_torch",
+            "copper_trapdoor",
+            "crafter",
+            "cyan_bundle",
+            "gray_bundle",
+            "green_bundle",
+            "light_blue_bundle",
+            "light_gray_bundle",
+            "lime_bundle",
+            "magenta_bundle",
+            "netherite_block",
+            "netherite_horse_armor_smithing",
+            "netherite_ingot",
+            "netherite_ingot_from_netherite_block",
+            "netherite_nautilus_armor_smithing",
+            "netherite_scrap",
+            "netherite_scrap_from_blasting",
+            "netherite_upgrade_smithing_template",
+            "orange_bundle",
+            "pink_bundle",
+            "purple_bundle",
+            "raw_copper",
+            "raw_copper_block",
+            "red_bundle",
+            "white_bundle",
+            "yellow_bundle");
+    private static final List<String> DISABLED_RECIPES = Stream.concat(
+                    BASE_DISABLED_RECIPES.stream(), MODERN_BYPASS_RECIPES.stream())
+            .distinct()
+            .toList();
 
     private final Path recipesDirectory;
 

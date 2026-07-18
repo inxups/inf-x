@@ -3,6 +3,7 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.world.Underworld;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
@@ -57,6 +59,9 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.heightproviders.BiasedToBottomHeight;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
@@ -93,12 +98,16 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
+    public static final ResourceKey<ConfiguredFeature<?, ?>> MANTLE_BASIN_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_mantle_basin"));
     private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("mithril_ore"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
+    public static final ResourceKey<PlacedFeature> MANTLE_BASIN_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_mantle_basin"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
@@ -118,6 +127,7 @@ final class ModWorldGen {
 
     static RegistrySetBuilder builder() {
         return new RegistrySetBuilder()
+                .add(Registries.ENCHANTMENT, ModEnchantments::bootstrap)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
@@ -136,6 +146,15 @@ final class ModWorldGen {
         registerConfiguredOre(context, SILVER_ORE_CONFIGURED, ModBlocks.SILVER_ORE.get().defaultBlockState(), 6);
         registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, ModBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
         registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, ModBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
+        context.register(
+                MANTLE_BASIN_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.DISK,
+                        new DiskConfiguration(
+                                BlockStateProvider.simple(ModBlocks.MANTLE.get()),
+                                BlockPredicate.matchesBlocks(Blocks.STONE, Blocks.DEEPSLATE),
+                                UniformInt.of(3, 8),
+                                1)));
     }
 
     private static void registerConfiguredOre(
@@ -168,6 +187,16 @@ final class ModWorldGen {
                                 HeightRangePlacement.of(BiasedToBottomHeight.of(
                                         VerticalAnchor.absolute(0), VerticalAnchor.absolute(136), 1)),
                                 BiomeFilter.biome())));
+        context.register(
+                MANTLE_BASIN_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(MANTLE_BASIN_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(2),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(120), VerticalAnchor.absolute(136)),
+                                BiomeFilter.biome())));
     }
 
     private static void bootstrapBiomes(BootstrapContext<Biome> context) {
@@ -187,6 +216,7 @@ final class ModWorldGen {
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(SILVER_ORE_PLACED));
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(MITHRIL_ORE_PLACED));
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(ADAMANTIUM_ORE_PLACED));
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, placed.getOrThrow(MANTLE_BASIN_PLACED));
 
         context.register(
                 Underworld.BIOME,
@@ -259,7 +289,13 @@ final class ModWorldGen {
                                 .set(EnvironmentAttributes.FOG_START_DISTANCE, 8.0F)
                                 .set(EnvironmentAttributes.FOG_END_DISTANCE, 96.0F)
                                 .set(EnvironmentAttributes.SKY_LIGHT_FACTOR, 0.0F)
-                                .set(EnvironmentAttributes.BED_RULE, BedRule.EXPLODES)
+                                .set(
+                                        EnvironmentAttributes.BED_RULE,
+                                        new BedRule(
+                                                BedRule.Rule.NEVER,
+                                                BedRule.Rule.NEVER,
+                                                false,
+                                                Optional.of(Component.translatable("message.infx.underworld_bed_unsafe"))))
                                 .set(EnvironmentAttributes.RESPAWN_ANCHOR_WORKS, false)
                                 .set(EnvironmentAttributes.CAN_START_RAID, false)
                                 .set(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
@@ -497,9 +533,26 @@ final class ModWorldGen {
                                 VerticalAnchor.bottom(),
                                 VerticalAnchor.aboveBottom(5)),
                         bedrock),
+                internalBedrockBand(152, 161, Noises.PILLAR, bedrock),
+                internalBedrockBand(216, 225, Noises.SPAGHETTI_2D, bedrock),
+                internalBedrockBand(272, 281, Noises.CAVE_LAYER, bedrock),
                 SurfaceRules.ifTrue(
                         SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(0), 0)),
                         deepslate));
+    }
+
+    private static SurfaceRules.RuleSource internalBedrockBand(
+            int minimumY,
+            int maximumY,
+            ResourceKey<NormalNoise.NoiseParameters> gapNoise,
+            SurfaceRules.RuleSource bedrock) {
+        return SurfaceRules.ifTrue(
+                SurfaceRules.yBlockCheck(VerticalAnchor.absolute(minimumY), 0),
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(maximumY + 1), 0)),
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.noiseCondition2d(gapNoise, -1.0, 0.62),
+                                bedrock)));
     }
 
     private static void registerOverworldNoiseSettings(
@@ -518,7 +571,7 @@ final class ModWorldGen {
                         vanilla.surfaceRule(),
                         vanilla.spawnTarget(),
                         vanilla.seaLevel(),
-                        vanilla.disableMobGeneration(),
+                        false,
                         vanilla.aquifersEnabled(),
                         vanilla.oreVeinsEnabled(),
                         vanilla.useLegacyRandomSource()));

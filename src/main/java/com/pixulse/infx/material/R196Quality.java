@@ -11,6 +11,7 @@ import net.minecraft.util.StringRepresentable;
  * stacks and third-party recipe outputs remain backward compatible.</p>
  */
 public enum R196Quality implements StringRepresentable {
+    WRETCHED("wretched", .50F, ChatFormatting.DARK_RED),
     POOR("poor", .75F, ChatFormatting.DARK_GRAY),
     FINE("fine", 1.5F, ChatFormatting.GREEN),
     EXCELLENT("excellent", 2.0F, ChatFormatting.AQUA),
@@ -45,5 +46,16 @@ public enum R196Quality implements StringRepresentable {
 
     public boolean isAtMost(R196Quality maximum) {
         return ordinal() <= maximum.ordinal();
+    }
+
+    public int craftingDifficultyMultiplier() {
+        return switch (this) {
+            case WRETCHED, POOR -> 1;
+            case FINE -> 2;
+            case EXCELLENT -> 4;
+            case SUPERB -> 8;
+            case MASTERWORK -> 16;
+            case LEGENDARY -> 32;
+        };
     }
 }

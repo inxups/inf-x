@@ -15,7 +15,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.AttackRange;
 import net.minecraft.world.item.component.Weapon;
+import net.minecraft.world.item.component.BlocksAttacks;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.world.item.equipment.Equippable;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.registry.ModDataComponents;
@@ -47,9 +51,27 @@ public final class R196ItemProperties {
         return commonDamageable(key, properties)
                 .component(DataComponents.TOOL, key.type().miningFamily().createTool(key))
                 .attributes(toolAttributes(key))
+                .component(DataComponents.ATTACK_RANGE, attackRange(key.type()))
                 .component(
                         DataComponents.WEAPON,
-                        new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
+                        new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()))
+                .component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
+    }
+
+    static AttackRange attackRange(R196EquipmentType type) {
+        float maximum = 1.5F + type.reachBonus();
+        return new AttackRange(0.0F, maximum, 0.0F, 5.0F + type.reachBonus(), 0.0F, 1.0F);
+    }
+
+    private static BlocksAttacks toolBlocking() {
+        return new BlocksAttacks(
+                0.1F,
+                1.0F,
+                List.of(new BlocksAttacks.DamageReduction(100.0F, Optional.empty(), 0.0F, 0.5F)),
+                new BlocksAttacks.ItemDamageFunction(0.0F, 0.0F, 0.5F),
+                Optional.empty(),
+                Optional.of(SoundEvents.SHIELD_BLOCK),
+                Optional.of(SoundEvents.SHIELD_BREAK));
     }
 
     static ItemAttributeModifiers toolAttributes(R196EquipmentKey key) {

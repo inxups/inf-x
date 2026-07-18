@@ -9,6 +9,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import com.pixulse.infx.progression.ProgressionEvents;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -18,6 +20,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.tags.StructureTags;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
@@ -42,10 +48,15 @@ public final class GravelLootModifier extends LootModifier {
         if (state == null || !state.is(Blocks.GRAVEL)) {
             return generatedLoot;
         }
-        if (!(context.getOptionalParameter(LootContextParams.THIS_ENTITY) instanceof Player)) {
+        if (!(context.getOptionalParameter(LootContextParams.THIS_ENTITY) instanceof Player player)) {
             return generatedLoot;
         }
         if (context.hasParameter(LootContextParams.EXPLOSION_RADIUS)) {
+            return generatedLoot;
+        }
+        if (isVillageRoad(context)) {
+            generatedLoot.clear();
+            generatedLoot.add(new ItemStack(Items.GRAVEL));
             return generatedLoot;
         }
 
@@ -53,6 +64,10 @@ public final class GravelLootModifier extends LootModifier {
         GravelDrop selected = GravelDropSelector.select(fortune, context.getRandom()::nextInt);
         if (selected == GravelDrop.DIAMOND_SHARD && context.getLevel().dimension() == Level.NETHER) {
             selected = GravelDrop.NETHER_QUARTZ_SHARD;
+        }
+        if ((selected == GravelDrop.FLINT_CHIP || selected == GravelDrop.FLINT)
+                && player instanceof ServerPlayer serverPlayer) {
+            ProgressionEvents.award(serverPlayer, "flint_finder", "mined_flint_from_gravel");
         }
         ItemStack replacement = createStack(selected);
         FirstLootUnitReplacer.replace(
@@ -62,6 +77,16 @@ public final class GravelLootModifier extends LootModifier {
                 ItemStack::setCount,
                 replacement);
         return generatedLoot;
+    }
+
+    static boolean isVillageRoad(LootContext context) {
+        Vec3 origin = context.getOptionalParameter(LootContextParams.ORIGIN);
+        if (origin == null) {
+            return false;
+        }
+        StructureStart village = context.getLevel().structureManager()
+                .getStructureWithPieceAt(BlockPos.containing(origin), StructureTags.VILLAGE);
+        return village != StructureStart.INVALID_START;
     }
 
     private static int fortuneLevel(LootContext context) {

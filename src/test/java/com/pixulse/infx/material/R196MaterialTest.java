@@ -70,6 +70,7 @@ class R196MaterialTest {
     @Test
     void qualityOrderMatchesR196() {
         assertEquals(List.of(
+                R196Quality.WRETCHED,
                 R196Quality.POOR,
                 R196Quality.FINE,
                 R196Quality.EXCELLENT,

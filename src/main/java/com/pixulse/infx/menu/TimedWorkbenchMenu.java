@@ -7,6 +7,7 @@ import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.crafting.TimedCraftingState;
+import com.pixulse.infx.crafting.CraftingEnvironment;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModMenus;
 
@@ -198,7 +199,7 @@ public final class TimedWorkbenchMenu extends AbstractCraftingMenu implements Ti
 
     @Override
     public boolean infx$isCraftingContextValid(Player player) {
-        return stillValid(player);
+        return stillValid(player) && CraftingEnvironment.canCraft(player);
     }
 
     @Override

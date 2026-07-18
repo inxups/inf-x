@@ -19,11 +19,17 @@ import com.pixulse.infx.registry.ModLootModifiers;
 import com.pixulse.infx.registry.ModRecipes;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.progression.ProgressionEvents;
+import com.pixulse.infx.progression.PlayerProgressionEvents;
+import com.pixulse.infx.progression.R196Commands;
+import com.pixulse.infx.progression.R196CreativeRestriction;
+import com.pixulse.infx.progression.ModernContentAuditEvents;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.item.R196ManureEvents;
 import com.pixulse.infx.equipment.R196RustedIronSources;
 import com.pixulse.infx.entity.R196MonsterEvents;
+import com.pixulse.infx.entity.R196AnimalEvents;
 import com.pixulse.infx.world.UnderworldPortalEvents;
+import com.pixulse.infx.agriculture.R196AgricultureEvents;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -59,7 +65,13 @@ public final class InfiniteX {
         R196ManureEvents.register(NeoForge.EVENT_BUS);
         R196RustedIronSources.register(NeoForge.EVENT_BUS);
         R196MonsterEvents.register(modBus, NeoForge.EVENT_BUS);
+        R196AnimalEvents.register(NeoForge.EVENT_BUS);
         UnderworldPortalEvents.register(NeoForge.EVENT_BUS);
+        PlayerProgressionEvents.register(modBus, NeoForge.EVENT_BUS);
+        R196AgricultureEvents.register(NeoForge.EVENT_BUS);
+        R196Commands.register(NeoForge.EVENT_BUS);
+        R196CreativeRestriction.register(NeoForge.EVENT_BUS);
+        ModernContentAuditEvents.register(NeoForge.EVENT_BUS);
     }
 
     public static Identifier id(String path) {

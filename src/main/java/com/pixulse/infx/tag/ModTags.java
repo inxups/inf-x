@@ -15,6 +15,7 @@ public final class ModTags {
 
     public static final class Blocks {
         public static final TagKey<Block> RESTRICTED_HARVEST = create("restricted_harvest");
+        public static final TagKey<Block> PORTABLE_HAND_HARVEST = create("portable_hand_harvest");
 
         private Blocks() {}
 

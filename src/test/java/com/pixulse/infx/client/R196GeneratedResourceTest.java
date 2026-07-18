@@ -806,6 +806,9 @@ class R196GeneratedResourceTest {
         JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
         JsonObject generator = dimension.getAsJsonObject("generator");
         JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
+        JsonObject bedRule = dimensionType
+                .getAsJsonObject("attributes")
+                .getAsJsonObject("minecraft:gameplay/bed_rule");
         JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
         JsonObject miteDensity = json(GENERATED.resolve(
@@ -822,7 +825,10 @@ class R196GeneratedResourceTest {
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
         JsonObject floorBedrockRule = surfaceSequence.get(1).getAsJsonObject();
-        JsonObject deepslateRule = surfaceSequence.get(2).getAsJsonObject();
+        JsonObject firstInternalBedrockRule = surfaceSequence.get(2).getAsJsonObject();
+        JsonObject secondInternalBedrockRule = surfaceSequence.get(3).getAsJsonObject();
+        JsonObject thirdInternalBedrockRule = surfaceSequence.get(4).getAsJsonObject();
+        JsonObject deepslateRule = surfaceSequence.get(5).getAsJsonObject();
         JsonObject deepslateCutoff = deepslateRule
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
@@ -906,7 +912,7 @@ class R196GeneratedResourceTest {
                         "minecraft:spaghetti_3d_1",
                         "minecraft:spaghetti_3d_2"), terrainNoises),
                 () -> assertTrue(finalDensity.toString().contains("minecraft:interpolated")),
-                () -> assertEquals(3, surfaceSequence.size()),
+                () -> assertEquals(6, surfaceSequence.size()),
                 () -> assertEquals("minecraft:vertical_gradient", roofGradient.get("type").getAsString()),
                 () -> assertEquals(5, roofGradient
                         .getAsJsonObject("true_at_and_below")
@@ -926,6 +932,12 @@ class R196GeneratedResourceTest {
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
+                () -> assertInternalBedrockBand(
+                        firstInternalBedrockRule, 152, 162, "minecraft:pillar"),
+                () -> assertInternalBedrockBand(
+                        secondInternalBedrockRule, 216, 226, "minecraft:spaghetti_2d"),
+                () -> assertInternalBedrockBand(
+                        thirdInternalBedrockRule, 272, 282, "minecraft:cave_layer"),
                 () -> assertEquals("minecraft:y_above", deepslateCutoff.get("type").getAsString()),
                 () -> assertEquals(0, deepslateCutoff
                         .getAsJsonObject("anchor")
@@ -936,11 +948,15 @@ class R196GeneratedResourceTest {
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
+                () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
+                () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
+                () -> assertFalse(bedRule.has("explodes")),
                 () -> assertTrue(biome.toString().contains("minecraft:monster_room")),
                 () -> assertTrue(biome.toString().contains("minecraft:cave_spider")),
                 () -> assertTrue(biome.toString().contains("infx:silver_ore")),
                 () -> assertTrue(biome.toString().contains("infx:mithril_ore")),
-                () -> assertTrue(biome.toString().contains("infx:underworld_adamantium_ore")));
+                () -> assertTrue(biome.toString().contains("infx:underworld_adamantium_ore")),
+                () -> assertTrue(biome.toString().contains("infx:underworld_mantle_basin")));
 
         JsonObject configured = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"));
@@ -959,6 +975,23 @@ class R196GeneratedResourceTest {
                 () -> assertTrue(placedContents.contains("\"absolute\":136")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/neoforge/biome_modifier/add_adamantium_ore.json"))));
+
+        JsonObject mantle = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/underworld_mantle_basin.json"));
+        JsonObject mantleConfig = mantle.getAsJsonObject("config");
+        JsonObject mantleRadius = mantleConfig.getAsJsonObject("radius");
+        JsonObject placedMantle = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/underworld_mantle_basin.json"));
+        assertAll(
+                "Underworld mantle basin",
+                () -> assertEquals("minecraft:disk", mantle.get("type").getAsString()),
+                () -> assertEquals(3, mantleRadius.get("min_inclusive").getAsInt()),
+                () -> assertEquals(8, mantleRadius.get("max_inclusive").getAsInt()),
+                () -> assertTrue(mantleConfig.toString().contains("infx:mantle")),
+                () -> assertEquals("infx:underworld_mantle_basin", placedMantle.get("feature").getAsString()),
+                () -> assertTrue(placedMantle.toString().contains("\"count\":2")),
+                () -> assertTrue(placedMantle.toString().contains("\"absolute\":120")),
+                () -> assertTrue(placedMantle.toString().contains("\"absolute\":136")));
 
         JsonObject dungeon = json(GENERATED.resolve("data/infx/loot_table/chests/underworld_dungeon.json"));
         JsonObject dungeonPool = dungeon.getAsJsonArray("pools").get(0).getAsJsonObject();
@@ -1157,9 +1190,201 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(253, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(257, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
+    }
+
+    @Test
+    void runeStonesHaveR196NuggetRecipesAndModernBypassesStayDisabled() throws Exception {
+        Map<String, Map<String, Object>> runes = Map.of(
+                "mithril",
+                Map.of("bench", "mithril", "difficulty", 3_200.0F, "nugget", "infx:mithril_nugget"),
+                "adamantium",
+                Map.of("bench", "adamantium", "difficulty", 12_800.0F, "nugget", "infx:adamantium_nugget"));
+        for (var entry : runes.entrySet()) {
+            JsonObject recipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + entry.getKey() + "_rune_stone.json"));
+            assertAll(
+                    entry.getKey() + " rune stone",
+                    () -> assertEquals("infx:crafting_shaped", recipe.get("type").getAsString()),
+                    () -> assertEquals(entry.getValue().get("bench"), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            (Float) entry.getValue().get("difficulty"), recipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals(
+                            entry.getValue().get("nugget"),
+                            recipe.getAsJsonObject("key").get("N").getAsString()),
+                    () -> assertEquals(
+                            "minecraft:obsidian",
+                            recipe.getAsJsonObject("key").get("O").getAsString()),
+                    () -> assertEquals(
+                            "infx:" + entry.getKey() + "_rune_stone",
+                            recipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+
+        for (String disabled : List.of(
+                "bundle",
+                "blue_bundle",
+                "copper_block",
+                "copper_chest",
+                "copper_ingot",
+                "copper_ingot_from_waxed_copper_block",
+                "crafter",
+                "netherite_block",
+                "netherite_horse_armor_smithing",
+                "netherite_ingot",
+                "netherite_ingot_from_netherite_block",
+                "netherite_nautilus_armor_smithing",
+                "netherite_scrap",
+                "netherite_scrap_from_blasting",
+                "netherite_upgrade_smithing_template",
+                "raw_copper",
+                "raw_copper_block")) {
+            JsonObject recipe = json(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json"));
+            assertEquals(
+                    "neoforge:never",
+                    recipe.getAsJsonArray("neoforge:conditions")
+                            .get(0)
+                            .getAsJsonObject()
+                            .get("type")
+                            .getAsString(),
+                    disabled);
+        }
+    }
+
+    @Test
+    void advancementGraphMatchesAllSixtyTwoR196Nodes() throws Exception {
+        Map<String, String> parents = Map.ofEntries(
+                Map.entry("stick_picker", "open_inventory"),
+                Map.entry("cutting_edge", "stick_picker"),
+                Map.entry("mine_wood", "cutting_edge"),
+                Map.entry("build_work_bench", "mine_wood"),
+                Map.entry("build_shovel", "build_work_bench"),
+                Map.entry("nuggets", "build_shovel"),
+                Map.entry("better_tools", "nuggets"),
+                Map.entry("build_pickaxe", "better_tools"),
+                Map.entry("build_furnace", "build_pickaxe"),
+                Map.entry("acquire_iron", "build_furnace"),
+                Map.entry("build_better_pickaxe", "acquire_iron"),
+                Map.entry("obsidian_furnace", "build_better_pickaxe"),
+                Map.entry("mithril_ingot", "obsidian_furnace"),
+                Map.entry("diamonds", "mithril_ingot"),
+                Map.entry("emeralds", "build_better_pickaxe"),
+                Map.entry("enchantments", "diamonds"),
+                Map.entry("overkill", "enchantments"),
+                Map.entry("bookcase", "enchantments"),
+                Map.entry("enlightenment", "bookcase"),
+                Map.entry("portal", "build_better_pickaxe"),
+                Map.entry("portal_to_nether", "portal"),
+                Map.entry("ghast", "portal_to_nether"),
+                Map.entry("blaze_rod", "portal_to_nether"),
+                Map.entry("potion", "blaze_rod"),
+                Map.entry("the_end", "blaze_rod"),
+                Map.entry("the_end2", "the_end"),
+                Map.entry("netherrack_furnace", "blaze_rod"),
+                Map.entry("adamantium_ingot", "netherrack_furnace"),
+                Map.entry("crystal_breaker", "adamantium_ingot"),
+                Map.entry("runegate", "portal"),
+                Map.entry("on_a_rail", "acquire_iron"),
+                Map.entry("build_hoe", "better_tools"),
+                Map.entry("flour", "build_hoe"),
+                Map.entry("make_bread", "flour"),
+                Map.entry("bake_cake", "flour"),
+                Map.entry("build_scythe", "build_hoe"),
+                Map.entry("soil_enrichment", "build_hoe"),
+                Map.entry("make_mycelium", "soil_enrichment"),
+                Map.entry("supersize_me", "make_mycelium"),
+                Map.entry("plant_doctor", "build_hoe"),
+                Map.entry("build_chain_mail", "better_tools"),
+                Map.entry("wear_all_plate_armor", "build_chain_mail"),
+                Map.entry("wear_all_adamantium_plate_armor", "wear_all_plate_armor"),
+                Map.entry("fishing_rod", "better_tools"),
+                Map.entry("cook_fish", "fishing_rod"),
+                Map.entry("build_club", "build_work_bench"),
+                Map.entry("kill_enemy", "build_club"),
+                Map.entry("snipe_skeleton", "kill_enemy"),
+                Map.entry("kill_cow", "build_club"),
+                Map.entry("fly_pig", "kill_cow"),
+                Map.entry("wear_leather", "kill_cow"),
+                Map.entry("build_axe", "build_work_bench"),
+                Map.entry("build_torches", "build_work_bench"),
+                Map.entry("well_rested", "build_work_bench"),
+                Map.entry("seaworthy", "build_work_bench"),
+                Map.entry("fine_dining", "build_work_bench"),
+                Map.entry("seeds", "open_inventory"),
+                Map.entry("eggs", "seeds"),
+                Map.entry("build_oven", "open_inventory"),
+                Map.entry("flint_finder", "open_inventory"),
+                Map.entry("explorer", "open_inventory"));
+        Set<String> challenges = Set.of(
+                "on_a_rail",
+                "fly_pig",
+                "snipe_skeleton",
+                "ghast",
+                "the_end",
+                "the_end2",
+                "overkill",
+                "wear_all_adamantium_plate_armor",
+                "explorer",
+                "enlightenment",
+                "runegate",
+                "crystal_breaker");
+        Path root = GENERATED.resolve("data/infx/advancement/progression");
+        List<Path> files;
+        try (Stream<Path> stream = Files.list(root)) {
+            files = stream.filter(path -> path.toString().endsWith(".json")).toList();
+        }
+        assertEquals(62, files.size());
+        assertEquals(61, parents.size());
+
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        Set<String> actualNames = new HashSet<>();
+        Set<String> actualChallenges = new HashSet<>();
+        for (Path file : files) {
+            String name = file.getFileName().toString().replaceFirst("\\.json$", "");
+            actualNames.add(name);
+            JsonObject advancement = json(file);
+            if (name.equals("open_inventory")) {
+                assertFalse(advancement.has("parent"));
+            } else {
+                assertEquals("infx:progression/" + parents.get(name), advancement.get("parent").getAsString(), name);
+            }
+            JsonObject display = advancement.getAsJsonObject("display");
+            if (display.has("frame") && display.get("frame").getAsString().equals("challenge")) {
+                actualChallenges.add(name);
+            }
+            assertTrue(english.has("advancements.infx." + name + ".title"), name);
+            assertTrue(english.has("advancements.infx." + name + ".description"), name);
+            assertTrue(chinese.has("advancements.infx." + name + ".title"), name);
+            assertTrue(chinese.has("advancements.infx." + name + ".description"), name);
+        }
+        assertEquals(parents.keySet(), actualNames.stream()
+                .filter(name -> !name.equals("open_inventory"))
+                .collect(Collectors.toSet()));
+        assertEquals(challenges, actualChallenges);
+
+        JsonObject enchantments = json(root.resolve("enchantments.json"));
+        var alternatives = enchantments.getAsJsonArray("requirements").get(0).getAsJsonArray();
+        assertEquals(2, alternatives.size());
+        assertTrue(alternatives.toString().contains("diamond_path"));
+        assertTrue(alternatives.toString().contains("emerald_path"));
+
+        JsonObject workbench = json(root.resolve("build_work_bench.json"));
+        assertTrue(workbench.getAsJsonObject("criteria").has("crafted_flint_bench"));
+        assertTrue(workbench.getAsJsonObject("criteria").has("crafted_obsidian_bench"));
+        JsonObject betterTools = json(root.resolve("better_tools.json"));
+        assertEquals(7, betterTools.getAsJsonObject("criteria").size());
+        JsonObject nuggets = json(root.resolve("nuggets.json"));
+        assertEquals(
+                "minecraft:impossible",
+                nuggets.getAsJsonObject("criteria")
+                        .getAsJsonObject("picked_up_metal_nugget")
+                        .get("trigger")
+                        .getAsString());
+        String mixedArmor = Files.readString(root.resolve("wear_all_plate_armor.json"), UTF_8);
+        assertTrue(mixedArmor.contains("infx:copper_chainmail_helmet"));
+        assertTrue(mixedArmor.contains("infx:adamantium_chainmail_boots"));
     }
 
     @Test
@@ -1335,6 +1560,34 @@ class R196GeneratedResourceTest {
             }
         }
         return false;
+    }
+
+    private static void assertInternalBedrockBand(
+            JsonObject bandRule, int lowerAnchor, int upperAnchor, String gapNoise) {
+        JsonObject lower = bandRule.getAsJsonObject("if_true");
+        JsonObject upper = bandRule
+                .getAsJsonObject("then_run")
+                .getAsJsonObject("if_true")
+                .getAsJsonObject("invert");
+        JsonObject noise = bandRule
+                .getAsJsonObject("then_run")
+                .getAsJsonObject("then_run")
+                .getAsJsonObject("if_true");
+        JsonObject block = bandRule
+                .getAsJsonObject("then_run")
+                .getAsJsonObject("then_run")
+                .getAsJsonObject("then_run")
+                .getAsJsonObject("result_state");
+        assertAll(
+                lowerAnchor + "-" + upperAnchor + " internal bedrock band",
+                () -> assertEquals("minecraft:y_above", lower.get("type").getAsString()),
+                () -> assertEquals(lowerAnchor, lower.getAsJsonObject("anchor").get("absolute").getAsInt()),
+                () -> assertEquals("minecraft:y_above", upper.get("type").getAsString()),
+                () -> assertEquals(upperAnchor, upper.getAsJsonObject("anchor").get("absolute").getAsInt()),
+                () -> assertEquals("minecraft:noise_threshold", noise.get("type").getAsString()),
+                () -> assertEquals(gapNoise, noise.get("noise").getAsString()),
+                () -> assertEquals(0.62, noise.get("max_threshold").getAsDouble()),
+                () -> assertEquals("minecraft:bedrock", block.get("Name").getAsString()));
     }
 
     private static Path findProjectRoot() {

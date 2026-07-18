@@ -79,6 +79,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of('C', Ingredient.of(Blocks.CLAY)),
                 List.of("CC", "CC"));
         addShaped(
+                "large_clay_oven",
+                BenchTier.FLINT,
+                640.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.LARGE_CLAY_OVEN,
+                1,
+                Map.of('C', Ingredient.of(Blocks.CLAY)),
+                List.of("CCC", "C C", "CCC"));
+        addShaped(
                 "sandstone_furnace",
                 BenchTier.FLINT,
                 640.0F,
@@ -368,6 +378,30 @@ final class ModRecipeProvider extends RecipeProvider {
         addMetalStorageRecipes("mithril", ModItems.MITHRIL_INGOT, ModBlocks.MITHRIL_BLOCK, 57_600.0F);
         addMetalStorageRecipes(
                 "adamantium", ModItems.ADAMANTIUM_INGOT, ModBlocks.ADAMANTIUM_BLOCK, 230_400.0F);
+        addShaped(
+                "mithril_rune_stone",
+                BenchTier.MITHRIL,
+                3_200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.MITHRIL_RUNE_STONE,
+                1,
+                Map.of(
+                        'N', Ingredient.of(ModItems.MITHRIL_NUGGET),
+                        'O', Ingredient.of(Blocks.OBSIDIAN)),
+                List.of(" N ", "NON", " N "));
+        addShaped(
+                "adamantium_rune_stone",
+                BenchTier.ADAMANTIUM,
+                12_800.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.ADAMANTIUM_RUNE_STONE,
+                1,
+                Map.of(
+                        'N', Ingredient.of(ModItems.ADAMANTIUM_NUGGET),
+                        'O', Ingredient.of(Blocks.OBSIDIAN)),
+                List.of(" N ", "NON", " N "));
         addMetalAnvilRecipes();
         addMetalConversions("copper", 400.0F, Items.COPPER_NUGGET, Items.COPPER_INGOT);
         addMetalConversions("silver", 400.0F, ModItems.SILVER_NUGGET, ModItems.SILVER_INGOT);
