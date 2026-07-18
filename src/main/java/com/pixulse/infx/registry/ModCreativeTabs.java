@@ -22,6 +22,7 @@ public final class ModCreativeTabs {
                     .displayItems((parameters, output) -> {
                         ModItems.catalog().rawEntries().forEach(entry -> output.accept(entry.holder().value()));
                         ModItems.WORKBENCHES.forEach(workbench -> output.accept(workbench.value()));
+                        ModItems.FURNACES.forEach(furnace -> output.accept(furnace.value()));
                         ModItems.catalog().equipmentEntries().forEach(entry -> output.accept(entry.holder().value()));
                     })
                     .build());

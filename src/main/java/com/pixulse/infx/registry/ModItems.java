@@ -35,6 +35,10 @@ public final class ModItems {
             ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_WORKBENCH);
     public static final DeferredItem<BlockItem> OBSIDIAN_WORKBENCH =
             ITEMS.registerSimpleBlockItem(ModBlocks.OBSIDIAN_WORKBENCH);
+    public static final DeferredItem<BlockItem> CLAY_FURNACE =
+            ITEMS.registerSimpleBlockItem(ModBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
+    public static final DeferredItem<BlockItem> SANDSTONE_FURNACE =
+            ITEMS.registerSimpleBlockItem(ModBlocks.SANDSTONE_FURNACE, properties -> properties.stacksTo(1));
 
     public static final List<DeferredItem<BlockItem>> WORKBENCHES = List.of(
             FLINT_WORKBENCH,
@@ -46,6 +50,8 @@ public final class ModItems {
             MITHRIL_WORKBENCH,
             ADAMANTIUM_WORKBENCH,
             OBSIDIAN_WORKBENCH);
+
+    public static final List<DeferredItem<BlockItem>> FURNACES = List.of(CLAY_FURNACE, SANDSTONE_FURNACE);
 
     private static final R196Catalog CATALOG = R196Catalog.register(ITEMS);
 

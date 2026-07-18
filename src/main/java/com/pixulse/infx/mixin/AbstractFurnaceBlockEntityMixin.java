@@ -2,12 +2,16 @@ package com.pixulse.infx.mixin;
 
 import com.pixulse.infx.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.furnace.FurnaceItemPolicy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
@@ -18,6 +22,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -94,10 +99,17 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
             int slot,
             ItemStack stack,
             CallbackInfoReturnable<Boolean> callback) {
-        if (slot != 1 || !callback.getReturnValue() || stack.is(Items.BUCKET)) {
+        if (!callback.getReturnValue()) {
             return;
         }
         AbstractFurnaceBlockEntity entity = (AbstractFurnaceBlockEntity) (Object) this;
+        if (slot < 2 && !FurnaceItemPolicy.canPlaceItem(entity.getBlockState(), stack)) {
+            callback.setReturnValue(false);
+            return;
+        }
+        if (slot != 1 || stack.is(Items.BUCKET)) {
+            return;
+        }
         int maximumHeat = FurnaceHeatPolicy.maximumHeat(entity.getBlockState());
         if (maximumHeat == 0 || entity.getLevel() == null) {
             return;
@@ -106,6 +118,50 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
         if (FurnaceHeatPolicy.fuelHeat(stack, burnTime) > maximumHeat) {
             callback.setReturnValue(false);
         }
+    }
+
+    @Redirect(
+            method = "serverTick",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/crafting/AbstractCookingRecipe;assemble(Lnet/minecraft/world/item/crafting/SingleRecipeInput;)Lnet/minecraft/world/item/ItemStack;"))
+    private static ItemStack infx$assembleSandBatch(
+            AbstractCookingRecipe recipe,
+            SingleRecipeInput input,
+            ServerLevel level,
+            BlockPos pos,
+            BlockState state,
+            AbstractFurnaceBlockEntity entity) {
+        ItemStack ingredient = input.item();
+        if (!ingredient.is(Items.SAND) || FurnaceHeatPolicy.maximumHeat(state) == 0) {
+            return recipe.assemble(input);
+        }
+        if (ingredient.getCount() < 4) {
+            return ItemStack.EMPTY;
+        }
+
+        FurnaceHeatAccess heat = (FurnaceHeatAccess) entity;
+        int effectiveHeat = heat.infx$currentHeat();
+        if (heat.infx$litTimeRemaining() <= 0) {
+            ItemStack fuel = entity.getItem(1);
+            int burnTime = fuel.getBurnTime(RecipeType.SMELTING, level.fuelValues());
+            effectiveHeat = FurnaceHeatPolicy.fuelHeat(fuel, burnTime);
+        }
+        if (effectiveHeat == FurnaceHeatPolicy.HEAT_WOOD) {
+            return new ItemStack(Blocks.SANDSTONE);
+        }
+        return effectiveHeat >= FurnaceHeatPolicy.HEAT_COAL
+                ? new ItemStack(Blocks.GLASS)
+                : ItemStack.EMPTY;
+    }
+
+    @Redirect(
+            method = "burn",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
+    private static void infx$consumeSandBatch(ItemStack input, int amount) {
+        input.shrink(input.is(Items.SAND) ? 4 : amount);
     }
 
     @Inject(method = "serverTick", at = @At("HEAD"), cancellable = true)

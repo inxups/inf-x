@@ -200,8 +200,34 @@ for material in "${HORSE[@]}"; do
     "entity/equipment/horse_body/${material}.png"
 done
 
+sync resource-pack blocks/crafting_table/flint/top.png block/flint_workbench_top.png
+sync resource-pack blocks/crafting_table/obsidian/top.png block/obsidian_workbench_top.png
+for material in copper silver gold iron ancient_metal mithril adamantium; do
+  sync resource-pack \
+    "blocks/crafting_table/$material/front.png" \
+    "block/${material}_workbench_front.png"
+  sync resource-pack \
+    "blocks/crafting_table/$material/side.png" \
+    "block/${material}_workbench_side.png"
+done
+
+for furnace in clay sandstone; do
+  sync resource-pack \
+    "blocks/furnace/$furnace/front_off.png" \
+    "block/${furnace}_furnace_front.png"
+  sync resource-pack \
+    "blocks/furnace/$furnace/front_on.png" \
+    "block/${furnace}_furnace_front_on.png"
+  sync resource-pack \
+    "blocks/furnace/$furnace/side.png" \
+    "block/${furnace}_furnace_side.png"
+  sync resource-pack \
+    "blocks/furnace/$furnace/top.png" \
+    "block/${furnace}_furnace_top.png"
+done
+
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 390 ]] || { echo "Expected 390 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 414 ]] || { echo "Expected 414 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

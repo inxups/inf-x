@@ -69,7 +69,10 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "iron_shovel",
             "iron_sword",
             "crafting_table",
-            "furnace");
+            "furnace",
+            "glass",
+            "sandstone",
+            "smooth_sandstone");
 
     private final Path recipesDirectory;
 

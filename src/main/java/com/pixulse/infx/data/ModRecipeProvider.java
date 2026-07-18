@@ -14,8 +14,10 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -24,6 +26,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -59,6 +62,45 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.SINEW,
                 4,
                 List.of(Ingredient.of(Items.LEATHER)));
+
+        addShaped(
+                "clay_furnace",
+                BenchTier.HAND,
+                320.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.CLAY_FURNACE,
+                1,
+                Map.of('C', Ingredient.of(Blocks.CLAY)),
+                List.of("CC", "CC"));
+        addShaped(
+                "sandstone_furnace",
+                BenchTier.FLINT,
+                640.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.SANDSTONE_FURNACE,
+                1,
+                Map.of('S', Ingredient.of(Blocks.SANDSTONE)),
+                List.of("SSS", "S S", "SSS"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(Blocks.SAND),
+                        RecipeCategory.BUILDING_BLOCKS,
+                        CookingBookCategory.BLOCKS,
+                        Blocks.SANDSTONE,
+                        0.1F,
+                        200)
+                .unlockedBy("has_sand", has(Blocks.SAND))
+                .save(output, recipeKey("sand_batch"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(Blocks.SANDSTONE),
+                        RecipeCategory.BUILDING_BLOCKS,
+                        CookingBookCategory.BLOCKS,
+                        Blocks.GLASS,
+                        0.1F,
+                        200)
+                .unlockedBy("has_sandstone", has(Blocks.SANDSTONE))
+                .save(output, recipeKey("sandstone_to_glass"));
 
         addShaped(
                 "flint_hatchet",
