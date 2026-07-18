@@ -809,6 +809,14 @@ class R196GeneratedResourceTest {
         JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
         JsonObject noiseShape = noise.getAsJsonObject("noise");
+        JsonObject finalDensity = noise.getAsJsonObject("noise_router").getAsJsonObject("final_density");
+        JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
+        var surfaceSequence = surfaceRule.getAsJsonArray("sequence");
+        JsonObject bedrockRule = surfaceSequence.get(0).getAsJsonObject();
+        JsonObject deepslateRule = surfaceSequence.get(1).getAsJsonObject();
+        JsonObject deepslateCutoff = deepslateRule
+                .getAsJsonObject("if_true")
+                .getAsJsonObject("invert");
         assertAll(
                 "Underworld dimension",
                 () -> assertEquals("infx:underworld", dimension.get("type").getAsString()),
@@ -828,9 +836,31 @@ class R196GeneratedResourceTest {
                 () -> assertFalse(dimensionType.get("has_skylight").getAsBoolean()),
                 () -> assertEquals("minecraft:stone", noise.getAsJsonObject("default_block").get("Name").getAsString()),
                 () -> assertEquals("minecraft:water", noise.getAsJsonObject("default_fluid").get("Name").getAsString()),
-                () -> assertEquals(32, noise.get("sea_level").getAsInt()),
+                () -> assertEquals(140, noise.get("sea_level").getAsInt()),
+                () -> assertFalse(noise.get("aquifers_enabled").getAsBoolean()),
                 () -> assertEquals(-192, noiseShape.get("min_y").getAsInt()),
                 () -> assertEquals(512, noiseShape.get("height").getAsInt()),
+                () -> assertEquals("minecraft:y_clamped_gradient", finalDensity.get("type").getAsString()),
+                () -> assertEquals(127, finalDensity.get("from_y").getAsInt()),
+                () -> assertEquals(128, finalDensity.get("to_y").getAsInt()),
+                () -> assertEquals(1.0, finalDensity.get("from_value").getAsDouble()),
+                () -> assertEquals(-1.0, finalDensity.get("to_value").getAsDouble()),
+                () -> assertEquals(2, surfaceSequence.size()),
+                () -> assertEquals("minecraft:bedrock", bedrockRule
+                        .getAsJsonObject("then_run")
+                        .getAsJsonObject("result_state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals("minecraft:y_above", deepslateCutoff.get("type").getAsString()),
+                () -> assertEquals(0, deepslateCutoff
+                        .getAsJsonObject("anchor")
+                        .get("absolute")
+                        .getAsInt()),
+                () -> assertEquals("minecraft:deepslate", deepslateRule
+                        .getAsJsonObject("then_run")
+                        .getAsJsonObject("result_state")
+                        .get("Name")
+                        .getAsString()),
                 () -> assertTrue(biome.toString().contains("minecraft:monster_room")),
                 () -> assertTrue(biome.toString().contains("minecraft:cave_spider")),
                 () -> assertTrue(biome.toString().contains("infx:silver_ore")),
