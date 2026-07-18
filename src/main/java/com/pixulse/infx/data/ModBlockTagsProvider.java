@@ -21,12 +21,17 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(ModBlocks.HARDENED_CLAY_FURNACE.getKey())
                 .add(ModBlocks.OBSIDIAN_FURNACE.getKey())
-                .add(ModBlocks.NETHERRACK_FURNACE.getKey());
+                .add(ModBlocks.NETHERRACK_FURNACE.getKey())
+                .add(ModBlocks.MITHRIL_ORE.getKey())
+                .add(ModBlocks.ADAMANTIUM_ORE.getKey());
         tag(ModTags.Blocks.RESTRICTED_HARVEST)
                 .addTag(BlockTags.LOGS)
                 .addTag(BlockTags.MINEABLE_WITH_PICKAXE);
         tag(ModTags.Blocks.requiredTier(HarvestTier.FLINT)).addTag(BlockTags.LOGS);
         tag(ModTags.Blocks.requiredTier(HarvestTier.COPPER)).addTag(BlockTags.MINEABLE_WITH_PICKAXE);
-        tag(ModTags.Blocks.requiredTier(HarvestTier.IRON)).add(ModBlocks.OBSIDIAN_FURNACE.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.IRON))
+                .add(ModBlocks.OBSIDIAN_FURNACE.getKey())
+                .add(ModBlocks.MITHRIL_ORE.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.MITHRIL)).add(ModBlocks.ADAMANTIUM_ORE.getKey());
     }
 }

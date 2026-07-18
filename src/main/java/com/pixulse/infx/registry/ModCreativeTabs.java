@@ -21,6 +21,7 @@ public final class ModCreativeTabs {
                     .icon(ModItems.FLINT_CHIP::toStack)
                     .displayItems((parameters, output) -> {
                         ModItems.catalog().rawEntries().forEach(entry -> output.accept(entry.holder().value()));
+                        ModItems.ORES.forEach(ore -> output.accept(ore.value()));
                         ModItems.WORKBENCHES.forEach(workbench -> output.accept(workbench.value()));
                         ModItems.FURNACES.forEach(furnace -> output.accept(furnace.value()));
                         ModItems.catalog().equipmentEntries().forEach(entry -> output.accept(entry.holder().value()));

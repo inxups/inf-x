@@ -51,6 +51,8 @@ sync resource-pack items/ingots/silver.png item/silver_ingot.png
 sync resource-pack items/ingots/mithril.png item/mithril_ingot.png
 sync resource-pack items/ingots/adamantium.png item/adamantium_ingot.png
 sync resource-pack items/ingots/ancient_metal.png item/ancient_metal_ingot.png
+sync resource-pack blocks/mithril_ore.png block/mithril_ore.png
+sync resource-pack blocks/adamantium_ore.png block/adamantium_ore.png
 
 for material in copper silver gold rusted_iron iron ancient_metal mithril adamantium; do
   sync resource-pack "items/chains/$material.png" "item/${material}_chain.png"
@@ -227,7 +229,7 @@ for furnace in clay hardened_clay sandstone obsidian netherrack; do
 done
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 426 ]] || { echo "Expected 426 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 428 ]] || { echo "Expected 428 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"
