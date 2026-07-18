@@ -68,6 +68,8 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 final class ModWorldGen {
     private static final int OVERWORLD_MIN_Y = -16;
     private static final int OVERWORLD_HEIGHT = 336;
+    private static final int UNDERWORLD_MIN_Y = -192;
+    private static final int UNDERWORLD_HEIGHT = 512;
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
@@ -212,9 +214,9 @@ final class ModWorldGen {
                         true,
                         false,
                         1.0,
-                        0,
-                        256,
-                        256,
+                        UNDERWORLD_MIN_Y,
+                        UNDERWORLD_HEIGHT,
+                        UNDERWORLD_HEIGHT,
                         blocks.getOrThrow(BlockTags.INFINIBURN_OVERWORLD),
                         0.05F,
                         new DimensionType.MonsterSettings(ConstantInt.of(7), 15),
@@ -241,7 +243,7 @@ final class ModWorldGen {
         context.register(
                 Underworld.NOISE,
                 new NoiseGeneratorSettings(
-                        NoiseSettings.create(0, 256, 1, 2),
+                        NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
                         caves.noiseRouter(),
