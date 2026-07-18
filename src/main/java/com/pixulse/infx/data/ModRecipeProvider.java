@@ -240,6 +240,80 @@ final class ModRecipeProvider extends RecipeProvider {
                         'B', ingredient(ModTags.Items.BINDINGS)),
                 List.of("OO", "OS", "BS"));
         addShaped(
+                "wood_cudgel",
+                BenchTier.HAND,
+                105.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.WOOD, R196EquipmentType.CUDGEL),
+                1,
+                Map.of(
+                        'P', ingredient(ItemTags.PLANKS),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("P", "S"));
+        addShaped(
+                "wood_club",
+                BenchTier.FLINT,
+                185.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.WOOD, R196EquipmentType.CLUB),
+                1,
+                Map.of(
+                        'P', ingredient(ItemTags.PLANKS),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("P", "P", "S"));
+        addShaped(
+                "flint_knife",
+                BenchTier.HAND,
+                150.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.FLINT, R196EquipmentType.KNIFE),
+                1,
+                Map.of(
+                        'F', Ingredient.of(Items.FLINT),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("FB", "S "));
+        addShaped(
+                "obsidian_knife",
+                BenchTier.HAND,
+                290.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.OBSIDIAN, R196EquipmentType.KNIFE),
+                1,
+                Map.of(
+                        'O', Ingredient.of(Items.OBSIDIAN),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of("OB", "S "));
+        addShaped(
+                "wood_bow",
+                BenchTier.FLINT,
+                150.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(R196Material.WOOD, R196EquipmentType.BOW),
+                1,
+                Map.of(
+                        'S', Ingredient.of(Items.STICK),
+                        'B', ingredient(ModTags.Items.BINDINGS)),
+                List.of(" SB", "S B", " SB"));
+        addMetalBow(
+                "ancient_metal",
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1750.0F,
+                ModItems.ANCIENT_METAL_INGOT);
+        addMetalBow(
+                "mithril",
+                R196Material.MITHRIL,
+                BenchTier.MITHRIL,
+                6550.0F,
+                ModItems.MITHRIL_INGOT);
+        addShaped(
                 "flint_workbench",
                 BenchTier.HAND,
                 270.0F,
@@ -382,6 +456,59 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.ADAMANTIUM,
                 25600.0F,
                 ModItems.ADAMANTIUM_INGOT);
+        addMetalDagger("copper", R196Material.COPPER, BenchTier.COPPER, 425.0F, Items.COPPER_INGOT);
+        addMetalDagger("silver", R196Material.SILVER, BenchTier.COPPER, 425.0F, ModItems.SILVER_INGOT);
+        addMetalDagger("gold", R196Material.GOLD, BenchTier.COPPER, 425.0F, Items.GOLD_INGOT);
+        addMetalDagger("iron", R196Material.IRON, BenchTier.IRON, 825.0F, Items.IRON_INGOT);
+        addMetalDagger(
+                "ancient_metal",
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1625.0F,
+                ModItems.ANCIENT_METAL_INGOT);
+        addMetalDagger(
+                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6425.0F, ModItems.MITHRIL_INGOT);
+        addMetalDagger(
+                "adamantium",
+                R196Material.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                25625.0F,
+                ModItems.ADAMANTIUM_INGOT);
+
+        addArrow("flint", R196Material.FLINT, BenchTier.FLINT, 75.0F, ModItems.FLINT_CHIP);
+        addArrow(
+                "obsidian",
+                R196Material.OBSIDIAN,
+                BenchTier.FLINT,
+                200.0F / 9.0F + 50.0F,
+                ModItems.OBSIDIAN_SHARD);
+        addArrow("copper", R196Material.COPPER, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.COPPER_NUGGET);
+        addArrow(
+                "silver",
+                R196Material.SILVER,
+                BenchTier.COPPER,
+                400.0F / 9.0F + 50.0F,
+                ModItems.SILVER_NUGGET);
+        addArrow("gold", R196Material.GOLD, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.GOLD_NUGGET);
+        addArrow("iron", R196Material.IRON, BenchTier.IRON, 800.0F / 9.0F + 50.0F, Items.IRON_NUGGET);
+        addArrow(
+                "ancient_metal",
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1600.0F / 9.0F + 50.0F,
+                ModItems.catalog().raw("ancient_metal_nugget").holder());
+        addArrow(
+                "mithril",
+                R196Material.MITHRIL,
+                BenchTier.MITHRIL,
+                6400.0F / 9.0F + 50.0F,
+                ModItems.MITHRIL_NUGGET);
+        addArrow(
+                "adamantium",
+                R196Material.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                25600.0F / 9.0F + 50.0F,
+                ModItems.ADAMANTIUM_NUGGET);
     }
 
     private void addMetalConversions(
@@ -574,6 +701,68 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('I', Ingredient.of(ingot)),
                 List.of(" I", "I "));
+    }
+
+    private void addMetalDagger(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float difficulty,
+            ItemLike ingot) {
+        addShaped(
+                material + "_dagger",
+                requiredBench,
+                difficulty,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.DAGGER),
+                1,
+                Map.of(
+                        'I', Ingredient.of(ingot),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("I", "S"));
+    }
+
+    private void addMetalBow(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float difficulty,
+            ItemLike ingot) {
+        addShaped(
+                material + "_bow",
+                requiredBench,
+                difficulty,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.BOW),
+                1,
+                Map.of(
+                        'I', Ingredient.of(ingot),
+                        'S', Ingredient.of(Items.STICK),
+                        'B', Ingredient.of(Items.STRING)),
+                List.of(" SB", "SIB", " SB"));
+    }
+
+    private void addArrow(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float difficulty,
+            ItemLike arrowhead) {
+        addShaped(
+                material + "_arrow",
+                requiredBench,
+                difficulty,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, R196EquipmentType.ARROW),
+                1,
+                Map.of(
+                        'H', Ingredient.of(arrowhead),
+                        'S', Ingredient.of(Items.STICK),
+                        'F', Ingredient.of(Items.FEATHER)),
+                List.of("H", "S", "F"));
     }
 
     private static ItemLike equipment(R196Material material, R196EquipmentType type) {
