@@ -4,6 +4,7 @@
   "package": "com.pixulse.infx.mixin",
   "mixins": [
     "AbstractContainerMenuMixin",
+    "AbstractFurnaceBlockEntityMixin",
     "InventoryMenuMixin"
   ],
   "injectors": {

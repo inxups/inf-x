@@ -136,6 +136,26 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void furnaceHeatTagsSeparateCoalFromLowHeatFuel() throws Exception {
+        String heatTwoFuels = Files.readString(
+                GENERATED.resolve("data/infx/tags/item/furnace_fuels/heat_2.json"), UTF_8);
+        assertAll(
+                "heat-2 fuels",
+                () -> assertTrue(heatTwoFuels.contains("minecraft:coal")),
+                () -> assertTrue(heatTwoFuels.contains("minecraft:coal_block")),
+                () -> assertFalse(heatTwoFuels.contains("minecraft:charcoal")));
+
+        String heatTwoInputs = Files.readString(
+                GENERATED.resolve("data/infx/tags/item/smelting_inputs/heat_2.json"), UTF_8);
+        assertAll(
+                "heat-2 inputs",
+                () -> assertTrue(heatTwoInputs.contains("minecraft:raw_iron")),
+                () -> assertTrue(heatTwoInputs.contains("minecraft:iron_ore")),
+                () -> assertTrue(heatTwoInputs.contains("minecraft:nether_quartz_ore")),
+                () -> assertTrue(heatTwoInputs.contains("minecraft:sandstone")));
+    }
+
+    @Test
     void generatedCountsAreExact() throws Exception {
         assertEquals(234, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));

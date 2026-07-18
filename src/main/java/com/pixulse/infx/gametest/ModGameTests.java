@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
@@ -27,6 +28,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Inventory;
@@ -39,10 +41,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
@@ -145,6 +149,8 @@ public final class ModGameTests {
             functionKey("iron_loop");
     private static final ResourceKey<Consumer<GameTestHelper>> CORE_TOOL_RECIPES_TEST =
             functionKey("core_tool_recipes");
+    private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_HEAT_RULES =
+            functionKey("furnace_heat_rules");
 
     static {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
@@ -156,6 +162,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
         TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
         TEST_FUNCTIONS.register("core_tool_recipes", () -> ModGameTests::coreToolRecipes);
+        TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
     }
 
     private ModGameTests() {}
@@ -177,6 +184,7 @@ public final class ModGameTests {
         registerTest(event, COPPER_LOOP, environment, 400);
         registerTest(event, IRON_LOOP, environment, 500);
         registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
+        registerTest(event, FURNACE_HEAT_RULES, environment, 600);
     }
 
     private static void registerTest(
@@ -628,6 +636,82 @@ public final class ModGameTests {
                         countItem(player.getInventory(), ModItems.IRON_SWORD.get()) == 1,
                         "iron workbench must finish the InfiniteX iron sword"))
                 .thenExecute(() -> removePlayer(player))
+                .thenSucceed();
+    }
+
+    private static void furnaceHeatRules(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        var furnaceState = Blocks.FURNACE.defaultBlockState()
+                .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
+        helper.setBlock(FURNACE_POS, furnaceState);
+        FurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class)
+        };
+        furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
+        furnace[0].setItem(1, Items.CHARCOAL.getDefaultInstance());
+
+        helper.startSequence()
+                .thenExecuteAfter(40, () -> {
+                    helper.assertTrue(
+                            furnace[0].getItem(2).isEmpty(),
+                            "heat-1 charcoal must not smelt heat-2 raw iron");
+                    helper.assertTrue(
+                            furnace[0].getItem(1).is(Items.CHARCOAL),
+                            "insufficient fuel must not be consumed");
+                    helper.assertFalse(
+                            helper.getBlockState(FURNACE_POS).getValue(AbstractFurnaceBlock.LIT),
+                            "insufficient fuel must not light the furnace");
+                    furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
+                })
+                .thenExecuteAfter(5, () -> {
+                    helper.assertTrue(
+                            furnace[0].getItem(1).is(Items.LAVA_BUCKET),
+                            "heat-3 lava must exceed the cobblestone furnace capacity");
+                    helper.assertFalse(
+                            helper.getBlockState(FURNACE_POS).getValue(AbstractFurnaceBlock.LIT),
+                            "overheated fuel must not light the furnace");
+                    furnace[0].setItem(1, Items.COAL.getDefaultInstance());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        furnace[0].getItem(2).is(Items.IRON_INGOT),
+                        "heat-2 coal must smelt raw iron"))
+                .thenExecute(() -> {
+                    helper.setBlock(FURNACE_POS, Blocks.AIR);
+                    helper.setBlock(FURNACE_POS, furnaceState);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class);
+                    furnace[0].setItem(0, Items.CHICKEN.getDefaultInstance());
+                    furnace[0].setItem(1, Items.CHARCOAL.getDefaultInstance());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        helper.getBlockState(FURNACE_POS).getValue(AbstractFurnaceBlock.LIT),
+                        "heat-1 charcoal must cook food"))
+                .thenExecute(() -> helper.setBlock(FURNACE_POS.north(), Blocks.STONE))
+                .thenExecuteAfter(2, () -> {
+                    helper.assertFalse(
+                            helper.getBlockState(FURNACE_POS).getValue(AbstractFurnaceBlock.LIT),
+                            "a solid block in front must extinguish the furnace");
+                    helper.assertTrue(
+                            furnace[0].getItem(2).isEmpty(),
+                            "an obstructed furnace must not finish cooking");
+
+                    BlockPos absolutePos = helper.absolutePos(FURNACE_POS);
+                    BlockHitResult hit = new BlockHitResult(
+                            Vec3.atCenterOf(absolutePos), Direction.UP, absolutePos, false);
+                    InteractionResult interaction = player.gameMode.useItemOn(
+                            player,
+                            helper.getLevel(),
+                            player.getItemInHand(InteractionHand.MAIN_HAND),
+                            InteractionHand.MAIN_HAND,
+                            hit);
+                    helper.assertTrue(
+                            interaction == InteractionResult.FAIL,
+                            "an obstructed furnace must reject opening");
+                    helper.assertTrue(
+                            player.containerMenu == player.inventoryMenu,
+                            "an obstructed furnace must not open a menu");
+                    removePlayer(player);
+                })
                 .thenSucceed();
     }
 

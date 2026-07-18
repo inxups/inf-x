@@ -19,6 +19,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
 
 final class ModItemTagsProvider extends ItemTagsProvider {
@@ -29,6 +30,29 @@ final class ModItemTagsProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
         tag(ModTags.Items.BINDINGS).add(itemKey(Items.STRING)).add(ModItems.SINEW.getKey());
+        tag(ModTags.Items.FURNACE_FUELS_HEAT_2)
+                .add(itemKey(Items.COAL))
+                .add(itemKey(Blocks.COAL_BLOCK.asItem()));
+        tag(ModTags.Items.SMELTING_INPUTS_HEAT_2)
+                .add(itemKey(Items.RAW_COPPER))
+                .add(itemKey(Items.RAW_GOLD))
+                .add(itemKey(Items.RAW_IRON))
+                .add(itemKey(Blocks.COPPER_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_COPPER_ORE.asItem()))
+                .add(itemKey(Blocks.GOLD_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_GOLD_ORE.asItem()))
+                .add(itemKey(Blocks.IRON_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_IRON_ORE.asItem()))
+                .add(itemKey(Blocks.REDSTONE_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_REDSTONE_ORE.asItem()))
+                .add(itemKey(Blocks.LAPIS_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_LAPIS_ORE.asItem()))
+                .add(itemKey(Blocks.EMERALD_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_EMERALD_ORE.asItem()))
+                .add(itemKey(Blocks.DIAMOND_ORE.asItem()))
+                .add(itemKey(Blocks.DEEPSLATE_DIAMOND_ORE.asItem()))
+                .add(itemKey(Blocks.NETHER_QUARTZ_ORE.asItem()))
+                .add(itemKey(Blocks.SANDSTONE.asItem()));
 
         for (R196Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(ModTags.Items.material(material), entry));
