@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementType;
 import net.minecraft.advancements.predicates.ItemPredicate;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
@@ -75,6 +76,19 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/build_work_bench"));
         output.accept(buildWorkbench);
 
+        output.accept(child("build_axe", buildWorkbench, ModItems.FLINT_AXE)
+                .addCriterion(
+                        "crafted_flint_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_axe")))
+                .addCriterion(
+                        "crafted_copper_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_axe")))
+                .addCriterion(
+                        "crafted_iron_axe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_axe")))
+                .requirements(AdvancementRequirements.Strategy.OR)
+                .build(InfiniteX.id("progression/build_axe")));
+
         AdvancementHolder buildShovel = child("build_shovel", buildWorkbench, ModItems.FLINT_SHOVEL)
                 .addCriterion(
                         "crafted_shovel",
@@ -95,6 +109,16 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_workbench")))
                 .build(InfiniteX.id("progression/better_tools"));
         output.accept(betterTools);
+
+        output.accept(child("build_hoe", betterTools, ModItems.COPPER_HOE)
+                .addCriterion(
+                        "crafted_copper_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_hoe")))
+                .addCriterion(
+                        "crafted_iron_hoe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_hoe")))
+                .requirements(AdvancementRequirements.Strategy.OR)
+                .build(InfiniteX.id("progression/build_hoe")));
 
         AdvancementHolder buildPickaxe = child("build_pickaxe", betterTools, ModItems.COPPER_PICKAXE)
                 .addCriterion(

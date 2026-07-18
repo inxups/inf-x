@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
@@ -89,6 +90,45 @@ class R196GeneratedResourceTest {
                 "iron_ingot_from_blasting_iron_ore",
                 "iron_ingot_from_blasting_raw_iron",
                 "iron_pickaxe")) {
+            assertTrue(
+                    Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled);
+        }
+    }
+
+    @Test
+    void earlyCoreToolRecipesKeepR196DifficultiesAndBenchTiers() throws Exception {
+        Map<String, Float> difficulties = Map.ofEntries(
+                Map.entry("flint_axe", 375.0F),
+                Map.entry("copper_pickaxe", 1250.0F),
+                Map.entry("copper_shovel", 450.0F),
+                Map.entry("copper_axe", 1250.0F),
+                Map.entry("copper_hoe", 850.0F),
+                Map.entry("copper_sword", 825.0F),
+                Map.entry("iron_pickaxe", 2450.0F),
+                Map.entry("iron_shovel", 850.0F),
+                Map.entry("iron_axe", 2450.0F),
+                Map.entry("iron_hoe", 1650.0F),
+                Map.entry("iron_sword", 1625.0F));
+        for (var entry : difficulties.entrySet()) {
+            String recipeName = entry.getKey();
+            JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            String requiredBench = recipeName.substring(0, recipeName.indexOf('_'));
+            assertAll(
+                    recipeName,
+                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals(requiredBench, recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            "infx:" + recipeName,
+                            recipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+        for (String advancement : List.of("build_axe", "build_hoe")) {
+            assertTrue(
+                    Files.isRegularFile(
+                            GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
+                    advancement);
+        }
+        for (String disabled : List.of("iron_axe", "iron_hoe", "iron_shovel", "iron_sword")) {
             assertTrue(
                     Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
                     disabled);

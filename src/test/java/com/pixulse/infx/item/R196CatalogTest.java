@@ -53,7 +53,7 @@ class R196CatalogTest {
     }
 
     @Test
-    void aliasesPreserveTheNineExistingRegistryIds() {
+    void aliasesPreserveCatalogRegistryIds() {
         assertSame(ModItems.FLINT_CHIP, catalog().raw("flint_chip").holder());
         assertSame(ModItems.SINEW, catalog().raw("sinew").holder());
         assertSame(ModItems.OBSIDIAN_SHARD, catalog().raw("obsidian_shard").holder());
@@ -68,11 +68,38 @@ class R196CatalogTest {
                 ModItems.FLINT_SHOVEL,
                 catalog().equipment(R196Material.FLINT, R196EquipmentType.SHOVEL).holder());
         assertSame(
+                ModItems.FLINT_AXE,
+                catalog().equipment(R196Material.FLINT, R196EquipmentType.AXE).holder());
+        assertSame(
                 ModItems.COPPER_PICKAXE,
                 catalog().equipment(R196Material.COPPER, R196EquipmentType.PICKAXE).holder());
         assertSame(
+                ModItems.COPPER_SHOVEL,
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.SHOVEL).holder());
+        assertSame(
+                ModItems.COPPER_AXE,
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.AXE).holder());
+        assertSame(
+                ModItems.COPPER_HOE,
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.HOE).holder());
+        assertSame(
+                ModItems.COPPER_SWORD,
+                catalog().equipment(R196Material.COPPER, R196EquipmentType.SWORD).holder());
+        assertSame(
                 ModItems.IRON_PICKAXE,
                 catalog().equipment(R196Material.IRON, R196EquipmentType.PICKAXE).holder());
+        assertSame(
+                ModItems.IRON_SHOVEL,
+                catalog().equipment(R196Material.IRON, R196EquipmentType.SHOVEL).holder());
+        assertSame(
+                ModItems.IRON_AXE,
+                catalog().equipment(R196Material.IRON, R196EquipmentType.AXE).holder());
+        assertSame(
+                ModItems.IRON_HOE,
+                catalog().equipment(R196Material.IRON, R196EquipmentType.HOE).holder());
+        assertSame(
+                ModItems.IRON_SWORD,
+                catalog().equipment(R196Material.IRON, R196EquipmentType.SWORD).holder());
     }
 
     @Test

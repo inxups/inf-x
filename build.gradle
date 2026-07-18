@@ -186,6 +186,7 @@ tasks.register('resourceTest', Test) { resourceTest ->
     unitTest.copyTo(resourceTest)
     resourceTest.jvmArgumentProviders.addAll(unitTest.jvmArgumentProviders)
     dependsOn tasks.named('downloadAssets'), tasks.named('prepareNeoForgeTestFiles')
+    mustRunAfter tasks.named('runData')
     description = 'Validates resources produced by runData.'
     group = 'verification'
     testClassesDirs = sourceSets.test.output.classesDirs
