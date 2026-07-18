@@ -4,6 +4,8 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedShapedRecipe;
 import com.pixulse.infx.crafting.TimedShapelessRecipe;
+import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.tag.ModTags;
@@ -244,25 +246,21 @@ final class ModRecipeProvider extends RecipeProvider {
                 25805.0F,
                 ModItems.ADAMANTIUM_INGOT,
                 ModBlocks.ADAMANTIUM_WORKBENCH);
-        addShaped(
-                "copper_ingot_from_nuggets",
-                BenchTier.FLINT,
-                400.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.COPPER_INGOT,
-                1,
-                Map.of('N', Ingredient.of(Items.COPPER_NUGGET)),
-                List.of("NNN", "NNN", "NNN"));
-        addShapeless(
-                "copper_nuggets_from_ingot",
-                BenchTier.FLINT,
-                400.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.COPPER_NUGGET,
-                9,
-                List.of(Ingredient.of(Items.COPPER_INGOT)));
+        addMetalConversions("copper", 400.0F, Items.COPPER_NUGGET, Items.COPPER_INGOT);
+        addMetalConversions("silver", 400.0F, ModItems.SILVER_NUGGET, ModItems.SILVER_INGOT);
+        addMetalConversions("gold", 400.0F, Items.GOLD_NUGGET, Items.GOLD_INGOT);
+        addMetalConversions("iron", 800.0F, Items.IRON_NUGGET, Items.IRON_INGOT);
+        addMetalConversions(
+                "ancient_metal",
+                1600.0F,
+                ModItems.catalog().raw("ancient_metal_nugget").holder(),
+                ModItems.ANCIENT_METAL_INGOT);
+        addMetalConversions("mithril", 6400.0F, ModItems.MITHRIL_NUGGET, ModItems.MITHRIL_INGOT);
+        addMetalConversions(
+                "adamantium",
+                25600.0F,
+                ModItems.ADAMANTIUM_NUGGET,
+                ModItems.ADAMANTIUM_INGOT);
 
         addPlanks("acacia", Items.ACACIA_PLANKS, ItemTags.ACACIA_LOGS, 4);
         addPlanks("bamboo", Items.BAMBOO_PLANKS, ItemTags.BAMBOO_BLOCKS, 2);
@@ -307,6 +305,48 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.IRON_AXE,
                 ModItems.IRON_HOE,
                 ModItems.IRON_SWORD);
+        addCatalogCoreMetalTools("silver", R196Material.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
+        addCatalogCoreMetalTools("gold", R196Material.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+        addCatalogCoreMetalTools(
+                "ancient_metal",
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1600.0F,
+                ModItems.ANCIENT_METAL_INGOT);
+        addCatalogCoreMetalTools(
+                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
+        addCatalogCoreMetalTools(
+                "adamantium",
+                R196Material.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                25600.0F,
+                ModItems.ADAMANTIUM_INGOT);
+    }
+
+    private void addMetalConversions(
+            String material,
+            float ingotDifficulty,
+            ItemLike nugget,
+            ItemLike ingot) {
+        addShaped(
+                material + "_ingot_from_nuggets",
+                BenchTier.FLINT,
+                ingotDifficulty,
+                CraftingBookCategory.MISC,
+                "",
+                ingot,
+                1,
+                Map.of('N', Ingredient.of(nugget)),
+                List.of("NNN", "NNN", "NNN"));
+        addShapeless(
+                material + "_nuggets_from_ingot",
+                BenchTier.HAND,
+                ingotDifficulty,
+                CraftingBookCategory.MISC,
+                "",
+                nugget,
+                9,
+                List.of(Ingredient.of(ingot)));
     }
 
     private void addPlanks(String wood, ItemLike result, TagKey<Item> logs, int count) {
@@ -384,6 +424,28 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 key,
                 List.of("I", "I", "S"));
+    }
+
+    private void addCatalogCoreMetalTools(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float ingotDifficulty,
+            ItemLike ingot) {
+        addCoreMetalTools(
+                material,
+                requiredBench,
+                ingotDifficulty,
+                ingot,
+                equipment(equipmentMaterial, R196EquipmentType.PICKAXE),
+                equipment(equipmentMaterial, R196EquipmentType.SHOVEL),
+                equipment(equipmentMaterial, R196EquipmentType.AXE),
+                equipment(equipmentMaterial, R196EquipmentType.HOE),
+                equipment(equipmentMaterial, R196EquipmentType.SWORD));
+    }
+
+    private static ItemLike equipment(R196Material material, R196EquipmentType type) {
+        return ModItems.catalog().equipment(material, type).holder();
     }
 
     private void addMetalWorkbench(
