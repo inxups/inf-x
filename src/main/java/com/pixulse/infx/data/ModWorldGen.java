@@ -11,7 +11,6 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
-import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
@@ -43,12 +42,13 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
 import net.minecraft.world.level.levelgen.NoiseSettings;
-import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -70,6 +70,8 @@ final class ModWorldGen {
     private static final int OVERWORLD_HEIGHT = 336;
     private static final int UNDERWORLD_MIN_Y = -192;
     private static final int UNDERWORLD_HEIGHT = 512;
+    private static final int UNDERWORLD_STONE_CEILING = 128;
+    private static final int UNDERWORLD_SEA_LEVEL = 140;
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
@@ -239,21 +241,44 @@ final class ModWorldGen {
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.OVERWORLD, false, false);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.LARGE_BIOMES, false, true);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.AMPLIFIED, true, false);
-        NoiseGeneratorSettings caves = NoiseGeneratorSettings.caves(context);
         context.register(
                 Underworld.NOISE,
                 new NoiseGeneratorSettings(
                         NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
-                        caves.noiseRouter(),
-                        caves.surfaceRule(),
+                        underworldNoiseRouter(),
+                        underworldSurfaceRule(),
                         List.of(),
-                        32,
+                        UNDERWORLD_SEA_LEVEL,
                         false,
                         false,
                         false,
                         true));
+    }
+
+    private static NoiseRouter underworldNoiseRouter() {
+        DensityFunction finalDensity = DensityFunctions.yClampedGradient(
+                UNDERWORLD_STONE_CEILING - 1,
+                UNDERWORLD_STONE_CEILING,
+                1.0,
+                -1.0);
+        return withFinalDensity(NoiseRouterData.none(), finalDensity);
+    }
+
+    private static SurfaceRules.RuleSource underworldSurfaceRule() {
+        SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
+        SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(
+                        SurfaceRules.verticalGradient(
+                                "bedrock_floor",
+                                VerticalAnchor.bottom(),
+                                VerticalAnchor.aboveBottom(5)),
+                        bedrock),
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(0), 0)),
+                        deepslate));
     }
 
     private static void registerOverworldNoiseSettings(
@@ -283,22 +308,26 @@ final class ModWorldGen {
                 OVERWORLD_MIN_Y, OVERWORLD_MIN_Y + 24, 0.0, 1.0);
         DensityFunction finalDensity = DensityFunctions.lerp(
                 bottomTransition, 0.1171875, vanilla.finalDensity());
+        return withFinalDensity(vanilla, finalDensity);
+    }
+
+    private static NoiseRouter withFinalDensity(NoiseRouter original, DensityFunction finalDensity) {
         return new NoiseRouter(
-                vanilla.barrierNoise(),
-                vanilla.fluidLevelFloodednessNoise(),
-                vanilla.fluidLevelSpreadNoise(),
-                vanilla.lavaNoise(),
-                vanilla.temperature(),
-                vanilla.vegetation(),
-                vanilla.continents(),
-                vanilla.erosion(),
-                vanilla.depth(),
-                vanilla.ridges(),
-                vanilla.preliminarySurfaceLevel(),
+                original.barrierNoise(),
+                original.fluidLevelFloodednessNoise(),
+                original.fluidLevelSpreadNoise(),
+                original.lavaNoise(),
+                original.temperature(),
+                original.vegetation(),
+                original.continents(),
+                original.erosion(),
+                original.depth(),
+                original.ridges(),
+                original.preliminarySurfaceLevel(),
                 finalDensity,
-                vanilla.veinToggle(),
-                vanilla.veinRidged(),
-                vanilla.veinGap());
+                original.veinToggle(),
+                original.veinRidged(),
+                original.veinGap());
     }
 
     private static void bootstrapLevelStems(BootstrapContext<LevelStem> context) {
