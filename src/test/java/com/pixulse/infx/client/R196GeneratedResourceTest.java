@@ -482,6 +482,160 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void armorAndChainRecipesKeepR196RulesAndProgression() throws Exception {
+        Map<String, Float> ingotDifficulties = Map.ofEntries(
+                Map.entry("copper", 400.0F),
+                Map.entry("silver", 400.0F),
+                Map.entry("gold", 400.0F),
+                Map.entry("iron", 800.0F),
+                Map.entry("ancient_metal", 1600.0F),
+                Map.entry("mithril", 6400.0F),
+                Map.entry("adamantium", 25600.0F));
+        Map<String, String> benches = Map.ofEntries(
+                Map.entry("copper", "copper"),
+                Map.entry("silver", "copper"),
+                Map.entry("gold", "copper"),
+                Map.entry("rusted_iron", "copper"),
+                Map.entry("iron", "iron"),
+                Map.entry("ancient_metal", "ancient_metal"),
+                Map.entry("mithril", "mithril"),
+                Map.entry("adamantium", "adamantium"));
+
+        for (var material : ingotDifficulties.entrySet()) {
+            float expectedDifficulty = material.getValue() * 4.0F / 9.0F;
+            JsonObject chain = json(GENERATED.resolve(
+                    "data/infx/recipe/" + material.getKey() + "_chain_from_nuggets.json"));
+            JsonObject nuggets = json(GENERATED.resolve(
+                    "data/infx/recipe/" + material.getKey() + "_nuggets_from_chain.json"));
+            assertAll(
+                    material.getKey() + " chain conversions",
+                    () -> assertEquals(expectedDifficulty, chain.get("difficulty").getAsFloat()),
+                    () -> assertEquals(benches.get(material.getKey()), chain.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            "infx:" + material.getKey() + "_chain",
+                            chain.getAsJsonObject("result").get("id").getAsString()),
+                    () -> assertEquals(expectedDifficulty, nuggets.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", nuggets.get("required_bench").getAsString()),
+                    () -> assertEquals(4, nuggets.getAsJsonObject("result").get("count").getAsInt()));
+        }
+
+        Map<String, Float> plateComponents = Map.ofEntries(
+                Map.entry("leather", 100.0F),
+                Map.entry("copper", 400.0F),
+                Map.entry("silver", 400.0F),
+                Map.entry("gold", 400.0F),
+                Map.entry("iron", 800.0F),
+                Map.entry("ancient_metal", 1600.0F),
+                Map.entry("mithril", 6400.0F),
+                Map.entry("adamantium", 25600.0F));
+        Map<String, Integer> platePieces = Map.of(
+                "helmet", 5,
+                "chestplate", 8,
+                "leggings", 7,
+                "boots", 4);
+        for (var material : plateComponents.entrySet()) {
+            for (var piece : platePieces.entrySet()) {
+                String recipeName = material.getKey() + "_" + piece.getKey();
+                JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+                String expectedBench = material.getKey().equals("leather")
+                        ? "flint"
+                        : benches.get(material.getKey());
+                assertAll(
+                        recipeName,
+                        () -> assertEquals(
+                                material.getValue() * piece.getValue(),
+                                recipe.get("difficulty").getAsFloat()),
+                        () -> assertEquals(expectedBench, recipe.get("required_bench").getAsString()),
+                        () -> assertEquals(
+                                "infx:" + recipeName,
+                                recipe.getAsJsonObject("result").get("id").getAsString()));
+            }
+        }
+
+        Map<String, Float> chainComponents = Map.ofEntries(
+                Map.entry("copper", 400.0F * 4.0F / 9.0F),
+                Map.entry("silver", 400.0F * 4.0F / 9.0F),
+                Map.entry("gold", 400.0F * 4.0F / 9.0F),
+                Map.entry("rusted_iron", 400.0F * 4.0F / 9.0F),
+                Map.entry("iron", 800.0F * 4.0F / 9.0F),
+                Map.entry("ancient_metal", 1600.0F * 4.0F / 9.0F),
+                Map.entry("mithril", 6400.0F * 4.0F / 9.0F),
+                Map.entry("adamantium", 25600.0F * 4.0F / 9.0F));
+        Map<String, Integer> chainPieces = Map.of(
+                "chainmail_helmet", 5,
+                "chainmail_chestplate", 8,
+                "chainmail_leggings", 7,
+                "chainmail_boots", 4);
+        for (var material : chainComponents.entrySet()) {
+            for (var piece : chainPieces.entrySet()) {
+                String recipeName = material.getKey() + "_" + piece.getKey();
+                JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+                assertAll(
+                        recipeName,
+                        () -> assertEquals(
+                                material.getValue() * piece.getValue(),
+                                recipe.get("difficulty").getAsFloat()),
+                        () -> assertEquals(benches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                        () -> assertEquals(
+                                "infx:" + recipeName,
+                                recipe.getAsJsonObject("result").get("id").getAsString()));
+            }
+        }
+
+        for (String piece : platePieces.keySet()) {
+            assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/rusted_iron_" + piece + ".json")));
+        }
+        for (String material : ingotDifficulties.keySet()) {
+            assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/" + material + "_horse_armor.json")));
+        }
+        for (String disabled : List.of(
+                "leather_helmet",
+                "leather_chestplate",
+                "leather_leggings",
+                "leather_boots",
+                "golden_helmet",
+                "golden_chestplate",
+                "golden_leggings",
+                "golden_boots",
+                "iron_helmet",
+                "iron_chestplate",
+                "iron_leggings",
+                "iron_boots")) {
+            assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")));
+        }
+
+        String buildChainMail = Files.readString(
+                GENERATED.resolve("data/infx/advancement/progression/build_chain_mail.json"), UTF_8);
+        for (String material : chainComponents.keySet()) {
+            for (String piece : chainPieces.keySet()) {
+                assertTrue(buildChainMail.contains("infx:" + material + "_" + piece));
+            }
+        }
+        for (String advancement : List.of(
+                "wear_leather", "wear_all_plate_armor", "wear_all_adamantium_plate_armor")) {
+            assertTrue(Files.isRegularFile(
+                    GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")));
+        }
+
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        assertAll(
+                "armor progression translations",
+                () -> assertEquals(
+                        "Better Armor",
+                        english.get("advancements.infx.build_chain_mail.title").getAsString()),
+                () -> assertEquals(
+                        "Juggernaut",
+                        english.get("advancements.infx.wear_all_adamantium_plate_armor.title").getAsString()),
+                () -> assertEquals(
+                        "更好的护甲",
+                        chinese.get("advancements.infx.build_chain_mail.title").getAsString()),
+                () -> assertEquals(
+                        "世界主宰",
+                        chinese.get("advancements.infx.wear_all_adamantium_plate_armor.title").getAsString()));
+    }
+
+    @Test
     void furnaceHeatTagsSeparateCoalFromLowHeatFuel() throws Exception {
         String heatTwoFuels = Files.readString(
                 GENERATED.resolve("data/infx/tags/item/furnace_fuels/heat_2.json"), UTF_8);

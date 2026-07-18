@@ -374,6 +374,26 @@ final class ModRecipeProvider extends RecipeProvider {
                 25600.0F,
                 ModItems.ADAMANTIUM_NUGGET,
                 ModItems.ADAMANTIUM_INGOT);
+        addChainConversions(
+                "copper", BenchTier.COPPER, 400.0F, Items.COPPER_NUGGET);
+        addChainConversions(
+                "silver", BenchTier.COPPER, 400.0F, ModItems.SILVER_NUGGET);
+        addChainConversions(
+                "gold", BenchTier.COPPER, 400.0F, Items.GOLD_NUGGET);
+        addChainConversions(
+                "iron", BenchTier.IRON, 800.0F, Items.IRON_NUGGET);
+        addChainConversions(
+                "ancient_metal",
+                BenchTier.ANCIENT_METAL,
+                1600.0F,
+                ModItems.catalog().raw("ancient_metal_nugget").holder());
+        addChainConversions(
+                "mithril", BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_NUGGET);
+        addChainConversions(
+                "adamantium",
+                BenchTier.ADAMANTIUM,
+                25600.0F,
+                ModItems.ADAMANTIUM_NUGGET);
 
         addPlanks("acacia", Items.ACACIA_PLANKS, ItemTags.ACACIA_LOGS, 4);
         addPlanks("bamboo", Items.BAMBOO_PLANKS, ItemTags.BAMBOO_BLOCKS, 2);
@@ -509,6 +529,37 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.ADAMANTIUM,
                 25600.0F / 9.0F + 50.0F,
                 ModItems.ADAMANTIUM_NUGGET);
+
+        addArmorSet("leather", R196Material.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
+        addMetalArmorSets(
+                "copper", R196Material.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
+        addMetalArmorSets(
+                "silver", R196Material.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
+        addMetalArmorSets(
+                "gold", R196Material.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+        addArmorSet(
+                "rusted_iron",
+                R196Material.RUSTED_IRON,
+                BenchTier.COPPER,
+                400.0F * 4.0F / 9.0F,
+                raw("rusted_iron_chain"),
+                true);
+        addMetalArmorSets(
+                "iron", R196Material.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
+        addMetalArmorSets(
+                "ancient_metal",
+                R196Material.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1600.0F,
+                ModItems.ANCIENT_METAL_INGOT);
+        addMetalArmorSets(
+                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
+        addMetalArmorSets(
+                "adamantium",
+                R196Material.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                25600.0F,
+                ModItems.ADAMANTIUM_INGOT);
     }
 
     private void addMetalConversions(
@@ -535,6 +586,89 @@ final class ModRecipeProvider extends RecipeProvider {
                 nugget,
                 9,
                 List.of(Ingredient.of(ingot)));
+    }
+
+    private void addChainConversions(
+            String material,
+            BenchTier requiredBench,
+            float ingotDifficulty,
+            ItemLike nugget) {
+        float chainDifficulty = ingotDifficulty * 4.0F / 9.0F;
+        ItemLike chain = raw(material + "_chain");
+        addShaped(
+                material + "_chain_from_nuggets",
+                requiredBench,
+                chainDifficulty,
+                CraftingBookCategory.MISC,
+                "",
+                chain,
+                1,
+                Map.of('N', Ingredient.of(nugget)),
+                List.of(" N ", "N N", " N "));
+        addShaped(
+                material + "_nuggets_from_chain",
+                BenchTier.HAND,
+                chainDifficulty,
+                CraftingBookCategory.MISC,
+                "",
+                nugget,
+                4,
+                Map.of('C', Ingredient.of(chain)),
+                List.of("C"));
+    }
+
+    private void addMetalArmorSets(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float ingotDifficulty,
+            ItemLike ingot) {
+        addArmorSet(material, equipmentMaterial, requiredBench, ingotDifficulty, ingot, false);
+        addArmorSet(
+                material,
+                equipmentMaterial,
+                requiredBench,
+                ingotDifficulty * 4.0F / 9.0F,
+                raw(material + "_chain"),
+                true);
+    }
+
+    private void addArmorSet(
+            String material,
+            R196Material equipmentMaterial,
+            BenchTier requiredBench,
+            float componentDifficulty,
+            ItemLike component,
+            boolean chainmail) {
+        List<R196EquipmentType> pieces = chainmail
+                ? R196EquipmentType.chainPieces()
+                : R196EquipmentType.platePieces();
+        for (R196EquipmentType piece : pieces) {
+            addShaped(
+                    material + "_" + piece.path(),
+                    requiredBench,
+                    componentDifficulty * piece.durabilityComponents(),
+                    CraftingBookCategory.EQUIPMENT,
+                    "",
+                    equipment(equipmentMaterial, piece),
+                    1,
+                    Map.of('C', Ingredient.of(component)),
+                    armorPattern(piece));
+        }
+    }
+
+    private static List<String> armorPattern(R196EquipmentType piece) {
+        return switch (piece) {
+            case HELMET, CHAINMAIL_HELMET -> List.of("CCC", "C C");
+            case CHESTPLATE, CHAINMAIL_CHESTPLATE -> List.of("C C", "CCC", "CCC");
+            case LEGGINGS, CHAINMAIL_LEGGINGS -> List.of("CCC", "C C", "C C");
+            case BOOTS, CHAINMAIL_BOOTS -> List.of("C C", "C C");
+            default -> throw new IllegalArgumentException("Not an armor piece: " + piece);
+        };
+    }
+
+    private static ItemLike raw(String path) {
+        return ModItems.catalog().raw(path).holder();
     }
 
     private void addPlanks(String wood, ItemLike result, TagKey<Item> logs, int count) {
