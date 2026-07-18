@@ -808,8 +808,13 @@ class R196GeneratedResourceTest {
         JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
         JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
+        JsonObject miteDensity = json(GENERATED.resolve(
+                "data/infx/worldgen/density_function/mite_r196_first_cave.json"));
         JsonObject noiseShape = noise.getAsJsonObject("noise");
         JsonObject finalDensity = noise.getAsJsonObject("noise_router").getAsJsonObject("final_density");
+        JsonObject miteShape = miteDensity.getAsJsonObject("input").getAsJsonObject("argument");
+        JsonObject scaledMiteTerrain = miteShape.getAsJsonObject("argument1");
+        JsonObject legacyBlendedNoise = scaledMiteTerrain.getAsJsonObject("argument2");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
         var surfaceSequence = surfaceRule.getAsJsonArray("sequence");
         JsonObject roofBedrockRule = surfaceSequence.get(0).getAsJsonObject();
@@ -859,6 +864,38 @@ class R196GeneratedResourceTest {
                 () -> assertTrue(hasGradient(finalDensity, 225, 226, 0.0, 1.0)),
                 () -> assertTrue(hasGradient(finalDensity, 226, 236, 1.0, 0.0)),
                 () -> assertTrue(hasGradient(finalDensity, 296, 319, -1.0, 1.0)),
+                () -> assertTrue(finalDensity.toString().contains("infx:mite_r196_first_cave")),
+                () -> assertEquals("minecraft:clamp", miteDensity.get("type").getAsString()),
+                () -> assertEquals("minecraft:interpolated", miteDensity
+                        .getAsJsonObject("input")
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:mul", scaledMiteTerrain.get("type").getAsString()),
+                () -> assertEquals(128.0, scaledMiteTerrain.get("argument1").getAsDouble()),
+                () -> assertEquals("minecraft:old_blended_noise", legacyBlendedNoise.get("type").getAsString()),
+                () -> assertEquals(0.25, legacyBlendedNoise.get("xz_scale").getAsDouble()),
+                () -> assertEquals(0.375, legacyBlendedNoise.get("y_scale").getAsDouble()),
+                () -> assertEquals(80.0, legacyBlendedNoise.get("xz_factor").getAsDouble()),
+                () -> assertEquals(60.0, legacyBlendedNoise.get("y_factor").getAsDouble()),
+                () -> assertEquals(8.0, legacyBlendedNoise.get("smear_scale_multiplier").getAsDouble()),
+                () -> assertTrue(hasGradient(
+                        miteDensity,
+                        128,
+                        139,
+                        Math.cos(4.0 * Math.PI * 6.0 / 17.0) * 2.0,
+                        Math.cos(5.0 * Math.PI * 6.0 / 17.0) * 2.0)),
+                () -> assertTrue(hasGradient(
+                        miteDensity,
+                        172,
+                        183,
+                        Math.cos(8.0 * Math.PI * 6.0 / 17.0) * 2.0,
+                        Math.cos(9.0 * Math.PI * 6.0 / 17.0) * 2.0)),
+                () -> assertTrue(hasGradient(
+                        miteDensity,
+                        205,
+                        216,
+                        Math.cos(11.0 * Math.PI * 6.0 / 17.0) * 2.0,
+                        Math.cos(12.0 * Math.PI * 6.0 / 17.0) * 2.0)),
                 () -> assertEquals(Set.of(
                         "minecraft:cave_cheese",
                         "minecraft:cave_entrance",
@@ -1287,8 +1324,8 @@ class R196GeneratedResourceTest {
                 && object.get("type").getAsString().equals("minecraft:y_clamped_gradient")
                 && object.get("from_y").getAsInt() == fromY
                 && object.get("to_y").getAsInt() == toY
-                && object.get("from_value").getAsDouble() == fromValue
-                && object.get("to_value").getAsDouble() == toValue) {
+                && Math.abs(object.get("from_value").getAsDouble() - fromValue) < 1.0E-12
+                && Math.abs(object.get("to_value").getAsDouble() - toValue) < 1.0E-12) {
             return true;
         }
         for (var entry : object.entrySet()) {

@@ -61,6 +61,7 @@ import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.timeline.Timeline;
 import net.neoforged.neoforge.common.world.BiomeModifier;
@@ -78,6 +79,11 @@ final class ModWorldGen {
     private static final int UNDERWORLD_ROOF_START_Y = 296;
     private static final int UNDERWORLD_TOP_Y = UNDERWORLD_MIN_Y + UNDERWORLD_HEIGHT - 1;
     private static final int UNDERWORLD_SEA_LEVEL = 140;
+    private static final int MITE_R196_PROFILE_FIRST_SAMPLE = 4;
+    private static final int MITE_R196_PROFILE_LAST_SAMPLE = 12;
+    private static final double MITE_R196_PROFILE_FREQUENCY = Math.PI * 6.0 / 17.0;
+    private static final ResourceKey<DensityFunction> MITE_R196_FIRST_CAVE =
+            ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("mite_r196_first_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
@@ -99,6 +105,7 @@ final class ModWorldGen {
 
     static RegistrySetBuilder builder() {
         return new RegistrySetBuilder()
+                .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
@@ -106,6 +113,10 @@ final class ModWorldGen {
                 .add(Registries.NOISE_SETTINGS, ModWorldGen::bootstrapNoiseSettings)
                 .add(Registries.LEVEL_STEM, ModWorldGen::bootstrapLevelStems)
                 .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModWorldGen::bootstrapBiomeModifiers);
+    }
+
+    private static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
+        context.register(MITE_R196_FIRST_CAVE, underworldFirstCave());
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -247,13 +258,16 @@ final class ModWorldGen {
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.OVERWORLD, false, false);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.LARGE_BIOMES, false, true);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.AMPLIFIED, true, false);
+        HolderGetter<DensityFunction> densityFunctions = context.lookup(Registries.DENSITY_FUNCTION);
+        DensityFunction firstCave = new DensityFunctions.HolderHolder(
+                densityFunctions.getOrThrow(MITE_R196_FIRST_CAVE));
         context.register(
                 Underworld.NOISE,
                 new NoiseGeneratorSettings(
                         NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
-                        underworldNoiseRouter(context.lookup(Registries.NOISE)),
+                        underworldNoiseRouter(context.lookup(Registries.NOISE), firstCave),
                         underworldSurfaceRule(),
                         List.of(),
                         UNDERWORLD_SEA_LEVEL,
@@ -264,8 +278,13 @@ final class ModWorldGen {
     }
 
     static NoiseRouter underworldNoiseRouter(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        return underworldNoiseRouter(noises, underworldFirstCave());
+    }
+
+    private static NoiseRouter underworldNoiseRouter(
+            HolderGetter<NormalNoise.NoiseParameters> noises,
+            DensityFunction firstCave) {
         DensityFunction entrances = underworldEntrances(noises);
-        DensityFunction firstCave = underworldFirstCave(noises);
         DensityFunction firstCaveEntranceReach = DensityFunctions.yClampedGradient(
                 UNDERWORLD_FIRST_CAVE_END_Y - 8,
                 UNDERWORLD_FIRST_CAVE_END_Y - 1,
@@ -323,27 +342,57 @@ final class ModWorldGen {
         return withFinalDensity(NoiseRouterData.none(), finalDensity);
     }
 
-    private static DensityFunction underworldFirstCave(HolderGetter<NormalNoise.NoiseParameters> noises) {
-        DensityFunction chambers = DensityFunctions.add(
-                DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_CHEESE), 0.75, 0.45),
-                DensityFunctions.constant(-0.18));
-        DensityFunction layeredDividers = stoneBand(
-                DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 1.15, 2.8),
-                0.045);
-        DensityFunction wallDividers = stoneBand(
-                DensityFunctions.shiftedNoise2d(
-                        DensityFunctions.zero(),
-                        DensityFunctions.zero(),
-                        0.55,
-                        noises.getOrThrow(Noises.SPAGHETTI_2D)),
-                0.05);
-        DensityFunction pillars = DensityFunctions.add(
-                DensityFunctions.noise(noises.getOrThrow(Noises.PILLAR), 2.5, 0.18),
-                DensityFunctions.constant(-0.42));
-        DensityFunction dividedChambers = DensityFunctions.max(
-                DensityFunctions.max(chambers, layeredDividers),
-                DensityFunctions.max(wallDividers, pillars));
-        return DensityFunctions.interpolated(dividedChambers).clamp(-1.0, 1.0);
+    private static DensityFunction underworldFirstCave() {
+        /*
+         * MITE 1.6.4 R196 ChunkProviderUnderworld builds its cavern terrain from the
+         * same three legacy octave stacks represented by BlendedNoise: two 16-octave
+         * limit fields selected by an 8-octave main field. These five parameters are
+         * the block-space form of MITE's 684.412/2053.236 and /80,/60 scales.
+         */
+        DensityFunction miteTerrain = BlendedNoise.createUnseeded(0.25, 0.375, 80.0, 60.0, 8.0);
+        DensityFunction scaledTerrain = DensityFunctions.mul(
+                DensityFunctions.constant(128.0),
+                miteTerrain);
+        DensityFunction verticalProfile = miteR196CavernProfile();
+        DensityFunction cavernDensity = DensityFunctions.add(
+                scaledTerrain,
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), verticalProfile));
+        return DensityFunctions.interpolated(cavernDensity).clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction miteR196CavernProfile() {
+        /*
+         * R196's 17-point profile has cubic stone caps at both ends. The adjacent
+         * InfiniteX strata already close this shorter layer, so stretch the central
+         * cavern samples (4 through 12) across Y=128..216 and retain their values.
+         */
+        int sampleCount = MITE_R196_PROFILE_LAST_SAMPLE - MITE_R196_PROFILE_FIRST_SAMPLE;
+        DensityFunction y = DensityFunctions.yClampedGradient(
+                UNDERWORLD_FIRST_CAVE_MIN_Y,
+                UNDERWORLD_FIRST_CAVE_END_Y,
+                UNDERWORLD_FIRST_CAVE_MIN_Y,
+                UNDERWORLD_FIRST_CAVE_END_Y);
+        DensityFunction profile = DensityFunctions.constant(miteR196ProfileValue(MITE_R196_PROFILE_LAST_SAMPLE));
+        for (int sample = MITE_R196_PROFILE_LAST_SAMPLE - 1;
+                sample >= MITE_R196_PROFILE_FIRST_SAMPLE;
+                sample--) {
+            int segment = sample - MITE_R196_PROFILE_FIRST_SAMPLE;
+            int fromY = UNDERWORLD_FIRST_CAVE_MIN_Y
+                    + (UNDERWORLD_FIRST_CAVE_END_Y - UNDERWORLD_FIRST_CAVE_MIN_Y) * segment / sampleCount;
+            int toY = UNDERWORLD_FIRST_CAVE_MIN_Y
+                    + (UNDERWORLD_FIRST_CAVE_END_Y - UNDERWORLD_FIRST_CAVE_MIN_Y) * (segment + 1) / sampleCount;
+            DensityFunction slope = DensityFunctions.yClampedGradient(
+                    fromY,
+                    toY,
+                    miteR196ProfileValue(sample),
+                    miteR196ProfileValue(sample + 1));
+            profile = DensityFunctions.rangeChoice(y, fromY, toY, slope, profile);
+        }
+        return profile;
+    }
+
+    private static double miteR196ProfileValue(int sample) {
+        return Math.cos(sample * MITE_R196_PROFILE_FREQUENCY) * 2.0;
     }
 
     private static DensityFunction underworldEntrances(HolderGetter<NormalNoise.NoiseParameters> noises) {
