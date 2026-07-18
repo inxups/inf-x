@@ -26,6 +26,27 @@ public final class ModItems {
 
     public static final List<DeferredItem<BlockItem>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
 
+    public static final DeferredItem<BlockItem> SILVER_BLOCK = ITEMS.registerSimpleBlockItem(ModBlocks.SILVER_BLOCK);
+    public static final DeferredItem<BlockItem> ANCIENT_METAL_BLOCK =
+            ITEMS.registerSimpleBlockItem(ModBlocks.ANCIENT_METAL_BLOCK);
+    public static final DeferredItem<BlockItem> MITHRIL_BLOCK = ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_BLOCK);
+    public static final DeferredItem<BlockItem> ADAMANTIUM_BLOCK =
+            ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_BLOCK, properties -> properties.fireResistant());
+    public static final List<DeferredItem<BlockItem>> METAL_STORAGE_BLOCKS =
+            List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
+
+    public static final List<DeferredItem<BlockItem>> METAL_ANVILS = ModBlocks.METAL_ANVILS.stream()
+            .map(anvil -> ITEMS.registerItem(
+                    anvil.getId().getPath(),
+                    properties -> new BlockItem(anvil.get(), properties),
+                    properties -> {
+                        Item.Properties configured = properties.durability(anvil.get().maximumDamage());
+                        return anvil.get().material().has(R196Material.Flag.LAVA_SAFE)
+                                ? configured.fireResistant()
+                                : configured;
+                    }))
+            .toList();
+
     public static final DeferredItem<BlockItem> FLINT_WORKBENCH =
             ITEMS.registerSimpleBlockItem(ModBlocks.FLINT_WORKBENCH);
     public static final DeferredItem<BlockItem> COPPER_WORKBENCH =

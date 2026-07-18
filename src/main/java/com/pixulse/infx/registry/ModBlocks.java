@@ -17,8 +17,12 @@ import com.pixulse.infx.block.R196FurnaceBlock;
 import com.pixulse.infx.block.SandstoneFurnaceBlock;
 import com.pixulse.infx.block.SilverWorkbenchBlock;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
+import com.pixulse.infx.block.MetalAnvilBlock;
+import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.material.R196Material;
 import java.util.List;
+import java.util.Map;
 
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
@@ -54,6 +58,41 @@ public final class ModBlocks {
                     .requiresCorrectToolForDrops());
 
     public static final List<DeferredBlock<Block>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
+
+    public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(
+            "underworld_portal",
+            UnderworldPortalBlock::new,
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
+
+    public static final DeferredBlock<Block> SILVER_BLOCK = metalStorageBlock("silver_block", MapColor.METAL, 4.0F);
+    public static final DeferredBlock<Block> ANCIENT_METAL_BLOCK =
+            metalStorageBlock("ancient_metal_block", MapColor.COLOR_BROWN, 5.0F);
+    public static final DeferredBlock<Block> MITHRIL_BLOCK =
+            metalStorageBlock("mithril_block", MapColor.DIAMOND, 6.0F);
+    public static final DeferredBlock<Block> ADAMANTIUM_BLOCK =
+            metalStorageBlock("adamantium_block", MapColor.EMERALD, 8.0F);
+    public static final List<DeferredBlock<Block>> METAL_STORAGE_BLOCKS =
+            List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
+
+    public static final DeferredBlock<MetalAnvilBlock> COPPER_ANVIL = metalAnvil(R196Material.COPPER, MapColor.COLOR_ORANGE);
+    public static final DeferredBlock<MetalAnvilBlock> SILVER_ANVIL = metalAnvil(R196Material.SILVER, MapColor.METAL);
+    public static final DeferredBlock<MetalAnvilBlock> GOLD_ANVIL = metalAnvil(R196Material.GOLD, MapColor.GOLD);
+    public static final DeferredBlock<MetalAnvilBlock> IRON_ANVIL = metalAnvil(R196Material.IRON, MapColor.METAL);
+    public static final DeferredBlock<MetalAnvilBlock> ANCIENT_METAL_ANVIL =
+            metalAnvil(R196Material.ANCIENT_METAL, MapColor.COLOR_BROWN);
+    public static final DeferredBlock<MetalAnvilBlock> MITHRIL_ANVIL = metalAnvil(R196Material.MITHRIL, MapColor.DIAMOND);
+    public static final DeferredBlock<MetalAnvilBlock> ADAMANTIUM_ANVIL =
+            metalAnvil(R196Material.ADAMANTIUM, MapColor.EMERALD);
+    public static final List<DeferredBlock<MetalAnvilBlock>> METAL_ANVILS = List.of(
+            COPPER_ANVIL,
+            SILVER_ANVIL,
+            GOLD_ANVIL,
+            IRON_ANVIL,
+            ANCIENT_METAL_ANVIL,
+            MITHRIL_ANVIL,
+            ADAMANTIUM_ANVIL);
+    private static final Map<R196Material, DeferredBlock<MetalAnvilBlock>> METAL_ANVIL_BY_MATERIAL =
+            createMetalAnvilMap();
 
     public static final DeferredBlock<ClayFurnaceBlock> CLAY_FURNACE = BLOCKS.registerBlock(
             "clay_furnace",
@@ -169,6 +208,47 @@ public final class ModBlocks {
             OBSIDIAN_WORKBENCH);
 
     private ModBlocks() {}
+
+    private static DeferredBlock<Block> metalStorageBlock(String name, MapColor color, float strength) {
+        return BLOCKS.registerSimpleBlock(
+                name,
+                properties -> properties
+                        .mapColor(color)
+                        .strength(strength, 6.0F)
+                        .sound(SoundType.METAL)
+                        .requiresCorrectToolForDrops());
+    }
+
+    private static DeferredBlock<MetalAnvilBlock> metalAnvil(R196Material material, MapColor color) {
+        return BLOCKS.registerBlock(
+                material.path() + "_anvil",
+                properties -> new MetalAnvilBlock(material, properties),
+                properties -> properties
+                        .mapColor(color)
+                        .strength(5.0F, 1_200.0F)
+                        .sound(SoundType.ANVIL)
+                        .requiresCorrectToolForDrops()
+                        .noOcclusion());
+    }
+
+    private static Map<R196Material, DeferredBlock<MetalAnvilBlock>> createMetalAnvilMap() {
+        return Map.of(
+                R196Material.COPPER, COPPER_ANVIL,
+                R196Material.SILVER, SILVER_ANVIL,
+                R196Material.GOLD, GOLD_ANVIL,
+                R196Material.IRON, IRON_ANVIL,
+                R196Material.ANCIENT_METAL, ANCIENT_METAL_ANVIL,
+                R196Material.MITHRIL, MITHRIL_ANVIL,
+                R196Material.ADAMANTIUM, ADAMANTIUM_ANVIL);
+    }
+
+    public static DeferredBlock<MetalAnvilBlock> metalAnvil(R196Material material) {
+        DeferredBlock<MetalAnvilBlock> anvil = METAL_ANVIL_BY_MATERIAL.get(material);
+        if (anvil == null) {
+            throw new IllegalArgumentException("No metal anvil for " + material);
+        }
+        return anvil;
+    }
 
     public static DeferredBlock<? extends TieredWorkbenchBlock> workbench(BenchTier tier) {
         return switch (tier) {

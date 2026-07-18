@@ -2,6 +2,7 @@ package com.pixulse.infx.gametest;
 
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.harvest.ToolWearCalculator;
 import com.pixulse.infx.item.R196ArrowItem;
@@ -38,6 +39,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityTypes;
@@ -58,6 +61,7 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
@@ -119,8 +123,11 @@ public final class ModEquipmentGameTests {
             R196EquipmentKey key = entry.key();
             ItemStack stack = entry.holder().value().getDefaultInstance();
             if (key.durability() > 0) {
+                int expectedDurability = key.material() == R196Material.RUSTED_IRON
+                        ? Math.max(1, Math.round(key.durability() * com.pixulse.infx.material.R196Quality.POOR.durabilityMultiplier()))
+                        : key.durability();
                 helper.assertTrue(
-                        stack.getOrDefault(DataComponents.MAX_DAMAGE, 0) == key.durability(),
+                        stack.getOrDefault(DataComponents.MAX_DAMAGE, 0) == expectedDurability,
                         key.path() + " max damage");
             }
             boolean melee = (key.type().category() == R196EquipmentCategory.TOOL
@@ -310,11 +317,67 @@ public final class ModEquipmentGameTests {
             helper.assertTrue(fired.getPickupItemStackOrigin().is(item), key.path() + " fired pickup identity");
             helper.assertTrue(dispensed.getPickupItemStackOrigin().is(item), key.path() + " dispensed pickup identity");
             helper.assertTrue(
-                    dispensed.pickup == AbstractArrow.Pickup.ALLOWED, key.path() + " dispenser pickup");
+                    dispensed.pickup == AbstractArrow.Pickup.DISALLOWED,
+                    key.path() + " dispenser pickup must await one recovery roll");
             helper.assertTrue(
                     Math.abs(item.baseDamage() - key.arrowBaseDamage()) < 1.0E-9,
                     key.path() + " damage");
+
+            long seed = 1_000L + material.ordinal();
+            boolean expectedRecovery = RandomSource.create(seed).nextFloat()
+                    < R196EquipmentBehaviors.recoveryChance(material);
+            dispensed.getRandom().setSeed(seed);
+            BlockHitResult impact = new BlockHitResult(
+                    position,
+                    Direction.UP,
+                    BlockPos.containing(position),
+                    false);
+            R196EquipmentBehaviors.resolveArrowRecovery(dispensed, impact);
+            helper.assertTrue(
+                    dispensed.pickup
+                            == (expectedRecovery
+                                    ? AbstractArrow.Pickup.ALLOWED
+                                    : AbstractArrow.Pickup.DISALLOWED),
+                    key.path() + " recovery roll");
+            AbstractArrow.Pickup resolved = dispensed.pickup;
+            dispensed.getRandom().setSeed(seed + 100L);
+            R196EquipmentBehaviors.resolveArrowRecovery(dispensed, impact);
+            helper.assertTrue(dispensed.pickup == resolved, key.path() + " recovery is checked only once");
+
+            ItemStack infiniteStack = stack.copy();
+            infiniteStack.set(DataComponents.INTANGIBLE_PROJECTILE, Unit.INSTANCE);
+            AbstractArrow infinite = item.createArrow(helper.getLevel(), infiniteStack, player, null);
+            helper.assertTrue(
+                    infinite.pickup == AbstractArrow.Pickup.CREATIVE_ONLY,
+                    key.path() + " infinite arrow pickup boundary");
+            R196EquipmentBehaviors.resolveArrowRecovery(infinite, impact);
+            helper.assertTrue(
+                    infinite.pickup == AbstractArrow.Pickup.CREATIVE_ONLY,
+                    key.path() + " infinite arrow never becomes recoverable");
         }
+
+        R196ArrowItem flint = (R196ArrowItem) ModItems.catalog()
+                .equipment(R196Material.FLINT, R196EquipmentType.ARROW)
+                .holder()
+                .value();
+        AbstractArrow entityArrow = (AbstractArrow) flint.asProjectile(
+                helper.getLevel(), position, flint.getDefaultInstance(), Direction.NORTH);
+        long recoveringSeed = 0L;
+        while (RandomSource.create(recoveringSeed).nextFloat()
+                >= R196EquipmentBehaviors.recoveryChance(R196Material.FLINT)) {
+            recoveringSeed++;
+        }
+        entityArrow.getRandom().setSeed(recoveringSeed);
+        var target = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(2, 2, 2));
+        int itemsBefore = helper.getLevel()
+                .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
+                .size();
+        R196EquipmentBehaviors.resolveArrowRecovery(entityArrow, new EntityHitResult(target));
+        int itemsAfter = helper.getLevel()
+                .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
+                .size();
+        helper.assertTrue(itemsAfter == itemsBefore + 1, "recovered entity hit drops exactly one material arrow");
+        target.discard();
         removePlayer(player);
         helper.succeed();
     }

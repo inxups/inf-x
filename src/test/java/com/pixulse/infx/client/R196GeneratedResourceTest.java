@@ -802,6 +802,147 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void underworldDataKeepsDimensionTerrainOreAndDungeonProgression() throws Exception {
+        JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
+        JsonObject generator = dimension.getAsJsonObject("generator");
+        JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
+        JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
+        JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
+        JsonObject noiseShape = noise.getAsJsonObject("noise");
+        assertAll(
+                "Underworld dimension",
+                () -> assertEquals("infx:underworld", dimension.get("type").getAsString()),
+                () -> assertEquals("minecraft:noise", generator.get("type").getAsString()),
+                () -> assertEquals(
+                        "infx:underworld",
+                        generator.getAsJsonObject("biome_source").get("biome").getAsString()),
+                () -> assertEquals("infx:underworld", generator.get("settings").getAsString()),
+                () -> assertEquals(0, dimensionType.get("min_y").getAsInt()),
+                () -> assertEquals(256, dimensionType.get("height").getAsInt()),
+                () -> assertEquals(256, dimensionType.get("logical_height").getAsInt()),
+                () -> assertTrue(dimensionType.get("has_ceiling").getAsBoolean()),
+                () -> assertFalse(dimensionType.get("has_skylight").getAsBoolean()),
+                () -> assertEquals("minecraft:stone", noise.getAsJsonObject("default_block").get("Name").getAsString()),
+                () -> assertEquals("minecraft:water", noise.getAsJsonObject("default_fluid").get("Name").getAsString()),
+                () -> assertEquals(32, noise.get("sea_level").getAsInt()),
+                () -> assertEquals(0, noiseShape.get("min_y").getAsInt()),
+                () -> assertEquals(256, noiseShape.get("height").getAsInt()),
+                () -> assertTrue(biome.toString().contains("minecraft:monster_room")),
+                () -> assertTrue(biome.toString().contains("minecraft:cave_spider")),
+                () -> assertTrue(biome.toString().contains("infx:silver_ore")),
+                () -> assertTrue(biome.toString().contains("infx:mithril_ore")),
+                () -> assertTrue(biome.toString().contains("infx:underworld_adamantium_ore")));
+
+        JsonObject configured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"));
+        JsonObject configuredConfig = configured.getAsJsonObject("config");
+        JsonObject placed = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"));
+        String placedContents = placed.toString();
+        assertAll(
+                "Underworld adamantium",
+                () -> assertEquals(3, configuredConfig.get("size").getAsInt()),
+                () -> assertTrue(configured.toString().contains("infx:adamantium_ore")),
+                () -> assertEquals("infx:underworld_adamantium_ore", placed.get("feature").getAsString()),
+                () -> assertTrue(placedContents.contains("\"count\":8")),
+                () -> assertTrue(placedContents.contains("minecraft:biased_to_bottom")),
+                () -> assertTrue(placedContents.contains("\"absolute\":0")),
+                () -> assertTrue(placedContents.contains("\"absolute\":136")),
+                () -> assertFalse(Files.exists(GENERATED.resolve(
+                        "data/infx/neoforge/biome_modifier/add_adamantium_ore.json"))));
+
+        JsonObject dungeon = json(GENERATED.resolve("data/infx/loot_table/chests/underworld_dungeon.json"));
+        JsonObject dungeonPool = dungeon.getAsJsonArray("pools").get(0).getAsJsonObject();
+        String dungeonContents = dungeon.toString();
+        JsonObject modifier = json(GENERATED.resolve("data/infx/loot_modifiers/underworld_dungeon.json"));
+        assertAll(
+                "Underworld dungeon progression",
+                () -> assertEquals(8.0F, dungeonPool.get("rolls").getAsFloat()),
+                () -> assertTrue(dungeonContents.contains("infx:ancient_metal_ingot")),
+                () -> assertTrue(dungeonContents.contains("infx:ancient_metal_horse_armor")),
+                () -> assertTrue(dungeonContents.contains("infx:ancient_metal_pickaxe")),
+                () -> assertEquals("infx:underworld_dungeon", modifier.get("type").getAsString()),
+                () -> assertEquals(1500, modifier.get("priority").getAsInt()));
+    }
+
+    @Test
+    void metalAnvilsAndTheirComponentsKeepR196ResourcesAndDifficulties() throws Exception {
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        Map<String, Float> difficulties = Map.ofEntries(
+                Map.entry("copper", 12_400.0F),
+                Map.entry("silver", 12_400.0F),
+                Map.entry("gold", 12_400.0F),
+                Map.entry("iron", 24_800.0F),
+                Map.entry("ancient_metal", 49_600.0F),
+                Map.entry("mithril", 198_400.0F),
+                Map.entry("adamantium", 793_600.0F));
+        for (var entry : difficulties.entrySet()) {
+            String path = entry.getKey() + "_anvil";
+            JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + path + ".json"));
+            assertAll(
+                    path,
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/blockstates/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/items/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("data/infx/loot_table/blocks/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/models/block/" + path + "_stage_0.json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/models/block/" + path + "_stage_1.json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("assets/infx/models/block/" + path + "_stage_2.json"))),
+                    () -> assertTrue(english.has("block.infx." + path)),
+                    () -> assertTrue(chinese.has("block.infx." + path)),
+                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals(entry.getKey(), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            "[\"BBB\",\"I I\",\"I I\"]",
+                            recipe.getAsJsonArray("pattern").toString()),
+                    () -> assertEquals(
+                            "infx:" + path,
+                            recipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+
+        Map<String, Float> storageDifficulties = Map.of(
+                "silver", 3_600.0F,
+                "ancient_metal", 14_400.0F,
+                "mithril", 57_600.0F,
+                "adamantium", 230_400.0F);
+        for (var entry : storageDifficulties.entrySet()) {
+            JsonObject blockRecipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + entry.getKey() + "_block.json"));
+            JsonObject ingotRecipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + entry.getKey() + "_block_to_ingots.json"));
+            assertAll(
+                    entry.getKey() + " storage",
+                    () -> assertEquals(entry.getValue(), blockRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals("flint", blockRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), ingotRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals(9, ingotRecipe.getAsJsonObject("result").get("count").getAsInt()));
+        }
+
+        Map<String, Float> shardDifficulties = Map.of(
+                "diamond", 1_600.0F,
+                "nether_quartz", 900.0F,
+                "glass", 200.0F);
+        for (var entry : shardDifficulties.entrySet()) {
+            JsonObject combine = json(GENERATED.resolve(
+                    "data/infx/recipe/" + entry.getKey() + "_from_shards.json"));
+            JsonObject split = json(GENERATED.resolve(
+                    "data/infx/recipe/" + entry.getKey() + "_to_shards.json"));
+            assertAll(
+                    entry.getKey() + " shards",
+                    () -> assertEquals(entry.getValue(), combine.get("difficulty").getAsFloat()),
+                    () -> assertEquals("flint", combine.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), split.get("difficulty").getAsFloat()),
+                    () -> assertEquals(9, split.getAsJsonObject("result").get("count").getAsInt()));
+        }
+    }
+
+    @Test
     void r196FurnacesHaveGeneratedAssetsRecipesLootAndTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -859,7 +1000,7 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(242, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(253, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -971,6 +1112,10 @@ class R196GeneratedResourceTest {
         assertTrue(destinations.remove("textures/block/silver_ore.png"));
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/anvil/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)/(base|top_damaged_[0-2])\\.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));

@@ -7,17 +7,23 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.block.MetalAnvilBlock;
 import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.data.models.model.TexturedModel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
@@ -25,34 +31,51 @@ import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 final class ModModelProvider extends ModelProvider {
+    private static final TextureSlot ANVIL_BODY = TextureSlot.create("body");
+    private static final ModelTemplate METAL_ANVIL_MODEL = new ModelTemplate(
+            Optional.of(Identifier.withDefaultNamespace("block/template_anvil")),
+            Optional.empty(),
+            TextureSlot.TOP,
+            ANVIL_BODY);
+
     ModModelProvider(PackOutput output) {
         super(output, InfiniteX.MOD_ID);
     }
 
     @Override
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
+        Stream<Block> generated = Stream.of(
+                        ModBlocks.FURNACES.stream().map(block -> (Block) block.value()),
+                        ModBlocks.ORES.stream().map(block -> (Block) block.value()),
+                        ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.value()),
+                        ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()))
+                .flatMap(stream -> stream);
         return Stream.concat(
-                ModBlocks.FURNACES.stream()
-                        .map(furnace -> BuiltInRegistries.BLOCK.wrapAsHolder(furnace.value())),
-                ModBlocks.ORES.stream().map(ore -> BuiltInRegistries.BLOCK.wrapAsHolder(ore.value())));
+                generated,
+                Stream.of((Block) ModBlocks.UNDERWORLD_PORTAL.value()))
+                .map(BuiltInRegistries.BLOCK::wrapAsHolder);
     }
 
     @Override
     protected Stream<? extends Holder<Item>> getKnownItems() {
-        return Stream.concat(
-                Stream.concat(
-                        ModItems.catalog().entries().stream()
-                                .map(entry -> BuiltInRegistries.ITEM.wrapAsHolder(entry.holder().value())),
-                        ModItems.FURNACES.stream()
-                                .map(furnace -> BuiltInRegistries.ITEM.wrapAsHolder(furnace.value()))),
-                ModItems.ORES.stream().map(ore -> BuiltInRegistries.ITEM.wrapAsHolder(ore.value())));
+        return Stream.of(
+                        ModItems.catalog().entries().stream().map(entry -> entry.holder().value()),
+                        ModItems.FURNACES.stream().map(item -> (Item) item.value()),
+                        ModItems.ORES.stream().map(item -> (Item) item.value()),
+                        ModItems.METAL_STORAGE_BLOCKS.stream().map(item -> (Item) item.value()),
+                        ModItems.METAL_ANVILS.stream().map(item -> (Item) item.value()))
+                .flatMap(stream -> stream)
+                .map(BuiltInRegistries.ITEM::wrapAsHolder);
     }
 
     @Override
@@ -60,6 +83,21 @@ final class ModModelProvider extends ModelProvider {
         ModBlocks.FURNACES.forEach(
                 furnace -> blockModels.createFurnace(furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
         ModBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
+        ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
+        ModBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(ModBlocks.UNDERWORLD_PORTAL.value())
+                        .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
+                                .select(
+                                        Direction.Axis.X,
+                                        BlockModelGenerators.plainVariant(
+                                                net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation(
+                                                        Blocks.NETHER_PORTAL, "_ns")))
+                                .select(
+                                        Direction.Axis.Z,
+                                        BlockModelGenerators.plainVariant(
+                                                net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation(
+                                                        Blocks.NETHER_PORTAL, "_ew")))));
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
@@ -76,6 +114,31 @@ final class ModModelProvider extends ModelProvider {
                 case BOW -> generateMaterialBow(itemModels, entry);
             }
         }
+    }
+
+    private static void generateMetalAnvil(BlockModelGenerators models, MetalAnvilBlock block) {
+        PropertyDispatch<net.minecraft.client.data.models.MultiVariant> stages =
+                PropertyDispatch.initial(MetalAnvilBlock.DAMAGE_STAGE).generate(stage -> {
+                    Identifier body = InfiniteX.id("block/anvil/" + block.material().path() + "/base");
+                    Identifier top = InfiniteX.id(
+                            "block/anvil/" + block.material().path() + "/top_damaged_" + stage);
+                    Identifier model = METAL_ANVIL_MODEL.createWithOverride(
+                            block,
+                            "_stage_" + stage,
+                            new TextureMapping()
+                                    .put(ANVIL_BODY, new Material(body))
+                                    .put(TextureSlot.TOP, new Material(top))
+                                    .putForced(TextureSlot.PARTICLE, new Material(body)),
+                            models.modelOutput);
+                    return BlockModelGenerators.plainVariant(model);
+                });
+        models.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(block)
+                        .with(stages)
+                        .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING_ALT));
+        models.registerSimpleItemModel(
+                block,
+                net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation(block, "_stage_0"));
     }
 
     private static void generateFishingRod(

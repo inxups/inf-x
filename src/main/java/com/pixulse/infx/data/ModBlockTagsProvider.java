@@ -24,7 +24,12 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.NETHERRACK_FURNACE.getKey())
                 .add(ModBlocks.SILVER_ORE.getKey())
                 .add(ModBlocks.MITHRIL_ORE.getKey())
-                .add(ModBlocks.ADAMANTIUM_ORE.getKey());
+                .add(ModBlocks.ADAMANTIUM_ORE.getKey())
+                .add(ModBlocks.SILVER_BLOCK.getKey())
+                .add(ModBlocks.ANCIENT_METAL_BLOCK.getKey())
+                .add(ModBlocks.MITHRIL_BLOCK.getKey())
+                .add(ModBlocks.ADAMANTIUM_BLOCK.getKey());
+        ModBlocks.METAL_ANVILS.forEach(anvil -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(anvil.getKey()));
         tag(ModTags.Blocks.RESTRICTED_HARVEST)
                 .addTag(BlockTags.LOGS)
                 .addTag(BlockTags.MINEABLE_WITH_PICKAXE);
@@ -32,7 +37,15 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         tag(ModTags.Blocks.requiredTier(HarvestTier.COPPER)).addTag(BlockTags.MINEABLE_WITH_PICKAXE);
         tag(ModTags.Blocks.requiredTier(HarvestTier.IRON))
                 .add(ModBlocks.OBSIDIAN_FURNACE.getKey())
-                .add(ModBlocks.MITHRIL_ORE.getKey());
-        tag(ModTags.Blocks.requiredTier(HarvestTier.MITHRIL)).add(ModBlocks.ADAMANTIUM_ORE.getKey());
+                .add(ModBlocks.MITHRIL_ORE.getKey())
+                .add(ModBlocks.ANCIENT_METAL_BLOCK.getKey())
+                .add(ModBlocks.ANCIENT_METAL_ANVIL.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.ANCIENT_METAL))
+                .add(ModBlocks.MITHRIL_BLOCK.getKey())
+                .add(ModBlocks.MITHRIL_ANVIL.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.MITHRIL))
+                .add(ModBlocks.ADAMANTIUM_ORE.getKey())
+                .add(ModBlocks.ADAMANTIUM_BLOCK.getKey())
+                .add(ModBlocks.ADAMANTIUM_ANVIL.getKey());
     }
 }

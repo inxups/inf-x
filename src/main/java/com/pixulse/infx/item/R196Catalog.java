@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -59,7 +60,19 @@ public final class R196Catalog {
         Map<R196EquipmentKey, EquipmentEntry> equipmentByKey = new LinkedHashMap<>();
 
         for (R196RawItem definition : R196RawItem.values()) {
-            RawEntry entry = new RawEntry(definition, items.registerSimpleItem(definition.path()));
+            DeferredItem<Item> holder = items.registerItem(
+                    definition.path(),
+                    properties -> definition.kind() == R196RawItem.Kind.COIN
+                            ? new R196CoinItem(definition, properties)
+                            : definition.kind() == R196RawItem.Kind.FERTILIZER
+                                    ? new R196ManureItem(properties)
+                                    : new Item(properties),
+                    properties -> definition.material()
+                                    .filter(material -> material.has(R196Material.Flag.LAVA_SAFE))
+                                    .isPresent()
+                            ? properties.fireResistant()
+                            : properties);
+            RawEntry entry = new RawEntry(definition, holder);
             if (rawByPath.put(entry.path(), entry) != null) {
                 throw new IllegalStateException("Duplicate R196 raw item: " + entry.path());
             }
@@ -120,6 +133,24 @@ public final class R196Catalog {
                 yield new EquipmentEntry(key, holder, R196ToolItem.class);
             }
         };
+    }
+
+    public EquipmentEntry equipment(Item item) {
+        return equipmentEntries.stream()
+                .filter(entry -> entry.holder().value() == item)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public EquipmentEntry equipment(ItemStack stack) {
+        return equipment(stack.getItem());
+    }
+
+    public RawEntry raw(Item item) {
+        return rawEntries.stream()
+                .filter(entry -> entry.holder().value() == item)
+                .findFirst()
+                .orElse(null);
     }
 
     public List<RawEntry> rawEntries() {

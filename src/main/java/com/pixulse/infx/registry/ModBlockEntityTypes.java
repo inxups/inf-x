@@ -2,6 +2,7 @@ package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
+import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -20,6 +21,17 @@ public final class ModBlockEntityTypes {
                     ModBlocks.HARDENED_CLAY_FURNACE.get(),
                     ModBlocks.OBSIDIAN_FURNACE.get(),
                     ModBlocks.NETHERRACK_FURNACE.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MetalAnvilBlockEntity>> METAL_ANVIL =
+            TYPES.register("metal_anvil", () -> new BlockEntityType<>(
+                    MetalAnvilBlockEntity::new,
+                    ModBlocks.COPPER_ANVIL.get(),
+                    ModBlocks.SILVER_ANVIL.get(),
+                    ModBlocks.GOLD_ANVIL.get(),
+                    ModBlocks.IRON_ANVIL.get(),
+                    ModBlocks.ANCIENT_METAL_ANVIL.get(),
+                    ModBlocks.MITHRIL_ANVIL.get(),
+                    ModBlocks.ADAMANTIUM_ANVIL.get()));
 
     private ModBlockEntityTypes() {}
 

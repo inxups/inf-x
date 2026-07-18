@@ -69,9 +69,9 @@ class GravelDropSelectorTest {
     }
 
     @Test
-    void removedDiamondShardBranchFallsBackToGravel() {
+    void selectsDiamondShardBranch() {
         assertDrop(
-                GravelDrop.GRAVEL,
+                GravelDrop.DIAMOND_SHARD,
                 0,
                 roll(12, 0),
                 roll(3, 0), roll(3, 0), roll(3, 0), roll(3, 0), roll(3, 0), roll(3, 0), roll(3, 1));

@@ -220,5 +220,36 @@ final class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         ModItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
         locale.baseTranslations.forEach(this::add);
+        for (var anvil : com.pixulse.infx.registry.ModBlocks.METAL_ANVILS) {
+            String material = anvil.get().material().path();
+            String name = locale == Locale.EN_US
+                    ? anvil.get().material().englishNoun() + " Anvil"
+                    : anvil.get().material().chinesePrefix() + "砧";
+            add("block.infx." + material + "_anvil", name);
+        }
+        add("container.infx.metal_anvil", locale == Locale.EN_US ? "Metal Anvil" : "金属砧");
+        add("block.infx.silver_block", locale == Locale.EN_US ? "Block of Silver" : "银块");
+        add("block.infx.ancient_metal_block", locale == Locale.EN_US ? "Block of Ancient Metal" : "远古金属块");
+        add("block.infx.mithril_block", locale == Locale.EN_US ? "Block of Mithril" : "秘银块");
+        add("block.infx.adamantium_block", locale == Locale.EN_US ? "Block of Adamantium" : "艾德曼块");
+        for (com.pixulse.infx.material.R196Quality quality : com.pixulse.infx.material.R196Quality.values()) {
+            String english = switch (quality) {
+                case POOR -> "Poor Quality";
+                case FINE -> "Fine Quality";
+                case EXCELLENT -> "Excellent Quality";
+                case SUPERB -> "Superb Quality";
+                case MASTERWORK -> "Masterwork";
+                case LEGENDARY -> "Legendary";
+            };
+            String chinese = switch (quality) {
+                case POOR -> "粗劣品质";
+                case FINE -> "精良品质";
+                case EXCELLENT -> "优秀品质";
+                case SUPERB -> "卓越品质";
+                case MASTERWORK -> "大师之作";
+                case LEGENDARY -> "传奇品质";
+            };
+            add("quality.infx." + quality.getSerializedName(), locale == Locale.EN_US ? english : chinese);
+        }
     }
 }

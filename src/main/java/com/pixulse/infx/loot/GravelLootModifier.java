@@ -15,6 +15,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
@@ -49,7 +50,11 @@ public final class GravelLootModifier extends LootModifier {
         }
 
         int fortune = fortuneLevel(context);
-        ItemStack replacement = createStack(GravelDropSelector.select(fortune, context.getRandom()::nextInt));
+        GravelDrop selected = GravelDropSelector.select(fortune, context.getRandom()::nextInt);
+        if (selected == GravelDrop.DIAMOND_SHARD && context.getLevel().dimension() == Level.NETHER) {
+            selected = GravelDrop.NETHER_QUARTZ_SHARD;
+        }
+        ItemStack replacement = createStack(selected);
         FirstLootUnitReplacer.replace(
                 generatedLoot,
                 stack -> stack.is(Items.GRAVEL) || stack.is(Items.FLINT),
@@ -78,6 +83,8 @@ public final class GravelLootModifier extends LootModifier {
             case GOLD_NUGGET -> new ItemStack(Items.GOLD_NUGGET);
             case OBSIDIAN_SHARD -> ModItems.OBSIDIAN_SHARD.toStack();
             case EMERALD_SHARD -> ModItems.EMERALD_SHARD.toStack();
+            case DIAMOND_SHARD -> ModItems.catalog().raw("diamond_shard").holder().toStack();
+            case NETHER_QUARTZ_SHARD -> ModItems.catalog().raw("nether_quartz_shard").holder().toStack();
             case MITHRIL_NUGGET -> ModItems.MITHRIL_NUGGET.toStack();
             case ADAMANTIUM_NUGGET -> ModItems.ADAMANTIUM_NUGGET.toStack();
         };

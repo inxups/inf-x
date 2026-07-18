@@ -2,17 +2,42 @@ package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.world.Underworld;
+import java.util.Optional;
 import java.util.List;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TimelineTags;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.world.attribute.AmbientSounds;
+import net.minecraft.world.attribute.BedRule;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
+import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.CardinalLighting;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.NoiseRouterData;
+import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
@@ -25,6 +50,7 @@ import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.timeline.Timeline;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -34,10 +60,14 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
+    public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("mithril_ore"));
+    public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
@@ -49,12 +79,17 @@ final class ModWorldGen {
         return new RegistrySetBuilder()
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
+                .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
+                .add(Registries.DIMENSION_TYPE, ModWorldGen::bootstrapDimensionTypes)
+                .add(Registries.NOISE_SETTINGS, ModWorldGen::bootstrapNoiseSettings)
+                .add(Registries.LEVEL_STEM, ModWorldGen::bootstrapLevelStems)
                 .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModWorldGen::bootstrapBiomeModifiers);
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         registerConfiguredOre(context, SILVER_ORE_CONFIGURED, ModBlocks.SILVER_ORE.get().defaultBlockState(), 6);
         registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, ModBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
+        registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, ModBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
     }
 
     private static void registerConfiguredOre(
@@ -77,6 +112,109 @@ final class ModWorldGen {
                 context.lookup(Registries.CONFIGURED_FEATURE);
         registerPlacedOre(context, configuredFeatures, SILVER_ORE_CONFIGURED, SILVER_ORE_PLACED, 96);
         registerPlacedOre(context, configuredFeatures, MITHRIL_ORE_CONFIGURED, MITHRIL_ORE_PLACED, 32);
+        context.register(
+                ADAMANTIUM_ORE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ADAMANTIUM_ORE_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(8),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.of(BiasedToBottomHeight.of(
+                                        VerticalAnchor.absolute(0), VerticalAnchor.absolute(136), 1)),
+                                BiomeFilter.biome())));
+    }
+
+    private static void bootstrapBiomes(BootstrapContext<Biome> context) {
+        HolderGetter<PlacedFeature> placed = context.lookup(Registries.PLACED_FEATURE);
+        var carvers = context.lookup(Registries.CONFIGURED_CARVER);
+        MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
+        BiomeDefaultFeatures.commonSpawns(mobs, 120);
+        mobs.addSpawn(MobCategory.MONSTER, 20, new MobSpawnSettings.SpawnerData(EntityTypes.CAVE_SPIDER, 1, 2));
+
+        BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
+        BiomeDefaultFeatures.addDefaultCarversAndLakes(generation);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(generation);
+        BiomeDefaultFeatures.addDefaultUndergroundVariety(generation);
+        BiomeDefaultFeatures.addDefaultOres(generation);
+        BiomeDefaultFeatures.addDefaultMushrooms(generation);
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(SILVER_ORE_PLACED));
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(MITHRIL_ORE_PLACED));
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(ADAMANTIUM_ORE_PLACED));
+
+        context.register(
+                Underworld.BIOME,
+                new Biome.BiomeBuilder()
+                        .hasPrecipitation(false)
+                        .temperature(0.5F)
+                        .downfall(0.0F)
+                        .specialEffects(new BiomeSpecialEffects.Builder()
+                                .waterColor(4_159_204)
+                                .build())
+                        .setAttribute(EnvironmentAttributes.FOG_COLOR, 1_710_619)
+                        .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
+                        .mobSpawnSettings(mobs.build())
+                        .generationSettings(generation.build())
+                        .build());
+    }
+
+    private static void bootstrapDimensionTypes(BootstrapContext<DimensionType> context) {
+        HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
+        HolderGetter<Timeline> timelines = context.lookup(Registries.TIMELINE);
+        context.register(
+                Underworld.TYPE,
+                new DimensionType(
+                        true,
+                        false,
+                        true,
+                        false,
+                        1.0,
+                        0,
+                        256,
+                        256,
+                        blocks.getOrThrow(BlockTags.INFINIBURN_OVERWORLD),
+                        0.05F,
+                        new DimensionType.MonsterSettings(ConstantInt.of(7), 15),
+                        DimensionType.Skybox.NONE,
+                        CardinalLighting.Type.NETHER,
+                        EnvironmentAttributeMap.builder()
+                                .set(EnvironmentAttributes.FOG_START_DISTANCE, 8.0F)
+                                .set(EnvironmentAttributes.FOG_END_DISTANCE, 96.0F)
+                                .set(EnvironmentAttributes.SKY_LIGHT_FACTOR, 0.0F)
+                                .set(EnvironmentAttributes.BED_RULE, BedRule.EXPLODES)
+                                .set(EnvironmentAttributes.RESPAWN_ANCHOR_WORKS, false)
+                                .set(EnvironmentAttributes.CAN_START_RAID, false)
+                                .set(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
+                                .build(),
+                        timelines.getOrThrow(TimelineTags.IN_NETHER),
+                        Optional.empty()));
+    }
+
+    private static void bootstrapNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
+        NoiseGeneratorSettings caves = NoiseGeneratorSettings.caves(context);
+        context.register(
+                Underworld.NOISE,
+                new NoiseGeneratorSettings(
+                        NoiseSettings.create(0, 256, 1, 2),
+                        Blocks.STONE.defaultBlockState(),
+                        Blocks.WATER.defaultBlockState(),
+                        caves.noiseRouter(),
+                        caves.surfaceRule(),
+                        List.of(),
+                        32,
+                        false,
+                        false,
+                        false,
+                        true));
+    }
+
+    private static void bootstrapLevelStems(BootstrapContext<LevelStem> context) {
+        context.register(
+                Underworld.STEM,
+                new LevelStem(
+                        context.lookup(Registries.DIMENSION_TYPE).getOrThrow(Underworld.TYPE),
+                        new NoiseBasedChunkGenerator(
+                                new FixedBiomeSource(context.lookup(Registries.BIOME).getOrThrow(Underworld.BIOME)),
+                                context.lookup(Registries.NOISE_SETTINGS).getOrThrow(Underworld.NOISE))));
     }
 
     private static void registerPlacedOre(

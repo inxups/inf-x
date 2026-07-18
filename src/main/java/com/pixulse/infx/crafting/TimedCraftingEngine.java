@@ -18,6 +18,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
+import com.pixulse.infx.equipment.R196QualitySystem;
 
 public final class TimedCraftingEngine {
     private TimedCraftingEngine() {}
@@ -46,6 +47,10 @@ public final class TimedCraftingEngine {
         if (result.setRecipeUsed(player, holder)) {
             ItemStack assembled = holder.value().assemble(timedMenu.infx$craftingContainer().asCraftInput());
             if (assembled.isItemEnabled(player.level().enabledFeatures())) {
+                int code = R196QualitySystem.clampCode(
+                        assembled, player, holder.value().difficulty(), timedMenu.infx$selectedQualityCode());
+                timedMenu.infx$setSelectedQualityCode(code);
+                R196QualitySystem.applySelectedQuality(assembled, code);
                 preview = assembled;
             }
         }
@@ -66,10 +71,30 @@ public final class TimedCraftingEngine {
             return;
         }
         RecipeHolder<TimedCraftingRecipe> holder = match.orElseThrow();
+        float adjustedDifficulty = R196QualitySystem.adjustedDifficulty(
+                holder.value().difficulty(), timedMenu.infx$selectedQualityCode());
         int requiredTicks = CraftingTimeCalculator.requiredTicks(
-                holder.value().difficulty(), player.experienceLevel, timedMenu.infx$benchTier());
+                adjustedDifficulty, player.experienceLevel, timedMenu.infx$benchTier());
         timedMenu.infx$craftingState().start(recipeId(holder.id()), requiredTicks);
         timedMenu.infx$syncCraftingData();
+    }
+
+    public static void cycleQuality(TimedCraftingMenu timedMenu, ServerPlayer player) {
+        Optional<RecipeHolder<TimedCraftingRecipe>> match = findRecipe(timedMenu, player.level());
+        if (match.isEmpty()) {
+            timedMenu.infx$setSelectedQualityCode(R196QualitySystem.AVERAGE_CODE);
+            return;
+        }
+        RecipeHolder<TimedCraftingRecipe> holder = match.orElseThrow();
+        ItemStack output = holder.value().assemble(timedMenu.infx$craftingContainer().asCraftInput());
+        int code = R196QualitySystem.cycleCode(
+                output,
+                player,
+                holder.value().difficulty(),
+                timedMenu.infx$selectedQualityCode());
+        timedMenu.infx$setSelectedQualityCode(code);
+        timedMenu.infx$resetTimedCrafting();
+        refreshResult(timedMenu, player, true);
     }
 
     public static void tick(TimedCraftingMenu timedMenu, ServerPlayer player) {
@@ -128,6 +153,16 @@ public final class TimedCraftingEngine {
             timedMenu.infx$resetTimedCrafting();
             return;
         }
+        int qualityCode = R196QualitySystem.clampCode(
+                output, player, recipe.difficulty(), timedMenu.infx$selectedQualityCode());
+        R196QualitySystem.applySelectedQuality(output, qualityCode);
+        var quality = R196QualitySystem.fromCode(qualityCode);
+        int qualityCost = R196QualitySystem.experienceCost(recipe.difficulty(), quality);
+        if (qualityCost > player.totalExperience) {
+            timedMenu.infx$resetTimedCrafting();
+            refreshResult(timedMenu, player, true);
+            return;
+        }
 
         NonNullList<ItemStack> remaining;
         CommonHooks.setCraftingPlayer(player);
@@ -142,6 +177,9 @@ public final class TimedCraftingEngine {
         EventHooks.firePlayerCraftingEvent(player, output, craftSlots);
         timedMenu.infx$resultContainer().setRecipeUsed(holder);
         timedMenu.infx$resultContainer().awardUsedRecipes(player, inputsForCriterion);
+        if (qualityCost > 0) {
+            player.giveExperiencePoints(-qualityCost);
+        }
 
         consumeInputsAndReturnContainers(player, craftSlots, positioned, remaining);
         CraftingOutputDistributor.giveOrDrop(
@@ -154,8 +192,10 @@ public final class TimedCraftingEngine {
                         .map(next -> next.id().equals(holder.id()))
                         .orElse(false);
         if (stillSameRecipe) {
+            float adjustedDifficulty = R196QualitySystem.adjustedDifficulty(
+                    recipe.difficulty(), timedMenu.infx$selectedQualityCode());
             int requiredTicks = CraftingTimeCalculator.requiredTicks(
-                    recipe.difficulty(), player.experienceLevel, timedMenu.infx$benchTier());
+                    adjustedDifficulty, player.experienceLevel, timedMenu.infx$benchTier());
             timedMenu.infx$craftingState().start(recipeId(holder.id()), requiredTicks);
         } else {
             timedMenu.infx$resetTimedCrafting();
