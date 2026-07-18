@@ -73,9 +73,7 @@ public final class TimedWorkbenchMenu extends AbstractCraftingMenu implements Ti
             BenchTier benchTier,
             RegistryFriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
-        Block expected = benchTier == BenchTier.FLINT
-                ? ModBlocks.FLINT_WORKBENCH.get()
-                : ModBlocks.COPPER_WORKBENCH.get();
+        Block expected = ModBlocks.workbench(benchTier).get();
         return new TimedWorkbenchMenu(
                 containerId,
                 inventory,
@@ -85,7 +83,7 @@ public final class TimedWorkbenchMenu extends AbstractCraftingMenu implements Ti
     }
 
     private static MenuType<TimedWorkbenchMenu> menuType(BenchTier tier) {
-        return tier == BenchTier.FLINT ? ModMenus.FLINT_WORKBENCH.get() : ModMenus.COPPER_WORKBENCH.get();
+        return ModMenus.workbench(tier).get();
     }
 
     @Override

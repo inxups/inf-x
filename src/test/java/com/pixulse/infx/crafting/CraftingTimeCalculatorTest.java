@@ -28,7 +28,14 @@ class CraftingTimeCalculatorTest {
         assertEquals(196, CraftingTimeCalculator.requiredTicks(400.0, 0, BenchTier.HAND));
         assertEquals(130, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.HAND));
         assertEquals(115, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.FLINT));
+        assertEquals(115, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.OBSIDIAN));
         assertEquals(108, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.COPPER));
+        assertEquals(108, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.SILVER));
+        assertEquals(108, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.GOLD));
+        assertEquals(103, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.IRON));
+        assertEquals(98, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.ANCIENT_METAL));
+        assertEquals(93, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.MITHRIL));
+        assertEquals(89, CraftingTimeCalculator.requiredTicks(400.0, 25, BenchTier.ADAMANTIUM));
     }
 
     @Test

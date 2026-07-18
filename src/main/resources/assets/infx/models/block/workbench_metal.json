@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/oak_planks",
+    "east": "#side",
+    "north": "#front",
+    "particle": "#side",
+    "south": "#front",
+    "up": "minecraft:block/crafting_table_top",
+    "west": "#side"
+  }
+}

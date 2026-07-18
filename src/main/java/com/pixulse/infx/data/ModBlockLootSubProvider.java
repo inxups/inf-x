@@ -1,7 +1,6 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.registry.ModBlocks;
-import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.HolderLookup;
@@ -16,12 +15,11 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
-        dropSelf(ModBlocks.FLINT_WORKBENCH.get());
-        dropSelf(ModBlocks.COPPER_WORKBENCH.get());
+        ModBlocks.WORKBENCHES.forEach(workbench -> dropSelf(workbench.get()));
     }
 
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return List.of(ModBlocks.FLINT_WORKBENCH.get(), ModBlocks.COPPER_WORKBENCH.get());
+        return ModBlocks.WORKBENCHES.stream().map(workbench -> (Block) workbench.get()).toList();
     }
 }

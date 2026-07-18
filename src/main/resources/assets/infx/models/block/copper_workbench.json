@@ -1,12 +1,7 @@
 {
-  "parent": "minecraft:block/cube",
+  "parent": "infx:block/workbench_metal",
   "textures": {
-    "down": "minecraft:block/copper_block",
-    "east": "infx:block/copper_workbench_side",
-    "north": "infx:block/copper_workbench_front",
-    "particle": "minecraft:block/copper_block",
-    "south": "infx:block/copper_workbench_front",
-    "up": "minecraft:block/copper_block",
-    "west": "infx:block/copper_workbench_side"
+    "front": "infx:block/copper_workbench_front",
+    "side": "infx:block/copper_workbench_side"
   }
 }

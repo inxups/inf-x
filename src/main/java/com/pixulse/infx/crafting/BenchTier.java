@@ -4,13 +4,22 @@ import java.util.Locale;
 import java.util.Optional;
 
 public enum BenchTier {
-    HAND(0.0),
-    FLINT(0.2),
-    COPPER(0.3);
+    HAND(0, 0.0),
+    FLINT(1, 0.2),
+    COPPER(4, 0.3),
+    SILVER(4, 0.3),
+    GOLD(4, 0.3),
+    IRON(8, 0.4),
+    ANCIENT_METAL(16, 0.5),
+    MITHRIL(64, 0.6),
+    ADAMANTIUM(256, 0.7),
+    OBSIDIAN(2, 0.2);
 
+    private final int capability;
     private final double speedBonus;
 
-    BenchTier(double speedBonus) {
+    BenchTier(int capability, double speedBonus) {
+        this.capability = capability;
         this.speedBonus = speedBonus;
     }
 
@@ -19,7 +28,22 @@ public enum BenchTier {
     }
 
     public boolean supports(BenchTier requiredBench) {
-        return ordinal() >= requiredBench.ordinal();
+        return capability >= requiredBench.capability;
+    }
+
+    public boolean isWorkbench() {
+        return this != HAND;
+    }
+
+    public BenchTier recipeTier() {
+        return switch (this) {
+            case SILVER, GOLD -> COPPER;
+            default -> this;
+        };
+    }
+
+    public boolean isRecipeTier() {
+        return recipeTier() == this;
     }
 
     public String serializedName() {

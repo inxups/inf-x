@@ -1,0 +1,7 @@
+{
+  "parent": "infx:block/workbench_metal",
+  "textures": {
+    "front": "infx:block/adamantium_workbench_front",
+    "side": "infx:block/adamantium_workbench_side"
+  }
+}

@@ -85,19 +85,37 @@ final class ModRecipeProvider extends RecipeProvider {
                         'L', ingredient(ItemTags.LOGS)),
                 List.of("FB", "SL"));
         addShaped(
-                "copper_workbench",
-                BenchTier.FLINT,
-                605.0F,
+                "obsidian_workbench",
+                BenchTier.HAND,
+                410.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                ModBlocks.COPPER_WORKBENCH,
+                ModBlocks.OBSIDIAN_WORKBENCH,
                 1,
                 Map.of(
-                        'I', Ingredient.of(Items.COPPER_INGOT),
-                        'L', Ingredient.of(Items.LEATHER),
+                        'O', Ingredient.of(Items.OBSIDIAN),
+                        'B', ingredient(ModTags.Items.BINDINGS),
                         'S', Ingredient.of(Items.STICK),
-                        'P', ingredient(ItemTags.PLANKS)),
-                List.of("IL", "SP"));
+                        'L', ingredient(ItemTags.LOGS)),
+                List.of("OB", "SL"));
+        addMetalWorkbench("copper", BenchTier.FLINT, 605.0F, Items.COPPER_INGOT, ModBlocks.COPPER_WORKBENCH);
+        addMetalWorkbench("silver", BenchTier.FLINT, 605.0F, ModItems.SILVER_INGOT, ModBlocks.SILVER_WORKBENCH);
+        addMetalWorkbench("gold", BenchTier.FLINT, 605.0F, Items.GOLD_INGOT, ModBlocks.GOLD_WORKBENCH);
+        addMetalWorkbench("iron", BenchTier.COPPER, 1005.0F, Items.IRON_INGOT, ModBlocks.IRON_WORKBENCH);
+        addMetalWorkbench(
+                "ancient_metal",
+                BenchTier.IRON,
+                1805.0F,
+                ModItems.ANCIENT_METAL_INGOT,
+                ModBlocks.ANCIENT_METAL_WORKBENCH);
+        addMetalWorkbench(
+                "mithril", BenchTier.ANCIENT_METAL, 6605.0F, ModItems.MITHRIL_INGOT, ModBlocks.MITHRIL_WORKBENCH);
+        addMetalWorkbench(
+                "adamantium",
+                BenchTier.MITHRIL,
+                25805.0F,
+                ModItems.ADAMANTIUM_INGOT,
+                ModBlocks.ADAMANTIUM_WORKBENCH);
         addShaped(
                 "copper_ingot_from_nuggets",
                 BenchTier.FLINT,
@@ -155,6 +173,24 @@ final class ModRecipeProvider extends RecipeProvider {
                 result,
                 count,
                 List.of(ingredient(logs)));
+    }
+
+    private void addMetalWorkbench(
+            String material, BenchTier requiredBench, float difficulty, ItemLike ingot, ItemLike result) {
+        addShaped(
+                material + "_workbench",
+                requiredBench,
+                difficulty,
+                CraftingBookCategory.BUILDING,
+                "",
+                result,
+                1,
+                Map.of(
+                        'I', Ingredient.of(ingot),
+                        'L', Ingredient.of(Items.LEATHER),
+                        'S', Ingredient.of(Items.STICK),
+                        'P', ingredient(ItemTags.PLANKS)),
+                List.of("IL", "SP"));
     }
 
     private void addShaped(

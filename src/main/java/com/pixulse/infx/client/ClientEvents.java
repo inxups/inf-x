@@ -24,8 +24,7 @@ public final class ClientEvents {
 
     @SubscribeEvent
     private static void registerScreens(RegisterMenuScreensEvent event) {
-        event.register(ModMenus.FLINT_WORKBENCH.get(), TimedWorkbenchScreen::new);
-        event.register(ModMenus.COPPER_WORKBENCH.get(), TimedWorkbenchScreen::new);
+        ModMenus.WORKBENCHES.forEach(menu -> event.register(menu.get(), TimedWorkbenchScreen::new));
     }
 
     @SubscribeEvent

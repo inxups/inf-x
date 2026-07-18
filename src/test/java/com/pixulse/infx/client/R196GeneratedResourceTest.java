@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.registry.ModItems;
@@ -42,6 +43,29 @@ class R196GeneratedResourceTest {
                     () -> assertTrue(Files.isRegularFile(model), "missing base model"),
                     () -> assertTrue(english.has("item.infx." + entry.path()), "missing en_us"),
                     () -> assertTrue(chinese.has("item.infx." + entry.path()), "missing zh_cn"));
+        }
+    }
+
+    @Test
+    void everyWorkbenchHasClientDataLootRecipeAndTranslations() throws Exception {
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        for (BenchTier tier : BenchTier.values()) {
+            if (!tier.isWorkbench()) {
+                continue;
+            }
+            String path = tier.serializedName() + "_workbench";
+            assertAll(
+                    path,
+                    () -> assertTrue(Files.isRegularFile(STATIC.resolve("assets/infx/blockstates/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(STATIC.resolve("assets/infx/items/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(STATIC.resolve("assets/infx/models/block/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/loot_table/blocks/" + path + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + path + ".json"))),
+                    () -> assertTrue(english.has("block.infx." + path)),
+                    () -> assertTrue(english.has("container.infx." + path)),
+                    () -> assertTrue(chinese.has("block.infx." + path)),
+                    () -> assertTrue(chinese.has("container.infx." + path)));
         }
     }
 
@@ -151,6 +175,9 @@ class R196GeneratedResourceTest {
         assertTrue(destinations.removeIf(
                 path -> path.matches("textures/item/leather_(helmet|chestplate|leggings|boots)_overlay\\.png")));
         assertTrue(destinations.removeIf(path -> path.startsWith("textures/entity/equipment/")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/(flint|obsidian)_workbench_top\\.png"
+                        + "|textures/block/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_workbench_(front|side)\\.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));
