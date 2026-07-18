@@ -13,8 +13,10 @@ import net.minecraft.data.PackOutput;
 final class DisabledVanillaRecipesProvider implements DataProvider {
     private static final List<String> DISABLED_RECIPES = List.of(
             "acacia_planks",
+            "arrow",
             "bamboo_planks",
             "birch_planks",
+            "bow",
             "cherry_planks",
             "crimson_planks",
             "dark_oak_planks",

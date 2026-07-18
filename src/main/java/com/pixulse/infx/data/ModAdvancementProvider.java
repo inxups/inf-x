@@ -60,6 +60,10 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .addCriterion(
                         "crafted_hatchet",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_hatchet")))
+                .addCriterion(
+                        "crafted_flint_knife",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_knife")))
+                .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/cutting_edge"));
         output.accept(cuttingEdge);
 
@@ -77,6 +81,18 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_workbench")))
                 .build(InfiniteX.id("progression/build_work_bench"));
         output.accept(buildWorkbench);
+
+        AdvancementHolder buildClub = child(
+                        "build_club",
+                        buildWorkbench,
+                        ModItems.catalog()
+                                .equipment(R196Material.WOOD, R196EquipmentType.CLUB)
+                                .holder())
+                .addCriterion(
+                        "crafted_wood_club",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("wood_club")))
+                .build(InfiniteX.id("progression/build_club"));
+        output.accept(buildClub);
 
         Advancement.Builder buildAxe = child("build_axe", buildWorkbench, ModItems.FLINT_AXE)
                 .addCriterion(
