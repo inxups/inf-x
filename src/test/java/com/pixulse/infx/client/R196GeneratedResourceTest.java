@@ -811,6 +811,10 @@ class R196GeneratedResourceTest {
                 .getAsJsonObject("minecraft:gameplay/bed_rule");
         JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
+        Set<String> underworldFeatures = biome.getAsJsonArray("features").asList().stream()
+                .flatMap(step -> step.getAsJsonArray().asList().stream())
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
         int underworldMinY = dimensionType.get("min_y").getAsInt();
         JsonObject miteDensity = json(GENERATED.resolve(
                 "data/infx/worldgen/density_function/mite_r196_first_cave.json"));
@@ -970,12 +974,21 @@ class R196GeneratedResourceTest {
                 () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
-                () -> assertTrue(biome.toString().contains("minecraft:monster_room")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:monster_room")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:monster_room_deep")),
+                () -> assertFalse(underworldFeatures.contains("minecraft:lake_lava_underground")),
+                () -> assertFalse(underworldFeatures.contains("minecraft:lake_lava_surface")),
+                () -> assertFalse(underworldFeatures.contains("minecraft:ore_dirt")),
+                () -> assertFalse(underworldFeatures.stream().anyMatch(feature -> feature.contains("ore_coal"))),
+                () -> assertFalse(underworldFeatures.stream().anyMatch(feature -> feature.contains("mushroom"))),
+                () -> assertTrue(underworldFeatures.contains("minecraft:ore_gravel")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:ore_iron_upper")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:glow_lichen")),
                 () -> assertTrue(biome.toString().contains("minecraft:cave_spider")),
-                () -> assertTrue(biome.toString().contains("infx:silver_ore")),
-                () -> assertTrue(biome.toString().contains("infx:mithril_ore")),
-                () -> assertTrue(biome.toString().contains("infx:underworld_adamantium_ore")),
-                () -> assertTrue(biome.toString().contains("infx:underworld_mantle_basin")));
+                () -> assertTrue(underworldFeatures.contains("infx:silver_ore")),
+                () -> assertTrue(underworldFeatures.contains("infx:mithril_ore")),
+                () -> assertTrue(underworldFeatures.contains("infx:underworld_adamantium_ore")),
+                () -> assertTrue(underworldFeatures.contains("infx:underworld_mantle_basin")));
 
         JsonObject configured = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"));
@@ -1045,7 +1058,7 @@ class R196GeneratedResourceTest {
     }
 
     @Test
-    void overworldStopsAtMinusSixteenAndExcludesUndergroundStructures() throws Exception {
+    void overworldStopsAtMinusSixteenAndMovesUndergroundStructuresToUnderworld() throws Exception {
         JsonObject dimensionType = json(GENERATED.resolve("data/minecraft/dimension_type/overworld.json"));
         assertAll(
                 "Overworld build height",
@@ -1087,7 +1100,10 @@ class R196GeneratedResourceTest {
             assertAll(
                     structure,
                     () -> assertTrue(tag.get("replace").getAsBoolean()),
-                    () -> assertEquals(0, tag.getAsJsonArray("values").size()));
+                    () -> assertEquals(1, tag.getAsJsonArray("values").size()),
+                    () -> assertEquals(
+                            "infx:underworld",
+                            tag.getAsJsonArray("values").get(0).getAsString()));
         }
 
         JsonObject stronghold = json(GENERATED.resolve(
