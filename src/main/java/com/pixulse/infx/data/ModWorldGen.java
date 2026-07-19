@@ -333,7 +333,7 @@ final class ModWorldGen {
                                 CountPlacement.of(2),
                                 InSquarePlacement.spread(),
                                 HeightRangePlacement.uniform(
-                                        VerticalAnchor.absolute(120), VerticalAnchor.absolute(136)),
+                                        VerticalAnchor.aboveBottom(120), VerticalAnchor.aboveBottom(136)),
                                 BiomeFilter.biome())));
     }
 
@@ -718,14 +718,15 @@ final class ModWorldGen {
     }
 
     private static SurfaceRules.RuleSource internalBedrockBand(
-            int minimumY,
-            int maximumY,
+            int minimumAboveBottom,
+            int maximumAboveBottom,
             ResourceKey<NormalNoise.NoiseParameters> gapNoise,
             SurfaceRules.RuleSource bedrock) {
         return SurfaceRules.ifTrue(
-                SurfaceRules.yBlockCheck(VerticalAnchor.absolute(minimumY), 0),
+                SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(minimumAboveBottom), 0),
                 SurfaceRules.ifTrue(
-                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(maximumY + 1), 0)),
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(
+                                VerticalAnchor.aboveBottom(maximumAboveBottom + 1), 0)),
                         SurfaceRules.ifTrue(
                                 SurfaceRules.noiseCondition2d(gapNoise, -1.0, 0.62),
                                 bedrock)));
