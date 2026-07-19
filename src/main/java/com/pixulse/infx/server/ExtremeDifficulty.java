@@ -1,57 +1,57 @@
 package com.pixulse.infx.server;
 
-import com.mojang.brigadier.CommandDispatcher;
 import com.pixulse.infx.InfiniteX;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
-import net.minecraft.network.chat.Component;
+import java.util.Objects;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import org.jspecify.annotations.Nullable;
 
-/**
- * InfiniteX's Extreme world difficulty profile.
- *
- * <p>Minecraft's public difficulty API has {@link Difficulty#HARD} as its highest engine difficulty.
- * Extreme deliberately uses that maximum setting and persists the vanilla difficulty lock so the
- * world-selection UI cannot lower it.</p>
- */
+/** Owns the independent fifth Minecraft difficulty installed by {@code DifficultyMixin}. */
 public final class ExtremeDifficulty {
     public static final String NAME = "extreme";
-    public static final Difficulty VANILLA_DIFFICULTY = Difficulty.HARD;
+    private static @Nullable Difficulty value;
 
     private ExtremeDifficulty() {}
 
     public static void register(IEventBus gameBus) {
         gameBus.addListener(ExtremeDifficulty::onServerStarted);
-        gameBus.addListener(ExtremeDifficulty::onRegisterCommands);
     }
 
-    /** Applies the Extreme profile, including to worlds that were previously difficulty-locked. */
+    public static Difficulty value() {
+        Difficulty.values();
+        return Objects.requireNonNull(value, "Extreme difficulty was not installed by its mixin");
+    }
+
+    public static boolean isExtreme(Difficulty difficulty) {
+        return difficulty == value;
+    }
+
+    /** Applies Extreme directly so hardcore worlds are not coerced back to vanilla Hard. */
     public static void apply(MinecraftServer server) {
-        server.setDifficulty(VANILLA_DIFFICULTY, true);
+        server.getWorldData().setDifficulty(value());
+        server.updateMobSpawningFlags();
         server.setDifficultyLocked(true);
     }
 
     public static boolean isActive(Difficulty difficulty, boolean locked) {
-        return difficulty == VANILLA_DIFFICULTY && locked;
+        return isExtreme(difficulty) && locked;
+    }
+
+    /** Called from the Difficulty class initializer after the four vanilla values exist. */
+    public static void infx$bootstrap(Difficulty difficulty) {
+        if (value != null) throw new IllegalStateException("Extreme difficulty was installed twice");
+        value = difficulty;
+    }
+
+    /** Returns null only while Difficulty is still being initialized. */
+    public static @Nullable Difficulty infx$peek() {
+        return value;
     }
 
     private static void onServerStarted(ServerStartedEvent event) {
         apply(event.getServer());
         InfiniteX.LOGGER.info("InfiniteX Extreme difficulty is active and locked");
-    }
-
-    private static void onRegisterCommands(RegisterCommandsEvent event) {
-        CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        var difficulty = dispatcher.getRoot().getChild("difficulty");
-        if (difficulty == null) return;
-        difficulty.addChild(Commands.literal(NAME).executes(context -> {
-            apply(context.getSource().getServer());
-            context.getSource().sendSuccess(() -> Component.translatable("commands.infx.difficulty.extreme"), true);
-            return 1;
-        }).build());
     }
 }

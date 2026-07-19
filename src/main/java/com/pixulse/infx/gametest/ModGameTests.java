@@ -14,6 +14,9 @@ import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.progression.R196Experience;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.server.ExtremeDifficulty;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.List;
 import java.util.UUID;
@@ -23,11 +26,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.ChatFormatting;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -35,6 +41,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Inventory;
@@ -254,6 +261,8 @@ public final class ModGameTests {
             functionKey("furnace_tier_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> ADVANCED_FURNACE_RULES =
             functionKey("advanced_furnace_rules");
+    private static final ResourceKey<Consumer<GameTestHelper>> EXTREME_DIFFICULTY =
+            functionKey("extreme_difficulty");
 
     static {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
@@ -272,6 +281,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
+        TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
     }
 
     private ModGameTests() {}
@@ -300,6 +310,7 @@ public final class ModGameTests {
         registerTest(event, FURNACE_HEAT_RULES, environment, 600);
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
+        registerTest(event, EXTREME_DIFFICULTY, environment, 40);
     }
 
     private static void registerTest(
@@ -354,6 +365,48 @@ public final class ModGameTests {
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "workbenches must be recoverable with an empty hand");
 
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void extremeDifficulty(GameTestHelper helper) {
+        Difficulty extreme = ExtremeDifficulty.value();
+        Component displayName = extreme.getDisplayName();
+        Component info = extreme.getInfo();
+        ByteBuf networkBuffer = Unpooled.buffer();
+        Difficulty decodedDifficulty;
+        try {
+            Difficulty.STREAM_CODEC.encode(networkBuffer, extreme);
+            decodedDifficulty = Difficulty.STREAM_CODEC.decode(networkBuffer);
+        } finally {
+            networkBuffer.release();
+        }
+        var worldData = helper.getLevel().getServer().getWorldData();
+        var difficultyCommand = helper.getLevel()
+                .getServer()
+                .getCommands()
+                .getDispatcher()
+                .getRoot()
+                .getChild("difficulty");
+
+        helper.assertTrue(Difficulty.values().length == 5, "Difficulty.values must contain five values");
+        helper.assertTrue(extreme != Difficulty.HARD, "Extreme must be independent from vanilla Hard");
+        helper.assertTrue(extreme.ordinal() == 4 && extreme.getId() == 4, "Extreme must use ordinal and ID 4");
+        helper.assertTrue(Difficulty.valueOf("EXTREME") == extreme, "Enum.valueOf must resolve Extreme");
+        helper.assertTrue(Difficulty.byName("extreme") == extreme, "the difficulty codec must resolve extreme");
+        helper.assertTrue(decodedDifficulty == extreme, "the network codec must resolve Extreme");
+        helper.assertTrue(displayName.getString().equals("extreme"), "Extreme must use a literal lowercase name");
+        helper.assertTrue(info.getString().equals("extreme"), "Extreme info must not require a translation key");
+        helper.assertTrue(
+                TextColor.fromLegacyFormat(ChatFormatting.RED).equals(displayName.getStyle().getColor()),
+                "Extreme display text must be red");
+        helper.assertTrue(
+                TextColor.fromLegacyFormat(ChatFormatting.RED).equals(info.getStyle().getColor()),
+                "Extreme info text must be red");
+        helper.assertTrue(worldData.getDifficulty() == extreme, "the server must start on Extreme");
+        helper.assertTrue(worldData.isDifficultyLocked(), "the server must lock Extreme");
+        helper.assertTrue(
+                difficultyCommand != null && difficultyCommand.getChild("extreme") != null,
+                "/difficulty extreme must be registered by the vanilla difficulty command");
         helper.succeed();
     }
 
