@@ -18,6 +18,7 @@ public final class ModDataGenerators {
         event.createProvider(ModBiomeTagsProvider::new);
         event.createProvider(ModEntityTypeTagsProvider::new);
         event.createProvider(ModItemTagsProvider::new);
+        event.createProvider(ModEnchantmentTagsProvider::new);
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.EN_US));
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.ZH_CN));
         event.createProvider(ModModelProvider::new);

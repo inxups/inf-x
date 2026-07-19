@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Stream;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -75,7 +76,12 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.ORES.stream().map(item -> (Item) item.value()),
                         ModItems.METAL_STORAGE_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.METAL_ANVILS.stream().map(item -> (Item) item.value()),
-                        ModItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()))
+                        ModItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()),
+                        ModItems.ENCHANTING_TABLES.stream().map(item -> (Item) item.value()),
+                        ModItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
+                        Stream.concat(
+                                Stream.of(ModItems.FLOUR.value(), ModItems.WATER_BOWL.value()),
+                                ModItems.R196_FOODS.stream().map(item -> item.value())))
                 .flatMap(stream -> stream)
                 .map(BuiltInRegistries.ITEM::wrapAsHolder);
     }
@@ -105,6 +111,17 @@ final class ModModelProvider extends ModelProvider {
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
                         TextureSlot.ALL,
                         new Material(InfiniteX.id("block/adamantium_block")))));
+        ModBlocks.ENCHANTING_TABLES.forEach(table -> {
+            var model = BlockModelGenerators.plainVariant(
+                    ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
+            blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(table.value(), model));
+            blockModels.registerSimpleItemModel(table.value(), ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
+        });
+        ModBlocks.METAL_SAFES.forEach(safe -> blockModels.createTrivialBlock(
+                safe.value(),
+                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
+                        TextureSlot.ALL,
+                        new Material(safeTexture(safe.value().material()))))));
         blockModels.blockStateOutput.accept(
                 MultiVariantGenerator.dispatch(ModBlocks.UNDERWORLD_PORTAL.value())
                         .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
@@ -120,6 +137,7 @@ final class ModModelProvider extends ModelProvider {
                                                         Blocks.NETHER_PORTAL, "_ew")))));
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
+        generateR196FoodModels(itemModels);
         for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
             if (entry.key().material() == R196Material.LEATHER
                     && entry.key().type().armorForm() == R196EquipmentType.ArmorForm.PLATE) {
@@ -134,6 +152,54 @@ final class ModModelProvider extends ModelProvider {
                 case BOW -> generateMaterialBow(itemModels, entry);
             }
         }
+    }
+
+    private static void generateR196FoodModels(ItemModelGenerators models) {
+        Map<Item, String> textures = Map.ofEntries(
+                Map.entry(ModItems.FLOUR.value(), "sugar"),
+                Map.entry(ModItems.WATER_BOWL.value(), "water_bucket"),
+                Map.entry(ModItems.DOUGH.value(), "bread"),
+                Map.entry(ModItems.SALAD.value(), "beetroot_soup"),
+                Map.entry(ModItems.BLUEBERRIES.value(), "sweet_berries"),
+                Map.entry(ModItems.BLUEBERRY_PORRIDGE.value(), "rabbit_stew"),
+                Map.entry(ModItems.MILK_BOWL.value(), "milk_bucket"),
+                Map.entry(ModItems.CEREAL_PORRIDGE.value(), "mushroom_stew"),
+                Map.entry(ModItems.CHOCOLATE.value(), "cookie"),
+                Map.entry(ModItems.PUMPKIN_SOUP.value(), "pumpkin_pie"),
+                Map.entry(ModItems.CREAM_OF_MUSHROOM_SOUP.value(), "mushroom_stew"),
+                Map.entry(ModItems.ONION.value(), "beetroot"),
+                Map.entry(ModItems.VEGETABLE_SOUP.value(), "beetroot_soup"),
+                Map.entry(ModItems.CREAM_OF_VEGETABLE_SOUP.value(), "suspicious_stew"),
+                Map.entry(ModItems.CHICKEN_SOUP.value(), "rabbit_stew"),
+                Map.entry(ModItems.BEEF_STEW.value(), "rabbit_stew"),
+                Map.entry(ModItems.ORANGE.value(), "golden_apple"),
+                Map.entry(ModItems.FRUIT_ICE.value(), "honey_bottle"),
+                Map.entry(ModItems.CHEESE.value(), "honeycomb"),
+                Map.entry(ModItems.MASHED_POTATO.value(), "baked_potato"),
+                Map.entry(ModItems.ICE_CREAM.value(), "snowball"),
+                Map.entry(ModItems.BANANA.value(), "golden_carrot"),
+                Map.entry(ModItems.WORM.value(), "string"),
+                Map.entry(ModItems.COOKED_WORM.value(), "blaze_powder"));
+        textures.forEach((item, texture) -> {
+            Identifier model = ModelTemplates.FLAT_ITEM.create(
+                    ModelLocationUtils.getModelLocation(item),
+                    TextureMapping.layer0(new Material(Identifier.withDefaultNamespace("item/" + texture))),
+                    models.modelOutput);
+            models.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
+        });
+    }
+
+    private static Identifier safeTexture(R196Material material) {
+        return switch (material) {
+            case COPPER -> Identifier.withDefaultNamespace("block/copper_block");
+            case GOLD -> Identifier.withDefaultNamespace("block/gold_block");
+            case IRON -> Identifier.withDefaultNamespace("block/iron_block");
+            case SILVER -> InfiniteX.id("block/silver_block");
+            case ANCIENT_METAL -> InfiniteX.id("block/ancient_metal_block");
+            case MITHRIL -> InfiniteX.id("block/mithril_block");
+            case ADAMANTIUM -> InfiniteX.id("block/adamantium_block");
+            default -> Identifier.withDefaultNamespace("block/iron_block");
+        };
     }
 
     private static void generateLargeClayOven(BlockModelGenerators models) {

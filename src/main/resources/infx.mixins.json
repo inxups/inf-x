@@ -5,13 +5,19 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "AbstractFurnaceBlockEntityMixin",
+    "CakeBlockMixin",
+    "ChunkGeneratorMixin",
+    "EggItemMixin",
+    "EnchantmentMenuAccessor",
     "FurnaceFuelSlotMixin",
     "FurnaceInputSlotMixin",
+    "FoodDataMixin",
     "GameTestServerMixin",
     "InventoryMenuMixin",
     "HopperBlockEntityMixin",
     "PlayerExperienceMixin",
-    "PlayerAttackRangeMixin"
+    "PlayerAttackRangeMixin",
+    "PlayerFoodMixin"
   ],
   "injectors": {
     "defaultRequire": 1

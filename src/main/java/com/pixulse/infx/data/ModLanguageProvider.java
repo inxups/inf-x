@@ -9,6 +9,54 @@ import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 final class ModLanguageProvider extends LanguageProvider {
+    private static final Map<String, String[]> FOOD_NAMES = Map.ofEntries(
+            Map.entry("flour", names("Flour", "面粉")),
+            Map.entry("water_bowl", names("Bowl of Water", "水碗")),
+            Map.entry("dough", names("Dough", "面团")),
+            Map.entry("salad", names("Salad", "沙拉")),
+            Map.entry("blueberries", names("Blueberries", "蓝莓")),
+            Map.entry("blueberry_porridge", names("Blueberry Porridge", "蓝莓粥")),
+            Map.entry("milk_bowl", names("Bowl of Milk", "牛奶碗")),
+            Map.entry("cereal_porridge", names("Cereal Porridge", "麦片粥")),
+            Map.entry("chocolate", names("Chocolate", "巧克力")),
+            Map.entry("pumpkin_soup", names("Pumpkin Soup", "南瓜汤")),
+            Map.entry("cream_of_mushroom_soup", names("Cream of Mushroom Soup", "奶油蘑菇汤")),
+            Map.entry("onion", names("Onion", "洋葱")),
+            Map.entry("vegetable_soup", names("Vegetable Soup", "蔬菜汤")),
+            Map.entry("cream_of_vegetable_soup", names("Cream of Vegetable Soup", "奶油蔬菜汤")),
+            Map.entry("chicken_soup", names("Chicken Soup", "鸡汤")),
+            Map.entry("beef_stew", names("Beef Stew", "牛肉羹")),
+            Map.entry("orange", names("Orange", "橘子")),
+            Map.entry("fruit_ice", names("Fruit Ice", "果汁雪糕")),
+            Map.entry("cheese", names("Cheese", "奶酪")),
+            Map.entry("mashed_potato", names("Mashed Potato", "土豆泥")),
+            Map.entry("ice_cream", names("Ice Cream", "冰淇淋")),
+            Map.entry("banana", names("Banana", "香蕉")),
+            Map.entry("worm", names("Worm", "虫子")),
+            Map.entry("cooked_worm", names("Cooked Worm", "熟虫子")));
+    private static final Map<String, String[]> ENCHANTMENT_NAMES = Map.ofEntries(
+            Map.entry("durability", names("Durability", "耐久")),
+            Map.entry("disarming", names("Disarming", "缴械")),
+            Map.entry("quickness", names("Quickness", "迅捷")),
+            Map.entry("precision", names("Precision", "精准")),
+            Map.entry("poisoning", names("Poisoning", "中毒")),
+            Map.entry("butchering", names("Butchering", "屠宰")),
+            Map.entry("stunning", names("Stunning", "击晕")),
+            Map.entry("vampirism", names("Vampirism", "吸血")),
+            Map.entry("recovery", names("Recovery", "回收")),
+            Map.entry("slaughter", names("Slaughter", "杀害")),
+            Map.entry("cleaving", names("Cleaving", "劈裂")),
+            Map.entry("harvesting", names("Harvesting", "收获")),
+            Map.entry("penetration", names("Penetration", "穿透")),
+            Map.entry("baiting", names("Baiting", "饵钓")),
+            Map.entry("fertility", names("Fertility", "肥沃")),
+            Map.entry("tree_felling", names("Tree Felling", "砍伐")),
+            Map.entry("fortune", names("Fortune", "时运")),
+            Map.entry("free_movement", names("Free Movement", "灵活移动")),
+            Map.entry("regeneration", names("Regeneration", "再生")),
+            Map.entry("speed", names("Speed", "速度")),
+            Map.entry("endurance", names("Endurance", "耐力")),
+            Map.entry("protection", names("Protection", "保护")));
     private static final Map<String, String[]> REMAINING_ADVANCEMENTS = Map.ofEntries(
             Map.entry("kill_cow", names("Cow Tipper", "斗牛士")),
             Map.entry("kill_enemy", names("Monster Hunter", "怪物猎人")),
@@ -271,6 +319,8 @@ final class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         ModItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
+        FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
+        ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         ModEntityTypes.names().forEach(entity -> add(
                 "entity.infx." + entity.path(),
                 locale == Locale.EN_US ? entity.english() : entity.chinese()));
@@ -299,6 +349,16 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.mantle", locale == Locale.EN_US ? "Mantle" : "地幔");
         add("block.infx.mithril_rune_stone", locale == Locale.EN_US ? "Mithril Rune Stone" : "秘银符文石");
         add("block.infx.adamantium_rune_stone", locale == Locale.EN_US ? "Adamantium Rune Stone" : "艾德曼符文石");
+        add("block.infx.emerald_enchanting_table", locale == Locale.EN_US ? "Emerald Enchanting Table" : "绿宝石附魔台");
+        add("block.infx.diamond_enchanting_table", locale == Locale.EN_US ? "Diamond Enchanting Table" : "钻石附魔台");
+        for (var safe : com.pixulse.infx.registry.ModBlocks.METAL_SAFES) {
+            String material = safe.get().material().path();
+            String name = locale == Locale.EN_US
+                    ? safe.get().material().englishNoun() + " Safe"
+                    : safe.get().material().chinesePrefix() + "保险箱";
+            add("block.infx." + material + "_safe", name);
+            add("container.infx." + material + "_safe", name);
+        }
         add("message.infx.rune_selected", locale == Locale.EN_US ? "Rune pattern: %s" : "符文图案：%s");
         add("message.infx.underworld_bed_unsafe", locale == Locale.EN_US
                 ? "It is not safe to sleep in the Underworld"
@@ -306,6 +366,17 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.creative_disabled", locale == Locale.EN_US
                 ? "Creative mode is disabled in R196 survival worlds"
                 : "R196 生存世界禁止创造模式");
+        add("message.infx.world_first", locale == Locale.EN_US
+                ? "%s was first to earn %s on day %s"
+                : "%s 首个完成 %s（第 %s 天）");
+        add("message.infx.safe_obstructed", locale == Locale.EN_US ? "The safe is obstructed above" : "保险箱上方被遮挡");
+        add("message.infx.enchanting_table_obstructed", locale == Locale.EN_US
+                ? "The enchanting table needs clear space above it"
+                : "附魔台上方需要留空");
+        add("message.infx.safe_owned", locale == Locale.EN_US ? "This safe belongs to %s" : "该保险箱属于 %s");
+        add("message.infx.safe_tool", locale == Locale.EN_US ? "A matching metal tool is required" : "需要对应金属等级的工具");
+        add("message.infx.safe_foreign_tool", locale == Locale.EN_US ? "Another player's safe requires a tool one metal tier higher" : "破坏其他玩家的保险箱需要高一级金属工具");
+        add("message.infx.disconnect_penalty", locale == Locale.EN_US ? "Combat disconnect penalty applied" : "已应用战斗断线惩罚");
         add("key.categories.infx.controls", locale == Locale.EN_US ? "InfiniteX" : "InfiniteX");
         add("key.infx.lock_sprint", locale == Locale.EN_US ? "Lock Sprint" : "锁定疾跑");
         add("key.infx.zoom", locale == Locale.EN_US ? "Zoom" : "拉近镜头");
@@ -318,8 +389,18 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.smart_use", locale == Locale.EN_US ? "Smart use: %s" : "智能使用：%s");
         add("message.infx.chunks_reloaded", locale == Locale.EN_US ? "Chunks reloaded" : "区块已重载");
         add("gui.infx.status", locale == Locale.EN_US
-                ? "MITE Lv.%s  XP %s  HP %s  Food %s"
-                : "MITE 等级 %s  经验 %s  生命 %s  食物 %s");
+                ? "MITE Lv.%s XP %s  HP %s/%s  Satiation %s  Nutrition %s/%s  Malnutrition %s  Insulin %s  Moon %s"
+                : "MITE 等级 %s 经验 %s  生命 %s/%s  饱和 %s  营养 %s/%s  营养不良 %s  胰岛素 %s  月相 %s");
+        add("effect.infx.malnutrition", locale == Locale.EN_US ? "Malnutrition" : "营养不良");
+        add("effect.infx.witch_curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
+        add("effect.infx.insulin_resistance", locale == Locale.EN_US ? "Insulin Resistance" : "胰岛素抵抗");
+        add("effect.infx.paralysis", locale == Locale.EN_US ? "Paralysis" : "麻痹");
+        String[] creationTitles = {"Boat", "Crypt", "Crystal", "Dragon", "Globe", "Serpent", "Sphinx", "Star", "Temple"};
+        for (String title : creationTitles) {
+            add("book.infx.creation." + title.toLowerCase(java.util.Locale.ROOT), locale == Locale.EN_US
+                    ? "A fragment of Father Phoonzang's account: " + title
+                    : "Father Phoonzang 的创世记载：《" + title + "》");
+        }
         for (com.pixulse.infx.material.R196Quality quality : com.pixulse.infx.material.R196Quality.values()) {
             String english = switch (quality) {
                 case WRETCHED -> "Wretched Quality";

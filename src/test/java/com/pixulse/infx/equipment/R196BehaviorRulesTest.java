@@ -46,6 +46,8 @@ class R196BehaviorRulesTest {
         assertEquals(0.0F, R196EquipmentBehaviors.fixedArmorReduction(1.0F, 20.0F));
         assertEquals(4.0F, R196EquipmentBehaviors.fixedArmorReduction(5.0F, 20.0F));
         assertEquals(3.0F, R196EquipmentBehaviors.fixedArmorReduction(10.0F, 3.0F));
+        assertEquals(5.0F, R196EquipmentBehaviors.fixedArmorReduction(20.0F, 5.0F));
+        assertEquals(10.0F, R196EquipmentBehaviors.fixedArmorReduction(20.0F, 10.0F));
         assertEquals(0.0F, R196EquipmentBehaviors.r196ArmorReduction(10.0F, 20.0F, true));
     }
 

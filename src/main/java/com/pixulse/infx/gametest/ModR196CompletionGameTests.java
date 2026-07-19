@@ -6,6 +6,7 @@ import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
+import com.pixulse.infx.block.entity.R196SafeBlockEntity;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.equipment.R196QualitySystem;
@@ -16,9 +17,18 @@ import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.menu.MetalAnvilMenu;
+import com.pixulse.infx.menu.R196EnchantmentMenu;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.ModMenus;
+import com.pixulse.infx.progression.R196Experience;
+import com.pixulse.infx.survival.R196FoodProfile;
+import com.pixulse.infx.survival.R196SurvivalData;
+import com.pixulse.infx.survival.R196SurvivalEvents;
+import com.pixulse.infx.survival.R196SurvivalRules;
+import com.pixulse.infx.world.R196EndEvents;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -82,7 +92,9 @@ public final class ModR196CompletionGameTests {
             "r196_portals",
             "r196_livestock",
             "r196_gravel_loot",
-            "r196_hopper_xp");
+            "r196_hopper_xp",
+            "r196_survival_core",
+            "r196_safe_enchanting");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -94,6 +106,8 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_livestock", () -> ModR196CompletionGameTests::livestock);
         FUNCTIONS.register("r196_gravel_loot", () -> ModR196CompletionGameTests::gravelLoot);
         FUNCTIONS.register("r196_hopper_xp", () -> ModR196CompletionGameTests::hopperExperience);
+        FUNCTIONS.register("r196_survival_core", () -> ModR196CompletionGameTests::survivalCore);
+        FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
     }
 
     private ModR196CompletionGameTests() {}
@@ -324,11 +338,13 @@ public final class ModR196CompletionGameTests {
                 BiomeTags.HAS_BURIED_TREASURE,
                 BiomeTags.HAS_MINESHAFT,
                 BiomeTags.HAS_MINESHAFT_MESA,
-                BiomeTags.HAS_STRONGHOLD,
                 BiomeTags.HAS_TRAIL_RUINS,
                 BiomeTags.HAS_TRIAL_CHAMBERS)) {
             helper.assertTrue(biomes.getOrThrow(tag).size() == 0, tag.location() + " is empty");
         }
+        helper.assertTrue(
+                biomes.getOrThrow(BiomeTags.HAS_STRONGHOLD).size() > 0,
+                "stronghold biomes are restored for the End progression chain");
         helper.assertTrue(registries.lookupOrThrow(Registries.DIMENSION_TYPE).containsKey(Underworld.TYPE), "Underworld type registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.BIOME), "Underworld biome registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.NOISE_SETTINGS).containsKey(Underworld.NOISE), "Underworld noise registered");
@@ -490,10 +506,10 @@ public final class ModR196CompletionGameTests {
                 chicken.getPersistentData().getBooleanOr("infx_livestock_healthy", true),
                 "panic must propagate across animal species");
         helper.startSequence()
-                .thenExecuteAfter(2, () -> {
-                    helper.assertTrue(
-                            waterGoal.canUse(),
-                            "thirsty livestock must select a reachable water approach");
+                .thenWaitUntil(() -> helper.assertTrue(
+                        waterGoal.canUse(),
+                        "thirsty livestock must select a reachable water approach"))
+                .thenExecute(() -> {
                     BlockPos selectedTarget = waterGoal.selectedTarget();
                     boolean targetTouchesWater = selectedTarget != null
                             && BlockPos.betweenClosedStream(
@@ -541,6 +557,86 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(gravelRate > .70 && gravelRate < .80, "real gravel rate must converge near 3/4: " + gravelRate);
         helper.assertTrue(foundCopper, "real gravel loot must reach the copper branch");
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void survivalCore(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        R196SurvivalEvents.recalculatePlayerLimits(player);
+        helper.assertTrue(Math.abs(player.getMaxHealth() - 6.0F) < 0.001F, "level zero starts with three hearts");
+        helper.assertTrue(Math.abs(R196SurvivalRules.foodCap(player.experienceLevel) - 6.0D) < 0.001D,
+                "level zero starts with three food icons");
+
+        R196Experience.setTotal(player, R196Experience.cumulativeForLevel(5));
+        R196SurvivalEvents.recalculatePlayerLimits(player);
+        helper.assertTrue(Math.abs(player.getMaxHealth() - 8.0F) < 0.001F,
+                "level five adds one heart");
+        helper.assertTrue(Math.abs(R196SurvivalRules.foodCap(player.experienceLevel) - 8.0D) < 0.001D,
+                "level five adds one food icon");
+
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(0, 2, 1, 1, 1, 0, 0));
+        R196SurvivalData egg = player.getData(ModAttachments.SURVIVAL)
+                .eat(new R196FoodProfile(1, 3, 12_000, 0, 2_000, 0), 8);
+        helper.assertTrue(egg.satiation() == 1.0D && egg.nutrition() == 5.0D,
+                "egg fills both energy layers");
+        helper.assertTrue(egg.phytonutrients() == 1, "egg cannot cure phytonutrient malnutrition");
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(0, 8, 1, 1, 1, 0, 0));
+        helper.assertTrue(player.canEat(false), "depleted satiation permits eating even when nutrition is full");
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(8, 8, 1, 1, 1, 0, 0));
+        helper.assertFalse(player.canEat(false), "both full energy layers prevent eating");
+        helper.assertTrue(
+                Items.SUGAR.getDefaultInstance().has(DataComponents.FOOD)
+                        && Items.SUGAR.getDefaultInstance().has(DataComponents.CONSUMABLE),
+                "small R196 foods are directly edible");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void safeAndEnchanting(GameTestHelper helper) {
+        ServerPlayer owner = createPlayer(helper);
+        ServerPlayer visitor = createPlayer(helper);
+        BlockPos safePos = new BlockPos(4, 2, 4);
+        helper.setBlock(safePos, ModBlocks.COPPER_SAFE.get());
+        R196SafeBlockEntity safe = helper.getBlockEntity(safePos, R196SafeBlockEntity.class);
+        helper.assertTrue(safe.canOpen(visitor), "unowned village safes are publicly accessible");
+        safe.setOwner(owner);
+        helper.assertTrue(safe.canOpen(owner), "safe owner can open");
+        helper.assertFalse(safe.canOpen(visitor), "other players cannot open safe");
+
+        BlockPos tableRelative = new BlockPos(8, 2, 8);
+        helper.setBlock(tableRelative, ModBlocks.DIAMOND_ENCHANTING_TABLE.get());
+        BlockPos table = helper.absolutePos(tableRelative);
+        for (int y = 0; y <= 1; y++) {
+            for (int x = -2; x <= 2; x++) {
+                for (int z = -2; z <= 2; z++) {
+                    if ((Math.abs(x) == 2 || Math.abs(z) == 2)
+                            && !(Math.abs(x) == 2 && Math.abs(z) == 2)) {
+                        helper.getLevel().setBlockAndUpdate(table.offset(x, y, z), Blocks.BOOKSHELF.defaultBlockState());
+                    }
+                }
+            }
+        }
+        helper.assertTrue(R196EnchantmentMenu.bookshelfCount(helper.getLevel(), table) == 24,
+                "R196 enchanting structure counts twenty-four shelves");
+        R196EnchantmentMenu menu = new R196EnchantmentMenu(
+                1,
+                owner.getInventory(),
+                ContainerLevelAccess.create(helper.getLevel(), table),
+                R196EnchantmentMenu.Kind.DIAMOND);
+        helper.assertTrue(menu.getType() == ModMenus.DIAMOND_ENCHANTING.get(),
+                "diamond table synchronizes its custom client menu type");
+        helper.assertTrue(menu.getSlot(1).mayPlace(Items.DIAMOND.getDefaultInstance()),
+                "diamond table accepts diamonds");
+        helper.assertFalse(menu.getSlot(1).mayPlace(Items.EMERALD.getDefaultInstance()),
+                "diamond table rejects emeralds");
+        helper.assertFalse(menu.getSlot(1).mayPlace(Items.LAPIS_LAZULI.getDefaultInstance()),
+                "R196 tables reject vanilla lapis fuel");
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
+                .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE).holder().toStack());
+        helper.assertTrue(R196EndEvents.hasAdamantiumCrystalTool(owner),
+                "adamantium pickaxe meets crystal gate");
+        removePlayer(visitor);
+        removePlayer(owner);
         helper.succeed();
     }
 

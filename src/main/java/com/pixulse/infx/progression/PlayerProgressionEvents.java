@@ -3,6 +3,7 @@ package com.pixulse.infx.progression;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.survival.R196SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -48,26 +49,31 @@ public final class PlayerProgressionEvents {
     private static void onExperienceChange(PlayerXpEvent.XpChange event) {
         event.setCanceled(true);
         R196Experience.add(event.getEntity(), event.getAmount());
+        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onLevelChange(PlayerXpEvent.LevelChange event) {
         event.setCanceled(true);
         R196Experience.addLevels(event.getEntity(), event.getLevels());
+        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         R196Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
+        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath()) {
             R196Experience.setTotal(event.getEntity(), event.getOriginal().totalExperience);
+            R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
             return;
         }
         int previous = event.getOriginal().getPersistentData()
                 .getInt(DEATH_TOTAL)
                 .orElse(event.getOriginal().totalExperience);
         R196Experience.setTotal(event.getEntity(), R196Experience.deathTotal(previous));
+        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onDeath(LivingDeathEvent event) {

@@ -1043,7 +1043,6 @@ class R196GeneratedResourceTest {
                 "buried_treasure",
                 "mineshaft",
                 "mineshaft_mesa",
-                "stronghold",
                 "trail_ruins",
                 "trial_chambers")) {
             JsonObject tag = json(GENERATED.resolve(
@@ -1053,6 +1052,15 @@ class R196GeneratedResourceTest {
                     () -> assertTrue(tag.get("replace").getAsBoolean()),
                     () -> assertEquals(0, tag.getAsJsonArray("values").size()));
         }
+
+        JsonObject stronghold = json(GENERATED.resolve(
+                "data/minecraft/tags/worldgen/biome/has_structure/stronghold.json"));
+        assertAll(
+                "restored stronghold progression",
+                () -> assertFalse(stronghold.has("replace")),
+                () -> assertEquals(
+                        "#minecraft:is_overworld",
+                        stronghold.getAsJsonArray("values").get(0).getAsString()));
     }
 
     @Test
@@ -1190,8 +1198,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(257, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(337, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(290, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(361, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 

@@ -26,6 +26,11 @@ public final class ModCreativeTabs {
                         ModItems.WORKBENCHES.forEach(workbench -> output.accept(workbench.value()));
                         ModItems.FURNACES.forEach(furnace -> output.accept(furnace.value()));
                         ModItems.METAL_ANVILS.forEach(anvil -> output.accept(anvil.value()));
+                        ModItems.ENCHANTING_TABLES.forEach(table -> output.accept(table.value()));
+                        ModItems.METAL_SAFES.forEach(safe -> output.accept(safe.value()));
+                        output.accept(ModItems.FLOUR.value());
+                        output.accept(ModItems.WATER_BOWL.value());
+                        ModItems.R196_FOODS.forEach(food -> output.accept(food.value()));
                         ModItems.catalog().equipmentEntries().forEach(entry -> output.accept(entry.holder().value()));
                     })
                     .build());

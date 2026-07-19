@@ -11,7 +11,7 @@ public final class CraftingEnvironment {
     private CraftingEnvironment() {}
 
     public static boolean canCraft(Player player) {
-        return !HarvestSpeedRules.isInCobweb(player);
+        return !HarvestSpeedRules.isInCobweb(player) && !HarvestSpeedRules.isParalyzed(player);
     }
 
     public static boolean hasClumsiness(Player player) {

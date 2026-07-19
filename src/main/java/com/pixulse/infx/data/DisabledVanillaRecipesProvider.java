@@ -121,7 +121,13 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "shears",
             "crafting_table",
             "furnace",
+            "bread",
+            "cake",
+            "enchanting_table",
             "glass",
+            "golden_apple",
+            "mushroom_stew",
+            "pumpkin_pie",
             "sandstone",
             "smooth_sandstone");
     private static final List<String> MODERN_BYPASS_RECIPES = List.of(

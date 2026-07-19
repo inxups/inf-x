@@ -4,6 +4,7 @@ import com.pixulse.infx.registry.ModEntityTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import com.pixulse.infx.registry.ModMobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -42,6 +43,7 @@ public final class R196Witch extends Witch implements R196Mob {
         if (tickCount % 200 == 0) {
             target.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 600, 0), this);
             target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 160, 0), this);
+            target.addEffect(new MobEffectInstance(ModMobEffects.WITCH_CURSE, 600, 0), this);
         }
         if (tickCount % 300 == 0 && random.nextFloat() < 0.35F) {
             EntityType<R196Wolf> type = random.nextBoolean()

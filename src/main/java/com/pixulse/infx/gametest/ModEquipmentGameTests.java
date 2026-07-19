@@ -260,6 +260,7 @@ public final class ModEquipmentGameTests {
 
     private static void useOn(
             GameTestHelper helper, ServerPlayer player, BlockPos relativePos, Block block, Item item) {
+        helper.setBlock(relativePos.below(), Blocks.STONE);
         helper.setBlock(relativePos, block);
         helper.setBlock(relativePos.above(), Blocks.AIR);
         player.setItemInHand(InteractionHand.MAIN_HAND, item.getDefaultInstance());

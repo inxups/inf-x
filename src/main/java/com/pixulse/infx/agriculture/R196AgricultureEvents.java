@@ -2,6 +2,7 @@ package com.pixulse.infx.agriculture;
 
 import com.pixulse.infx.progression.ProgressionEvents;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.world.R196MoonPhase;
 import java.util.ArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -92,6 +93,7 @@ public final class R196AgricultureEvents {
                 data.isFertile(pos.below()),
                 isMoistFarmland(level.getBlockState(pos.below())));
         multiplier *= geologyFactor(level.getBlockState(pos.below(2)));
+        multiplier *= (float) R196MoonPhase.at(level).cropMultiplier(level.getServer().isDedicatedServer());
         if (multiplier < 1.0F && level.getRandom().nextFloat() > multiplier) {
             event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
         } else if (multiplier > 1.0F && level.getRandom().nextFloat() < multiplier - 1.0F) {
@@ -283,7 +285,11 @@ public final class R196AgricultureEvents {
     }
 
     private static void spreadOrCreateDisease(ServerLevel level, BlockPos pos, R196AgricultureData data) {
-        if (!data.isInfected(pos) && level.getRandom().nextInt(4096) == 0) {
+        int diseaseChance = R196MoonPhase.at(level) == R196MoonPhase.BLOOD
+                        && !level.getServer().isDedicatedServer()
+                ? 512
+                : 4096;
+        if (!data.isInfected(pos) && level.getRandom().nextInt(diseaseChance) == 0) {
             data.infect(pos, level.getGameTime());
         }
         for (BlockPos neighbor : horizontalNeighbors(pos)) {
