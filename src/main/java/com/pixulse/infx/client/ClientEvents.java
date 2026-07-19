@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.entity.WitchRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
+import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
 
@@ -46,6 +47,8 @@ public final class ClientEvents {
     private static void registerScreens(RegisterMenuScreensEvent event) {
         ModMenus.WORKBENCHES.forEach(menu -> event.register(menu.get(), TimedWorkbenchScreen::new));
         event.register(ModMenus.METAL_ANVIL.get(), MetalAnvilScreen::new);
+        event.register(ModMenus.EMERALD_ENCHANTING.get(), EnchantmentScreen::new);
+        event.register(ModMenus.DIAMOND_ENCHANTING.get(), EnchantmentScreen::new);
     }
 
     @SubscribeEvent

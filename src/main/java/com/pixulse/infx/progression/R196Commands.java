@@ -6,6 +6,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.registry.ModItems;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -17,6 +18,9 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import com.pixulse.infx.world.R196VillageProgression;
+import com.pixulse.infx.world.R196WorldData;
+import net.minecraft.server.permissions.Permissions;
 
 /** The fourteen read-only diagnostic and survival commands shipped by R196. */
 public final class R196Commands {
@@ -87,15 +91,18 @@ public final class R196Commands {
         }));
         dispatcher.register(Commands.literal("villages").executes(context -> {
             ServerPlayer player = player(context);
-            long day = R196MonsterDay.day(player);
-            boolean ironTool = player.getInventory().getNonEquipmentItems().stream().anyMatch(stack -> {
-                var entry = ModItems.catalog().equipment(stack);
-                return entry != null && entry.key().material().harvestTier()
-                        .map(tier -> tier.satisfies(HarvestTier.IRON))
-                        .orElse(false);
-            });
-            return reply(context, "Village generation: day " + day + "/60; iron-tier tool: " + (ironTool ? "yes" : "no"));
+            long day = R196VillageProgression.day(player.level());
+            boolean ironTool = R196WorldData.get(player.level()).ironToolCrafted();
+            return reply(context, "Village generation: day " + day + "/60; world iron-tier milestone: "
+                    + (ironTool ? "yes" : "no") + "; unlocked: "
+                    + R196VillageProgression.generationUnlocked(player.level()));
         }));
+        dispatcher.register(Commands.literal("infxrecords")
+                .then(Commands.literal("personal").executes(R196Commands::personalRecords))
+                .then(Commands.literal("world").executes(R196Commands::worldRecords))
+                .then(Commands.literal("dev")
+                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        .executes(R196Commands::developmentRecords)));
         dispatcher.register(Commands.literal("chunks").executes(context -> {
             ServerPlayer player = player(context);
             return reply(context, "Chunk: " + player.chunkPosition() + "; loaded: "
@@ -114,6 +121,37 @@ public final class R196Commands {
 
     private static String format(float value) {
         return String.format(java.util.Locale.ROOT, "%.1f", value);
+    }
+
+    private static int personalRecords(CommandContext<CommandSourceStack> context)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = player(context);
+        long completed = player.level().getServer().getAdvancements().getAllAdvancements().stream()
+                .filter(advancement -> advancement.id().getNamespace().equals(InfiniteX.MOD_ID))
+                .filter(advancement -> player.getAdvancements().getOrStartProgress(advancement).isDone())
+                .count();
+        return reply(context, "Personal R196 advancements: " + completed + "/62");
+    }
+
+    private static int worldRecords(CommandContext<CommandSourceStack> context)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = player(context);
+        var records = R196WorldData.get(player.level()).firstCompletions();
+        context.getSource().sendSuccess(() -> Component.literal("World-first R196 records: " + records.size() + "/62"), false);
+        records.entrySet().stream().sorted(Map.Entry.comparingByKey()).limit(12).forEach(entry ->
+                context.getSource().sendSuccess(() -> Component.literal(
+                        entry.getKey() + ": " + entry.getValue().player() + " (day " + entry.getValue().day() + ")"), false));
+        return records.size();
+    }
+
+    private static int developmentRecords(CommandContext<CommandSourceStack> context)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = player(context);
+        R196WorldData data = R196WorldData.get(player.level());
+        return reply(context, "R196 dev records: firsts=" + data.firstCompletions().size()
+                + ", creationBooks=0x" + Integer.toHexString(data.creationBookMask())
+                + ", villages=" + R196VillageProgression.generationUnlocked(player.level())
+                + ", endConquered=" + data.endConquered());
     }
 
     private static final class R196MonsterDay {

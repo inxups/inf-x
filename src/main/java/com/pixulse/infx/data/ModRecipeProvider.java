@@ -47,6 +47,283 @@ final class ModRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes() {
         addShapeless(
+                "flour",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.FLOUR,
+                1,
+                List.of(Ingredient.of(Items.WHEAT)));
+        addShapeless(
+                "water_bowl",
+                BenchTier.FLINT,
+                25.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.WATER_BOWL,
+                4,
+                List.of(Ingredient.of(Items.WATER_BUCKET), Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL)));
+        addShapeless(
+                "dough",
+                BenchTier.HAND,
+                150.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.DOUGH,
+                1,
+                List.of(Ingredient.of(ModItems.FLOUR), Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "salad",
+                BenchTier.HAND,
+                175.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.SALAD,
+                1,
+                List.of(
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.DANDELION),
+                        Ingredient.of(Items.DANDELION),
+                        Ingredient.of(Items.DANDELION)));
+        addShapeless(
+                "blueberry_porridge",
+                BenchTier.HAND,
+                175.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.BLUEBERRY_PORRIDGE,
+                1,
+                List.of(Ingredient.of(Items.WHEAT_SEEDS), Ingredient.of(ModItems.BLUEBERRIES),
+                        Ingredient.of(Items.SUGAR), Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "milk_bowl",
+                BenchTier.FLINT,
+                75.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.MILK_BOWL,
+                4,
+                List.of(Ingredient.of(Items.MILK_BUCKET), Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL)));
+        addShapeless(
+                "cereal_porridge",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.CEREAL_PORRIDGE,
+                1,
+                List.of(Ingredient.of(ModItems.MILK_BOWL), Ingredient.of(Items.WHEAT), Ingredient.of(Items.SUGAR)));
+        addShapeless(
+                "chocolate",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.CHOCOLATE,
+                1,
+                List.of(Ingredient.of(Items.COCOA_BEANS), Ingredient.of(Items.SUGAR)));
+        addShapeless(
+                "pumpkin_soup",
+                BenchTier.HAND,
+                175.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.PUMPKIN_SOUP,
+                1,
+                List.of(Ingredient.of(Items.PUMPKIN), Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "cream_of_mushroom_soup",
+                BenchTier.HAND,
+                225.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.CREAM_OF_MUSHROOM_SOUP,
+                1,
+                List.of(Ingredient.of(ModItems.MILK_BOWL), Ingredient.of(Items.BROWN_MUSHROOM),
+                        Ingredient.of(Items.BROWN_MUSHROOM)));
+        addShapeless(
+                "vegetable_soup",
+                BenchTier.HAND,
+                225.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.VEGETABLE_SOUP,
+                1,
+                List.of(Ingredient.of(Items.CARROT), Ingredient.of(Items.POTATO),
+                        Ingredient.of(ModItems.ONION), Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "cream_of_vegetable_soup",
+                BenchTier.HAND,
+                250.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.CREAM_OF_VEGETABLE_SOUP,
+                1,
+                List.of(Ingredient.of(ModItems.MILK_BOWL), Ingredient.of(Items.CARROT), Ingredient.of(Items.POTATO),
+                        Ingredient.of(ModItems.ONION)));
+        addShapeless(
+                "chicken_soup",
+                BenchTier.HAND,
+                275.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.CHICKEN_SOUP,
+                1,
+                List.of(Ingredient.of(Items.COOKED_CHICKEN), Ingredient.of(Items.CARROT),
+                        Ingredient.of(ModItems.ONION), Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "beef_stew",
+                BenchTier.HAND,
+                300.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.BEEF_STEW,
+                1,
+                List.of(Ingredient.of(Items.COOKED_BEEF), Ingredient.of(Items.BROWN_MUSHROOM),
+                        Ingredient.of(Items.POTATO), Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "mashed_potato",
+                BenchTier.HAND,
+                175.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.MASHED_POTATO,
+                1,
+                List.of(Ingredient.of(ModItems.MILK_BOWL), Ingredient.of(Items.BAKED_POTATO),
+                        Ingredient.of(ModItems.CHEESE)));
+        addShapeless(
+                "cheese",
+                BenchTier.HAND,
+                6_400.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.CHEESE,
+                1,
+                List.of(Ingredient.of(ModItems.MILK_BOWL), Ingredient.of(ModItems.MILK_BOWL),
+                        Ingredient.of(ModItems.MILK_BOWL), Ingredient.of(ModItems.MILK_BOWL)));
+        addShapeless(
+                "fruit_ice",
+                BenchTier.HAND,
+                150.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.FRUIT_ICE,
+                1,
+                List.of(Ingredient.of(ModItems.ORANGE), Ingredient.of(Items.SUGAR),
+                        Ingredient.of(Items.SNOWBALL), Ingredient.of(Items.BOWL)));
+        addShapeless(
+                "ice_cream",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.ICE_CREAM,
+                1,
+                List.of(Ingredient.of(ModItems.CHOCOLATE), Ingredient.of(ModItems.MILK_BOWL),
+                        Ingredient.of(Items.SNOWBALL)));
+        addShaped(
+                "pumpkin_pie",
+                BenchTier.FLINT,
+                350.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.PUMPKIN_PIE,
+                1,
+                Map.of('P', Ingredient.of(Items.PUMPKIN), 'F', Ingredient.of(ModItems.FLOUR),
+                        'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
+                List.of("PF", "SE"));
+        addShaped(
+                "cake",
+                BenchTier.FLINT,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.CAKE,
+                1,
+                Map.of('M', Ingredient.of(Items.MILK_BUCKET), 'F', Ingredient.of(ModItems.FLOUR),
+                        'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
+                List.of("MMM", "SES", "FFF"));
+        addShapeless(
+                "cake_from_milk_bowl",
+                BenchTier.HAND,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.CAKE,
+                1,
+                List.of(Ingredient.of(ModItems.FLOUR), Ingredient.of(Items.SUGAR),
+                        Ingredient.of(Items.EGG), Ingredient.of(ModItems.MILK_BOWL)));
+        addShaped(
+                "golden_apple",
+                BenchTier.HAND,
+                500.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.GOLDEN_APPLE,
+                1,
+                Map.of('G', Ingredient.of(Items.GOLD_NUGGET), 'A', Ingredient.of(Items.APPLE)),
+                List.of("GGG", "GAG", "GGG"));
+        addShapeless(
+                "mushroom_stew_with_water",
+                BenchTier.HAND,
+                150.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.MUSHROOM_STEW,
+                1,
+                List.of(Ingredient.of(Items.BROWN_MUSHROOM), Ingredient.of(Items.RED_MUSHROOM),
+                        Ingredient.of(ModItems.WATER_BOWL)));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(ModItems.DOUGH),
+                        RecipeCategory.FOOD,
+                        CookingBookCategory.FOOD,
+                        Items.BREAD,
+                        1.0F,
+                        200)
+                .unlockedBy("has_dough", has(ModItems.DOUGH))
+                .save(output, recipeKey("bread_from_dough"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(ModItems.WORM),
+                        RecipeCategory.FOOD,
+                        CookingBookCategory.FOOD,
+                        ModItems.COOKED_WORM,
+                        0.2F,
+                        160)
+                .unlockedBy("has_worm", has(ModItems.WORM))
+                .save(output, recipeKey("cooked_worm"));
+        addShaped(
+                "emerald_enchanting_table",
+                BenchTier.IRON,
+                3_200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.EMERALD_ENCHANTING_TABLE,
+                1,
+                Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(Items.EMERALD),
+                        'O', Ingredient.of(Blocks.OBSIDIAN)),
+                List.of(" B ", "GOG", "OOO"));
+        addShaped(
+                "diamond_enchanting_table",
+                BenchTier.MITHRIL,
+                6_400.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.DIAMOND_ENCHANTING_TABLE,
+                1,
+                Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(Items.DIAMOND),
+                        'O', Ingredient.of(Blocks.OBSIDIAN)),
+                List.of(" B ", "GOG", "OOO"));
+        addSafe("copper_safe", BenchTier.COPPER, ModBlocks.COPPER_SAFE, Items.COPPER_INGOT, 3_600.0F);
+        addSafe("silver_safe", BenchTier.COPPER, ModBlocks.SILVER_SAFE, ModItems.SILVER_INGOT, 3_600.0F);
+        addSafe("gold_safe", BenchTier.GOLD, ModBlocks.GOLD_SAFE, Items.GOLD_INGOT, 3_600.0F);
+        addSafe("iron_safe", BenchTier.IRON, ModBlocks.IRON_SAFE, Items.IRON_INGOT, 7_200.0F);
+        addSafe("ancient_metal_safe", BenchTier.ANCIENT_METAL, ModBlocks.ANCIENT_METAL_SAFE, ModItems.ANCIENT_METAL_INGOT, 14_400.0F);
+        addSafe("mithril_safe", BenchTier.MITHRIL, ModBlocks.MITHRIL_SAFE, ModItems.MITHRIL_INGOT, 28_800.0F);
+        addSafe("adamantium_safe", BenchTier.ADAMANTIUM, ModBlocks.ADAMANTIUM_SAFE, ModItems.ADAMANTIUM_INGOT, 57_600.0F);
+        addShapeless(
                 "flint_to_flint_chips",
                 BenchTier.HAND,
                 100.0F,
@@ -1056,6 +1333,24 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('B', Ingredient.of(storageBlock), 'I', Ingredient.of(ingot)),
                 List.of("BBB", "I I", "I I"));
+    }
+
+    private void addSafe(
+            String name,
+            BenchTier bench,
+            ItemLike result,
+            ItemLike ingot,
+            float difficulty) {
+        addShaped(
+                name,
+                bench,
+                difficulty,
+                CraftingBookCategory.BUILDING,
+                "",
+                result,
+                1,
+                Map.of('M', Ingredient.of(ingot), 'C', Ingredient.of(Blocks.CHEST)),
+                List.of("MMM", "MCM", "MMM"));
     }
 
     private void addShaped(

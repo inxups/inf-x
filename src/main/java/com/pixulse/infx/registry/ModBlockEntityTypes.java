@@ -3,11 +3,14 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
+import com.pixulse.infx.block.entity.R196SafeBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 public final class ModBlockEntityTypes {
     private static final DeferredRegister<BlockEntityType<?>> TYPES =
@@ -34,9 +37,28 @@ public final class ModBlockEntityTypes {
                     ModBlocks.MITHRIL_ANVIL.get(),
                     ModBlocks.ADAMANTIUM_ANVIL.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<R196SafeBlockEntity>> SAFE =
+            TYPES.register("safe", () -> new BlockEntityType<>(
+                    R196SafeBlockEntity::new,
+                    ModBlocks.COPPER_SAFE.get(),
+                    ModBlocks.SILVER_SAFE.get(),
+                    ModBlocks.GOLD_SAFE.get(),
+                    ModBlocks.IRON_SAFE.get(),
+                    ModBlocks.ANCIENT_METAL_SAFE.get(),
+                    ModBlocks.MITHRIL_SAFE.get(),
+                    ModBlocks.ADAMANTIUM_SAFE.get()));
+
     private ModBlockEntityTypes() {}
 
     public static void register(IEventBus modBus) {
         TYPES.register(modBus);
+        modBus.addListener(ModBlockEntityTypes::addVanillaBlockEntityBlocks);
+    }
+
+    private static void addVanillaBlockEntityBlocks(BlockEntityTypeAddBlocksEvent event) {
+        event.modify(
+                BlockEntityTypes.ENCHANTING_TABLE,
+                ModBlocks.EMERALD_ENCHANTING_TABLE.get(),
+                ModBlocks.DIAMOND_ENCHANTING_TABLE.get());
     }
 }

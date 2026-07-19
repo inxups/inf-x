@@ -13,7 +13,11 @@ public enum R196MoonPhase {
     PHANTOM;
 
     public static R196MoonPhase at(ServerLevel level) {
-        return atDay(Math.max(1L, level.getOverworldClockTime() / 24_000L + 1L));
+        return atTime(level.getOverworldClockTime());
+    }
+
+    public static R196MoonPhase atTime(long overworldClockTime) {
+        return atDay(Math.max(1L, overworldClockTime / 24_000L + 1L));
     }
 
     public static R196MoonPhase atDay(long day) {
@@ -25,5 +29,30 @@ public enum R196MoonPhase {
         if (vanillaPhase == 0) return FULL;
         if (vanillaPhase == 4) return NEW;
         return NORMAL;
+    }
+
+    public double hostileSpawnRate() {
+        return switch (this) {
+            case NEW, BLUE -> 0.5D;
+            case FULL -> 1.5D;
+            case BLOOD -> 2.0D;
+            default -> 1.0D;
+        };
+    }
+
+    public double hostileSpawnCap() {
+        return this == BLOOD ? 2.0D : 1.0D;
+    }
+
+    public double fishingMultiplier() {
+        return this == BLUE ? 4.0D : this == FULL ? 1.5D : this == NEW ? 0.75D : 1.0D;
+    }
+
+    public double cropMultiplier(boolean dedicatedServer) {
+        return this == BLUE && !dedicatedServer ? 4.0D : 1.0D;
+    }
+
+    public boolean allowsSleep() {
+        return this != BLOOD;
     }
 }

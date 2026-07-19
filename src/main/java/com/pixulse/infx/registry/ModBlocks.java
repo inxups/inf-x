@@ -21,6 +21,9 @@ import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
+import com.pixulse.infx.block.R196EnchantingTableBlock;
+import com.pixulse.infx.block.R196SafeBlock;
+import com.pixulse.infx.menu.R196EnchantmentMenu;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.material.R196Material;
 import java.util.List;
@@ -91,6 +94,27 @@ public final class ModBlocks {
                     .requiresCorrectToolForDrops());
     public static final List<DeferredBlock<? extends Block>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
+
+    public static final DeferredBlock<R196EnchantingTableBlock> EMERALD_ENCHANTING_TABLE = BLOCKS.registerBlock(
+            "emerald_enchanting_table",
+            properties -> new R196EnchantingTableBlock(R196EnchantmentMenu.Kind.EMERALD, properties),
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE));
+    public static final DeferredBlock<R196EnchantingTableBlock> DIAMOND_ENCHANTING_TABLE = BLOCKS.registerBlock(
+            "diamond_enchanting_table",
+            properties -> new R196EnchantingTableBlock(R196EnchantmentMenu.Kind.DIAMOND, properties),
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE));
+    public static final List<DeferredBlock<R196EnchantingTableBlock>> ENCHANTING_TABLES =
+            List.of(EMERALD_ENCHANTING_TABLE, DIAMOND_ENCHANTING_TABLE);
+
+    public static final DeferredBlock<R196SafeBlock> COPPER_SAFE = metalSafe(R196Material.COPPER, MapColor.COLOR_ORANGE, 4.0F);
+    public static final DeferredBlock<R196SafeBlock> SILVER_SAFE = metalSafe(R196Material.SILVER, MapColor.METAL, 5.0F);
+    public static final DeferredBlock<R196SafeBlock> GOLD_SAFE = metalSafe(R196Material.GOLD, MapColor.GOLD, 5.0F);
+    public static final DeferredBlock<R196SafeBlock> IRON_SAFE = metalSafe(R196Material.IRON, MapColor.METAL, 6.0F);
+    public static final DeferredBlock<R196SafeBlock> ANCIENT_METAL_SAFE = metalSafe(R196Material.ANCIENT_METAL, MapColor.COLOR_BROWN, 8.0F);
+    public static final DeferredBlock<R196SafeBlock> MITHRIL_SAFE = metalSafe(R196Material.MITHRIL, MapColor.DIAMOND, 12.0F);
+    public static final DeferredBlock<R196SafeBlock> ADAMANTIUM_SAFE = metalSafe(R196Material.ADAMANTIUM, MapColor.EMERALD, 50.0F);
+    public static final List<DeferredBlock<R196SafeBlock>> METAL_SAFES = List.of(
+            COPPER_SAFE, SILVER_SAFE, GOLD_SAFE, IRON_SAFE, ANCIENT_METAL_SAFE, MITHRIL_SAFE, ADAMANTIUM_SAFE);
 
     public static final DeferredBlock<Block> SILVER_BLOCK = metalStorageBlock("silver_block", MapColor.METAL, 4.0F);
     public static final DeferredBlock<Block> ANCIENT_METAL_BLOCK =
@@ -253,6 +277,17 @@ public final class ModBlocks {
                 properties -> properties
                         .mapColor(color)
                         .strength(strength, 6.0F)
+                        .sound(SoundType.METAL)
+                        .requiresCorrectToolForDrops());
+    }
+
+    private static DeferredBlock<R196SafeBlock> metalSafe(R196Material material, MapColor color, float strength) {
+        return BLOCKS.registerBlock(
+                material.path() + "_safe",
+                properties -> new R196SafeBlock(material, properties),
+                properties -> properties
+                        .mapColor(color)
+                        .strength(strength, material == R196Material.ADAMANTIUM ? 3_600.0F : strength * 8.0F)
                         .sound(SoundType.METAL)
                         .requiresCorrectToolForDrops());
     }

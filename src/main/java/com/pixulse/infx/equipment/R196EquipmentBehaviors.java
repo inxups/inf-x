@@ -12,6 +12,7 @@ import com.pixulse.infx.registry.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -48,6 +49,7 @@ public final class R196EquipmentBehaviors {
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::onProjectileImpact);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyArmorDecay);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyFixedPointArmor);
+        NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyFixedResistance);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyElementalCorrosion);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::addQualityTooltip);
     }
@@ -88,7 +90,9 @@ public final class R196EquipmentBehaviors {
             return;
         }
         arrow.getPersistentData().putBoolean(RECOVERY_CHECKED, true);
-        boolean recovered = arrow.getRandom().nextFloat() < recoveryChance(arrowItem.key().material());
+        int enchantment = arrow.getPersistentData().getInt("infx_recovery_enchantment").orElse(0);
+        boolean recovered = arrow.getRandom().nextFloat()
+                < Math.min(1.0F, recoveryChance(arrowItem.key().material()) + enchantment * 0.1F);
         if (hit.getType() == HitResult.Type.BLOCK) {
             arrow.pickup = recovered ? AbstractArrow.Pickup.ALLOWED : AbstractArrow.Pickup.DISALLOWED;
         } else if (hit.getType() == HitResult.Type.ENTITY && recovered) {
@@ -163,6 +167,20 @@ public final class R196EquipmentBehaviors {
             return 0.0F;
         }
         return Math.min(armorPoints, incomingDamage - 1.0F);
+    }
+
+    /** Replaces modern percentage resistance with R196's five fixed protection points per level. */
+    static void applyFixedResistance(LivingIncomingDamageEvent event) {
+        var resistance = event.getEntity().getEffect(MobEffects.RESISTANCE);
+        if (resistance == null
+                || event.getSource().is(DamageTypeTags.BYPASSES_EFFECTS)
+                || event.getSource().is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+            return;
+        }
+        float protection = (resistance.getAmplifier() + 1) * 5.0F;
+        event.getContainer().addModifier(
+                DamageContainer.Reduction.MOB_EFFECTS,
+                (container, vanillaReduction) -> fixedArmorReduction(container.getNewDamage(), protection));
     }
 
     static void applyElementalCorrosion(LivingIncomingDamageEvent event) {

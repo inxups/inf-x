@@ -18,6 +18,12 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ComputeFovModifierEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.minecraft.client.renderer.RenderPipelines;
+import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.survival.R196SurvivalRules;
+import com.pixulse.infx.world.R196MoonPhase;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
@@ -158,13 +164,48 @@ public final class R196ClientControls {
     private static void renderStatus(RenderGuiEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.gui.hud.isHidden()) return;
+        var survival = minecraft.player.getData(ModAttachments.SURVIVAL);
         Component status = Component.translatable(
                 "gui.infx.status",
                 minecraft.player.experienceLevel,
                 minecraft.player.totalExperience,
                 Math.round(minecraft.player.getHealth() * 10.0F) / 10.0F,
-                minecraft.player.getFoodData().getFoodLevel());
+                Math.round(minecraft.player.getMaxHealth() * 10.0F) / 10.0F,
+                Math.round(survival.satiation() * 10.0D) / 10.0D,
+                Math.round(survival.nutrition() * 10.0D) / 10.0D,
+                Math.round(R196SurvivalRules.foodCap(minecraft.player.experienceLevel) * 10.0D) / 10.0D,
+                survival.isMalnourished(),
+                survival.insulinResistance().name(),
+                R196MoonPhase.atTime(minecraft.level.getOverworldClockTime()).name());
         event.getGuiGraphics().text(minecraft.font, status, 4, 4, 0xFFF0E0A0, true);
+    }
+
+    @SubscribeEvent
+    private static void renderScaledFoodBar(RenderGuiLayerEvent.Pre event) {
+        if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) return;
+        event.setCanceled(true);
+        var graphics = event.getGuiGraphics();
+        var data = minecraft.player.getData(ModAttachments.SURVIVAL);
+        int food = (int) Math.ceil(data.nutrition());
+        int slots = (int) Math.ceil(R196SurvivalRules.foodCap(minecraft.player.experienceLevel) / 2.0D);
+        int rows = Math.max(1, (slots + 9) / 10);
+        int xRight = graphics.guiWidth() / 2 + 91;
+        int yBase = graphics.guiHeight() - minecraft.gui.hud.rightHeight;
+        var empty = net.minecraft.resources.Identifier.withDefaultNamespace("hud/food_empty");
+        var half = net.minecraft.resources.Identifier.withDefaultNamespace("hud/food_half");
+        var full = net.minecraft.resources.Identifier.withDefaultNamespace("hud/food_full");
+        for (int index = 0; index < slots; index++) {
+            int row = index / 10;
+            int column = index % 10;
+            int x = xRight - column * 8 - 9;
+            int y = yBase - row * 10;
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, empty, x, y, 9, 9);
+            if (index * 2 + 1 < food) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, full, x, y, 9, 9);
+            else if (index * 2 + 1 == food) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, half, x, y, 9, 9);
+        }
+        minecraft.gui.hud.rightHeight += rows * 10;
     }
 
     static int registeredKeyCount() {

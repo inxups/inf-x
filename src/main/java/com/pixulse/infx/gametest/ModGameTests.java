@@ -11,6 +11,7 @@ import com.pixulse.infx.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.progression.R196Experience;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -446,7 +447,7 @@ public final class ModGameTests {
     private static void fullInventoryDrop(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
             player.getInventory().setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
         }
@@ -605,7 +606,7 @@ public final class ModGameTests {
     private static void copperLoop(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
         helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
 
         TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 1);
@@ -621,7 +622,13 @@ public final class ModGameTests {
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
                         countItem(player.getInventory(), Items.COPPER_INGOT) == 4,
-                        "36 nuggets must continuously craft into exactly four ingots"))
+                        "36 nuggets must continuously craft into exactly four ingots; actual="
+                                + countItem(player.getInventory(), Items.COPPER_INGOT)
+                                + ", remainingNuggets=" + countGridItem(grid, Items.COPPER_NUGGET)
+                                + ", progress=" + flint.infx$craftingState().progressTicks()
+                                + "/" + flint.infx$craftingState().requiredTicks()
+                                + ", running=" + flint.infx$craftingState().isRunning()
+                                + ", food=" + player.getFoodData().getFoodLevel()))
                 .thenExecute(() -> {
                     helper.assertTrue(countGridItem(grid, Items.COPPER_NUGGET) == 0, "all 36 nuggets must be consumed");
                     ItemStack ingot = takeItem(helper, player.getInventory(), Items.COPPER_INGOT, 1);
@@ -667,7 +674,7 @@ public final class ModGameTests {
     private static void ironLoop(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
         helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
 
         TimedWorkbenchMenu copper = workbenchMenu(
@@ -761,7 +768,7 @@ public final class ModGameTests {
     private static void coreToolRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
         helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
 
         TimedWorkbenchMenu flint = workbenchMenu(
@@ -822,7 +829,7 @@ public final class ModGameTests {
 
     private static void advancedCoreToolRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
 
         TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
@@ -908,7 +915,7 @@ public final class ModGameTests {
 
     private static void specialToolRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
 
         TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
@@ -1014,7 +1021,7 @@ public final class ModGameTests {
 
     private static void weaponRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
 
         TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
@@ -1107,7 +1114,7 @@ public final class ModGameTests {
     private static void armorRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        player.experienceLevel = 1000;
+        grantMaximumExperience(player);
 
         helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
         TimedWorkbenchMenu flint = workbenchMenu(
@@ -1554,6 +1561,10 @@ public final class ModGameTests {
             player.closeContainer();
         }
         player.level().getServer().getPlayerList().remove(player);
+    }
+
+    private static void grantMaximumExperience(ServerPlayer player) {
+        R196Experience.setTotal(player, R196Experience.XP_AT_DISPLAY_CAP);
     }
 
     private static TimedWorkbenchMenu workbenchMenu(

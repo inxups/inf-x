@@ -8,6 +8,7 @@ import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.world.Underworld;
+import com.pixulse.infx.world.R196CreationBooks;
 import java.util.List;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
@@ -47,9 +48,6 @@ public final class ProgressionEvents {
     private static final String RAIL_START = "infx_advancement_rail_start";
     private static final String SLEEP_START = "infx_advancement_sleep_start";
     private static final String CREATION_BOOKS_READ = "infx_creation_books_read";
-    private static final String CREATION_BOOK_AUTHOR = "Father Phoonzang";
-    private static final List<String> CREATION_BOOK_TITLES = List.of(
-            "Boat", "Crypt", "Crystal", "Dragon", "Globe", "Serpent", "Sphinx", "Star", "Temple");
 
     private ProgressionEvents() {}
 
@@ -96,13 +94,11 @@ public final class ProgressionEvents {
         Identifier id = BuiltInRegistries.ITEM.getKey(crafted.getItem());
         String path = id.getPath();
         if (path.equals("flour")) award(player, "flour", "crafted_flour");
-        if (crafted.is(Items.ENCHANTING_TABLE)) {
-            if (player.getInventory().contains(Items.DIAMOND.getDefaultInstance())) {
-                award(player, "enchantments", "diamond_path");
-            }
-            if (player.getInventory().contains(Items.EMERALD.getDefaultInstance())) {
-                award(player, "enchantments", "emerald_path");
-            }
+        if (crafted.is(ModItems.DIAMOND_ENCHANTING_TABLE.get())) {
+            award(player, "enchantments", "diamond_path");
+        }
+        if (crafted.is(ModItems.EMERALD_ENCHANTING_TABLE.get())) {
+            award(player, "enchantments", "emerald_path");
         }
         if ((path.contains("salad") || path.contains("soup") || path.contains("stew"))
                 || crafted.is(Items.MUSHROOM_STEW)) {
@@ -127,7 +123,11 @@ public final class ProgressionEvents {
         if (stack.is(Items.DIAMOND)) award(player, "diamonds", "picked_up_diamond");
         if (stack.is(Items.EMERALD)) award(player, "emeralds", "picked_up_emerald");
         if (stack.is(Items.BLAZE_ROD)) award(player, "blaze_rod", "picked_up_blaze_rod");
-        if (stack.is(ItemTags.VILLAGER_PLANTABLE_SEEDS)) award(player, "seeds", "picked_up_seed");
+        if (stack.is(ItemTags.VILLAGER_PLANTABLE_SEEDS)
+                || stack.is(ModItems.BLUEBERRIES.get())
+                || stack.is(ModItems.WORM.get())) {
+            award(player, "seeds", "picked_up_seed");
+        }
     }
 
     private static boolean isR196MetalNugget(ItemStack stack) {
@@ -206,12 +206,11 @@ public final class ProgressionEvents {
     }
 
     static int creationBookIndex(String author, String title) {
-        return CREATION_BOOK_AUTHOR.equals(author) ? CREATION_BOOK_TITLES.indexOf(title) : -1;
+        return R196CreationBooks.index(author, title);
     }
 
     static boolean allCreationBooksRead(int mask) {
-        return (mask & (1 << CREATION_BOOK_TITLES.size()) - 1)
-                == (1 << CREATION_BOOK_TITLES.size()) - 1;
+        return R196CreationBooks.complete(mask);
     }
 
     private static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {

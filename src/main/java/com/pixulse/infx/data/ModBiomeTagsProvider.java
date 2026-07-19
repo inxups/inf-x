@@ -21,7 +21,7 @@ final class ModBiomeTagsProvider extends TagsProvider<Biome> {
         tag(BiomeTags.HAS_BURIED_TREASURE, true);
         tag(BiomeTags.HAS_MINESHAFT, true);
         tag(BiomeTags.HAS_MINESHAFT_MESA, true);
-        tag(BiomeTags.HAS_STRONGHOLD, true);
+        tag(BiomeTags.HAS_STRONGHOLD).addTag(BiomeTags.IS_OVERWORLD);
         tag(BiomeTags.HAS_TRAIL_RUINS, true);
         tag(BiomeTags.HAS_TRIAL_CHAMBERS, true);
     }

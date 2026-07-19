@@ -69,6 +69,10 @@ import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.timeline.Timeline;
@@ -128,6 +132,7 @@ final class ModWorldGen {
     static RegistrySetBuilder builder() {
         return new RegistrySetBuilder()
                 .add(Registries.ENCHANTMENT, ModEnchantments::bootstrap)
+                .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
@@ -136,6 +141,18 @@ final class ModWorldGen {
                 .add(Registries.NOISE_SETTINGS, ModWorldGen::bootstrapNoiseSettings)
                 .add(Registries.LEVEL_STEM, ModWorldGen::bootstrapLevelStems)
                 .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModWorldGen::bootstrapBiomeModifiers);
+    }
+
+    private static void bootstrapStructureSets(BootstrapContext<StructureSet> context) {
+        context.register(
+                BuiltinStructureSets.STRONGHOLDS,
+                new StructureSet(
+                        context.lookup(Registries.STRUCTURE).getOrThrow(BuiltinStructures.STRONGHOLD),
+                        new ConcentricRingsStructurePlacement(
+                                220,
+                                3,
+                                128,
+                                context.lookup(Registries.BIOME).getOrThrow(BiomeTags.STRONGHOLD_BIASED_TO))));
     }
 
     private static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {

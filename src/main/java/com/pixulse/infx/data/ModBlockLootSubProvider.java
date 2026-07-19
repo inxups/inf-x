@@ -21,6 +21,8 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         ModBlocks.ORES.forEach(ore -> dropSelf(ore.get()));
         ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> dropSelf(block.get()));
         ModBlocks.METAL_ANVILS.forEach(anvil -> dropSelf(anvil.get()));
+        ModBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
+        ModBlocks.METAL_SAFES.forEach(safe -> dropSelf(safe.get()));
         dropSelf(ModBlocks.MITHRIL_RUNE_STONE.get());
         dropSelf(ModBlocks.ADAMANTIUM_RUNE_STONE.get());
         add(ModBlocks.MANTLE.get(), noDrop());
@@ -38,7 +40,11 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                                         ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.get()),
                                         Stream.concat(
                                                 ModBlocks.METAL_ANVILS.stream().map(anvil -> (Block) anvil.get()),
-                                                ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.get())))))
+                                                Stream.concat(
+                                                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.get()),
+                                                        Stream.concat(
+                                                                ModBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
+                                                                ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.get())))))))
                 .toList();
     }
 }

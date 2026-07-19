@@ -27,6 +27,8 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new LootItemCondition[0], 1500));
         add("modern_progression_filter", new com.pixulse.infx.loot.ModernProgressionLootFilter(
                 new LootItemCondition[0], 3000));
+        add("creation_books", new com.pixulse.infx.loot.CreationBookLootModifier(
+                new LootItemCondition[0], 2500));
         addHorseArmor("simple_dungeon");
         addHorseArmor("nether_bridge");
         addHorseArmor("desert_pyramid");

@@ -32,6 +32,8 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.MITHRIL_RUNE_STONE.getKey())
                 .add(ModBlocks.ADAMANTIUM_RUNE_STONE.getKey());
         ModBlocks.METAL_ANVILS.forEach(anvil -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(anvil.getKey()));
+        ModBlocks.ENCHANTING_TABLES.forEach(table -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(table.getKey()));
+        ModBlocks.METAL_SAFES.forEach(safe -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(safe.getKey()));
         tag(ModTags.Blocks.RESTRICTED_HARVEST)
                 .addTag(BlockTags.LOGS)
                 .addTag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -58,10 +60,16 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.MITHRIL_ORE.getKey())
                 .add(ModBlocks.ANCIENT_METAL_BLOCK.getKey())
                 .add(ModBlocks.ANCIENT_METAL_ANVIL.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.COPPER))
+                .add(ModBlocks.COPPER_SAFE.getKey())
+                .add(ModBlocks.SILVER_SAFE.getKey())
+                .add(ModBlocks.GOLD_SAFE.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.IRON)).add(ModBlocks.IRON_SAFE.getKey());
         tag(ModTags.Blocks.requiredTier(HarvestTier.ANCIENT_METAL))
                 .add(ModBlocks.MITHRIL_BLOCK.getKey())
                 .add(ModBlocks.MITHRIL_ANVIL.getKey())
                 .add(ModBlocks.MITHRIL_RUNE_STONE.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.ANCIENT_METAL)).add(ModBlocks.ANCIENT_METAL_SAFE.getKey());
         tag(ModTags.Blocks.requiredTier(HarvestTier.MITHRIL))
                 .add(net.minecraft.core.registries.BuiltInRegistries.BLOCK
                         .getResourceKey(net.minecraft.world.level.block.Blocks.DIAMOND_ORE).orElseThrow())
@@ -71,5 +79,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.ADAMANTIUM_BLOCK.getKey())
                 .add(ModBlocks.ADAMANTIUM_ANVIL.getKey())
                 .add(ModBlocks.ADAMANTIUM_RUNE_STONE.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.MITHRIL)).add(ModBlocks.MITHRIL_SAFE.getKey());
+        tag(ModTags.Blocks.requiredTier(HarvestTier.ADAMANTIUM)).add(ModBlocks.ADAMANTIUM_SAFE.getKey());
     }
 }
