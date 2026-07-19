@@ -48,6 +48,7 @@ import com.pixulse.infx.survival.R196FireCookingEvents;
 import com.pixulse.infx.survival.R196FoodSourceEvents;
 import com.pixulse.infx.network.R196Network;
 import com.pixulse.infx.server.R196ServerRules;
+import com.pixulse.infx.server.ExtremeDifficulty;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -108,6 +109,7 @@ public final class InfiniteX {
         ModernContentAuditEvents.register(NeoForge.EVENT_BUS);
         R196AchievementEvents.register(NeoForge.EVENT_BUS);
         R196ServerRules.register(NeoForge.EVENT_BUS);
+        ExtremeDifficulty.register(NeoForge.EVENT_BUS);
     }
 
     public static Identifier id(String path) {
