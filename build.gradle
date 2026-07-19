@@ -44,6 +44,8 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+def infxTestMode = providers.systemProperty('infx.testMode')
+
 neoForge {
     version = project.neo_version
 
@@ -86,6 +88,11 @@ neoForge {
 
         // applies to all the run configs above
         configureEach {
+            // Forward the optional development escape hatch to the launched Minecraft JVM.
+            if (infxTestMode.isPresent()) {
+                systemProperty 'infx.testMode', infxTestMode.get()
+            }
+
             // Recommended logging data for a userdev environment
             // The markers can be added/remove as needed separated by commas.
             // "SCAN": For mods scan.

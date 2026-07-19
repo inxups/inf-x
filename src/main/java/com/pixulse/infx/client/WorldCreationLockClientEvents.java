@@ -1,6 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.world.WorldCreationLockProfile;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public final class WorldCreationLockClientEvents {
 
     @SubscribeEvent
     private static void lockWorldCreation(ScreenEvent.Init.Post event) {
+        if (InfiniteXTestMode.isEnabled()) return;
         if (!(event.getScreen() instanceof CreateWorldScreen screen)) return;
         MenuTabBar tabBar = event.getListenersList().stream()
                 .filter(MenuTabBar.class::isInstance)
