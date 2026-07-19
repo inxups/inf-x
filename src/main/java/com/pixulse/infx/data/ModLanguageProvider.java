@@ -429,9 +429,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.smart_pickup", locale == Locale.EN_US ? "Smart harvest: %s" : "智能采集：%s");
         add("message.infx.smart_use", locale == Locale.EN_US ? "Smart use: %s" : "智能使用：%s");
         add("message.infx.chunks_reloaded", locale == Locale.EN_US ? "Chunks reloaded" : "区块已重载");
-        add("gui.infx.status", locale == Locale.EN_US
-                ? "MITE Lv.%s XP %s  HP %s/%s  Satiation %s  Nutrition %s/%s  Malnutrition %s  Insulin %s  Moon %s"
-                : "MITE 等级 %s 经验 %s  生命 %s/%s  饱和 %s  营养 %s/%s  营养不良 %s  胰岛素 %s  月相 %s");
         add("effect.infx.malnutrition", locale == Locale.EN_US ? "Malnutrition" : "营养不良");
         add("effect.infx.witch_curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
         add("effect.infx.insulin_resistance", locale == Locale.EN_US ? "Insulin Resistance" : "胰岛素抵抗");

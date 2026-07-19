@@ -23,11 +23,10 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.survival.R196SurvivalRules;
-import com.pixulse.infx.world.R196MoonPhase;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
-/** Six R196 controls plus the reduced debug, sleep and local status interfaces. */
+/** Six R196 controls plus the reduced debug, sleep and scaled-food interfaces. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class R196ClientControls {
     public static final KeyMapping.Category CATEGORY = new KeyMapping.Category(InfiniteX.id("controls"));
@@ -158,26 +157,6 @@ public final class R196ClientControls {
         for (var listener : java.util.List.copyOf(event.getListenersList())) {
             if (listener instanceof Button) event.removeListener(listener);
         }
-    }
-
-    @SubscribeEvent
-    private static void renderStatus(RenderGuiEvent.Post event) {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.gui.hud.isHidden()) return;
-        var survival = minecraft.player.getData(ModAttachments.SURVIVAL);
-        Component status = Component.translatable(
-                "gui.infx.status",
-                minecraft.player.experienceLevel,
-                minecraft.player.totalExperience,
-                Math.round(minecraft.player.getHealth() * 10.0F) / 10.0F,
-                Math.round(minecraft.player.getMaxHealth() * 10.0F) / 10.0F,
-                Math.round(survival.satiation() * 10.0D) / 10.0D,
-                Math.round(survival.nutrition() * 10.0D) / 10.0D,
-                Math.round(R196SurvivalRules.foodCap(minecraft.player.experienceLevel) * 10.0D) / 10.0D,
-                survival.isMalnourished(),
-                survival.insulinResistance().name(),
-                R196MoonPhase.atTime(minecraft.level.getOverworldClockTime()).name());
-        event.getGuiGraphics().text(minecraft.font, status, 4, 4, 0xFFF0E0A0, true);
     }
 
     @SubscribeEvent
