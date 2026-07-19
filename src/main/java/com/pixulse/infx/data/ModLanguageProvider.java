@@ -106,7 +106,11 @@ final class ModLanguageProvider extends LanguageProvider {
     }
     enum Locale {
         EN_US("en_us", Map.ofEntries(
-                Map.entry("itemGroup.infx", "InfiniteX"),
+                Map.entry("itemGroup.infx", "InfiniteX: Blocks"),
+                Map.entry("itemGroup.infx.ingredients", "InfiniteX: Ingredients"),
+                Map.entry("itemGroup.infx.food_and_consumables", "InfiniteX: Food & Consumables"),
+                Map.entry("itemGroup.infx.tools_and_utilities", "InfiniteX: Tools & Utilities"),
+                Map.entry("itemGroup.infx.combat_and_equipment", "InfiniteX: Combat & Equipment"),
                 Map.entry("block.infx.flint_workbench", "Flint Workbench"),
                 Map.entry("block.infx.copper_workbench", "Copper Workbench"),
                 Map.entry("block.infx.silver_workbench", "Silver Workbench"),
@@ -206,7 +210,11 @@ final class ModLanguageProvider extends LanguageProvider {
             }
         },
         ZH_CN("zh_cn", Map.ofEntries(
-                Map.entry("itemGroup.infx", "InfiniteX"),
+                Map.entry("itemGroup.infx", "InfiniteX：方块"),
+                Map.entry("itemGroup.infx.ingredients", "InfiniteX：原料"),
+                Map.entry("itemGroup.infx.food_and_consumables", "InfiniteX：食物与消耗品"),
+                Map.entry("itemGroup.infx.tools_and_utilities", "InfiniteX：工具与实用品"),
+                Map.entry("itemGroup.infx.combat_and_equipment", "InfiniteX：战斗与装备"),
                 Map.entry("block.infx.flint_workbench", "燧石工具台"),
                 Map.entry("block.infx.copper_workbench", "铜工具台"),
                 Map.entry("block.infx.silver_workbench", "银工具台"),

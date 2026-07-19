@@ -20,6 +20,7 @@ import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.menu.MetalAnvilMenu;
 import com.pixulse.infx.menu.R196EnchantmentMenu;
 import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModAttachments;
@@ -33,7 +34,10 @@ import com.pixulse.infx.world.R196EndEvents;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 import io.netty.channel.embedded.EmbeddedChannel;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -41,6 +45,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -66,6 +71,10 @@ import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
@@ -80,6 +89,7 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.CreativeModeTabRegistry;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -97,6 +107,7 @@ public final class ModR196CompletionGameTests {
             "r196_hopper_xp",
             "r196_survival_core",
             "r196_safe_enchanting",
+            "r196_creative_tabs",
             "r196_fulltext_systems");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -111,6 +122,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_hopper_xp", () -> ModR196CompletionGameTests::hopperExperience);
         FUNCTIONS.register("r196_survival_core", () -> ModR196CompletionGameTests::survivalCore);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
+        FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
         FUNCTIONS.register("r196_fulltext_systems", () -> ModR196CompletionGameTests::fulltextSystems);
     }
 
@@ -675,6 +687,59 @@ public final class ModR196CompletionGameTests {
                                 .isEmpty(),
                         "automated output must pop accumulated XP at the furnace mouth"))
                 .thenSucceed();
+    }
+
+    private static void creativeTabs(GameTestHelper helper) {
+        List<CreativeModeTab> tabs = List.of(
+                ModCreativeTabs.MAIN.get(),
+                ModCreativeTabs.INGREDIENTS.get(),
+                ModCreativeTabs.FOOD_AND_CONSUMABLES.get(),
+                ModCreativeTabs.TOOLS_AND_UTILITIES.get(),
+                ModCreativeTabs.COMBAT_AND_EQUIPMENT.get());
+        List<Integer> expectedSizes = List.of(50, 31, 24, 135, 108);
+        CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(
+                helper.getLevel().enabledFeatures(), true, helper.getLevel().registryAccess());
+        List<Item> displayed = new ArrayList<>();
+
+        for (int index = 0; index < tabs.size(); index++) {
+            CreativeModeTab tab = tabs.get(index);
+            tab.buildContents(parameters);
+            helper.assertTrue(
+                    tab.getDisplayItems().size() == expectedSizes.get(index),
+                    "creative tab " + index + " has the expected category size");
+            helper.assertTrue(
+                    tab.getDisplayItems().size() == tab.getSearchTabDisplayItems().size(),
+                    "every creative item is also visible in global search");
+            tab.getDisplayItems().stream().map(ItemStack::getItem).forEach(displayed::add);
+        }
+
+        Set<Item> registered = new HashSet<>();
+        ModItems.ITEMS.getEntries().forEach(item -> registered.add(item.value()));
+        Set<Item> uniqueDisplayed = new HashSet<>(displayed);
+        helper.assertTrue(displayed.size() == registered.size(), "all registered items are displayed");
+        helper.assertTrue(uniqueDisplayed.size() == displayed.size(), "creative categories do not overlap");
+        helper.assertTrue(uniqueDisplayed.equals(registered), "creative categories exactly cover the item registry");
+        helper.assertTrue(
+                tabs.getFirst().getDisplayItems().stream().allMatch(stack -> stack.getItem() instanceof BlockItem),
+                "the blocks tab only contains registered BlockItems");
+        helper.assertTrue(
+                ModBlocks.UNDERWORLD_PORTAL.get().asItem() == Items.AIR,
+                "the Underworld portal remains the only block without an item form");
+
+        List<CreativeModeTab> sortedTabs = CreativeModeTabRegistry.getSortedCreativeModeTabs();
+        CreativeModeTab vanillaSpawnEggs =
+                BuiltInRegistries.CREATIVE_MODE_TAB.getValue(CreativeModeTabs.SPAWN_EGGS);
+        int firstIndex = sortedTabs.indexOf(tabs.getFirst());
+        List<Identifier> sortedNames = sortedTabs.stream().map(CreativeModeTabRegistry::getName).toList();
+        helper.assertTrue(
+                firstIndex == sortedTabs.indexOf(vanillaSpawnEggs) + 1,
+                "InfiniteX creative tabs start immediately after vanilla spawn eggs: " + sortedNames);
+        for (int index = 0; index < tabs.size(); index++) {
+            helper.assertTrue(
+                    sortedTabs.get(firstIndex + index) == tabs.get(index),
+                    "InfiniteX creative tabs remain consecutive and ordered");
+        }
+        helper.succeed();
     }
 
     private static void fulltextSystems(GameTestHelper helper) {

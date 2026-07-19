@@ -50,6 +50,29 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void creativeTabsHaveEnglishAndChineseTranslations() throws Exception {
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        Map<String, String> englishNames = Map.of(
+                "itemGroup.infx", "InfiniteX: Blocks",
+                "itemGroup.infx.ingredients", "InfiniteX: Ingredients",
+                "itemGroup.infx.food_and_consumables", "InfiniteX: Food & Consumables",
+                "itemGroup.infx.tools_and_utilities", "InfiniteX: Tools & Utilities",
+                "itemGroup.infx.combat_and_equipment", "InfiniteX: Combat & Equipment");
+        Map<String, String> chineseNames = Map.of(
+                "itemGroup.infx", "InfiniteX：方块",
+                "itemGroup.infx.ingredients", "InfiniteX：原料",
+                "itemGroup.infx.food_and_consumables", "InfiniteX：食物与消耗品",
+                "itemGroup.infx.tools_and_utilities", "InfiniteX：工具与实用品",
+                "itemGroup.infx.combat_and_equipment", "InfiniteX：战斗与装备");
+
+        englishNames.forEach((key, name) -> assertAll(
+                key,
+                () -> assertEquals(name, english.get(key).getAsString()),
+                () -> assertEquals(chineseNames.get(key), chinese.get(key).getAsString())));
+    }
+
+    @Test
     void everyWorkbenchHasClientDataLootRecipeAndTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
