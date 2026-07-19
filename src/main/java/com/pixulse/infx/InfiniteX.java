@@ -105,11 +105,15 @@ public final class InfiniteX {
         R196FoodSourceEvents.register(NeoForge.EVENT_BUS);
         R196AgricultureEvents.register(NeoForge.EVENT_BUS);
         R196Commands.register(NeoForge.EVENT_BUS);
-        R196CreativeRestriction.register(NeoForge.EVENT_BUS);
         ModernContentAuditEvents.register(NeoForge.EVENT_BUS);
         R196AchievementEvents.register(NeoForge.EVENT_BUS);
         R196ServerRules.register(NeoForge.EVENT_BUS);
-        ExtremeDifficulty.register(NeoForge.EVENT_BUS);
+        if (InfiniteXTestMode.isEnabled()) {
+            LOGGER.warn("InfiniteX test mode is active; world profile restrictions are disabled");
+        } else {
+            R196CreativeRestriction.register(NeoForge.EVENT_BUS);
+            ExtremeDifficulty.register(NeoForge.EVENT_BUS);
+        }
     }
 
     public static Identifier id(String path) {
