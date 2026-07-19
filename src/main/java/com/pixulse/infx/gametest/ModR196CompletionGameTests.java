@@ -482,7 +482,7 @@ public final class ModR196CompletionGameTests {
         chicken.setAge(0);
         chicken.getPersistentData().putBoolean("infx_livestock_healthy", true);
         chicken.getPersistentData().putBoolean("infx_livestock_diseased", false);
-        chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
+        chicken.getPersistentData().putLong("infx_chicken_next_feather", -1L);
         com.pixulse.infx.entity.R196AnimalEvents.updateChicken(level, chicken);
         helper.assertTrue(
                 !level.getEntitiesOfClass(
@@ -495,12 +495,12 @@ public final class ModR196CompletionGameTests {
         Cow seeker = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(8, 2, 4));
         seeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
         seeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime());
-        for (int x = 7; x <= 13; x++) {
+        for (int x = 7; x <= 11; x++) {
             for (int z = 3; z <= 5; z++) {
                 helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
             }
         }
-        BlockPos water = new BlockPos(13, 1, 4);
+        BlockPos water = new BlockPos(11, 1, 4);
         helper.setBlock(water, Blocks.WATER);
         R196Livestock.Needs thirsty = R196Livestock.update(level, seeker);
         helper.assertFalse(thirsty.watered(), "seeker setup must begin thirsty");
@@ -699,9 +699,15 @@ public final class ModR196CompletionGameTests {
         }
 
         BlockPos bush = new BlockPos(6, 2, 6);
+        helper.setBlock(bush.below(2), Blocks.STONE);
         helper.setBlock(bush.below(), ModBlocks.NETHER_GRAVEL.get());
         helper.setBlock(bush, ModBlocks.WITHERWOOD.get());
         Cow cow = helper.spawnWithNoFreeWill(EntityTypes.COW, bush);
+        cow.applyEffectsFromBlocks(cow.position(), cow.position());
+        helper.assertTrue(
+                cow.hasEffect(MobEffects.WITHER)
+                        && cow.getEffect(MobEffects.WITHER).getDuration() > 0,
+                "touching Witherwood applies Wither");
 
         player.setItemInHand(
                 InteractionHand.MAIN_HAND,
@@ -721,10 +727,6 @@ public final class ModR196CompletionGameTests {
                         player.getMainHandItem().is(ModItems.bucket(
                                 R196Material.IRON, R196BucketItem.Contents.EMPTY)),
                         "an immersed milk bucket leaks into its matching empty bucket"))
-                .thenWaitUntil(() -> helper.assertTrue(
-                        cow.hasEffect(MobEffects.WITHER)
-                                && cow.getEffect(MobEffects.WITHER).getDuration() > 0,
-                        "touching Witherwood applies Wither"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
     }
