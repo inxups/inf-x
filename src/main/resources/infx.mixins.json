@@ -7,6 +7,8 @@
     "AbstractFurnaceBlockEntityMixin",
     "CakeBlockMixin",
     "ChunkGeneratorMixin",
+    "DifficultyInvoker",
+    "DifficultyMixin",
     "EggItemMixin",
     "EnchantmentMenuAccessor",
     "FurnaceFuelSlotMixin",
@@ -17,7 +19,8 @@
     "HopperBlockEntityMixin",
     "PlayerExperienceMixin",
     "PlayerAttackRangeMixin",
-    "PlayerFoodMixin"
+    "PlayerFoodMixin",
+    "RaidMixin"
   ],
   "injectors": {
     "defaultRequire": 1

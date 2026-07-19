@@ -361,9 +361,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("disconnect.infx.reconnect_limited", locale == Locale.EN_US
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
                 : "重连受限：请等待次日调整时刻 %s 左右（至少 %s 秒）");
-        add("commands.infx.difficulty.extreme", locale == Locale.EN_US
-                ? "Difficulty set to Extreme and locked"
-                : "难度已设为 Extreme 并锁定");
         ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         ModEntityTypes.names().forEach(entity -> add(
                 "entity.infx." + entity.path(),
