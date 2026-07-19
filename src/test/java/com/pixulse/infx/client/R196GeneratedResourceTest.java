@@ -824,11 +824,12 @@ class R196GeneratedResourceTest {
         JsonObject roofGradient = roofBedrockRule
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
-        JsonObject floorBedrockRule = surfaceSequence.get(1).getAsJsonObject();
-        JsonObject firstInternalBedrockRule = surfaceSequence.get(2).getAsJsonObject();
-        JsonObject secondInternalBedrockRule = surfaceSequence.get(3).getAsJsonObject();
-        JsonObject thirdInternalBedrockRule = surfaceSequence.get(4).getAsJsonObject();
-        JsonObject deepslateRule = surfaceSequence.get(5).getAsJsonObject();
+        JsonObject floorCoreRule = surfaceSequence.get(1).getAsJsonObject();
+        JsonObject mantleRule = surfaceSequence.get(2).getAsJsonObject();
+        JsonObject firstInternalBedrockRule = surfaceSequence.get(3).getAsJsonObject();
+        JsonObject secondInternalBedrockRule = surfaceSequence.get(4).getAsJsonObject();
+        JsonObject thirdInternalBedrockRule = surfaceSequence.get(5).getAsJsonObject();
+        JsonObject deepslateRule = surfaceSequence.get(6).getAsJsonObject();
         JsonObject deepslateCutoff = deepslateRule
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
@@ -912,7 +913,7 @@ class R196GeneratedResourceTest {
                         "minecraft:spaghetti_3d_1",
                         "minecraft:spaghetti_3d_2"), terrainNoises),
                 () -> assertTrue(finalDensity.toString().contains("minecraft:interpolated")),
-                () -> assertEquals(6, surfaceSequence.size()),
+                () -> assertEquals(7, surfaceSequence.size()),
                 () -> assertEquals("minecraft:vertical_gradient", roofGradient.get("type").getAsString()),
                 () -> assertEquals(5, roofGradient
                         .getAsJsonObject("true_at_and_below")
@@ -927,11 +928,28 @@ class R196GeneratedResourceTest {
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
-                () -> assertEquals("minecraft:bedrock", floorBedrockRule
+                () -> assertEquals("infx:core", floorCoreRule
                         .getAsJsonObject("then_run")
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
+                () -> assertEquals(1, floorCoreRule
+                        .getAsJsonObject("if_true")
+                        .getAsJsonObject("invert")
+                        .getAsJsonObject("anchor")
+                        .get("above_bottom")
+                        .getAsInt()),
+                () -> assertEquals("infx:mantle", mantleRule
+                        .getAsJsonObject("then_run")
+                        .getAsJsonObject("result_state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals(5, mantleRule
+                        .getAsJsonObject("if_true")
+                        .getAsJsonObject("invert")
+                        .getAsJsonObject("anchor")
+                        .get("above_bottom")
+                        .getAsInt()),
                 () -> assertInternalBedrockBand(
                         firstInternalBedrockRule, 152, 162, "minecraft:pillar"),
                 () -> assertInternalBedrockBand(
@@ -1198,8 +1216,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(290, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(361, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(339, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(408, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 

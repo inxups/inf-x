@@ -18,6 +18,8 @@ import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
 import com.pixulse.infx.registry.ModRecipes;
+import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.registry.ModWorldCarvers;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.registry.ModMobEffects;
 import com.pixulse.infx.progression.ProgressionEvents;
@@ -38,11 +40,14 @@ import com.pixulse.infx.world.R196MoonEvents;
 import com.pixulse.infx.world.R196PhysicsEvents;
 import com.pixulse.infx.world.R196EndEvents;
 import com.pixulse.infx.world.R196SafeEvents;
+import com.pixulse.infx.world.R196BucketEvents;
+import com.pixulse.infx.world.R196StructureSafetyEvents;
 import com.pixulse.infx.agriculture.R196AgricultureEvents;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import com.pixulse.infx.survival.R196FireCookingEvents;
 import com.pixulse.infx.survival.R196FoodSourceEvents;
 import com.pixulse.infx.network.R196Network;
+import com.pixulse.infx.server.R196ServerRules;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -57,6 +62,9 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         R196Network.register(modBus);
+        ModSounds.register(modBus);
+        ModWorldCarvers.register(modBus);
+        R196BucketEvents.register(modBus);
         ModAttachments.register(modBus);
         ModBlocks.register(modBus);
         ModBlockEntityTypes.register(modBus);
@@ -89,6 +97,7 @@ public final class InfiniteX {
         R196PhysicsEvents.register(NeoForge.EVENT_BUS);
         R196EndEvents.register(NeoForge.EVENT_BUS);
         R196SafeEvents.register(NeoForge.EVENT_BUS);
+        R196StructureSafetyEvents.register(NeoForge.EVENT_BUS);
         PlayerProgressionEvents.register(modBus, NeoForge.EVENT_BUS);
         R196SurvivalEvents.register(modBus, NeoForge.EVENT_BUS);
         R196FireCookingEvents.register(NeoForge.EVENT_BUS);
@@ -98,6 +107,7 @@ public final class InfiniteX {
         R196CreativeRestriction.register(NeoForge.EVENT_BUS);
         ModernContentAuditEvents.register(NeoForge.EVENT_BUS);
         R196AchievementEvents.register(NeoForge.EVENT_BUS);
+        R196ServerRules.register(NeoForge.EVENT_BUS);
     }
 
     public static Identifier id(String path) {

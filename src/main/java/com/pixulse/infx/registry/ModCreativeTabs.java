@@ -28,6 +28,11 @@ public final class ModCreativeTabs {
                         ModItems.METAL_ANVILS.forEach(anvil -> output.accept(anvil.value()));
                         ModItems.ENCHANTING_TABLES.forEach(table -> output.accept(table.value()));
                         ModItems.METAL_SAFES.forEach(safe -> output.accept(safe.value()));
+                        ModItems.R196_FLOWERS.forEach(flower -> output.accept(flower.value()));
+                        ModItems.FULLTEXT_BLOCKS.forEach(block -> output.accept(block.value()));
+                        ModItems.R196_BUCKETS.forEach(bucket -> output.accept(bucket.value()));
+                        output.accept(ModItems.BOTTLE_OF_DISENCHANTING.value());
+                        ModItems.R196_RECORDS.forEach(record -> output.accept(record.value()));
                         output.accept(ModItems.FLOUR.value());
                         output.accept(ModItems.WATER_BOWL.value());
                         ModItems.R196_FOODS.forEach(food -> output.accept(food.value()));

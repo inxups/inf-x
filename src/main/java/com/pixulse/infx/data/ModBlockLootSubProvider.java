@@ -23,28 +23,29 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         ModBlocks.METAL_ANVILS.forEach(anvil -> dropSelf(anvil.get()));
         ModBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
         ModBlocks.METAL_SAFES.forEach(safe -> dropSelf(safe.get()));
+        ModBlocks.R196_FLOWERS.forEach(flower -> dropSelf(flower.get()));
+        dropSelf(ModBlocks.NETHER_GRAVEL.get());
+        dropSelf(ModBlocks.WITHERWOOD.get());
         dropSelf(ModBlocks.MITHRIL_RUNE_STONE.get());
         dropSelf(ModBlocks.ADAMANTIUM_RUNE_STONE.get());
         add(ModBlocks.MANTLE.get(), noDrop());
+        add(ModBlocks.CORE.get(), noDrop());
     }
 
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return Stream.concat(
-                        Stream.concat(
-                                ModBlocks.WORKBENCHES.stream().map(workbench -> (Block) workbench.get()),
-                                ModBlocks.FURNACES.stream().map(furnace -> (Block) furnace.get())),
-                        Stream.concat(
-                                ModBlocks.ORES.stream().map(ore -> (Block) ore.get()),
-                                Stream.concat(
-                                        ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.get()),
-                                        Stream.concat(
-                                                ModBlocks.METAL_ANVILS.stream().map(anvil -> (Block) anvil.get()),
-                                                Stream.concat(
-                                                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.get()),
-                                                        Stream.concat(
-                                                                ModBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
-                                                                ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.get())))))))
+        return Stream.of(
+                        ModBlocks.WORKBENCHES.stream().map(block -> (Block) block.get()),
+                        ModBlocks.FURNACES.stream().map(block -> (Block) block.get()),
+                        ModBlocks.ORES.stream().map(block -> (Block) block.get()),
+                        ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.get()),
+                        ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.get()),
+                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.get()),
+                        ModBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
+                        ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.get()),
+                        ModBlocks.R196_FLOWERS.stream().map(block -> (Block) block.get()),
+                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()))
+                .flatMap(stream -> stream)
                 .toList();
     }
 }

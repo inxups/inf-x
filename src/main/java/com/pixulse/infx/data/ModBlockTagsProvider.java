@@ -31,6 +31,8 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.ADAMANTIUM_BLOCK.getKey())
                 .add(ModBlocks.MITHRIL_RUNE_STONE.getKey())
                 .add(ModBlocks.ADAMANTIUM_RUNE_STONE.getKey());
+        tag(BlockTags.MINEABLE_WITH_SHOVEL).add(ModBlocks.NETHER_GRAVEL.getKey());
+        ModBlocks.R196_FLOWERS.forEach(flower -> tag(BlockTags.FLOWERS).add(flower.getKey()));
         ModBlocks.METAL_ANVILS.forEach(anvil -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(anvil.getKey()));
         ModBlocks.ENCHANTING_TABLES.forEach(table -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(table.getKey()));
         ModBlocks.METAL_SAFES.forEach(safe -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(safe.getKey()));

@@ -1,6 +1,7 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.world.R196RiverBiomes;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +18,15 @@ final class ModBiomeTagsProvider extends TagsProvider<Biome> {
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
+        tag(BiomeTags.IS_OVERWORLD)
+                .add(R196RiverBiomes.DESERT_RIVER)
+                .add(R196RiverBiomes.JUNGLE_RIVER)
+                .add(R196RiverBiomes.SWAMP_RIVER);
+        tag(BiomeTags.IS_RIVER)
+                .add(R196RiverBiomes.DESERT_RIVER)
+                .add(R196RiverBiomes.JUNGLE_RIVER)
+                .add(R196RiverBiomes.SWAMP_RIVER);
+        tag(BiomeTags.IS_JUNGLE).add(R196RiverBiomes.JUNGLE_RIVER);
         tag(BiomeTags.HAS_ANCIENT_CITY, true);
         tag(BiomeTags.HAS_BURIED_TREASURE, true);
         tag(BiomeTags.HAS_MINESHAFT, true);

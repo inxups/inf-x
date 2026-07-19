@@ -1,5 +1,7 @@
 package com.pixulse.infx.world;
 
+import com.pixulse.infx.item.R196BucketItem;
+import com.pixulse.infx.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -7,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -31,7 +34,6 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.block.CreateFluidSourceEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
-import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** Loose terrain, explosion conversion, falling impact and R196 fluid restrictions. */
 public final class R196PhysicsEvents {
@@ -49,7 +51,6 @@ public final class R196PhysicsEvents {
         gameBus.addListener(R196PhysicsEvents::coverFragileBlock);
         gameBus.addListener(R196PhysicsEvents::restrictFluidSources);
         gameBus.addListener(R196PhysicsEvents::meltLavaBucket);
-        gameBus.addListener(R196PhysicsEvents::wetInventory);
     }
 
     private static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
@@ -63,6 +64,9 @@ public final class R196PhysicsEvents {
     }
 
     private static void onEntityTick(EntityTickEvent.Post event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+            wetInventory(player);
+        }
         if (event.getEntity() instanceof FallingBlockEntity falling
                 && falling.level() instanceof ServerLevel level) {
             BlockState occupied = level.getBlockState(falling.blockPosition());
@@ -181,18 +185,35 @@ public final class R196PhysicsEvents {
         event.setCanceled(true);
     }
 
-    private static void wetInventory(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
-                || !player.isInWater()
-                || player.tickCount % 20 != 0) return;
+    private static void wetInventory(net.minecraft.server.level.ServerPlayer player) {
+        if (!eyesInWater(player) || player.tickCount % 20 != 0) return;
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.is(Items.LAVA_BUCKET)) {
+            if (stack.getItem() instanceof R196BucketItem bucket
+                    && bucket.contents() == R196BucketItem.Contents.LAVA) {
+                player.getInventory().setItem(
+                        slot,
+                        ModItems.bucket(bucket.material(), R196BucketItem.Contents.STONE)
+                                .toStack(stack.getCount()));
+            } else if (stack.getItem() instanceof R196BucketItem bucket
+                    && bucket.contents() == R196BucketItem.Contents.MILK) {
+                player.getInventory().setItem(
+                        slot,
+                        ModItems.bucket(bucket.material(), R196BucketItem.Contents.EMPTY)
+                                .toStack(stack.getCount()));
+            } else if (stack.is(Items.LAVA_BUCKET)) {
                 player.getInventory().setItem(slot, new ItemStack(Items.OBSIDIAN, stack.getCount()));
             } else if (stack.is(Items.MILK_BUCKET)) {
                 player.getInventory().setItem(slot, new ItemStack(Items.BUCKET, stack.getCount()));
             }
         }
+    }
+
+    private static boolean eyesInWater(net.minecraft.server.level.ServerPlayer player) {
+        BlockPos eye = BlockPos.containing(player.getX(), player.getEyeY(), player.getZ());
+        var fluid = player.level().getFluidState(eye);
+        return fluid.is(FluidTags.WATER)
+                && player.getEyeY() <= eye.getY() + fluid.getHeight(player.level(), eye);
     }
 
     private static boolean isFragile(BlockState state) {

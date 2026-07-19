@@ -4,7 +4,10 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModEnchantments;
+import com.pixulse.infx.registry.ModJukeboxSongs;
+import com.pixulse.infx.registry.ModWorldCarvers;
 import com.pixulse.infx.world.Underworld;
+import com.pixulse.infx.world.R196RiverBiomes;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderGetter;
@@ -14,6 +17,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BiomeTags;
@@ -21,6 +25,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.util.random.Weighted;
 import net.minecraft.util.random.WeightedList;
@@ -38,6 +43,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -56,19 +62,29 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
+import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
+import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
+import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.heightproviders.BiasedToBottomHeight;
+import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
+import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
+import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
@@ -98,8 +114,16 @@ final class ModWorldGen {
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("mite_r196_first_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
+    public static final ResourceKey<ConfiguredWorldCarver<?>> LARGE_CAVE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("large_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_FLOWERS_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_flowers"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_ALLIUM_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_allium"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> WITHERWOOD_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("witherwood_patch"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> MANTLE_BASIN_CONFIGURED =
@@ -108,6 +132,12 @@ final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("mithril_ore"));
+    private static final ResourceKey<PlacedFeature> R196_FLOWERS_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_flowers"));
+    private static final ResourceKey<PlacedFeature> R196_ALLIUM_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_allium"));
+    private static final ResourceKey<PlacedFeature> WITHERWOOD_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("witherwood_patch"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     public static final ResourceKey<PlacedFeature> MANTLE_BASIN_PLACED =
@@ -116,6 +146,14 @@ final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_mithril_ore"));
+    private static final ResourceKey<BiomeModifier> ADD_LARGE_CAVES =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_large_caves"));
+    private static final ResourceKey<BiomeModifier> ADD_R196_FLOWERS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_flowers"));
+    private static final ResourceKey<BiomeModifier> ADD_R196_ALLIUM =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_allium"));
+    private static final ResourceKey<BiomeModifier> ADD_WITHERWOOD =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
     private static final ResourceKey<BiomeModifier> ADD_R196_OVERWORLD_MONSTERS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_overworld_monsters"));
     private static final ResourceKey<BiomeModifier> ADD_R196_JUNGLE_MONSTERS =
@@ -132,8 +170,10 @@ final class ModWorldGen {
     static RegistrySetBuilder builder() {
         return new RegistrySetBuilder()
                 .add(Registries.ENCHANTMENT, ModEnchantments::bootstrap)
+                .add(Registries.JUKEBOX_SONG, ModJukeboxSongs::bootstrap)
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
+                .add(Registries.CONFIGURED_CARVER, ModWorldGen::bootstrapConfiguredCarvers)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
@@ -159,9 +199,50 @@ final class ModWorldGen {
         context.register(MITE_R196_FIRST_CAVE, underworldFirstCave());
     }
 
+    private static void bootstrapConfiguredCarvers(BootstrapContext<ConfiguredWorldCarver<?>> context) {
+        context.register(
+                LARGE_CAVE_CONFIGURED,
+                ModWorldCarvers.LARGE_CAVE.get().configured(new CarverConfiguration(
+                        1.0F,
+                        UniformHeight.of(VerticalAnchor.absolute(8), VerticalAnchor.absolute(55)),
+                        ConstantFloat.of(1.0F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.OAK_BUTTON.defaultBlockState()),
+                        context.lookup(Registries.BLOCK).getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES))));
+    }
+
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
+        context.register(
+                OreFeatures.ORE_GRAVEL_NETHER,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(
+                                new BlockMatchTest(Blocks.NETHERRACK),
+                                ModBlocks.NETHER_GRAVEL.get().defaultBlockState(),
+                                33)));
         registerConfiguredOre(context, SILVER_ORE_CONFIGURED, ModBlocks.SILVER_ORE.get().defaultBlockState(), 6);
         registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, ModBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
+        context.register(
+                R196_FLOWERS_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.SIMPLE_BLOCK,
+                        new SimpleBlockConfiguration(new WeightedStateProvider(
+                                WeightedList.<BlockState>builder()
+                                        .add(ModBlocks.ROSE.get().defaultBlockState(), 2)
+                                        .add(ModBlocks.ORCHID.get().defaultBlockState(), 1)
+                                        .add(ModBlocks.TULIP.get().defaultBlockState(), 1)
+                                        .add(ModBlocks.DAHLIA.get().defaultBlockState(), 1)
+                                        .add(ModBlocks.DAISY.get().defaultBlockState(), 2)))));
+        context.register(
+                R196_ALLIUM_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.SIMPLE_BLOCK,
+                        new SimpleBlockConfiguration(BlockStateProvider.simple(ModBlocks.ALLIUM.get()))));
+        context.register(
+                WITHERWOOD_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.SIMPLE_BLOCK,
+                        new SimpleBlockConfiguration(BlockStateProvider.simple(ModBlocks.WITHERWOOD.get()))));
         registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, ModBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
         context.register(
                 MANTLE_BASIN_CONFIGURED,
@@ -195,6 +276,46 @@ final class ModWorldGen {
         registerPlacedOre(context, configuredFeatures, SILVER_ORE_CONFIGURED, SILVER_ORE_PLACED, 96);
         registerPlacedOre(context, configuredFeatures, MITHRIL_ORE_CONFIGURED, MITHRIL_ORE_PLACED, 32);
         context.register(
+                R196_FLOWERS_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(R196_FLOWERS_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(1),
+                                InSquarePlacement.spread(),
+                                PlacementUtils.HEIGHTMAP,
+                                BiomeFilter.biome(),
+                                CountPlacement.of(32),
+                                RandomOffsetPlacement.ofTriangle(7, 3),
+                                BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE))));
+        context.register(
+                R196_ALLIUM_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(R196_ALLIUM_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(1),
+                                InSquarePlacement.spread(),
+                                PlacementUtils.HEIGHTMAP,
+                                BiomeFilter.biome(),
+                                CountPlacement.of(8),
+                                RandomOffsetPlacement.ofTriangle(7, 3),
+                                BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE))));
+        context.register(
+                WITHERWOOD_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(WITHERWOOD_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(16),
+                                InSquarePlacement.spread(),
+                                PlacementUtils.FULL_RANGE,
+                                BiomeFilter.biome(),
+                                CountPlacement.of(4),
+                                RandomOffsetPlacement.ofTriangle(7, 3),
+                                BlockPredicateFilter.forPredicate(BlockPredicate.allOf(
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        BlockPredicate.matchesBlocks(
+                                                net.minecraft.core.Direction.DOWN.getUnitVec3i(),
+                                                ModBlocks.NETHER_GRAVEL.get()))))));
+        context.register(
                 ADAMANTIUM_ORE_PLACED,
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(ADAMANTIUM_ORE_CONFIGURED),
@@ -219,6 +340,15 @@ final class ModWorldGen {
     private static void bootstrapBiomes(BootstrapContext<Biome> context) {
         HolderGetter<PlacedFeature> placed = context.lookup(Registries.PLACED_FEATURE);
         var carvers = context.lookup(Registries.CONFIGURED_CARVER);
+        context.register(
+                R196RiverBiomes.DESERT_RIVER,
+                r196River(placed, carvers, 1.4F, 0.0F, false, false));
+        context.register(
+                R196RiverBiomes.JUNGLE_RIVER,
+                r196River(placed, carvers, 1.0F, 0.9F, true, false));
+        context.register(
+                R196RiverBiomes.SWAMP_RIVER,
+                r196River(placed, carvers, 0.8F, 0.9F, true, true));
         MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
         BiomeDefaultFeatures.commonSpawns(mobs, 120);
         mobs.addSpawn(MobCategory.MONSTER, 20, new MobSpawnSettings.SpawnerData(EntityTypes.CAVE_SPIDER, 1, 2));
@@ -249,6 +379,33 @@ final class ModWorldGen {
                         .mobSpawnSettings(mobs.build())
                         .generationSettings(generation.build())
                         .build());
+    }
+
+    private static Biome r196River(
+            HolderGetter<PlacedFeature> placed,
+            HolderGetter<ConfiguredWorldCarver<?>> carvers,
+            float temperature,
+            float downfall,
+            boolean precipitation,
+            boolean swampColors) {
+        Biome vanillaRiver = OverworldBiomes.river(placed, carvers, false);
+        BiomeSpecialEffects.Builder effects = new BiomeSpecialEffects.Builder()
+                .waterColor(vanillaRiver.getWaterColor());
+        if (swampColors) {
+            effects.foliageColorOverride(9_285_927)
+                    .dryFoliageColorOverride(8_082_228)
+                    .grassColorModifier(BiomeSpecialEffects.GrassColorModifier.SWAMP);
+        }
+        return new Biome.BiomeBuilder()
+                .hasPrecipitation(precipitation)
+                .temperature(temperature)
+                .downfall(downfall)
+                .putAttributes(vanillaRiver.getAttributes())
+                .setAttribute(EnvironmentAttributes.SKY_COLOR, OverworldBiomes.calculateSkyColor(temperature))
+                .specialEffects(effects.build())
+                .mobSpawnSettings(vanillaRiver.getMobSettings())
+                .generationSettings(vanillaRiver.getGenerationSettings())
+                .build();
     }
 
     private static void bootstrapDimensionTypes(BootstrapContext<DimensionType> context) {
@@ -537,6 +694,8 @@ final class ModWorldGen {
     private static SurfaceRules.RuleSource underworldSurfaceRule() {
         SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
         SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
+        SurfaceRules.RuleSource core = SurfaceRules.state(ModBlocks.CORE.get().defaultBlockState());
+        SurfaceRules.RuleSource mantle = SurfaceRules.state(ModBlocks.MANTLE.get().defaultBlockState());
         return SurfaceRules.sequence(
                 SurfaceRules.ifTrue(
                         SurfaceRules.not(SurfaceRules.verticalGradient(
@@ -545,11 +704,11 @@ final class ModWorldGen {
                                 VerticalAnchor.top())),
                         bedrock),
                 SurfaceRules.ifTrue(
-                        SurfaceRules.verticalGradient(
-                                "bedrock_floor",
-                                VerticalAnchor.bottom(),
-                                VerticalAnchor.aboveBottom(5)),
-                        bedrock),
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(1), 0)),
+                        core),
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(5), 0)),
+                        mantle),
                 internalBedrockBand(152, 161, Noises.PILLAR, bedrock),
                 internalBedrockBand(216, 225, Noises.SPAGHETTI_2D, bedrock),
                 internalBedrockBand(272, 281, Noises.CAVE_LAYER, bedrock),
@@ -623,6 +782,13 @@ final class ModWorldGen {
 
     private static void bootstrapLevelStems(BootstrapContext<LevelStem> context) {
         context.register(
+                LevelStem.OVERWORLD,
+                new LevelStem(
+                        context.lookup(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
+                        new NoiseBasedChunkGenerator(
+                                R196RiverBiomes.createSource(context.lookup(Registries.BIOME)),
+                                context.lookup(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD))));
+        context.register(
                 Underworld.STEM,
                 new LevelStem(
                         context.lookup(Registries.DIMENSION_TYPE).getOrThrow(Underworld.TYPE),
@@ -652,8 +818,35 @@ final class ModWorldGen {
     private static void bootstrapBiomeModifiers(BootstrapContext<BiomeModifier> context) {
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
+        HolderGetter<ConfiguredWorldCarver<?>> carvers = context.lookup(Registries.CONFIGURED_CARVER);
         registerOverworldOreModifier(context, biomes, placedFeatures, ADD_SILVER_ORE, SILVER_ORE_PLACED);
         registerOverworldOreModifier(context, biomes, placedFeatures, ADD_MITHRIL_ORE, MITHRIL_ORE_PLACED);
+        context.register(
+                ADD_LARGE_CAVES,
+                new BiomeModifiers.AddCarversBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(carvers.getOrThrow(LARGE_CAVE_CONFIGURED))));
+        context.register(
+                ADD_R196_FLOWERS,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(R196_FLOWERS_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(
+                ADD_R196_ALLIUM,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.SWAMP),
+                                biomes.getOrThrow(Biomes.MANGROVE_SWAMP),
+                                biomes.getOrThrow(R196RiverBiomes.SWAMP_RIVER)),
+                        HolderSet.direct(placedFeatures.getOrThrow(R196_ALLIUM_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(
+                ADD_WITHERWOOD,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_NETHER),
+                        HolderSet.direct(placedFeatures.getOrThrow(WITHERWOOD_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
         registerR196SpawnModifiers(context, biomes);
     }
 

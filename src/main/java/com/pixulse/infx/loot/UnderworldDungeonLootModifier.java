@@ -64,11 +64,20 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
         if (value < 25) {
             return ModItems.catalog().raw("ancient_metal_coin").holder().toStack();
         }
-        if (value < 30) {
+        if (value < 27) {
+            return ModItems.bucket(
+                            R196Material.ANCIENT_METAL,
+                            com.pixulse.infx.item.R196BucketItem.Contents.EMPTY)
+                    .toStack();
+        }
+        if (value < 31) {
+            return ModItems.R196_RECORDS.get(value - 27).toStack();
+        }
+        if (value < 36) {
             return equipment(R196EquipmentType.HORSE_ARMOR);
         }
-        if (value < 40) {
-            return equipment(EQUIPMENT.get(value - 30));
+        if (value < 46) {
+            return equipment(EQUIPMENT.get(value - 36));
         }
         return ItemStack.EMPTY;
     }

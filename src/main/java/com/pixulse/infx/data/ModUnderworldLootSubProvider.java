@@ -29,7 +29,7 @@ final class ModUnderworldLootSubProvider implements LootTableSubProvider {
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(8.0F))
-                .add(EmptyLootItem.emptyItem().setWeight(60))
+                .add(EmptyLootItem.emptyItem().setWeight(54))
                 .add(LootItem.lootTableItem(ModItems.catalog().raw("ancient_metal_nugget").holder())
                         .setWeight(10)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4.0F))))
@@ -37,6 +37,14 @@ final class ModUnderworldLootSubProvider implements LootTableSubProvider {
                         .setWeight(10)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4.0F))))
                 .add(LootItem.lootTableItem(ModItems.catalog().raw("ancient_metal_coin").holder()).setWeight(5))
+                .add(LootItem.lootTableItem(ModItems.bucket(
+                                R196Material.ANCIENT_METAL,
+                                com.pixulse.infx.item.R196BucketItem.Contents.EMPTY))
+                        .setWeight(2))
+                .add(LootItem.lootTableItem(ModItems.RECORD_UNDERWORLD).setWeight(1))
+                .add(LootItem.lootTableItem(ModItems.RECORD_DESCENT).setWeight(1))
+                .add(LootItem.lootTableItem(ModItems.RECORD_WANDERER).setWeight(1))
+                .add(LootItem.lootTableItem(ModItems.RECORD_LEGENDS).setWeight(1))
                 .add(LootItem.lootTableItem(equipment(R196EquipmentType.HORSE_ARMOR)).setWeight(5));
         List.of(
                         R196EquipmentType.PICKAXE,

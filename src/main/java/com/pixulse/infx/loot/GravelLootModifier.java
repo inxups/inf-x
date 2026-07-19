@@ -3,6 +3,7 @@ package com.pixulse.infx.loot;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModLootModifiers;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -30,6 +31,8 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 
 public final class GravelLootModifier extends LootModifier {
     private static final Identifier GRAVEL_LOOT_TABLE = Identifier.withDefaultNamespace("blocks/gravel");
+    private static final Identifier NETHER_GRAVEL_LOOT_TABLE =
+            Identifier.fromNamespaceAndPath("infx", "blocks/nether_gravel");
 
     public static final MapCodec<GravelLootModifier> CODEC = RecordCodecBuilder.mapCodec(instance ->
             codecStart(instance).apply(instance, GravelLootModifier::new));
@@ -40,12 +43,14 @@ public final class GravelLootModifier extends LootModifier {
 
     @Override
     protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
-        if (!GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId())) {
+        boolean netherGravel = NETHER_GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId());
+        if (!GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId()) && !netherGravel) {
             return generatedLoot;
         }
 
         BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
-        if (state == null || !state.is(Blocks.GRAVEL)) {
+        if (state == null
+                || (netherGravel ? !state.is(ModBlocks.NETHER_GRAVEL.get()) : !state.is(Blocks.GRAVEL))) {
             return generatedLoot;
         }
         if (!(context.getOptionalParameter(LootContextParams.THIS_ENTITY) instanceof Player player)) {
@@ -54,7 +59,7 @@ public final class GravelLootModifier extends LootModifier {
         if (context.hasParameter(LootContextParams.EXPLOSION_RADIUS)) {
             return generatedLoot;
         }
-        if (isVillageRoad(context)) {
+        if (!netherGravel && isVillageRoad(context)) {
             generatedLoot.clear();
             generatedLoot.add(new ItemStack(Items.GRAVEL));
             return generatedLoot;
@@ -62,17 +67,19 @@ public final class GravelLootModifier extends LootModifier {
 
         int fortune = fortuneLevel(context);
         GravelDrop selected = GravelDropSelector.select(fortune, context.getRandom()::nextInt);
-        if (selected == GravelDrop.DIAMOND_SHARD && context.getLevel().dimension() == Level.NETHER) {
+        if (netherGravel) {
+            selected = netherDrop(selected);
+        } else if (selected == GravelDrop.DIAMOND_SHARD && context.getLevel().dimension() == Level.NETHER) {
             selected = GravelDrop.NETHER_QUARTZ_SHARD;
         }
         if ((selected == GravelDrop.FLINT_CHIP || selected == GravelDrop.FLINT)
                 && player instanceof ServerPlayer serverPlayer) {
             ProgressionEvents.award(serverPlayer, "flint_finder", "mined_flint_from_gravel");
         }
-        ItemStack replacement = createStack(selected);
+        ItemStack replacement = createStack(selected, netherGravel);
         FirstLootUnitReplacer.replace(
                 generatedLoot,
-                stack -> stack.is(Items.GRAVEL) || stack.is(Items.FLINT),
+                stack -> stack.is(Items.GRAVEL) || stack.is(Items.FLINT) || stack.is(ModItems.NETHER_GRAVEL),
                 ItemStack::getCount,
                 ItemStack::setCount,
                 replacement);
@@ -98,9 +105,17 @@ public final class GravelLootModifier extends LootModifier {
         return tool.getEnchantmentLevel(enchantments.getOrThrow(Enchantments.FORTUNE));
     }
 
-    private static ItemStack createStack(GravelDrop drop) {
+    static GravelDrop netherDrop(GravelDrop drop) {
         return switch (drop) {
-            case GRAVEL -> new ItemStack(Items.GRAVEL);
+            case COPPER_NUGGET, SILVER_NUGGET, MITHRIL_NUGGET, ADAMANTIUM_NUGGET -> GravelDrop.GOLD_NUGGET;
+            case OBSIDIAN_SHARD, EMERALD_SHARD, DIAMOND_SHARD -> GravelDrop.NETHER_QUARTZ_SHARD;
+            default -> drop;
+        };
+    }
+
+    private static ItemStack createStack(GravelDrop drop, boolean netherGravel) {
+        return switch (drop) {
+            case GRAVEL -> netherGravel ? ModItems.NETHER_GRAVEL.toStack() : new ItemStack(Items.GRAVEL);
             case FLINT_CHIP -> ModItems.FLINT_CHIP.toStack();
             case FLINT -> new ItemStack(Items.FLINT);
             case COPPER_NUGGET -> new ItemStack(Items.COPPER_NUGGET);

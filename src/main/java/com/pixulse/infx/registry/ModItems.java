@@ -3,14 +3,21 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.item.R196Catalog;
+import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.item.R196ToolItem;
 import com.pixulse.infx.material.R196Material;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.food.FoodProperties;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -44,6 +51,13 @@ public final class ModItems {
             ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_RUNE_STONE, properties -> properties.fireResistant());
     public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
+    public static final List<DeferredItem<BlockItem>> R196_FLOWERS = ModBlocks.R196_FLOWERS.stream()
+            .map(ITEMS::registerSimpleBlockItem)
+            .toList();
+    public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(ModBlocks.NETHER_GRAVEL);
+    public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(ModBlocks.WITHERWOOD);
+    public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(ModBlocks.CORE);
+    public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS = List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
     public static final DeferredItem<BlockItem> EMERALD_ENCHANTING_TABLE =
             ITEMS.registerSimpleBlockItem(ModBlocks.EMERALD_ENCHANTING_TABLE);
     public static final DeferredItem<BlockItem> DIAMOND_ENCHANTING_TABLE =
@@ -165,6 +179,32 @@ public final class ModItems {
             WORM,
             COOKED_WORM);
 
+    public static final List<R196Material> BUCKET_MATERIALS = List.of(
+            R196Material.COPPER,
+            R196Material.SILVER,
+            R196Material.GOLD,
+            R196Material.IRON,
+            R196Material.ANCIENT_METAL,
+            R196Material.MITHRIL,
+            R196Material.ADAMANTIUM);
+    private static final Map<R196Material, EnumMap<R196BucketItem.Contents, DeferredItem<R196BucketItem>>>
+            BUCKETS_BY_MATERIAL = new EnumMap<>(R196Material.class);
+    public static final List<DeferredItem<R196BucketItem>> R196_BUCKETS = registerBuckets();
+
+    public static final DeferredItem<Item> BOTTLE_OF_DISENCHANTING = ITEMS.registerItem(
+            "bottle_of_disenchanting",
+            Item::new,
+            properties -> properties
+                    .stacksTo(1)
+                    .component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET)
+                    .usingConvertsTo(Items.GLASS_BOTTLE));
+    public static final DeferredItem<Item> RECORD_UNDERWORLD = record("record_underworld", ModJukeboxSongs.UNDERWORLD);
+    public static final DeferredItem<Item> RECORD_DESCENT = record("record_descent", ModJukeboxSongs.DESCENT);
+    public static final DeferredItem<Item> RECORD_WANDERER = record("record_wanderer", ModJukeboxSongs.WANDERER);
+    public static final DeferredItem<Item> RECORD_LEGENDS = record("record_legends", ModJukeboxSongs.LEGENDS);
+    public static final List<DeferredItem<Item>> R196_RECORDS =
+            List.of(RECORD_UNDERWORLD, RECORD_DESCENT, RECORD_WANDERER, RECORD_LEGENDS);
+
     private static final R196Catalog CATALOG = R196Catalog.register(ITEMS);
 
     public static final DeferredItem<Item> FLINT_CHIP = CATALOG.raw("flint_chip").holderAs(Item.class);
@@ -238,6 +278,55 @@ public final class ModItems {
                                 .nutrition(nutrition)
                                 .saturationModifier(saturation)
                                 .build()));
+    }
+
+    private static List<DeferredItem<R196BucketItem>> registerBuckets() {
+        List<DeferredItem<R196BucketItem>> registered = new ArrayList<>();
+        for (R196Material material : BUCKET_MATERIALS) {
+            EnumMap<R196BucketItem.Contents, DeferredItem<R196BucketItem>> variants =
+                    new EnumMap<>(R196BucketItem.Contents.class);
+            BUCKETS_BY_MATERIAL.put(material, variants);
+            for (R196BucketItem.Contents contents : R196BucketItem.Contents.values()) {
+                DeferredItem<R196BucketItem> bucket = ITEMS.registerItem(
+                        contents.path(material),
+                        properties -> new R196BucketItem(
+                                material,
+                                contents,
+                                () -> bucket(material, R196BucketItem.Contents.EMPTY).value(),
+                                () -> bucket(material, R196BucketItem.Contents.WATER).value(),
+                                () -> bucket(material, R196BucketItem.Contents.LAVA).value(),
+                                properties),
+                        properties -> {
+                            Item.Properties configured = properties.stacksTo(
+                                    contents == R196BucketItem.Contents.EMPTY ? 16 : 1);
+                            if (contents == R196BucketItem.Contents.MILK) {
+                                configured.component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET);
+                            }
+                            return material == R196Material.ADAMANTIUM
+                                    ? configured.fireResistant()
+                                    : configured;
+                        });
+                variants.put(contents, bucket);
+                registered.add(bucket);
+            }
+        }
+        return List.copyOf(registered);
+    }
+
+    private static DeferredItem<Item> record(
+            String path, net.minecraft.resources.ResourceKey<net.minecraft.world.item.JukeboxSong> song) {
+        return ITEMS.registerItem(
+                path,
+                Item::new,
+                properties -> properties.stacksTo(1).rarity(Rarity.UNCOMMON).jukeboxPlayable(song));
+    }
+
+    public static DeferredItem<R196BucketItem> bucket(R196Material material, R196BucketItem.Contents contents) {
+        EnumMap<R196BucketItem.Contents, DeferredItem<R196BucketItem>> variants = BUCKETS_BY_MATERIAL.get(material);
+        if (variants == null || !variants.containsKey(contents)) {
+            throw new IllegalArgumentException("No bucket registered for " + material + " / " + contents);
+        }
+        return variants.get(contents);
     }
 
     public static R196Catalog catalog() {

@@ -12,6 +12,7 @@ import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.equipment.R196QualitySystem;
 import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.item.R196ArrowItem;
+import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196CoinItem;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
@@ -56,6 +57,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -94,7 +96,8 @@ public final class ModR196CompletionGameTests {
             "r196_gravel_loot",
             "r196_hopper_xp",
             "r196_survival_core",
-            "r196_safe_enchanting");
+            "r196_safe_enchanting",
+            "r196_fulltext_systems");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -108,6 +111,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_hopper_xp", () -> ModR196CompletionGameTests::hopperExperience);
         FUNCTIONS.register("r196_survival_core", () -> ModR196CompletionGameTests::survivalCore);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
+        FUNCTIONS.register("r196_fulltext_systems", () -> ModR196CompletionGameTests::fulltextSystems);
     }
 
     private ModR196CompletionGameTests() {}
@@ -665,6 +669,63 @@ public final class ModR196CompletionGameTests {
                                         new AABB(absolute).inflate(4.0))
                                 .isEmpty(),
                         "automated output must pop accumulated XP at the furnace mouth"))
+                .thenSucceed();
+    }
+
+    private static void fulltextSystems(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        var level = helper.getLevel();
+        helper.assertTrue(
+                ModItems.R196_BUCKETS.size() == 35,
+                "seven materials expose five registered bucket variants");
+        helper.assertTrue(
+                ModBlocks.NETHER_GRAVEL.get() instanceof net.minecraft.world.level.block.FallingBlock,
+                "Nether gravel preserves falling-block behavior");
+        helper.assertTrue(
+                ModBlocks.CORE.get().defaultDestroyTime() < 0.0F,
+                "Core is unbreakable in survival");
+        helper.assertTrue(
+                level.registryAccess().lookupOrThrow(Registries.CONFIGURED_CARVER).containsKey(
+                        ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("large_cave"))),
+                "the distant large-cave carver is registered");
+        for (String river : List.of("desert_river", "jungle_river", "swamp_river")) {
+            helper.assertTrue(
+                    level.registryAccess().lookupOrThrow(Registries.BIOME).containsKey(
+                            ResourceKey.create(Registries.BIOME, InfiniteX.id(river))),
+                    river + " is registered");
+        }
+        for (ItemStack record : ModItems.R196_RECORDS.stream().map(item -> item.toStack()).toList()) {
+            helper.assertTrue(record.has(DataComponents.JUKEBOX_PLAYABLE), "R196 record is jukebox-playable");
+        }
+
+        BlockPos bush = new BlockPos(6, 2, 6);
+        helper.setBlock(bush.below(), ModBlocks.NETHER_GRAVEL.get());
+        helper.setBlock(bush, ModBlocks.WITHERWOOD.get());
+        Cow cow = helper.spawnWithNoFreeWill(EntityTypes.COW, bush);
+
+        player.setItemInHand(
+                InteractionHand.MAIN_HAND,
+                ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.LAVA).toStack());
+        helper.setBlock(new BlockPos(1, 1, 1), Blocks.STONE);
+        helper.setBlock(new BlockPos(1, 2, 1), Blocks.WATER);
+        helper.setBlock(new BlockPos(1, 3, 1), Blocks.WATER);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        player.getMainHandItem().is(ModItems.bucket(
+                                R196Material.IRON, R196BucketItem.Contents.STONE)),
+                        "an immersed lava bucket solidifies without changing material"))
+                .thenExecute(() -> player.setItemInHand(
+                        InteractionHand.MAIN_HAND,
+                        ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.MILK).toStack()))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        player.getMainHandItem().is(ModItems.bucket(
+                                R196Material.IRON, R196BucketItem.Contents.EMPTY)),
+                        "an immersed milk bucket leaks into its matching empty bucket"))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        cow.hasEffect(MobEffects.WITHER)
+                                && cow.getEffect(MobEffects.WITHER).getDuration() > 0,
+                        "touching Witherwood applies Wither"))
+                .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
     }
 

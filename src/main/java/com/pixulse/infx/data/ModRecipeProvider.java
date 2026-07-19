@@ -5,6 +5,7 @@ import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedShapedRecipe;
 import com.pixulse.infx.crafting.TimedShapelessRecipe;
 import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -34,8 +36,11 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionIds;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 
 final class ModRecipeProvider extends RecipeProvider {
     private static final float STICK_DIFFICULTY = 25.0F;
@@ -276,6 +281,22 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 List.of(Ingredient.of(Items.BROWN_MUSHROOM), Ingredient.of(Items.RED_MUSHROOM),
                         Ingredient.of(ModItems.WATER_BOWL)));
+        addShapeless(
+                "bottle_of_disenchanting",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.BOTTLE_OF_DISENCHANTING,
+                1,
+                List.of(
+                        DataComponentIngredient.of(
+                                DataComponents.POTION_CONTENTS,
+                                new PotionContents(registries.lookupOrThrow(Registries.POTION).getOrThrow(PotionIds.WATER)),
+                                Items.POTION),
+                        Ingredient.of(Items.NETHER_WART),
+                        Ingredient.of(Items.CHARCOAL)));
+        addR196Buckets();
         SimpleCookingRecipeBuilder.smelting(
                         Ingredient.of(ModItems.DOUGH),
                         RecipeCategory.FOOD,
@@ -907,6 +928,65 @@ final class ModRecipeProvider extends RecipeProvider {
                 nugget,
                 9,
                 List.of(Ingredient.of(ingot)));
+    }
+
+    private void addR196Buckets() {
+        for (R196Material material : ModItems.BUCKET_MATERIALS) {
+            addShaped(
+                    material.path() + "_bucket",
+                    bucketBench(material),
+                    bucketIngotDifficulty(material) * 3.0F,
+                    CraftingBookCategory.MISC,
+                    "",
+                    ModItems.bucket(material, R196BucketItem.Contents.EMPTY),
+                    1,
+                    Map.of('I', Ingredient.of(bucketIngot(material))),
+                    List.of("I I", " I "));
+            addShapeless(
+                    material.path() + "_bucket_from_stone_bucket",
+                    BenchTier.HAND,
+                    100.0F,
+                    CraftingBookCategory.MISC,
+                    "",
+                    ModItems.bucket(material, R196BucketItem.Contents.EMPTY),
+                    1,
+                    List.of(Ingredient.of(ModItems.bucket(material, R196BucketItem.Contents.STONE))));
+        }
+    }
+
+    private static ItemLike bucketIngot(R196Material material) {
+        return switch (material) {
+            case COPPER -> Items.COPPER_INGOT;
+            case SILVER -> ModItems.SILVER_INGOT;
+            case GOLD -> Items.GOLD_INGOT;
+            case IRON -> Items.IRON_INGOT;
+            case ANCIENT_METAL -> ModItems.ANCIENT_METAL_INGOT;
+            case MITHRIL -> ModItems.MITHRIL_INGOT;
+            case ADAMANTIUM -> ModItems.ADAMANTIUM_INGOT;
+            default -> throw new IllegalArgumentException("No R196 bucket ingot for " + material);
+        };
+    }
+
+    private static BenchTier bucketBench(R196Material material) {
+        return switch (material) {
+            case COPPER, SILVER, GOLD -> BenchTier.COPPER;
+            case IRON -> BenchTier.IRON;
+            case ANCIENT_METAL -> BenchTier.ANCIENT_METAL;
+            case MITHRIL -> BenchTier.MITHRIL;
+            case ADAMANTIUM -> BenchTier.ADAMANTIUM;
+            default -> throw new IllegalArgumentException("No R196 bucket bench for " + material);
+        };
+    }
+
+    private static float bucketIngotDifficulty(R196Material material) {
+        return switch (material) {
+            case COPPER, SILVER, GOLD -> 400.0F;
+            case IRON -> 800.0F;
+            case ANCIENT_METAL -> 1_600.0F;
+            case MITHRIL -> 6_400.0F;
+            case ADAMANTIUM -> 25_600.0F;
+            default -> throw new IllegalArgumentException("No R196 bucket difficulty for " + material);
+        };
     }
 
     private void addChainConversions(

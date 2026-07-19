@@ -1,5 +1,7 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.item.R196BucketItem;
+import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.world.R196MoonPhase;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -19,7 +21,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
@@ -142,8 +147,23 @@ public final class R196AnimalEvents {
         if (event.getTarget() instanceof Animal animal && animal.isFood(event.getItemStack())) {
             R196Livestock.markFed(animal, level.getGameTime());
         }
-        if (event.getTarget() instanceof Cow cow && event.getItemStack().is(Items.BUCKET) && !cow.isBaby()) {
-            if (!takeMilk(level, cow, 4)) deny(event);
+        if (event.getTarget() instanceof Cow cow && !cow.isBaby()) {
+            if (event.getItemStack().is(Items.BUCKET)) {
+                if (!takeMilk(level, cow, 4)) deny(event);
+            } else if (event.getItemStack().getItem() instanceof R196BucketItem bucket
+                    && bucket.contents() == R196BucketItem.Contents.EMPTY) {
+                if (!takeMilk(level, cow, 4)) {
+                    deny(event);
+                } else {
+                    ItemStack filled = ModItems.bucket(bucket.material(), R196BucketItem.Contents.MILK).toStack();
+                    ItemStack result = ItemUtils.createFilledResult(
+                            event.getItemStack(), event.getEntity(), filled);
+                    event.getEntity().awardStat(Stats.ITEM_USED.get(bucket));
+                    cow.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
+                    event.setCanceled(true);
+                    event.setCancellationResult(InteractionResult.SUCCESS.heldItemTransformedTo(result));
+                }
+            }
         } else if (event.getTarget() instanceof Sheep sheep && event.getItemStack().is(Items.SHEARS)) {
             if (!R196Livestock.isProductive(sheep)) deny(event);
         }
