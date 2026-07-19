@@ -320,6 +320,47 @@ final class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         ModItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
         FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
+        for (var material : ModItems.BUCKET_MATERIALS) {
+            for (var contents : com.pixulse.infx.item.R196BucketItem.Contents.values()) {
+                String englishContents = switch (contents) {
+                    case EMPTY -> "";
+                    case WATER -> " Water";
+                    case LAVA -> " Lava";
+                    case MILK -> " Milk";
+                    case STONE -> " Stone";
+                };
+                String chineseContents = switch (contents) {
+                    case EMPTY -> "";
+                    case WATER -> "水";
+                    case LAVA -> "岩浆";
+                    case MILK -> "牛奶";
+                    case STONE -> "石头";
+                };
+                add(
+                        "item.infx." + contents.path(material),
+                        locale == Locale.EN_US
+                                ? material.englishNoun() + englishContents + " Bucket"
+                                : material.chinesePrefix() + chineseContents + "桶");
+            }
+        }
+        add("item.infx.bottle_of_disenchanting", locale == Locale.EN_US ? "Bottle of Disenchanting" : "祛魔之瓶");
+        addRecord("underworld", "Underworld");
+        addRecord("descent", "Descent");
+        addRecord("wanderer", "Wanderer");
+        addRecord("legends", "Legends");
+        add("block.infx.rose", locale == Locale.EN_US ? "Rose" : "玫瑰");
+        add("block.infx.orchid", locale == Locale.EN_US ? "Orchid" : "兰花");
+        add("block.infx.allium", locale == Locale.EN_US ? "Allium" : "绒球葱");
+        add("block.infx.tulip", locale == Locale.EN_US ? "Tulip" : "郁金香");
+        add("block.infx.dahlia", locale == Locale.EN_US ? "Dahlia" : "大丽花");
+        add("block.infx.daisy", locale == Locale.EN_US ? "Daisy" : "雏菊");
+        add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
+        add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
+        add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
+        add("disconnect.infx.chat_spam", locale == Locale.EN_US ? "Kicked for chat spam" : "因聊天刷屏被踢出");
+        add("disconnect.infx.reconnect_limited", locale == Locale.EN_US
+                ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
+                : "重连受限：请等待次日调整时刻 %s 左右（至少 %s 秒）");
         ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         ModEntityTypes.names().forEach(entity -> add(
                 "entity.infx." + entity.path(),
@@ -436,5 +477,10 @@ final class ModLanguageProvider extends LanguageProvider {
         add("tooltip.infx.recipe_heat", locale == Locale.EN_US ? "Required heat: %s" : "所需热量：%s");
         add("tooltip.infx.furnace_heat", locale == Locale.EN_US ? "Maximum heat: %s" : "最高热量：%s");
         add("enchantment.infx.clumsiness", locale == Locale.EN_US ? "Curse of Clumsiness" : "笨拙诅咒");
+    }
+
+    private void addRecord(String path, String title) {
+        add("item.infx.record_" + path, locale == Locale.EN_US ? "Music Disc - " + title : "音乐唱片 - " + title);
+        add("jukebox_song.infx." + path, title + " — The Fat Man");
     }
 }

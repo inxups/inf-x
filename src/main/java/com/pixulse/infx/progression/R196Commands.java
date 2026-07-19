@@ -5,6 +5,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.server.R196ServerMetrics;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.SharedConstants;
@@ -50,8 +51,7 @@ public final class R196Commands {
         }));
         dispatcher.register(Commands.literal("load").executes(context -> {
             ServerPlayer player = player(context);
-            return reply(context, "Loaded chunks: " + player.level().getChunkSource().getLoadedChunksCount()
-                    + "; players: " + player.level().getServer().getPlayerCount());
+            return reply(context, R196ServerMetrics.formatLoad(player.level().getServer()));
         }));
         dispatcher.register(Commands.literal("mem").executes(context -> {
             Runtime runtime = Runtime.getRuntime();
@@ -105,8 +105,9 @@ public final class R196Commands {
                         .executes(R196Commands::developmentRecords)));
         dispatcher.register(Commands.literal("chunks").executes(context -> {
             ServerPlayer player = player(context);
-            return reply(context, "Chunk: " + player.chunkPosition() + "; loaded: "
-                    + player.level().getChunkSource().getLoadedChunksCount());
+            List<String> lines = R196ServerMetrics.formatChunks(player);
+            lines.forEach(line -> context.getSource().sendSuccess(() -> Component.literal(line), false));
+            return lines.size();
         }));
     }
 

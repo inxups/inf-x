@@ -128,15 +128,19 @@ public final class R196AgricultureData extends SavedData {
 
     public int consumeOfflineStages(BlockPos crop, boolean singleplayer, long stageMillis, int maximumStages) {
         if (pendingOfflineMillis > 0L) {
-            pendingOfflineStages = singleplayer
-                    ? (int) Math.min(maximumStages, pendingOfflineMillis / stageMillis)
-                    : 0;
+            pendingOfflineStages = offlineStages(
+                    pendingOfflineMillis, singleplayer, stageMillis, maximumStages);
             pendingOfflineMillis = 0L;
             if (!singleplayer || pendingOfflineStages == 0) {
                 pendingOfflineCrops = Set.of();
             }
         }
         return pendingOfflineCrops.remove(key(crop)) ? pendingOfflineStages : 0;
+    }
+
+    static int offlineStages(long offlineMillis, boolean singleplayer, long stageMillis, int maximumStages) {
+        if (!singleplayer || offlineMillis <= 0L || stageMillis <= 0L || maximumStages <= 0) return 0;
+        return (int) Math.min(maximumStages, offlineMillis / stageMillis);
     }
 
     public void checkpointWallClock() {

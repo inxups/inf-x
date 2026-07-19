@@ -3,3 +3,6 @@
 # are changed when only line endings change.
 src/generated/**/.cache/* text eol=lf
 src/generated/**/*.json text eol=lf
+
+# Preserve the authorized animated Core metadata byte-for-byte (the source uses CRLF).
+src/main/resources/assets/infx/textures/block/core.png.mcmeta binary

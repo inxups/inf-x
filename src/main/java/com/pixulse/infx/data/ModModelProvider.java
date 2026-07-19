@@ -60,7 +60,9 @@ final class ModModelProvider extends ModelProvider {
                         ModBlocks.ORES.stream().map(block -> (Block) block.value()),
                         ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.value()),
                         ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()))
+                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
+                        ModBlocks.R196_FLOWERS.stream().map(block -> (Block) block.value()),
+                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
@@ -79,6 +81,11 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.ENCHANTING_TABLES.stream().map(item -> (Item) item.value()),
                         ModItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
+                        ModItems.R196_FLOWERS.stream().map(item -> (Item) item.value()),
+                        ModItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
+                        ModItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
+                        ModItems.R196_RECORDS.stream().map(item -> (Item) item.value()),
+                        Stream.of(ModItems.BOTTLE_OF_DISENCHANTING.value()),
                         Stream.concat(
                                 Stream.of(ModItems.FLOUR.value(), ModItems.WATER_BOWL.value()),
                                 ModItems.R196_FOODS.stream().map(item -> item.value())))
@@ -96,6 +103,12 @@ final class ModModelProvider extends ModelProvider {
         ModBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         ModBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
+        ModBlocks.R196_FLOWERS.forEach(flower -> blockModels.createCrossBlockWithDefaultItem(
+                flower.value(), BlockModelGenerators.PlantType.NOT_TINTED));
+        blockModels.createCrossBlockWithDefaultItem(
+                ModBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
+        blockModels.createTrivialCube(ModBlocks.NETHER_GRAVEL.value());
+        blockModels.createTrivialCube(ModBlocks.CORE.value());
         blockModels.createTrivialBlock(
                 ModBlocks.MANTLE.value(),
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
@@ -137,6 +150,11 @@ final class ModModelProvider extends ModelProvider {
                                                         Blocks.NETHER_PORTAL, "_ew")))));
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
+        ModItems.R196_BUCKETS.forEach(bucket ->
+                itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
+        ModItems.R196_RECORDS.forEach(record ->
+                itemModels.generateFlatItem(record.value(), ModelTemplates.FLAT_ITEM));
+        itemModels.generateFlatItem(ModItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateR196FoodModels(itemModels);
         for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
             if (entry.key().material() == R196Material.LEATHER

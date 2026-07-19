@@ -1,0 +1,22 @@
+{
+  "record.underworld": {
+    "sounds": [
+      { "name": "infx:records/underworld", "stream": true }
+    ]
+  },
+  "record.descent": {
+    "sounds": [
+      { "name": "infx:records/descent", "stream": true }
+    ]
+  },
+  "record.wanderer": {
+    "sounds": [
+      { "name": "infx:records/wanderer", "stream": true }
+    ]
+  },
+  "record.legends": {
+    "sounds": [
+      { "name": "infx:records/legends", "stream": true }
+    ]
+  }
+}

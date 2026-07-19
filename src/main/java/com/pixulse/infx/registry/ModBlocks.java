@@ -23,6 +23,7 @@ import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.R196EnchantingTableBlock;
 import com.pixulse.infx.block.R196SafeBlock;
+import com.pixulse.infx.block.WitherwoodBlock;
 import com.pixulse.infx.menu.R196EnchantmentMenu;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.material.R196Material;
@@ -31,8 +32,12 @@ import java.util.Map;
 
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ColoredFallingBlock;
+import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.util.ColorRGBA;
+import net.minecraft.world.effect.MobEffects;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -63,6 +68,42 @@ public final class ModBlocks {
                     .requiresCorrectToolForDrops());
 
     public static final List<DeferredBlock<Block>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
+
+    public static final DeferredBlock<FlowerBlock> ROSE = flower("rose");
+    public static final DeferredBlock<FlowerBlock> ORCHID = flower("orchid");
+    public static final DeferredBlock<FlowerBlock> ALLIUM = flower("allium");
+    public static final DeferredBlock<FlowerBlock> TULIP = flower("tulip");
+    public static final DeferredBlock<FlowerBlock> DAHLIA = flower("dahlia");
+    public static final DeferredBlock<FlowerBlock> DAISY = flower("daisy");
+    public static final List<DeferredBlock<FlowerBlock>> R196_FLOWERS =
+            List.of(ROSE, ORCHID, ALLIUM, TULIP, DAHLIA, DAISY);
+
+    public static final DeferredBlock<ColoredFallingBlock> NETHER_GRAVEL = BLOCKS.registerBlock(
+            "nether_gravel",
+            properties -> new ColoredFallingBlock(new ColorRGBA(0xFF6B5548), properties),
+            properties -> properties
+                    .mapColor(MapColor.NETHER)
+                    .strength(0.6F)
+                    .sound(SoundType.GRAVEL));
+    public static final DeferredBlock<WitherwoodBlock> WITHERWOOD = BLOCKS.registerBlock(
+            "witherwood",
+            WitherwoodBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.COLOR_BLACK)
+                    .replaceable()
+                    .noCollision()
+                    .instabreak()
+                    .sound(SoundType.GRASS)
+                    .offsetType(Block.OffsetType.XZ));
+    public static final DeferredBlock<Block> CORE = BLOCKS.registerSimpleBlock(
+            "core",
+            properties -> properties
+                    .mapColor(MapColor.FIRE)
+                    .strength(-1.0F, 3_600_000.0F)
+                    .sound(SoundType.BASALT)
+                    .lightLevel(state -> 12));
+    public static final List<DeferredBlock<? extends Block>> FULLTEXT_BLOCKS =
+            List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
 
     public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(
             "underworld_portal",
@@ -270,6 +311,19 @@ public final class ModBlocks {
             OBSIDIAN_WORKBENCH);
 
     private ModBlocks() {}
+
+    private static DeferredBlock<FlowerBlock> flower(String name) {
+        return BLOCKS.registerBlock(
+                name,
+                properties -> new FlowerBlock(MobEffects.SATURATION, 0.35F, properties),
+                properties -> properties
+                        .mapColor(MapColor.PLANT)
+                        .replaceable()
+                        .noCollision()
+                        .instabreak()
+                        .sound(SoundType.GRASS)
+                        .offsetType(Block.OffsetType.XZ));
+    }
 
     private static DeferredBlock<Block> metalStorageBlock(String name, MapColor color, float strength) {
         return BLOCKS.registerSimpleBlock(

@@ -285,10 +285,7 @@ public final class R196AgricultureEvents {
     }
 
     private static void spreadOrCreateDisease(ServerLevel level, BlockPos pos, R196AgricultureData data) {
-        int diseaseChance = R196MoonPhase.at(level) == R196MoonPhase.BLOOD
-                        && !level.getServer().isDedicatedServer()
-                ? 512
-                : 4096;
+        int diseaseChance = diseaseChance(R196MoonPhase.at(level), level.getServer().isDedicatedServer());
         if (!data.isInfected(pos) && level.getRandom().nextInt(diseaseChance) == 0) {
             data.infect(pos, level.getGameTime());
         }
@@ -298,6 +295,10 @@ public final class R196AgricultureEvents {
                 return;
             }
         }
+    }
+
+    static int diseaseChance(R196MoonPhase phase, boolean dedicatedServer) {
+        return phase == R196MoonPhase.BLOOD && !dedicatedServer ? 512 : 4096;
     }
 
     private static void updateDrought(ServerLevel level, BlockPos pos, R196AgricultureData data) {
