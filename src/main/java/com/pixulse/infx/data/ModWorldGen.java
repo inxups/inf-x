@@ -16,7 +16,10 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
+import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.data.worldgen.placement.CavePlacements;
+import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.network.chat.Component;
@@ -355,11 +358,10 @@ final class ModWorldGen {
         addUnderworldR196Spawns(mobs);
 
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
-        BiomeDefaultFeatures.addDefaultCarversAndLakes(generation);
+        addUnderworldCarvers(generation);
         BiomeDefaultFeatures.addDefaultMonsterRoom(generation);
-        BiomeDefaultFeatures.addDefaultUndergroundVariety(generation);
-        BiomeDefaultFeatures.addDefaultOres(generation);
-        BiomeDefaultFeatures.addDefaultMushrooms(generation);
+        addUnderworldUndergroundVariety(generation);
+        addUnderworldOres(generation);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(SILVER_ORE_PLACED));
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(MITHRIL_ORE_PLACED));
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(ADAMANTIUM_ORE_PLACED));
@@ -379,6 +381,51 @@ final class ModWorldGen {
                         .mobSpawnSettings(mobs.build())
                         .generationSettings(generation.build())
                         .build());
+    }
+
+    private static void addUnderworldCarvers(BiomeGenerationSettings.Builder generation) {
+        // Keep the Overworld cave shapes without its two lava-lake placements.
+        generation.addCarver(Carvers.CAVE);
+        generation.addCarver(Carvers.CAVE_EXTRA_UNDERGROUND);
+        generation.addCarver(Carvers.CANYON);
+    }
+
+    private static void addUnderworldUndergroundVariety(BiomeGenerationSettings.Builder generation) {
+        // This is the vanilla underground-variety list with ORE_DIRT deliberately omitted.
+        for (ResourceKey<PlacedFeature> feature : List.of(
+                OrePlacements.ORE_GRAVEL,
+                OrePlacements.ORE_GRANITE_UPPER,
+                OrePlacements.ORE_GRANITE_LOWER,
+                OrePlacements.ORE_DIORITE_UPPER,
+                OrePlacements.ORE_DIORITE_LOWER,
+                OrePlacements.ORE_ANDESITE_UPPER,
+                OrePlacements.ORE_ANDESITE_LOWER,
+                OrePlacements.ORE_TUFF)) {
+            generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, feature);
+        }
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
+    }
+
+    private static void addUnderworldOres(BiomeGenerationSettings.Builder generation) {
+        // Preserve the remaining vanilla mineral progression without either coal placement.
+        for (ResourceKey<PlacedFeature> feature : List.of(
+                OrePlacements.ORE_IRON_UPPER,
+                OrePlacements.ORE_IRON_MIDDLE,
+                OrePlacements.ORE_IRON_SMALL,
+                OrePlacements.ORE_GOLD,
+                OrePlacements.ORE_GOLD_LOWER,
+                OrePlacements.ORE_REDSTONE,
+                OrePlacements.ORE_REDSTONE_LOWER,
+                OrePlacements.ORE_DIAMOND,
+                OrePlacements.ORE_DIAMOND_MEDIUM,
+                OrePlacements.ORE_DIAMOND_LARGE,
+                OrePlacements.ORE_DIAMOND_BURIED,
+                OrePlacements.ORE_LAPIS,
+                OrePlacements.ORE_LAPIS_BURIED,
+                OrePlacements.ORE_COPPER,
+                CavePlacements.UNDERWATER_MAGMA)) {
+            generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, feature);
+        }
     }
 
     private static Biome r196River(

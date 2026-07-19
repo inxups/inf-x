@@ -337,6 +337,7 @@ public final class ModR196CompletionGameTests {
         var registries = helper.getLevel().registryAccess();
         helper.assertTrue(helper.getLevel().getMinY() == -16, "Overworld bottom is Y=-16");
         var biomes = registries.lookupOrThrow(Registries.BIOME);
+        var underworldBiome = biomes.getOrThrow(Underworld.BIOME);
         for (var tag : List.of(
                 BiomeTags.HAS_ANCIENT_CITY,
                 BiomeTags.HAS_BURIED_TREASURE,
@@ -344,7 +345,11 @@ public final class ModR196CompletionGameTests {
                 BiomeTags.HAS_MINESHAFT_MESA,
                 BiomeTags.HAS_TRAIL_RUINS,
                 BiomeTags.HAS_TRIAL_CHAMBERS)) {
-            helper.assertTrue(biomes.getOrThrow(tag).size() == 0, tag.location() + " is empty");
+            var structureBiomes = biomes.getOrThrow(tag);
+            helper.assertTrue(structureBiomes.size() == 1, tag.location() + " only targets the Underworld");
+            helper.assertTrue(
+                    structureBiomes.contains(underworldBiome),
+                    tag.location() + " includes the Underworld biome");
         }
         helper.assertTrue(
                 biomes.getOrThrow(BiomeTags.HAS_STRONGHOLD).size() > 0,
