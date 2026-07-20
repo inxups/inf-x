@@ -136,8 +136,15 @@ public final class R196ClientControls {
     private static void configureDebugOverlay(Minecraft minecraft) {
         if (debugConfigured) return;
         boolean testMode = InfiniteXTestMode.isEnabled();
+        if (testMode) {
+            if (!minecraft.debugEntries.isUsingProfile(DebugScreenProfile.DEFAULT)) {
+                minecraft.debugEntries.loadProfile(DebugScreenProfile.DEFAULT);
+            }
+            debugConfigured = true;
+            return;
+        }
         for (var id : DebugScreenEntries.allEntries().keySet()) {
-            DebugScreenEntryStatus status = debugStatus(testMode, id);
+            DebugScreenEntryStatus status = debugStatus(false, id);
             if (minecraft.debugEntries.getStatus(id) != status) minecraft.debugEntries.setStatus(id, status);
         }
         debugConfigured = true;
