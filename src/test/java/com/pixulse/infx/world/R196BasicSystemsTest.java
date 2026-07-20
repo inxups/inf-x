@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 class R196BasicSystemsTest {
     @Test
     void moonMultipliersAndWarningsFollowCalendar() {
-        assertEquals(0.5D, R196MoonPhase.NEW.hostileSpawnRate());
-        assertEquals(1.5D, R196MoonPhase.FULL.hostileSpawnRate());
-        assertEquals(2.0D, R196MoonPhase.BLOOD.hostileSpawnRate());
-        assertEquals(0.5D, R196MoonPhase.BLUE.hostileSpawnRate());
+        assertEquals(6, R196MoonPhase.NEW.outdoorHostileSpawnDenominator());
+        assertEquals(3, R196MoonPhase.FULL.outdoorHostileSpawnDenominator());
+        assertEquals(2, R196MoonPhase.BLOOD.outdoorHostileSpawnDenominator());
+        assertEquals(54, R196MoonPhase.BLUE.outdoorHostileSpawnDenominator());
         assertFalse(R196MoonPhase.BLOOD.allowsSleep());
         assertEquals(R196MoonPhase.BLUE, R196MoonPhase.atDay(128));
         assertEquals(R196MoonPhase.PHANTOM, R196MoonPhase.atDay(120));

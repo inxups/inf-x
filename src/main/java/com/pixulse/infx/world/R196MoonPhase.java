@@ -31,17 +31,14 @@ public enum R196MoonPhase {
         return NORMAL;
     }
 
-    public double hostileSpawnRate() {
+    public int outdoorHostileSpawnDenominator() {
         return switch (this) {
-            case NEW, BLUE -> 0.5D;
-            case FULL -> 1.5D;
-            case BLOOD -> 2.0D;
-            default -> 1.0D;
+            case BLUE -> 54;
+            case BLOOD -> 2;
+            case FULL -> 3;
+            case NEW -> 6;
+            default -> 4;
         };
-    }
-
-    public double hostileSpawnCap() {
-        return this == BLOOD ? 2.0D : 1.0D;
     }
 
     public double fishingMultiplier() {

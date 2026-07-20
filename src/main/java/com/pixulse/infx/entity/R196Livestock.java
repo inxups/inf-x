@@ -232,7 +232,7 @@ public final class R196Livestock {
             if (target != null && path == null) {
                 path = animal.getNavigation().createPath(target, 1);
             }
-            if (path == null || !path.canReach()) {
+            if (path == null) {
                 target = null;
                 food = null;
                 return false;
@@ -292,8 +292,15 @@ public final class R196Livestock {
                     }
                 }
             }
-            path = animal.getNavigation().createPath(approaches.stream(), 1);
-            return path != null && path.canReach() ? path.getTarget() : null;
+            for (BlockPos approach : approaches) {
+                Path candidate = animal.getNavigation().createPath(approach, 1);
+                if (candidate != null) {
+                    path = candidate;
+                    return approach;
+                }
+            }
+            path = null;
+            return null;
         }
 
         private @Nullable BlockPos findSafeOpenPosition(ServerLevel level, Needs needs) {

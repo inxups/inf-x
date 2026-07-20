@@ -44,11 +44,13 @@ class ModCreativeTabsTest {
     }
 
     @Test
-    void everyBlockExceptThePortalHasOneCreativeBlockItem() {
+    void everyPlayerObtainableBlockHasOneCreativeBlockItem() {
         Identifier portal = ModBlocks.UNDERWORLD_PORTAL.getId();
+        Identifier infestedNetherrack = ModBlocks.INFESTED_NETHERRACK.getId();
+        Set<Identifier> worldgenOnly = Set.of(portal, infestedNetherrack);
         Set<Identifier> expectedBlockItems = ModBlocks.BLOCKS.getEntries().stream()
                 .map(block -> block.getId())
-                .filter(id -> !id.equals(portal))
+                .filter(id -> !worldgenOnly.contains(id))
                 .collect(Collectors.toSet());
         Set<Identifier> creativeBlocks = ModCreativeTabs.items(ModCreativeTabs.Category.BLOCKS).stream()
                 .map(item -> item.getId())
@@ -57,9 +59,10 @@ class ModCreativeTabsTest {
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(51, ModBlocks.BLOCKS.getEntries().size());
+        assertEquals(52, ModBlocks.BLOCKS.getEntries().size());
         assertEquals(expectedBlockItems, creativeBlocks);
         assertFalse(registeredItems.contains(portal), "Underworld portal must remain without a BlockItem");
+        assertFalse(registeredItems.contains(infestedNetherrack), "infested netherrack must remain worldgen-only");
         assertTrue(ModItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));
     }
 }

@@ -47,7 +47,7 @@ public final class ModEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<R196Enderman>> R196_ENDERMAN = register(
             "r196_enderman", "Enderman", "末影人", R196Enderman::new, 0.6F, 2.9F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Squid>> R196_SQUID = register(
-            "r196_squid", "Squid", "鱿鱼", R196Squid::new, 0.8F, 0.8F, false);
+            "r196_squid", "Squid", "鱿鱼", R196Squid::new, MobCategory.WATER_CREATURE, 0.8F, 0.8F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Witch>> R196_WITCH = register(
             "r196_witch", "Witch", "女巫", R196Witch::new, 0.6F, 1.95F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196ZombifiedPiglin>> R196_ZOMBIFIED_PIGLIN = register(
@@ -110,16 +110,16 @@ public final class ModEntityTypes {
             "hoary_silverfish", "Hoary Silverfish", "白化蠹虫", R196Silverfish::new, 0.4F, 0.3F, false);
 
     public static final DeferredHolder<EntityType<?>, EntityType<R196Bat>> VAMPIRE_BAT = register(
-            "vampire_bat", "Vampire Bat", "吸血蝙蝠", R196Bat::new, 0.5F, 0.9F, false);
+            "vampire_bat", "Vampire Bat", "吸血蝙蝠", R196Bat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Bat>> NIGHTWING = register(
-            "nightwing", "Nightwing", "暗影蝙蝠", R196Bat::new, 0.5F, 0.9F, false);
+            "nightwing", "Nightwing", "暗影蝙蝠", R196Bat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Bat>> GIANT_VAMPIRE_BAT = register(
-            "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", R196Bat::new, 1.0F, 1.8F, false);
+            "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", R196Bat::new, MobCategory.AMBIENT, 1.0F, 1.8F, false, false);
 
     public static final DeferredHolder<EntityType<?>, EntityType<R196Wolf>> HELLHOUND = register(
             "hellhound", "Hellhound", "地狱犬", R196Wolf::new, 0.6F, 0.85F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Wolf>> DIRE_WOLF = register(
-            "dire_wolf", "Dire Wolf", "惧狼", R196Wolf::new, 0.6F, 0.85F, false);
+            "dire_wolf", "Dire Wolf", "惧狼", R196Wolf::new, MobCategory.CREATURE, 0.6F, 0.85F, false, true);
 
     /** The exact 28 entries listed by the R196 overview; replacement-only types are excluded. */
     public static final List<DeferredHolder<EntityType<?>, ? extends EntityType<?>>> NEW_MONSTERS = List.of(
@@ -182,9 +182,25 @@ public final class ModEntityTypes {
             float width,
             float height,
             boolean fireImmune) {
+        return register(path, englishName, chineseName, factory, MobCategory.MONSTER, width, height, fireImmune, false);
+    }
+
+    private static <E extends Entity> DeferredHolder<EntityType<?>, EntityType<E>> register(
+            String path,
+            String englishName,
+            String chineseName,
+            EntityType.EntityFactory<E> factory,
+            MobCategory category,
+            float width,
+            float height,
+            boolean fireImmune,
+            boolean allowedInPeaceful) {
         NAMES.add(new EntityName(path, englishName, chineseName));
-        return ENTITIES.registerEntityType(path, factory, MobCategory.MONSTER, builder -> {
-            builder.sized(width, height).clientTrackingRange(10).notInPeaceful();
+        return ENTITIES.registerEntityType(path, factory, category, builder -> {
+            builder.sized(width, height).clientTrackingRange(10);
+            if (!allowedInPeaceful) {
+                builder.notInPeaceful();
+            }
             if (fireImmune) {
                 builder.fireImmune();
             }

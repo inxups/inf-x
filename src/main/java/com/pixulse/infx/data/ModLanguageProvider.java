@@ -367,6 +367,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
         add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
+        add("block.infx.infested_netherrack", locale == Locale.EN_US ? "Infested Netherrack" : "虫蚀下界岩");
         add("disconnect.infx.chat_spam", locale == Locale.EN_US ? "Kicked for chat spam" : "因聊天刷屏被踢出");
         add("disconnect.infx.reconnect_limited", locale == Locale.EN_US
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
