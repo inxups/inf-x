@@ -58,6 +58,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
@@ -69,6 +70,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.BlockItem;
@@ -77,6 +79,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
@@ -85,12 +88,23 @@ import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.CreativeModeTabRegistry;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModR196CompletionGameTests {
@@ -107,6 +121,7 @@ public final class ModR196CompletionGameTests {
             "r196_hopper_xp",
             "r196_survival_core",
             "r196_survival_modes",
+            "r196_behavior_hunger",
             "r196_safe_enchanting",
             "r196_creative_tabs",
             "r196_block_stack_limits",
@@ -124,6 +139,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_hopper_xp", () -> ModR196CompletionGameTests::hopperExperience);
         FUNCTIONS.register("r196_survival_core", () -> ModR196CompletionGameTests::survivalCore);
         FUNCTIONS.register("r196_survival_modes", () -> ModR196CompletionGameTests::survivalModes);
+        FUNCTIONS.register("r196_behavior_hunger", () -> ModR196CompletionGameTests::behaviorHunger);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
         FUNCTIONS.register("r196_block_stack_limits", () -> ModR196CompletionGameTests::blockStackLimits);
@@ -651,6 +667,153 @@ public final class ModR196CompletionGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
+    }
+
+    private static void behaviorHunger(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        player.tickCount = 1;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+
+        resetBehaviorHunger(player);
+        player.awardStat(Stats.CUSTOM.get(Stats.WALK_ONE_CM), 100);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0025D, "walking one block uses the R196 distance cost");
+
+        resetBehaviorHunger(player);
+        player.awardStat(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM), 100);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0125D, "sprinting one block is five times walking");
+
+        resetBehaviorHunger(player);
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        player.awardStat(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM), 100);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0D, "creative movement is never billed after returning to survival");
+
+        resetBehaviorHunger(player);
+        player.gameMode.changeGameModeForPlayer(GameType.SPECTATOR);
+        NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
+        player.awardStat(Stats.CUSTOM.get(Stats.WALK_ONE_CM), 100);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0D, "spectator movement and jumps remain exempt");
+
+        resetBehaviorHunger(player);
+        player.setSprinting(false);
+        NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
+        assertBehaviorHunger(helper, player, 0.05D, "a normal jump uses the R196 one-off cost");
+        resetBehaviorHunger(player);
+        player.setSprinting(true);
+        NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
+        assertBehaviorHunger(helper, player, 0.2D, "a sprint jump uses the larger R196 cost");
+        player.setSprinting(false);
+
+        Cow cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(3, 2, 1));
+        resetBehaviorHunger(player);
+        NeoForge.EVENT_BUS.post(new AttackEntityEvent(player, cow));
+        assertBehaviorHunger(helper, player, 0.075D, "attacking uses the R196 endurance action cost");
+
+        BlockPos miningRelative = new BlockPos(2, 2, 1);
+        BlockPos miningPos = helper.absolutePos(miningRelative);
+        helper.setBlock(miningRelative, Blocks.STONE);
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
+                .equipment(R196Material.COPPER, R196EquipmentType.PICKAXE)
+                .holder()
+                .toStack());
+        helper.assertTrue(player.isWithinBlockInteractionRange(miningPos, 1.0D), "mining target is in interaction range");
+        helper.assertTrue(helper.getLevel().mayInteract(player, miningPos), "mining target permits world interaction");
+        helper.assertFalse(
+                helper.getLevel().getServer().isUnderSpawnProtection(helper.getLevel(), miningPos, player),
+                "mining target is outside spawn protection");
+        helper.assertFalse(
+                player.blockActionRestricted(helper.getLevel(), miningPos, player.gameMode.getGameModeForPlayer()),
+                "survival player is allowed to start this block action");
+        helper.assertTrue(
+                helper.getBlockState(miningRelative).getDestroyProgress(player, helper.getLevel(), miningPos) > 0.0F,
+                "mining target has positive destroy progress");
+        resetBehaviorHunger(player);
+        PlayerInteractEvent.LeftClickBlock miningStart = new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(miningStart);
+        helper.assertFalse(miningStart.isCanceled(), "valid mining start event remains uncanceled");
+        assertBehaviorHunger(helper, player, 0.0025D, "starting a valid mining session charges one mining tick");
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.005D, "holding a mining session continues charging per tick");
+        NeoForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.STOP));
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.005D, "stopping mining ends the continuous cost");
+
+        BlockPos placeRelative = new BlockPos(2, 2, 2);
+        BlockPos placePos = helper.absolutePos(placeRelative);
+        helper.setBlock(placeRelative, Blocks.AIR);
+        BlockSnapshot snapshot = BlockSnapshot.create(helper.getLevel().dimension(), helper.getLevel(), placePos);
+        helper.setBlock(placeRelative, Blocks.STONE);
+        resetBehaviorHunger(player);
+        NeoForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(
+                snapshot, Blocks.COBBLESTONE.defaultBlockState(), player));
+        assertBehaviorHunger(helper, player, 0.375D, "placing stone uses its hardness-based R196 cost");
+
+        helper.setBlock(placeRelative, Blocks.DIRT);
+        player.setItemInHand(InteractionHand.MAIN_HAND, Items.WOODEN_HOE.getDefaultInstance());
+        UseOnContext tillContext = new UseOnContext(
+                player,
+                InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(placePos), Direction.UP, placePos, false));
+        BlockEvent.BlockToolModificationEvent tillEvent = new BlockEvent.BlockToolModificationEvent(
+                Blocks.DIRT.defaultBlockState(), tillContext, ItemAbilities.HOE_TILL, false);
+        tillEvent.setFinalState(Blocks.FARMLAND.defaultBlockState());
+        resetBehaviorHunger(player);
+        NeoForge.EVENT_BUS.post(tillEvent);
+        assertBehaviorHunger(helper, player, 0.0625D, "successful tilling uses half the source hardness");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, Items.BOW.getDefaultInstance());
+        player.startUsingItem(InteractionHand.MAIN_HAND);
+        resetBehaviorHunger(player);
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0025D, "drawing a bow charges every held tick");
+        player.stopUsingItem();
+
+        var boat = helper.spawn(EntityTypes.OAK_BOAT, new BlockPos(1, 2, 2));
+        player.startRiding(boat, true, false);
+        player.setLastClientInput(new Input(true, false, false, false, false, false, false));
+        resetBehaviorHunger(player);
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0025D, "the controlling rower pays for forward input");
+        player.setLastClientInput(Input.EMPTY);
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0025D, "a stationary boat has no passive hunger cost");
+        player.stopRiding();
+        boat.discard();
+
+        resetBehaviorHunger(player);
+        DamageContainer damage = new DamageContainer(helper.getLevel().damageSources().cactus(), 1.0F);
+        NeoForge.EVENT_BUS.post(new LivingDamageEvent.Post(player, damage));
+        assertBehaviorHunger(helper, player, 0.075D, "armor-applicable damage uses the R196 damage cost");
+
+        helper.setBlock(miningRelative, Blocks.AIR);
+        helper.setBlock(placeRelative, Blocks.AIR);
+        cow.discard();
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void resetBehaviorHunger(ServerPlayer player) {
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(6, 6, 1_000, 1_000, 1_000, 0, 0));
+    }
+
+    private static void assertBehaviorHunger(
+            GameTestHelper helper, ServerPlayer player, double expected, String message) {
+        double actual = player.getData(ModAttachments.SURVIVAL).hungerProgress();
+        helper.assertTrue(Math.abs(actual - expected) < 1.0E-7D, message + ": " + actual);
     }
 
     private static void safeAndEnchanting(GameTestHelper helper) {
