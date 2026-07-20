@@ -1,23 +1,25 @@
 package com.pixulse.infx.mixin;
 
 import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.crafting.CraftingEnvironment;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.crafting.TimedCraftingState;
-import com.pixulse.infx.crafting.CraftingEnvironment;
-
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.AbstractCraftingMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.SimpleContainerData;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,23 +28,25 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(InventoryMenu.class)
-public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements TimedCraftingMenu {
-    @Shadow @Final private Player owner;
+/** Applies the same delayed crafting path to a vanilla 3x3 crafting menu. */
+@Mixin(CraftingMenu.class)
+public abstract class CraftingMenuMixin extends AbstractCraftingMenu implements TimedCraftingMenu {
+    @Shadow @Final private Player player;
+    @Shadow private boolean placingRecipe;
 
     @Unique private TimedCraftingState infx$state;
     @Unique private SimpleContainerData infx$data;
     @Unique private long infx$lastTick;
 
-    protected InventoryMenuMixin(MenuType<?> menuType, int containerId, int width, int height) {
+    protected CraftingMenuMixin(MenuType<?> menuType, int containerId, int width, int height) {
         super(menuType, containerId, width, height);
     }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/minecraft/world/inventory/ContainerLevelAccess;)V", at = @At("TAIL"))
     private void infx$initializeTimedCrafting(
+            int containerId,
             Inventory inventory,
-            boolean active,
-            Player owner,
+            net.minecraft.world.inventory.ContainerLevelAccess access,
             CallbackInfo callback) {
         infx$state = new TimedCraftingState();
         infx$data = new SimpleContainerData(DATA_COUNT);
@@ -53,13 +57,20 @@ public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements
     }
 
     @Inject(method = "slotsChanged", at = @At("HEAD"), cancellable = true)
-    private void infx$resolveHandRecipes(Container container, CallbackInfo callback) {
-        if (container == craftSlots && owner instanceof ServerPlayer serverPlayer) {
+    private void infx$resolveRecipes(Container container, CallbackInfo callback) {
+        if (container == craftSlots && !placingRecipe && player instanceof ServerPlayer serverPlayer) {
             TimedCraftingEngine.refreshResult(this, serverPlayer, true);
-            // Every loaded crafting recipe now uses the timed path. Letting
-            // vanilla continue here would expose an instant result whenever
-            // the matched recipe requires a stronger workbench than HAND.
             callback.cancel();
+        }
+    }
+
+    @Inject(method = "finishPlacingRecipe", at = @At("RETURN"))
+    private void infx$finishPlacingRecipe(
+            ServerLevel level,
+            RecipeHolder<CraftingRecipe> recipe,
+            CallbackInfo callback) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            TimedCraftingEngine.refreshResult(this, serverPlayer, true);
         }
     }
 
@@ -71,7 +82,8 @@ public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements
 
     @Override
     public BenchTier infx$benchTier() {
-        return BenchTier.HAND;
+        // A vanilla crafting table is the generic R196 3x3 tool bench.
+        return BenchTier.FLINT;
     }
 
     @Override
@@ -96,7 +108,8 @@ public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements
 
     @Override
     public boolean infx$isCraftingContextValid(Player player) {
-        return player.containerMenu == (Object) this && CraftingEnvironment.canCraft(player);
+        return ((CraftingMenu) (Object) this).stillValid(player)
+                && CraftingEnvironment.canCraft(player);
     }
 
     @Override

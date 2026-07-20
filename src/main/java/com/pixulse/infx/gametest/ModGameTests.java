@@ -5,6 +5,8 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
 import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.crafting.CraftingProfile;
+import com.pixulse.infx.crafting.MiteCraftingRules;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.furnace.FurnaceHeatAccess;
@@ -14,6 +16,7 @@ import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.progression.R196Experience;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.ModRecipes;
 import com.pixulse.infx.server.ExtremeDifficulty;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -48,11 +51,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.FurnaceResultSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
@@ -235,6 +240,12 @@ public final class ModGameTests {
             functionKey("bench_hierarchy");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_CRAFTING =
             functionKey("timed_crafting");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_TIMED_CRAFTING =
+            functionKey("vanilla_timed_crafting");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
+            functionKey("vanilla_crafting_menu");
+    private static final ResourceKey<Consumer<GameTestHelper>> CRAFTING_PROFILES =
+            functionKey("crafting_profiles");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_RESETS =
             functionKey("timed_resets");
     private static final ResourceKey<Consumer<GameTestHelper>> FULL_INVENTORY_DROP =
@@ -268,6 +279,9 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
+        TEST_FUNCTIONS.register("vanilla_timed_crafting", () -> ModGameTests::vanillaTimedCrafting);
+        TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
+        TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
         TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
         TEST_FUNCTIONS.register("recipe_boundaries", () -> ModGameTests::recipeBoundaries);
@@ -297,6 +311,9 @@ public final class ModGameTests {
         registerTest(event, HARVEST_RESTRICTIONS, environment, 40);
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
+        registerTest(event, VANILLA_TIMED_CRAFTING, environment, 120);
+        registerTest(event, VANILLA_CRAFTING_MENU, environment, 120);
+        registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
         registerTest(event, RECIPE_BOUNDARIES, environment, 40);
@@ -495,6 +512,126 @@ public final class ModGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
+    }
+
+    private static void vanillaTimedCrafting(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        player.containerMenu = player.inventoryMenu;
+        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
+        CraftingContainer grid = menu.infx$craftingContainer();
+        grid.setItem(0, Items.COAL.getDefaultInstance());
+        grid.setItem(2, Items.STICK.getDefaultInstance());
+
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true),
+                "an enabled vanilla torch recipe must resolve in the timed hand grid");
+        assertResult(helper, menu, Items.TORCH, "vanilla torch timed preview");
+        player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
+        helper.assertTrue(menu.infx$craftingState().isRunning(), "vanilla recipe must start a timed craft");
+        helper.assertTrue(countItem(player.getInventory(), Items.TORCH) == 0, "vanilla result must not be immediate");
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.TORCH) == 4,
+                        "the timed path must eventually produce the vanilla torch result"))
+                .thenExecute(() -> {
+                    helper.assertTrue(grid.getItem(0).isEmpty(), "vanilla completion must consume coal");
+                    helper.assertTrue(grid.getItem(2).isEmpty(), "vanilla completion must consume the stick");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void vanillaCraftingMenu(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        helper.setBlock(WORK_POS, Blocks.CRAFTING_TABLE);
+        CraftingMenu vanilla = new CraftingMenu(
+                31,
+                player.getInventory(),
+                ContainerLevelAccess.create(helper.getLevel(), helper.absolutePos(WORK_POS)));
+        helper.assertTrue(vanilla instanceof TimedCraftingMenu, "the vanilla crafting menu must receive the timed mixin");
+        player.containerMenu = vanilla;
+        TimedCraftingMenu timed = (TimedCraftingMenu) vanilla;
+        CraftingContainer grid = timed.infx$craftingContainer();
+
+        // Place a 1x2 recipe away from the top-left corner. This verifies that
+        // completion maps the trimmed CraftingInput back to the original grid.
+        grid.setItem(4, Items.COAL.getDefaultInstance());
+        grid.setItem(7, Items.STICK.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(timed, player, true),
+                "the vanilla 3x3 menu must resolve enabled vanilla recipes through the timed engine");
+        assertResult(helper, timed, Items.TORCH, "vanilla crafting-table timed preview");
+        vanilla.clicked(0, 0, ContainerInput.PICKUP, player);
+        helper.assertTrue(timed.infx$craftingState().isRunning(), "crafting-table result must start a timer");
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.TORCH) == 4,
+                        "the vanilla crafting-table timer must complete"))
+                .thenExecute(() -> {
+                    helper.assertTrue(grid.getItem(4).isEmpty(), "offset coal slot must be consumed");
+                    helper.assertTrue(grid.getItem(7).isEmpty(), "offset stick slot must be consumed");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void craftingProfiles(GameTestHelper helper) {
+        assertDifficulty(helper, Items.STICK, 25.0F);
+        assertDifficulty(helper, Items.EXPERIENCE_BOTTLE, 25.0F);
+        assertDifficulty(helper, Items.ARROW, 40.0F);
+        assertDifficulty(helper, Items.LEATHER, 100.0F);
+        assertDifficulty(helper, Items.FLINT, 100.0F);
+        assertDifficulty(helper, Items.OBSIDIAN, 240.0F);
+        assertDifficulty(helper, Items.COAL_BLOCK, 120.0F);
+        assertDifficulty(helper, Items.LAPIS_BLOCK, 300.0F);
+        assertDifficulty(helper, Items.COPPER_INGOT, 400.0F);
+        assertDifficulty(helper, Items.IRON_INGOT, 800.0F);
+        assertDifficulty(helper, Items.EMERALD, 800.0F);
+        assertDifficulty(helper, Items.QUARTZ, 900.0F);
+        assertDifficulty(helper, Items.DIAMOND, 1600.0F);
+        assertDifficulty(helper, Items.IRON_BLOCK, 7200.0F);
+        assertDifficulty(helper, Items.DIAMOND_BLOCK, 14_400.0F);
+        assertDifficulty(helper, Items.QUARTZ_BLOCK, 3600.0F);
+        assertDifficulty(helper, Items.AMETHYST_SHARD, 25.0F);
+        assertDifficulty(
+                helper,
+                ModItems.catalog().raw("rusted_iron_chain").holder().get(),
+                400.0F * 4.0F / 9.0F);
+
+        var recipeMap = helper.getLevel().recipeAccess().recipeMap();
+        var vanillaRecipes = recipeMap.byType(RecipeType.CRAFTING);
+        helper.assertTrue(!vanillaRecipes.isEmpty(), "the server must load enabled 26.2 crafting recipes");
+        for (var holder : vanillaRecipes) {
+            try {
+                CraftingProfile profile = MiteCraftingRules.displayProfile(holder.value());
+                helper.assertTrue(
+                        Float.isFinite(profile.difficulty()) && profile.difficulty() > 0.0F,
+                        holder.id().identifier() + " must have a finite positive inferred difficulty");
+                helper.assertTrue(
+                        BenchTier.ADAMANTIUM.supports(profile.requiredBench()),
+                        holder.id().identifier() + " must map to a supported workbench tier");
+            } catch (RuntimeException error) {
+                helper.fail("failed to infer crafting profile for " + holder.id().identifier() + ": " + error);
+            }
+        }
+
+        var explicitRecipes = recipeMap.byType(ModRecipes.CRAFTING.get());
+        helper.assertTrue(!explicitRecipes.isEmpty(), "InfiniteX explicit R196 crafting recipes must be loaded");
+        for (var holder : explicitRecipes) {
+            CraftingProfile profile = CraftingProfile.explicit(
+                    holder.value().requiredBench(), holder.value().difficulty());
+            helper.assertTrue(
+                    Float.isFinite(profile.difficulty()) && profile.difficulty() > 0.0F,
+                    holder.id().identifier() + " must retain a finite positive explicit difficulty");
+            helper.assertTrue(
+                    BenchTier.ADAMANTIUM.supports(profile.requiredBench()),
+                    holder.id().identifier() + " must retain a supported explicit workbench tier");
+        }
+        helper.succeed();
     }
 
     private static void fullInventoryDrop(GameTestHelper helper) {
@@ -1636,6 +1773,13 @@ public final class ModGameTests {
 
     private static void assertResult(GameTestHelper helper, TimedCraftingMenu menu, Item item, String description) {
         helper.assertTrue(menu.infx$resultContainer().getItem(0).is(item), description);
+    }
+
+    private static void assertDifficulty(GameTestHelper helper, Item item, float expected) {
+        float actual = MiteCraftingRules.componentDifficulty(item.getDefaultInstance());
+        helper.assertTrue(
+                Math.abs(actual - expected) < 0.001F,
+                item + " component difficulty must be " + expected + ", actual=" + actual);
     }
 
     private static void assertAdvancementDone(

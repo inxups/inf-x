@@ -3,6 +3,7 @@ package com.pixulse.infx.crafting;
 import com.pixulse.infx.registry.ModRecipes;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -16,7 +17,7 @@ public final class TimedCraftingEvents {
     }
 
     private static void onDatapackSync(OnDatapackSyncEvent event) {
-        event.sendRecipes(ModRecipes.CRAFTING.get());
+        event.sendRecipes(ModRecipes.CRAFTING.get(), RecipeType.CRAFTING);
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {

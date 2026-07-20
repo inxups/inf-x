@@ -27,6 +27,19 @@ public enum BenchTier {
         return speedBonus;
     }
 
+    /** Numeric hardness value used by MITE's workbench gate. */
+    public int capability() {
+        return capability;
+    }
+
+    /**
+     * Whether this tier represents a material-hardness gate rather than only
+     * the 3x3 grid. Flint and obsidian are the generic tool-bench tiers.
+     */
+    public boolean materialGatedTier() {
+        return capability >= COPPER.capability;
+    }
+
     public boolean supports(BenchTier requiredBench) {
         return capability >= requiredBench.capability;
     }

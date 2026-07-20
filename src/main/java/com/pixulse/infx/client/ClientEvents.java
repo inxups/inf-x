@@ -1,12 +1,15 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModRecipes;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,8 +37,10 @@ import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeMap;
+import net.minecraft.world.item.crafting.RecipeType;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class ClientEvents {
@@ -113,7 +118,8 @@ public final class ClientEvents {
 
     @SubscribeEvent
     private static void receiveRecipes(RecipesReceivedEvent event) {
-        if (event.getRecipeTypes().contains(ModRecipes.CRAFTING.get())) {
+        if (event.getRecipeTypes().contains(ModRecipes.CRAFTING.get())
+                || event.getRecipeTypes().contains(RecipeType.CRAFTING)) {
             syncedRecipes = event.getRecipeMap();
         }
     }
@@ -124,6 +130,16 @@ public final class ClientEvents {
     }
 
     public static Collection<RecipeHolder<TimedCraftingRecipe>> timedCraftingRecipes() {
-        return syncedRecipes.byType(ModRecipes.CRAFTING.get());
+        Collection<RecipeHolder<TimedCraftingRecipe>> explicit =
+                syncedRecipes.byType(ModRecipes.CRAFTING.get());
+        Collection<RecipeHolder<CraftingRecipe>> vanilla =
+                syncedRecipes.byType(RecipeType.CRAFTING);
+        ArrayList<RecipeHolder<TimedCraftingRecipe>> result =
+                new ArrayList<>(explicit.size() + vanilla.size());
+        result.addAll(explicit);
+        for (RecipeHolder<CraftingRecipe> holder : vanilla) {
+            result.add(new RecipeHolder<>(holder.id(), InferredTimedCraftingRecipe.of(holder.value())));
+        }
+        return List.copyOf(result);
     }
 }

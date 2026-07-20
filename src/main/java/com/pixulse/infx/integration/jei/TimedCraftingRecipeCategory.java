@@ -25,10 +25,11 @@ import net.minecraft.world.level.ItemLike;
 final class TimedCraftingRecipeCategory
         extends AbstractRecipeCategory<RecipeHolder<TimedCraftingRecipe>> {
     private static final int WIDTH = 116;
-    private static final int HEIGHT = 66;
+    private static final int HEIGHT = 76;
 
     private final ICraftingGridHelper craftingGridHelper;
     private final IDrawableStatic arrow;
+    private final BenchTier benchTier;
 
     TimedCraftingRecipeCategory(IGuiHelper guiHelper, BenchTier benchTier, ItemLike icon) {
         super(
@@ -37,6 +38,7 @@ final class TimedCraftingRecipeCategory
                 guiHelper.createDrawableItemLike(icon),
                 WIDTH,
                 HEIGHT);
+        this.benchTier = benchTier;
         craftingGridHelper = guiHelper.createCraftingGridHelper();
         arrow = guiHelper.getRecipeArrow();
     }
@@ -67,7 +69,16 @@ final class TimedCraftingRecipeCategory
         builder.addText(Component.translatable("jei.infx.difficulty", difficulty), WIDTH, 9)
                 .setColor(0xFF808080)
                 .setTextAlignment(HorizontalAlignment.CENTER)
-                .setPosition(0, 56);
+                .setPosition(0, 55);
+        builder.addText(
+                        Component.translatable(
+                                "jei.infx.required_bench",
+                                Component.translatable("jei.infx.category." + benchTier.serializedName())),
+                        WIDTH,
+                        9)
+                .setColor(0xFF808080)
+                .setTextAlignment(HorizontalAlignment.CENTER)
+                .setPosition(0, 65);
     }
 
     @Override

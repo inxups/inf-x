@@ -42,4 +42,20 @@ class CraftingTimeCalculatorTest {
     void finalPeriodNeverDropsBelowTwentyFiveTicks() {
         assertEquals(25, CraftingTimeCalculator.requiredTicks(50.0, 200, BenchTier.COPPER));
     }
+
+    @Test
+    void ordinaryRecipesAlwaysUseTheFixedWorkbenchBonus() {
+        assertEquals(115, CraftingTimeCalculator.requiredTicks(
+                400.0, 25, BenchTier.ADAMANTIUM, false, false));
+        assertEquals(89, CraftingTimeCalculator.requiredTicks(
+                400.0, 25, BenchTier.ADAMANTIUM, true, false));
+    }
+
+    @Test
+    void clumsinessDoublesBeforeDivisionAndDoesNotDoubleTheFloor() {
+        assertEquals(392, CraftingTimeCalculator.requiredTicks(
+                400.0, 0, BenchTier.HAND, false, true));
+        assertEquals(25, CraftingTimeCalculator.requiredTicks(
+                25.0, 200, BenchTier.ADAMANTIUM, true, true));
+    }
 }
