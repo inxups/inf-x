@@ -13,16 +13,22 @@ class R196ClientControlsTest {
     }
 
     @Test
-    void testModeDisplaysAllTextWithoutOptionalRenderers() {
+    void testModeUsesTheVanillaDefaultDebugProfile() {
         assertEquals(
                 DebugScreenEntryStatus.IN_OVERLAY,
                 R196ClientControls.debugStatus(true, DebugScreenEntries.MEMORY));
         assertEquals(
                 DebugScreenEntryStatus.IN_OVERLAY,
-                R196ClientControls.debugStatus(true, DebugScreenEntries.LOOKING_AT_BLOCK_TAGS));
+                R196ClientControls.debugStatus(true, DebugScreenEntries.PLAYER_POSITION));
         assertEquals(
                 DebugScreenEntryStatus.IN_OVERLAY,
                 R196ClientControls.debugStatus(true, DebugScreenEntries.THREE_DIMENSIONAL_CROSSHAIR));
+        assertEquals(
+                DebugScreenEntryStatus.NEVER,
+                R196ClientControls.debugStatus(true, DebugScreenEntries.BIOME));
+        assertEquals(
+                DebugScreenEntryStatus.NEVER,
+                R196ClientControls.debugStatus(true, DebugScreenEntries.LOOKING_AT_BLOCK_TAGS));
         assertEquals(
                 DebugScreenEntryStatus.NEVER,
                 R196ClientControls.debugStatus(true, DebugScreenEntries.CHUNK_BORDERS));
