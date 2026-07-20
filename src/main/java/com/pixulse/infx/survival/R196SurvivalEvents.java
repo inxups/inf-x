@@ -17,6 +17,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
@@ -29,6 +30,7 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 /** Applies player caps, metabolism, long-term nutrition and slow natural healing. */
 public final class R196SurvivalEvents {
     private static final String INITIALIZED = "infx_r196_survival_initialized";
+    private static final double STARVATION_PROGRESS_PER_TICK = 0.002D;
     private static final net.minecraft.resources.Identifier EMPTY_AIR_SPEED =
             InfiniteX.id("empty_air_speed");
 
@@ -105,7 +107,7 @@ public final class R196SurvivalEvents {
     }
 
     private static void onFoodFinished(LivingEntityUseItemEvent.Finish event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!(event.getEntity() instanceof ServerPlayer player) || player.isSpectator()) return;
         R196FoodProfile food = R196FoodProfiles.forStack(event.getItem());
         if (food == R196FoodProfile.EMPTY) return;
         R196SurvivalData updated = player.getData(ModAttachments.SURVIVAL)
@@ -116,31 +118,43 @@ public final class R196SurvivalEvents {
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        updateAirSpeed(player);
+        boolean activeMetabolism = hasActiveMetabolism(player);
+        updateAirSpeed(player, activeMetabolism);
         if (player.tickCount % 10 != 0) return;
 
         R196SurvivalData current = player.getData(ModAttachments.SURVIVAL)
                 .clamp(R196SurvivalRules.foodCap(player.experienceLevel));
+        if (!activeMetabolism) {
+            player.setData(ModAttachments.SURVIVAL, current);
+            mirrorFoodData(player, current);
+            return;
+        }
         boolean moving = player.getDeltaMovement().horizontalDistanceSqr() > 0.0004D;
         boolean swimming = player.isSwimming() || player.isInWater() && moving;
         boolean jumping = !player.onGround() && player.getDeltaMovement().y > 0.08D;
         boolean wet = player.isInWaterOrRain();
         boolean cold = player.level().getBiome(player.blockPosition()).value().getBaseTemperature() < 0.4F;
-        double cost = R196SurvivalRules.metabolism(
-                        moving,
-                        player.isSprinting(),
-                        swimming,
-                        jumping,
-                        player.getVehicle() instanceof AbstractBoat,
-                        wet,
-                        cold,
-                        current.isMalnourished())
-                * 10.0D;
+        double baselineCost = R196SurvivalRules.baselineMetabolism(wet, cold, current.isMalnourished());
+        double activityCost = R196SurvivalRules.activityMetabolism(
+                moving,
+                player.isSprinting(),
+                swimming,
+                jumping,
+                player.getVehicle() instanceof AbstractBoat);
+        int hungerEffectLevel = player.hasEffect(MobEffects.HUNGER)
+                ? player.getEffect(MobEffects.HUNGER).getAmplifier() + 1
+                : 0;
         int endurance = R196Enchantments.armorLevel(player, ModEnchantments.ENDURANCE);
-        cost *= Math.max(0.5D, 1.0D - endurance * 0.05D);
-        int nutrientDecay = Math.max(1, (int) Math.ceil(cost * 1_000.0D));
-        R196SurvivalData updated = current.consume(
-                cost, nutrientDecay, R196SurvivalRules.foodCap(player.experienceLevel));
+        double cost = 10.0D
+                * (baselineCost
+                        + activityCost * R196SurvivalRules.enduranceModifier(endurance)
+                        + R196SurvivalRules.hungerEffectMetabolism(hungerEffectLevel));
+        R196SurvivalData updated = current.metabolize(
+                cost,
+                10.0D * R196SurvivalRules.NUTRITION_METABOLISM_PER_TICK,
+                10,
+                R196SurvivalRules.foodCap(player.experienceLevel));
+        updated = applyStarvation(player, updated);
         updated = applyRecovery(player, updated);
         player.setData(ModAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
@@ -149,23 +163,43 @@ public final class R196SurvivalEvents {
     }
 
     private static R196SurvivalData applyRecovery(ServerPlayer player, R196SurvivalData data) {
-        if (!player.isHurt() || data.isEnergyEmpty()) {
+        boolean naturalRegeneration = player.level()
+                .getGameRules()
+                .get(GameRules.NATURAL_HEALTH_REGENERATION);
+        if (!naturalRegeneration || !player.isHurt() || data.isStarving()) {
             return data.withRecoveryProgress(0.0D);
         }
         double progress = data.recoveryProgress()
                 + 10.0D * R196SurvivalRules.recoveryPerTick(
-                        player.isSleeping(), data.isMalnourished(), regenerationLevel(player));
+                        data.nutrition(),
+                        player.isSleeping(),
+                        data.isMalnourished(),
+                        regenerationLevel(player));
         if (progress < 1.0D) return data.withRecoveryProgress(progress);
         player.heal(1.0F);
         return data.withRecoveryProgress(progress - 1.0D)
-                .consume(1.0D, 0, R196SurvivalRules.foodCap(player.experienceLevel));
+                .metabolize(
+                        R196SurvivalRules.HEALING_METABOLISM,
+                        0.0D,
+                        0,
+                        R196SurvivalRules.foodCap(player.experienceLevel));
+    }
+
+    private static R196SurvivalData applyStarvation(ServerPlayer player, R196SurvivalData data) {
+        if (!data.isStarving()) return data.withStarvationProgress(0.0D);
+        double progress = data.starvationProgress() + 10.0D * STARVATION_PROGRESS_PER_TICK;
+        if (progress < 1.0D) return data.withStarvationProgress(progress);
+        int difficulty = player.level().getDifficulty().getId();
+        if (player.getHealth() > 10.0F
+                || difficulty >= 3
+                || difficulty >= 2 && player.getHealth() > 1.0F) {
+            player.hurtServer(player.level(), player.damageSources().starve(), 1.0F);
+        }
+        return data.withStarvationProgress(progress - 1.0D);
     }
 
     private static int regenerationLevel(Player player) {
-        int effect = player.hasEffect(MobEffects.REGENERATION)
-                ? player.getEffect(MobEffects.REGENERATION).getAmplifier() + 1
-                : 0;
-        return effect + R196Enchantments.armorLevel(player, ModEnchantments.REGENERATION);
+        return R196Enchantments.armorLevel(player, ModEnchantments.REGENERATION);
     }
 
     private static void updateStatusEffects(ServerPlayer player, R196SurvivalData data) {
@@ -200,8 +234,9 @@ public final class R196SurvivalEvents {
     }
 
     private static void consumeAction(ServerPlayer player, double amount) {
+        if (!hasActiveMetabolism(player)) return;
         R196SurvivalData updated = player.getData(ModAttachments.SURVIVAL)
-                .consume(amount, Math.max(1, (int) Math.ceil(amount * 1_000.0D)),
+                .metabolize(amount, 0.0D, 0,
                         R196SurvivalRules.foodCap(player.experienceLevel));
         player.setData(ModAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
@@ -209,6 +244,7 @@ public final class R196SurvivalEvents {
 
     private static void onContinueSleeping(CanContinueSleepingEvent event) {
         if (event.getEntity() instanceof Player player
+                && hasActiveMetabolism(player)
                 && (player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()
                         || player.hasEffect(ModMobEffects.WITCH_CURSE))) {
             event.setContinueSleeping(false);
@@ -228,19 +264,27 @@ public final class R196SurvivalEvents {
 
     private static void mirrorFoodData(ServerPlayer player, R196SurvivalData data) {
         player.getFoodData().setFoodLevel((int) Math.ceil(data.nutrition()));
-        player.getFoodData().setSaturation((float) Math.min(data.satiation(), data.nutrition()));
+        player.getFoodData().setSaturation((float) data.satiation());
     }
 
-    private static void updateAirSpeed(ServerPlayer player) {
+    private static boolean hasActiveMetabolism(Player player) {
+        return !player.isCreative() && !player.isSpectator();
+    }
+
+    private static void updateAirSpeed(ServerPlayer player, boolean activeMetabolism) {
         var movement = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (movement == null) return;
-        if (!player.onGround() && player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()) {
+        if (activeMetabolism
+                && !player.onGround()
+                && player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()) {
             movement.addOrUpdateTransientModifier(new AttributeModifier(
                     EMPTY_AIR_SPEED, -0.25D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         } else {
             movement.removeModifier(EMPTY_AIR_SPEED);
         }
-        if (player.getData(ModAttachments.SURVIVAL).isEnergyEmpty() && player.isSprinting()) {
+        if (activeMetabolism
+                && player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()
+                && player.isSprinting()) {
             player.setSprinting(false);
         }
     }

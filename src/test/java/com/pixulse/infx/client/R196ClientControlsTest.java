@@ -1,6 +1,8 @@
 package com.pixulse.infx.client;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
@@ -45,5 +47,12 @@ class R196ClientControlsTest {
         assertEquals(
                 DebugScreenEntryStatus.NEVER,
                 R196ClientControls.debugStatus(false, DebugScreenEntries.MEMORY));
+    }
+
+    @Test
+    void foodBarOnlyRendersForSurvivalPlayers() {
+        assertTrue(R196ClientControls.shouldRenderFoodBar(false, false));
+        assertFalse(R196ClientControls.shouldRenderFoodBar(true, false));
+        assertFalse(R196ClientControls.shouldRenderFoodBar(false, true));
     }
 }
