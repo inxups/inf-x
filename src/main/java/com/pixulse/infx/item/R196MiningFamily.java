@@ -1,5 +1,6 @@
 package com.pixulse.infx.item;
 
+import com.pixulse.infx.tag.ModTags;
 import java.util.List;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -17,8 +18,13 @@ public enum R196MiningFamily {
     AXE,
     HOE,
     SCYTHE,
+    CUDGEL,
     SWORD,
     SHEARS;
+
+    public String path() {
+        return name().toLowerCase(java.util.Locale.ROOT);
+    }
 
     public Tool createTool(R196EquipmentKey key) {
         HolderGetter<Block> blocks = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
@@ -32,6 +38,12 @@ public enum R196MiningFamily {
                     List.of(
                             Tool.Rule.minesAndDrops(blocks.getOrThrow(BlockTags.CROPS), speed),
                             Tool.Rule.minesAndDrops(blocks.getOrThrow(BlockTags.MINEABLE_WITH_HOE), speed)),
+                    1.0F,
+                    0,
+                    true);
+            case CUDGEL -> new Tool(
+                    List.of(Tool.Rule.minesAndDrops(
+                            blocks.getOrThrow(ModTags.Blocks.effectiveWith(CUDGEL)), speed)),
                     1.0F,
                     0,
                     true);
@@ -65,9 +77,7 @@ public enum R196MiningFamily {
     private static Tool standard(
             HolderGetter<Block> blocks, R196EquipmentKey key, TagKey<Block> minesEfficiently) {
         return new Tool(
-                List.of(
-                        Tool.Rule.deniesDrops(blocks.getOrThrow(key.material().incorrectForDrops())),
-                        Tool.Rule.minesAndDrops(blocks.getOrThrow(minesEfficiently), key.miningSpeed())),
+                List.of(Tool.Rule.minesAndDrops(blocks.getOrThrow(minesEfficiently), key.miningSpeed())),
                 1.0F,
                 0,
                 true);

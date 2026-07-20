@@ -100,7 +100,7 @@ final class ModItemTagsProvider extends ItemTagsProvider {
             case AXE -> add(ItemTags.AXES, entry);
             case HOE -> add(ItemTags.HOES, entry);
             case SWORD -> add(ItemTags.SWORDS, entry);
-            case NONE, SCYTHE, SHEARS -> {
+            case NONE, SCYTHE, CUDGEL, SHEARS -> {
             }
         }
         if (type == R196EquipmentType.ARROW) {

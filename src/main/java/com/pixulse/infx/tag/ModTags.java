@@ -3,6 +3,7 @@ package com.pixulse.infx.tag;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.item.R196MiningFamily;
 import com.pixulse.infx.material.R196Material;
 
 import net.minecraft.core.registries.Registries;
@@ -14,13 +15,26 @@ public final class ModTags {
     private ModTags() {}
 
     public static final class Blocks {
-        public static final TagKey<Block> RESTRICTED_HARVEST = create("restricted_harvest");
         public static final TagKey<Block> PORTABLE_HAND_HARVEST = create("portable_hand_harvest");
+        public static final TagKey<Block> NO_EFFECTIVE_TOOL = create("no_effective_tool");
+        public static final TagKey<Block> METAL_SHOVEL_EFFECTIVE = create("effective_tool/metal_shovel");
+        public static final TagKey<Block> WAR_HAMMER_EFFECTIVE = create("effective_tool/war_hammer");
+        public static final TagKey<Block> AXE_HALF_SPEED = create("effective_tool/axe_half_speed");
 
         private Blocks() {}
 
-        public static TagKey<Block> requiredTier(HarvestTier tier) {
-            return create("requires_tier/" + tier.path());
+        public static TagKey<Block> requiredLevel(int level) {
+            if (level < 0 || level > 6) {
+                throw new IllegalArgumentException("Harvest level must be between 0 and 6: " + level);
+            }
+            return create("requires_harvest_level/" + level);
+        }
+
+        public static TagKey<Block> effectiveWith(R196MiningFamily family) {
+            if (family == R196MiningFamily.NONE) {
+                throw new IllegalArgumentException("NONE has no effective block tag");
+            }
+            return create("effective_tool/" + family.path());
         }
 
         private static TagKey<Block> create(String path) {

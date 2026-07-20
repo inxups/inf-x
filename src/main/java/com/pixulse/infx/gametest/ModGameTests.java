@@ -372,6 +372,65 @@ public final class ModGameTests {
                 helper.getBlockState(WORK_POS).isAir(),
                 "a harvested silver ore block must be removed");
 
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.setBlock(WORK_POS, Blocks.COAL_BLOCK);
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE coal storage remains level zero");
+        helper.assertTrue(
+                helper.getLevel()
+                        .getEntities(EntityTypes.ITEM, player.getBoundingBox().inflate(8.0),
+                                entity -> entity.getItem().is(Items.COAL_BLOCK))
+                        .size() == 1,
+                "a level-zero coal block must still drop when harvested by hand");
+        helper.getLevel()
+                .getEntities(EntityTypes.ITEM, player.getBoundingBox().inflate(8.0),
+                        entity -> entity.getItem().is(Items.COAL_BLOCK))
+                .forEach(net.minecraft.world.entity.Entity::discard);
+        helper.setBlock(WORK_POS, Blocks.RAIL);
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE circuit-material rails remain level zero");
+        helper.setBlock(WORK_POS, Blocks.FURNACE);
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE containers must be portable by hand");
+        helper.assertTrue(
+                helper.getLevel()
+                        .getEntities(EntityTypes.ITEM, player.getBoundingBox().inflate(8.0),
+                                entity -> entity.getItem().is(Items.FURNACE))
+                        .size() == 1,
+                "a portable furnace must drop when carried by hand");
+
+        helper.setBlock(WORK_POS, Blocks.TERRACOTTA);
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "hardened clay must enforce MITE level one");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.FLINT_AXE.get().getDefaultInstance());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against hardened clay");
+        helper.setBlock(WORK_POS, Blocks.SANDSTONE);
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against sandstone");
+        helper.setBlock(WORK_POS, Blocks.GLASS);
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against glass");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.COPPER_PICKAXE.get().getDefaultInstance());
+        helper.setBlock(WORK_POS, Blocks.IRON_BARS);
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "copper must not harvest MITE level-three iron");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.IRON_PICKAXE.get().getDefaultInstance());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "iron must harvest MITE level-three iron");
+
+        helper.setBlock(WORK_POS, Blocks.DIAMOND_ORE);
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "iron must not harvest level-four diamond ore");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
+                .equipment(R196Material.MITHRIL, R196EquipmentType.PICKAXE)
+                .holder()
+                .toStack());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "mithril must harvest level-four diamond ore");
+
+        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_BLOCK.get());
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "mithril must not harvest its level-five storage block");
+        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
+                .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE)
+                .holder()
+                .toStack());
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "adamantium must harvest a level-five mithril block");
+        helper.setBlock(WORK_POS, ModBlocks.ADAMANTIUM_BLOCK.get());
+        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "MITE level-six adamantium storage is not tool-harvestable");
+        helper.assertTrue(helper.getBlockState(WORK_POS).is(ModBlocks.ADAMANTIUM_BLOCK.get()),
+                "failed level-six harvest must keep the block");
+
         player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         helper.setBlock(WORK_POS, Blocks.OAK_LOG);

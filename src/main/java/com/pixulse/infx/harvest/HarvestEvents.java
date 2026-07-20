@@ -17,22 +17,14 @@ public final class HarvestEvents {
 
     public static void register(IEventBus gameBus) {
         gameBus.addListener(EventPriority.HIGHEST, HarvestEvents::enforceRestrictions);
+        gameBus.addListener(EventPriority.HIGHEST, HarvestEvents::applyHarvestCapability);
         gameBus.addListener(HarvestEvents::applyBreakSpeedRules);
     }
 
     private static void enforceRestrictions(BreakBlockEvent event) {
         Player player = event.getPlayer();
         BlockState state = event.getState();
-        ItemStack tool = player.getMainHandItem();
-
-        boolean allowed = state.is(ModTags.Blocks.PORTABLE_HAND_HARVEST) || HarvestPolicy.allows(
-                player.getAbilities().instabuild,
-                state.is(ModTags.Blocks.RESTRICTED_HARVEST),
-                tool.isCorrectToolForDrops(state),
-                highestToolTier(tool),
-                highestRequiredTier(state));
-
-        if (!allowed) {
+        if (!isAllowed(player, state)) {
             event.setCanceled(true);
             if (!event.getLevel().isClientSide()) {
                 event.setNotifyClient(true);
@@ -40,8 +32,16 @@ public final class HarvestEvents {
         }
     }
 
+    private static void applyHarvestCapability(PlayerEvent.HarvestCheck event) {
+        event.setCanHarvest(isAllowed(event.getEntity(), event.getTargetBlock()));
+    }
+
     private static void applyBreakSpeedRules(PlayerEvent.BreakSpeed event) {
         Player player = event.getEntity();
+        if (!isAllowed(player, event.getState())) {
+            event.setNewSpeed(0.0F);
+            return;
+        }
         float multiplier = HarvestSpeedRules.multiplier(
                 player.experienceLevel,
                 player.isInWater(),
@@ -49,7 +49,17 @@ public final class HarvestEvents {
                 player.getFoodData().getFoodLevel() <= 0,
                 HarvestSpeedRules.isParalyzed(player),
                 HarvestSpeedRules.isInCobweb(player));
-        event.setNewSpeed(event.getOriginalSpeed() * multiplier);
+        event.setNewSpeed(event.getNewSpeed() * multiplier);
+    }
+
+    private static boolean isAllowed(Player player, BlockState state) {
+        ItemStack tool = player.getMainHandItem();
+        return HarvestPolicy.allows(
+                player.getAbilities().instabuild,
+                state.is(ModTags.Blocks.PORTABLE_HAND_HARVEST),
+                tool.isCorrectToolForDrops(state),
+                highestToolTier(tool).map(HarvestTier::level).orElse(0),
+                HarvestRequirements.requiredLevel(state));
     }
 
     private static Optional<HarvestTier> highestToolTier(ItemStack tool) {
@@ -62,13 +72,4 @@ public final class HarvestEvents {
         return Optional.empty();
     }
 
-    private static Optional<HarvestTier> highestRequiredTier(BlockState state) {
-        for (int index = HarvestTier.values().length - 1; index >= 0; index--) {
-            HarvestTier tier = HarvestTier.values()[index];
-            if (state.is(ModTags.Blocks.requiredTier(tier))) {
-                return Optional.of(tier);
-            }
-        }
-        return Optional.empty();
-    }
 }

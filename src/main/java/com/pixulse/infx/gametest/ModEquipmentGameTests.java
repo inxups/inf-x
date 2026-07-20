@@ -3,6 +3,7 @@ package com.pixulse.infx.gametest;
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
+import com.pixulse.infx.harvest.HarvestRequirements;
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.harvest.ToolWearCalculator;
 import com.pixulse.infx.item.R196ArrowItem;
@@ -12,6 +13,7 @@ import com.pixulse.infx.item.R196EquipmentCategory;
 import com.pixulse.infx.item.R196EquipmentKey;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.item.R196FishingRodItem;
+import com.pixulse.infx.item.R196MiningFamily;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
@@ -28,6 +30,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -299,7 +302,126 @@ public final class ModEquipmentGameTests {
         });
         helper.assertTrue(HarvestTier.ADAMANTIUM.satisfies(HarvestTier.FLINT), "top tier must satisfy flint");
         helper.assertFalse(HarvestTier.FLINT.satisfies(HarvestTier.COPPER), "flint must not satisfy copper");
+        helper.assertTrue(HarvestTier.IRON.satisfies(HarvestTier.ANCIENT_METAL),
+                "iron and ancient metal share MITE level three");
+        helper.assertTrue(HarvestTier.ANCIENT_METAL.satisfies(HarvestTier.IRON),
+                "ancient metal and iron share MITE level three");
+
+        assertHarvestLevel(helper, Blocks.COAL_BLOCK, 0);
+        assertHarvestLevel(helper, Blocks.GLOWSTONE, 0);
+        assertHarvestLevel(helper, Blocks.INFESTED_STONE, 0);
+        assertHarvestLevel(helper, com.pixulse.infx.registry.ModBlocks.INFESTED_NETHERRACK.get(), 0);
+        assertHarvestLevel(helper, Blocks.OAK_LOG, 1);
+        assertHarvestLevel(helper, Blocks.TERRACOTTA, 1);
+        assertHarvestLevel(helper, Blocks.SANDSTONE_SLAB, 1);
+        assertHarvestLevel(helper, Blocks.STONE, 2);
+        assertHarvestLevel(helper, Blocks.PETRIFIED_OAK_SLAB, 2);
+        assertHarvestLevel(helper, Blocks.SANDSTONE_STAIRS, 2);
+        assertHarvestLevel(helper, Blocks.SANDSTONE_WALL, 2);
+        assertHarvestLevel(helper, Blocks.COPPER_BLOCK.weathering().unaffected(), 3);
+        assertHarvestLevel(helper, Blocks.IRON_BARS, 3);
+        assertHarvestLevel(helper, Blocks.REDSTONE_BLOCK, 3);
+        assertHarvestLevel(helper, com.pixulse.infx.registry.ModBlocks.MITHRIL_RUNE_STONE.get(), 3);
+        assertHarvestLevel(helper, com.pixulse.infx.registry.ModBlocks.ADAMANTIUM_RUNE_STONE.get(), 3);
+        assertHarvestLevel(helper, Blocks.DIAMOND_ORE, 4);
+        assertHarvestLevel(helper, Blocks.DIAMOND_BLOCK, 5);
+        assertHarvestLevel(helper, com.pixulse.infx.registry.ModBlocks.ADAMANTIUM_BLOCK.get(), 6);
+
+        ItemStack pickaxe = equipmentStack(R196Material.IRON, R196EquipmentType.PICKAXE);
+        helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.GLOWSTONE.defaultBlockState()),
+                "MITE glass material makes pickaxes effective against glowstone");
+        helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.TORCH.defaultBlockState()),
+                "MITE circuit material makes pickaxes effective against torches");
+        helper.assertFalse(pickaxe.isCorrectToolForDrops(Blocks.PISTON.defaultBlockState()),
+                "MITE piston material has no effective tool");
+        helper.assertFalse(pickaxe.isCorrectToolForDrops(Blocks.ANVIL.defaultBlockState()),
+                "MITE anvil material has no effective tool and relies on portability");
+
+        ItemStack axe = equipmentStack(R196Material.FLINT, R196EquipmentType.AXE);
+        helper.assertTrue(axe.isCorrectToolForDrops(Blocks.SANDSTONE.defaultBlockState()),
+                "axes must harvest the MITE sandstone block");
+        helper.assertTrue(axe.isCorrectToolForDrops(Blocks.SANDSTONE_SLAB.defaultBlockState()),
+                "MITE explicitly extends axe effectiveness to sandstone slabs");
+        helper.assertFalse(axe.isCorrectToolForDrops(Blocks.SANDSTONE_STAIRS.defaultBlockState()),
+                "sandstone stairs retain their stone level and are not axe-effective in MITE");
+        helper.assertTrue(
+                Math.abs(axe.getDestroySpeed(Blocks.SANDSTONE.defaultBlockState()) * 2.0F
+                        - axe.getDestroySpeed(Blocks.SANDSTONE_SLAB.defaultBlockState())) < 1.0E-6F,
+                "only the sandstone block receives MITE's half axe speed");
+        helper.assertTrue(axe.isCorrectToolForDrops(Blocks.INFESTED_STONE.defaultBlockState()),
+                "MITE infested blocks use axe-effective clay material");
+        helper.assertTrue(axe.isCorrectToolForDrops(
+                com.pixulse.infx.registry.ModBlocks.FLINT_WORKBENCH.get().defaultBlockState()),
+                "all tiered workbenches retain their wood-material axe effectiveness");
+
+        ItemStack flintShovel = equipmentStack(R196Material.FLINT, R196EquipmentType.SHOVEL);
+        ItemStack copperShovel = equipmentStack(R196Material.COPPER, R196EquipmentType.SHOVEL);
+        helper.assertFalse(flintShovel.isCorrectToolForDrops(Blocks.GLASS.defaultBlockState()),
+                "non-metal shovels must not harvest full glass");
+        helper.assertTrue(copperShovel.isCorrectToolForDrops(Blocks.GLASS.defaultBlockState()),
+                "metal shovels must harvest full glass");
+        helper.assertTrue(flintShovel.isCorrectToolForDrops(Blocks.INFESTED_STONE.defaultBlockState()),
+                "shovels must inherit infested clay effectiveness");
+
+        ItemStack hoe = equipmentStack(R196Material.COPPER, R196EquipmentType.HOE);
+        helper.assertTrue(hoe.isCorrectToolForDrops(
+                com.pixulse.infx.registry.ModBlocks.SANDSTONE_FURNACE.get().defaultBlockState()),
+                "the R196 sandstone furnace uses hoe-effective sand material");
+        helper.assertFalse(hoe.isCorrectToolForDrops(
+                com.pixulse.infx.registry.ModBlocks.CLAY_FURNACE.get().defaultBlockState()),
+                "hoes must remain ineffective against R196 clay material");
+
+        ItemStack hammer = equipmentStack(R196Material.COPPER, R196EquipmentType.WAR_HAMMER);
+        helper.assertTrue(hammer.isCorrectToolForDrops(Blocks.CAKE.defaultBlockState()),
+                "war hammers retain their MITE cake override");
+        ItemStack cudgel = equipmentStack(R196Material.WOOD, R196EquipmentType.CUDGEL);
+        helper.assertTrue(cudgel.isCorrectToolForDrops(Blocks.CAKE.defaultBlockState()),
+                "wooden cudgels retain their MITE cake effectiveness");
+        helper.assertTrue(cudgel.isCorrectToolForDrops(Blocks.GLOWSTONE.defaultBlockState()),
+                "wooden cudgels can harvest level-zero MITE glass material");
+        helper.assertFalse(cudgel.isCorrectToolForDrops(Blocks.GLASS.defaultBlockState()),
+                "wooden cudgels cannot meet full glass level one");
+        helper.assertFalse(cudgel.isCorrectToolForDrops(Blocks.ICE.defaultBlockState()),
+                "wooden cudgels cannot meet ice level one");
+        ItemStack scythe = equipmentStack(R196Material.COPPER, R196EquipmentType.SCYTHE);
+        helper.assertTrue(scythe.isCorrectToolForDrops(Blocks.WHEAT.defaultBlockState()),
+                "scythes must harvest wheat");
+        helper.assertFalse(scythe.isCorrectToolForDrops(Blocks.CARROTS.defaultBlockState()),
+                "root crops must remain shovel/hoe work rather than scythe work");
+        ItemStack sword = equipmentStack(R196Material.COPPER, R196EquipmentType.SWORD);
+        ItemStack shears = equipmentStack(R196Material.COPPER, R196EquipmentType.SHEARS);
+        helper.assertTrue(sword.isCorrectToolForDrops(Blocks.HAY_BLOCK.defaultBlockState()),
+                "swords must inherit MITE plant-material effectiveness");
+        helper.assertTrue(shears.isCorrectToolForDrops(Blocks.NETHER_WART.defaultBlockState()),
+                "shears must inherit MITE plant-material effectiveness");
+
+        for (Block block : BuiltInRegistries.BLOCK) {
+            BlockState state = block.defaultBlockState();
+            int level = HarvestRequirements.requiredLevel(state);
+            helper.assertTrue(level >= 0 && level <= HarvestRequirements.MAX_LEVEL,
+                    block + " has invalid harvest level " + level);
+            helper.assertTrue(HarvestRequirements.explicitLevelCount(state) <= 1,
+                    block + " belongs to more than one explicit harvest level");
+            if (level > 0 && block.defaultDestroyTime() >= 0.0F) {
+                boolean portable = state.is(ModTags.Blocks.PORTABLE_HAND_HARVEST);
+                boolean hasEffectiveTool = java.util.Arrays.stream(R196MiningFamily.values())
+                        .filter(family -> family != R196MiningFamily.NONE)
+                        .anyMatch(family -> state.is(ModTags.Blocks.effectiveWith(family)));
+                helper.assertTrue(portable || hasEffectiveTool,
+                        block + " level " + level + " has neither a MITE tool family nor portability");
+            }
+        }
         helper.succeed();
+    }
+
+    private static void assertHarvestLevel(GameTestHelper helper, Block block, int expected) {
+        int actual = HarvestRequirements.requiredLevel(block.defaultBlockState());
+        helper.assertTrue(actual == expected,
+                block + " expected harvest level " + expected + " but got " + actual);
+    }
+
+    private static ItemStack equipmentStack(R196Material material, R196EquipmentType type) {
+        return ModItems.catalog().equipment(material, type).holder().toStack();
     }
 
     private static void materialArrows(GameTestHelper helper) {
