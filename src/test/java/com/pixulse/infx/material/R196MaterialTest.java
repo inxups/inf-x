@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.pixulse.infx.harvest.HarvestTier;
+import com.pixulse.infx.harvest.MiteMiningRules;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.tags.BlockTags;
@@ -126,6 +127,13 @@ class R196MaterialTest {
         assertEquals(3.0F, R196Material.FLINT.meleeDamage(2.0F));
         assertEquals(6.0F, R196Material.IRON.meleeDamage(2.0F));
         assertEquals(8.0F, R196Material.ADAMANTIUM.meleeDamage(2.0F));
+        assertEquals(0, MiteMiningRules.harvestLevel(R196Material.WOOD));
+        assertEquals(1, MiteMiningRules.harvestLevel(R196Material.FLINT));
+        assertEquals(2, MiteMiningRules.harvestLevel(R196Material.OBSIDIAN));
+        assertEquals(3, MiteMiningRules.harvestLevel(R196Material.IRON));
+        assertEquals(3, MiteMiningRules.harvestLevel(R196Material.ANCIENT_METAL));
+        assertEquals(4, MiteMiningRules.harvestLevel(R196Material.MITHRIL));
+        assertEquals(5, MiteMiningRules.harvestLevel(R196Material.ADAMANTIUM));
     }
 
     @Test

@@ -826,6 +826,37 @@ public final class ModR196CompletionGameTests {
         safe.setOwner(owner);
         helper.assertTrue(safe.canOpen(owner), "safe owner can open");
         helper.assertFalse(safe.canOpen(visitor), "other players cannot open safe");
+        owner.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.SURVIVAL);
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.assertTrue(owner.gameMode.destroyBlock(helper.absolutePos(safePos)),
+                "MITE strongbox owners can carry their safe by hand");
+        List<ItemEntity> ownerSafeDrops = helper.getLevel().getEntities(
+                EntityTypes.ITEM,
+                new AABB(helper.absolutePos(safePos)).inflate(2.0),
+                entity -> entity.getItem().is(ModBlocks.COPPER_SAFE.get().asItem()));
+        helper.assertTrue(ownerSafeDrops.size() == 1,
+                "a strongbox owner must recover the portable safe item");
+        ownerSafeDrops.forEach(ItemEntity::discard);
+
+        helper.setBlock(safePos, ModBlocks.COPPER_SAFE.get());
+        safe = helper.getBlockEntity(safePos, R196SafeBlockEntity.class);
+        safe.setOwner(owner);
+        visitor.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.SURVIVAL);
+        visitor.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
+                .equipment(R196Material.SILVER, R196EquipmentType.PICKAXE).holder().toStack());
+        helper.assertFalse(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
+                "a foreign copper safe rejects another level-two metal");
+        visitor.setItemInHand(InteractionHand.MAIN_HAND, ModItems.IRON_PICKAXE.toStack());
+        helper.assertTrue(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
+                "a foreign copper safe accepts MITE level-three iron");
+        helper.assertTrue(
+                helper.getLevel()
+                        .getEntities(
+                                EntityTypes.ITEM,
+                                new AABB(helper.absolutePos(safePos)).inflate(2.0),
+                                entity -> entity.getItem().is(ModBlocks.COPPER_SAFE.get().asItem()))
+                        .isEmpty(),
+                "MITE foreign strongboxes break without dropping the safe item");
 
         BlockPos tableRelative = new BlockPos(8, 2, 8);
         helper.setBlock(tableRelative, ModBlocks.DIAMOND_ENCHANTING_TABLE.get());

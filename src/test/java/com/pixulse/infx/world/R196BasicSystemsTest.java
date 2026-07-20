@@ -32,10 +32,11 @@ class R196BasicSystemsTest {
     }
 
     @Test
-    void safeOwnershipUsesOneHigherMetalTier() {
-        assertTrue(R196SafeEvents.mayBreak(R196Material.COPPER, true, R196Material.COPPER));
+    void safeOwnershipUsesMitePortabilityAndNumericHarvestLevels() {
+        assertTrue(R196SafeEvents.mayBreak(R196Material.COPPER, true, null));
         assertFalse(R196SafeEvents.mayBreak(R196Material.COPPER, false, R196Material.COPPER));
-        assertTrue(R196SafeEvents.mayBreak(R196Material.COPPER, false, R196Material.SILVER));
+        assertFalse(R196SafeEvents.mayBreak(R196Material.COPPER, false, R196Material.SILVER));
+        assertTrue(R196SafeEvents.mayBreak(R196Material.COPPER, false, R196Material.IRON));
         assertTrue(R196SafeEvents.mayBreak(R196Material.MITHRIL, false, R196Material.ADAMANTIUM));
         assertFalse(R196SafeEvents.mayBreak(R196Material.ADAMANTIUM, false, R196Material.ADAMANTIUM));
     }

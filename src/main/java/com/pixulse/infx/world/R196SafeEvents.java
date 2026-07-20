@@ -2,11 +2,11 @@ package com.pixulse.infx.world;
 
 import com.pixulse.infx.block.R196SafeBlock;
 import com.pixulse.infx.block.entity.R196SafeBlockEntity;
+import com.pixulse.infx.harvest.MiteMiningRules;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.survival.R196SurvivalRules;
-import java.util.List;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.EventPriority;
@@ -18,9 +18,6 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 /** Ownership, higher-tier multiplayer break checks and combat-disconnect penalty. */
 public final class R196SafeEvents {
-    private static final List<R196Material> TIERS = List.of(
-            R196Material.COPPER, R196Material.SILVER, R196Material.GOLD, R196Material.IRON,
-            R196Material.ANCIENT_METAL, R196Material.MITHRIL, R196Material.ADAMANTIUM);
     private static final String LAST_DANGER = "infx_last_danger_tick";
     private static final String DISCONNECT_PENALTY = "infx_disconnect_penalty";
 
@@ -28,6 +25,8 @@ public final class R196SafeEvents {
 
     public static void register(IEventBus gameBus) {
         gameBus.addListener(EventPriority.HIGH, R196SafeEvents::protectSafe);
+        gameBus.addListener(EventPriority.HIGH, R196SafeEvents::protectSafeDrops);
+        gameBus.addListener(EventPriority.HIGH, R196SafeEvents::protectSafeBreakSpeed);
         gameBus.addListener(R196SafeEvents::trackDanger);
         gameBus.addListener(R196SafeEvents::trackAttack);
         gameBus.addListener(R196SafeEvents::onLogout);
@@ -38,8 +37,7 @@ public final class R196SafeEvents {
         if (!(event.getState().getBlock() instanceof R196SafeBlock safe)
                 || !(event.getPlayer() instanceof ServerPlayer player)
                 || player.hasInfiniteMaterials()) return;
-        boolean owner = event.getLevel().getBlockEntity(event.getPos()) instanceof R196SafeBlockEntity entity
-                && (entity.isUnowned() || entity.isOwner(player));
+        boolean owner = isOwner(event.getLevel().getBlockEntity(event.getPos()), player);
         R196Material toolMaterial = toolMaterial(player.getMainHandItem());
         if (!mayBreak(safe.material(), owner, toolMaterial)) {
             event.setCanceled(true);
@@ -47,6 +45,31 @@ public final class R196SafeEvents {
             player.sendSystemMessage(net.minecraft.network.chat.Component.translatable(
                     owner ? "message.infx.safe_tool" : "message.infx.safe_foreign_tool"));
         }
+    }
+
+    private static void protectSafeDrops(PlayerEvent.HarvestCheck event) {
+        if (event.getTargetBlock().getBlock() instanceof R196SafeBlock) {
+            event.setCanHarvest(isOwner(event.getLevel().getBlockEntity(event.getPos()), event.getEntity()));
+        }
+    }
+
+    private static void protectSafeBreakSpeed(PlayerEvent.BreakSpeed event) {
+        if (!(event.getState().getBlock() instanceof R196SafeBlock safe)
+                || event.getEntity().hasInfiniteMaterials()) {
+            return;
+        }
+        event.getPosition().ifPresent(pos -> {
+            boolean owner = isOwner(event.getEntity().level().getBlockEntity(pos), event.getEntity());
+            if (!mayBreak(safe.material(), owner, toolMaterial(event.getEntity().getMainHandItem()))) {
+                event.setNewSpeed(0.0F);
+            }
+        });
+    }
+
+    private static boolean isOwner(
+            net.minecraft.world.level.block.entity.BlockEntity blockEntity,
+            net.minecraft.world.entity.player.Player player) {
+        return blockEntity instanceof R196SafeBlockEntity safe && (safe.isUnowned() || safe.isOwner(player));
     }
 
     private static R196Material toolMaterial(ItemStack tool) {
@@ -60,10 +83,11 @@ public final class R196SafeEvents {
     }
 
     public static boolean mayBreak(R196Material safe, boolean owner, R196Material tool) {
-        int safeTier = TIERS.indexOf(safe);
-        int toolTier = TIERS.indexOf(tool);
-        int required = safeTier + (owner ? 0 : 1);
-        return safeTier >= 0 && toolTier >= required && required < TIERS.size();
+        if (owner) {
+            return true;
+        }
+        int requiredLevel = MiteMiningRules.harvestLevel(safe) + 1;
+        return tool != null && MiteMiningRules.harvestLevel(tool) >= requiredLevel;
     }
 
     private static void trackDanger(LivingIncomingDamageEvent event) {

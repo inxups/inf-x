@@ -1,6 +1,7 @@
 package com.pixulse.infx.harvest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -25,6 +26,13 @@ class HarvestTierTest {
     void higherTierSatisfiesLowerRequirement() {
         assertTrue(HarvestTier.COPPER.satisfies(HarvestTier.FLINT));
         assertTrue(HarvestTier.ADAMANTIUM.satisfies(HarvestTier.MITHRIL));
+        assertTrue(HarvestTier.IRON.satisfies(HarvestTier.ANCIENT_METAL));
+        assertTrue(HarvestTier.ANCIENT_METAL.satisfies(HarvestTier.IRON));
+        assertFalse(HarvestTier.ANCIENT_METAL.satisfies(HarvestTier.MITHRIL));
+        assertEquals(3, HarvestTier.IRON.level());
+        assertEquals(3, HarvestTier.ANCIENT_METAL.level());
+        assertEquals(4, HarvestTier.MITHRIL.level());
+        assertEquals(5, HarvestTier.ADAMANTIUM.level());
     }
 
     @Test

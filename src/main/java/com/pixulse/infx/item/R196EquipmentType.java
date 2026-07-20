@@ -1,6 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.tag.ModTags;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -56,11 +57,11 @@ public enum R196EquipmentType {
             FactoryKind.FISHING_ROD),
     CUDGEL("cudgel", "Cudgel", "短木棒", R196EquipmentCategory.WEAPON, materials(R196Material.WOOD),
             1, 1, .25F, .5F, -3.4F, .25F, .25F,
-            R196MiningFamily.NONE, R196UseAction.NONE, ModelFamily.HANDHELD, ArmorForm.NONE, null,
+            R196MiningFamily.CUDGEL, R196UseAction.NONE, ModelFamily.HANDHELD, ArmorForm.NONE, null,
             FactoryKind.ORDINARY),
     CLUB("club", "Club", "木棒", R196EquipmentCategory.WEAPON, materials(R196Material.WOOD),
             2, 2, .5F, .5F, -3.4F, .25F, .25F,
-            R196MiningFamily.NONE, R196UseAction.NONE, ModelFamily.HANDHELD, ArmorForm.NONE, null,
+            R196MiningFamily.CUDGEL, R196UseAction.NONE, ModelFamily.HANDHELD, ArmorForm.NONE, null,
             FactoryKind.ORDINARY),
     KNIFE("knife", "Knife", "小刀", R196EquipmentCategory.WEAPON,
             materials(R196Material.FLINT, R196Material.OBSIDIAN),
@@ -207,7 +208,7 @@ public enum R196EquipmentType {
     public float blockDecay() { return blockDecay; }
 
     public float blockDecay(BlockState state) {
-        if (this == SCYTHE && state.is(BlockTags.CROPS)) {
+        if (this == SCYTHE && state.is(ModTags.Blocks.effectiveWith(R196MiningFamily.SCYTHE))) {
             return .5F;
         }
         if (this == KNIFE && state.is(BlockTags.SWORD_EFFICIENT)) {

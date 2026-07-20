@@ -1626,6 +1626,85 @@ class R196GeneratedResourceTest {
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));
     }
 
+    @Test
+    void miteHarvestLevelsAndEffectiveToolsCoverR196AndModern262Families() throws Exception {
+        Map<Integer, Set<String>> levels = new java.util.LinkedHashMap<>();
+        Set<String> directAssignments = new HashSet<>();
+        for (int level = 0; level <= 6; level++) {
+            Set<String> values = tagValues("requires_harvest_level/" + level);
+            levels.put(level, values);
+            for (String value : values) {
+                if (!value.startsWith("#")) {
+                    assertTrue(directAssignments.add(value), value + " is directly assigned to multiple levels");
+                }
+            }
+        }
+
+        assertAll(
+                "MITE and 26.2 level representatives",
+                () -> assertTrue(levels.get(0).contains("minecraft:coal_block")),
+                () -> assertTrue(levels.get(0).contains("#minecraft:rails")),
+                () -> assertTrue(levels.get(0).contains("minecraft:infested_stone")),
+                () -> assertTrue(levels.get(0).contains("infx:sandstone_furnace")),
+                () -> assertTrue(levels.get(1).contains("#c:glass_blocks")),
+                () -> assertTrue(levels.get(1).contains("#minecraft:terracotta")),
+                () -> assertTrue(levels.get(1).contains("#c:sandstone/slabs")),
+                () -> assertFalse(levels.get(1).contains("#c:sandstone/stairs")),
+                () -> assertTrue(levels.get(2).contains("infx:silver_ore")),
+                () -> assertTrue(levels.get(3).contains("minecraft:copper_bulb")),
+                () -> assertTrue(levels.get(3).contains("minecraft:waxed_oxidized_cut_copper_stairs")),
+                () -> assertTrue(levels.get(3).contains("minecraft:redstone_block")),
+                () -> assertTrue(levels.get(3).contains("infx:mithril_ore")),
+                () -> assertTrue(levels.get(3).contains("infx:mithril_rune_stone")),
+                () -> assertTrue(levels.get(3).contains("infx:adamantium_rune_stone")),
+                () -> assertTrue(levels.get(4).contains("#c:ores/diamond")),
+                () -> assertTrue(levels.get(4).contains("infx:ancient_metal_block")),
+                () -> assertTrue(levels.get(5).contains("infx:mithril_block")),
+                () -> assertTrue(levels.get(6).contains("infx:adamantium_block")));
+
+        Set<String> pickaxe = tagValues("effective_tool/pickaxe");
+        Set<String> axe = tagValues("effective_tool/axe");
+        Set<String> shovel = tagValues("effective_tool/shovel");
+        Set<String> hoe = tagValues("effective_tool/hoe");
+        Set<String> cudgel = tagValues("effective_tool/cudgel");
+        Set<String> sword = tagValues("effective_tool/sword");
+        Set<String> shears = tagValues("effective_tool/shears");
+        Set<String> axeHalfSpeed = tagValues("effective_tool/axe_half_speed");
+        Set<String> portable = tagValues("portable_hand_harvest");
+        assertAll(
+                "MITE effective-tool and portability tags",
+                () -> assertTrue(pickaxe.contains("#minecraft:mineable/pickaxe")),
+                () -> assertTrue(pickaxe.contains("#c:glass_blocks")),
+                () -> assertTrue(pickaxe.contains("#minecraft:flower_pots")),
+                () -> assertTrue(pickaxe.contains("minecraft:glowstone")),
+                () -> assertTrue(axe.contains("#c:sandstone/blocks")),
+                () -> assertTrue(axe.contains("#c:sandstone/slabs")),
+                () -> assertFalse(axe.contains("#c:sandstone/stairs")),
+                () -> assertTrue(axe.contains("#minecraft:terracotta")),
+                () -> assertTrue(shovel.contains("#c:glass_panes")),
+                () -> assertTrue(shovel.contains("infx:infested_netherrack")),
+                () -> assertTrue(hoe.contains("#minecraft:mineable/shovel")),
+                () -> assertTrue(hoe.contains("infx:sandstone_furnace")),
+                () -> assertTrue(cudgel.contains("minecraft:glowstone")),
+                () -> assertTrue(cudgel.contains("#minecraft:coral_blocks")),
+                () -> assertTrue(sword.contains("minecraft:hay_block")),
+                () -> assertTrue(shears.contains("minecraft:nether_wart")),
+                () -> assertTrue(axeHalfSpeed.contains("#c:sandstone/blocks")),
+                () -> assertFalse(axeHalfSpeed.contains("#c:sandstone/slabs")),
+                () -> assertTrue(portable.contains("minecraft:furnace")),
+                () -> assertTrue(portable.contains("#minecraft:anvil")),
+                () -> assertTrue(portable.contains("infx:adamantium_safe")));
+    }
+
+    private static Set<String> tagValues(String path) throws IOException {
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/block/" + path + ".json"));
+        return tag.getAsJsonArray("values").asList().stream()
+                .map(value -> value.isJsonObject()
+                        ? value.getAsJsonObject().get("id").getAsString()
+                        : value.getAsString())
+                .collect(Collectors.toSet());
+    }
+
     private static JsonObject json(Path path) throws IOException {
         try (Reader reader = Files.newBufferedReader(path, UTF_8)) {
             return JsonParser.parseReader(reader).getAsJsonObject();

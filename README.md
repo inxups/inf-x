@@ -12,7 +12,7 @@ R196 长期装备行为也已启用：银制近战与银箭对亡灵造成 1.25 
 
 目录型原材料已经形成闭环：钻石/下界石英/玻璃碎片可 9 合 1 并反向拆分；玻璃块和玻璃板破坏后分别产出 6 和 1 个玻璃碎片；牛、猪、羊和鸡按 R196 周期产生可用于可施肥方块的肥料；硬币可在服务端单次消费并兑换经验。锈铁不使用虚构的环境计时腐蚀，而是按 R196 真实来源出现在怪物装备、骷髅箭、普通地牢和废弃矿井中。
 
-实现使用 InfiniteX 自有采掘标签与 NeoForge 事件，不替换原版采掘标签。第三方工具可通过 `infx:tool_tier/<tier>` 与正确的现代 `Tool` 组件接入。装备品质共有八档；Average 仍以无组件兼容旧物品，其余七档为 Wretched、Poor、Fine、Excellent、Superb、Masterwork 与 Legendary。
+实现使用 InfiniteX 自有采掘标签与 NeoForge 事件，不替换原版采掘标签。方块按 MITE 数值等级 0–6、有效工具族和便携豁免判定；第三方工具可通过 `infx:tool_tier/<tier>` 与引用 `infx:effective_tool/<family>` 的现代 `Tool` 组件接入，方块可用 `infx:requires_harvest_level/<0..6>` 覆盖 26.2 推导。完整公式、原版对应和现代内容推导见 [docs/MITE_HARVEST_26_2.md](docs/MITE_HARVEST_26_2.md)。装备品质共有八档；Average 仍以无组件兼容旧物品，其余七档为 Wretched、Poor、Fine、Excellent、Superb、Masterwork 与 Legendary。
 
 ## 开发
 

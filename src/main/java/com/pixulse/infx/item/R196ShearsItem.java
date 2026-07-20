@@ -1,5 +1,6 @@
 package com.pixulse.infx.item;
 
+import com.pixulse.infx.harvest.MiteMiningRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.LivingEntity;
@@ -18,6 +19,16 @@ public final class R196ShearsItem extends ShearsItem {
 
     public R196EquipmentKey key() {
         return key;
+    }
+
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
+        return MiteMiningRules.destroySpeed(key, state);
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+        return MiteMiningRules.canHarvest(key, state);
     }
 
     @Override
