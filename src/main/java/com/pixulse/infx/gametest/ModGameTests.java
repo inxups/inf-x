@@ -240,8 +240,8 @@ public final class ModGameTests {
             functionKey("bench_hierarchy");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_CRAFTING =
             functionKey("timed_crafting");
-    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_TIMED_CRAFTING =
-            functionKey("vanilla_timed_crafting");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_REMOVAL =
+            functionKey("vanilla_recipe_removal");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
             functionKey("vanilla_crafting_menu");
     private static final ResourceKey<Consumer<GameTestHelper>> CRAFTING_PROFILES =
@@ -279,7 +279,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
-        TEST_FUNCTIONS.register("vanilla_timed_crafting", () -> ModGameTests::vanillaTimedCrafting);
+        TEST_FUNCTIONS.register("vanilla_recipe_removal", () -> ModGameTests::vanillaRecipeRemoval);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
@@ -311,7 +311,7 @@ public final class ModGameTests {
         registerTest(event, HARVEST_RESTRICTIONS, environment, 40);
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
-        registerTest(event, VANILLA_TIMED_CRAFTING, environment, 120);
+        registerTest(event, VANILLA_RECIPE_REMOVAL, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 120);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
@@ -514,33 +514,20 @@ public final class ModGameTests {
                 .thenSucceed();
     }
 
-    private static void vanillaTimedCrafting(GameTestHelper helper) {
-        ServerPlayer player = createPlayer(helper);
-        helper.onEachTick(player::doTick);
-        player.containerMenu = player.inventoryMenu;
-        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
-        CraftingContainer grid = menu.infx$craftingContainer();
-        grid.setItem(0, Items.COAL.getDefaultInstance());
-        grid.setItem(2, Items.STICK.getDefaultInstance());
-
+    private static void vanillaRecipeRemoval(GameTestHelper helper) {
+        var recipeMap = helper.getLevel().recipeAccess().recipeMap();
         helper.assertTrue(
-                TimedCraftingEngine.refreshResult(menu, player, true),
-                "an enabled vanilla torch recipe must resolve in the timed hand grid");
-        assertResult(helper, menu, Items.TORCH, "vanilla torch timed preview");
-        player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
-        helper.assertTrue(menu.infx$craftingState().isRunning(), "vanilla recipe must start a timed craft");
-        helper.assertTrue(countItem(player.getInventory(), Items.TORCH) == 0, "vanilla result must not be immediate");
-
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), Items.TORCH) == 4,
-                        "the timed path must eventually produce the vanilla torch result"))
-                .thenExecute(() -> {
-                    helper.assertTrue(grid.getItem(0).isEmpty(), "vanilla completion must consume coal");
-                    helper.assertTrue(grid.getItem(2).isEmpty(), "vanilla completion must consume the stick");
-                    removePlayer(player);
-                })
-                .thenSucceed();
+                recipeMap.byType(RecipeType.CRAFTING).stream()
+                        .noneMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
+                "no minecraft crafting recipe may survive recipe loading");
+        helper.assertTrue(
+                recipeMap.byKey(recipeKey("minecraft", "torch")) == null,
+                "the original torch crafting recipe must be removed");
+        helper.assertTrue(
+                recipeMap.byType(RecipeType.SMELTING).stream()
+                        .anyMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
+                "vanilla non-crafting recipes must remain unless separately disabled");
+        helper.succeed();
     }
 
     private static void vanillaCraftingMenu(GameTestHelper helper) {
@@ -556,24 +543,23 @@ public final class ModGameTests {
         TimedCraftingMenu timed = (TimedCraftingMenu) vanilla;
         CraftingContainer grid = timed.infx$craftingContainer();
 
-        // Place a 1x2 recipe away from the top-left corner. This verifies that
-        // completion maps the trimmed CraftingInput back to the original grid.
-        grid.setItem(4, Items.COAL.getDefaultInstance());
-        grid.setItem(7, Items.STICK.getDefaultInstance());
+        // Use an InfiniteX replacement recipe away from the top-left corner.
+        // This keeps coverage for the vanilla menu mixin after all original
+        // minecraft crafting recipes have been removed.
+        grid.setItem(4, Items.OAK_LOG.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(timed, player, true),
-                "the vanilla 3x3 menu must resolve enabled vanilla recipes through the timed engine");
-        assertResult(helper, timed, Items.TORCH, "vanilla crafting-table timed preview");
+                "the vanilla 3x3 menu must resolve InfiniteX replacement recipes through the timed engine");
+        assertResult(helper, timed, Items.OAK_PLANKS, "InfiniteX plank timed preview");
         vanilla.clicked(0, 0, ContainerInput.PICKUP, player);
         helper.assertTrue(timed.infx$craftingState().isRunning(), "crafting-table result must start a timer");
 
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), Items.TORCH) == 4,
+                        countItem(player.getInventory(), Items.OAK_PLANKS) == 4,
                         "the vanilla crafting-table timer must complete"))
                 .thenExecute(() -> {
-                    helper.assertTrue(grid.getItem(4).isEmpty(), "offset coal slot must be consumed");
-                    helper.assertTrue(grid.getItem(7).isEmpty(), "offset stick slot must be consumed");
+                    helper.assertTrue(grid.getItem(4).isEmpty(), "offset log slot must be consumed");
                     removePlayer(player);
                 })
                 .thenSucceed();
@@ -603,9 +589,12 @@ public final class ModGameTests {
                 400.0F * 4.0F / 9.0F);
 
         var recipeMap = helper.getLevel().recipeAccess().recipeMap();
-        var vanillaRecipes = recipeMap.byType(RecipeType.CRAFTING);
-        helper.assertTrue(!vanillaRecipes.isEmpty(), "the server must load enabled 26.2 crafting recipes");
-        for (var holder : vanillaRecipes) {
+        var loadedCraftingRecipes = recipeMap.byType(RecipeType.CRAFTING);
+        helper.assertTrue(
+                loadedCraftingRecipes.stream()
+                        .noneMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
+                "all original minecraft crafting profiles must be removed");
+        for (var holder : loadedCraftingRecipes) {
             try {
                 CraftingProfile profile = MiteCraftingRules.displayProfile(holder.value());
                 helper.assertTrue(

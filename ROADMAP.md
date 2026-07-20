@@ -1,6 +1,6 @@
 # InfiniteX R196 Roadmap
 
-更新基准：2026-07-20，`codex/mite-crafting-difficulty-level`。
+更新基准：2026-07-20，`codex/remove-vanilla-crafting-recipes`。
 
 ## 已完成：原审计中 12 个“基本未实现”验收项
 
@@ -94,10 +94,11 @@
 
 - [x] 按 R196 源码恢复组件难度求和、三段基础周期、每级 2% 合成加速、Clumsiness 运算顺序和 25 tick 最终下限。
 - [x] 区分普通配方固定 20% 工具台加速与材料受限配方的实际工具台加速；工作台能力保持 `0/1/2/4/8/16/64/256`。
-- [x] 全部已加载 `RecipeType.CRAFTING` 配方自动进入限时引擎；现代物品按材料、储存组成、方块硬度或 25 叶值推导，现有禁用配方不重新开放。
+- [x] 所有仍加载的第三方/数据包 `RecipeType.CRAFTING` 配方自动进入限时引擎；现代物品按材料、储存组成、方块硬度或 25 叶值推导。
+- [x] 通过 NeoForge `ModifyRecipeJsonsEvent` 在反序列化前删除 `minecraft` 命名空间下全部 `crafting_*` JSON；非 crafting 原版配方和 InfiniteX 替代配方不受影响。
 - [x] 2×2 物品栏、九种分级工具台和原版 3×3 工作台统一执行服务端限时合成，偏移配方正确消费原始槽位。
-- [x] JEI 同步原版与 InfiniteX 配方，显示代表难度和最低工作台等级，并保留分级工具台配方转移。
-- [x] 全量服务器配方扫描验证每条配方均有正有限难度和有效工作台等级；原版 2×2 与 3×3 行为均有 GameTest。
+- [x] JEI 同步剩余普通配方与 InfiniteX 配方，显示代表难度和最低工作台等级，并保留分级工具台配方转移。
+- [x] 服务器扫描验证原版 crafting 为零、非 crafting 原版配方仍存在，且每条剩余配方均有正有限难度和有效工作台等级。
 
 详细映射、公式、现代推导和 Mixin 原因见 `docs/MITE_CRAFTING_26_2.md`。
 
