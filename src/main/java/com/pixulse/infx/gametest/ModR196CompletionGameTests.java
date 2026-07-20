@@ -108,6 +108,7 @@ public final class ModR196CompletionGameTests {
             "r196_survival_core",
             "r196_safe_enchanting",
             "r196_creative_tabs",
+            "r196_block_stack_limits",
             "r196_fulltext_systems");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -123,6 +124,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_survival_core", () -> ModR196CompletionGameTests::survivalCore);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
+        FUNCTIONS.register("r196_block_stack_limits", () -> ModR196CompletionGameTests::blockStackLimits);
         FUNCTIONS.register("r196_fulltext_systems", () -> ModR196CompletionGameTests::fulltextSystems);
     }
 
@@ -740,6 +742,79 @@ public final class ModR196CompletionGameTests {
                     "InfiniteX creative tabs remain consecutive and ordered");
         }
         helper.succeed();
+    }
+
+    private static void blockStackLimits(GameTestHelper helper) {
+        assertStackLimit(helper, 1, Items.FURNACE);
+        assertStackLimit(helper, 1, Items.ANVIL);
+        assertStackLimit(helper, 1, Items.OAK_DOOR);
+        assertStackLimit(helper, 1, Items.BED.red());
+        assertStackLimit(helper, 1, Items.BLAST_FURNACE);
+        assertStackLimit(helper, 1, Items.SMOKER);
+
+        assertStackLimit(helper, 4, Items.STONE);
+        assertStackLimit(helper, 4, Items.CHEST);
+        assertStackLimit(helper, 4, Items.CRAFTING_TABLE);
+        assertStackLimit(helper, 4, Items.DIAMOND_BLOCK);
+        assertStackLimit(helper, 4, Items.CRAFTER);
+
+        assertStackLimit(helper, 8, Items.OAK_PLANKS);
+        assertStackLimit(helper, 8, Items.WOOL.white());
+        assertStackLimit(helper, 8, Items.CARPET.white());
+        assertStackLimit(helper, 8, Items.STONE_PRESSURE_PLATE);
+        assertStackLimit(helper, 8, Items.OAK_FENCE);
+        assertStackLimit(helper, 8, Items.LADDER);
+        assertStackLimit(helper, 8, Items.MELON);
+        assertStackLimit(helper, 8, Items.PUMPKIN);
+        assertStackLimit(helper, 8, Items.RAIL);
+        assertStackLimit(helper, 8, Items.STONE_SLAB);
+        assertStackLimit(helper, 8, Items.VINE);
+        assertStackLimit(helper, 8, Items.COBBLESTONE_WALL);
+        assertStackLimit(helper, 8, Items.CAKE);
+
+        assertStackLimit(helper, 16, Items.GLASS_PANE);
+        assertStackLimit(helper, 16, Items.IRON_BARS);
+        assertStackLimit(helper, 16, Items.OAK_SAPLING);
+        assertStackLimit(helper, 16, Items.TORCH);
+        assertStackLimit(helper, 16, Items.OAK_SIGN);
+        assertStackLimit(helper, 16, Items.PLAYER_HEAD);
+        assertStackLimit(helper, 16, Items.SUGAR_CANE);
+        assertStackLimit(helper, 16, Items.REPEATER);
+        assertStackLimit(helper, 16, Items.COMPARATOR);
+        assertStackLimit(helper, 16, Items.BREWING_STAND);
+        assertStackLimit(helper, 16, Items.FLOWER_POT);
+
+        assertStackLimit(helper, 32, Items.DANDELION);
+        assertStackLimit(helper, 32, Items.BROWN_MUSHROOM);
+        assertStackLimit(helper, 32, Items.SHORT_GRASS);
+        assertStackLimit(helper, 32, Items.LILY_PAD);
+        assertStackLimit(helper, 32, Items.SNOW);
+
+        assertStackLimit(helper, 1, Items.SHULKER_BOX);
+        assertStackLimit(helper, 64, Items.WHEAT_SEEDS);
+        assertStackLimit(helper, 64, Items.CARROT);
+        assertStackLimit(helper, 64, Items.NETHER_WART);
+        assertStackLimit(helper, 64, Items.REDSTONE);
+
+        ModItems.FURNACES.forEach(item -> assertStackLimit(helper, 1, item.value()));
+        ModItems.METAL_ANVILS.forEach(item -> assertStackLimit(helper, 1, item.value()));
+        ModItems.WORKBENCHES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        ModItems.ORES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        ModItems.METAL_STORAGE_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        ModItems.WORLD_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        ModItems.R196_FLOWERS.forEach(item -> assertStackLimit(helper, 32, item.value()));
+        ModItems.ENCHANTING_TABLES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        ModItems.METAL_SAFES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        assertStackLimit(helper, 4, ModItems.NETHER_GRAVEL.value());
+        assertStackLimit(helper, 32, ModItems.WITHERWOOD.value());
+        assertStackLimit(helper, 4, ModItems.CORE.value());
+        helper.succeed();
+    }
+
+    private static void assertStackLimit(GameTestHelper helper, int expected, Item item) {
+        int actual = item.getDefaultMaxStackSize();
+        Identifier id = BuiltInRegistries.ITEM.getKey(item);
+        helper.assertTrue(actual == expected, id + " stack limit: expected " + expected + ", got " + actual);
     }
 
     private static void fulltextSystems(GameTestHelper helper) {

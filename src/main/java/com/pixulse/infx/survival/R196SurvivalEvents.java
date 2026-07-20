@@ -85,8 +85,6 @@ public final class R196SurvivalEvents {
                     .set(DataComponents.FOOD, smallFood)
                     .set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD));
         }
-        event.modify(Items.CAKE, (components, context, item) -> components
-                .set(DataComponents.MAX_STACK_SIZE, 8));
     }
 
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
