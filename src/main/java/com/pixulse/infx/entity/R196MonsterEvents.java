@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
@@ -144,7 +145,9 @@ public final class R196MonsterEvents {
                     Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(ModEntityTypes.MAGMA_CUBE.get(), SpawnPlacementTypes.ON_GROUND,
-                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, MagmaCube::checkMagmaCubeSpawnRules,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                (type, level, reason, pos, random) -> MagmaCube.checkMagmaCubeSpawnRules(
+                        asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         for (var type : List.of(ModEntityTypes.NETHERSPAWN, ModEntityTypes.COPPERSPINE, ModEntityTypes.HOARY_SILVERFISH)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -152,7 +155,9 @@ public final class R196MonsterEvents {
         }
         for (var type : List.of(ModEntityTypes.VAMPIRE_BAT, ModEntityTypes.NIGHTWING, ModEntityTypes.GIANT_VAMPIRE_BAT)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    net.minecraft.world.entity.ambient.Bat::checkBatSpawnRules,
+                    (entityType, level, reason, pos, random) ->
+                            net.minecraft.world.entity.ambient.Bat.checkBatSpawnRules(
+                                    asEntityType(entityType), level, reason, pos, random),
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(ModEntityTypes.HELLHOUND, ModEntityTypes.DIRE_WOLF)) {
@@ -167,6 +172,17 @@ public final class R196MonsterEvents {
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> Monster.checkMonsterSpawnRules(type, level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
+    }
+
+    /**
+     * The vanilla spawn predicates are declared against the vanilla entity type, while this mod
+     * registers subclasses with their own entity types. Keep passing the actual mod type at
+     * runtime, but adapt the generic signature for NeoForge versions whose vanilla declarations
+     * still use an exact parent type.
+     */
+    @SuppressWarnings("unchecked")
+    private static <T extends Entity> EntityType<T> asEntityType(EntityType<?> type) {
+        return (EntityType<T>) type;
     }
 
     private static void finalizeSpawn(FinalizeSpawnEvent event) {
