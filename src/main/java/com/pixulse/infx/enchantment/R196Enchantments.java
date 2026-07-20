@@ -25,4 +25,13 @@ public final class R196Enchantments {
         }
         return result;
     }
+
+    public static int maxArmorLevel(LivingEntity entity, ResourceKey<Enchantment> key) {
+        int result = 0;
+        for (EquipmentSlot slot : new EquipmentSlot[]{
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+            result = Math.max(result, level(entity.level(), entity.getItemBySlot(slot), key));
+        }
+        return result;
+    }
 }

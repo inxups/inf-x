@@ -1,12 +1,17 @@
 package com.pixulse.infx.survival;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.registry.ModMobEffects;
-import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.ModEnchantments;
+import com.pixulse.infx.registry.ModMobEffects;
+import java.util.Map;
+import java.util.WeakHashMap;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -14,16 +19,24 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BowItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.level.gamerules.GameRules;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CanContinueSleepingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -33,17 +46,30 @@ public final class R196SurvivalEvents {
     private static final double STARVATION_PROGRESS_PER_TICK = 0.002D;
     private static final net.minecraft.resources.Identifier EMPTY_AIR_SPEED =
             InfiniteX.id("empty_air_speed");
+    private static final Map<ServerPlayer, PlayerActivity> ACTIVITIES = new WeakHashMap<>();
 
     private R196SurvivalEvents() {}
 
     public static void register(IEventBus modBus, IEventBus gameBus) {
         modBus.addListener(R196SurvivalEvents::modifyVanillaFoodComponents);
         gameBus.addListener(R196SurvivalEvents::onLogin);
+        gameBus.addListener(R196SurvivalEvents::onLogout);
         gameBus.addListener(R196SurvivalEvents::onClone);
         gameBus.addListener(R196SurvivalEvents::onFoodFinished);
         gameBus.addListener(R196SurvivalEvents::onPlayerTick);
-        gameBus.addListener(R196SurvivalEvents::onAttack);
-        gameBus.addListener(R196SurvivalEvents::onBlockBroken);
+        gameBus.addListener(R196SurvivalEvents::onJump);
+        gameBus.addListener(EventPriority.LOWEST, R196SurvivalEvents::onAttack);
+        gameBus.addListener(
+                EventPriority.LOWEST,
+                PlayerInteractEvent.LeftClickBlock.class,
+                R196SurvivalEvents::onLeftClickBlock);
+        gameBus.addListener(EventPriority.LOWEST, R196SurvivalEvents::onBlockBroken);
+        gameBus.addListener(
+                EventPriority.LOWEST,
+                BlockEvent.EntityPlaceEvent.class,
+                R196SurvivalEvents::onBlockPlaced);
+        gameBus.addListener(EventPriority.LOWEST, R196SurvivalEvents::onToolModified);
+        gameBus.addListener(R196SurvivalEvents::onDamaged);
         gameBus.addListener(R196SurvivalEvents::onContinueSleeping);
     }
 
@@ -99,11 +125,20 @@ public final class R196SurvivalEvents {
         }
         recalculatePlayerLimits(player);
         mirrorFoodData(player, player.getData(ModAttachments.SURVIVAL));
+        ACTIVITIES.put(player, new PlayerActivity(MovementStats.capture(player)));
+    }
+
+    private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) ACTIVITIES.remove(player);
     }
 
     private static void onClone(PlayerEvent.Clone event) {
+        if (event.getOriginal() instanceof ServerPlayer original) ACTIVITIES.remove(original);
         event.getEntity().getPersistentData().putBoolean(INITIALIZED, true);
         recalculatePlayerLimits(event.getEntity());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            ACTIVITIES.put(player, new PlayerActivity(MovementStats.capture(player)));
+        }
     }
 
     private static void onFoodFinished(LivingEntityUseItemEvent.Finish event) {
@@ -118,8 +153,21 @@ public final class R196SurvivalEvents {
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        PlayerActivity activity = ACTIVITIES.computeIfAbsent(
+                player, ignored -> new PlayerActivity(MovementStats.capture(player)));
+        double movementCost = activity.sampleMovement(player);
         boolean activeMetabolism = hasActiveMetabolism(player);
         updateAirSpeed(player, activeMetabolism);
+        if (!activeMetabolism) {
+            activity.stopMining();
+        } else {
+            int endurance = R196Enchantments.maxArmorLevel(player, ModEnchantments.ENDURANCE);
+            double enduranceActions = activity.miningMetabolism(player) + bowDrawMetabolism(player);
+            double behaviorCost = movementCost
+                    + rowingMetabolism(player)
+                    + enduranceActions * R196SurvivalRules.enduranceModifier(endurance);
+            consumeAction(player, behaviorCost);
+        }
         if (player.tickCount % 10 != 0) return;
 
         R196SurvivalData current = player.getData(ModAttachments.SURVIVAL)
@@ -129,26 +177,14 @@ public final class R196SurvivalEvents {
             mirrorFoodData(player, current);
             return;
         }
-        boolean moving = player.getDeltaMovement().horizontalDistanceSqr() > 0.0004D;
-        boolean swimming = player.isSwimming() || player.isInWater() && moving;
-        boolean jumping = !player.onGround() && player.getDeltaMovement().y > 0.08D;
         boolean wet = player.isInWaterOrRain();
         boolean cold = player.level().getBiome(player.blockPosition()).value().getBaseTemperature() < 0.4F;
         double baselineCost = R196SurvivalRules.baselineMetabolism(wet, cold, current.isMalnourished());
-        double activityCost = R196SurvivalRules.activityMetabolism(
-                moving,
-                player.isSprinting(),
-                swimming,
-                jumping,
-                player.getVehicle() instanceof AbstractBoat);
         int hungerEffectLevel = player.hasEffect(MobEffects.HUNGER)
                 ? player.getEffect(MobEffects.HUNGER).getAmplifier() + 1
                 : 0;
-        int endurance = R196Enchantments.armorLevel(player, ModEnchantments.ENDURANCE);
         double cost = 10.0D
-                * (baselineCost
-                        + activityCost * R196SurvivalRules.enduranceModifier(endurance)
-                        + R196SurvivalRules.hungerEffectMetabolism(hungerEffectLevel));
+                * (baselineCost + R196SurvivalRules.hungerEffectMetabolism(hungerEffectLevel));
         R196SurvivalData updated = current.metabolize(
                 cost,
                 10.0D * R196SurvivalRules.NUTRITION_METABOLISM_PER_TICK,
@@ -199,7 +235,7 @@ public final class R196SurvivalEvents {
     }
 
     private static int regenerationLevel(Player player) {
-        return R196Enchantments.armorLevel(player, ModEnchantments.REGENERATION);
+        return R196Enchantments.maxArmorLevel(player, ModEnchantments.REGENERATION);
     }
 
     private static void updateStatusEffects(ServerPlayer player, R196SurvivalData data) {
@@ -223,23 +259,90 @@ public final class R196SurvivalEvents {
         }
     }
 
+    private static void onJump(LivingEvent.LivingJumpEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            consumeAction(player, R196SurvivalRules.jumpMetabolism(player.isSprinting()));
+        }
+    }
+
     private static void onAttack(AttackEntityEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) consumeAction(player, 0.025D);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            consumeEnduranceAction(player, R196SurvivalRules.ATTACK_METABOLISM);
+        }
+    }
+
+    private static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        PlayerActivity activity = ACTIVITIES.computeIfAbsent(
+                player, ignored -> new PlayerActivity(MovementStats.capture(player)));
+        switch (event.getAction()) {
+            case START -> {
+                if (!canStartMining(player, event.getPos())) return;
+                activity.startMining(event.getPos(), player.getMainHandItem(), player.tickCount);
+                consumeEnduranceAction(player, R196SurvivalRules.MINING_METABOLISM_PER_TICK);
+            }
+            case STOP -> activity.stopMining(event.getPos());
+            case ABORT -> activity.stopMining();
+            case CLIENT_HOLD -> {
+                // The hold action is client-only; the server session is advanced from PlayerTickEvent.
+            }
+        }
     }
 
     private static void onBlockBroken(BreakBlockEvent event) {
-        if (!(event.getPlayer() instanceof ServerPlayer player)) return;
-        float hardness = Math.max(0.0F, event.getState().getDestroySpeed(event.getLevel(), event.getPos()));
-        consumeAction(player, 0.01D + hardness * 0.006D);
+        if (event.getPlayer() instanceof ServerPlayer player) {
+            PlayerActivity activity = ACTIVITIES.get(player);
+            if (activity != null) activity.stopMining(event.getPos());
+        }
+    }
+
+    private static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        float hardness = event.getPlacedBlock().getDestroySpeed(event.getLevel(), event.getPos());
+        consumeEnduranceAction(player, R196SurvivalRules.placementMetabolism(hardness));
+    }
+
+    private static void onToolModified(BlockEvent.BlockToolModificationEvent event) {
+        if (event.isSimulated()
+                || event.getItemAbility() != ItemAbilities.HOE_TILL
+                || event.getFinalState().equals(event.getState())
+                || !(event.getPlayer() instanceof ServerPlayer player)) return;
+        float hardness = event.getState().getDestroySpeed(event.getLevel(), event.getPos());
+        consumeEnduranceAction(player, R196SurvivalRules.tillingMetabolism(hardness));
+    }
+
+    private static void onDamaged(LivingDamageEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)
+                || event.getHealthDamage() <= 0.0F
+                || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)
+                || event.getSource().is(DamageTypeTags.IS_FIRE)) return;
+        consumeAction(player, R196SurvivalRules.DAMAGE_METABOLISM);
+    }
+
+    private static boolean canStartMining(ServerPlayer player, BlockPos pos) {
+        if (!hasActiveMetabolism(player)
+                || !player.isWithinBlockInteractionRange(pos, 1.0D)
+                || !player.level().mayInteract(player, pos)
+                || player.level().getServer().isUnderSpawnProtection(player.level(), pos, player)
+                || player.blockActionRestricted(player.level(), pos, player.gameMode.getGameModeForPlayer())) {
+            return false;
+        }
+        var state = player.level().getBlockState(pos);
+        return !state.isAir() && state.getDestroyProgress(player, player.level(), pos) > 0.0F;
     }
 
     private static void consumeAction(ServerPlayer player, double amount) {
-        if (!hasActiveMetabolism(player)) return;
+        if (!hasActiveMetabolism(player) || amount <= 0.0D) return;
         R196SurvivalData updated = player.getData(ModAttachments.SURVIVAL)
                 .metabolize(amount, 0.0D, 0,
                         R196SurvivalRules.foodCap(player.experienceLevel));
         player.setData(ModAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
+    }
+
+    private static void consumeEnduranceAction(ServerPlayer player, double amount) {
+        int endurance = R196Enchantments.maxArmorLevel(player, ModEnchantments.ENDURANCE);
+        consumeAction(player, amount * R196SurvivalRules.enduranceModifier(endurance));
     }
 
     private static void onContinueSleeping(CanContinueSleepingEvent event) {
@@ -271,6 +374,19 @@ public final class R196SurvivalEvents {
         return !player.isCreative() && !player.isSpectator();
     }
 
+    private static double rowingMetabolism(ServerPlayer player) {
+        if (!(player.getVehicle() instanceof AbstractBoat boat)
+                || boat.getControllingPassenger() != player) return 0.0D;
+        var input = player.getLastClientInput();
+        return input.forward() != input.backward() ? R196SurvivalRules.ROW_METABOLISM_PER_TICK : 0.0D;
+    }
+
+    private static double bowDrawMetabolism(ServerPlayer player) {
+        return player.isUsingItem() && player.getUseItem().getItem() instanceof BowItem
+                ? R196SurvivalRules.BOW_DRAW_METABOLISM_PER_TICK
+                : 0.0D;
+    }
+
     private static void updateAirSpeed(ServerPlayer player, boolean activeMetabolism) {
         var movement = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (movement == null) return;
@@ -286,6 +402,90 @@ public final class R196SurvivalEvents {
                 && player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()
                 && player.isSprinting()) {
             player.setSprinting(false);
+        }
+    }
+
+    private static int stat(ServerPlayer player, net.minecraft.resources.Identifier id) {
+        return player.getStats().getValue(Stats.CUSTOM.get(id));
+    }
+
+    private static int positiveDelta(int current, int previous) {
+        return current >= previous ? current - previous : 0;
+    }
+
+    private record MovementStats(
+            int walk,
+            int crouch,
+            int sprint,
+            int swim,
+            int underwater,
+            int onWater,
+            int climb) {
+        private static MovementStats capture(ServerPlayer player) {
+            return new MovementStats(
+                    stat(player, Stats.WALK_ONE_CM),
+                    stat(player, Stats.CROUCH_ONE_CM),
+                    stat(player, Stats.SPRINT_ONE_CM),
+                    stat(player, Stats.SWIM_ONE_CM),
+                    stat(player, Stats.WALK_UNDER_WATER_ONE_CM),
+                    stat(player, Stats.WALK_ON_WATER_ONE_CM),
+                    stat(player, Stats.CLIMB_ONE_CM));
+        }
+
+        private double metabolismSince(MovementStats previous) {
+            return R196SurvivalRules.movementMetabolism(
+                    positiveDelta(walk, previous.walk),
+                    positiveDelta(crouch, previous.crouch),
+                    positiveDelta(sprint, previous.sprint),
+                    positiveDelta(swim, previous.swim),
+                    positiveDelta(underwater, previous.underwater),
+                    positiveDelta(onWater, previous.onWater),
+                    positiveDelta(climb, previous.climb));
+        }
+    }
+
+    private static final class PlayerActivity {
+        private MovementStats movement;
+        private BlockPos miningPos;
+        private ItemStack miningTool = ItemStack.EMPTY;
+        private int lastMiningChargeTick;
+
+        private PlayerActivity(MovementStats movement) {
+            this.movement = movement;
+        }
+
+        private double sampleMovement(ServerPlayer player) {
+            MovementStats current = MovementStats.capture(player);
+            double cost = current.metabolismSince(movement);
+            movement = current;
+            return cost;
+        }
+
+        private void startMining(BlockPos pos, ItemStack tool, int tick) {
+            miningPos = pos.immutable();
+            miningTool = tool.copy();
+            lastMiningChargeTick = tick;
+        }
+
+        private double miningMetabolism(ServerPlayer player) {
+            if (miningPos == null || lastMiningChargeTick >= player.tickCount) return 0.0D;
+            if (!player.isWithinBlockInteractionRange(miningPos, 1.0D)
+                    || player.level().getBlockState(miningPos).isAir()
+                    || !ItemStack.isSameItemSameComponents(miningTool, player.getMainHandItem())) {
+                stopMining();
+                return 0.0D;
+            }
+            lastMiningChargeTick = player.tickCount;
+            return R196SurvivalRules.MINING_METABOLISM_PER_TICK;
+        }
+
+        private void stopMining(BlockPos pos) {
+            if (pos.equals(miningPos)) stopMining();
+        }
+
+        private void stopMining() {
+            miningPos = null;
+            miningTool = ItemStack.EMPTY;
         }
     }
 }

@@ -55,16 +55,45 @@ class R196SurvivalRulesTest {
     }
 
     @Test
-    void wetColdSprintIsMoreExpensiveThanIdle() {
-        double idle = R196SurvivalRules.metabolism(false, false, false, false, false, false, false, false);
-        double exposed = R196SurvivalRules.metabolism(true, true, true, true, false, true, true, true);
-        assertEquals(0.0005D, idle, 1.0E-9D);
+    void baselineAndStatusCostsMatchR196FoodUnits() {
+        assertEquals(0.0005D, R196SurvivalRules.baselineMetabolism(false, false, false), 1.0E-9D);
         assertEquals(0.001D, R196SurvivalRules.baselineMetabolism(true, true, true), 1.0E-9D);
-        assertTrue(exposed > idle * 9.0D);
         assertEquals(0.2D, R196SurvivalRules.enduranceModifier(4), 1.0E-9D);
         assertEquals(0.0125D, R196SurvivalRules.hungerEffectMetabolism(2), 1.0E-9D);
         assertEquals(1.0D / 1_250.0D, R196SurvivalRules.recoveryPerTick(20, false, false, 0), 1.0E-9D);
         assertEquals(4.0D * 0.00052D, R196SurvivalRules.recoveryPerTick(6, true, false, 0), 1.0E-9D);
         assertEquals(0.25D * 0.00052D, R196SurvivalRules.recoveryPerTick(6, false, true, 0), 1.0E-9D);
+    }
+
+    @Test
+    void movementCostsUseR196DistanceRatesWithoutOverlap() {
+        assertEquals(0.0025D, R196SurvivalRules.movementMetabolism(100, 0, 0, 0, 0, 0, 0), 1.0E-9D);
+        assertEquals(0.0025D, R196SurvivalRules.movementMetabolism(0, 100, 0, 0, 0, 0, 0), 1.0E-9D);
+        assertEquals(0.0125D, R196SurvivalRules.movementMetabolism(0, 0, 100, 0, 0, 0, 0), 1.0E-9D);
+        assertEquals(0.00375D, R196SurvivalRules.movementMetabolism(0, 0, 0, 100, 0, 0, 0), 1.0E-9D);
+        assertEquals(0.00375D, R196SurvivalRules.movementMetabolism(0, 0, 0, 0, 100, 0, 0), 1.0E-9D);
+        assertEquals(0.00375D, R196SurvivalRules.movementMetabolism(0, 0, 0, 0, 0, 100, 0), 1.0E-9D);
+        assertEquals(0.025D, R196SurvivalRules.movementMetabolism(0, 0, 0, 0, 0, 0, 100), 1.0E-9D);
+        assertEquals(0.0D, R196SurvivalRules.movementMetabolism(-100, 0, 0, 0, 0, 0, 0), 1.0E-9D);
+    }
+
+    @Test
+    void discreteBehaviorCostsMatchR196Conversion() {
+        assertEquals(0.05D, R196SurvivalRules.jumpMetabolism(false), 1.0E-9D);
+        assertEquals(0.2D, R196SurvivalRules.jumpMetabolism(true), 1.0E-9D);
+        assertEquals(0.075D, R196SurvivalRules.ATTACK_METABOLISM, 1.0E-9D);
+        assertEquals(0.0025D, R196SurvivalRules.MINING_METABOLISM_PER_TICK, 1.0E-9D);
+        assertEquals(0.0025D, R196SurvivalRules.BOW_DRAW_METABOLISM_PER_TICK, 1.0E-9D);
+        assertEquals(0.0025D, R196SurvivalRules.ROW_METABOLISM_PER_TICK, 1.0E-9D);
+        assertEquals(0.075D, R196SurvivalRules.DAMAGE_METABOLISM, 1.0E-9D);
+    }
+
+    @Test
+    void blockActionsUseHardnessAndSafeBounds() {
+        assertEquals(0.125D, R196SurvivalRules.placementMetabolism(0.5D), 1.0E-9D);
+        assertEquals(5.0D, R196SurvivalRules.placementMetabolism(50.0D), 1.0E-9D);
+        assertEquals(0.0D, R196SurvivalRules.placementMetabolism(-1.0D), 1.0E-9D);
+        assertEquals(0.0625D, R196SurvivalRules.tillingMetabolism(0.5D), 1.0E-9D);
+        assertEquals(0.0D, R196SurvivalRules.tillingMetabolism(-1.0D), 1.0E-9D);
     }
 }
