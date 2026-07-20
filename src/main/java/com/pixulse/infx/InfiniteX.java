@@ -32,6 +32,7 @@ import com.pixulse.infx.progression.ModernContentAuditEvents;
 import com.pixulse.infx.progression.R196AchievementEvents;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.enchantment.R196EnchantmentEvents;
+import com.pixulse.infx.item.R196BlockStackLimits;
 import com.pixulse.infx.item.R196ManureEvents;
 import com.pixulse.infx.equipment.R196RustedIronSources;
 import com.pixulse.infx.entity.R196MonsterEvents;
@@ -74,6 +75,7 @@ public final class InfiniteX {
         ModBlockEntityTypes.register(modBus);
         ModDataComponents.register(modBus);
         ModItems.register(modBus);
+        R196BlockStackLimits.register(modBus);
         ModEntityTypes.register(modBus);
         ModLootModifiers.register(modBus);
         ModRecipes.register(modBus);
