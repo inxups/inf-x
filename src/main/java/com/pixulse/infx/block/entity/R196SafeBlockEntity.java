@@ -4,8 +4,13 @@ import com.pixulse.infx.block.R196SafeBlock;
 import com.pixulse.infx.registry.ModBlockEntityTypes;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -54,16 +59,33 @@ public final class R196SafeBlockEntity extends RandomizableContainerBlockEntity 
         owner = player.getUUID();
         ownerName = player.getScoreboardName();
         setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
     }
 
     public @Nullable UUID owner() { return owner; }
     public String ownerName() { return ownerName; }
     public boolean isOwner(Player player) { return owner != null && owner.equals(player.getUUID()); }
     public boolean isUnowned() { return owner == null; }
+    public boolean isPortableTo(Player player) { return isUnowned() || isOwner(player); }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        if (owner != null) tag.putString("Owner", owner.toString());
+        tag.putString("OwnerName", ownerName);
+        return tag;
+    }
 
     @Override
     public boolean canOpen(Player player) {
-        return (player.hasInfiniteMaterials() || isUnowned() || isOwner(player)) && super.canOpen(player);
+        return (player.hasInfiniteMaterials() || isPortableTo(player)) && super.canOpen(player);
     }
 
     @Override

@@ -14,6 +14,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 /** Ownership, higher-tier multiplayer break checks and combat-disconnect penalty. */
@@ -47,10 +48,14 @@ public final class R196SafeEvents {
         }
     }
 
-    private static void protectSafeDrops(PlayerEvent.HarvestCheck event) {
-        if (event.getTargetBlock().getBlock() instanceof R196SafeBlock) {
-            event.setCanHarvest(isOwner(event.getLevel().getBlockEntity(event.getPos()), event.getEntity()));
+    private static void protectSafeDrops(BlockDropsEvent event) {
+        if (!(event.getState().getBlock() instanceof R196SafeBlock safe)
+                || !(event.getBreaker() instanceof net.minecraft.world.entity.player.Player player)
+                || !(event.getBlockEntity() instanceof R196SafeBlockEntity safeBlockEntity)
+                || safeBlockEntity.isPortableTo(player)) {
+            return;
         }
+        event.getDrops().removeIf(drop -> drop.getItem().is(safe.asItem()));
     }
 
     private static void protectSafeBreakSpeed(PlayerEvent.BreakSpeed event) {
@@ -69,7 +74,7 @@ public final class R196SafeEvents {
     private static boolean isOwner(
             net.minecraft.world.level.block.entity.BlockEntity blockEntity,
             net.minecraft.world.entity.player.Player player) {
-        return blockEntity instanceof R196SafeBlockEntity safe && (safe.isUnowned() || safe.isOwner(player));
+        return blockEntity instanceof R196SafeBlockEntity safe && safe.isPortableTo(player);
     }
 
     private static R196Material toolMaterial(ItemStack tool) {

@@ -25,7 +25,8 @@
     "RaidMixin"
   ],
   "client": [
-    "DebugScreenOverlayMixin"
+    "DebugScreenOverlayMixin",
+    "MinecraftMiningInputMixin"
   ],
   "injectors": {
     "defaultRequire": 1

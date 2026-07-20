@@ -2,6 +2,7 @@ package com.pixulse.infx.survival;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModMobEffects;
@@ -328,7 +329,7 @@ public final class R196SurvivalEvents {
             return false;
         }
         var state = player.level().getBlockState(pos);
-        return !state.isAir() && state.getDestroyProgress(player, player.level(), pos) > 0.0F;
+        return HarvestEvents.hasDestroyProgress(player, state, pos);
     }
 
     private static void consumeAction(ServerPlayer player, double amount) {
