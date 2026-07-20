@@ -106,6 +106,7 @@ public final class ModR196CompletionGameTests {
             "r196_gravel_loot",
             "r196_hopper_xp",
             "r196_survival_core",
+            "r196_survival_modes",
             "r196_safe_enchanting",
             "r196_creative_tabs",
             "r196_block_stack_limits",
@@ -122,6 +123,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_gravel_loot", () -> ModR196CompletionGameTests::gravelLoot);
         FUNCTIONS.register("r196_hopper_xp", () -> ModR196CompletionGameTests::hopperExperience);
         FUNCTIONS.register("r196_survival_core", () -> ModR196CompletionGameTests::survivalCore);
+        FUNCTIONS.register("r196_survival_modes", () -> ModR196CompletionGameTests::survivalModes);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
         FUNCTIONS.register("r196_block_stack_limits", () -> ModR196CompletionGameTests::blockStackLimits);
@@ -611,8 +613,44 @@ public final class ModR196CompletionGameTests {
                 Items.SUGAR.getDefaultInstance().has(DataComponents.FOOD)
                         && Items.SUGAR.getDefaultInstance().has(DataComponents.CONSUMABLE),
                 "small R196 foods are directly edible");
+
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(8, 2, 1, 1, 1, 0, 0));
+        R196SurvivalEvents.recalculatePlayerLimits(player);
+        helper.assertTrue(
+                player.getFoodData().getFoodLevel() == 2
+                        && Math.abs(player.getFoodData().getSaturationLevel() - 8.0F) < 0.001F,
+                "FoodData compatibility mirror must preserve independent satiation");
+        player.getFoodData().addExhaustion(40.0F);
+        player.getFoodData().tick(player);
+        helper.assertTrue(
+                player.getFoodData().getFoodLevel() == 2
+                        && Math.abs(player.getFoodData().getSaturationLevel() - 8.0F) < 0.001F,
+                "vanilla FoodData tick must not mutate R196 energy layers");
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static void survivalModes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        R196SurvivalData frozen = new R196SurvivalData(6, 6, 1_000, 1_000, 1_000, 100, 0);
+        player.setData(ModAttachments.SURVIVAL, frozen);
+        player.gameMode.changeGameModeForPlayer(GameType.SPECTATOR);
+
+        helper.startSequence()
+                .thenExecuteAfter(40, () -> {
+                    helper.assertTrue(
+                            player.getData(ModAttachments.SURVIVAL).equals(frozen),
+                            "spectator mode must freeze R196 energy and nutrient metabolism");
+                    player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+                })
+                .thenExecuteAfter(40, () -> {
+                    R196SurvivalData active = player.getData(ModAttachments.SURVIVAL);
+                    helper.assertTrue(active.hungerProgress() > 0.0D, "survival mode must accumulate hunger");
+                    helper.assertTrue(active.protein() < frozen.protein(), "survival mode must decay nutrients");
+                    removePlayer(player);
+                })
+                .thenSucceed();
     }
 
     private static void safeAndEnchanting(GameTestHelper helper) {

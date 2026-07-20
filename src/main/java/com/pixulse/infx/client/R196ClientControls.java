@@ -182,7 +182,8 @@ public final class R196ClientControls {
     private static void renderScaledFoodBar(RenderGuiLayerEvent.Pre event) {
         if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || minecraft.player.isCreative()) return;
+        if (minecraft.player == null
+                || !shouldRenderFoodBar(minecraft.player.isCreative(), minecraft.player.isSpectator())) return;
         event.setCanceled(true);
         var graphics = event.getGuiGraphics();
         var data = minecraft.player.getData(ModAttachments.SURVIVAL);
@@ -208,5 +209,9 @@ public final class R196ClientControls {
 
     static int registeredKeyCount() {
         return 6;
+    }
+
+    static boolean shouldRenderFoodBar(boolean creative, boolean spectator) {
+        return !creative && !spectator;
     }
 }
