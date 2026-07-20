@@ -1,5 +1,6 @@
 package com.pixulse.infx.progression;
 
+import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.registry.ModItems;
@@ -42,8 +43,17 @@ public final class PlayerProgressionEvents {
     }
 
     private static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
-        event.add(EntityTypes.PLAYER, Attributes.BLOCK_INTERACTION_RANGE, 2.75);
-        event.add(EntityTypes.PLAYER, Attributes.ENTITY_INTERACTION_RANGE, 2.5);
+        boolean testMode = InfiniteXTestMode.isEnabled();
+        event.add(EntityTypes.PLAYER, Attributes.BLOCK_INTERACTION_RANGE, blockInteractionRange(testMode));
+        event.add(EntityTypes.PLAYER, Attributes.ENTITY_INTERACTION_RANGE, entityInteractionRange(testMode));
+    }
+
+    static double blockInteractionRange(boolean testMode) {
+        return testMode ? Player.DEFAULT_BLOCK_INTERACTION_RANGE : 2.75;
+    }
+
+    static double entityInteractionRange(boolean testMode) {
+        return testMode ? Player.DEFAULT_ENTITY_INTERACTION_RANGE : 2.5;
     }
 
     private static void onExperienceChange(PlayerXpEvent.XpChange event) {
