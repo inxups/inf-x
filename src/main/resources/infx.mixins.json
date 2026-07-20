@@ -22,6 +22,9 @@
     "PlayerFoodMixin",
     "RaidMixin"
   ],
+  "client": [
+    "DebugScreenOverlayMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   },
