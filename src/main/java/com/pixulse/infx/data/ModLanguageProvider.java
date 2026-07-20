@@ -415,7 +415,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.creative_disabled", locale == Locale.EN_US
                 ? "Creative mode is disabled in R196 survival worlds"
                 : "R196 生存世界禁止创造模式");
-        add("menu.infx.test_mode", locale == Locale.EN_US ? "TEST MODE" : "测试模式");
+        add("menu.infx.test_mode", locale == Locale.EN_US ? "INFX TEST MODE" : "INFX测试模式");
         add("menu.infx.test_mode.online_disabled", locale == Locale.EN_US
                 ? "Multiplayer and Realms are disabled while InfiniteX test mode is active"
                 : "InfiniteX 测试模式下禁用多人游戏和 Realms");
