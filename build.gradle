@@ -207,6 +207,19 @@ tasks.named('check').configure {
     dependsOn tasks.named('resourceTest')
 }
 
+def prepareClientGeneratedResources = tasks.register('prepareClientGeneratedResources', Copy) {
+    dependsOn tasks.named('runData')
+    from layout.projectDirectory.dir('src/generated/resources')
+    into layout.buildDirectory.dir('resources/main')
+    exclude '.cache/**'
+}
+
+// Fresh clones and worktrees do not contain ignored datagen output. Bootstrap it before
+// launching the client so world-creation registry reloads cannot observe partial data.
+tasks.named('runClient').configure {
+    dependsOn prepareClientGeneratedResources
+}
+
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
 idea {
     module {

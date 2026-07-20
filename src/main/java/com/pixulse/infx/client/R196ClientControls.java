@@ -6,8 +6,10 @@ import com.pixulse.infx.InfiniteXTestMode;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.debug.DebugEntryCategory;
 import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
+import net.minecraft.client.gui.components.debug.DebugScreenProfile;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -143,7 +145,14 @@ public final class R196ClientControls {
     }
 
     static DebugScreenEntryStatus debugStatus(boolean testMode, Identifier id) {
-        if (testMode) return DebugScreenEntryStatus.IN_OVERLAY;
+        if (testMode) {
+            var entry = DebugScreenEntries.getEntry(id);
+            if (entry != null && entry.category().equals(DebugEntryCategory.SCREEN_TEXT)) {
+                return DebugScreenEntryStatus.IN_OVERLAY;
+            }
+            return DebugScreenEntries.PROFILES.get(DebugScreenProfile.DEFAULT)
+                    .getOrDefault(id, DebugScreenEntryStatus.NEVER);
+        }
         return id.equals(DebugScreenEntries.FPS)
                 ? DebugScreenEntryStatus.IN_OVERLAY
                 : DebugScreenEntryStatus.NEVER;

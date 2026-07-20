@@ -23,6 +23,6 @@ bash gradlew runGameTestServer
 bash gradlew build
 ```
 
-开发时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用 test 模式。该模式会在标题图标下方显示红色 `TEST MODE` 标识并禁用多人游戏和 Realms，同时解除单人世界创建界面的全部锁定，停止强制 `extreme` 难度及禁止创造模式，恢复原版交互距离，并让 F3 显示全部调试条目；使用 Gradle 启动时可执行 `bash gradlew runClient -Dinfx.testMode=true`。未提供参数时，正式规则保持不变。
+开发时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用 test 模式。该模式会在标题图标下方显示红色 `TEST MODE` 标识并禁用多人游戏和 Realms，同时解除单人世界创建界面的全部锁定，停止强制 `extreme` 难度及禁止创造模式，恢复原版交互距离，并让 F3 显示完整文字调试信息但不自动开启区块、碰撞箱等可选可视化层；使用 Gradle 启动时可执行 `bash gradlew runClient -Dinfx.testMode=true`，首次从干净检出或 worktree 启动时会自动准备缺失的数据生成资源。未提供参数时，正式规则保持不变。
 
 正式任务状态、依赖、验收标准与排除项见 [ROADMAP.md](ROADMAP.md)。项目不重新分发 MITE 源码；所有采用的项目所有者批准材质均记录在 `assets/infx/mite_texture_manifest.tsv`，并固定来源路径与 SHA-256。
