@@ -14,16 +14,26 @@ import org.junit.jupiter.api.Test;
 
 class TestModeTitleScreenEventsTest {
     @Test
-    void disablesOnlyTheMultiplayerButton() {
+    void disablesMultiplayerAndRealmsOnly() {
         Button singleplayer = button("menu.singleplayer");
         Button multiplayer = button("menu.multiplayer");
-        Button online = button("menu.online");
+        Button realms = button("menu.online");
 
-        TestModeTitleScreenEvents.disableMultiplayerButton(List.of(singleplayer, multiplayer, online));
+        TestModeTitleScreenEvents.disableOnlineButtons(List.of(singleplayer, multiplayer, realms));
 
         assertTrue(singleplayer.active);
         assertFalse(multiplayer.active);
-        assertTrue(online.active);
+        assertFalse(realms.active);
+    }
+
+    @Test
+    void titleLabelSitsBelowTheLogoAndAboveTheMenu() {
+        int screenHeight = 270;
+        int labelY = TestModeTitleScreenEvents.testModeLabelY(screenHeight);
+
+        assertEquals(87, labelY);
+        assertTrue(labelY > 81);
+        assertTrue(labelY + 9 < screenHeight / 4 + 32);
     }
 
     @Test
