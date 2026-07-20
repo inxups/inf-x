@@ -8,6 +8,7 @@ import com.pixulse.infx.registry.ModJukeboxSongs;
 import com.pixulse.infx.registry.ModWorldCarvers;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.R196RiverBiomes;
+import com.pixulse.infx.world.R196SpawnsBiomeModifier;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderGetter;
@@ -40,7 +41,6 @@ import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -121,6 +121,10 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("large_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_STONE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_stone"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_NETHERRACK_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> R196_FLOWERS_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_flowers"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> R196_ALLIUM_CONFIGURED =
@@ -135,6 +139,10 @@ final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("mithril_ore"));
+    private static final ResourceKey<PlacedFeature> R196_INFESTED_STONE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_stone"));
+    private static final ResourceKey<PlacedFeature> R196_INFESTED_NETHERRACK_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
     private static final ResourceKey<PlacedFeature> R196_FLOWERS_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_flowers"));
     private static final ResourceKey<PlacedFeature> R196_ALLIUM_PLACED =
@@ -149,6 +157,10 @@ final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_mithril_ore"));
+    private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_STONE =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_stone"));
+    private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_NETHERRACK =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_netherrack"));
     private static final ResourceKey<BiomeModifier> ADD_LARGE_CAVES =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_large_caves"));
     private static final ResourceKey<BiomeModifier> ADD_R196_FLOWERS =
@@ -157,16 +169,8 @@ final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_allium"));
     private static final ResourceKey<BiomeModifier> ADD_WITHERWOOD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_OVERWORLD_MONSTERS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_overworld_monsters"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_JUNGLE_MONSTERS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_jungle_monsters"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_TAIGA_MONSTERS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_taiga_monsters"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_NETHER_MONSTERS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_nether_monsters"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_END_MONSTERS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_end_monsters"));
+    private static final ResourceKey<BiomeModifier> R196_SPAWNS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("r196_spawns"));
 
     private ModWorldGen() {}
 
@@ -226,6 +230,22 @@ final class ModWorldGen {
         registerConfiguredOre(context, SILVER_ORE_CONFIGURED, ModBlocks.SILVER_ORE.get().defaultBlockState(), 6);
         registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, ModBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
         context.register(
+                R196_INFESTED_STONE_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(
+                                new BlockMatchTest(Blocks.STONE),
+                                Blocks.INFESTED_STONE.defaultBlockState(),
+                                3)));
+        context.register(
+                R196_INFESTED_NETHERRACK_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(
+                                new BlockMatchTest(Blocks.NETHERRACK),
+                                ModBlocks.INFESTED_NETHERRACK.get().defaultBlockState(),
+                                8)));
+        context.register(
                 R196_FLOWERS_CONFIGURED,
                 new ConfiguredFeature<>(
                         Feature.SIMPLE_BLOCK,
@@ -278,6 +298,26 @@ final class ModWorldGen {
                 context.lookup(Registries.CONFIGURED_FEATURE);
         registerPlacedOre(context, configuredFeatures, SILVER_ORE_CONFIGURED, SILVER_ORE_PLACED, 96);
         registerPlacedOre(context, configuredFeatures, MITHRIL_ORE_CONFIGURED, MITHRIL_ORE_PLACED, 32);
+        context.register(
+                R196_INFESTED_STONE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(R196_INFESTED_STONE_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(1),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(0), VerticalAnchor.belowTop(0)),
+                                BiomeFilter.biome())));
+        context.register(
+                R196_INFESTED_NETHERRACK_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(R196_INFESTED_NETHERRACK_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(UniformInt.of(2, 8)),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(10), VerticalAnchor.absolute(117)),
+                                BiomeFilter.biome())));
         context.register(
                 R196_FLOWERS_PLACED,
                 new PlacedFeature(
@@ -353,8 +393,13 @@ final class ModWorldGen {
                 R196RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
         MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
-        BiomeDefaultFeatures.commonSpawns(mobs, 120);
-        mobs.addSpawn(MobCategory.MONSTER, 20, new MobSpawnSettings.SpawnerData(EntityTypes.CAVE_SPIDER, 1, 2));
+        addSpawn(mobs, EntityTypes.SPIDER, 80, 1, 2);
+        addSpawn(mobs, EntityTypes.CREEPER, 100, 1, 2);
+        addSpawn(mobs, EntityTypes.SLIME, 100, 1, 4);
+        addSpawn(mobs, EntityTypes.ENDERMAN, 10, 1, 4);
+        addSpawn(mobs, EntityTypes.CAVE_SPIDER, 40, 1, 2);
+        addSpawn(mobs, EntityTypes.BAT, 100, 8, 8);
+        addSpawn(mobs, EntityTypes.SQUID, 10, 4, 4);
         addUnderworldR196Spawns(mobs);
 
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
@@ -869,6 +914,18 @@ final class ModWorldGen {
         HolderGetter<ConfiguredWorldCarver<?>> carvers = context.lookup(Registries.CONFIGURED_CARVER);
         registerOverworldOreModifier(context, biomes, placedFeatures, ADD_SILVER_ORE, SILVER_ORE_PLACED);
         registerOverworldOreModifier(context, biomes, placedFeatures, ADD_MITHRIL_ORE, MITHRIL_ORE_PLACED);
+        registerOverworldOreModifier(
+                context,
+                biomes,
+                placedFeatures,
+                ADD_R196_INFESTED_STONE,
+                R196_INFESTED_STONE_PLACED);
+        context.register(
+                ADD_R196_INFESTED_NETHERRACK,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_NETHER),
+                        HolderSet.direct(placedFeatures.getOrThrow(R196_INFESTED_NETHERRACK_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES));
         context.register(
                 ADD_LARGE_CAVES,
                 new BiomeModifiers.AddCarversBiomeModifier(
@@ -895,7 +952,7 @@ final class ModWorldGen {
                         biomes.getOrThrow(BiomeTags.IS_NETHER),
                         HolderSet.direct(placedFeatures.getOrThrow(WITHERWOOD_PLACED)),
                         GenerationStep.Decoration.VEGETAL_DECORATION));
-        registerR196SpawnModifiers(context, biomes);
+        registerR196SpawnModifiers(context);
     }
 
     private static void registerOverworldOreModifier(
@@ -912,62 +969,13 @@ final class ModWorldGen {
                         GenerationStep.Decoration.UNDERGROUND_ORES));
     }
 
-    private static void registerR196SpawnModifiers(
-            BootstrapContext<BiomeModifier> context,
-            HolderGetter<Biome> biomes) {
-        context.register(
-                ADD_R196_OVERWORLD_MONSTERS,
-                new BiomeModifiers.AddSpawnsBiomeModifier(
-                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
-                        WeightedList.of(List.of(
-                                spawn(ModEntityTypes.VAMPIRE_BAT.get(), 20, 4, 8),
-                                spawn(ModEntityTypes.NIGHTWING.get(), 4, 1, 4),
-                                spawn(ModEntityTypes.GHOUL.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.WIGHT.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.DEMON_SPIDER.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.HELLHOUND.get(), 10, 1, 2),
-                                spawn(ModEntityTypes.WOOD_SPIDER.get(), 20, 1, 1),
-                                spawn(ModEntityTypes.SHADOW.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.REVENANT.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.JELLY.get(), 30, 1, 4),
-                                spawn(ModEntityTypes.BLOB.get(), 30, 1, 4),
-                                spawn(ModEntityTypes.OOZE.get(), 20, 1, 4),
-                                spawn(ModEntityTypes.PUDDING.get(), 30, 1, 4),
-                                spawn(ModEntityTypes.BONE_LORD.get(), 5, 1, 1),
-                                spawn(ModEntityTypes.PHASE_SPIDER.get(), 5, 1, 4),
-                                spawn(ModEntityTypes.INFERNAL_CREEPER.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.COPPERSPINE.get(), 5, 1, 2)))));
-        context.register(
-                ADD_R196_JUNGLE_MONSTERS,
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(BiomeTags.IS_JUNGLE),
-                        spawn(ModEntityTypes.BLACK_WIDOW_SPIDER.get(), 10, 1, 1)));
-        context.register(
-                ADD_R196_TAIGA_MONSTERS,
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(BiomeTags.IS_TAIGA),
-                        spawn(ModEntityTypes.DIRE_WOLF.get(), 5, 1, 3)));
-        context.register(
-                ADD_R196_NETHER_MONSTERS,
-                new BiomeModifiers.AddSpawnsBiomeModifier(
-                        biomes.getOrThrow(BiomeTags.IS_NETHER),
-                        WeightedList.of(List.of(
-                                spawn(ModEntityTypes.EARTH_ELEMENTAL.get(), 40, 1, 1),
-                                spawn(ModEntityTypes.FIRE_ELEMENTAL.get(), 10, 1, 1),
-                                spawn(ModEntityTypes.NETHERSPAWN.get(), 10, 1, 2)))));
-        context.register(
-                ADD_R196_END_MONSTERS,
-                BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(
-                        biomes.getOrThrow(BiomeTags.IS_END),
-                        spawn(ModEntityTypes.EARTH_ELEMENTAL.get(), 20, 1, 4)));
+    private static void registerR196SpawnModifiers(BootstrapContext<BiomeModifier> context) {
+        context.register(R196_SPAWNS, new R196SpawnsBiomeModifier());
     }
 
     private static void addUnderworldR196Spawns(MobSpawnSettings.Builder mobs) {
-        addSpawn(mobs, ModEntityTypes.VAMPIRE_BAT.get(), 20, 4, 8);
+        addSpawn(mobs, ModEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
         addSpawn(mobs, ModEntityTypes.NIGHTWING.get(), 4, 1, 4);
-        addSpawn(mobs, ModEntityTypes.GIANT_VAMPIRE_BAT.get(), 4, 1, 2);
         addSpawn(mobs, ModEntityTypes.WIGHT.get(), 10, 1, 1);
         addSpawn(mobs, ModEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
         addSpawn(mobs, ModEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
@@ -975,7 +983,6 @@ final class ModWorldGen {
         addSpawn(mobs, ModEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
         addSpawn(mobs, ModEntityTypes.SHADOW.get(), 10, 1, 1);
         addSpawn(mobs, ModEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
-        addSpawn(mobs, ModEntityTypes.FIRE_ELEMENTAL.get(), 10, 1, 1);
         addSpawn(mobs, ModEntityTypes.JELLY.get(), 30, 1, 4);
         addSpawn(mobs, ModEntityTypes.BLOB.get(), 30, 1, 4);
         addSpawn(mobs, ModEntityTypes.OOZE.get(), 20, 1, 4);
@@ -983,8 +990,6 @@ final class ModWorldGen {
         addSpawn(mobs, ModEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
         addSpawn(mobs, ModEntityTypes.LONGDEAD.get(), 40, 1, 2);
         addSpawn(mobs, ModEntityTypes.ANCIENT_BONE_LORD.get(), 5, 1, 1);
-        addSpawn(mobs, ModEntityTypes.HOARY_SILVERFISH.get(), 10, 1, 2);
-        addSpawn(mobs, ModEntityTypes.NETHERSPAWN.get(), 5, 1, 2);
     }
 
     private static void addSpawn(
@@ -993,14 +998,7 @@ final class ModWorldGen {
             int weight,
             int minimum,
             int maximum) {
-        mobs.addSpawn(MobCategory.MONSTER, weight, new MobSpawnSettings.SpawnerData(type, minimum, maximum));
+        mobs.addSpawn(type.getCategory(), weight, new MobSpawnSettings.SpawnerData(type, minimum, maximum));
     }
 
-    private static Weighted<MobSpawnSettings.SpawnerData> spawn(
-            net.minecraft.world.entity.EntityType<?> type,
-            int weight,
-            int minimum,
-            int maximum) {
-        return new Weighted<>(new MobSpawnSettings.SpawnerData(type, minimum, maximum), weight);
-    }
 }

@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ColoredFallingBlock;
 import net.minecraft.world.level.block.FlowerBlock;
+import net.minecraft.world.level.block.InfestedBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.util.ColorRGBA;
@@ -66,6 +67,10 @@ public final class ModBlocks {
                     .strength(4.0F)
                     .sound(SoundType.STONE)
                     .requiresCorrectToolForDrops());
+    public static final DeferredBlock<InfestedBlock> INFESTED_NETHERRACK = BLOCKS.registerBlock(
+            "infested_netherrack",
+            properties -> new InfestedBlock(net.minecraft.world.level.block.Blocks.NETHERRACK, properties),
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHERRACK));
 
     public static final List<DeferredBlock<Block>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
 

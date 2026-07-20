@@ -13,6 +13,7 @@ import com.pixulse.infx.gametest.ModR196CompletionGameTests;
 import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.ModBiomeModifiers;
 import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModEntityTypes;
@@ -66,6 +67,7 @@ public final class InfiniteX {
         R196Network.register(modBus);
         ModSounds.register(modBus);
         ModWorldCarvers.register(modBus);
+        ModBiomeModifiers.register(modBus);
         R196BucketEvents.register(modBus);
         ModAttachments.register(modBus);
         ModBlocks.register(modBus);

@@ -34,6 +34,45 @@ class R196GeneratedResourceTest {
     private static final Path STATIC = ROOT.resolve("src/main/resources");
 
     @Test
+    void r196SpawnTablesUseCorrectPoolsAndSources() throws Exception {
+        JsonObject modifier = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/r196_spawns.json"));
+        JsonObject infestedStone = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/r196_infested_stone.json"));
+        JsonObject infestedNetherrack = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/r196_infested_netherrack.json"));
+        JsonObject underworld = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
+        String underworldMonsters = underworld
+                .getAsJsonObject("spawners")
+                .get("monster")
+                .toString();
+        String underworldAmbient = underworld
+                .getAsJsonObject("spawners")
+                .get("ambient")
+                .toString();
+        String underworldWater = underworld
+                .getAsJsonObject("spawners")
+                .get("water_creature")
+                .toString();
+
+        assertAll(
+                "R196 spawn tables",
+                () -> assertEquals("infx:r196_spawns", modifier.get("type").getAsString()),
+                () -> assertTrue(infestedStone.toString().contains("minecraft:infested_stone")),
+                () -> assertTrue(infestedNetherrack.toString().contains("infx:infested_netherrack")),
+                () -> assertTrue(Files.isRegularFile(
+                        GENERATED.resolve("assets/infx/blockstates/infested_netherrack.json"))),
+                () -> assertFalse(underworldMonsters.contains("minecraft:zombie")),
+                () -> assertFalse(underworldMonsters.contains("minecraft:skeleton")),
+                () -> assertFalse(underworldMonsters.contains("infx:fire_elemental")),
+                () -> assertFalse(underworldMonsters.contains("infx:hoary_silverfish")),
+                () -> assertTrue(underworldAmbient.contains("infx:vampire_bat")),
+                () -> assertTrue(underworldAmbient.contains("infx:nightwing")),
+                () -> assertFalse(underworldAmbient.contains("infx:giant_vampire_bat")),
+                () -> assertTrue(underworldWater.contains("minecraft:squid")));
+    }
+
+    @Test
     void everyCatalogItemHasDefinitionModelAndTwoTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));

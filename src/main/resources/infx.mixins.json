@@ -17,6 +17,7 @@
     "FoodDataMixin",
     "GameTestServerMixin",
     "InventoryMenuMixin",
+    "LavaFluidMixin",
     "HopperBlockEntityMixin",
     "PlayerExperienceMixin",
     "PlayerAttackRangeMixin",

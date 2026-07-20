@@ -110,6 +110,11 @@ final class ModModelProvider extends ModelProvider {
         blockModels.createTrivialCube(ModBlocks.NETHER_GRAVEL.value());
         blockModels.createTrivialCube(ModBlocks.CORE.value());
         blockModels.createTrivialBlock(
+                ModBlocks.INFESTED_NETHERRACK.value(),
+                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
+                        TextureSlot.ALL,
+                        new Material(Identifier.withDefaultNamespace("block/netherrack")))));
+        blockModels.createTrivialBlock(
                 ModBlocks.MANTLE.value(),
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
                         TextureSlot.ALL,

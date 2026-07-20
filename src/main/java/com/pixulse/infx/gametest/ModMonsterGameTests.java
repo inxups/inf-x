@@ -8,7 +8,10 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.world.R196RiverBiomes;
+import com.pixulse.infx.world.Underworld;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -24,14 +27,19 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -42,6 +50,7 @@ public final class ModMonsterGameTests {
     private static final String REPLACEMENT = "r196_monster_replacement";
     private static final String BEHAVIORS = "r196_monster_behaviors";
     private static final String TACTICS = "r196_monster_tactics";
+    private static final String SPAWNS = "r196_spawn_tables";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -50,6 +59,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(REPLACEMENT, () -> ModMonsterGameTests::replacement);
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
+        FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
     }
 
     private ModMonsterGameTests() {}
@@ -62,7 +72,7 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, REPLACEMENT, BEHAVIORS, TACTICS)) {
+        for (String name : List.of(ROSTER, REPLACEMENT, BEHAVIORS, TACTICS, SPAWNS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -108,6 +118,18 @@ public final class ModMonsterGameTests {
                         .wrapAsHolder(ModEntityTypes.R196_SQUID.get())
                         .is(EntityTypeTags.AQUATIC),
                 "replacement squid must retain aquatic semantics");
+        helper.assertTrue(
+                ModEntityTypes.R196_SQUID.get().getCategory() == MobCategory.WATER_CREATURE
+                        && ModEntityTypes.R196_SQUID.get().isAllowedInPeaceful(),
+                "replacement squid must use the peaceful water-creature cap");
+        helper.assertTrue(
+                ModEntityTypes.VAMPIRE_BAT.get().getCategory() == MobCategory.AMBIENT
+                        && ModEntityTypes.NIGHTWING.get().getCategory() == MobCategory.AMBIENT,
+                "hostile cave bats must retain the R196 ambient spawn pool");
+        helper.assertTrue(
+                ModEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
+                        && ModEntityTypes.DIRE_WOLF.get().isAllowedInPeaceful(),
+                "dire wolves must use animal spawning rather than the hostile cap");
         helper.succeed();
     }
 
@@ -115,6 +137,9 @@ public final class ModMonsterGameTests {
         BlockPos naturalPos = new BlockPos(2, 2, 2);
         BlockPos explicitPos = new BlockPos(5, 2, 2);
         helper.spawn(EntityTypes.ZOMBIE, naturalPos, EntitySpawnReason.NATURAL);
+        BlockPos triggeredPos = new BlockPos(8, 2, 2);
+        helper.setBlock(triggeredPos.east(), Blocks.COPPER_ORE);
+        helper.spawn(EntityTypes.SILVERFISH, triggeredPos, EntitySpawnReason.TRIGGERED);
         var explicit = EntityTypes.ZOMBIE.create(helper.getLevel(), EntitySpawnReason.COMMAND);
         Vec3 explicitLocation = helper.absoluteVec(Vec3.atBottomCenterOf(explicitPos));
         explicit.snapTo(explicitLocation.x, explicitLocation.y, explicitLocation.z, 0.0F, 0.0F);
@@ -124,7 +149,96 @@ public final class ModMonsterGameTests {
             helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
             helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0);
             helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
+            helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
+            helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0);
+            Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
+            var replacement = helper.getLevel()
+                    .getEntitiesOfClass(
+                            com.pixulse.infx.entity.R196Zombie.class,
+                            new AABB(replacementPosition, replacementPosition).inflate(2.0D))
+                    .getFirst();
+            helper.assertTrue(
+                    replacement.getAttributeValue(Attributes.FOLLOW_RANGE) >= 90.0D,
+                    "replacement initialization must retain the R196 follow range");
+            helper.assertTrue(
+                    replacement.getAttributeValue(Attributes.ATTACK_DAMAGE) == 4.0D,
+                    "replacement initialization must retain the R196 attack damage");
         });
+    }
+
+    private static void spawnTables(GameTestHelper helper) {
+        var biomes = helper.getLevel().registryAccess().lookupOrThrow(Registries.BIOME);
+        MobSpawnSettings plains = biomes.getOrThrow(Biomes.PLAINS).value().getMobSettings();
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(plains, MobCategory.CREATURE)).equals(Set.of(
+                        EntityTypes.SHEEP,
+                        EntityTypes.PIG,
+                        EntityTypes.CHICKEN,
+                        EntityTypes.COW,
+                        EntityTypes.HORSE)),
+                "plains must use only the R196 livestock and horse table");
+        helper.assertTrue(
+                !spawnTypes(plains, MobCategory.MONSTER).contains(EntityTypes.DROWNED)
+                        && spawnTypes(plains, MobCategory.MONSTER).contains(ModEntityTypes.GHOUL.get()),
+                "Overworld monster tables must replace modern biome additions");
+
+        MobSpawnSettings mushroom = biomes.getOrThrow(Biomes.MUSHROOM_FIELDS).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(mushroom, MobCategory.MONSTER).isEmpty()
+                        && spawnTypes(mushroom, MobCategory.CREATURE).isEmpty()
+                        && spawnTypes(mushroom, MobCategory.WATER_CREATURE).isEmpty(),
+                "mushroom fields must remain free of monsters, animals and squid");
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(mushroom, MobCategory.AMBIENT)).equals(Set.of(
+                        EntityTypes.BAT,
+                        ModEntityTypes.VAMPIRE_BAT.get(),
+                        ModEntityTypes.NIGHTWING.get())),
+                "mushroom fields retain the inherited R196 cave-bat pool");
+
+        MobSpawnSettings jungle = biomes.getOrThrow(Biomes.JUNGLE).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(jungle, MobCategory.MONSTER).contains(ModEntityTypes.BLACK_WIDOW_SPIDER.get()),
+                "jungle biomes must include black widow spiders");
+        helper.assertTrue(
+                spawnTypes(jungle, MobCategory.CREATURE).stream().filter(type -> type == EntityTypes.CHICKEN).count() == 2,
+                "jungle biomes must retain the additional R196 chicken entry");
+
+        MobSpawnSettings jungleRiver = biomes.getOrThrow(R196RiverBiomes.JUNGLE_RIVER).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(jungleRiver, MobCategory.CREATURE).isEmpty()
+                        && !spawnTypes(jungleRiver, MobCategory.MONSTER)
+                                .contains(ModEntityTypes.BLACK_WIDOW_SPIDER.get()),
+                "jungle rivers must use river rather than jungle animal overrides");
+
+        MobSpawnSettings nether = biomes.getOrThrow(Biomes.NETHER_WASTES).value().getMobSettings();
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(nether, MobCategory.MONSTER)).equals(Set.of(
+                        EntityTypes.GHAST,
+                        EntityTypes.ZOMBIFIED_PIGLIN,
+                        EntityTypes.MAGMA_CUBE,
+                        ModEntityTypes.EARTH_ELEMENTAL.get()))
+                        && spawnTypes(nether, MobCategory.CREATURE).isEmpty(),
+                "Nether biomes must use the exact four-entry R196 pool");
+
+        MobSpawnSettings end = biomes.getOrThrow(Biomes.END_HIGHLANDS).value().getMobSettings();
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(end, MobCategory.MONSTER)).equals(Set.of(
+                        EntityTypes.ENDERMAN, ModEntityTypes.EARTH_ELEMENTAL.get())),
+                "End biomes must use only endermen and earth elementals");
+
+        MobSpawnSettings underworld = biomes.getOrThrow(Underworld.BIOME).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(underworld, MobCategory.WATER_CREATURE).equals(List.of(EntityTypes.SQUID))
+                        && spawnTypes(underworld, MobCategory.CREATURE).isEmpty(),
+                "Underworld must retain aquatic spawning without blue-moon livestock");
+        helper.succeed();
+    }
+
+    private static List<net.minecraft.world.entity.EntityType<?>> spawnTypes(
+            MobSpawnSettings settings, MobCategory category) {
+        return settings.getMobs(category).unwrap().stream()
+                .<net.minecraft.world.entity.EntityType<?>>map(entry -> entry.value().type())
+                .toList();
     }
 
     private static void behaviors(GameTestHelper helper) {
