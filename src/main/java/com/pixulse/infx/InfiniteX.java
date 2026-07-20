@@ -5,6 +5,7 @@ import com.pixulse.infx.data.ModDataGenerators;
 import com.pixulse.infx.furnace.FurnaceEvents;
 import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.crafting.TimedCraftingEvents;
+import com.pixulse.infx.crafting.VanillaCraftingRecipeRemoval;
 import com.pixulse.infx.gametest.ModEquipmentGameTests;
 import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.gametest.ModMonsterGameTests;
@@ -85,6 +86,7 @@ public final class InfiniteX {
         FurnaceEvents.register(NeoForge.EVENT_BUS);
         HarvestEvents.register(NeoForge.EVENT_BUS);
         TimedCraftingEvents.register(NeoForge.EVENT_BUS);
+        VanillaCraftingRecipeRemoval.register(NeoForge.EVENT_BUS);
         ProgressionEvents.register(NeoForge.EVENT_BUS);
         R196EquipmentBehaviors.register(modBus);
         R196EnchantmentEvents.register(NeoForge.EVENT_BUS);
