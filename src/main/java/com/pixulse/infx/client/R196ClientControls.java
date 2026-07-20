@@ -2,6 +2,7 @@ package com.pixulse.infx.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.InfiniteXTestMode;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.components.debug.DebugScreenEntries;
 import net.minecraft.client.gui.components.debug.DebugScreenEntryStatus;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
@@ -26,7 +28,7 @@ import com.pixulse.infx.survival.R196SurvivalRules;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import org.lwjgl.glfw.GLFW;
 
-/** Six R196 controls plus the reduced debug, sleep and scaled-food interfaces. */
+/** Six R196 controls plus the debug-profile, sleep and scaled-food interfaces. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class R196ClientControls {
     public static final KeyMapping.Category CATEGORY = new KeyMapping.Category(InfiniteX.id("controls"));
@@ -41,7 +43,7 @@ public final class R196ClientControls {
     private static boolean smartPickup;
     private static boolean smartUse;
     private static boolean releaseUseNextTick;
-    private static boolean debugTrimmed;
+    private static boolean debugConfigured;
 
     private R196ClientControls() {}
 
@@ -64,7 +66,7 @@ public final class R196ClientControls {
     private static void clientTick(ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) return;
-        trimDebugOverlay(minecraft);
+        configureDebugOverlay(minecraft);
         if (releaseUseNextTick) {
             minecraft.options.keyUse.setDown(false);
             releaseUseNextTick = false;
@@ -130,15 +132,21 @@ public final class R196ClientControls {
         }
     }
 
-    private static void trimDebugOverlay(Minecraft minecraft) {
-        if (debugTrimmed) return;
+    private static void configureDebugOverlay(Minecraft minecraft) {
+        if (debugConfigured) return;
+        boolean testMode = InfiniteXTestMode.isEnabled();
         for (var id : DebugScreenEntries.allEntries().keySet()) {
-            DebugScreenEntryStatus status = id.equals(DebugScreenEntries.FPS)
-                    ? DebugScreenEntryStatus.IN_OVERLAY
-                    : DebugScreenEntryStatus.NEVER;
+            DebugScreenEntryStatus status = debugStatus(testMode, id);
             if (minecraft.debugEntries.getStatus(id) != status) minecraft.debugEntries.setStatus(id, status);
         }
-        debugTrimmed = true;
+        debugConfigured = true;
+    }
+
+    static DebugScreenEntryStatus debugStatus(boolean testMode, Identifier id) {
+        if (testMode) return DebugScreenEntryStatus.IN_OVERLAY;
+        return id.equals(DebugScreenEntries.FPS)
+                ? DebugScreenEntryStatus.IN_OVERLAY
+                : DebugScreenEntryStatus.NEVER;
     }
 
     private static void overlay(Minecraft minecraft, String key, boolean enabled) {

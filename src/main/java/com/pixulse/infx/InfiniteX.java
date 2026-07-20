@@ -109,7 +109,7 @@ public final class InfiniteX {
         R196AchievementEvents.register(NeoForge.EVENT_BUS);
         R196ServerRules.register(NeoForge.EVENT_BUS);
         if (InfiniteXTestMode.isEnabled()) {
-            LOGGER.warn("InfiniteX test mode is active; world profile restrictions are disabled");
+            LOGGER.warn("InfiniteX test mode is active; world profile, reach, and debug restrictions are disabled");
         } else {
             R196CreativeRestriction.register(NeoForge.EVENT_BUS);
             ExtremeDifficulty.register(NeoForge.EVENT_BUS);

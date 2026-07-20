@@ -1,5 +1,6 @@
 package com.pixulse.infx.mixin;
 
+import com.pixulse.infx.InfiniteXTestMode;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class PlayerAttackRangeMixin {
     @Inject(method = "getAttackRangeWith", at = @At("HEAD"), cancellable = true)
     private void infx$emptyHandAttackRange(ItemStack stack, CallbackInfoReturnable<AttackRange> callback) {
-        if ((Object) this instanceof Player && !stack.has(DataComponents.ATTACK_RANGE)) {
+        if (!InfiniteXTestMode.isEnabled()
+                && (Object) this instanceof Player
+                && !stack.has(DataComponents.ATTACK_RANGE)) {
             callback.setReturnValue(new AttackRange(0.0F, 1.5F, 0.0F, 5.0F, 0.0F, 1.0F));
         }
     }
