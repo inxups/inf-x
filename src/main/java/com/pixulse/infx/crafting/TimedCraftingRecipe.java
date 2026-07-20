@@ -12,6 +12,16 @@ public interface TimedCraftingRecipe extends Recipe<CraftingInput> {
 
     float difficulty();
 
+    /** MITE hardness gate; generic recipes use the fixed 20% bench bonus. */
+    default boolean materialGated() {
+        return requiredBench().materialGatedTier();
+    }
+
+    /** Hook for runtime adapters whose difficulty depends on actual inputs. */
+    default float difficulty(CraftingInput input) {
+        return difficulty();
+    }
+
     CraftingRecipe delegate();
 
     default NonNullList<ItemStack> getRemainingItems(CraftingInput input) {

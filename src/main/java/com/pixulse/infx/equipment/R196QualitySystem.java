@@ -45,13 +45,22 @@ public final class R196QualitySystem {
     }
 
     public static int cycleCode(ItemStack output, Player player, float difficulty, int currentCode) {
+        return cycleCode(output, player, difficulty, currentCode, false);
+    }
+
+    public static int cycleCode(
+            ItemStack output,
+            Player player,
+            float difficulty,
+            int currentCode,
+            boolean clumsy) {
         R196EquipmentKey key = key(output);
         if (key == null) {
             return AVERAGE_CODE;
         }
         R196Quality current = fromCode(currentCode);
         R196Quality candidate = nextSelectableQuality(
-                current, key.material().maximumQuality(), player.totalExperience, difficulty);
+                current, key.material().maximumQuality(), player.totalExperience, difficulty, clumsy);
         return toCode(candidate);
     }
 
@@ -60,11 +69,20 @@ public final class R196QualitySystem {
             R196Quality maximum,
             int totalExperience,
             float difficulty) {
+        return nextSelectableQuality(current, maximum, totalExperience, difficulty, false);
+    }
+
+    static R196Quality nextSelectableQuality(
+            R196Quality current,
+            R196Quality maximum,
+            int totalExperience,
+            float difficulty,
+            boolean clumsy) {
         int start = current == null ? 0 : QUALITY_CYCLE.indexOf(current) + 1;
         for (int index = Math.max(0, start); index < QUALITY_CYCLE.size(); index++) {
             R196Quality candidate = QUALITY_CYCLE.get(index);
             if (candidate.isAtMost(maximum)
-                    && totalExperience >= experienceCost(difficulty, candidate)) {
+                    && totalExperience >= experienceCost(difficulty, candidate, clumsy)) {
                 return candidate;
             }
         }
@@ -72,13 +90,22 @@ public final class R196QualitySystem {
     }
 
     public static int clampCode(ItemStack output, Player player, float difficulty, int requestedCode) {
+        return clampCode(output, player, difficulty, requestedCode, false);
+    }
+
+    public static int clampCode(
+            ItemStack output,
+            Player player,
+            float difficulty,
+            int requestedCode,
+            boolean clumsy) {
         R196EquipmentKey key = key(output);
         R196Quality requested = fromCode(requestedCode);
         if (key == null || requested == null) {
             return AVERAGE_CODE;
         }
         if (!requested.isAtMost(key.material().maximumQuality())
-                || player.totalExperience < experienceCost(difficulty, requested)) {
+                || player.totalExperience < experienceCost(difficulty, requested, clumsy)) {
             return AVERAGE_CODE;
         }
         return requestedCode;
@@ -93,10 +120,15 @@ public final class R196QualitySystem {
     }
 
     public static int experienceCost(float difficulty, R196Quality quality) {
+        return experienceCost(difficulty, quality, false);
+    }
+
+    public static int experienceCost(float difficulty, R196Quality quality, boolean clumsy) {
         if (quality == null || quality == R196Quality.WRETCHED || quality == R196Quality.POOR) {
             return 0;
         }
-        return Math.round(adjustedDifficulty(difficulty, toCode(quality)) / 5.0F);
+        int cost = Math.round(adjustedDifficulty(difficulty, toCode(quality)) / 5.0F);
+        return clumsy ? Math.multiplyExact(cost, 2) : cost;
     }
 
     public static int applySelectedQuality(ItemStack stack, int qualityCode) {

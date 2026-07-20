@@ -27,6 +27,7 @@ class R196QualitySystemTest {
         assertEquals(40, R196QualitySystem.experienceCost(100.0F, R196Quality.FINE));
         assertEquals(80, R196QualitySystem.experienceCost(100.0F, R196Quality.EXCELLENT));
         assertEquals(640, R196QualitySystem.experienceCost(100.0F, R196Quality.LEGENDARY));
+        assertEquals(80, R196QualitySystem.experienceCost(100.0F, R196Quality.FINE, true));
     }
 
     @Test
@@ -42,5 +43,9 @@ class R196QualitySystemTest {
                 R196QualitySystem.nextSelectableQuality(R196Quality.WRETCHED, R196Quality.FINE, 0, 100.0F));
         assertNull(R196QualitySystem.nextSelectableQuality(
                 R196Quality.POOR, R196Quality.FINE, 0, 100.0F));
+        assertEquals(
+                R196Quality.WRETCHED,
+                R196QualitySystem.nextSelectableQuality(
+                        null, R196Quality.FINE, 40, 100.0F, true));
     }
 }
