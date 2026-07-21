@@ -76,6 +76,7 @@ final class ModModelProvider extends ModelProvider {
                         ModBlocks.ORES.stream().map(block -> (Block) block.value()),
                         ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.value()),
                         ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
+                        ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
                         ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
                         ModBlocks.R196_FLOWERS.stream().map(block -> (Block) block.value()),
                         ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()))
