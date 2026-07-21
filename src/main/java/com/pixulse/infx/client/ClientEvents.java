@@ -3,7 +3,6 @@ package com.pixulse.infx.client;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
-import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.registry.ModRecipes;
@@ -115,7 +114,6 @@ public final class ClientEvents {
                         ModelLayers.ZOMBIFIED_PIGLIN_BABY_ARMOR));
         event.registerEntityRenderer(ModEntityTypes.R196_BLAZE.get(), BlazeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_GHAST.get(), GhastRenderer::new);
-        event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
     }
 
     @SubscribeEvent
