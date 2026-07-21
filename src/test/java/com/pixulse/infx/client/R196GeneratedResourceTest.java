@@ -135,6 +135,26 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void metalSafeTemplateUsesModelSpaceUvs() throws Exception {
+        JsonObject template = json(STATIC.resolve("assets/infx/models/block/template_metal_safe.json"));
+        for (JsonElement element : template.getAsJsonArray("elements")) {
+            JsonObject faces = element.getAsJsonObject().getAsJsonObject("faces");
+            faces.entrySet().forEach(face -> {
+                JsonElement uvElement = face.getValue().getAsJsonObject().get("uv");
+                assertTrue(uvElement != null && uvElement.isJsonArray(), face.getKey() + " is missing UV coordinates");
+                if (uvElement == null || !uvElement.isJsonArray()) {
+                    return;
+                }
+                uvElement.getAsJsonArray().forEach(coordinate -> {
+                    double value = coordinate.getAsDouble();
+                    assertTrue(value >= 0.0 && value <= 16.0,
+                            face.getKey() + " UV must be in model space (0..16): " + value);
+                });
+            });
+        }
+    }
+
+    @Test
     void copperToIronProgressionDataIsComplete() throws Exception {
         for (String recipe : List.of("flint_shovel", "cobblestone_furnace", "iron_pickaxe")) {
             assertTrue(
