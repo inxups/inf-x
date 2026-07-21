@@ -11,7 +11,7 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-/** Hellhounds and Dire Wolves retain wolf taming while remaining dangerous when wild. */
+/** Dire wolves retain wolf taming, while hellhounds remain permanently wild and hostile. */
 public final class R196Wolf extends Wolf implements Enemy, R196Mob {
     public enum Variant {
         HELLHOUND,
@@ -26,12 +26,47 @@ public final class R196Wolf extends Wolf implements Enemy, R196Mob {
         return R196EntityVariant.path(this).equals("dire_wolf") ? Variant.DIRE_WOLF : Variant.HELLHOUND;
     }
 
+    static double maximumHealth(Variant variant, boolean tamed) {
+        if (variant == Variant.HELLHOUND) {
+            return 20.0;
+        }
+        return tamed ? 24.0 : 16.0;
+    }
+
+    static double followRange(Variant variant, boolean tamed) {
+        return variant == Variant.DIRE_WOLF && tamed ? 32.0 : 16.0;
+    }
+
     public static AttributeSupplier.Builder attributes(Variant variant) {
         return Wolf.createAttributes()
-                .add(Attributes.MAX_HEALTH, variant == Variant.HELLHOUND ? 20.0 : 16.0)
-                .add(Attributes.MOVEMENT_SPEED, variant == Variant.HELLHOUND ? 0.40 : 0.32)
+                .add(Attributes.MAX_HEALTH, maximumHealth(variant, false))
+                .add(Attributes.MOVEMENT_SPEED, 0.40)
                 .add(Attributes.ATTACK_DAMAGE, variant == Variant.HELLHOUND ? 4.0 : 5.0)
-                .add(Attributes.FOLLOW_RANGE, 40.0);
+                .add(Attributes.FOLLOW_RANGE, followRange(variant, false));
+    }
+
+    @Override
+    public void setTame(boolean tame, boolean applySideEffects) {
+        super.setTame(variant() == Variant.DIRE_WOLF && tame, applySideEffects);
+        if (variant() != Variant.DIRE_WOLF) {
+            return;
+        }
+
+        var health = getAttribute(Attributes.MAX_HEALTH);
+        var range = getAttribute(Attributes.FOLLOW_RANGE);
+        if (health == null || range == null) {
+            return;
+        }
+
+        double maximumHealth = maximumHealth(Variant.DIRE_WOLF, isTame());
+        double oldMaximumHealth = health.getBaseValue();
+        health.setBaseValue(maximumHealth);
+        range.setBaseValue(followRange(Variant.DIRE_WOLF, isTame()));
+        if (maximumHealth > oldMaximumHealth) {
+            setHealth(getHealth() + (float) (maximumHealth - oldMaximumHealth));
+        } else if (getHealth() > maximumHealth) {
+            setHealth((float) maximumHealth);
+        }
     }
 
     @Override

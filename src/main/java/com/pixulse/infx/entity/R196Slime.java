@@ -43,13 +43,20 @@ public final class R196Slime extends Slime implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes() {
-        return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, 32.0);
+        return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, 16.0);
+    }
+
+    static double attackDamageForSize(Variant variant, int size) {
+        return size * variant.damageMultiplier;
     }
 
     @Override
     public void setSize(int size, boolean updateHealth) {
+        if (variant() == Variant.OOZE) {
+            size = Math.min(size, 2);
+        }
         super.setSize(size, updateHealth);
-        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(size * variant().damageMultiplier);
+        getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(attackDamageForSize(variant(), getSize()));
     }
 
     @Override

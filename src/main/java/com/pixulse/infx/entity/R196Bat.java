@@ -39,7 +39,7 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
         return Bat.createAttributes()
                 .add(Attributes.MAX_HEALTH, giant ? 6.0 : 3.0)
                 .add(Attributes.ATTACK_DAMAGE, giant ? 2.0 : 1.0)
-                .add(Attributes.FOLLOW_RANGE, 32.0);
+                .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
     @Override

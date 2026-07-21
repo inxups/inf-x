@@ -63,9 +63,9 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
         return switch (variant) {
             case SKELETON -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
-                    .add(Attributes.FOLLOW_RANGE, 100.0)
+                    .add(Attributes.FOLLOW_RANGE, 32.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.30)
-                    .add(Attributes.ATTACK_DAMAGE, 3.0);
+                    .add(Attributes.ATTACK_DAMAGE, 4.0);
             case LONGDEAD -> builder
                     .add(Attributes.MAX_HEALTH, 12.0)
                     .add(Attributes.FOLLOW_RANGE, 40.0)
@@ -81,8 +81,7 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
                     .add(Attributes.MAX_HEALTH, 24.0)
                     .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.27)
-                    .add(Attributes.ATTACK_DAMAGE, 8.0)
-                    .add(Attributes.ARMOR, 2.0);
+                    .add(Attributes.ATTACK_DAMAGE, 8.0);
         };
     }
 

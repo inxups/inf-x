@@ -53,23 +53,23 @@ public final class R196Spider extends Spider implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        AttributeSupplier.Builder builder = Spider.createAttributes().add(Attributes.FOLLOW_RANGE, 40.0);
+        AttributeSupplier.Builder builder = Spider.createAttributes().add(Attributes.FOLLOW_RANGE, 28.0);
         return switch (variant) {
             case SPIDER -> builder
-                    .add(Attributes.MAX_HEALTH, 16.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.32)
-                    .add(Attributes.ATTACK_DAMAGE, 3.0);
-            case CAVE_SPIDER -> builder
                     .add(Attributes.MAX_HEALTH, 12.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.35)
-                    .add(Attributes.ATTACK_DAMAGE, 2.0);
+                    .add(Attributes.MOVEMENT_SPEED, 1.0)
+                    .add(Attributes.ATTACK_DAMAGE, 4.0);
+            case CAVE_SPIDER -> builder
+                    .add(Attributes.MAX_HEALTH, 16.0)
+                    .add(Attributes.MOVEMENT_SPEED, 1.0)
+                    .add(Attributes.ATTACK_DAMAGE, 4.0);
             case BLACK_WIDOW -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.80)
                     .add(Attributes.ATTACK_DAMAGE, 1.0);
             case DEMON -> builder
                     .add(Attributes.MAX_HEALTH, 18.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.35)
+                    .add(Attributes.MOVEMENT_SPEED, 1.0)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case WOOD -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)

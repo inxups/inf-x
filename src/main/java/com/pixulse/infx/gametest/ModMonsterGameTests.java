@@ -158,10 +158,10 @@ public final class ModMonsterGameTests {
                             new AABB(replacementPosition, replacementPosition).inflate(2.0D))
                     .getFirst();
             helper.assertTrue(
-                    replacement.getAttributeValue(Attributes.FOLLOW_RANGE) >= 90.0D,
+                    replacement.getAttributeValue(Attributes.FOLLOW_RANGE) == 40.0D,
                     "replacement initialization must retain the R196 follow range");
             helper.assertTrue(
-                    replacement.getAttributeValue(Attributes.ATTACK_DAMAGE) == 4.0D,
+                    replacement.getAttributeValue(Attributes.ATTACK_DAMAGE) == 5.0D,
                     "replacement initialization must retain the R196 attack damage");
         });
     }

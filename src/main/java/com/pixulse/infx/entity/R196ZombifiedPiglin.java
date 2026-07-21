@@ -16,8 +16,10 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
 
     public static AttributeSupplier.Builder attributes() {
         return ZombifiedPiglin.createAttributes()
-                .add(Attributes.FOLLOW_RANGE, 24.0)
-                .add(Attributes.ATTACK_DAMAGE, 5.0);
+                .add(Attributes.MAX_HEALTH, 20.0)
+                .add(Attributes.FOLLOW_RANGE, 40.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.50)
+                .add(Attributes.ATTACK_DAMAGE, 8.0);
     }
 
     @Override

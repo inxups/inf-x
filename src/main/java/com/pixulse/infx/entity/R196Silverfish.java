@@ -38,6 +38,7 @@ public final class R196Silverfish extends Silverfish implements R196Mob {
     public static AttributeSupplier.Builder attributes() {
         return Silverfish.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
+                .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.60)
                 .add(Attributes.ATTACK_DAMAGE, 3.0);
     }
