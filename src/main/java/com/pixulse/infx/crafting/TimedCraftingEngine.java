@@ -20,6 +20,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
+import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.equipment.R196QualitySystem;
 
 public final class TimedCraftingEngine {
@@ -30,6 +31,7 @@ public final class TimedCraftingEngine {
         Optional<CraftingMatch> match = findRecipe(timedMenu, player.level());
         if (match.isEmpty()) {
             timedMenu.infx$setHasTimedResult(false);
+            timedMenu.infx$setSelectedRune(0);
             timedMenu.infx$resetTimedCrafting();
             if (clearWhenMissing) {
                 setPreview(menu, player, timedMenu.infx$resultContainer(), null, ItemStack.EMPTY);
@@ -57,6 +59,7 @@ public final class TimedCraftingEngine {
                         CraftingEnvironment.hasClumsiness(player));
                 timedMenu.infx$setSelectedQualityCode(code);
                 R196QualitySystem.applySelectedQuality(assembled, code);
+                applySelectedRune(timedMenu, assembled);
                 preview = assembled;
             }
         }
@@ -90,14 +93,21 @@ public final class TimedCraftingEngine {
         timedMenu.infx$syncCraftingData();
     }
 
-    public static void cycleQuality(TimedCraftingMenu timedMenu, ServerPlayer player) {
+    public static void cycleResult(TimedCraftingMenu timedMenu, ServerPlayer player) {
         Optional<CraftingMatch> match = findRecipe(timedMenu, player.level());
         if (match.isEmpty()) {
             timedMenu.infx$setSelectedQualityCode(R196QualitySystem.AVERAGE_CODE);
+            timedMenu.infx$setSelectedRune(0);
             return;
         }
         CraftingMatch holder = match.orElseThrow();
         ItemStack output = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
+        if (RuneStoneBlock.isRuneStone(output)) {
+            timedMenu.infx$setSelectedRune(RuneStoneBlock.nextRune(timedMenu.infx$selectedRune()));
+            timedMenu.infx$resetTimedCrafting();
+            refreshResult(timedMenu, player, true);
+            return;
+        }
         int code = R196QualitySystem.cycleCode(
                 output,
                 player,
@@ -183,6 +193,7 @@ public final class TimedCraftingEngine {
                 timedMenu.infx$selectedQualityCode(),
                 clumsy);
         R196QualitySystem.applySelectedQuality(output, qualityCode);
+        applySelectedRune(timedMenu, output);
         var quality = R196QualitySystem.fromCode(qualityCode);
         int qualityCost = R196QualitySystem.experienceCost(holder.profile().difficulty(), quality, clumsy);
         if (qualityCost > player.totalExperience) {
@@ -274,6 +285,14 @@ public final class TimedCraftingEngine {
         menu.setRemoteSlot(0, preview);
         player.connection.send(new ClientboundContainerSetSlotPacket(
                 menu.containerId, menu.incrementStateId(), 0, preview));
+    }
+
+    private static void applySelectedRune(TimedCraftingMenu timedMenu, ItemStack stack) {
+        if (RuneStoneBlock.isRuneStone(stack)) {
+            RuneStoneBlock.applyRune(stack, timedMenu.infx$selectedRune());
+        } else {
+            timedMenu.infx$setSelectedRune(0);
+        }
     }
 
     private static AbstractContainerMenu asContainerMenu(TimedCraftingMenu menu) {

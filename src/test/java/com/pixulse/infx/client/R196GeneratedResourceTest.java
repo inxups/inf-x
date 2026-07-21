@@ -1396,6 +1396,59 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void runeStoneModelsLootAndPortalSurfaceCoverEveryR196Variant() throws Exception {
+        for (String material : List.of("mithril", "adamantium")) {
+            String block = material + "_rune_stone";
+            JsonObject blockState = json(GENERATED.resolve("assets/infx/blockstates/" + block + ".json"));
+            JsonObject variants = blockState.getAsJsonObject("variants");
+            JsonObject item = json(GENERATED.resolve("assets/infx/items/" + block + ".json"))
+                    .getAsJsonObject("model");
+            JsonObject loot = json(GENERATED.resolve("data/infx/loot_table/blocks/" + block + ".json"));
+
+            assertEquals(16, variants.size(), block + " block states");
+            assertEquals(16, item.getAsJsonArray("cases").size(), block + " item cases");
+            assertEquals("minecraft:block_state", item.get("property").getAsString());
+            assertEquals("rune", item.get("block_state_property").getAsString());
+            assertEquals("minecraft:copy_state", loot.getAsJsonArray("functions")
+                    .get(0)
+                    .getAsJsonObject()
+                    .get("function")
+                    .getAsString());
+            assertEquals("rune", loot.getAsJsonArray("functions")
+                    .get(0)
+                    .getAsJsonObject()
+                    .getAsJsonArray("properties")
+                    .get(0)
+                    .getAsString());
+
+            for (int rune = 0; rune < 16; rune++) {
+                assertTrue(variants.has("rune=" + rune), block + " rune=" + rune);
+                JsonObject model = json(GENERATED.resolve(
+                        "assets/infx/models/block/" + block + "_" + rune + ".json"));
+                JsonObject textures = model.getAsJsonObject("textures");
+                assertEquals("infx:block/runestones/" + material + "/" + rune,
+                        textures.get("side").getAsString());
+                assertEquals("minecraft:block/obsidian", textures.get("top").getAsString());
+                assertEquals("minecraft:block/obsidian", textures.get("bottom").getAsString());
+            }
+        }
+
+        JsonObject portal = json(GENERATED.resolve("assets/infx/blockstates/underworld_portal.json"))
+                .getAsJsonObject("variants");
+        assertEquals("infx:block/underworld_portal_runegate_ns",
+                portal.getAsJsonObject("axis=x,rune_gate=true").get("model").getAsString());
+        assertEquals("infx:block/underworld_portal_runegate_ew",
+                portal.getAsJsonObject("axis=z,rune_gate=true").get("model").getAsString());
+        for (String orientation : List.of("ns", "ew")) {
+            JsonObject textures = json(GENERATED.resolve(
+                            "assets/infx/models/block/underworld_portal_runegate_" + orientation + ".json"))
+                    .getAsJsonObject("textures");
+            assertEquals("infx:block/runegate", textures.get("portal").getAsString());
+            assertEquals("infx:block/runegate", textures.get("particle").getAsString());
+        }
+    }
+
+    @Test
     void advancementGraphMatchesAllSixtyTwoR196Nodes() throws Exception {
         Map<String, String> parents = Map.ofEntries(
                 Map.entry("stick_picker", "open_inventory"),
@@ -1643,6 +1696,10 @@ class R196GeneratedResourceTest {
                 "textures/block/anvil/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)/(base|top_damaged_[0-2])\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/safe/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/runestones/(mithril|adamantium)/(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.png")));
+        assertTrue(destinations.remove("textures/block/runegate.png"));
+        assertTrue(destinations.remove("textures/block/runegate.png.mcmeta"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/item/(flour|water_bowl|dough|salad|blueberries|blueberry_porridge|milk_bowl|cereal_porridge"
                         + "|chocolate|pumpkin_soup|cream_of_mushroom_soup|onion|vegetable_soup"
