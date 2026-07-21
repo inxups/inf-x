@@ -227,8 +227,17 @@ public record R196SurvivalData(
         return protein <= 0 || phytonutrients <= 0;
     }
 
+    /**
+     * R196 permits exhaustive movement while either Satiation or Nutrition still has energy.
+     * The modern vanilla sprint gate only sees a fixed FoodData threshold, so this is the
+     * authoritative check for the two independent R196 energy layers.
+     */
+    public boolean hasFoodEnergy() {
+        return satiation > 0.0001D || nutrition > 0.0001D;
+    }
+
     public boolean isEnergyEmpty() {
-        return satiation <= 0.0001D && nutrition <= 0.0001D;
+        return !hasFoodEnergy();
     }
 
     public boolean isStarving() {

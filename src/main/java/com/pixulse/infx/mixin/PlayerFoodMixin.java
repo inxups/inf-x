@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** The modern FoodData hard-codes 20 and cannot express R196's level-scaled food cap. */
+/** Bridges vanilla FoodData gates to R196's independent energy layers and level-scaled cap. */
 @Mixin(Player.class)
 abstract class PlayerFoodMixin {
     @Inject(method = "canEat", at = @At("HEAD"), cancellable = true)
@@ -17,5 +17,13 @@ abstract class PlayerFoodMixin {
         var survival = player.getData(ModAttachments.SURVIVAL);
         double cap = R196SurvivalRules.foodCap(player.experienceLevel);
         callback.setReturnValue(ignoreHunger || survival.satiation() < cap || survival.nutrition() < cap);
+    }
+
+    /** MITE allows sprinting while either Satiation or Nutrition remains above zero. */
+    @Inject(method = "hasEnoughFoodToDoExhaustiveManoeuvres", at = @At("HEAD"), cancellable = true)
+    private void infx$useR196EnergyForExhaustiveManoeuvres(CallbackInfoReturnable<Boolean> callback) {
+        Player player = (Player) (Object) this;
+        callback.setReturnValue(
+                player.getAbilities().mayfly || player.getData(ModAttachments.SURVIVAL).hasFoodEnergy());
     }
 }
