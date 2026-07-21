@@ -135,26 +135,6 @@ class R196GeneratedResourceTest {
     }
 
     @Test
-    void metalSafeTemplateUsesModelSpaceUvs() throws Exception {
-        JsonObject template = json(STATIC.resolve("assets/infx/models/block/template_metal_safe.json"));
-        for (JsonElement element : template.getAsJsonArray("elements")) {
-            JsonObject faces = element.getAsJsonObject().getAsJsonObject("faces");
-            faces.entrySet().forEach(face -> {
-                JsonElement uvElement = face.getValue().getAsJsonObject().get("uv");
-                assertTrue(uvElement != null && uvElement.isJsonArray(), face.getKey() + " is missing UV coordinates");
-                if (uvElement == null || !uvElement.isJsonArray()) {
-                    return;
-                }
-                uvElement.getAsJsonArray().forEach(coordinate -> {
-                    double value = coordinate.getAsDouble();
-                    assertTrue(value >= 0.0 && value <= 16.0,
-                            face.getKey() + " UV must be in model space (0..16): " + value);
-                });
-            });
-        }
-    }
-
-    @Test
     void copperToIronProgressionDataIsComplete() throws Exception {
         for (String recipe : List.of("flint_shovel", "cobblestone_furnace", "iron_pickaxe")) {
             assertTrue(
@@ -1334,7 +1314,7 @@ class R196GeneratedResourceTest {
     @Test
     void generatedCountsAreExact() throws Exception {
         assertEquals(339, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(408, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(415, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -1642,7 +1622,7 @@ class R196GeneratedResourceTest {
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/anvil/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)/(base|top_damaged_[0-2])\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
-                "textures/block/safe/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)\\.png")));
+                "textures/entity/chest/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/item/(flour|water_bowl|dough|salad|blueberries|blueberry_porridge|milk_bowl|cereal_porridge"
                         + "|chocolate|pumpkin_soup|cream_of_mushroom_soup|onion|vegetable_soup"
@@ -1656,13 +1636,24 @@ class R196GeneratedResourceTest {
     @Test
     void safeAndFoodModelsReferenceTheirImportedMiteTextures() throws Exception {
         for (String material : List.of("copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium")) {
-            JsonObject model = json(GENERATED.resolve("assets/infx/models/block/" + material + "_safe.json"));
+            JsonObject blockState = json(GENERATED.resolve("assets/infx/blockstates/" + material + "_safe.json"));
+            JsonObject blockModel = json(GENERATED.resolve("assets/infx/models/block/" + material + "_safe.json"));
+            JsonObject definition = json(GENERATED.resolve("assets/infx/items/" + material + "_safe.json"));
+            JsonObject special = definition.getAsJsonObject("model");
+            JsonObject specialModel = special.getAsJsonObject("model");
+            JsonObject itemBase = json(GENERATED.resolve("assets/infx/models/item/" + material + "_safe.json"));
             assertAll(
                     material + " safe",
-                    () -> assertEquals("infx:block/template_metal_safe", model.get("parent").getAsString()),
+                    () -> assertEquals("minecraft:special", special.get("type").getAsString()),
                     () -> assertEquals(
-                            "infx:block/safe/" + material,
-                            model.getAsJsonObject("textures").get("texture").getAsString()));
+                            "minecraft:chest", specialModel.get("type").getAsString()),
+                    () -> assertEquals("infx:" + material, specialModel.get("texture").getAsString()),
+                    () -> assertFalse(specialModel.has("chest_type"), "safes must always use the single chest model"),
+                    () -> assertEquals(Set.of(""), blockState.getAsJsonObject("variants").keySet()),
+                    () -> assertEquals("minecraft:item/template_chest", itemBase.get("parent").getAsString()),
+                    () -> assertTrue(blockModel.getAsJsonObject("textures").has("particle")),
+                    () -> assertTrue(Files.isRegularFile(
+                            STATIC.resolve("assets/infx/textures/entity/chest/" + material + ".png"))));
         }
         for (String food : List.of(
                 "flour",
