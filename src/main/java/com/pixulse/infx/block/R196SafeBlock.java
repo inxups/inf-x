@@ -2,7 +2,6 @@ package com.pixulse.infx.block;
 
 import com.pixulse.infx.block.entity.R196SafeBlockEntity;
 import com.pixulse.infx.material.R196Material;
-import com.pixulse.infx.registry.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -14,8 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -76,12 +73,4 @@ public final class R196SafeBlock extends BarrelBlock {
         }
     }
 
-    @Override
-    public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
-            Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide()
-                ? createTickerHelper(
-                        type, ModBlockEntityTypes.SAFE.get(), R196SafeBlockEntity::lidAnimateTick)
-                : null;
-    }
 }

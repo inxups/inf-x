@@ -63,13 +63,13 @@ class R196TextureProvenanceTest {
                 .map(line -> line.split("\\t", -1))
                 .collect(Collectors.toMap(fields -> fields[2], fields -> fields[1]));
         Map<String, String> expected = Map.ofEntries(
-                Map.entry("textures/entity/chest/copper.png", "entity/chest/copper_single.png"),
-                Map.entry("textures/entity/chest/silver.png", "entity/chest/silver_single.png"),
-                Map.entry("textures/entity/chest/gold.png", "entity/chest/gold_single.png"),
-                Map.entry("textures/entity/chest/iron.png", "entity/chest/iron_single.png"),
-                Map.entry("textures/entity/chest/ancient_metal.png", "entity/chest/ancient_metal_single.png"),
-                Map.entry("textures/entity/chest/mithril.png", "entity/chest/mithril_single.png"),
-                Map.entry("textures/entity/chest/adamantium.png", "entity/chest/adamantium_single.png"),
+                Map.entry("textures/block/safe/copper.png", "entity/chest/copper_single.png"),
+                Map.entry("textures/block/safe/silver.png", "entity/chest/silver_single.png"),
+                Map.entry("textures/block/safe/gold.png", "entity/chest/gold_single.png"),
+                Map.entry("textures/block/safe/iron.png", "entity/chest/iron_single.png"),
+                Map.entry("textures/block/safe/ancient_metal.png", "entity/chest/ancient_metal_single.png"),
+                Map.entry("textures/block/safe/mithril.png", "entity/chest/mithril_single.png"),
+                Map.entry("textures/block/safe/adamantium.png", "entity/chest/adamantium_single.png"),
                 Map.entry("textures/item/flour.png", "items/food/flour.png"),
                 Map.entry("textures/item/water_bowl.png", "items/bowls/bowl_water.png"),
                 Map.entry("textures/item/dough.png", "items/food/dough.png"),

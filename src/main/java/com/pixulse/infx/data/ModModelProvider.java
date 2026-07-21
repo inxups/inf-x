@@ -31,7 +31,6 @@ import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
-import net.minecraft.client.renderer.special.ChestSpecialRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Direction;
@@ -41,6 +40,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 final class ModModelProvider extends ModelProvider {
@@ -50,6 +50,21 @@ final class ModModelProvider extends ModelProvider {
             Optional.empty(),
             TextureSlot.TOP,
             ANVIL_BODY);
+    private static final ModelTemplate METAL_SAFE_MODEL = new ModelTemplate(
+            Optional.of(InfiniteX.id("block/template_metal_safe")), Optional.empty(), TextureSlot.TEXTURE);
+    private static final PropertyDispatch<net.minecraft.client.renderer.block.dispatch.VariantMutator> SAFE_FACING =
+            PropertyDispatch.modify(BarrelBlock.FACING)
+                    .select(Direction.DOWN, BlockModelGenerators.NOP)
+                    .select(Direction.UP, BlockModelGenerators.NOP)
+                    .select(Direction.NORTH, BlockModelGenerators.Y_ROT_180)
+                    .select(Direction.SOUTH, BlockModelGenerators.NOP)
+                    .select(Direction.WEST, BlockModelGenerators.Y_ROT_90)
+                    .select(Direction.EAST, BlockModelGenerators.Y_ROT_270);
+    private static final PropertyDispatch<net.minecraft.client.renderer.block.dispatch.VariantMutator> SAFE_OPEN =
+            PropertyDispatch.modify(BarrelBlock.OPEN)
+                    .select(false, BlockModelGenerators.NOP)
+                    .select(true, BlockModelGenerators.NOP);
+
     ModModelProvider(PackOutput output) {
         super(output, InfiniteX.MOD_ID);
     }
@@ -211,32 +226,17 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateMetalSafe(BlockModelGenerators models, R196SafeBlock safe) {
-        Material particle = new Material(safeParticleTexture(safe.material()));
-        Identifier blockModel = ModelTemplates.PARTICLE_ONLY.create(
-                safe, TextureMapping.particle(particle), models.modelOutput);
+        Identifier model = METAL_SAFE_MODEL.create(
+                safe,
+                TextureMapping.singleSlot(
+                        TextureSlot.TEXTURE,
+                        new Material(InfiniteX.id("block/safe/" + safe.material().path()))),
+                models.modelOutput);
         models.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(safe, BlockModelGenerators.plainVariant(blockModel)));
-
-        Identifier itemModelBase = ModelTemplates.CHEST_INVENTORY.create(
-                safe.asItem(), TextureMapping.particle(particle), models.modelOutput);
-        models.itemModelOutput.accept(
-                safe.asItem(),
-                ItemModelUtils.specialModel(
-                        itemModelBase,
-                        new ChestSpecialRenderer.Unbaked(InfiniteX.id(safe.material().path()))));
-    }
-
-    private static Identifier safeParticleTexture(R196Material material) {
-        return switch (material) {
-            case COPPER -> Identifier.withDefaultNamespace("block/copper_block");
-            case GOLD -> Identifier.withDefaultNamespace("block/gold_block");
-            case IRON -> Identifier.withDefaultNamespace("block/iron_block");
-            case SILVER -> InfiniteX.id("block/silver_block");
-            case ANCIENT_METAL -> InfiniteX.id("block/ancient_metal_block");
-            case MITHRIL -> InfiniteX.id("block/mithril_block");
-            case ADAMANTIUM -> InfiniteX.id("block/adamantium_block");
-            default -> throw new IllegalArgumentException("No safe particle texture for " + material);
-        };
+                MultiVariantGenerator.dispatch(safe, BlockModelGenerators.plainVariant(model))
+                        .with(SAFE_FACING)
+                        .with(SAFE_OPEN));
+        models.registerSimpleItemModel(safe, model);
     }
 
     private static void generateLargeClayOven(BlockModelGenerators models) {
