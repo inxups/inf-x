@@ -5,6 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.world.R196MoonPhase;
+import java.util.List;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.pathfinder.Node;
+import net.minecraft.world.level.pathfinder.Path;
 import org.junit.jupiter.api.Test;
 
 class R196LivestockRulesTest {
@@ -40,5 +44,14 @@ class R196LivestockRulesTest {
         assertFalse(R196AnimalEvents.shouldDelayEgg(false, false, false, 1));
         assertFalse(R196AnimalEvents.shouldDelayEgg(true, true, false, 1));
         assertFalse(R196AnimalEvents.shouldDelayEgg(true, false, false, 2));
+    }
+
+    @Test
+    void waterGoalRejectsEmptyPartialPaths() {
+        Path empty = new Path(List.of(), BlockPos.ZERO, false);
+        Path partial = new Path(List.of(new Node(0, 0, 0)), BlockPos.ZERO, false);
+
+        assertFalse(R196Livestock.NeedsGoal.hasNavigableNodes(empty));
+        assertTrue(R196Livestock.NeedsGoal.hasNavigableNodes(partial));
     }
 }
