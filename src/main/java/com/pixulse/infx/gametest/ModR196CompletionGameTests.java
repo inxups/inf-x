@@ -1005,10 +1005,10 @@ public final class ModR196CompletionGameTests {
                 ModCreativeTabs.FOOD_AND_CONSUMABLES.get(),
                 ModCreativeTabs.TOOLS_AND_UTILITIES.get(),
                 ModCreativeTabs.COMBAT_AND_EQUIPMENT.get());
-        List<Integer> expectedSizes = List.of(50, 31, 24, 135, 108);
+        List<Integer> expectedSizes = List.of(80, 31, 24, 135, 108);
         CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(
                 helper.getLevel().enabledFeatures(), true, helper.getLevel().registryAccess());
-        List<Item> displayed = new ArrayList<>();
+        List<ItemStack> displayed = new ArrayList<>();
 
         for (int index = 0; index < tabs.size(); index++) {
             CreativeModeTab tab = tabs.get(index);
@@ -1019,15 +1019,33 @@ public final class ModR196CompletionGameTests {
             helper.assertTrue(
                     tab.getDisplayItems().size() == tab.getSearchTabDisplayItems().size(),
                     "every creative item is also visible in global search");
-            tab.getDisplayItems().stream().map(ItemStack::getItem).forEach(displayed::add);
+            tab.getDisplayItems().forEach(stack -> displayed.add(stack.copy()));
         }
 
         Set<Item> registered = new HashSet<>();
         ModItems.ITEMS.getEntries().forEach(item -> registered.add(item.value()));
-        Set<Item> uniqueDisplayed = new HashSet<>(displayed);
-        helper.assertTrue(displayed.size() == registered.size(), "all registered items are displayed");
-        helper.assertTrue(uniqueDisplayed.size() == displayed.size(), "creative categories do not overlap");
+        Set<Item> uniqueDisplayed = new HashSet<>();
+        displayed.forEach(stack -> uniqueDisplayed.add(stack.getItem()));
         helper.assertTrue(uniqueDisplayed.equals(registered), "creative categories exactly cover the item registry");
+        long expectedDisplayCount = registered.stream()
+                .mapToLong(item -> RuneStoneBlock.isRuneStone(item.getDefaultInstance())
+                        ? RuneStoneBlock.RUNE_COUNT
+                        : 1)
+                .sum();
+        helper.assertTrue(
+                displayed.size() == expectedDisplayCount,
+                "all registered items are displayed once, with every rune stone variant");
+        helper.assertTrue(
+                registered.stream().allMatch(item -> {
+                    List<ItemStack> itemStacks = displayed.stream().filter(stack -> stack.is(item)).toList();
+                    if (!RuneStoneBlock.isRuneStone(item.getDefaultInstance())) {
+                        return itemStacks.size() == 1;
+                    }
+                    return itemStacks.size() == RuneStoneBlock.RUNE_COUNT
+                            && itemStacks.stream().map(RuneStoneBlock::rune).distinct().count()
+                                    == RuneStoneBlock.RUNE_COUNT;
+                }),
+                "creative categories do not duplicate regular items and include every rune variant");
         helper.assertTrue(
                 tabs.getFirst().getDisplayItems().stream().allMatch(stack -> stack.getItem() instanceof BlockItem),
                 "the blocks tab only contains registered BlockItems");
