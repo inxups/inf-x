@@ -643,6 +643,16 @@ public final class ModR196CompletionGameTests {
                 player.getFoodData().getFoodLevel() == 2
                         && Math.abs(player.getFoodData().getSaturationLevel() - 8.0F) < 0.001F,
                 "vanilla FoodData tick must not mutate R196 energy layers");
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(0.5, 0, 1, 1, 1, 0, 0));
+        player.setSprinting(true);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        helper.assertTrue(
+                player.getData(ModAttachments.SURVIVAL).hasFoodEnergy() && player.isSprinting(),
+                "remaining Satiation must permit sprinting below vanilla's food threshold");
+        player.setData(ModAttachments.SURVIVAL, new R196SurvivalData(0, 0, 1, 1, 1, 0, 0));
+        player.setSprinting(true);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        helper.assertFalse(player.isSprinting(), "empty R196 energy must stop sprinting");
         removePlayer(player);
         helper.succeed();
     }

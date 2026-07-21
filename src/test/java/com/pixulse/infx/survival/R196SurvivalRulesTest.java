@@ -55,6 +55,18 @@ class R196SurvivalRulesTest {
     }
 
     @Test
+    void anyRemainingR196EnergyPermitsExhaustiveMovement() {
+        assertTrue(new R196SurvivalData(0.1, 0, 1, 1, 1, 0, 0).hasFoodEnergy(),
+                "remaining Satiation must permit sprinting");
+        assertTrue(new R196SurvivalData(0, 0.1, 1, 1, 1, 0, 0).hasFoodEnergy(),
+                "remaining Nutrition must permit sprinting");
+        assertFalse(new R196SurvivalData(0, 0, 1, 1, 1, 0, 0).hasFoodEnergy(),
+                "empty Satiation and Nutrition must stop sprinting");
+        assertFalse(new R196SurvivalData(0.0001, 0, 1, 1, 1, 0, 0).hasFoodEnergy(),
+                "sub-unit rounding noise must not re-enable sprinting");
+    }
+
+    @Test
     void baselineAndStatusCostsMatchR196FoodUnits() {
         assertEquals(0.0005D, R196SurvivalRules.baselineMetabolism(false, false, false), 1.0E-9D);
         assertEquals(0.001D, R196SurvivalRules.baselineMetabolism(true, true, true), 1.0E-9D);
