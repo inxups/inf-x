@@ -1621,9 +1621,60 @@ class R196GeneratedResourceTest {
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/anvil/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)/(base|top_damaged_[0-2])\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/safe/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/item/(flour|water_bowl|dough|salad|blueberries|blueberry_porridge|milk_bowl|cereal_porridge"
+                        + "|chocolate|pumpkin_soup|cream_of_mushroom_soup|onion|vegetable_soup"
+                        + "|cream_of_vegetable_soup|chicken_soup|beef_stew|orange|fruit_ice|cheese"
+                        + "|mashed_potato|ice_cream|banana|worm|cooked_worm)\\.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));
+    }
+
+    @Test
+    void safeAndFoodModelsReferenceTheirImportedMiteTextures() throws Exception {
+        for (String material : List.of("copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium")) {
+            JsonObject model = json(GENERATED.resolve("assets/infx/models/block/" + material + "_safe.json"));
+            assertAll(
+                    material + " safe",
+                    () -> assertEquals("infx:block/template_metal_safe", model.get("parent").getAsString()),
+                    () -> assertEquals(
+                            "infx:block/safe/" + material,
+                            model.getAsJsonObject("textures").get("texture").getAsString()));
+        }
+        for (String food : List.of(
+                "flour",
+                "water_bowl",
+                "dough",
+                "salad",
+                "blueberries",
+                "blueberry_porridge",
+                "milk_bowl",
+                "cereal_porridge",
+                "chocolate",
+                "pumpkin_soup",
+                "cream_of_mushroom_soup",
+                "onion",
+                "vegetable_soup",
+                "cream_of_vegetable_soup",
+                "chicken_soup",
+                "beef_stew",
+                "orange",
+                "fruit_ice",
+                "cheese",
+                "mashed_potato",
+                "ice_cream",
+                "banana",
+                "worm",
+                "cooked_worm")) {
+            JsonObject model = json(GENERATED.resolve("assets/infx/models/item/" + food + ".json"));
+            assertEquals(
+                    "infx:item/" + food,
+                    model.getAsJsonObject("textures").get("layer0").getAsString(),
+                    food);
+        }
     }
 
     @Test

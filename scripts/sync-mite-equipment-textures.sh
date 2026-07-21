@@ -67,6 +67,12 @@ for material in copper silver gold iron ancient_metal mithril adamantium; do
   done
 done
 
+# MITE stores each metal safe as a chest texture sheet.  The block model maps
+# the sheet's original 64x64 UV layout, so retain the complete source image.
+for material in copper silver gold iron ancient_metal mithril adamantium; do
+  sync resource-pack "entity/chest/${material}_single.png" "block/safe/${material}.png"
+done
+
 for material in copper silver gold rusted_iron iron ancient_metal mithril adamantium; do
   sync resource-pack "items/chains/$material.png" "item/${material}_chain.png"
 done
@@ -241,8 +247,35 @@ for furnace in clay hardened_clay sandstone obsidian netherrack; do
     "block/${furnace}_furnace_top.png"
 done
 
+# Keep every custom R196 food item on its matching authorized MITE icon rather
+# than borrowing a visually similar vanilla item.
+sync resource-pack items/food/flour.png item/flour.png
+sync resource-pack items/bowls/bowl_water.png item/water_bowl.png
+sync resource-pack items/food/dough.png item/dough.png
+sync resource-pack items/bowls/bowl_salad.png item/salad.png
+sync resource-pack items/food/blueberries.png item/blueberries.png
+sync resource-pack items/bowls/porridge.png item/blueberry_porridge.png
+sync resource-pack items/bowls/bowl_milk.png item/milk_bowl.png
+sync resource-pack items/bowls/cereal.png item/cereal_porridge.png
+sync resource-pack items/food/chocolate.png item/chocolate.png
+sync resource-pack items/bowls/pumpkin_soup.png item/pumpkin_soup.png
+sync resource-pack items/bowls/cream_of_mushroom_soup.png item/cream_of_mushroom_soup.png
+sync resource-pack items/food/onion.png item/onion.png
+sync resource-pack items/bowls/vegetable_soup.png item/vegetable_soup.png
+sync resource-pack items/bowls/cream_of_vegetable_soup.png item/cream_of_vegetable_soup.png
+sync resource-pack items/bowls/chicken_soup.png item/chicken_soup.png
+sync resource-pack items/bowls/beef_stew.png item/beef_stew.png
+sync resource-pack items/food/orange.png item/orange.png
+sync resource-pack items/bowls/sorbet.png item/fruit_ice.png
+sync resource-pack items/food/cheese.png item/cheese.png
+sync resource-pack items/bowls/mashed_potato.png item/mashed_potato.png
+sync resource-pack items/bowls/ice_cream.png item/ice_cream.png
+sync resource-pack items/food/banana.png item/banana.png
+sync resource-pack items/food/worm_raw.png item/worm.png
+sync resource-pack items/food/worm_cooked.png item/cooked_worm.png
+
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 461 ]] || { echo "Expected 461 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 492 ]] || { echo "Expected 492 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

@@ -14,7 +14,9 @@ import java.security.MessageDigest;
 import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
 
@@ -38,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(462, lines.size(), "header plus 461 selected destinations");
+        assertEquals(493, lines.size(), "header plus 492 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -52,6 +54,48 @@ class R196TextureProvenanceTest {
             assertNotNull(image, fields[2]);
             assertTrue(image.getWidth() > 0 && image.getHeight() > 0, fields[2]);
         }
+    }
+
+    @Test
+    void safeAndFoodDestinationsUseTheirExplicitMiteTextures() throws Exception {
+        Map<String, String> sourcesByDestination = Files.readAllLines(MANIFEST, UTF_8).stream()
+                .skip(1)
+                .map(line -> line.split("\\t", -1))
+                .collect(Collectors.toMap(fields -> fields[2], fields -> fields[1]));
+        Map<String, String> expected = Map.ofEntries(
+                Map.entry("textures/block/safe/copper.png", "entity/chest/copper_single.png"),
+                Map.entry("textures/block/safe/silver.png", "entity/chest/silver_single.png"),
+                Map.entry("textures/block/safe/gold.png", "entity/chest/gold_single.png"),
+                Map.entry("textures/block/safe/iron.png", "entity/chest/iron_single.png"),
+                Map.entry("textures/block/safe/ancient_metal.png", "entity/chest/ancient_metal_single.png"),
+                Map.entry("textures/block/safe/mithril.png", "entity/chest/mithril_single.png"),
+                Map.entry("textures/block/safe/adamantium.png", "entity/chest/adamantium_single.png"),
+                Map.entry("textures/item/flour.png", "items/food/flour.png"),
+                Map.entry("textures/item/water_bowl.png", "items/bowls/bowl_water.png"),
+                Map.entry("textures/item/dough.png", "items/food/dough.png"),
+                Map.entry("textures/item/salad.png", "items/bowls/bowl_salad.png"),
+                Map.entry("textures/item/blueberries.png", "items/food/blueberries.png"),
+                Map.entry("textures/item/blueberry_porridge.png", "items/bowls/porridge.png"),
+                Map.entry("textures/item/milk_bowl.png", "items/bowls/bowl_milk.png"),
+                Map.entry("textures/item/cereal_porridge.png", "items/bowls/cereal.png"),
+                Map.entry("textures/item/chocolate.png", "items/food/chocolate.png"),
+                Map.entry("textures/item/pumpkin_soup.png", "items/bowls/pumpkin_soup.png"),
+                Map.entry("textures/item/cream_of_mushroom_soup.png", "items/bowls/cream_of_mushroom_soup.png"),
+                Map.entry("textures/item/onion.png", "items/food/onion.png"),
+                Map.entry("textures/item/vegetable_soup.png", "items/bowls/vegetable_soup.png"),
+                Map.entry("textures/item/cream_of_vegetable_soup.png", "items/bowls/cream_of_vegetable_soup.png"),
+                Map.entry("textures/item/chicken_soup.png", "items/bowls/chicken_soup.png"),
+                Map.entry("textures/item/beef_stew.png", "items/bowls/beef_stew.png"),
+                Map.entry("textures/item/orange.png", "items/food/orange.png"),
+                Map.entry("textures/item/fruit_ice.png", "items/bowls/sorbet.png"),
+                Map.entry("textures/item/cheese.png", "items/food/cheese.png"),
+                Map.entry("textures/item/mashed_potato.png", "items/bowls/mashed_potato.png"),
+                Map.entry("textures/item/ice_cream.png", "items/bowls/ice_cream.png"),
+                Map.entry("textures/item/banana.png", "items/food/banana.png"),
+                Map.entry("textures/item/worm.png", "items/food/worm_raw.png"),
+                Map.entry("textures/item/cooked_worm.png", "items/food/worm_cooked.png"));
+        assertEquals(expected, expected.keySet().stream()
+                .collect(Collectors.toMap(destination -> destination, sourcesByDestination::get)));
     }
 
     @Test
