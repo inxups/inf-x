@@ -14,6 +14,7 @@ import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.item.R196ArrowItem;
 import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196CoinItem;
+import com.pixulse.infx.item.R196EquipmentKey;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.material.R196Quality;
@@ -749,6 +750,19 @@ public final class ModR196CompletionGameTests {
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
         assertBehaviorHunger(helper, player, 0.005D, "stopping mining ends the continuous cost");
 
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        helper.setBlock(miningRelative, Blocks.STONE);
+        resetBehaviorHunger(player);
+        PlayerInteractEvent.LeftClickBlock invalidMiningStart = new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(invalidMiningStart);
+        helper.assertTrue(invalidMiningStart.isCanceled(),
+                "an ineffective block click must be rejected like a left click on air");
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0D,
+                "an ineffective block click must not start continuous mining metabolism");
+
         BlockPos placeRelative = new BlockPos(2, 2, 2);
         BlockPos placePos = helper.absolutePos(placeRelative);
         helper.setBlock(placeRelative, Blocks.AIR);
@@ -828,6 +842,11 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(safe.canOpen(visitor), "other players cannot open safe");
         owner.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.SURVIVAL);
         owner.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        float ownerSafeProgress = helper.getBlockState(safePos)
+                .getDestroyProgress(owner, helper.getLevel(), helper.absolutePos(safePos));
+        helper.assertTrue(
+                Math.abs(ownerSafeProgress - 1.0F / 128.0F) < 1.0E-6F,
+                "a strongbox owner must receive the portable 128-tick progress: " + ownerSafeProgress);
         helper.assertTrue(owner.gameMode.destroyBlock(helper.absolutePos(safePos)),
                 "MITE strongbox owners can carry their safe by hand");
         List<ItemEntity> ownerSafeDrops = helper.getLevel().getEntities(
@@ -847,6 +866,21 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
                 "a foreign copper safe rejects another level-two metal");
         visitor.setItemInHand(InteractionHand.MAIN_HAND, ModItems.IRON_PICKAXE.toStack());
+        visitor.setOnGround(true);
+        visitor.getFoodData().setFoodLevel(20);
+        visitor.experienceLevel = 0;
+        float safeHardness = helper.getBlockState(safePos)
+                .getDestroySpeed(helper.getLevel(), helper.absolutePos(safePos));
+        float expectedVisitorProgress = new R196EquipmentKey(R196Material.IRON, R196EquipmentType.PICKAXE)
+                        .miningSpeed()
+                / safeHardness
+                / 512.0F;
+        float visitorProgress = helper.getBlockState(safePos)
+                .getDestroyProgress(visitor, helper.getLevel(), helper.absolutePos(safePos));
+        helper.assertTrue(
+                Math.abs(visitorProgress - expectedVisitorProgress) < 1.0E-6F,
+                "a qualified visitor must keep MITE /512 progress without losing harvest capability: "
+                        + visitorProgress);
         helper.assertTrue(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
                 "a foreign copper safe accepts MITE level-three iron");
         helper.assertTrue(
