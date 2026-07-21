@@ -530,7 +530,7 @@ public final class ModR196CompletionGameTests {
                         .isEmpty(),
                 "healthy chickens must naturally shed feathers");
 
-        Cow seeker = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(8, 2, 4));
+        Cow seeker = helper.spawn(EntityTypes.COW, new BlockPos(8, 2, 4));
         seeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
         seeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime());
         for (int x = 7; x <= 11; x++) {
