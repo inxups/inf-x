@@ -1,6 +1,8 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.block.RuneStoneBlock;
+import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.R196SafeBlock;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196EquipmentType;
@@ -11,6 +13,7 @@ import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -45,6 +48,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 final class ModModelProvider extends ModelProvider {
     private static final TextureSlot ANVIL_BODY = TextureSlot.create("body");
+    private static final TextureSlot PORTAL = TextureSlot.create("portal");
     private static final ModelTemplate METAL_ANVIL_MODEL = new ModelTemplate(
             Optional.of(Identifier.withDefaultNamespace("block/template_anvil")),
             Optional.empty(),
@@ -52,6 +56,16 @@ final class ModModelProvider extends ModelProvider {
             ANVIL_BODY);
     private static final ModelTemplate METAL_SAFE_MODEL = new ModelTemplate(
             Optional.of(InfiniteX.id("block/template_metal_safe")), Optional.empty(), TextureSlot.TEXTURE);
+    private static final ModelTemplate RUNE_GATE_NS_MODEL = new ModelTemplate(
+            Optional.of(Identifier.withDefaultNamespace("block/nether_portal_ns")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            PORTAL);
+    private static final ModelTemplate RUNE_GATE_EW_MODEL = new ModelTemplate(
+            Optional.of(Identifier.withDefaultNamespace("block/nether_portal_ew")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            PORTAL);
     private static final PropertyDispatch<net.minecraft.client.renderer.block.dispatch.VariantMutator> SAFE_FACING =
             PropertyDispatch.modify(BarrelBlock.FACING)
                     .select(Direction.DOWN, BlockModelGenerators.NOP)
@@ -136,16 +150,8 @@ final class ModModelProvider extends ModelProvider {
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
                         TextureSlot.ALL,
                         new Material(Identifier.withDefaultNamespace("block/magma")))));
-        blockModels.createTrivialBlock(
-                ModBlocks.MITHRIL_RUNE_STONE.value(),
-                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
-                        TextureSlot.ALL,
-                        new Material(InfiniteX.id("block/mithril_block")))));
-        blockModels.createTrivialBlock(
-                ModBlocks.ADAMANTIUM_RUNE_STONE.value(),
-                TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
-                        TextureSlot.ALL,
-                        new Material(InfiniteX.id("block/adamantium_block")))));
+        generateRuneStone(blockModels, itemModels, ModBlocks.MITHRIL_RUNE_STONE.value(), "mithril");
+        generateRuneStone(blockModels, itemModels, ModBlocks.ADAMANTIUM_RUNE_STONE.value(), "adamantium");
         ModBlocks.ENCHANTING_TABLES.forEach(table -> {
             var model = BlockModelGenerators.plainVariant(
                     ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
@@ -153,19 +159,7 @@ final class ModModelProvider extends ModelProvider {
             blockModels.registerSimpleItemModel(table.value(), ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
         });
         ModBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
-        blockModels.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(ModBlocks.UNDERWORLD_PORTAL.value())
-                        .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
-                                .select(
-                                        Direction.Axis.X,
-                                        BlockModelGenerators.plainVariant(
-                                                net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation(
-                                                        Blocks.NETHER_PORTAL, "_ns")))
-                                .select(
-                                        Direction.Axis.Z,
-                                        BlockModelGenerators.plainVariant(
-                                                net.minecraft.client.data.models.model.ModelLocationUtils.getModelLocation(
-                                                        Blocks.NETHER_PORTAL, "_ew")))));
+        generateUnderworldPortal(blockModels);
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         ModItems.R196_BUCKETS.forEach(bucket ->
@@ -188,6 +182,57 @@ final class ModModelProvider extends ModelProvider {
                 case BOW -> generateMaterialBow(itemModels, entry);
             }
         }
+    }
+
+    private static void generateRuneStone(
+            BlockModelGenerators blockModels, ItemModelGenerators itemModels, RuneStoneBlock block, String material) {
+        Identifier[] models = new Identifier[RuneStoneBlock.RUNE_COUNT];
+        Material obsidian = new Material(Identifier.withDefaultNamespace("block/obsidian"));
+        for (int rune = 0; rune < RuneStoneBlock.RUNE_COUNT; rune++) {
+            Identifier modelId = ModelLocationUtils.getModelLocation(block, "_" + rune);
+            models[rune] = ModelTemplates.CUBE_BOTTOM_TOP.create(
+                    modelId,
+                    new TextureMapping()
+                            .put(TextureSlot.SIDE, new Material(InfiniteX.id(
+                                    "block/runestones/" + material + "/" + rune)))
+                            .put(TextureSlot.TOP, obsidian)
+                            .put(TextureSlot.BOTTOM, obsidian),
+                    blockModels.modelOutput);
+        }
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(RuneStoneBlock.RUNE)
+                        .generate(rune -> BlockModelGenerators.plainVariant(models[rune]))));
+
+        Map<Integer, ItemModel.Unbaked> itemVariants = new LinkedHashMap<>();
+        for (int rune = 0; rune < RuneStoneBlock.RUNE_COUNT; rune++) {
+            itemVariants.put(rune, ItemModelUtils.plainModel(models[rune]));
+        }
+        itemModels.itemModelOutput.accept(
+                block.asItem(),
+                ItemModelUtils.selectBlockItemProperty(
+                        RuneStoneBlock.RUNE, ItemModelUtils.plainModel(models[0]), itemVariants));
+    }
+
+    private static void generateUnderworldPortal(BlockModelGenerators blockModels) {
+        Material runegate = new Material(InfiniteX.id("block/runegate"));
+        TextureMapping textures = new TextureMapping()
+                .put(TextureSlot.PARTICLE, runegate)
+                .put(PORTAL, runegate);
+        Identifier runeNs = RUNE_GATE_NS_MODEL.create(
+                InfiniteX.id("block/underworld_portal_runegate_ns"), textures, blockModels.modelOutput);
+        Identifier runeEw = RUNE_GATE_EW_MODEL.create(
+                InfiniteX.id("block/underworld_portal_runegate_ew"), textures, blockModels.modelOutput);
+        var vanillaNs = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"));
+        var vanillaEw = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ew"));
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(ModBlocks.UNDERWORLD_PORTAL.value())
+                .with(PropertyDispatch.initial(
+                                BlockStateProperties.HORIZONTAL_AXIS, UnderworldPortalBlock.RUNE_GATE)
+                        .select(Direction.Axis.X, false, vanillaNs)
+                        .select(Direction.Axis.Z, false, vanillaEw)
+                        .select(Direction.Axis.X, true, BlockModelGenerators.plainVariant(runeNs))
+                        .select(Direction.Axis.Z, true, BlockModelGenerators.plainVariant(runeEw))));
     }
 
     private static void generateR196FoodModels(ItemModelGenerators models) {

@@ -1,5 +1,6 @@
 package com.pixulse.infx.data;
 
+import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.registry.ModBlocks;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -8,6 +9,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
 
 final class ModBlockLootSubProvider extends BlockLootSubProvider {
     ModBlockLootSubProvider(HolderLookup.Provider registries) {
@@ -26,10 +28,14 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         ModBlocks.R196_FLOWERS.forEach(flower -> dropSelf(flower.get()));
         dropSelf(ModBlocks.NETHER_GRAVEL.get());
         dropSelf(ModBlocks.WITHERWOOD.get());
-        dropSelf(ModBlocks.MITHRIL_RUNE_STONE.get());
-        dropSelf(ModBlocks.ADAMANTIUM_RUNE_STONE.get());
+        dropRuneStone(ModBlocks.MITHRIL_RUNE_STONE.get());
+        dropRuneStone(ModBlocks.ADAMANTIUM_RUNE_STONE.get());
         add(ModBlocks.MANTLE.get(), noDrop());
         add(ModBlocks.CORE.get(), noDrop());
+    }
+
+    private void dropRuneStone(RuneStoneBlock block) {
+        add(block, createSingleItemTable(block).apply(CopyBlockState.copyState(block).copy(RuneStoneBlock.RUNE)));
     }
 
     @Override

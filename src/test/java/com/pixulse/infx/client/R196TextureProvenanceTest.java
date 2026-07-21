@@ -40,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(493, lines.size(), "header plus 492 selected destinations");
+        assertEquals(527, lines.size(), "header plus 526 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -50,6 +50,9 @@ class R196TextureProvenanceTest {
             Path destination = ASSETS.resolve(fields[2]);
             byte[] bytes = Files.readAllBytes(destination);
             assertEquals(fields[3], HexFormat.of().formatHex(sha256.digest(bytes)), fields[2]);
+            if (!fields[2].endsWith(".png")) {
+                continue;
+            }
             BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytes));
             assertNotNull(image, fields[2]);
             assertTrue(image.getWidth() > 0 && image.getHeight() > 0, fields[2]);

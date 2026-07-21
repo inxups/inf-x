@@ -6,3 +6,6 @@ src/generated/**/*.json text eol=lf
 
 # Preserve the authorized animated Core metadata byte-for-byte (the source uses CRLF).
 src/main/resources/assets/infx/textures/block/core.png.mcmeta binary
+
+# Preserve the authorized animated rune-gate metadata byte-for-byte (the source uses CRLF).
+src/main/resources/assets/infx/textures/block/runegate.png.mcmeta binary

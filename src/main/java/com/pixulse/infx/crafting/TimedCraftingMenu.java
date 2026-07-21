@@ -12,7 +12,8 @@ public interface TimedCraftingMenu {
     int DATA_RUNNING = 2;
     int DATA_TIMED_RESULT = 3;
     int DATA_QUALITY = 4;
-    int DATA_COUNT = 5;
+    int DATA_RUNE = 5;
+    int DATA_COUNT = 6;
 
     BenchTier infx$benchTier();
 
@@ -52,9 +53,17 @@ public interface TimedCraftingMenu {
         infx$craftingData().set(DATA_QUALITY, code);
     }
 
-    default void infx$cycleQuality(Player player) {
+    default int infx$selectedRune() {
+        return infx$craftingData().get(DATA_RUNE);
+    }
+
+    default void infx$setSelectedRune(int rune) {
+        infx$craftingData().set(DATA_RUNE, rune);
+    }
+
+    default void infx$cycleResult(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
-            TimedCraftingEngine.cycleQuality(this, serverPlayer);
+            TimedCraftingEngine.cycleResult(this, serverPlayer);
         }
     }
 

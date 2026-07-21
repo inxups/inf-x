@@ -7,6 +7,8 @@ import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.block.entity.R196SafeBlockEntity;
+import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.equipment.R196QualitySystem;
@@ -20,6 +22,7 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.menu.MetalAnvilMenu;
 import com.pixulse.infx.menu.R196EnchantmentMenu;
+import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
@@ -74,6 +77,7 @@ import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -285,7 +289,7 @@ public final class ModR196CompletionGameTests {
         crafting.infx$craftingContainer().setItem(0, new ItemStack(Items.FLINT));
         crafting.infx$craftingContainer().setItem(1, new ItemStack(Items.STRING));
         crafting.infx$craftingContainer().setItem(2, new ItemStack(Items.STICK));
-        crafting.infx$cycleQuality(player);
+        crafting.infx$cycleResult(player);
         ItemStack qualityPreview = crafting.infx$resultContainer().getItem(0);
         helper.assertTrue(
                 qualityPreview.is(ModItems.catalog()
@@ -295,6 +299,27 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 qualityPreview.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
                 "server crafting preview carries selected quality");
+
+        BlockPos workbench = helper.absolutePos(new BlockPos(8, 2, 4));
+        helper.getLevel().setBlock(workbench, ModBlocks.MITHRIL_WORKBENCH.get().defaultBlockState(), 3);
+        TimedWorkbenchMenu runeCrafting = TimedWorkbenchMenu.server(
+                78,
+                player.getInventory(),
+                BenchTier.MITHRIL,
+                ContainerLevelAccess.create(helper.getLevel(), workbench),
+                ModBlocks.MITHRIL_WORKBENCH.get());
+        player.containerMenu = runeCrafting;
+        for (int slot : List.of(1, 3, 5, 7)) {
+            runeCrafting.infx$craftingContainer().setItem(slot, ModItems.MITHRIL_NUGGET.toStack());
+        }
+        runeCrafting.infx$craftingContainer().setItem(4, Items.OBSIDIAN.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(runeCrafting, player, true),
+                "mithril rune-stone recipe must produce a timed result");
+        runeCrafting.clicked(0, 1, ContainerInput.PICKUP, player);
+        ItemStack runePreview = runeCrafting.infx$resultContainer().getItem(0);
+        helper.assertTrue(runePreview.is(ModItems.MITHRIL_RUNE_STONE.get()), "right-click keeps rune-stone result");
+        helper.assertTrue(RuneStoneBlock.rune(runePreview) == 1, "right-click advances the crafting rune type");
         removePlayer(player);
         helper.succeed();
     }
@@ -472,12 +497,18 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 helper.getLevel().getBlockState(corners[3]).getValue(RuneStoneBlock.RUNE) == 15,
                 "all sixteen rune states persist in the frame");
+        helper.assertTrue(
+                helper.getLevel().getBlockState(origin).getValue(UnderworldPortalBlock.RUNE_GATE),
+                "four matching rune corners switch the active portal to the rune-gate surface");
 
         helper.getLevel().setBlock(
                 corners[0], ModBlocks.ADAMANTIUM_RUNE_STONE.get().defaultBlockState(), 3);
         helper.assertFalse(
                 UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
                 "mixed rune materials must not form a rune gate");
+        helper.assertFalse(
+                helper.getLevel().getBlockState(origin).getValue(UnderworldPortalBlock.RUNE_GATE),
+                "mixed rune corners restore the ordinary portal surface");
         removePlayer(player);
         helper.succeed();
     }

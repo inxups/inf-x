@@ -1,8 +1,10 @@
 package com.pixulse.infx.world;
 
+import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.registry.ModBlocks;
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -102,6 +104,7 @@ public final class UnderworldPortalEvents {
             return;
         }
         Direction.Axis axis = originState.getValue(NetherPortalBlock.AXIS);
+        boolean runeGate = UnderworldPortalBlock.hasRuneGate(level, origin);
         Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
         ArrayDeque<BlockPos> pending = new ArrayDeque<>();
         Set<BlockPos> visited = new HashSet<>();
@@ -117,12 +120,53 @@ public final class UnderworldPortalEvents {
             }
             level.setBlock(
                     pos,
-                    ModBlocks.UNDERWORLD_PORTAL.get().defaultBlockState().setValue(NetherPortalBlock.AXIS, axis),
+                    ModBlocks.UNDERWORLD_PORTAL.get()
+                            .defaultBlockState()
+                            .setValue(NetherPortalBlock.AXIS, axis)
+                            .setValue(UnderworldPortalBlock.RUNE_GATE, runeGate),
                     18);
             pending.add(pos.above());
             pending.add(pos.below());
             pending.add(pos.relative(horizontal));
             pending.add(pos.relative(horizontal.getOpposite()));
+        }
+    }
+
+    public static void refreshRuneGateAppearance(ServerLevel level, BlockPos runePos) {
+        Set<BlockPos> updated = new HashSet<>();
+        for (BlockPos pos : BlockPos.betweenClosed(runePos.offset(-4, -5, -4), runePos.offset(4, 2, 4))) {
+            var state = level.getBlockState(pos);
+            if (!state.is(ModBlocks.UNDERWORLD_PORTAL.get()) || !updated.add(pos.immutable())) {
+                continue;
+            }
+            setConnectedRuneGateState(level, pos, UnderworldPortalBlock.hasRuneGate(level, pos), updated);
+        }
+    }
+
+    private static void setConnectedRuneGateState(
+            ServerLevel level, BlockPos origin, boolean runeGate, Set<BlockPos> updated) {
+        Direction.Axis axis = level.getBlockState(origin).getValue(NetherPortalBlock.AXIS);
+        Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+        ArrayDeque<BlockPos> pending = new ArrayDeque<>();
+        pending.add(origin.immutable());
+        while (!pending.isEmpty()) {
+            BlockPos pos = pending.removeFirst();
+            var state = level.getBlockState(pos);
+            if (!state.is(ModBlocks.UNDERWORLD_PORTAL.get())
+                    || state.getValue(NetherPortalBlock.AXIS) != axis) {
+                continue;
+            }
+            updated.add(pos);
+            if (state.getValue(UnderworldPortalBlock.RUNE_GATE) != runeGate) {
+                level.setBlock(pos, state.setValue(UnderworldPortalBlock.RUNE_GATE, runeGate), 18);
+            }
+            for (BlockPos neighbour : List.of(
+                    pos.above(),
+                    pos.below(),
+                    pos.relative(horizontal),
+                    pos.relative(horizontal.getOpposite()))) {
+                if (!updated.contains(neighbour)) pending.add(neighbour);
+            }
         }
     }
 }

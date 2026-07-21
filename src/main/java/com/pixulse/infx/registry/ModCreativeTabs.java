@@ -1,6 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196EquipmentCategory;
 import java.util.ArrayList;
@@ -93,7 +94,15 @@ public final class ModCreativeTabs {
                 .displayItems((parameters, output) -> items(category).stream()
                         .map(DeferredItem::value)
                         .filter(item -> item.isEnabled(parameters.enabledFeatures()))
-                        .forEach(output::accept));
+                        .forEach(item -> {
+                            if (RuneStoneBlock.isRuneStone(item.getDefaultInstance())) {
+                                for (int rune = 0; rune < RuneStoneBlock.RUNE_COUNT; rune++) {
+                                    output.accept(RuneStoneBlock.applyRune(new ItemStack(item), rune));
+                                }
+                            } else {
+                                output.accept(item);
+                            }
+                        }));
     }
 
     private static Map<Category, List<DeferredItem<? extends Item>>> createCategorizedItems() {

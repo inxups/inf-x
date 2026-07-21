@@ -6,6 +6,8 @@ import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.item.R196ToolItem;
+import com.pixulse.infx.item.RuneStoneItem;
+import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.material.R196Material;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -45,10 +47,16 @@ public final class ModItems {
             List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
 
     public static final DeferredItem<BlockItem> MANTLE = ITEMS.registerSimpleBlockItem(ModBlocks.MANTLE);
-    public static final DeferredItem<BlockItem> MITHRIL_RUNE_STONE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_RUNE_STONE);
-    public static final DeferredItem<BlockItem> ADAMANTIUM_RUNE_STONE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_RUNE_STONE, properties -> properties.fireResistant());
+    public static final DeferredItem<BlockItem> MITHRIL_RUNE_STONE = ITEMS.registerItem(
+            "mithril_rune_stone",
+            properties -> new RuneStoneItem(ModBlocks.MITHRIL_RUNE_STONE.get(), properties),
+            properties -> properties.component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
+    public static final DeferredItem<BlockItem> ADAMANTIUM_RUNE_STONE = ITEMS.registerItem(
+            "adamantium_rune_stone",
+            properties -> new RuneStoneItem(ModBlocks.ADAMANTIUM_RUNE_STONE.get(), properties),
+            properties -> properties
+                    .fireResistant()
+                    .component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
     public static final List<DeferredItem<BlockItem>> R196_FLOWERS = ModBlocks.R196_FLOWERS.stream()
