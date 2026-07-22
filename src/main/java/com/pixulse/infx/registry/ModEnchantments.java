@@ -1,6 +1,8 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
+import com.pixulse.infx.tag.ModTags;
 import java.util.List;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -56,28 +58,50 @@ public final class ModEnchantments {
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         HolderGetter<Item> items = context.lookup(Registries.ITEM);
-        register(context, items, DURABILITY, ItemTags.DURABILITY_ENCHANTABLE, 8, 3, 5, 8, EquipmentSlotGroup.ANY);
-        register(context, items, DISARMING, ItemTags.MELEE_WEAPON_ENCHANTABLE, 3, 3, 15, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, QUICKNESS, ItemTags.BOW_ENCHANTABLE, 5, 3, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, PRECISION, ItemTags.BOW_ENCHANTABLE, 5, 3, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, POISONING, ItemTags.WEAPON_ENCHANTABLE, 3, 3, 18, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, BUTCHERING, ItemTags.MELEE_WEAPON_ENCHANTABLE, 4, 3, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, STUNNING, ItemTags.MELEE_WEAPON_ENCHANTABLE, 3, 3, 18, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, VAMPIRISM, ItemTags.MELEE_WEAPON_ENCHANTABLE, 2, 3, 25, 15, EquipmentSlotGroup.MAINHAND);
-        register(context, items, RECOVERY, ItemTags.BOW_ENCHANTABLE, 5, 3, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, SLAUGHTER, ItemTags.MELEE_WEAPON_ENCHANTABLE, 4, 4, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, CLEAVING, ItemTags.MELEE_WEAPON_ENCHANTABLE, 4, 4, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, HARVESTING, ItemTags.MINING_ENCHANTABLE, 5, 3, 8, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, PENETRATION, ItemTags.MINING_ENCHANTABLE, 4, 4, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, BAITING, ItemTags.FISHING_ENCHANTABLE, 5, 3, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, FERTILITY, ItemTags.HOES, 4, 3, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, TREE_FELLING, ItemTags.AXES, 3, 4, 15, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, FORTUNE, ItemTags.MINING_ENCHANTABLE, 3, 3, 18, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, FREE_MOVEMENT, ItemTags.ARMOR_ENCHANTABLE, 4, 3, 12, 12, EquipmentSlotGroup.ARMOR);
-        register(context, items, REGENERATION, ItemTags.ARMOR_ENCHANTABLE, 2, 3, 24, 16, EquipmentSlotGroup.ARMOR);
-        register(context, items, SPEED, ItemTags.FOOT_ARMOR_ENCHANTABLE, 4, 3, 12, 12, EquipmentSlotGroup.FEET);
-        register(context, items, ENDURANCE, ItemTags.ARMOR_ENCHANTABLE, 4, 3, 12, 12, EquipmentSlotGroup.ARMOR);
-        register(context, items, PROTECTION, ItemTags.ARMOR_ENCHANTABLE, 6, 4, 8, 8, EquipmentSlotGroup.ARMOR);
+        register(context, items, DURABILITY, ModTags.Items.R196_DURABILITY_ENCHANTABLE, 8,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 5, 8, EquipmentSlotGroup.ANY);
+        register(context, items, DISARMING, ModTags.Items.R196_DISARMING_ENCHANTABLE, 3,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 15, 12, EquipmentSlotGroup.MAINHAND);
+        register(context, items, QUICKNESS, ItemTags.BOW_ENCHANTABLE, 5,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, PRECISION, ItemTags.BOW_ENCHANTABLE, 5,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, POISONING, ItemTags.BOW_ENCHANTABLE, 3,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 18, 12, EquipmentSlotGroup.MAINHAND);
+        register(context, items, BUTCHERING, ModTags.Items.R196_BUTCHERING_ENCHANTABLE, 4,
+                R196EnchantmentRules.BUTCHERING_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, STUNNING, ModTags.Items.R196_STUNNING_ENCHANTABLE, 3,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 18, 12, EquipmentSlotGroup.MAINHAND);
+        register(context, items, VAMPIRISM, ModTags.Items.R196_VAMPIRISM_ENCHANTABLE, 2,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 25, 15, EquipmentSlotGroup.MAINHAND);
+        register(context, items, RECOVERY, ItemTags.BOW_ENCHANTABLE, 5,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, SLAUGHTER, ModTags.Items.R196_SLAUGHTER_ENCHANTABLE, 4,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, CLEAVING, ModTags.Items.R196_CLEAVING_ENCHANTABLE, 4,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, HARVESTING, ModTags.Items.R196_HARVESTING_ENCHANTABLE, 5,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 8, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, PENETRATION, ModTags.Items.R196_PENETRATION_ENCHANTABLE, 4,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, BAITING, ItemTags.FISHING_ENCHANTABLE, 5,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, FERTILITY, ModTags.Items.R196_FERTILITY_ENCHANTABLE, 4,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
+        register(context, items, TREE_FELLING, ModTags.Items.R196_TREE_FELLING_ENCHANTABLE, 3,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 15, 12, EquipmentSlotGroup.MAINHAND);
+        register(context, items, FORTUNE, ModTags.Items.R196_FORTUNE_ENCHANTABLE, 3,
+                R196EnchantmentRules.FORTUNE_MAX_LEVEL, 18, 12, EquipmentSlotGroup.MAINHAND);
+        register(context, items, FREE_MOVEMENT, ModTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE, 4,
+                R196EnchantmentRules.FREE_MOVEMENT_MAX_LEVEL, 12, 12, EquipmentSlotGroup.LEGS);
+        register(context, items, REGENERATION, ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, 2,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 24, 16, EquipmentSlotGroup.CHEST);
+        register(context, items, SPEED, ItemTags.FOOT_ARMOR_ENCHANTABLE, 4,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 12, EquipmentSlotGroup.FEET);
+        register(context, items, ENDURANCE, ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, 4,
+                R196EnchantmentRules.ENDURANCE_MAX_LEVEL, 12, 12, EquipmentSlotGroup.CHEST);
+        register(context, items, PROTECTION, ItemTags.ARMOR_ENCHANTABLE, 6,
+                R196EnchantmentRules.PROTECTION_MAX_LEVEL, 8, 8, EquipmentSlotGroup.ARMOR);
         register(context, items, CLUMSINESS, ItemTags.DURABILITY_ENCHANTABLE, 1, 1, 25, 25, EquipmentSlotGroup.ANY);
     }
 
@@ -103,9 +127,7 @@ public final class ModEnchantments {
         if (key.equals(DURABILITY)) {
             builder.withEffect(
                     EnchantmentEffectComponents.ITEM_DAMAGE,
-                    new RemoveBinomial(new LevelBasedValue.Fraction(
-                            LevelBasedValue.perLevel(1.0F),
-                            LevelBasedValue.perLevel(2.0F, 1.0F))));
+                    new RemoveBinomial(LevelBasedValue.perLevel(0.15F)));
         }
         context.register(key, builder.build(key.identifier()));
     }

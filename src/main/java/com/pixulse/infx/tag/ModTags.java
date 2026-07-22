@@ -48,6 +48,20 @@ public final class ModTags {
         public static final TagKey<Item> SMELTING_INPUTS_HEAT_2 = create("smelting_inputs/heat_2");
         public static final TagKey<Item> SMELTING_INPUTS_HEAT_3 = create("smelting_inputs/heat_3");
         public static final TagKey<Item> SMELTING_INPUTS_HEAT_4 = create("smelting_inputs/heat_4");
+        public static final TagKey<Item> R196_DURABILITY_ENCHANTABLE = enchantable("r196_durability");
+        public static final TagKey<Item> R196_DISARMING_ENCHANTABLE = enchantable("r196_disarming");
+        public static final TagKey<Item> R196_BUTCHERING_ENCHANTABLE = enchantable("r196_butchering");
+        public static final TagKey<Item> R196_STUNNING_ENCHANTABLE = enchantable("r196_stunning");
+        public static final TagKey<Item> R196_VAMPIRISM_ENCHANTABLE = enchantable("r196_vampirism");
+        public static final TagKey<Item> R196_SLAUGHTER_ENCHANTABLE = enchantable("r196_slaughter");
+        public static final TagKey<Item> R196_CLEAVING_ENCHANTABLE = enchantable("r196_cleaving");
+        public static final TagKey<Item> R196_HARVESTING_ENCHANTABLE = enchantable("r196_harvesting");
+        public static final TagKey<Item> R196_PENETRATION_ENCHANTABLE = enchantable("r196_penetration");
+        public static final TagKey<Item> R196_FERTILITY_ENCHANTABLE = enchantable("r196_fertility");
+        public static final TagKey<Item> R196_TREE_FELLING_ENCHANTABLE = enchantable("r196_tree_felling");
+        public static final TagKey<Item> R196_FORTUNE_ENCHANTABLE = enchantable("r196_fortune");
+        public static final TagKey<Item> R196_FREE_MOVEMENT_ENCHANTABLE = enchantable("r196_free_movement");
+        public static final TagKey<Item> R196_CHEST_ARMOR_ENCHANTABLE = enchantable("r196_chest_armor");
 
         private Items() {}
 
@@ -65,6 +79,10 @@ public final class ModTags {
 
         public static TagKey<Item> equipmentType(R196EquipmentType type) {
             return create("equipment/" + type.path());
+        }
+
+        private static TagKey<Item> enchantable(String path) {
+            return create("enchantable/" + path);
         }
 
         private static TagKey<Item> create(String path) {

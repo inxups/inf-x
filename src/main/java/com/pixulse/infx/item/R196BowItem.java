@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jspecify.annotations.Nullable;
 import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.registry.ModEnchantments;
 
 public final class R196BowItem extends BowItem {
@@ -50,6 +51,7 @@ public final class R196BowItem extends BowItem {
         int precision = R196Enchantments.level(shooter.level(), bow, ModEnchantments.PRECISION);
         int recovery = R196Enchantments.level(shooter.level(), bow, ModEnchantments.RECOVERY);
         int poisoning = R196Enchantments.level(shooter.level(), bow, ModEnchantments.POISONING);
+        int experienceLevel = shooter instanceof Player player ? player.experienceLevel : 0;
         if (recovery > 0) projectile.getPersistentData().putInt("infx_recovery_enchantment", recovery);
         if (poisoning > 0) projectile.getPersistentData().putInt("infx_poisoning_enchantment", poisoning);
         super.shootProjectile(
@@ -57,7 +59,7 @@ public final class R196BowItem extends BowItem {
                 projectile,
                 index,
                 power * velocityMultiplier(),
-                uncertainty * Math.max(0.15F, 1.0F - precision * 0.2F),
+                uncertainty * R196EnchantmentRules.precisionUncertaintyMultiplier(experienceLevel, precision),
                 angle,
                 targetOverride);
     }
@@ -84,7 +86,8 @@ public final class R196BowItem extends BowItem {
             int quickness = R196Enchantments.level(level, bow, ModEnchantments.QUICKNESS);
             int duration = getUseDuration(bow, entity);
             int used = Math.max(0, duration - remainingTime);
-            int adjustedRemaining = duration - Math.round(used * (1.0F + quickness * 0.2F));
+            int adjustedRemaining = Math.max(0,
+                    duration - R196EnchantmentRules.quicknessAdjustedUseTicks(used, quickness));
             return super.releaseUsing(bow, level, entity, adjustedRemaining);
         } finally {
             bow.remove(ModDataComponents.NOCKED_ARROW_MATERIAL.get());

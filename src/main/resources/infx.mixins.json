@@ -12,6 +12,7 @@
     "DifficultyMixin",
     "EggItemMixin",
     "EnchantmentMenuAccessor",
+    "FishingHookMixin",
     "FurnaceFuelSlotMixin",
     "FurnaceInputSlotMixin",
     "FoodDataMixin",

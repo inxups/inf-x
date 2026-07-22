@@ -1,6 +1,8 @@
 package com.pixulse.infx.equipment;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.item.R196ArrowItem;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196EquipmentKey;
@@ -8,6 +10,7 @@ import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.registry.ModDataComponents;
+import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -29,6 +32,8 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import com.pixulse.infx.entity.R196Slime;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
@@ -92,7 +97,7 @@ public final class R196EquipmentBehaviors {
         arrow.getPersistentData().putBoolean(RECOVERY_CHECKED, true);
         int enchantment = arrow.getPersistentData().getInt("infx_recovery_enchantment").orElse(0);
         boolean recovered = arrow.getRandom().nextFloat()
-                < Math.min(1.0F, recoveryChance(arrowItem.key().material()) + enchantment * 0.1F);
+                < recoveryChance(arrowItem.key().material(), enchantment);
         if (hit.getType() == HitResult.Type.BLOCK) {
             arrow.pickup = recovered ? AbstractArrow.Pickup.ALLOWED : AbstractArrow.Pickup.DISALLOWED;
         } else if (hit.getType() == HitResult.Type.ENTITY && recovered) {
@@ -111,6 +116,11 @@ public final class R196EquipmentBehaviors {
             case ADAMANTIUM -> .90F;
             default -> 0.0F;
         };
+    }
+
+    public static float recoveryChance(R196Material material, int recoveryEnchantmentLevel) {
+        return R196EnchantmentRules.arrowRecoveryChance(
+                recoveryChance(material), recoveryEnchantmentLevel);
     }
 
     static void applyArmorDecay(ItemAttributeModifierEvent event) {
@@ -143,11 +153,13 @@ public final class R196EquipmentBehaviors {
     }
 
     static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof net.minecraft.world.entity.player.Player player)
+        if (!(event.getEntity() instanceof Player player)
                 || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) {
             return;
         }
-        float armorPoints = (float) player.getAttributeValue(Attributes.ARMOR);
+        float armorPoints = (float) player.getAttributeValue(Attributes.ARMOR)
+                + protectionBonus(player)
+                - penetrationPoints(event);
         if (armorPoints <= 0.0F) {
             return;
         }
@@ -156,6 +168,36 @@ public final class R196EquipmentBehaviors {
                 DamageContainer.Reduction.ARMOR,
                 (container, vanillaReduction) -> r196ArmorReduction(
                         container.getNewDamage(), armorPoints, fire));
+    }
+
+    private static float protectionBonus(Player player) {
+        float bonus = 0.0F;
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            ItemStack stack = player.getItemBySlot(slot);
+            R196Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+            if (entry == null
+                    || (entry.key().type().armorForm() != R196EquipmentType.ArmorForm.PLATE
+                            && entry.key().type().armorForm() != R196EquipmentType.ArmorForm.CHAIN)) {
+                continue;
+            }
+            float currentProtection = entry.key().armorProtection()
+                    * armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
+            int level = R196Enchantments.level(player.level(), stack, ModEnchantments.PROTECTION);
+            bonus += R196EnchantmentRules.protectionBonus(currentProtection, level);
+        }
+        return bonus;
+    }
+
+    private static float penetrationPoints(LivingIncomingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof LivingEntity attacker)
+                || event.getSource().getDirectEntity() != attacker) {
+            return 0.0F;
+        }
+        ItemStack weapon = attacker.getMainHandItem();
+        int penetration = R196Enchantments.level(attacker.level(), weapon, ModEnchantments.PENETRATION);
+        int cleaving = R196Enchantments.level(attacker.level(), weapon, ModEnchantments.CLEAVING);
+        return R196EnchantmentRules.penetrationPoints(Math.max(penetration, cleaving));
     }
 
     static float r196ArmorReduction(float incomingDamage, float armorPoints, boolean fire) {
