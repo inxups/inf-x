@@ -1,22 +1,32 @@
 package com.pixulse.infx.block;
 
+import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModPoiTypes;
 import com.pixulse.infx.world.Underworld;
+import com.pixulse.infx.world.UnderworldPortalEvents;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -27,7 +37,8 @@ import org.jspecify.annotations.Nullable;
 public class R196PortalBlock extends NetherPortalBlock {
     private static final String RETURN_POS = "infx_underworld_return_pos";
     private static final String NETHER_RETURN_POS = "infx_nether_return_pos";
-    private static final int PORTAL_SEARCH_RADIUS = 128;
+    private static final int NETHER_PORTAL_SEARCH_RADIUS = 16;
+    private static final int OTHER_PORTAL_SEARCH_RADIUS = 128;
     private static final int MIN_PORTAL_WIDTH = 2;
     private static final int MAX_PORTAL_WIDTH = 21;
     private static final int MIN_PORTAL_HEIGHT = 3;
@@ -197,19 +208,20 @@ public class R196PortalBlock extends NetherPortalBlock {
         boolean returningToOverworld = route == PortalRoute.OVERWORLD && portalType == PortalType.UNDERWORLD;
         boolean returningToUnderworld = route == PortalRoute.UNDERWORLD && portalType == PortalType.NETHER;
         BlockPos currentPosition = BlockPos.containing(entity.position());
+        WorldBorder targetWorldBorder = targetLevel.getWorldBorder();
         BlockPos preferred = returningToOverworld
-                ? rememberedPosition(entity, RETURN_POS, currentPosition)
+                ? clampToWorldBorder(targetWorldBorder, rememberedPosition(entity, RETURN_POS, currentPosition))
                 : returningToUnderworld
-                        ? rememberedPosition(entity, NETHER_RETURN_POS, currentPosition)
-                        : currentPosition;
+                        ? clampToWorldBorder(targetWorldBorder, rememberedPosition(entity, NETHER_RETURN_POS, currentPosition))
+                        : scaledExitPosition(currentLevel, targetLevel, entity);
         if (route == PortalRoute.UNDERWORLD && currentLevel.dimension().equals(Level.OVERWORLD)) {
-            entity.getPersistentData().putLong(RETURN_POS, preferred.asLong());
+            entity.getPersistentData().putLong(RETURN_POS, currentPosition.asLong());
         }
         if (route == PortalRoute.NETHER && currentLevel.dimension().equals(Underworld.LEVEL)) {
-            entity.getPersistentData().putLong(NETHER_RETURN_POS, preferred.asLong());
+            entity.getPersistentData().putLong(NETHER_RETURN_POS, currentPosition.asLong());
         }
 
-        BlockPos arrival = findOrCreateArrivalPortal(targetLevel, preferred);
+        BlockPos arrival = findOrCreateArrivalPortal(targetLevel, preferred, portalSearchRadius(targetLevel));
         TeleportTransition.PostTeleportTransition post = TeleportTransition.PLAY_PORTAL_SOUND
                 .then(TeleportTransition.PLACE_PORTAL_TICKET)
                 .then(Entity::setPortalCooldown);
@@ -277,26 +289,83 @@ public class R196PortalBlock extends NetherPortalBlock {
         return entity.getPersistentData().getLong(key).map(BlockPos::of).orElse(fallback);
     }
 
-    /** Reuses the nearest compatible portal surface before creating a new destination. */
-    public BlockPos findOrCreateArrivalPortal(ServerLevel level, BlockPos preferred) {
-        return findExistingArrivalPortal(level, preferred)
-                .orElseGet(() -> createArrivalPortal(level, preferred));
+    private static BlockPos scaledExitPosition(ServerLevel currentLevel, ServerLevel targetLevel, Entity entity) {
+        double scale = DimensionType.getTeleportationScale(currentLevel.dimensionType(), targetLevel.dimensionType());
+        return targetLevel.getWorldBorder()
+                .clampToBounds(entity.getX() * scale, entity.getY(), entity.getZ() * scale);
     }
 
-    private Optional<BlockPos> findExistingArrivalPortal(ServerLevel level, BlockPos preferred) {
-        PoiManager poiManager = level.getPoiManager();
-        poiManager.ensureLoadedAndValid(level, preferred, PORTAL_SEARCH_RADIUS);
-        return poiManager
-                .findAllClosestFirstWithType(
-                        holder -> holder.is(ModPoiTypes.forPortal(portalType)),
-                        pos -> true,
+    private static BlockPos clampToWorldBorder(WorldBorder worldBorder, BlockPos pos) {
+        return worldBorder.clampToBounds(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    private static int portalSearchRadius(ServerLevel targetLevel) {
+        return targetLevel.dimension().equals(Level.NETHER)
+                ? NETHER_PORTAL_SEARCH_RADIUS
+                : OTHER_PORTAL_SEARCH_RADIUS;
+    }
+
+    /** Reuses the nearest compatible portal surface before creating a new destination. */
+    public BlockPos findOrCreateArrivalPortal(ServerLevel level, BlockPos preferred) {
+        return findOrCreateArrivalPortal(level, preferred, portalSearchRadius(level));
+    }
+
+    private BlockPos findOrCreateArrivalPortal(ServerLevel level, BlockPos preferred, int searchRadius) {
+        Optional<BlockPos> existing = findExistingArrivalPortal(level, preferred, searchRadius);
+        if (existing.isEmpty()) {
+            existing = findLegacyArrivalPortal(level, preferred, searchRadius);
+        }
+        return existing.orElseGet(() -> createArrivalPortal(level, preferred));
+    }
+
+    private Optional<BlockPos> findExistingArrivalPortal(ServerLevel level, BlockPos preferred, int searchRadius) {
+        return findClosestPortal(
+                        level,
                         preferred,
-                        PORTAL_SEARCH_RADIUS,
-                        PoiManager.Occupancy.ANY)
-                .map(record -> record.getSecond())
+                        searchRadius,
+                        holder -> holder.is(ModPoiTypes.forPortal(portalType)),
+                        portal -> isReusablePortal(level, portal))
+                .map(portal -> findPortalExit(level, portal));
+    }
+
+    /** Migrates a compatible pre-split portal only after no dedicated destination was found. */
+    private Optional<BlockPos> findLegacyArrivalPortal(ServerLevel level, BlockPos preferred, int searchRadius) {
+        return findClosestPortal(
+                        level,
+                        preferred,
+                        searchRadius,
+                        holder -> holder.is(PoiTypes.NETHER_PORTAL)
+                                || holder.is(ModPoiTypes.UNDERWORLD_PORTAL),
+                        portal -> isLegacyPortalFor(level, portal))
+                .map(portal -> {
+                    UnderworldPortalEvents.replaceConnectedPortal(level, portal, portalType);
+                    return portal;
+                })
                 .filter(portal -> isReusablePortal(level, portal))
-                .map(portal -> findPortalExit(level, portal))
-                .findFirst();
+                .map(portal -> findPortalExit(level, portal));
+    }
+
+    /** Mirrors PortalForcer's loaded-POI lookup and distance ordering for this portal family. */
+    private Optional<BlockPos> findClosestPortal(
+            ServerLevel level,
+            BlockPos preferred,
+            int searchRadius,
+            Predicate<Holder<PoiType>> poiType,
+            Predicate<BlockPos> portalFilter) {
+        PoiManager poiManager = level.getPoiManager();
+        poiManager.ensureLoadedAndValid(level, preferred, searchRadius);
+        WorldBorder worldBorder = level.getWorldBorder();
+        return poiManager
+                .getInSquare(
+                        poiType,
+                        preferred,
+                        searchRadius,
+                        PoiManager.Occupancy.ANY)
+                .map(record -> record.getPos())
+                .filter(worldBorder::isWithinBounds)
+                .filter(portalFilter)
+                .min(Comparator.<BlockPos>comparingDouble(portal -> portal.distSqr(preferred))
+                        .thenComparingInt(Vec3i::getY));
     }
 
     private boolean isReusablePortal(ServerLevel level, BlockPos portal) {
@@ -307,6 +376,19 @@ public class R196PortalBlock extends NetherPortalBlock {
         return !(this instanceof UnderworldPortalBlock
                 && (state.getValue(UnderworldPortalBlock.RUNE_GATE)
                         || UnderworldPortalBlock.hasRuneGate(level, portal)));
+    }
+
+    private boolean isLegacyPortalFor(ServerLevel level, BlockPos portal) {
+        BlockState state = level.getBlockState(portal);
+        if (!state.is(Blocks.NETHER_PORTAL) && !state.is(ModBlocks.UNDERWORLD_PORTAL.get())) {
+            return false;
+        }
+        if (state.is(ModBlocks.UNDERWORLD_PORTAL.get())
+                && (state.getValue(UnderworldPortalBlock.RUNE_GATE)
+                        || UnderworldPortalBlock.hasRuneGate(level, portal))) {
+            return false;
+        }
+        return UnderworldPortalEvents.portalTypeFor(level, portal) == portalType;
     }
 
     private BlockPos findPortalExit(ServerLevel level, BlockPos portal) {

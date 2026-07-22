@@ -454,6 +454,14 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(
                 helper.getLevel().getBlockState(ineligibleOrigin).is(ModBlocks.UNDERWORLD_PORTAL.get()),
                 "ineligible portal interior is not converted");
+        BlockPos migratedReturnArrival = ModBlocks.RETURN_SPAWN_PORTAL.get()
+                .findOrCreateArrivalPortal(helper.getLevel(), ineligibleOrigin);
+        helper.assertTrue(
+                helper.getLevel().getBlockState(ineligibleOrigin).is(ModBlocks.RETURN_SPAWN_PORTAL.get()),
+                "a compatible legacy portal is upgraded instead of opening another portal");
+        helper.assertTrue(
+                hasAdjacentPortal(helper, migratedReturnArrival, ModBlocks.RETURN_SPAWN_PORTAL.get()),
+                "legacy portal migration keeps the existing portal as the arrival point");
 
         BlockPos arrival = ModBlocks.UNDERWORLD_PORTAL.get()
                 .createArrivalPortal(helper.getLevel(), helper.absolutePos(new BlockPos(8, 2, 8)));
