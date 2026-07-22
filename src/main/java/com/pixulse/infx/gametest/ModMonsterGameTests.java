@@ -144,26 +144,24 @@ public final class ModMonsterGameTests {
         Vec3 explicitLocation = helper.absoluteVec(Vec3.atBottomCenterOf(explicitPos));
         explicit.snapTo(explicitLocation.x, explicitLocation.y, explicitLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicit);
+        helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
+        helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0);
         helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
-        helper.succeedWhen(() -> {
-            helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
-            helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0);
-            helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
-            helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
-            helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0);
-            Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
-            var replacement = helper.getLevel()
-                    .getEntitiesOfClass(
-                            com.pixulse.infx.entity.R196Zombie.class,
-                            new AABB(replacementPosition, replacementPosition).inflate(2.0D))
-                    .getFirst();
-            helper.assertTrue(
-                    replacement.getAttributeValue(Attributes.FOLLOW_RANGE) == 40.0D,
-                    "replacement initialization must retain the R196 follow range");
-            helper.assertTrue(
-                    replacement.getAttributeValue(Attributes.ATTACK_DAMAGE) == 5.0D,
-                    "replacement initialization must retain the R196 attack damage");
-        });
+        helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
+        helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0);
+        Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
+        var replacement = helper.getLevel()
+                .getEntitiesOfClass(
+                        com.pixulse.infx.entity.R196Zombie.class,
+                        new AABB(replacementPosition, replacementPosition).inflate(2.0D))
+                .getFirst();
+        helper.assertTrue(
+                replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 40.0D,
+                "replacement initialization must retain the R196 follow range");
+        helper.assertTrue(
+                replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
+                "replacement initialization must retain the R196 attack damage");
+        helper.succeed();
     }
 
     private static void spawnTables(GameTestHelper helper) {
