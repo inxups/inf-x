@@ -13,14 +13,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
-/** Blaze replacement with R196's longer engagement range. */
+/** Blaze replacement with R196's six-point melee damage. */
 public final class R196Blaze extends Blaze implements R196Mob {
     public R196Blaze(EntityType<? extends Blaze> type, Level level) {
         super(type, level);
     }
 
     public static AttributeSupplier.Builder attributes() {
-        return Blaze.createAttributes().add(Attributes.FOLLOW_RANGE, 100.0);
+        return Blaze.createAttributes()
+                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.ATTACK_DAMAGE, 6.0);
     }
 
     @Override

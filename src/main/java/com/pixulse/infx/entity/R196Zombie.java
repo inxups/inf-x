@@ -55,27 +55,36 @@ public final class R196Zombie extends Zombie implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        AttributeSupplier.Builder builder = Zombie.createAttributes().add(Attributes.FOLLOW_RANGE, 40.0);
+        AttributeSupplier.Builder builder = Zombie.createAttributes();
         return switch (variant) {
-            case ZOMBIE -> builder.add(Attributes.FOLLOW_RANGE, 96.0).add(Attributes.ATTACK_DAMAGE, 4.0);
+            case ZOMBIE -> builder
+                    .add(Attributes.MAX_HEALTH, 20.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.MOVEMENT_SPEED, 0.23)
+                    .add(Attributes.ATTACK_DAMAGE, 5.0);
             case INVISIBLE_STALKER -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.23)
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
             case GHOUL -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.28)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case SHADOW -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.23)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case WIGHT -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.25)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case REVENANT -> builder
                     .add(Attributes.MAX_HEALTH, 30.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.26)
                     .add(Attributes.ATTACK_DAMAGE, 7.0);
         };

@@ -6,7 +6,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.level.Level;
 
-/** Creeper replacement and the larger, terrain-breaking Infernal Creeper. */
+/** Creeper replacement and the terrain-breaking Infernal Creeper. */
 public final class R196Creeper extends Creeper implements R196Mob {
     public enum Variant {
         CREEPER,
@@ -25,10 +25,11 @@ public final class R196Creeper extends Creeper implements R196Mob {
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
         return Creeper.createAttributes()
-                .add(Attributes.MAX_HEALTH, variant == Variant.INFERNAL ? 30.0 : 20.0)
-                .add(Attributes.MOVEMENT_SPEED, variant == Variant.INFERNAL ? 0.28 : 0.25)
+                .add(Attributes.MAX_HEALTH, 20.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.ATTACK_DAMAGE, 2.0)
                 .add(Attributes.ARMOR, variant == Variant.INFERNAL ? 2.0 : 0.0)
-                .add(Attributes.FOLLOW_RANGE, variant == Variant.INFERNAL ? 48.0 : 40.0);
+                .add(Attributes.FOLLOW_RANGE, 32.0);
     }
 
     boolean isAmplifyingExplosion() {

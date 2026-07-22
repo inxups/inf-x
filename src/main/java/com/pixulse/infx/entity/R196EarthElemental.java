@@ -26,7 +26,7 @@ public final class R196EarthElemental extends IronGolem implements Enemy, R196Mo
                 .add(Attributes.MOVEMENT_SPEED, 0.20)
                 .add(Attributes.ATTACK_DAMAGE, 12.0)
                 .add(Attributes.ARMOR, 4.0)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.0);
     }
 
     @Override

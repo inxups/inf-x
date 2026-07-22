@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-/** R196 squid replacement that hunts swimmers and inflicts a paralysis-like snare. */
+/** R196 squid replacement that hunts deep-water swimmers and applies its original slow. */
 public final class R196Squid extends Squid implements R196Mob {
     private int attackCooldown;
 
@@ -23,8 +23,7 @@ public final class R196Squid extends Squid implements R196Mob {
     public static AttributeSupplier.Builder attributes() {
         return Squid.createAttributes()
                 .add(Attributes.MAX_HEALTH, 10.0)
-                .add(Attributes.ATTACK_DAMAGE, 2.0)
-                .add(Attributes.FOLLOW_RANGE, 24.0);
+                .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
     @Override
@@ -36,7 +35,7 @@ public final class R196Squid extends Squid implements R196Mob {
         if (attackCooldown > 0) {
             attackCooldown--;
         }
-        Player target = level.getNearestPlayer(this, 24.0);
+        Player target = level.getNearestPlayer(this, 16.0);
         if (target == null
                 || !target.isInWater()
                 || !level.getFluidState(target.blockPosition().below()).is(FluidTags.WATER)
@@ -48,11 +47,10 @@ public final class R196Squid extends Squid implements R196Mob {
         Vec3 delta = target.getEyePosition().subtract(position());
         double distance = delta.length();
         if (distance > 0.001) {
-            setDeltaMovement(getDeltaMovement().scale(0.5).add(delta.normalize().scale(0.18)));
+            setDeltaMovement(getDeltaMovement().scale(0.5).add(delta.normalize().scale(0.20)));
         }
-        if (distance < 1.5 && attackCooldown == 0 && doHurtTarget(level, target)) {
-            target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 80, 5), this);
-            target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 80, 3), this);
+        if (distance < 1.5 && attackCooldown == 0) {
+            target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 200, 2), this);
             attackCooldown = 20;
         }
     }

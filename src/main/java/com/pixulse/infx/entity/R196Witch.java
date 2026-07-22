@@ -21,16 +21,17 @@ public final class R196Witch extends Witch implements R196Mob {
 
     public static AttributeSupplier.Builder attributes() {
         return Witch.createAttributes()
-                .add(Attributes.MAX_HEALTH, 40.0)
-                .add(Attributes.FOLLOW_RANGE, 64.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.27);
+                .add(Attributes.MAX_HEALTH, 26.0)
+                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(Attributes.ATTACK_DAMAGE, 2.0);
     }
 
     @Override
     protected void registerGoals() {
         super.registerGoals();
         goalSelector.removeAllGoals(goal -> goal instanceof RangedAttackGoal);
-        goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 60, 64.0F));
+        goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 60, 10.0F));
     }
 
     @Override
