@@ -369,6 +369,8 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
         add("block.infx.infested_netherrack", locale == Locale.EN_US ? "Infested Netherrack" : "虫蚀下界岩");
         add("block.infx.underworld_portal", locale == Locale.EN_US ? "Underworld Portal" : "地下世界传送门");
+        add("block.infx.nether_portal", locale == Locale.EN_US ? "Nether Portal" : "下界传送门");
+        add("block.infx.return_spawn_portal", locale == Locale.EN_US ? "Return Spawn Portal" : "返回出生点传送门");
         add("disconnect.infx.chat_spam", locale == Locale.EN_US ? "Kicked for chat spam" : "因聊天刷屏被踢出");
         add("disconnect.infx.reconnect_limited", locale == Locale.EN_US
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"

@@ -416,12 +416,11 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.BIOME), "Underworld biome registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.NOISE_SETTINGS).containsKey(Underworld.NOISE), "Underworld noise registered");
 
-        // A non-bottom Overworld gate is the first of the five ordinary R196 routes: it
-        // returns to the shared world spawn without needing a second dimension.
+        // The dedicated return-spawn block stays in the Overworld and needs no second dimension.
         helper.assertTrue(helper.getLevel().getServer().getLevel(Underworld.LEVEL) == null, "GameTest has no custom levels");
-        TeleportTransition transition = ModBlocks.UNDERWORLD_PORTAL.get()
+        TeleportTransition transition = ModBlocks.RETURN_SPAWN_PORTAL.get()
                 .getPortalDestination(helper.getLevel(), player, player.blockPosition());
-        helper.assertTrue(transition != null, "non-bottom Overworld portal must return a spawn transition");
+        helper.assertTrue(transition != null, "return-spawn portal must return a spawn transition");
         helper.assertTrue(transition.newLevel() == helper.getLevel(), "spawn route stays in the Overworld");
 
         BlockPos frameBase = helper.absolutePos(new BlockPos(14, 0, 14));
@@ -475,7 +474,10 @@ public final class ModR196CompletionGameTests {
                 .orElseThrow();
         helper.assertTrue(
                 UnderworldPortalEvents.tryCreateR196Portal(helper.getLevel(), origin, shape),
-                "ordinary Overworld frame must become an R196 portal");
+                "ordinary Overworld frame must become a return-spawn portal");
+        helper.assertTrue(
+                helper.getLevel().getBlockState(origin).is(ModBlocks.RETURN_SPAWN_PORTAL.get()),
+                "ordinary Overworld frame must not reuse the Underworld portal block");
 
         BlockPos[] corners = {
             base,
@@ -495,6 +497,9 @@ public final class ModR196CompletionGameTests {
                 UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
                 "four same-material corner runes must override the ordinary gate");
         helper.assertTrue(
+                helper.getLevel().getBlockState(origin).is(ModBlocks.UNDERWORLD_PORTAL.get()),
+                "a completed rune frame switches to the dedicated rune-capable portal block");
+        helper.assertTrue(
                 helper.getLevel().getBlockState(corners[3]).getValue(RuneStoneBlock.RUNE) == 15,
                 "all sixteen rune states persist in the frame");
         helper.assertTrue(
@@ -506,9 +511,9 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(
                 UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
                 "mixed rune materials must not form a rune gate");
-        helper.assertFalse(
-                helper.getLevel().getBlockState(origin).getValue(UnderworldPortalBlock.RUNE_GATE),
-                "mixed rune corners restore the ordinary portal surface");
+        helper.assertTrue(
+                helper.getLevel().getBlockState(origin).is(ModBlocks.RETURN_SPAWN_PORTAL.get()),
+                "mixed rune corners restore the original return-spawn portal block");
 
         player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
         helper.assertTrue(player.gameMode.destroyBlock(origin), "creative mode must break a portal block");
@@ -1080,8 +1085,10 @@ public final class ModR196CompletionGameTests {
                 tabs.getFirst().getDisplayItems().stream().allMatch(stack -> stack.getItem() instanceof BlockItem),
                 "the blocks tab only contains registered BlockItems");
         helper.assertTrue(
-                ModBlocks.UNDERWORLD_PORTAL.get().asItem() == Items.AIR,
-                "the Underworld portal remains the only block without an item form");
+                ModBlocks.UNDERWORLD_PORTAL.get().asItem() == Items.AIR
+                        && ModBlocks.NETHER_PORTAL.get().asItem() == Items.AIR
+                        && ModBlocks.RETURN_SPAWN_PORTAL.get().asItem() == Items.AIR,
+                "all portal surfaces remain without an item form");
 
         List<CreativeModeTab> sortedTabs = CreativeModeTabRegistry.getSortedCreativeModeTabs();
         CreativeModeTab vanillaSpawnEggs =

@@ -14,6 +14,7 @@ import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.NetherrackFurnaceBlock;
 import com.pixulse.infx.block.ObsidianFurnaceBlock;
 import com.pixulse.infx.block.ObsidianWorkbenchBlock;
+import com.pixulse.infx.block.R196PortalBlock;
 import com.pixulse.infx.block.R196FurnaceBlock;
 import com.pixulse.infx.block.SandstoneFurnaceBlock;
 import com.pixulse.infx.block.SilverWorkbenchBlock;
@@ -113,6 +114,14 @@ public final class ModBlocks {
     public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(
             "underworld_portal",
             UnderworldPortalBlock::new,
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
+    public static final DeferredBlock<R196PortalBlock> NETHER_PORTAL = BLOCKS.registerBlock(
+            "nether_portal",
+            properties -> new R196PortalBlock(R196PortalBlock.PortalType.NETHER, properties),
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
+    public static final DeferredBlock<R196PortalBlock> RETURN_SPAWN_PORTAL = BLOCKS.registerBlock(
+            "return_spawn_portal",
+            properties -> new R196PortalBlock(R196PortalBlock.PortalType.RETURN_SPAWN, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
 
     public static final DeferredBlock<Block> MANTLE = BLOCKS.registerSimpleBlock(
