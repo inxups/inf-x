@@ -1146,7 +1146,11 @@ class R196GeneratedResourceTest {
                 () -> assertTrue(underworldFeatures.contains("infx:silver_ore")),
                 () -> assertTrue(underworldFeatures.contains("infx:mithril_ore")),
                 () -> assertTrue(underworldFeatures.contains("infx:underworld_adamantium_ore")),
-                () -> assertTrue(underworldFeatures.contains("infx:underworld_mantle_basin")));
+                () -> assertFalse(underworldFeatures.contains("infx:underworld_mantle_basin")),
+                () -> assertFalse(Files.exists(GENERATED.resolve(
+                        "data/infx/worldgen/configured_feature/underworld_mantle_basin.json"))),
+                () -> assertFalse(Files.exists(GENERATED.resolve(
+                        "data/infx/worldgen/placed_feature/underworld_mantle_basin.json"))));
 
         JsonObject configured = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"));
@@ -1165,41 +1169,6 @@ class R196GeneratedResourceTest {
                 () -> assertTrue(placedContents.contains("\"absolute\":136")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/neoforge/biome_modifier/add_adamantium_ore.json"))));
-
-        JsonObject mantle = json(GENERATED.resolve(
-                "data/infx/worldgen/configured_feature/underworld_mantle_basin.json"));
-        JsonObject mantleConfig = mantle.getAsJsonObject("config");
-        JsonObject mantleRadius = mantleConfig.getAsJsonObject("radius");
-        JsonObject placedMantle = json(GENERATED.resolve(
-                "data/infx/worldgen/placed_feature/underworld_mantle_basin.json"));
-        JsonObject mantleHeight = placedMantle
-                .getAsJsonArray("placement")
-                .get(2)
-                .getAsJsonObject()
-                .getAsJsonObject("height");
-        int mantleHalfHeight = mantleConfig.get("half_height").getAsInt();
-        int mantleMinimumOffset = mantleHeight
-                .getAsJsonObject("min_inclusive")
-                .get("above_bottom")
-                .getAsInt();
-        int mantleMaximumOffset = mantleHeight
-                .getAsJsonObject("max_inclusive")
-                .get("above_bottom")
-                .getAsInt();
-        assertAll(
-                "Underworld mantle basin",
-                () -> assertEquals("minecraft:disk", mantle.get("type").getAsString()),
-                () -> assertEquals(3, mantleRadius.get("min_inclusive").getAsInt()),
-                () -> assertEquals(8, mantleRadius.get("max_inclusive").getAsInt()),
-                () -> assertTrue(mantleConfig.toString().contains("infx:mantle")),
-                () -> assertEquals("infx:underworld_mantle_basin", placedMantle.get("feature").getAsString()),
-                () -> assertTrue(placedMantle.toString().contains("\"count\":2")),
-                () -> assertEquals(120, mantleMinimumOffset),
-                () -> assertEquals(136, mantleMaximumOffset),
-                () -> assertEquals(-72, underworldMinY + mantleMinimumOffset),
-                () -> assertEquals(-56, underworldMinY + mantleMaximumOffset),
-                () -> assertEquals(-73, underworldMinY + mantleMinimumOffset - mantleHalfHeight),
-                () -> assertEquals(-55, underworldMinY + mantleMaximumOffset + mantleHalfHeight));
 
         JsonObject dungeon = json(GENERATED.resolve("data/infx/loot_table/chests/underworld_dungeon.json"));
         JsonObject dungeonPool = dungeon.getAsJsonArray("pools").get(0).getAsJsonObject();
