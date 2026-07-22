@@ -191,8 +191,8 @@ class R196FulltextGeneratedResourceTest {
         assertTrue(netherGravel.toString().contains("infx:nether_gravel"));
         JsonObject underworld = json(GENERATED.resolve(
                 "data/infx/worldgen/noise_settings/underworld.json"));
-        assertTrue(underworld.toString().contains("infx:core"), "Underworld bottom must use Core");
-        assertTrue(underworld.toString().contains("infx:mantle"), "Core must be covered by Mantle");
+        assertFalse(underworld.toString().contains("infx:core"), "Underworld terrain must not use Core");
+        assertTrue(underworld.toString().contains("infx:mantle"), "Underworld bottom must use Mantle");
     }
 
     private static List<String> strings(JsonArray array) {

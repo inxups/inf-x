@@ -786,7 +786,6 @@ final class ModWorldGen {
     private static SurfaceRules.RuleSource underworldSurfaceRule() {
         SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
         SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
-        SurfaceRules.RuleSource core = SurfaceRules.state(ModBlocks.CORE.get().defaultBlockState());
         SurfaceRules.RuleSource mantle = SurfaceRules.state(ModBlocks.MANTLE.get().defaultBlockState());
         return SurfaceRules.sequence(
                 SurfaceRules.ifTrue(
@@ -797,10 +796,10 @@ final class ModWorldGen {
                         bedrock),
                 SurfaceRules.ifTrue(
                         SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(1), 0)),
-                        core),
+                        mantle),
                 SurfaceRules.ifTrue(
                         SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(5), 0)),
-                        mantle),
+                        bedrock),
                 internalBedrockBand(152, 161, Noises.PILLAR, bedrock),
                 internalBedrockBand(216, 225, Noises.SPAGHETTI_2D, bedrock),
                 internalBedrockBand(272, 281, Noises.CAVE_LAYER, bedrock),
