@@ -54,13 +54,14 @@ public final class WorldCreationLockClientEvents {
     }
 
     static void enforceProfile(WorldCreationUiState state) {
-        if (state.getGameMode() != WorldCreationUiState.SelectedGameMode.SURVIVAL
-                || state.getGameMode().gameType != WorldCreationLockProfile.GAME_TYPE) {
+        if (!isAllowedGameMode(state.getGameMode())) {
             state.setGameMode(WorldCreationUiState.SelectedGameMode.SURVIVAL);
         }
-        var lockedDifficulty = WorldCreationLockProfile.difficulty();
-        if (state.getDifficulty() != lockedDifficulty) {
-            state.setDifficulty(lockedDifficulty);
+        if (!state.isHardcore()) {
+            var lockedDifficulty = WorldCreationLockProfile.difficulty();
+            if (state.getDifficulty() != lockedDifficulty) {
+                state.setDifficulty(lockedDifficulty);
+            }
         }
         if (state.isAllowCommands() != WorldCreationLockProfile.ALLOW_COMMANDS) {
             state.setAllowCommands(WorldCreationLockProfile.ALLOW_COMMANDS);
@@ -68,24 +69,40 @@ public final class WorldCreationLockClientEvents {
         if (state.isBonusChest() != WorldCreationLockProfile.BONUS_CHEST) {
             state.setBonusChest(WorldCreationLockProfile.BONUS_CHEST);
         }
-        if (!state.getWorldType().isAmplified()) {
-            Holder<WorldPreset> amplified = state.getSettings()
+        if (!usesLockedWorldPreset(state.getWorldType())) {
+            Holder<WorldPreset> largeBiomes = state.getSettings()
                     .worldgenLoadContext()
                     .lookupOrThrow(Registries.WORLD_PRESET)
                     .get(WorldCreationLockProfile.WORLD_PRESET)
-                    .orElseThrow(() -> new IllegalStateException("Amplified world preset is unavailable"));
-            state.setWorldType(new WorldCreationUiState.WorldTypeEntry(amplified));
+                    .orElseThrow(() -> new IllegalStateException("Large-biomes world preset is unavailable"));
+            state.setWorldType(new WorldCreationUiState.WorldTypeEntry(largeBiomes));
         }
     }
 
     static void lockWidgets(MenuTabBar tabBar) {
-        findTab(tabBar, GAME_TAB).ifPresent(tab -> tab.visitChildren(widget -> {
-            if (!(widget instanceof EditBox)) widget.active = false;
-        }));
+        findTab(tabBar, GAME_TAB).ifPresent(WorldCreationLockClientEvents::lockGameWidgets);
         findTab(tabBar, WORLD_TAB).ifPresent(WorldCreationLockClientEvents::lockWorldWidgets);
         if (!WorldCreationLockProfile.ALLOW_ADVANCED_CONFIGURATION) {
             findTab(tabBar, MORE_TAB).ifPresent(tab -> tab.visitChildren(widget -> widget.active = false));
         }
+    }
+
+    static boolean isAllowedGameMode(WorldCreationUiState.SelectedGameMode gameMode) {
+        return gameMode == WorldCreationUiState.SelectedGameMode.SURVIVAL
+                || gameMode == WorldCreationUiState.SelectedGameMode.HARDCORE;
+    }
+
+    private static boolean usesLockedWorldPreset(WorldCreationUiState.WorldTypeEntry worldType) {
+        Holder<WorldPreset> preset = worldType.preset();
+        return preset != null && preset.unwrapKey().filter(WorldCreationLockProfile.WORLD_PRESET::equals).isPresent();
+    }
+
+    private static void lockGameWidgets(Tab tab) {
+        tab.visitChildren(widget -> {
+            if (widget instanceof EditBox) return;
+            widget.active = widget instanceof CycleButton<?> cycleButton
+                    && cycleButton.getValue() instanceof WorldCreationUiState.SelectedGameMode;
+        });
     }
 
     private static void lockWorldWidgets(Tab tab) {
