@@ -462,6 +462,45 @@ public final class ModR196CompletionGameTests {
                 helper.getLevel().getBlockState(arrival.relative(net.minecraft.core.Direction.NORTH))
                         .is(ModBlocks.UNDERWORLD_PORTAL.get()),
                 "arrival is beside the target portal");
+        int underworldSurfaces = countPortalSurfaces(
+                helper,
+                ModBlocks.UNDERWORLD_PORTAL.get(),
+                arrival.offset(-8, -4, -8),
+                arrival.offset(8, 4, 8));
+        BlockPos reusedArrival = ModBlocks.UNDERWORLD_PORTAL.get()
+                .findOrCreateArrivalPortal(helper.getLevel(), arrival);
+        helper.assertTrue(
+                countPortalSurfaces(
+                                helper,
+                                ModBlocks.UNDERWORLD_PORTAL.get(),
+                                arrival.offset(-8, -4, -8),
+                                arrival.offset(8, 4, 8))
+                        == underworldSurfaces,
+                "an existing Underworld portal is reused instead of creating another one");
+        helper.assertTrue(
+                hasAdjacentPortal(helper, reusedArrival, ModBlocks.UNDERWORLD_PORTAL.get()),
+                "reused arrival remains beside the existing Underworld portal");
+
+        BlockPos netherArrival = ModBlocks.NETHER_PORTAL.get()
+                .createArrivalPortal(helper.getLevel(), arrival.offset(12, 0, 0));
+        int netherSurfaces = countPortalSurfaces(
+                helper,
+                ModBlocks.NETHER_PORTAL.get(),
+                netherArrival.offset(-8, -4, -8),
+                netherArrival.offset(8, 4, 8));
+        BlockPos reusedNetherArrival = ModBlocks.NETHER_PORTAL.get()
+                .findOrCreateArrivalPortal(helper.getLevel(), arrival);
+        helper.assertTrue(
+                countPortalSurfaces(
+                                helper,
+                                ModBlocks.NETHER_PORTAL.get(),
+                                netherArrival.offset(-8, -4, -8),
+                                netherArrival.offset(8, 4, 8))
+                        == netherSurfaces,
+                "a Nether portal reuses only an existing Nether portal");
+        helper.assertTrue(
+                hasAdjacentPortal(helper, reusedNetherArrival, ModBlocks.NETHER_PORTAL.get()),
+                "a Nether portal never reuses an Underworld portal surface");
         removePlayer(player);
         helper.succeed();
     }
@@ -1263,6 +1302,22 @@ public final class ModR196CompletionGameTests {
                         message + " at " + origin.offset(x, y, 0));
             }
         }
+    }
+
+    private static int countPortalSurfaces(
+            GameTestHelper helper, Block block, BlockPos first, BlockPos second) {
+        return (int) BlockPos.betweenClosedStream(first, second)
+                .filter(pos -> helper.getLevel().getBlockState(pos).is(block))
+                .count();
+    }
+
+    private static boolean hasAdjacentPortal(GameTestHelper helper, BlockPos pos, Block portal) {
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
+            if (helper.getLevel().getBlockState(pos.relative(direction)).is(portal)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void interactAt(ServerPlayer player, net.minecraft.world.entity.Mob target) {
