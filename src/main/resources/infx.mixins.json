@@ -27,7 +27,8 @@
   ],
   "client": [
     "DebugScreenOverlayMixin",
-    "MinecraftMiningInputMixin"
+    "MinecraftMiningInputMixin",
+    "WorldCreationUiStateMixin"
   ],
   "injectors": {
     "defaultRequire": 1
