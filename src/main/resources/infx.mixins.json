@@ -8,6 +8,7 @@
     "CakeBlockMixin",
     "ChunkGeneratorMixin",
     "CraftingMenuMixin",
+    "DifficultyInstanceMixin",
     "DifficultyInvoker",
     "DifficultyMixin",
     "EggItemMixin",
@@ -27,6 +28,7 @@
     "RaidMixin"
   ],
   "client": [
+    "DifficultyButtonsMixin",
     "DebugScreenOverlayMixin",
     "MinecraftMiningInputMixin",
     "WorldCreationUiStateMixin"
