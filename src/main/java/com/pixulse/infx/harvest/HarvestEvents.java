@@ -71,7 +71,8 @@ public final class HarvestEvents {
 
     public static boolean hasDestroyProgress(Player player, BlockState state, BlockPos pos) {
         return !state.isAir()
-                && state.getDestroyProgress(player, player.level(), pos) > 0.0F;
+                && (player.getAbilities().instabuild
+                        || state.getDestroyProgress(player, player.level(), pos) > 0.0F);
     }
 
     private static boolean isAllowed(Player player, BlockState state, @Nullable BlockPos pos) {

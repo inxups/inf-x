@@ -481,6 +481,22 @@ public final class ModGameTests {
         helper.setBlock(WORK_POS, Blocks.OAK_LOG);
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "creative players must bypass harvest restrictions");
 
+        helper.setBlock(WORK_POS, Blocks.BEDROCK);
+        helper.assertTrue(
+                HarvestEvents.hasDestroyProgress(player, helper.getBlockState(WORK_POS), absolutePos),
+                "creative players must retain a valid mining target for bedrock");
+        PlayerInteractEvent.LeftClickBlock creativeBedrockStart = new PlayerInteractEvent.LeftClickBlock(
+                player,
+                absolutePos,
+                Direction.UP,
+                PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(creativeBedrockStart);
+        helper.assertFalse(
+                creativeBedrockStart.isCanceled(),
+                "creative mining must not be cancelled for bedrock");
+        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "creative players must break bedrock");
+        helper.assertTrue(helper.getBlockState(WORK_POS).isAir(), "creative bedrock break must remove the block");
+
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "workbenches must be recoverable with an empty hand");
