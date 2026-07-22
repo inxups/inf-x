@@ -139,6 +139,7 @@ dependencies {
 
     compileOnly "curse.maven:jei-238222:8444991"
     localRuntime "curse.maven:jei-238222:8444991"
+    testImplementation "curse.maven:jei-238222:8444991"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
