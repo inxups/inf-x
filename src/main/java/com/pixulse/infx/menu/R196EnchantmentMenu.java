@@ -1,6 +1,7 @@
 package com.pixulse.infx.menu;
 
 import com.pixulse.infx.block.R196EnchantingTableBlock;
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.ModBlocks;
@@ -38,6 +39,7 @@ import net.minecraft.world.level.block.Blocks;
 /** Server menu for R196's emerald (50 power) and diamond (100 power) tables. */
 public final class R196EnchantmentMenu extends EnchantmentMenu {
     private static final List<BlockPos> BOOKSHELVES = createBookshelfOffsets();
+    private final int[] enchantmentPowers = new int[3];
     private final Kind kind;
 
     public R196EnchantmentMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Kind kind) {
@@ -61,6 +63,10 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         return stack.is(kind.currency());
     }
 
+    public Item currency() {
+        return kind.currency();
+    }
+
     @Override
     public MenuType<?> getType() {
         return switch (kind) {
@@ -77,6 +83,7 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         if (stack.isEmpty() || !stack.isEnchantable()) {
             for (int index = 0; index < 3; index++) {
                 costs[index] = 0;
+                enchantmentPowers[index] = 0;
                 enchantClue[index] = -1;
                 levelClue[index] = -1;
             }
@@ -95,13 +102,14 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
             }
             accessors().infx$random().setSeed(accessors().infx$enchantmentSeed().get());
             for (int index = 0; index < 3; index++) {
-                costs[index] = Math.max(index + 1, Math.round(power * (index + 1) / 3.0F));
+                enchantmentPowers[index] = Math.max(index + 1, Math.round(power * (index + 1) / 3.0F));
                 enchantClue[index] = -1;
                 levelClue[index] = -1;
-                costs[index] = net.neoforged.neoforge.event.EventHooks.onEnchantmentLevelSet(
-                        level, pos, index, bookshelfCount(level, pos), stack, costs[index]);
+                enchantmentPowers[index] = net.neoforged.neoforge.event.EventHooks.onEnchantmentLevelSet(
+                        level, pos, index, bookshelfCount(level, pos), stack, enchantmentPowers[index]);
+                costs[index] = R196EnchantmentRules.experienceCost(enchantmentPowers[index]);
                 List<EnchantmentInstance> choices = accessors().infx$getEnchantmentList(
-                        level.registryAccess(), stack, index, costs[index]);
+                        level.registryAccess(), stack, index, enchantmentPowers[index]);
                 if (!choices.isEmpty()) {
                     EnchantmentInstance choice = choices.get(accessors().infx$random().nextInt(choices.size()));
                     enchantClue[index] = holders.getId(choice.enchantment());
@@ -122,14 +130,18 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         ItemStack input = slots.getItem(0);
         ItemStack currency = slots.getItem(1);
         int currencyCost = buttonId + 1;
+        int experienceCost = costs[buttonId];
         if ((!currency.is(kind.currency()) || currency.getCount() < currencyCost) && !player.hasInfiniteMaterials()) return false;
-        if (costs[buttonId] <= 0 || input.isEmpty()
-                || player.experienceLevel < costs[buttonId] && !player.hasInfiniteMaterials()) return false;
+        if (experienceCost <= 0 || input.isEmpty()
+                || player.totalExperience < experienceCost && !player.hasInfiniteMaterials()) return false;
         accessors().infx$access().execute((level, pos) -> {
             List<EnchantmentInstance> selected = accessors().infx$getEnchantmentList(
-                    level.registryAccess(), input, buttonId, costs[buttonId]);
+                    level.registryAccess(), input, buttonId, enchantmentPowers[buttonId]);
             if (selected.isEmpty()) return;
-            player.onEnchantmentPerformed(input, currencyCost);
+            player.onEnchantmentPerformed(input, 0);
+            if (!player.hasInfiniteMaterials()) {
+                player.giveExperiencePoints(-experienceCost);
+            }
             ItemStack enchanted = input.getItem().applyEnchantments(input, selected);
             slots.setItem(0, enchanted);
             net.neoforged.neoforge.common.CommonHooks.onPlayerEnchantItem(player, enchanted, selected);
