@@ -26,7 +26,10 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
@@ -38,6 +41,14 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
     @Override
     public Identifier getPluginUid() {
         return PLUGIN_ID;
+    }
+
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        registerRuneStoneSubtypes(
+                registration,
+                ModItems.MITHRIL_RUNE_STONE.get(),
+                ModItems.ADAMANTIUM_RUNE_STONE.get());
     }
 
     @Override
@@ -141,5 +152,11 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
                 9,
                 10,
                 36);
+    }
+
+    static void registerRuneStoneSubtypes(ISubtypeRegistration registration, Item... runeStones) {
+        for (Item runeStone : runeStones) {
+            registration.registerFromDataComponentTypes(runeStone, DataComponents.BLOCK_STATE);
+        }
     }
 }
