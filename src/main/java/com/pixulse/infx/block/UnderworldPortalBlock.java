@@ -14,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -33,6 +34,10 @@ import org.jspecify.annotations.Nullable;
 
 public final class UnderworldPortalBlock extends NetherPortalBlock {
     private static final String RETURN_POS = "infx_underworld_return_pos";
+    private static final int MIN_PORTAL_WIDTH = 2;
+    private static final int MAX_PORTAL_WIDTH = 21;
+    private static final int MIN_PORTAL_HEIGHT = 3;
+    private static final int MAX_PORTAL_HEIGHT = 21;
     public static final BooleanProperty RUNE_GATE = BooleanProperty.create("rune_gate");
 
     public UnderworldPortalBlock(BlockBehaviour.Properties properties) {
@@ -56,8 +61,122 @@ public final class UnderworldPortalBlock extends NetherPortalBlock {
             BlockPos neighbourPos,
             BlockState neighbourState,
             RandomSource random) {
-        return state;
+        Direction.Axis axis = state.getValue(AXIS);
+        boolean wrongAxis = axis != direction.getAxis() && direction.getAxis().isHorizontal();
+        return !wrongAxis
+                        && !neighbourState.is(this)
+                        && !hasCompletePortalShape(level, pos, axis)
+                ? Blocks.AIR.defaultBlockState()
+                : state;
     }
+
+    /** Mirrors NetherPortalBlock's structural check while accepting the replacement portal state. */
+    private boolean hasCompletePortalShape(LevelReader level, BlockPos pos, Direction.Axis axis) {
+        Direction rightDirection = axis == Direction.Axis.X ? Direction.WEST : Direction.SOUTH;
+        BlockPos bottomLeft = findBottomLeft(level, pos, rightDirection);
+        if (bottomLeft == null) {
+            return false;
+        }
+
+        int width = portalWidth(level, bottomLeft, rightDirection);
+        if (width < MIN_PORTAL_WIDTH || width > MAX_PORTAL_WIDTH) {
+            return false;
+        }
+
+        PortalInterior interior = portalInterior(level, bottomLeft, rightDirection, width);
+        return interior.height() >= MIN_PORTAL_HEIGHT
+                && interior.height() <= MAX_PORTAL_HEIGHT
+                && hasTopFrame(level, bottomLeft, rightDirection, width, interior.height())
+                && interior.portalBlocks() == width * interior.height();
+    }
+
+    private @Nullable BlockPos findBottomLeft(LevelReader level, BlockPos pos, Direction rightDirection) {
+        int minY = Math.max(level.getMinY(), pos.getY() - MAX_PORTAL_HEIGHT);
+        while (pos.getY() > minY && isPortalEmpty(level.getBlockState(pos.below()))) {
+            pos = pos.below();
+        }
+
+        Direction leftDirection = rightDirection.getOpposite();
+        int edge = distanceUntilFrame(level, pos, leftDirection) - 1;
+        return edge < 0 ? null : pos.relative(leftDirection, edge);
+    }
+
+    private int portalWidth(LevelReader level, BlockPos bottomLeft, Direction rightDirection) {
+        int width = distanceUntilFrame(level, bottomLeft, rightDirection);
+        return width >= MIN_PORTAL_WIDTH && width <= MAX_PORTAL_WIDTH ? width : 0;
+    }
+
+    private int distanceUntilFrame(LevelReader level, BlockPos pos, Direction direction) {
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int distance = 0; distance <= MAX_PORTAL_WIDTH; distance++) {
+            cursor.set(pos).move(direction, distance);
+            BlockState state = level.getBlockState(cursor);
+            if (!isPortalEmpty(state)) {
+                return isPortalFrame(state, level, cursor) ? distance : 0;
+            }
+
+            cursor.move(Direction.DOWN);
+            if (!isPortalFrame(level.getBlockState(cursor), level, cursor)) {
+                return 0;
+            }
+        }
+        return 0;
+    }
+
+    private PortalInterior portalInterior(
+            LevelReader level, BlockPos bottomLeft, Direction rightDirection, int width) {
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        int portalBlocks = 0;
+        for (int height = 0; height < MAX_PORTAL_HEIGHT; height++) {
+            cursor.set(bottomLeft).move(Direction.UP, height).move(rightDirection, -1);
+            if (!isPortalFrame(level.getBlockState(cursor), level, cursor)) {
+                return new PortalInterior(height, portalBlocks);
+            }
+
+            cursor.set(bottomLeft).move(Direction.UP, height).move(rightDirection, width);
+            if (!isPortalFrame(level.getBlockState(cursor), level, cursor)) {
+                return new PortalInterior(height, portalBlocks);
+            }
+
+            for (int horizontal = 0; horizontal < width; horizontal++) {
+                cursor.set(bottomLeft).move(Direction.UP, height).move(rightDirection, horizontal);
+                BlockState state = level.getBlockState(cursor);
+                if (!isPortalEmpty(state)) {
+                    return new PortalInterior(height, portalBlocks);
+                }
+                if (isPortalBlock(state)) {
+                    portalBlocks++;
+                }
+            }
+        }
+        return new PortalInterior(MAX_PORTAL_HEIGHT, portalBlocks);
+    }
+
+    private boolean hasTopFrame(
+            LevelReader level, BlockPos bottomLeft, Direction rightDirection, int width, int height) {
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int horizontal = 0; horizontal < width; horizontal++) {
+            cursor.set(bottomLeft).move(Direction.UP, height).move(rightDirection, horizontal);
+            if (!isPortalFrame(level.getBlockState(cursor), level, cursor)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isPortalEmpty(BlockState state) {
+        return state.isAir() || state.is(BlockTags.FIRE) || isPortalBlock(state);
+    }
+
+    private boolean isPortalBlock(BlockState state) {
+        return state.is(this) || state.is(Blocks.NETHER_PORTAL);
+    }
+
+    private static boolean isPortalFrame(BlockState state, LevelReader level, BlockPos pos) {
+        return state.isPortalFrame(level, pos) || state.getBlock() instanceof RuneStoneBlock;
+    }
+
+    private record PortalInterior(int height, int portalBlocks) {}
 
     @Override
     public @Nullable TeleportTransition getPortalDestination(

@@ -509,6 +509,23 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(
                 helper.getLevel().getBlockState(origin).getValue(UnderworldPortalBlock.RUNE_GATE),
                 "mixed rune corners restore the ordinary portal surface");
+
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        helper.assertTrue(player.gameMode.destroyBlock(origin), "creative mode must break a portal block");
+        assertPortalInteriorCleared(helper, origin, "breaking one portal block must clear the whole portal");
+
+        for (BlockPos corner : corners) {
+            helper.getLevel().setBlock(corner, Blocks.OBSIDIAN.defaultBlockState(), 3);
+        }
+        PortalShape restoredShape = PortalShape.findEmptyPortalShape(helper.getLevel(), origin, Direction.Axis.X)
+                .orElseThrow();
+        helper.assertTrue(
+                UnderworldPortalEvents.tryCreateR196Portal(helper.getLevel(), origin, restoredShape),
+                "restored frame must recreate the portal");
+        helper.assertTrue(
+                player.gameMode.destroyBlock(base.offset(0, 2, 0)),
+                "creative mode must break a portal frame block");
+        assertPortalInteriorCleared(helper, origin, "breaking the portal frame must clear the whole portal");
         removePlayer(player);
         helper.succeed();
     }
@@ -1229,6 +1246,16 @@ public final class ModR196CompletionGameTests {
             helper.getLevel().setBlock(base.offset(2, y, 0), Blocks.AIR.defaultBlockState(), 3);
         }
         return base.offset(1, 1, 0);
+    }
+
+    private static void assertPortalInteriorCleared(GameTestHelper helper, BlockPos origin, String message) {
+        for (int x = 0; x < 2; x++) {
+            for (int y = 0; y < 3; y++) {
+                helper.assertTrue(
+                        helper.getLevel().getBlockState(origin.offset(x, y, 0)).isAir(),
+                        message + " at " + origin.offset(x, y, 0));
+            }
+        }
     }
 
     private static void interactAt(ServerPlayer player, net.minecraft.world.entity.Mob target) {
