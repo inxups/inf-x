@@ -8,6 +8,7 @@ package com.pixulse.infx.enchantment;
  * changing combat, harvesting, or survival behavior.</p>
  */
 public final class R196EnchantmentRules {
+    private static final int EXPERIENCE_PER_ENCHANTMENT_POWER = 100;
     public static final int STANDARD_MAX_LEVEL = 5;
     public static final int BUTCHERING_MAX_LEVEL = 3;
     public static final int FORTUNE_MAX_LEVEL = 3;
@@ -16,6 +17,11 @@ public final class R196EnchantmentRules {
     public static final int PROTECTION_MAX_LEVEL = 4;
 
     private R196EnchantmentRules() {}
+
+    public static int experienceCost(int enchantmentPower) {
+        long cost = Math.max(0L, enchantmentPower) * EXPERIENCE_PER_ENCHANTMENT_POWER;
+        return (int) Math.min(Integer.MAX_VALUE, cost);
+    }
 
     public static float levelFraction(int level, int maximumLevel) {
         if (maximumLevel <= 0) return 0.0F;

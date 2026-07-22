@@ -7,6 +7,15 @@ import org.junit.jupiter.api.Test;
 
 class R196EnchantmentRulesTest {
     @Test
+    void enchantingPowerIsPaidAsRawExperience() {
+        assertEquals(0, R196EnchantmentRules.experienceCost(-1));
+        assertEquals(0, R196EnchantmentRules.experienceCost(0));
+        assertEquals(100, R196EnchantmentRules.experienceCost(1));
+        assertEquals(3_300, R196EnchantmentRules.experienceCost(33));
+        assertEquals(10_000, R196EnchantmentRules.experienceCost(100));
+    }
+
+    @Test
     void maximumLevelsAndDurabilityFollowR196Fractions() {
         assertEquals(5, R196EnchantmentRules.STANDARD_MAX_LEVEL);
         assertEquals(3, R196EnchantmentRules.BUTCHERING_MAX_LEVEL);

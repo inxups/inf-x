@@ -432,6 +432,15 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.enchanting_table_obstructed", locale == Locale.EN_US
                 ? "The enchanting table needs clear space above it"
                 : "附魔台上方需要留空");
+        add("container.infx.enchant.experience.requirement", locale == Locale.EN_US
+                ? "Requires %s XP"
+                : "需要 %s 点经验");
+        add("container.infx.enchant.experience.cost", locale == Locale.EN_US
+                ? "Experience cost: %s XP"
+                : "经验消耗：%s 点");
+        add("container.infx.enchant.currency_cost", locale == Locale.EN_US
+                ? "Currency cost: %s x %s"
+                : "材料消耗：%s × %s");
         add("message.infx.quality.average", locale == Locale.EN_US
                 ? "Selected Average Quality (no XP cost)"
                 : "已选择平均品质（不消耗经验）");
