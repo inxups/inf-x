@@ -69,6 +69,29 @@ class MiteUnderworldStrataTest {
     }
 
     @Test
+    void internalBedrockCentersRemainContinuousAcrossNoiseGaps() {
+        int[] centers = {32, 72, 96};
+
+        for (int chunkX = -2; chunkX <= 2; chunkX++) {
+            for (int chunkZ = -2; chunkZ <= 2; chunkZ++) {
+                MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(
+                        WORLD_SEED,
+                        new ChunkPos(chunkX, chunkZ));
+                for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
+                    for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
+                        for (int center : centers) {
+                            assertTrue(
+                                    plan.hasBedrockAt(localX, localZ, center),
+                                    "missing center at chunk " + chunkX + "," + chunkZ + " column " + localX
+                                            + "," + localZ + " relative Y=" + center);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     void generationMixinIsRegistered() throws IOException {
         var stream = MiteUnderworldStrataTest.class.getClassLoader().getResourceAsStream("infx.mixins.json");
         assertNotNull(stream);
