@@ -1478,9 +1478,9 @@ class R196GeneratedResourceTest {
 
         JsonObject returnSpawnPortal = json(GENERATED.resolve("assets/infx/blockstates/return_spawn_portal.json"))
                 .getAsJsonObject("variants");
-        assertEquals("minecraft:block/nether_portal_ns",
+        assertEquals("infx:block/underworld_portal_runegate_ns",
                 returnSpawnPortal.getAsJsonObject("axis=x").get("model").getAsString());
-        assertEquals("minecraft:block/nether_portal_ew",
+        assertEquals("infx:block/underworld_portal_runegate_ew",
                 returnSpawnPortal.getAsJsonObject("axis=z").get("model").getAsString());
     }
 
