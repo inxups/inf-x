@@ -101,6 +101,28 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void netherPortalModelsUseRedTintTemplates() throws Exception {
+        for (String orientation : List.of("ns", "ew")) {
+            JsonObject model = json(GENERATED.resolve("assets/infx/models/block/nether_portal_" + orientation + ".json"));
+            JsonObject template = json(STATIC.resolve(
+                    "assets/infx/models/block/template_red_nether_portal_" + orientation + ".json"));
+
+            assertEquals(
+                    "infx:block/template_red_nether_portal_" + orientation,
+                    model.get("parent").getAsString());
+            template.getAsJsonArray("elements")
+                    .get(0)
+                    .getAsJsonObject()
+                    .getAsJsonObject("faces")
+                    .entrySet()
+                    .forEach(face -> assertEquals(
+                            0,
+                            face.getValue().getAsJsonObject().get("tintindex").getAsInt(),
+                            orientation + " portal face " + face.getKey() + " must use the red tint source"));
+        }
+    }
+
+    @Test
     void everyCatalogItemHasDefinitionModelAndTwoTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -1447,14 +1469,19 @@ class R196GeneratedResourceTest {
             assertEquals("infx:block/runegate", textures.get("portal").getAsString());
             assertEquals("infx:block/runegate", textures.get("particle").getAsString());
         }
-        for (String block : List.of("nether_portal", "return_spawn_portal")) {
-            JsonObject variants = json(GENERATED.resolve("assets/infx/blockstates/" + block + ".json"))
-                    .getAsJsonObject("variants");
-            assertEquals("minecraft:block/nether_portal_ns",
-                    variants.getAsJsonObject("axis=x").get("model").getAsString());
-            assertEquals("minecraft:block/nether_portal_ew",
-                    variants.getAsJsonObject("axis=z").get("model").getAsString());
-        }
+        JsonObject netherPortal = json(GENERATED.resolve("assets/infx/blockstates/nether_portal.json"))
+                .getAsJsonObject("variants");
+        assertEquals("infx:block/nether_portal_ns",
+                netherPortal.getAsJsonObject("axis=x").get("model").getAsString());
+        assertEquals("infx:block/nether_portal_ew",
+                netherPortal.getAsJsonObject("axis=z").get("model").getAsString());
+
+        JsonObject returnSpawnPortal = json(GENERATED.resolve("assets/infx/blockstates/return_spawn_portal.json"))
+                .getAsJsonObject("variants");
+        assertEquals("minecraft:block/nether_portal_ns",
+                returnSpawnPortal.getAsJsonObject("axis=x").get("model").getAsString());
+        assertEquals("minecraft:block/nether_portal_ew",
+                returnSpawnPortal.getAsJsonObject("axis=z").get("model").getAsString());
     }
 
     @Test

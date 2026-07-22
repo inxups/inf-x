@@ -66,6 +66,16 @@ final class ModModelProvider extends ModelProvider {
             Optional.empty(),
             TextureSlot.PARTICLE,
             PORTAL);
+    private static final ModelTemplate RED_NETHER_PORTAL_NS_MODEL = new ModelTemplate(
+            Optional.of(InfiniteX.id("block/template_red_nether_portal_ns")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            PORTAL);
+    private static final ModelTemplate RED_NETHER_PORTAL_EW_MODEL = new ModelTemplate(
+            Optional.of(InfiniteX.id("block/template_red_nether_portal_ew")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            PORTAL);
     private static final PropertyDispatch<net.minecraft.client.renderer.block.dispatch.VariantMutator> SAFE_FACING =
             PropertyDispatch.modify(BarrelBlock.FACING)
                     .select(Direction.DOWN, BlockModelGenerators.NOP)
@@ -163,7 +173,7 @@ final class ModModelProvider extends ModelProvider {
         });
         ModBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
         generateUnderworldPortal(blockModels);
-        generatePlainPortal(blockModels, ModBlocks.NETHER_PORTAL.value());
+        generateRedNetherPortal(blockModels);
         generatePlainPortal(blockModels, ModBlocks.RETURN_SPAWN_PORTAL.value());
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
@@ -249,6 +259,21 @@ final class ModModelProvider extends ModelProvider {
                 .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
                         .select(Direction.Axis.X, vanillaNs)
                         .select(Direction.Axis.Z, vanillaEw)));
+    }
+
+    private static void generateRedNetherPortal(BlockModelGenerators blockModels) {
+        Material portal = new Material(Identifier.withDefaultNamespace("block/nether_portal"));
+        TextureMapping textures = new TextureMapping()
+                .put(TextureSlot.PARTICLE, portal)
+                .put(PORTAL, portal);
+        Identifier redNs = RED_NETHER_PORTAL_NS_MODEL.create(
+                InfiniteX.id("block/nether_portal_ns"), textures, blockModels.modelOutput);
+        Identifier redEw = RED_NETHER_PORTAL_EW_MODEL.create(
+                InfiniteX.id("block/nether_portal_ew"), textures, blockModels.modelOutput);
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(ModBlocks.NETHER_PORTAL.value())
+                .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
+                        .select(Direction.Axis.X, BlockModelGenerators.plainVariant(redNs))
+                        .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(redEw))));
     }
 
     private static void generateR196FoodModels(ItemModelGenerators models) {
