@@ -49,6 +49,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 final class ModModelProvider extends ModelProvider {
     private static final TextureSlot ANVIL_BODY = TextureSlot.create("body");
     private static final TextureSlot PORTAL = TextureSlot.create("portal");
+    private static final Identifier RUNE_GATE_NS = InfiniteX.id("block/underworld_portal_runegate_ns");
+    private static final Identifier RUNE_GATE_EW = InfiniteX.id("block/underworld_portal_runegate_ew");
     private static final ModelTemplate METAL_ANVIL_MODEL = new ModelTemplate(
             Optional.of(Identifier.withDefaultNamespace("block/template_anvil")),
             Optional.empty(),
@@ -174,7 +176,7 @@ final class ModModelProvider extends ModelProvider {
         ModBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
         generateUnderworldPortal(blockModels);
         generateRedNetherPortal(blockModels);
-        generatePlainPortal(blockModels, ModBlocks.RETURN_SPAWN_PORTAL.value());
+        generateRunegatePortal(blockModels, ModBlocks.RETURN_SPAWN_PORTAL.value());
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         ModItems.R196_BUCKETS.forEach(bucket ->
@@ -233,10 +235,8 @@ final class ModModelProvider extends ModelProvider {
         TextureMapping textures = new TextureMapping()
                 .put(TextureSlot.PARTICLE, runegate)
                 .put(PORTAL, runegate);
-        Identifier runeNs = RUNE_GATE_NS_MODEL.create(
-                InfiniteX.id("block/underworld_portal_runegate_ns"), textures, blockModels.modelOutput);
-        Identifier runeEw = RUNE_GATE_EW_MODEL.create(
-                InfiniteX.id("block/underworld_portal_runegate_ew"), textures, blockModels.modelOutput);
+        RUNE_GATE_NS_MODEL.create(RUNE_GATE_NS, textures, blockModels.modelOutput);
+        RUNE_GATE_EW_MODEL.create(RUNE_GATE_EW, textures, blockModels.modelOutput);
         var vanillaNs = BlockModelGenerators.plainVariant(
                 ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"));
         var vanillaEw = BlockModelGenerators.plainVariant(
@@ -246,19 +246,15 @@ final class ModModelProvider extends ModelProvider {
                                 BlockStateProperties.HORIZONTAL_AXIS, UnderworldPortalBlock.RUNE_GATE)
                         .select(Direction.Axis.X, false, vanillaNs)
                         .select(Direction.Axis.Z, false, vanillaEw)
-                        .select(Direction.Axis.X, true, BlockModelGenerators.plainVariant(runeNs))
-                                .select(Direction.Axis.Z, true, BlockModelGenerators.plainVariant(runeEw))));
+                        .select(Direction.Axis.X, true, BlockModelGenerators.plainVariant(RUNE_GATE_NS))
+                                .select(Direction.Axis.Z, true, BlockModelGenerators.plainVariant(RUNE_GATE_EW))));
     }
 
-    private static void generatePlainPortal(BlockModelGenerators blockModels, Block portal) {
-        var vanillaNs = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"));
-        var vanillaEw = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ew"));
+    private static void generateRunegatePortal(BlockModelGenerators blockModels, Block portal) {
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(portal)
                 .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
-                        .select(Direction.Axis.X, vanillaNs)
-                        .select(Direction.Axis.Z, vanillaEw)));
+                        .select(Direction.Axis.X, BlockModelGenerators.plainVariant(RUNE_GATE_NS))
+                        .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(RUNE_GATE_EW))));
     }
 
     private static void generateRedNetherPortal(BlockModelGenerators blockModels) {
