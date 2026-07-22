@@ -144,24 +144,32 @@ public final class ModMonsterGameTests {
         Vec3 explicitLocation = helper.absoluteVec(Vec3.atBottomCenterOf(explicitPos));
         explicit.snapTo(explicitLocation.x, explicitLocation.y, explicitLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicit);
-        helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
-        helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0);
-        helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
-        helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
-        helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0);
-        Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
-        var replacement = helper.getLevel()
-                .getEntitiesOfClass(
-                        com.pixulse.infx.entity.R196Zombie.class,
-                        new AABB(replacementPosition, replacementPosition).inflate(2.0D))
-                .getFirst();
-        helper.assertTrue(
-                replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 40.0D,
-                "replacement initialization must retain the R196 follow range");
-        helper.assertTrue(
-                replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
-                "replacement initialization must retain the R196 attack damage");
-        helper.succeed();
+        helper.startSequence()
+                // Replacement insertion is deliberately scheduled after the
+                // vanilla join event, so the test must not inspect tick-zero's
+                // pre-transaction entity index.
+                .thenWaitUntil(() -> {
+                    helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0D);
+                    helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
+                    helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
+                })
+                .thenExecute(() -> {
+                    helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
+                    helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
+                    Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
+                    var replacement = helper.getLevel()
+                            .getEntitiesOfClass(
+                                    com.pixulse.infx.entity.R196Zombie.class,
+                                    new AABB(replacementPosition, replacementPosition).inflate(2.0D))
+                            .getFirst();
+                    helper.assertTrue(
+                            replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 40.0D,
+                            "replacement initialization must retain the R196 follow range");
+                    helper.assertTrue(
+                            replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
+                            "replacement initialization must retain the R196 attack damage");
+                })
+                .thenSucceed();
     }
 
     private static void spawnTables(GameTestHelper helper) {
@@ -264,16 +272,28 @@ public final class ModMonsterGameTests {
 
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 2, 4));
-        before = cow.getHealth();
-        level.explode(
-                infernal,
-                infernal.getX(),
-                infernal.getY(),
-                infernal.getZ(),
-                3.0F,
-                Level.ExplosionInteraction.MOB);
-        helper.assertTrue(cow.getHealth() < before, "infernal creeper explosions must use the amplified six-block radius");
-        helper.succeed();
+        helper.startSequence()
+                // Explosions query the level's entity index. Waiting for both
+                // entities prevents a tick-zero explosion from observing an
+                // empty index while spawn registration is still pending.
+                .thenWaitUntil(() -> {
+                    helper.assertEntityPresent(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4), 2.0D);
+                    helper.assertEntityPresent(EntityTypes.COW, new BlockPos(9, 2, 4), 2.0D);
+                })
+                .thenExecute(() -> {
+                    float cowHealthBefore = cow.getHealth();
+                    level.explode(
+                            infernal,
+                            infernal.getX(),
+                            infernal.getY(),
+                            infernal.getZ(),
+                            3.0F,
+                            Level.ExplosionInteraction.MOB);
+                    helper.assertTrue(
+                            cow.getHealth() < cowHealthBefore,
+                            "infernal creeper explosions must use the amplified six-block radius");
+                })
+                .thenSucceed();
     }
 
     private static void tactics(GameTestHelper helper) {
