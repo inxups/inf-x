@@ -52,6 +52,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Registration, spawn replacement and cross-family AI hooks for R196 mobs. */
 public final class R196MonsterEvents {
+    private static final int LIGHT_SEARCH_INTERVAL = 80;
     private static boolean sharingTarget;
 
     private R196MonsterEvents() {}
@@ -364,24 +365,25 @@ public final class R196MonsterEvents {
     private static void coordinateAndSeekLight(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof Mob mob)
                 || !(mob instanceof Enemy)
-                || !(mob.level() instanceof ServerLevel level)
-                || mob.tickCount % 20 != 0) {
+                || !(mob.level() instanceof ServerLevel level)) {
             return;
         }
         if (mob.getTarget() != null) {
-            R196MonsterTactics.cooperate(level, mob);
+            if (mob.tickCount % 20 == 0) R196MonsterTactics.cooperate(level, mob);
             return;
         }
-        double range = R196MoonPhase.at(level) == R196MoonPhase.BLOOD ? 96.0 : 48.0;
-        Player illuminated = level.getNearestPlayer(
-                mob.getX(), mob.getY(), mob.getZ(), range,
-                player -> !player.isSpectator()
-                        && level.getBrightness(LightLayer.BLOCK, player.blockPosition()) >= 7);
-        if (illuminated != null) {
-            mob.setTarget(illuminated);
-            return;
+        if (mob.tickCount % 20 == 0) {
+            double range = R196MoonPhase.at(level) == R196MoonPhase.BLOOD ? 96.0 : 48.0;
+            Player illuminated = level.getNearestPlayer(
+                    mob.getX(), mob.getY(), mob.getZ(), range,
+                    player -> !player.isSpectator()
+                            && level.getBrightness(LightLayer.BLOCK, player.blockPosition()) >= 7);
+            if (illuminated != null) {
+                mob.setTarget(illuminated);
+                return;
+            }
         }
-        if (mob.tickCount % 80 == 0) {
+        if (shouldSearchForLight(mob.tickCount, mob.getId())) {
             BlockPos origin = mob.blockPosition();
             BlockPos brightest = null;
             int brightness = 6;
@@ -394,6 +396,16 @@ public final class R196MonsterEvents {
             }
             if (brightest != null) mob.getNavigation().moveTo(brightest.getX() + .5, brightest.getY(), brightest.getZ() + .5, 1.0);
         }
+    }
+
+    /**
+     * Spreads the full light search across the interval while keeping each mob's cadence intact.
+     *
+     * <p>Mobs loaded around a respawn point often begin ticking together. Their runtime IDs give
+     * the expensive 21-by-9-by-21 search a stable phase without retaining per-mob state.
+     */
+    static boolean shouldSearchForLight(int tickCount, int entityId) {
+        return Math.floorMod(tickCount + entityId, LIGHT_SEARCH_INTERVAL) == 0;
     }
 
     private static void limitSpawnerPopulation(MobSpawnEvent.PositionCheck event) {
