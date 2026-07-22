@@ -5,6 +5,7 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "AbstractFurnaceBlockEntityMixin",
+    "BaseFireBlockMixin",
     "CakeBlockMixin",
     "ChunkGeneratorMixin",
     "CraftingMenuMixin",
