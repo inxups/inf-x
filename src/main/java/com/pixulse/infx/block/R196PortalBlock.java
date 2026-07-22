@@ -2,6 +2,7 @@ package com.pixulse.infx.block;
 
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModPoiTypes;
+import com.pixulse.infx.world.RunegateTeleportation;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 import java.util.Comparator;
@@ -43,6 +44,7 @@ public class R196PortalBlock extends NetherPortalBlock {
     private static final int MAX_PORTAL_WIDTH = 21;
     private static final int MIN_PORTAL_HEIGHT = 3;
     private static final int MAX_PORTAL_HEIGHT = 21;
+    protected static final int MITE_RUNEGATE_ENTRY_TICKS = 1;
 
     private final PortalType portalType;
 
@@ -181,6 +183,13 @@ public class R196PortalBlock extends NetherPortalBlock {
     }
 
     @Override
+    public int getPortalTransitionTime(ServerLevel level, Entity entity) {
+        return portalType == PortalType.RETURN_SPAWN && entity instanceof ServerPlayer
+                ? MITE_RUNEGATE_ENTRY_TICKS
+                : super.getPortalTransitionTime(level, entity);
+    }
+
+    @Override
     public @Nullable TeleportTransition getPortalDestination(
             ServerLevel currentLevel, Entity entity, BlockPos portalEntryPos) {
         PortalRoute route = routeFor(portalType, currentLevel.dimension());
@@ -188,7 +197,11 @@ public class R196PortalBlock extends NetherPortalBlock {
             return null;
         }
         if (route == PortalRoute.OVERWORLD_SPAWN) {
-            return spawnTransition(currentLevel, entity);
+            TeleportTransition transition = spawnTransition(currentLevel, entity);
+            if (entity instanceof ServerPlayer player && RunegateTeleportation.start(player, transition)) {
+                return null;
+            }
+            return transition;
         }
 
         var targetDimension = switch (route) {
