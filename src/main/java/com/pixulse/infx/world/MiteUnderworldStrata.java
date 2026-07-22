@@ -13,7 +13,8 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  *
  * <p>The original pass runs after terrain generation, so it cannot be expressed by a 26.2 surface rule:
  * both boundary thickness and the three internal bedrock strata depend on per-column random values
- * and legacy octave noise.</p>
+ * and legacy octave noise. InfiniteX retains each stratum's center block when that noise would otherwise
+ * make its width non-positive across an entire region.</p>
  */
 public final class MiteUnderworldStrata {
     static final int LEGACY_TERRAIN_START_Y = 120;
@@ -129,7 +130,7 @@ public final class MiteUnderworldStrata {
             double bump,
             boolean[] chanceIn2,
             int[] chanceIndex) {
-        if (width <= 0.0) return false;
+        if (width <= 0.0) return distanceFromCenter == 0;
         if (distanceFromCenter > 0 && bump > 0.0) {
             width += bump * 0.25 + 0.25;
         }
