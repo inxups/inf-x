@@ -522,11 +522,6 @@ public final class ModR196CompletionGameTests {
         ItemEntity wheat = new ItemEntity(
                 level, cow.getX(), cow.getY(), cow.getZ(), new ItemStack(Items.WHEAT));
         level.addFreshEntity(wheat);
-        R196Livestock.Needs needs = R196Livestock.update(level, cow);
-        helper.assertTrue(needs.watered(), "nearby water must satisfy livestock thirst");
-        helper.assertTrue(
-                needs.fed() && (wheat.getItem().isEmpty() || !wheat.isAlive()),
-                "livestock must consume suitable dropped food");
 
         cow.getPersistentData().putBoolean("infx_livestock_healthy", true);
         cow.getPersistentData().putBoolean("infx_livestock_diseased", false);
@@ -553,17 +548,9 @@ public final class ModR196CompletionGameTests {
         chicken.getPersistentData().putBoolean("infx_livestock_diseased", false);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", -1L);
         com.pixulse.infx.entity.R196AnimalEvents.updateChicken(level, chicken);
-        helper.assertTrue(
-                !level.getEntitiesOfClass(
-                                ItemEntity.class,
-                                chicken.getBoundingBox().inflate(3.0),
-                                item -> item.getItem().is(Items.FEATHER))
-                        .isEmpty(),
-                "healthy chickens must naturally shed feathers");
 
-        Cow seeker = helper.spawn(EntityTypes.COW, new BlockPos(8, 2, 4));
-        seeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
-        seeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime());
+        // Build the dry approach before spawning the seeker so its first AI
+        // tick cannot run while it is falling through uninitialized ground.
         for (int x = 7; x <= 11; x++) {
             for (int z = 3; z <= 5; z++) {
                 helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
@@ -571,14 +558,40 @@ public final class ModR196CompletionGameTests {
         }
         BlockPos water = new BlockPos(11, 1, 4);
         helper.setBlock(water, Blocks.WATER);
+        Cow seeker = helper.spawn(EntityTypes.COW, new BlockPos(8, 2, 4));
+        // Keep the manually exercised goal in sole control. The production goal
+        // is registered on join and can otherwise reach the water before this
+        // assertion gets a chance to inspect its selected navigation target.
+        seeker.goalSelector.removeAllGoals(goal -> true);
+        // Ground navigation does not calculate until the first physics tick
+        // marks a newly spawned mob as grounded. The test invokes the goal
+        // directly, so establish that normal settled state explicitly.
+        seeker.setDeltaMovement(Vec3.ZERO);
+        seeker.setOnGround(true);
+        seeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
+        seeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime());
         R196Livestock.Needs thirsty = R196Livestock.update(level, seeker);
         helper.assertFalse(thirsty.watered(), "seeker setup must begin thirsty");
         R196Livestock.NeedsGoal waterGoal = new R196Livestock.NeedsGoal(seeker);
-        R196Livestock.panic(level, cow);
-        helper.assertFalse(
-                chicken.getPersistentData().getBooleanOr("infx_livestock_healthy", true),
-                "panic must propagate across animal species");
         helper.startSequence()
+                .thenExecuteAfter(1, () -> {
+                    R196Livestock.Needs needs = R196Livestock.update(level, cow);
+                    helper.assertTrue(needs.watered(), "nearby water must satisfy livestock thirst");
+                    helper.assertTrue(
+                            needs.fed() && (wheat.getItem().isEmpty() || !wheat.isAlive()),
+                            "livestock must consume suitable dropped food");
+                    R196Livestock.panic(level, cow);
+                    helper.assertFalse(
+                            chicken.getPersistentData().getBooleanOr("infx_livestock_healthy", true),
+                            "panic must propagate across animal species");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        !level.getEntitiesOfClass(
+                                        ItemEntity.class,
+                                        chicken.getBoundingBox().inflate(3.0),
+                                        item -> item.getItem().is(Items.FEATHER))
+                                .isEmpty(),
+                        "healthy chickens must naturally shed feathers"))
                 .thenWaitUntil(() -> helper.assertTrue(
                         waterGoal.canUse(),
                         "thirsty livestock must select a reachable water approach"))
