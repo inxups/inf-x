@@ -12,7 +12,13 @@ import com.google.gson.JsonParser;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.material.R196Quality;
+import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.ModEnchantments;
+import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.ModJukeboxSongs;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -24,6 +30,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +39,7 @@ class R196GeneratedResourceTest {
     private static final Path ROOT = findProjectRoot();
     private static final Path GENERATED = ROOT.resolve("src/generated/resources");
     private static final Path STATIC = ROOT.resolve("src/main/resources");
+    private static final Pattern FORMAT_SPECIFIER = Pattern.compile("%(?:\\d+\\$)?[A-Za-z]");
 
     @Test
     void r196SpawnTablesUseCorrectPoolsAndSources() throws Exception {
@@ -109,6 +117,66 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void generatedLanguagesCoverRegisteredContentAndKeepFormatsInSync() throws Exception {
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+
+        assertEquals(english.keySet(), chinese.keySet(), "language files must contain the same keys");
+        english.entrySet().forEach(entry -> {
+            String key = entry.getKey();
+            String englishValue = entry.getValue().getAsString();
+            String chineseValue = chinese.get(key).getAsString();
+            assertAll(
+                    key,
+                    () -> assertFalse(englishValue.isBlank(), "en_us translation must not be blank"),
+                    () -> assertFalse(chineseValue.isBlank(), "zh_cn translation must not be blank"),
+                    () -> assertEquals(
+                            formatSpecifiers(englishValue),
+                            formatSpecifiers(chineseValue),
+                            "format specifiers must match"));
+        });
+
+        Set<String> blockPaths = ModBlocks.BLOCKS.getEntries().stream()
+                .map(block -> block.getId().getPath())
+                .collect(Collectors.toSet());
+        ModBlocks.BLOCKS.getEntries().forEach(block ->
+                assertLanguageKey(english, chinese, "block.infx." + block.getId().getPath()));
+        ModItems.ITEMS.getEntries().forEach(item -> {
+            String path = item.getId().getPath();
+            String prefix = blockPaths.contains(path) ? "block.infx." : "item.infx.";
+            assertLanguageKey(english, chinese, prefix + path);
+        });
+        ModEntityTypes.names().forEach(entity ->
+                assertLanguageKey(english, chinese, "entity.infx." + entity.path()));
+        Stream.concat(ModEnchantments.R196.stream(), Stream.of(ModEnchantments.CLUMSINESS))
+                .forEach(enchantment -> assertLanguageKey(
+                        english, chinese, "enchantment.infx." + enchantment.identifier().getPath()));
+        for (String effect : List.of("malnutrition", "witch_curse", "insulin_resistance", "paralysis")) {
+            assertLanguageKey(english, chinese, "effect.infx." + effect);
+        }
+        for (R196Material material : R196Material.values()) {
+            assertLanguageKey(english, chinese, "material.infx." + material.path());
+        }
+        for (R196Quality quality : R196Quality.values()) {
+            assertLanguageKey(english, chinese, "quality.infx." + quality.getSerializedName());
+        }
+        Stream.of(
+                        ModJukeboxSongs.UNDERWORLD,
+                        ModJukeboxSongs.DESCENT,
+                        ModJukeboxSongs.WANDERER,
+                        ModJukeboxSongs.LEGENDS)
+                .forEach(song -> assertLanguageKey(
+                        english, chinese, "jukebox_song.infx." + song.identifier().getPath()));
+        ModBlocks.FURNACES.forEach(furnace ->
+                assertLanguageKey(english, chinese, "container.infx." + furnace.getId().getPath()));
+        ModBlocks.WORKBENCHES.forEach(workbench ->
+                assertLanguageKey(english, chinese, "container.infx." + workbench.getId().getPath()));
+        ModBlocks.METAL_SAFES.forEach(safe ->
+                assertLanguageKey(english, chinese, "container.infx." + safe.getId().getPath()));
+        assertLanguageKey(english, chinese, "container.infx.metal_anvil");
+    }
+
+    @Test
     void creativeTabsHaveEnglishAndChineseTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -150,7 +218,15 @@ class R196GeneratedResourceTest {
                     () -> assertTrue(english.has("block.infx." + path)),
                     () -> assertTrue(english.has("container.infx." + path)),
                     () -> assertTrue(chinese.has("block.infx." + path)),
-                    () -> assertTrue(chinese.has("container.infx." + path)));
+                    () -> assertTrue(chinese.has("container.infx." + path)),
+                    () -> assertEquals(
+                            english.get("block.infx." + path).getAsString(),
+                            english.get("container.infx." + path).getAsString(),
+                            "English block and menu names must match"),
+                    () -> assertEquals(
+                            chinese.get("block.infx." + path).getAsString(),
+                            chinese.get("container.infx." + path).getAsString(),
+                            "Chinese block and menu names must match"));
         }
     }
 
@@ -1302,7 +1378,15 @@ class R196GeneratedResourceTest {
                     () -> assertTrue(english.has("block.infx." + path)),
                     () -> assertTrue(english.has("container.infx." + path)),
                     () -> assertTrue(chinese.has("block.infx." + path)),
-                    () -> assertTrue(chinese.has("container.infx." + path)));
+                    () -> assertTrue(chinese.has("container.infx." + path)),
+                    () -> assertEquals(
+                            english.get("block.infx." + path).getAsString(),
+                            english.get("container.infx." + path).getAsString(),
+                            "English block and menu names must match"),
+                    () -> assertEquals(
+                            chinese.get("block.infx." + path).getAsString(),
+                            chinese.get("container.infx." + path).getAsString(),
+                            "Chinese block and menu names must match"));
         }
         for (String recipe : List.of("sand_batch", "sandstone_to_glass")) {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")));
@@ -1857,6 +1941,17 @@ class R196GeneratedResourceTest {
                 visit(entry.getValue(), strings);
             });
         }
+    }
+
+    private static List<String> formatSpecifiers(String translation) {
+        return FORMAT_SPECIFIER.matcher(translation).results().map(result -> result.group()).toList();
+    }
+
+    private static void assertLanguageKey(JsonObject english, JsonObject chinese, String key) {
+        assertAll(
+                key,
+                () -> assertTrue(english.has(key), "missing en_us"),
+                () -> assertTrue(chinese.has(key), "missing zh_cn"));
     }
 
     private static boolean hasGradient(
