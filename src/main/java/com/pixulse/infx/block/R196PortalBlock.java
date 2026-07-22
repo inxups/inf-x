@@ -1,6 +1,8 @@
 package com.pixulse.infx.block;
 
+import com.pixulse.infx.registry.ModPoiTypes;
 import com.pixulse.infx.world.Underworld;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -8,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
@@ -23,6 +26,8 @@ import org.jspecify.annotations.Nullable;
 /** A portal surface whose block identity fixes its destination family. */
 public class R196PortalBlock extends NetherPortalBlock {
     private static final String RETURN_POS = "infx_underworld_return_pos";
+    private static final String NETHER_RETURN_POS = "infx_nether_return_pos";
+    private static final int PORTAL_SEARCH_RADIUS = 128;
     private static final int MIN_PORTAL_WIDTH = 2;
     private static final int MAX_PORTAL_WIDTH = 21;
     private static final int MIN_PORTAL_HEIGHT = 3;
@@ -190,23 +195,27 @@ public class R196PortalBlock extends NetherPortalBlock {
         }
 
         boolean returningToOverworld = route == PortalRoute.OVERWORLD && portalType == PortalType.UNDERWORLD;
+        boolean returningToUnderworld = route == PortalRoute.UNDERWORLD && portalType == PortalType.NETHER;
+        BlockPos currentPosition = BlockPos.containing(entity.position());
         BlockPos preferred = returningToOverworld
-                ? entity.getPersistentData()
-                        .getLong(RETURN_POS)
-                        .map(BlockPos::of)
-                        .orElse(BlockPos.containing(entity.position()))
-                : BlockPos.containing(entity.position());
+                ? rememberedPosition(entity, RETURN_POS, currentPosition)
+                : returningToUnderworld
+                        ? rememberedPosition(entity, NETHER_RETURN_POS, currentPosition)
+                        : currentPosition;
         if (route == PortalRoute.UNDERWORLD && currentLevel.dimension().equals(Level.OVERWORLD)) {
             entity.getPersistentData().putLong(RETURN_POS, preferred.asLong());
         }
+        if (route == PortalRoute.NETHER && currentLevel.dimension().equals(Underworld.LEVEL)) {
+            entity.getPersistentData().putLong(NETHER_RETURN_POS, preferred.asLong());
+        }
 
-        BlockPos interior = createArrivalPortal(targetLevel, preferred);
+        BlockPos arrival = findOrCreateArrivalPortal(targetLevel, preferred);
         TeleportTransition.PostTeleportTransition post = TeleportTransition.PLAY_PORTAL_SOUND
                 .then(TeleportTransition.PLACE_PORTAL_TICKET)
                 .then(Entity::setPortalCooldown);
         return new TeleportTransition(
                 targetLevel,
-                Vec3.atBottomCenterOf(interior),
+                Vec3.atBottomCenterOf(arrival),
                 Vec3.ZERO,
                 entity.getYRot(),
                 entity.getXRot(),
@@ -263,6 +272,82 @@ public class R196PortalBlock extends NetherPortalBlock {
     }
 
     private record PortalInterior(int height, int portalBlocks) {}
+
+    private static BlockPos rememberedPosition(Entity entity, String key, BlockPos fallback) {
+        return entity.getPersistentData().getLong(key).map(BlockPos::of).orElse(fallback);
+    }
+
+    /** Reuses the nearest compatible portal surface before creating a new destination. */
+    public BlockPos findOrCreateArrivalPortal(ServerLevel level, BlockPos preferred) {
+        return findExistingArrivalPortal(level, preferred)
+                .orElseGet(() -> createArrivalPortal(level, preferred));
+    }
+
+    private Optional<BlockPos> findExistingArrivalPortal(ServerLevel level, BlockPos preferred) {
+        PoiManager poiManager = level.getPoiManager();
+        poiManager.ensureLoadedAndValid(level, preferred, PORTAL_SEARCH_RADIUS);
+        return poiManager
+                .findAllClosestFirstWithType(
+                        holder -> holder.is(ModPoiTypes.forPortal(portalType)),
+                        pos -> true,
+                        preferred,
+                        PORTAL_SEARCH_RADIUS,
+                        PoiManager.Occupancy.ANY)
+                .map(record -> record.getSecond())
+                .filter(portal -> isReusablePortal(level, portal))
+                .map(portal -> findPortalExit(level, portal))
+                .findFirst();
+    }
+
+    private boolean isReusablePortal(ServerLevel level, BlockPos portal) {
+        BlockState state = level.getBlockState(portal);
+        if (!state.is(this)) {
+            return false;
+        }
+        return !(this instanceof UnderworldPortalBlock
+                && (state.getValue(UnderworldPortalBlock.RUNE_GATE)
+                        || UnderworldPortalBlock.hasRuneGate(level, portal)));
+    }
+
+    private BlockPos findPortalExit(ServerLevel level, BlockPos portal) {
+        BlockState state = level.getBlockState(portal);
+        Direction.Axis axis = state.getValue(AXIS);
+        Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+        Direction firstSide = axis == Direction.Axis.X ? Direction.SOUTH : Direction.EAST;
+        BlockPos bottom = portal;
+        for (int depth = 0; depth < MAX_PORTAL_HEIGHT && isPortalSurface(level, bottom.below(), axis); depth++) {
+            bottom = bottom.below();
+        }
+
+        for (int height = 0; height < MAX_PORTAL_HEIGHT; height++) {
+            for (int width = -MAX_PORTAL_WIDTH; width <= MAX_PORTAL_WIDTH; width++) {
+                BlockPos surface = bottom.above(height).relative(horizontal, width);
+                if (!isPortalSurface(level, surface, axis)) {
+                    continue;
+                }
+                BlockPos firstExit = surface.relative(firstSide);
+                if (isSafePortalExit(level, firstExit)) {
+                    return firstExit;
+                }
+                BlockPos secondExit = surface.relative(firstSide.getOpposite());
+                if (isSafePortalExit(level, secondExit)) {
+                    return secondExit;
+                }
+            }
+        }
+        return portal;
+    }
+
+    private boolean isPortalSurface(ServerLevel level, BlockPos pos, Direction.Axis axis) {
+        BlockState state = level.getBlockState(pos);
+        return state.is(this) && state.getValue(AXIS) == axis;
+    }
+
+    private static boolean isSafePortalExit(ServerLevel level, BlockPos feet) {
+        return level.getBlockState(feet.below()).isFaceSturdy(level, feet.below(), Direction.UP)
+                && level.getBlockState(feet).isAir()
+                && level.getBlockState(feet.above()).isAir();
+    }
 
     public BlockPos createArrivalPortal(ServerLevel level, BlockPos preferred) {
         return buildPortal(level, findSafePosition(level, preferred));
