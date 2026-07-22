@@ -4,6 +4,7 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.progression.ProgressionEvents;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.world.UnderworldPortalEvents;
+import com.pixulse.infx.world.RunegateTeleportation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -42,11 +43,27 @@ public final class UnderworldPortalBlock extends R196PortalBlock {
     }
 
     @Override
+    public int getPortalTransitionTime(ServerLevel level, Entity entity) {
+        if (entity instanceof ServerPlayer player && player.portalProcess != null) {
+            BlockPos entry = player.portalProcess.getEntryPosition();
+            if (hasRuneGate(level, entry)
+                    || UnderworldPortalEvents.portalTypeFor(level, entry) == PortalType.RETURN_SPAWN) {
+                return MITE_RUNEGATE_ENTRY_TICKS;
+            }
+        }
+        return super.getPortalTransitionTime(level, entity);
+    }
+
+    @Override
     public @Nullable TeleportTransition getPortalDestination(
             ServerLevel currentLevel, Entity entity, BlockPos portalEntryPos) {
         Optional<RuneGate> runeGate = findRuneGate(currentLevel, portalEntryPos);
         if (runeGate.isPresent()) {
-            return runeTransition(currentLevel, entity, runeGate.get());
+            TeleportTransition transition = runeTransition(currentLevel, entity, runeGate.get());
+            if (entity instanceof ServerPlayer player && RunegateTeleportation.start(player, transition)) {
+                return null;
+            }
+            return transition;
         }
 
         // Worlds saved before portal types were split still contain this one legacy block.

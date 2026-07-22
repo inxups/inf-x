@@ -39,6 +39,7 @@ import com.pixulse.infx.equipment.R196RustedIronSources;
 import com.pixulse.infx.entity.R196MonsterEvents;
 import com.pixulse.infx.entity.R196AnimalEvents;
 import com.pixulse.infx.world.UnderworldPortalEvents;
+import com.pixulse.infx.world.RunegateTeleportation;
 import com.pixulse.infx.world.R196VillageProgression;
 import com.pixulse.infx.world.R196MoonEvents;
 import com.pixulse.infx.world.R196PhysicsEvents;
@@ -101,6 +102,7 @@ public final class InfiniteX {
         R196MonsterEvents.register(modBus, NeoForge.EVENT_BUS);
         R196AnimalEvents.register(NeoForge.EVENT_BUS);
         UnderworldPortalEvents.register(NeoForge.EVENT_BUS);
+        RunegateTeleportation.register(NeoForge.EVENT_BUS);
         R196VillageProgression.register(NeoForge.EVENT_BUS);
         R196MoonEvents.register(NeoForge.EVENT_BUS);
         R196PhysicsEvents.register(NeoForge.EVENT_BUS);
