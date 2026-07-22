@@ -14,11 +14,14 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  * <p>The original pass runs after terrain generation, so it cannot be expressed by a 26.2 surface rule:
  * both boundary thickness and the three internal bedrock strata depend on per-column random values
  * and legacy octave noise. InfiniteX retains each stratum's center block when that noise would otherwise
- * make its width non-positive across an entire region.</p>
+ * make its width non-positive across an entire region, except for one seeded 2-by-2 passage per chunk.</p>
  */
 public final class MiteUnderworldStrata {
     static final int LEGACY_TERRAIN_START_Y = 120;
     static final int CHUNK_SIDE_LENGTH = 16;
+    private static final int INTERNAL_STRATUM_COUNT = 3;
+    private static final int PASSAGE_SIDE_LENGTH = 2;
+    private static final long PASSAGE_SEED_SALT = 0x5041535341474553L;
     private static final int COLUMN_COUNT = CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH;
     private static final int LOWER_STRATA_CELL_COUNT = COLUMN_COUNT * LEGACY_TERRAIN_START_Y;
     private static final byte NONE = 0;
@@ -66,6 +69,7 @@ public final class MiteUnderworldStrata {
         StrataNoise strataNoise = noiseSet.sample(chunkPos);
         long columnSeed = miteHashedWorldSeed(worldSeed) * (long) miteChunkHash(chunkPos.x(), chunkPos.z());
         Random columnRandom = new Random(columnSeed);
+        StrataPassages passages = new StrataPassages(columnSeed);
         StrataPlan plan = new StrataPlan();
         int[] chanceIndex = {chunkPos.x() * 2653 + chunkPos.z() * 6714631};
 
@@ -78,8 +82,16 @@ public final class MiteUnderworldStrata {
                 for (int relativeY = 0; relativeY < LEGACY_TERRAIN_START_Y; relativeY++) {
                     if (relativeY < thickness) {
                         plan.setReplacement(localX, localZ, relativeY, MANTLE);
-                    } else if (isInternalBedrock(relativeY, column, strataNoise, noiseSet.chanceIn2, chanceIndex)) {
-                        plan.setReplacement(localX, localZ, relativeY, BEDROCK);
+                    } else {
+                        int stratum = internalBedrockStratum(
+                                relativeY,
+                                column,
+                                strataNoise,
+                                noiseSet.chanceIn2,
+                                chanceIndex);
+                        if (stratum >= 0 && !passages.contains(stratum, column)) {
+                            plan.setReplacement(localX, localZ, relativeY, BEDROCK);
+                        }
                     }
                 }
             }
@@ -87,7 +99,7 @@ public final class MiteUnderworldStrata {
         return plan;
     }
 
-    private static boolean isInternalBedrock(
+    private static int internalBedrockStratum(
             int relativeY,
             int column,
             StrataNoise noise,
@@ -106,7 +118,7 @@ public final class MiteUnderworldStrata {
                 noise.secondBump[column],
                 chanceIn2,
                 chanceIndex)) {
-            return true;
+            return 0;
         }
         if (isWithinSecondaryStratum(
                 relativeY - 72,
@@ -114,14 +126,16 @@ public final class MiteUnderworldStrata {
                 noise.thirdBump[column],
                 chanceIn2,
                 chanceIndex)) {
-            return true;
+            return 1;
         }
         return isWithinSecondaryStratum(
-                relativeY - 96,
-                noise.fourth[column] - noise.third[column] * 0.375 + 0.5,
-                noise.fourthBump[column],
-                chanceIn2,
-                chanceIndex);
+                        relativeY - 96,
+                        noise.fourth[column] - noise.third[column] * 0.375 + 0.5,
+                        noise.fourthBump[column],
+                        chanceIn2,
+                        chanceIndex)
+                ? 2
+                : -1;
     }
 
     private static boolean isWithinSecondaryStratum(
@@ -160,6 +174,51 @@ public final class MiteUnderworldStrata {
 
     private static int columnIndex(int localX, int localZ) {
         return localZ + localX * CHUNK_SIDE_LENGTH;
+    }
+
+    private static final class StrataPassages {
+        private final byte[] minimumXs = new byte[INTERNAL_STRATUM_COUNT];
+        private final byte[] minimumZs = new byte[INTERNAL_STRATUM_COUNT];
+
+        private StrataPassages(long columnSeed) {
+            Random random = new Random(columnSeed ^ PASSAGE_SEED_SALT);
+            int originBound = CHUNK_SIDE_LENGTH - PASSAGE_SIDE_LENGTH + 1;
+            for (int stratum = 0; stratum < INTERNAL_STRATUM_COUNT; stratum++) {
+                int minimumX;
+                int minimumZ;
+                do {
+                    minimumX = random.nextInt(originBound);
+                    minimumZ = random.nextInt(originBound);
+                } while (this.overlapsPrevious(stratum, minimumX, minimumZ));
+                this.minimumXs[stratum] = (byte) minimumX;
+                this.minimumZs[stratum] = (byte) minimumZ;
+            }
+        }
+
+        private boolean overlapsPrevious(int stratum, int minimumX, int minimumZ) {
+            for (int previous = 0; previous < stratum; previous++) {
+                int previousX = this.minimumXs[previous];
+                int previousZ = this.minimumZs[previous];
+                if (minimumX < previousX + PASSAGE_SIDE_LENGTH
+                        && minimumX + PASSAGE_SIDE_LENGTH > previousX
+                        && minimumZ < previousZ + PASSAGE_SIDE_LENGTH
+                        && minimumZ + PASSAGE_SIDE_LENGTH > previousZ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean contains(int stratum, int column) {
+            int localX = column / CHUNK_SIDE_LENGTH;
+            int localZ = column % CHUNK_SIDE_LENGTH;
+            int minimumX = this.minimumXs[stratum];
+            int minimumZ = this.minimumZs[stratum];
+            return localX >= minimumX
+                    && localX < minimumX + PASSAGE_SIDE_LENGTH
+                    && localZ >= minimumZ
+                    && localZ < minimumZ + PASSAGE_SIDE_LENGTH;
+        }
     }
 
     static final class StrataPlan {

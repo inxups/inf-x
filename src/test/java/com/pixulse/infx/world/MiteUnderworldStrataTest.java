@@ -69,22 +69,29 @@ class MiteUnderworldStrataTest {
     }
 
     @Test
-    void internalBedrockCentersRemainContinuousAcrossNoiseGaps() {
+    void internalBedrockCentersKeepOneSeededTwoByTwoPassagePerChunk() {
         int[] centers = {32, 72, 96};
+        int[][] ranges = {{3, 52}, {52, 84}, {84, 120}};
 
         for (int chunkX = -2; chunkX <= 2; chunkX++) {
             for (int chunkZ = -2; chunkZ <= 2; chunkZ++) {
                 MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(
                         WORLD_SEED,
                         new ChunkPos(chunkX, chunkZ));
-                for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
-                    for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
-                        for (int center : centers) {
-                            assertTrue(
-                                    plan.hasBedrockAt(localX, localZ, center),
-                                    "missing center at chunk " + chunkX + "," + chunkZ + " column " + localX
-                                            + "," + localZ + " relative Y=" + center);
-                        }
+                Passage[] passages = new Passage[centers.length];
+                for (int stratum = 0; stratum < centers.length; stratum++) {
+                    passages[stratum] = assertTwoByTwoPassage(
+                            plan,
+                            new ChunkPos(chunkX, chunkZ),
+                            centers[stratum],
+                            ranges[stratum][0],
+                            ranges[stratum][1]);
+                }
+                for (int first = 0; first < passages.length; first++) {
+                    for (int second = first + 1; second < passages.length; second++) {
+                        assertFalse(
+                                passages[first].overlaps(passages[second]),
+                                "strata passages must not overlap in chunk " + chunkX + "," + chunkZ);
                     }
                 }
             }
@@ -111,5 +118,53 @@ class MiteUnderworldStrataTest {
             }
         }
         return count;
+    }
+
+    private static Passage assertTwoByTwoPassage(
+            MiteUnderworldStrata.StrataPlan plan,
+            ChunkPos chunkPos,
+            int center,
+            int minimumY,
+            int maximumY) {
+        int gapCount = 0;
+        int minimumX = MiteUnderworldStrata.CHUNK_SIDE_LENGTH;
+        int minimumZ = MiteUnderworldStrata.CHUNK_SIDE_LENGTH;
+        int maximumX = -1;
+        int maximumZ = -1;
+        for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
+            for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
+                if (plan.hasBedrockAt(localX, localZ, center)) continue;
+                gapCount++;
+                for (int relativeY = minimumY; relativeY < maximumY; relativeY++) {
+                    assertFalse(
+                            plan.hasBedrockAt(localX, localZ, relativeY),
+                            "passage blocked at chunk " + chunkPos.x() + "," + chunkPos.z() + " column "
+                                    + localX + "," + localZ + " relative Y=" + relativeY);
+                }
+                minimumX = Math.min(minimumX, localX);
+                minimumZ = Math.min(minimumZ, localZ);
+                maximumX = Math.max(maximumX, localX);
+                maximumZ = Math.max(maximumZ, localZ);
+            }
+        }
+
+        String location = "chunk " + chunkPos.x() + "," + chunkPos.z() + " relative Y=" + center;
+        int observedGapCount = gapCount;
+        int passageWidth = maximumX - minimumX;
+        int passageDepth = maximumZ - minimumZ;
+        assertAll(
+                () -> assertEquals(4, observedGapCount, location + " must contain four passage columns"),
+                () -> assertEquals(1, passageWidth, location + " passage must be two blocks wide"),
+                () -> assertEquals(1, passageDepth, location + " passage must be two blocks deep"));
+        return new Passage(minimumX, minimumZ);
+    }
+
+    private record Passage(int minimumX, int minimumZ) {
+        private boolean overlaps(Passage other) {
+            return this.minimumX < other.minimumX + 2
+                    && this.minimumX + 2 > other.minimumX
+                    && this.minimumZ < other.minimumZ + 2
+                    && this.minimumZ + 2 > other.minimumZ;
+        }
     }
 }
