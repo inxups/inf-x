@@ -18,8 +18,6 @@ R196 长期装备行为也已启用：银制近战与银箭对亡灵造成 1.25 
 
 ```text
 bash gradlew test
-bash gradlew runData resourceTest
-bash gradlew runGameTestServer
 bash gradlew build
 ```
 
