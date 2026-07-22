@@ -11,13 +11,18 @@ import net.minecraft.client.gui.components.tabs.MenuTabBar;
 import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.Difficulty;
 import org.junit.jupiter.api.Test;
 
 class WorldCreationLockClientEventsTest {
     @Test
-    void disablesLockedControlsButLeavesWorldStructureToggleAvailable() {
-        Button gameMode = button("game mode");
-        TestTab game = new TestTab("createWorld.tab.game.title", gameMode);
+    void leavesOnlyTheAllowedGameModeControlAvailable() {
+        CycleButton<WorldCreationUiState.SelectedGameMode> gameMode = gameModeSwitch();
+        CycleButton<Difficulty> difficulty = CycleButton.builder(Difficulty::getDisplayName, Difficulty.NORMAL)
+                .withValues(Difficulty.NORMAL)
+                .create(Component.literal("difficulty"), (button, value) -> {});
+        CycleButton<Boolean> commands = booleanSwitch(false);
+        TestTab game = new TestTab("createWorld.tab.game.title", gameMode, difficulty, commands);
 
         WorldCreationUiState.WorldTypeEntry customType = new WorldCreationUiState.WorldTypeEntry(null);
         CycleButton<WorldCreationUiState.WorldTypeEntry> worldType = CycleButton
@@ -39,7 +44,9 @@ class WorldCreationLockClientEventsTest {
 
         WorldCreationLockClientEvents.lockWidgets(tabBar);
 
-        assertFalse(gameMode.active);
+        assertTrue(gameMode.active);
+        assertFalse(difficulty.active);
+        assertFalse(commands.active);
         assertFalse(worldType.active);
         assertFalse(customize.active);
         assertTrue(structures.active);
@@ -47,6 +54,14 @@ class WorldCreationLockClientEventsTest {
         assertFalse(gameRules.active);
         assertFalse(experiments.active);
         assertFalse(dataPacks.active);
+    }
+
+    @Test
+    void allowsOnlySurvivalAndHardcoreGameModes() {
+        assertTrue(WorldCreationLockClientEvents.isAllowedGameMode(WorldCreationUiState.SelectedGameMode.SURVIVAL));
+        assertTrue(WorldCreationLockClientEvents.isAllowedGameMode(WorldCreationUiState.SelectedGameMode.HARDCORE));
+        assertFalse(WorldCreationLockClientEvents.isAllowedGameMode(WorldCreationUiState.SelectedGameMode.CREATIVE));
+        assertFalse(WorldCreationLockClientEvents.isAllowedGameMode(WorldCreationUiState.SelectedGameMode.DEBUG));
     }
 
     private static Button button(String name) {
@@ -57,6 +72,16 @@ class WorldCreationLockClientEventsTest {
         return CycleButton.onOffBuilder(value)
                 .displayOnlyValue()
                 .create(Component.empty(), (button, selected) -> {});
+    }
+
+    private static CycleButton<WorldCreationUiState.SelectedGameMode> gameModeSwitch() {
+        return CycleButton.builder(
+                        value -> Component.literal(value.name()), WorldCreationUiState.SelectedGameMode.SURVIVAL)
+                .withValues(
+                        WorldCreationUiState.SelectedGameMode.SURVIVAL,
+                        WorldCreationUiState.SelectedGameMode.HARDCORE,
+                        WorldCreationUiState.SelectedGameMode.CREATIVE)
+                .create(Component.literal("game mode"), (button, value) -> {});
     }
 
     private static final class TestTab extends GridLayoutTab {

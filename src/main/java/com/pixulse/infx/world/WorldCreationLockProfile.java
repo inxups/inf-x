@@ -7,10 +7,10 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 
-/** The fixed single-player world profile exposed by InfiniteX's creation screen. */
+/** The constrained single-player world profile exposed by InfiniteX's creation screen. */
 public final class WorldCreationLockProfile {
     public static final GameType GAME_TYPE = GameType.SURVIVAL;
-    public static final ResourceKey<WorldPreset> WORLD_PRESET = WorldPresets.AMPLIFIED;
+    public static final ResourceKey<WorldPreset> WORLD_PRESET = WorldPresets.LARGE_BIOMES;
     public static final boolean ALLOW_COMMANDS = false;
     public static final boolean BONUS_CHEST = false;
     public static final boolean ALLOW_ADVANCED_CONFIGURATION = false;

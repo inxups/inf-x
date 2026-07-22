@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 
 class WorldCreationLockProfileTest {
     @Test
-    void locksTheRequestedSinglePlayerProfile() {
+    void exposesTheRequestedSinglePlayerProfile() {
         assertEquals(GameType.SURVIVAL, WorldCreationLockProfile.GAME_TYPE);
-        assertEquals(WorldPresets.AMPLIFIED, WorldCreationLockProfile.WORLD_PRESET);
+        assertEquals(WorldPresets.LARGE_BIOMES, WorldCreationLockProfile.WORLD_PRESET);
         assertTrue(ExtremeDifficulty.isExtreme(WorldCreationLockProfile.difficulty()));
         assertFalse(WorldCreationLockProfile.ALLOW_COMMANDS);
         assertFalse(WorldCreationLockProfile.BONUS_CHEST);
