@@ -50,6 +50,7 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Inventory;
@@ -72,6 +73,7 @@ import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.damagesource.IScalingFunction;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -500,12 +502,20 @@ public final class ModGameTests {
             networkBuffer.release();
         }
         var worldData = helper.getLevel().getServer().getWorldData();
+        Difficulty gameplayDifficulty = helper.getLevel().getDifficulty();
+        DifficultyInstance regionalDifficulty = helper.getLevel().getCurrentDifficultyAt(helper.absolutePos(WORK_POS));
         var difficultyCommand = helper.getLevel()
                 .getServer()
                 .getCommands()
                 .getDispatcher()
                 .getRoot()
                 .getChild("difficulty");
+        ServerPlayer player = createPlayer(helper);
+        var attacker = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(3, 2, 3));
+        float scaledMobDamage = IScalingFunction.DEFAULT.scaleDamage(
+                helper.getLevel().damageSources().mobAttack(attacker), player, 4.0F, extreme);
+        float scaledExplosionDamage = IScalingFunction.DEFAULT.scaleDamage(
+                helper.getLevel().damageSources().explosion(null), player, 4.0F, extreme);
 
         helper.assertTrue(Difficulty.values().length == 5, "Difficulty.values must contain five values");
         helper.assertTrue(extreme != Difficulty.HARD, "Extreme must be independent from vanilla Hard");
@@ -523,9 +533,17 @@ public final class ModGameTests {
                 "Extreme info text must be red");
         helper.assertTrue(worldData.getDifficulty() == extreme, "the server must start on Extreme");
         helper.assertTrue(worldData.isDifficultyLocked(), "the server must lock Extreme");
+        helper.assertTrue(gameplayDifficulty == Difficulty.HARD, "Extreme gameplay values must resolve to Hard");
+        helper.assertTrue(regionalDifficulty.getDifficulty() == Difficulty.HARD,
+                "regional difficulty must use Hard as its base value");
+        helper.assertTrue(Math.abs(scaledMobDamage - 6.0F) < 0.001F,
+                "mob damage must use Hard's 1.5x difficulty scaling");
+        helper.assertTrue(Math.abs(scaledExplosionDamage - 6.0F) < 0.001F,
+                "explosion damage must use Hard's 1.5x difficulty scaling");
         helper.assertTrue(
                 difficultyCommand != null && difficultyCommand.getChild("extreme") != null,
                 "/difficulty extreme must be registered by the vanilla difficulty command");
+        removePlayer(player);
         helper.succeed();
     }
 

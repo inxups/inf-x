@@ -28,6 +28,16 @@ public final class ExtremeDifficulty {
         return difficulty == value;
     }
 
+    /**
+     * Keeps Extreme serialized as its own difficulty while its current gameplay values match Hard.
+     *
+     * <p>Future Extreme-specific tuning belongs at explicit call sites instead of changing the
+     * serialized enum value's ID or ordinal.
+     */
+    public static Difficulty gameplayDifficulty(Difficulty difficulty) {
+        return isExtreme(difficulty) ? Difficulty.HARD : difficulty;
+    }
+
     /** Applies Extreme directly so hardcore worlds are not coerced back to vanilla Hard. */
     public static void apply(MinecraftServer server) {
         server.getWorldData().setDifficulty(value());

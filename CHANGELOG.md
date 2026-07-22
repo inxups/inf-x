@@ -5,6 +5,7 @@
 ### 世界创建选项
 
 - 单人世界创建的游戏模式现可在生存与极限之间切换，创造模式仍会被拒绝；世界类型改为固定的巨型生物群系。两种模式的创建界面和初始存档均固定为 `extreme`，极限模式不再短暂回落到原版 `Hard`；指令、奖励箱和高级配置继续锁定。原版没有可用的世界创建难度扩展点，因此新增仅修改 `WorldCreationUiState#getDifficulty` 返回值的客户端 Mixin，开发 test mode 保持原版行为。
+- `extreme` 现作为独立的 Hard+ 标识保留在存档、网络、创建界面和命令中；所有通过 `LevelAccessor#getDifficulty` 进入的原版与 NeoForge 游戏数值暂时统一使用 `Hard`，包括区域难度、原版 Hard 分支和伤害缩放。该最小 Mixin 同时避免 NeoForge 对四个原版难度的穷尽分支在 `extreme` 下抛出异常，后续可在明确的调用点加入 Hard+ 专属数值。
 
 ### R196 附魔行为校正
 
