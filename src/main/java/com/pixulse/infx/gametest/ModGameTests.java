@@ -9,14 +9,17 @@ import com.pixulse.infx.crafting.CraftingProfile;
 import com.pixulse.infx.crafting.MiteCraftingRules;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
+import com.pixulse.infx.equipment.R196QualitySystem;
 import com.pixulse.infx.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.harvest.HarvestEvents;
 import com.pixulse.infx.item.R196EquipmentKey;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.progression.R196Experience;
 import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModRecipes;
 import com.pixulse.infx.server.ExtremeDifficulty;
@@ -316,7 +319,7 @@ public final class ModGameTests {
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
         registerTest(event, VANILLA_RECIPE_REMOVAL, environment, 40);
-        registerTest(event, VANILLA_CRAFTING_MENU, environment, 120);
+        registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
@@ -632,6 +635,8 @@ public final class ModGameTests {
     private static void vanillaCraftingMenu(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
+        int qualityCost = R196QualitySystem.experienceCost(150.0F, R196Quality.FINE);
+        int[] experienceBeforeQualityCraft = new int[1];
         helper.setBlock(WORK_POS, Blocks.CRAFTING_TABLE);
         CraftingMenu vanilla = new CraftingMenu(
                 31,
@@ -659,8 +664,39 @@ public final class ModGameTests {
                         "the vanilla crafting-table timer must complete"))
                 .thenExecute(() -> {
                     helper.assertTrue(grid.getItem(4).isEmpty(), "offset log slot must be consumed");
-                    removePlayer(player);
+                    grantMaximumExperience(player);
+                    grid.setItem(0, Items.FLINT.getDefaultInstance());
+                    grid.setItem(1, Items.STRING.getDefaultInstance());
+                    grid.setItem(3, Items.STICK.getDefaultInstance());
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(timed, player, true),
+                            "the crafting table must preview the flint knife");
+                    vanilla.clicked(0, 1, ContainerInput.PICKUP, player);
+                    ItemStack qualityPreview = timed.infx$resultContainer().getItem(0);
+                    helper.assertTrue(
+                            qualityPreview.is(equipment(R196Material.FLINT, R196EquipmentType.KNIFE)),
+                            "right-click must keep the tool crafting result");
+                    helper.assertTrue(
+                            qualityPreview.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
+                            "enough experience must select Fine Quality on a crafting table");
+                    helper.assertTrue(vanilla.getCarried().isEmpty(), "right-click must not take the quality preview");
+                    experienceBeforeQualityCraft[0] = player.totalExperience;
+                    vanilla.clicked(0, 0, ContainerInput.PICKUP, player);
+                    helper.assertTrue(timed.infx$craftingState().isRunning(), "quality tool crafting must start its timer");
                 })
+                .thenWaitUntil(() -> {
+                    ItemStack craftedKnife = player.getInventory().getNonEquipmentItems().stream()
+                            .filter(stack -> stack.is(equipment(R196Material.FLINT, R196EquipmentType.KNIFE)))
+                            .findFirst()
+                            .orElse(ItemStack.EMPTY);
+                    helper.assertTrue(
+                            craftedKnife.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
+                            "the completed tool must retain the selected quality");
+                    helper.assertTrue(
+                            player.totalExperience == experienceBeforeQualityCraft[0] - qualityCost,
+                            "quality crafting must deduct its exact experience cost");
+                })
+                .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
     }
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +23,7 @@ import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.equipment.R196QualitySystem;
+import com.pixulse.infx.material.R196Quality;
 
 public final class TimedCraftingEngine {
     private TimedCraftingEngine() {}
@@ -108,15 +110,20 @@ public final class TimedCraftingEngine {
             refreshResult(timedMenu, player, true);
             return;
         }
+        if (!R196QualitySystem.supportsQuality(output)) {
+            return;
+        }
+        boolean clumsy = CraftingEnvironment.hasClumsiness(player);
         int code = R196QualitySystem.cycleCode(
                 output,
                 player,
                 holder.profile().difficulty(),
                 timedMenu.infx$selectedQualityCode(),
-                CraftingEnvironment.hasClumsiness(player));
+                clumsy);
         timedMenu.infx$setSelectedQualityCode(code);
         timedMenu.infx$resetTimedCrafting();
         refreshResult(timedMenu, player, true);
+        announceQualitySelection(player, holder.profile().difficulty(), code, clumsy);
     }
 
     public static void tick(TimedCraftingMenu timedMenu, ServerPlayer player) {
@@ -293,6 +300,23 @@ public final class TimedCraftingEngine {
         } else {
             timedMenu.infx$setSelectedRune(0);
         }
+    }
+
+    /** Shows the server-authoritative choice and its exact cost before crafting starts. */
+    private static void announceQualitySelection(
+            ServerPlayer player, float difficulty, int qualityCode, boolean clumsy) {
+        R196Quality quality = R196QualitySystem.fromCode(qualityCode);
+        if (quality == null) {
+            player.sendSystemMessage(Component.translatable("message.infx.quality.average"));
+            return;
+        }
+        int cost = R196QualitySystem.experienceCost(difficulty, quality, clumsy);
+        player.sendSystemMessage(
+                Component.translatable(
+                        "message.infx.quality.selected",
+                        Component.translatable("quality.infx." + quality.getSerializedName())
+                                .withStyle(quality.color()),
+                        cost));
     }
 
     private static AbstractContainerMenu asContainerMenu(TimedCraftingMenu menu) {
