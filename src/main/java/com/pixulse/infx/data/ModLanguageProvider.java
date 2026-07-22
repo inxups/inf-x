@@ -141,7 +141,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("container.infx.clay_furnace", "Clay Oven"),
                 Map.entry("container.infx.large_clay_oven", "Large Clay Oven"),
                 Map.entry("container.infx.sandstone_furnace", "Sandstone Oven"),
-                Map.entry("container.infx.hardened_clay_furnace", "Large Clay Oven"),
+                Map.entry("container.infx.hardened_clay_furnace", "Hardened Clay Furnace"),
                 Map.entry("container.infx.obsidian_furnace", "Obsidian Furnace"),
                 Map.entry("container.infx.netherrack_furnace", "Netherrack Furnace"),
                 Map.entry("jei.infx.category.hand", "Hand Crafting"),
@@ -368,6 +368,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
         add("block.infx.infested_netherrack", locale == Locale.EN_US ? "Infested Netherrack" : "虫蚀下界岩");
+        add("block.infx.underworld_portal", locale == Locale.EN_US ? "Underworld Portal" : "地下世界传送门");
         add("disconnect.infx.chat_spam", locale == Locale.EN_US ? "Kicked for chat spam" : "因聊天刷屏被踢出");
         add("disconnect.infx.reconnect_limited", locale == Locale.EN_US
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
