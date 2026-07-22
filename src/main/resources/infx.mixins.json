@@ -23,6 +23,7 @@
     "PlayerExperienceMixin",
     "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
+    "LevelAccessorMixin",
     "RaidMixin"
   ],
   "client": [
