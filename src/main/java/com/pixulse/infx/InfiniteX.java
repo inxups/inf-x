@@ -14,6 +14,7 @@ import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModBiomeModifiers;
+import com.pixulse.infx.registry.ModPoiTypes;
 import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModEntityTypes;
@@ -72,6 +73,7 @@ public final class InfiniteX {
         R196BucketEvents.register(modBus);
         ModAttachments.register(modBus);
         ModBlocks.register(modBus);
+        ModPoiTypes.register(modBus);
         ModBlockEntityTypes.register(modBus);
         ModDataComponents.register(modBus);
         ModItems.register(modBus);
