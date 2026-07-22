@@ -45,9 +45,12 @@ class ModCreativeTabsTest {
 
     @Test
     void everyPlayerObtainableBlockHasOneCreativeBlockItem() {
-        Identifier portal = ModBlocks.UNDERWORLD_PORTAL.getId();
+        Identifier underworldPortal = ModBlocks.UNDERWORLD_PORTAL.getId();
+        Identifier netherPortal = ModBlocks.NETHER_PORTAL.getId();
+        Identifier returnSpawnPortal = ModBlocks.RETURN_SPAWN_PORTAL.getId();
         Identifier infestedNetherrack = ModBlocks.INFESTED_NETHERRACK.getId();
-        Set<Identifier> worldgenOnly = Set.of(portal, infestedNetherrack);
+        Set<Identifier> worldgenOnly = Set.of(
+                underworldPortal, netherPortal, returnSpawnPortal, infestedNetherrack);
         Set<Identifier> expectedBlockItems = ModBlocks.BLOCKS.getEntries().stream()
                 .map(block -> block.getId())
                 .filter(id -> !worldgenOnly.contains(id))
@@ -59,9 +62,11 @@ class ModCreativeTabsTest {
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(52, ModBlocks.BLOCKS.getEntries().size());
+        assertEquals(54, ModBlocks.BLOCKS.getEntries().size());
         assertEquals(expectedBlockItems, creativeBlocks);
-        assertFalse(registeredItems.contains(portal), "Underworld portal must remain without a BlockItem");
+        assertFalse(registeredItems.contains(underworldPortal), "Underworld portal must remain without a BlockItem");
+        assertFalse(registeredItems.contains(netherPortal), "Nether portal must remain without a BlockItem");
+        assertFalse(registeredItems.contains(returnSpawnPortal), "Return-spawn portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(infestedNetherrack), "infested netherrack must remain worldgen-only");
         assertTrue(ModItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));
     }

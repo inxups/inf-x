@@ -1530,6 +1530,14 @@ class R196GeneratedResourceTest {
             assertEquals("infx:block/runegate", textures.get("portal").getAsString());
             assertEquals("infx:block/runegate", textures.get("particle").getAsString());
         }
+        for (String block : List.of("nether_portal", "return_spawn_portal")) {
+            JsonObject variants = json(GENERATED.resolve("assets/infx/blockstates/" + block + ".json"))
+                    .getAsJsonObject("variants");
+            assertEquals("minecraft:block/nether_portal_ns",
+                    variants.getAsJsonObject("axis=x").get("model").getAsString());
+            assertEquals("minecraft:block/nether_portal_ew",
+                    variants.getAsJsonObject("axis=z").get("model").getAsString());
+        }
     }
 
     @Test

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.block.R196PortalBlock;
+import com.pixulse.infx.block.R196PortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.material.R196Material;
 import net.minecraft.world.level.Level;
@@ -21,22 +23,47 @@ class R196PortalTopologyTest {
     }
 
     @Test
-    void allFiveOrdinaryPortalRoutesAreExplicit() {
+    void ordinaryPortalBlocksSelectAndRouteIndependently() {
         assertEquals(
-                UnderworldPortalBlock.PortalRoute.OVERWORLD_SPAWN,
-                UnderworldPortalBlock.routeFor(Level.OVERWORLD, false, false));
+                PortalType.RETURN_SPAWN,
+                UnderworldPortalEvents.portalTypeFor(Level.OVERWORLD, false, false));
         assertEquals(
-                UnderworldPortalBlock.PortalRoute.UNDERWORLD,
-                UnderworldPortalBlock.routeFor(Level.OVERWORLD, true, false));
+                PortalType.UNDERWORLD,
+                UnderworldPortalEvents.portalTypeFor(Level.OVERWORLD, true, false));
         assertEquals(
-                UnderworldPortalBlock.PortalRoute.OVERWORLD,
-                UnderworldPortalBlock.routeFor(Underworld.LEVEL, false, false));
+                PortalType.UNDERWORLD,
+                UnderworldPortalEvents.portalTypeFor(Underworld.LEVEL, false, false));
         assertEquals(
-                UnderworldPortalBlock.PortalRoute.NETHER,
-                UnderworldPortalBlock.routeFor(Underworld.LEVEL, false, true));
+                PortalType.NETHER,
+                UnderworldPortalEvents.portalTypeFor(Underworld.LEVEL, false, true));
         assertEquals(
-                UnderworldPortalBlock.PortalRoute.UNDERWORLD,
-                UnderworldPortalBlock.routeFor(Level.NETHER, false, false));
+                PortalType.NETHER,
+                UnderworldPortalEvents.portalTypeFor(Level.NETHER, false, false));
+
+        assertEquals(
+                R196PortalBlock.PortalRoute.OVERWORLD_SPAWN,
+                R196PortalBlock.routeFor(PortalType.RETURN_SPAWN, Level.OVERWORLD));
+        assertEquals(
+                R196PortalBlock.PortalRoute.UNDERWORLD,
+                R196PortalBlock.routeFor(PortalType.UNDERWORLD, Level.OVERWORLD));
+        assertEquals(
+                R196PortalBlock.PortalRoute.OVERWORLD,
+                R196PortalBlock.routeFor(PortalType.UNDERWORLD, Underworld.LEVEL));
+        assertEquals(
+                R196PortalBlock.PortalRoute.NETHER,
+                R196PortalBlock.routeFor(PortalType.NETHER, Underworld.LEVEL));
+        assertEquals(
+                R196PortalBlock.PortalRoute.UNDERWORLD,
+                R196PortalBlock.routeFor(PortalType.NETHER, Level.NETHER));
+        assertEquals(
+                R196PortalBlock.PortalRoute.NONE,
+                R196PortalBlock.routeFor(PortalType.UNDERWORLD, Level.NETHER));
+        assertEquals(
+                R196PortalBlock.PortalRoute.NONE,
+                R196PortalBlock.routeFor(PortalType.NETHER, Level.OVERWORLD));
+        assertEquals(
+                R196PortalBlock.PortalRoute.NONE,
+                R196PortalBlock.routeFor(PortalType.RETURN_SPAWN, Underworld.LEVEL));
     }
 
     @Test

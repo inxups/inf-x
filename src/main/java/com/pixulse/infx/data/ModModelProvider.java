@@ -97,7 +97,10 @@ final class ModModelProvider extends ModelProvider {
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
-                Stream.of((Block) ModBlocks.UNDERWORLD_PORTAL.value()))
+                Stream.of(
+                        (Block) ModBlocks.UNDERWORLD_PORTAL.value(),
+                        ModBlocks.NETHER_PORTAL.value(),
+                        ModBlocks.RETURN_SPAWN_PORTAL.value()))
                 .map(BuiltInRegistries.BLOCK::wrapAsHolder);
     }
 
@@ -160,6 +163,8 @@ final class ModModelProvider extends ModelProvider {
         });
         ModBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
         generateUnderworldPortal(blockModels);
+        generatePlainPortal(blockModels, ModBlocks.NETHER_PORTAL.value());
+        generatePlainPortal(blockModels, ModBlocks.RETURN_SPAWN_PORTAL.value());
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         ModItems.R196_BUCKETS.forEach(bucket ->
@@ -232,7 +237,18 @@ final class ModModelProvider extends ModelProvider {
                         .select(Direction.Axis.X, false, vanillaNs)
                         .select(Direction.Axis.Z, false, vanillaEw)
                         .select(Direction.Axis.X, true, BlockModelGenerators.plainVariant(runeNs))
-                        .select(Direction.Axis.Z, true, BlockModelGenerators.plainVariant(runeEw))));
+                                .select(Direction.Axis.Z, true, BlockModelGenerators.plainVariant(runeEw))));
+    }
+
+    private static void generatePlainPortal(BlockModelGenerators blockModels, Block portal) {
+        var vanillaNs = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"));
+        var vanillaEw = BlockModelGenerators.plainVariant(
+                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ew"));
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(portal)
+                .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
+                        .select(Direction.Axis.X, vanillaNs)
+                        .select(Direction.Axis.Z, vanillaEw)));
     }
 
     private static void generateR196FoodModels(ItemModelGenerators models) {
