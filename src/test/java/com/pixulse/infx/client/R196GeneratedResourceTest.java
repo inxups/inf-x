@@ -987,8 +987,8 @@ class R196GeneratedResourceTest {
         JsonObject roofGradient = roofBedrockRule
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
-        JsonObject floorCoreRule = surfaceSequence.get(1).getAsJsonObject();
-        JsonObject mantleRule = surfaceSequence.get(2).getAsJsonObject();
+        JsonObject floorMantleRule = surfaceSequence.get(1).getAsJsonObject();
+        JsonObject floorBedrockRule = surfaceSequence.get(2).getAsJsonObject();
         JsonObject firstInternalBedrockRule = surfaceSequence.get(3).getAsJsonObject();
         JsonObject secondInternalBedrockRule = surfaceSequence.get(4).getAsJsonObject();
         JsonObject thirdInternalBedrockRule = surfaceSequence.get(5).getAsJsonObject();
@@ -1091,23 +1091,23 @@ class R196GeneratedResourceTest {
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
-                () -> assertEquals("infx:core", floorCoreRule
+                () -> assertEquals("infx:mantle", floorMantleRule
                         .getAsJsonObject("then_run")
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
-                () -> assertEquals(1, floorCoreRule
+                () -> assertEquals(1, floorMantleRule
                         .getAsJsonObject("if_true")
                         .getAsJsonObject("invert")
                         .getAsJsonObject("anchor")
                         .get("above_bottom")
                         .getAsInt()),
-                () -> assertEquals("infx:mantle", mantleRule
+                () -> assertEquals("minecraft:bedrock", floorBedrockRule
                         .getAsJsonObject("then_run")
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
-                () -> assertEquals(5, mantleRule
+                () -> assertEquals(5, floorBedrockRule
                         .getAsJsonObject("if_true")
                         .getAsJsonObject("invert")
                         .getAsJsonObject("anchor")
