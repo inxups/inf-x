@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModLootModifiers;
+import com.pixulse.infx.registry.ModEnchantments;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import net.minecraft.core.registries.Registries;
@@ -15,7 +16,6 @@ import com.pixulse.infx.progression.ProgressionEvents;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.Level;
@@ -102,7 +102,7 @@ public final class GravelLootModifier extends LootModifier {
             return 0;
         }
         var enchantments = context.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        return tool.getEnchantmentLevel(enchantments.getOrThrow(Enchantments.FORTUNE));
+        return tool.getEnchantmentLevel(enchantments.getOrThrow(ModEnchantments.FORTUNE));
     }
 
     static GravelDrop netherDrop(GravelDrop drop) {

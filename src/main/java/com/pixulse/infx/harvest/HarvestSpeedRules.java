@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModMobEffects;
 
@@ -39,14 +40,17 @@ public final class HarvestSpeedRules {
             float minimum = hardness * PORTABLE_STRENGTH_PER_HARDNESS;
             strength = Math.max(minimum, minimum * portableMultiplier(player));
         } else {
+            boolean paralyzed = isParalyzed(player);
+            boolean inCobweb = isInCobweb(player);
             strength = replaceModernMiningFatigue(player, modernSpeed)
                     * multiplier(
                             player.experienceLevel,
                             false,
                             false,
                             player.getFoodData().getFoodLevel() <= 0,
-                            isParalyzed(player),
-                            isInCobweb(player));
+                            paralyzed,
+                            inCobweb);
+            strength = applyFreeMovementResistance(player, strength, paralyzed, inCobweb);
         }
         return toModernBreakSpeed(strength);
     }
@@ -112,25 +116,36 @@ public final class HarvestSpeedRules {
         }
         if (!player.onGround()) result *= 0.2F;
         if (player.getFoodData().getFoodLevel() <= 0) result *= 0.2F;
-        if (isParalyzed(player)) result *= 0.1F;
-        if (isInCobweb(player)) result *= 0.1F;
+        boolean paralyzed = isParalyzed(player);
+        boolean inCobweb = isInCobweb(player);
+        if (paralyzed) result *= 0.1F;
+        if (inCobweb) result *= 0.1F;
+        result = applyFreeMovementResistance(player, result, paralyzed, inCobweb);
         result *= 1.0F
                 + Math.max(0, Math.min(player.experienceLevel, R196Experience.MAX_DISPLAY_LEVEL)) * 0.02F;
         return result;
     }
 
     public static boolean isParalyzed(Player player) {
-        if (R196Enchantments.armorLevel(player, ModEnchantments.FREE_MOVEMENT) > 0) return false;
         if (player.hasEffect(ModMobEffects.PARALYSIS)) return true;
         var slowness = player.getEffect(MobEffects.SLOWNESS);
         return slowness != null && slowness.getAmplifier() >= 4;
     }
 
     public static boolean isInCobweb(Player player) {
-        if (R196Enchantments.armorLevel(player, ModEnchantments.FREE_MOVEMENT) > 0) return false;
         BlockPos feet = player.blockPosition();
         BlockPos upper = BlockPos.containing(player.getX(), player.getEyeY() - 0.25, player.getZ());
         return player.level().getBlockState(feet).is(Blocks.COBWEB)
                 || player.level().getBlockState(upper).is(Blocks.COBWEB);
+    }
+
+    private static float applyFreeMovementResistance(
+            Player player, float strength, boolean paralyzed, boolean inCobweb) {
+        int freeMovement = R196Enchantments.maxArmorLevel(player, ModEnchantments.FREE_MOVEMENT);
+        if (freeMovement <= 0) return strength;
+        float correction = R196EnchantmentRules.reducedImpairmentMultiplier(0.1F, freeMovement) / 0.1F;
+        if (paralyzed) strength *= correction;
+        if (inCobweb) strength *= correction;
+        return strength;
     }
 }

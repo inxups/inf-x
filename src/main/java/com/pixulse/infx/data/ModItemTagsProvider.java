@@ -67,6 +67,7 @@ final class ModItemTagsProvider extends ItemTagsProvider {
             add(ModTags.Items.equipmentType(entry.key().type()), entry);
             addFamilyTags(entry);
             addEnchantmentTags(entry);
+            addR196EnchantmentTags(entry);
             addHarvestTierTag(entry);
         }
     }
@@ -139,6 +140,68 @@ final class ModItemTagsProvider extends ItemTagsProvider {
             add(ItemTags.EQUIPPABLE_ENCHANTABLE, entry);
             addArmorSlotTags(entry, type.armorType().orElseThrow());
         }
+    }
+
+    private void addR196EnchantmentTags(R196Catalog.EquipmentEntry entry) {
+        R196EquipmentType type = entry.key().type();
+        R196Material material = entry.key().material();
+        if (isDurabilityEnchantable(type, material)) {
+            add(ModTags.Items.R196_DURABILITY_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.SWORD) {
+            add(ModTags.Items.R196_DISARMING_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.KNIFE || type == R196EquipmentType.DAGGER) {
+            add(ModTags.Items.R196_BUTCHERING_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.CUDGEL || type == R196EquipmentType.WAR_HAMMER) {
+            add(ModTags.Items.R196_STUNNING_ENCHANTABLE, entry);
+        }
+        if ((type == R196EquipmentType.SWORD || type == R196EquipmentType.SCYTHE)
+                && material != R196Material.SILVER
+                && material != R196Material.MITHRIL) {
+            add(ModTags.Items.R196_VAMPIRISM_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.SWORD
+                || type == R196EquipmentType.BATTLE_AXE
+                || type == R196EquipmentType.SCYTHE) {
+            add(ModTags.Items.R196_SLAUGHTER_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.BATTLE_AXE) {
+            add(ModTags.Items.R196_CLEAVING_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.HOE
+                || type == R196EquipmentType.MATTOCK
+                || type == R196EquipmentType.SCYTHE) {
+            add(ModTags.Items.R196_HARVESTING_ENCHANTABLE, entry);
+            add(ModTags.Items.R196_FERTILITY_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.PICKAXE) {
+            add(ModTags.Items.R196_PENETRATION_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.AXE || type == R196EquipmentType.BATTLE_AXE) {
+            add(ModTags.Items.R196_TREE_FELLING_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.PICKAXE || type == R196EquipmentType.SHOVEL) {
+            add(ModTags.Items.R196_FORTUNE_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.LEGGINGS || type == R196EquipmentType.CHAINMAIL_LEGGINGS) {
+            add(ModTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.CHESTPLATE || type == R196EquipmentType.CHAINMAIL_CHESTPLATE) {
+            add(ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, entry);
+        }
+    }
+
+    private static boolean isDurabilityEnchantable(R196EquipmentType type, R196Material material) {
+        if (type.armorForm() == R196EquipmentType.ArmorForm.PLATE
+                && material.has(R196Material.Flag.METAL)) {
+            return true;
+        }
+        return switch (type) {
+            case CUDGEL, PICKAXE, SHOVEL, HATCHET, AXE, HOE, BATTLE_AXE, FISHING_ROD, BOW -> true;
+            default -> false;
+        };
     }
 
     private void addArmorSlotTags(R196Catalog.EquipmentEntry entry, ArmorType armorType) {

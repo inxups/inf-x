@@ -1,7 +1,5 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.enchantment.R196Enchantments;
-import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -89,11 +87,6 @@ public final class R196MoonEvents {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         R196MoonPhase phase = R196MoonPhase.at(player.level());
         double multiplier = phase.fishingMultiplier();
-        int baiting = R196Enchantments.level(player.level(), player.getMainHandItem(), ModEnchantments.BAITING);
-        if (baiting == 0) {
-            baiting = R196Enchantments.level(player.level(), player.getOffhandItem(), ModEnchantments.BAITING);
-        }
-        multiplier *= 1.0D + baiting * 0.25D;
         long time = Math.floorMod(player.level().getOverworldClockTime(), 24_000L);
         if (time < 2_000L || time > 11_000L && time < 14_000L) multiplier *= 1.5D;
         if (player.level().isRainingAt(event.getHookEntity().blockPosition())) multiplier *= 1.5D;

@@ -23,6 +23,8 @@ class R196BehaviorRulesTest {
                 Map.entry(R196Material.ADAMANTIUM, .90F));
         expected.forEach((material, chance) ->
                 assertEquals(chance, R196EquipmentBehaviors.recoveryChance(material), 0.0001F));
+        assertEquals(.44F, R196EquipmentBehaviors.recoveryChance(R196Material.FLINT, 1), 0.0001F);
+        assertEquals(1.0F, R196EquipmentBehaviors.recoveryChance(R196Material.FLINT, 5), 0.0001F);
     }
 
     @Test
