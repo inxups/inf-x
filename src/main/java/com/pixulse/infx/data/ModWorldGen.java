@@ -759,43 +759,11 @@ final class ModWorldGen {
     }
 
     private static SurfaceRules.RuleSource underworldSurfaceRule() {
-        SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
         SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
-        SurfaceRules.RuleSource mantle = SurfaceRules.state(ModBlocks.MANTLE.get().defaultBlockState());
         return SurfaceRules.sequence(
-                SurfaceRules.ifTrue(
-                        SurfaceRules.not(SurfaceRules.verticalGradient(
-                                "bedrock_roof",
-                                VerticalAnchor.belowTop(5),
-                                VerticalAnchor.top())),
-                        bedrock),
-                SurfaceRules.ifTrue(
-                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(1), 0)),
-                        mantle),
-                SurfaceRules.ifTrue(
-                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(5), 0)),
-                        bedrock),
-                internalBedrockBand(152, 161, Noises.PILLAR, bedrock),
-                internalBedrockBand(216, 225, Noises.SPAGHETTI_2D, bedrock),
-                internalBedrockBand(272, 281, Noises.CAVE_LAYER, bedrock),
                 SurfaceRules.ifTrue(
                         SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(0), 0)),
                         deepslate));
-    }
-
-    private static SurfaceRules.RuleSource internalBedrockBand(
-            int minimumAboveBottom,
-            int maximumAboveBottom,
-            ResourceKey<NormalNoise.NoiseParameters> gapNoise,
-            SurfaceRules.RuleSource bedrock) {
-        return SurfaceRules.ifTrue(
-                SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(minimumAboveBottom), 0),
-                SurfaceRules.ifTrue(
-                        SurfaceRules.not(SurfaceRules.yBlockCheck(
-                                VerticalAnchor.aboveBottom(maximumAboveBottom + 1), 0)),
-                        SurfaceRules.ifTrue(
-                                SurfaceRules.noiseCondition2d(gapNoise, -1.0, 0.62),
-                                bedrock)));
     }
 
     private static void registerOverworldNoiseSettings(

@@ -973,7 +973,6 @@ class R196GeneratedResourceTest {
                 .flatMap(step -> step.getAsJsonArray().asList().stream())
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toSet());
-        int underworldMinY = dimensionType.get("min_y").getAsInt();
         JsonObject miteDensity = json(GENERATED.resolve(
                 "data/infx/worldgen/density_function/mite_r196_first_cave.json"));
         JsonObject noiseShape = noise.getAsJsonObject("noise");
@@ -983,16 +982,7 @@ class R196GeneratedResourceTest {
         JsonObject legacyBlendedNoise = scaledMiteTerrain.getAsJsonObject("argument2");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
         var surfaceSequence = surfaceRule.getAsJsonArray("sequence");
-        JsonObject roofBedrockRule = surfaceSequence.get(0).getAsJsonObject();
-        JsonObject roofGradient = roofBedrockRule
-                .getAsJsonObject("if_true")
-                .getAsJsonObject("invert");
-        JsonObject floorMantleRule = surfaceSequence.get(1).getAsJsonObject();
-        JsonObject floorBedrockRule = surfaceSequence.get(2).getAsJsonObject();
-        JsonObject firstInternalBedrockRule = surfaceSequence.get(3).getAsJsonObject();
-        JsonObject secondInternalBedrockRule = surfaceSequence.get(4).getAsJsonObject();
-        JsonObject thirdInternalBedrockRule = surfaceSequence.get(5).getAsJsonObject();
-        JsonObject deepslateRule = surfaceSequence.get(6).getAsJsonObject();
+        JsonObject deepslateRule = surfaceSequence.get(0).getAsJsonObject();
         JsonObject deepslateCutoff = deepslateRule
                 .getAsJsonObject("if_true")
                 .getAsJsonObject("invert");
@@ -1076,49 +1066,7 @@ class R196GeneratedResourceTest {
                         "minecraft:spaghetti_3d_1",
                         "minecraft:spaghetti_3d_2"), terrainNoises),
                 () -> assertTrue(finalDensity.toString().contains("minecraft:interpolated")),
-                () -> assertEquals(7, surfaceSequence.size()),
-                () -> assertEquals("minecraft:vertical_gradient", roofGradient.get("type").getAsString()),
-                () -> assertEquals(5, roofGradient
-                        .getAsJsonObject("true_at_and_below")
-                        .get("below_top")
-                        .getAsInt()),
-                () -> assertEquals(0, roofGradient
-                        .getAsJsonObject("false_at_and_above")
-                        .get("below_top")
-                        .getAsInt()),
-                () -> assertEquals("minecraft:bedrock", roofBedrockRule
-                        .getAsJsonObject("then_run")
-                        .getAsJsonObject("result_state")
-                        .get("Name")
-                        .getAsString()),
-                () -> assertEquals("infx:mantle", floorMantleRule
-                        .getAsJsonObject("then_run")
-                        .getAsJsonObject("result_state")
-                        .get("Name")
-                        .getAsString()),
-                () -> assertEquals(1, floorMantleRule
-                        .getAsJsonObject("if_true")
-                        .getAsJsonObject("invert")
-                        .getAsJsonObject("anchor")
-                        .get("above_bottom")
-                        .getAsInt()),
-                () -> assertEquals("minecraft:bedrock", floorBedrockRule
-                        .getAsJsonObject("then_run")
-                        .getAsJsonObject("result_state")
-                        .get("Name")
-                        .getAsString()),
-                () -> assertEquals(5, floorBedrockRule
-                        .getAsJsonObject("if_true")
-                        .getAsJsonObject("invert")
-                        .getAsJsonObject("anchor")
-                        .get("above_bottom")
-                        .getAsInt()),
-                () -> assertInternalBedrockBand(
-                        firstInternalBedrockRule, underworldMinY, 152, 161, -40, -31, "minecraft:pillar"),
-                () -> assertInternalBedrockBand(
-                        secondInternalBedrockRule, underworldMinY, 216, 225, 24, 33, "minecraft:spaghetti_2d"),
-                () -> assertInternalBedrockBand(
-                        thirdInternalBedrockRule, underworldMinY, 272, 281, 80, 89, "minecraft:cave_layer"),
+                () -> assertEquals(1, surfaceSequence.size()),
                 () -> assertEquals("minecraft:y_above", deepslateCutoff.get("type").getAsString()),
                 () -> assertEquals(0, deepslateCutoff
                         .getAsJsonObject("anchor")
@@ -1955,46 +1903,6 @@ class R196GeneratedResourceTest {
             }
         }
         return false;
-    }
-
-    private static void assertInternalBedrockBand(
-            JsonObject bandRule,
-            int minimumBuildY,
-            int lowerOffset,
-            int upperOffset,
-            int expectedLowerY,
-            int expectedUpperY,
-            String gapNoise) {
-        JsonObject lower = bandRule.getAsJsonObject("if_true");
-        JsonObject upper = bandRule
-                .getAsJsonObject("then_run")
-                .getAsJsonObject("if_true")
-                .getAsJsonObject("invert");
-        JsonObject noise = bandRule
-                .getAsJsonObject("then_run")
-                .getAsJsonObject("then_run")
-                .getAsJsonObject("if_true");
-        JsonObject block = bandRule
-                .getAsJsonObject("then_run")
-                .getAsJsonObject("then_run")
-                .getAsJsonObject("then_run")
-                .getAsJsonObject("result_state");
-        assertAll(
-                expectedLowerY + "-" + expectedUpperY + " internal bedrock band",
-                () -> assertEquals("minecraft:y_above", lower.get("type").getAsString()),
-                () -> assertEquals(
-                        lowerOffset,
-                        lower.getAsJsonObject("anchor").get("above_bottom").getAsInt()),
-                () -> assertEquals("minecraft:y_above", upper.get("type").getAsString()),
-                () -> assertEquals(
-                        upperOffset + 1,
-                        upper.getAsJsonObject("anchor").get("above_bottom").getAsInt()),
-                () -> assertEquals(expectedLowerY, minimumBuildY + lowerOffset),
-                () -> assertEquals(expectedUpperY, minimumBuildY + upperOffset),
-                () -> assertEquals("minecraft:noise_threshold", noise.get("type").getAsString()),
-                () -> assertEquals(gapNoise, noise.get("noise").getAsString()),
-                () -> assertEquals(0.62, noise.get("max_threshold").getAsDouble()),
-                () -> assertEquals("minecraft:bedrock", block.get("Name").getAsString()));
     }
 
     private static Path findProjectRoot() {
