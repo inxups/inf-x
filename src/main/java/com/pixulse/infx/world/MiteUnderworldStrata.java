@@ -14,14 +14,28 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  * <p>The original pass runs after terrain generation, so it cannot be expressed by a 26.2 surface rule:
  * both boundary thickness and the three internal bedrock strata depend on per-column random values
  * and legacy octave noise. InfiniteX retains each stratum's center block when that noise would otherwise
- * make its width non-positive across an entire region, except for one seeded 2-by-2 passage per chunk.</p>
+ * make its width non-positive across an entire region, then smoothly thins it around seeded passages.</p>
  */
 public final class MiteUnderworldStrata {
     static final int LEGACY_TERRAIN_START_Y = 120;
     static final int CHUNK_SIDE_LENGTH = 16;
     private static final int INTERNAL_STRATUM_COUNT = 3;
-    private static final int PASSAGE_SIDE_LENGTH = 2;
+    private static final int PASSAGE_REGION_CHUNK_SIDE = 2;
+    private static final int PASSAGE_REGION_BLOCK_SIDE = PASSAGE_REGION_CHUNK_SIDE * CHUNK_SIDE_LENGTH;
+    private static final int PASSAGE_NEIGHBOR_REGION_RADIUS = 1;
+    private static final double PASSAGE_MIN_INNER_RADIUS = 2.25;
+    private static final double PASSAGE_INNER_RADIUS_VARIATION = 1.0;
+    private static final double PASSAGE_MIN_FADE_WIDTH = 4.5;
+    private static final double PASSAGE_FADE_WIDTH_VARIATION = 2.0;
+    private static final double PASSAGE_MIN_ASPECT_RATIO = 0.75;
+    private static final double PASSAGE_ASPECT_RATIO_VARIATION = 0.5;
+    private static final double PASSAGE_EDGE_WARP = 1.0;
+    private static final double PASSAGE_ERODED_WIDTH = -0.5;
+    private static final double FALLBACK_CENTER_WIDTH = 0.25;
     private static final long PASSAGE_SEED_SALT = 0x5041535341474553L;
+    private static final long PASSAGE_STRATUM_SEED_STEP = 0x9E3779B97F4A7C15L;
+    private static final long PASSAGE_REGION_X_SEED_STEP = 341873128712L;
+    private static final long PASSAGE_REGION_Z_SEED_STEP = 132897987541L;
     private static final int COLUMN_COUNT = CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH;
     private static final int LOWER_STRATA_CELL_COUNT = COLUMN_COUNT * LEGACY_TERRAIN_START_Y;
     private static final byte NONE = 0;
@@ -67,10 +81,11 @@ public final class MiteUnderworldStrata {
     static StrataPlan plan(long worldSeed, ChunkPos chunkPos) {
         LegacyNoiseSet noiseSet = NOISES_BY_WORLD_SEED.computeIfAbsent(worldSeed, LegacyNoiseSet::new);
         StrataNoise strataNoise = noiseSet.sample(chunkPos);
-        long columnSeed = miteHashedWorldSeed(worldSeed) * (long) miteChunkHash(chunkPos.x(), chunkPos.z());
+        long hashedWorldSeed = miteHashedWorldSeed(worldSeed);
+        long columnSeed = hashedWorldSeed * (long) miteChunkHash(chunkPos.x(), chunkPos.z());
         Random columnRandom = new Random(columnSeed);
-        StrataPassages passages = new StrataPassages(columnSeed);
-        StrataPlan plan = new StrataPlan();
+        SmoothPassageField passages = new SmoothPassageField(hashedWorldSeed, chunkPos, strataNoise);
+        StrataPlan plan = new StrataPlan(passages);
         int[] chanceIndex = {chunkPos.x() * 2653 + chunkPos.z() * 6714631};
 
         for (int localX = 0; localX < CHUNK_SIDE_LENGTH; localX++) {
@@ -87,9 +102,10 @@ public final class MiteUnderworldStrata {
                                 relativeY,
                                 column,
                                 strataNoise,
+                                passages,
                                 noiseSet.chanceIn2,
                                 chanceIndex);
-                        if (stratum >= 0 && !passages.contains(stratum, column)) {
+                        if (stratum >= 0) {
                             plan.setReplacement(localX, localZ, relativeY, BEDROCK);
                         }
                     }
@@ -103,6 +119,7 @@ public final class MiteUnderworldStrata {
             int relativeY,
             int column,
             StrataNoise noise,
+            SmoothPassageField passages,
             boolean[] chanceIn2,
             int[] chanceIndex) {
         double firstWidth = Math.max(noise.firstA[column], noise.firstB[column]);
@@ -112,48 +129,71 @@ public final class MiteUnderworldStrata {
         if (noise.fourthBump[column] > 0.0) {
             firstWidth += noise.fourthBump[column] * 0.09375 + 0.125;
         }
-        if (isWithinSecondaryStratum(
+        StratumCell cell = classifySecondaryStratum(
                 relativeY - 32,
                 noise.second[column] - firstWidth * 1.5,
                 noise.secondBump[column],
+                passages.strengthAt(0, column),
                 chanceIn2,
-                chanceIndex)) {
-            return 0;
-        }
-        if (isWithinSecondaryStratum(
+                chanceIndex);
+        if (cell != StratumCell.OUTSIDE) return cell == StratumCell.BEDROCK ? 0 : -1;
+        cell = classifySecondaryStratum(
                 relativeY - 72,
                 noise.third[column] - noise.fourth[column] * 0.375 + 0.5,
                 noise.thirdBump[column],
+                passages.strengthAt(1, column),
                 chanceIn2,
-                chanceIndex)) {
-            return 1;
-        }
-        return isWithinSecondaryStratum(
-                        relativeY - 96,
-                        noise.fourth[column] - noise.third[column] * 0.375 + 0.5,
-                        noise.fourthBump[column],
-                        chanceIn2,
-                        chanceIndex)
-                ? 2
-                : -1;
+                chanceIndex);
+        if (cell != StratumCell.OUTSIDE) return cell == StratumCell.BEDROCK ? 1 : -1;
+        cell = classifySecondaryStratum(
+                relativeY - 96,
+                noise.fourth[column] - noise.third[column] * 0.375 + 0.5,
+                noise.fourthBump[column],
+                passages.strengthAt(2, column),
+                chanceIn2,
+                chanceIndex);
+        return cell == StratumCell.BEDROCK ? 2 : -1;
     }
 
-    private static boolean isWithinSecondaryStratum(
+    private static StratumCell classifySecondaryStratum(
             int distanceFromCenter,
             double width,
             double bump,
+            double passageStrength,
             boolean[] chanceIn2,
             int[] chanceIndex) {
-        if (width <= 0.0) return distanceFromCenter == 0;
+        if (width <= 0.0) {
+            if (distanceFromCenter != 0) return StratumCell.OUTSIDE;
+            return erodeWidth(FALLBACK_CENTER_WIDTH, passageStrength) >= 0.0
+                    ? StratumCell.BEDROCK
+                    : StratumCell.ERODED;
+        }
+        double baseWidth = width;
+        double bumpContribution = 0.0;
         if (distanceFromCenter > 0 && bump > 0.0) {
-            width += bump * 0.25 + 0.25;
+            bumpContribution = bump * 0.25 + 0.25;
         }
         if (distanceFromCenter < 0) {
             chanceIndex[0]++;
             if (chanceIn2[chanceIndex[0] & 32767]) distanceFromCenter++;
             distanceFromCenter = -distanceFromCenter;
         }
-        return distanceFromCenter <= width * 2.0;
+        double rawWidth = baseWidth + bumpContribution;
+        if (distanceFromCenter > rawWidth * 2.0) return StratumCell.OUTSIDE;
+        width = erodeWidth(baseWidth, passageStrength);
+        if (width < 0.0) return StratumCell.ERODED;
+        width += bumpContribution * (1.0 - passageStrength);
+        return distanceFromCenter <= width * 2.0 ? StratumCell.BEDROCK : StratumCell.ERODED;
+    }
+
+    private static double erodeWidth(double width, double passageStrength) {
+        return width + (PASSAGE_ERODED_WIDTH - width) * passageStrength;
+    }
+
+    private enum StratumCell {
+        OUTSIDE,
+        BEDROCK,
+        ERODED
     }
 
     private static double positiveContribution(double value, double scale) {
@@ -176,54 +216,126 @@ public final class MiteUnderworldStrata {
         return localZ + localX * CHUNK_SIDE_LENGTH;
     }
 
-    private static final class StrataPassages {
-        private final byte[] minimumXs = new byte[INTERNAL_STRATUM_COUNT];
-        private final byte[] minimumZs = new byte[INTERNAL_STRATUM_COUNT];
+    private static final class SmoothPassageField {
+        private final double[][] strengths = new double[INTERNAL_STRATUM_COUNT][COLUMN_COUNT];
 
-        private StrataPassages(long columnSeed) {
-            Random random = new Random(columnSeed ^ PASSAGE_SEED_SALT);
-            int originBound = CHUNK_SIDE_LENGTH - PASSAGE_SIDE_LENGTH + 1;
-            for (int stratum = 0; stratum < INTERNAL_STRATUM_COUNT; stratum++) {
-                int minimumX;
-                int minimumZ;
-                do {
-                    minimumX = random.nextInt(originBound);
-                    minimumZ = random.nextInt(originBound);
-                } while (this.overlapsPrevious(stratum, minimumX, minimumZ));
-                this.minimumXs[stratum] = (byte) minimumX;
-                this.minimumZs[stratum] = (byte) minimumZ;
-            }
-        }
+        private SmoothPassageField(long hashedWorldSeed, ChunkPos chunkPos, StrataNoise noise) {
+            int regionX = Math.floorDiv(chunkPos.x(), PASSAGE_REGION_CHUNK_SIDE);
+            int regionZ = Math.floorDiv(chunkPos.z(), PASSAGE_REGION_CHUNK_SIDE);
+            PassageAnchor[][] anchors = createNearbyAnchors(hashedWorldSeed, regionX, regionZ);
 
-        private boolean overlapsPrevious(int stratum, int minimumX, int minimumZ) {
-            for (int previous = 0; previous < stratum; previous++) {
-                int previousX = this.minimumXs[previous];
-                int previousZ = this.minimumZs[previous];
-                if (minimumX < previousX + PASSAGE_SIDE_LENGTH
-                        && minimumX + PASSAGE_SIDE_LENGTH > previousX
-                        && minimumZ < previousZ + PASSAGE_SIDE_LENGTH
-                        && minimumZ + PASSAGE_SIDE_LENGTH > previousZ) {
-                    return true;
+            for (int localX = 0; localX < CHUNK_SIDE_LENGTH; localX++) {
+                double blockX = chunkPos.getBlockX(localX) + 0.5;
+                for (int localZ = 0; localZ < CHUNK_SIDE_LENGTH; localZ++) {
+                    double blockZ = chunkPos.getBlockZ(localZ) + 0.5;
+                    int column = columnIndex(localX, localZ);
+                    for (int stratum = 0; stratum < INTERNAL_STRATUM_COUNT; stratum++) {
+                        double shapeNoise = switch (stratum) {
+                            case 0 -> noise.secondBump[column];
+                            case 1 -> noise.thirdBump[column];
+                            default -> noise.fourthBump[column];
+                        };
+                        double edgeWarp = Math.tanh(shapeNoise * 0.25) * PASSAGE_EDGE_WARP;
+                        double strength = 0.0;
+                        for (PassageAnchor anchor : anchors[stratum]) {
+                            strength = Math.max(strength, anchor.strengthAt(blockX, blockZ, edgeWarp));
+                        }
+                        this.strengths[stratum][column] = strength;
+                    }
                 }
             }
-            return false;
         }
 
-        private boolean contains(int stratum, int column) {
-            int localX = column / CHUNK_SIDE_LENGTH;
-            int localZ = column % CHUNK_SIDE_LENGTH;
-            int minimumX = this.minimumXs[stratum];
-            int minimumZ = this.minimumZs[stratum];
-            return localX >= minimumX
-                    && localX < minimumX + PASSAGE_SIDE_LENGTH
-                    && localZ >= minimumZ
-                    && localZ < minimumZ + PASSAGE_SIDE_LENGTH;
+        private static PassageAnchor[][] createNearbyAnchors(long hashedWorldSeed, int regionX, int regionZ) {
+            int neighborSide = PASSAGE_NEIGHBOR_REGION_RADIUS * 2 + 1;
+            PassageAnchor[][] anchors =
+                    new PassageAnchor[INTERNAL_STRATUM_COUNT][neighborSide * neighborSide];
+            long passageSeed = hashedWorldSeed ^ PASSAGE_SEED_SALT;
+            for (int stratum = 0; stratum < INTERNAL_STRATUM_COUNT; stratum++) {
+                int index = 0;
+                for (int offsetX = -PASSAGE_NEIGHBOR_REGION_RADIUS;
+                        offsetX <= PASSAGE_NEIGHBOR_REGION_RADIUS;
+                        offsetX++) {
+                    for (int offsetZ = -PASSAGE_NEIGHBOR_REGION_RADIUS;
+                            offsetZ <= PASSAGE_NEIGHBOR_REGION_RADIUS;
+                            offsetZ++) {
+                        anchors[stratum][index++] = PassageAnchor.create(
+                                passageSeed,
+                                stratum,
+                                regionX + offsetX,
+                                regionZ + offsetZ);
+                    }
+                }
+            }
+            return anchors;
+        }
+
+        private double strengthAt(int stratum, int column) {
+            return this.strengths[stratum][column];
+        }
+    }
+
+    private record PassageAnchor(
+            double centerX,
+            double centerZ,
+            double innerRadius,
+            double outerRadius,
+            double cosine,
+            double sine,
+            double aspectRatio) {
+        private static PassageAnchor create(long passageSeed, int stratum, int regionX, int regionZ) {
+            long seed = passageSeed;
+            seed += (stratum + 1L) * PASSAGE_STRATUM_SEED_STEP;
+            seed += regionX * PASSAGE_REGION_X_SEED_STEP;
+            seed += regionZ * PASSAGE_REGION_Z_SEED_STEP;
+            Random random = new Random(seed);
+            double centerX = regionX * PASSAGE_REGION_BLOCK_SIDE
+                    + random.nextDouble() * PASSAGE_REGION_BLOCK_SIDE;
+            double centerZ = regionZ * PASSAGE_REGION_BLOCK_SIDE
+                    + random.nextDouble() * PASSAGE_REGION_BLOCK_SIDE;
+            double innerRadius = PASSAGE_MIN_INNER_RADIUS
+                    + random.nextDouble() * PASSAGE_INNER_RADIUS_VARIATION;
+            double outerRadius = innerRadius
+                    + PASSAGE_MIN_FADE_WIDTH
+                    + random.nextDouble() * PASSAGE_FADE_WIDTH_VARIATION;
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            double aspectRatio = PASSAGE_MIN_ASPECT_RATIO
+                    + random.nextDouble() * PASSAGE_ASPECT_RATIO_VARIATION;
+            return new PassageAnchor(
+                    centerX,
+                    centerZ,
+                    innerRadius,
+                    outerRadius,
+                    Math.cos(angle),
+                    Math.sin(angle),
+                    aspectRatio);
+        }
+
+        private double strengthAt(double blockX, double blockZ, double edgeWarp) {
+            double deltaX = blockX - this.centerX;
+            double deltaZ = blockZ - this.centerZ;
+            double rotatedX = deltaX * this.cosine + deltaZ * this.sine;
+            double rotatedZ = -deltaX * this.sine + deltaZ * this.cosine;
+            double ellipseX = rotatedX / this.aspectRatio;
+            double ellipseZ = rotatedZ * this.aspectRatio;
+            double distance = Math.sqrt(ellipseX * ellipseX + ellipseZ * ellipseZ);
+            distance = Math.max(0.0, distance + edgeWarp);
+            if (distance <= this.innerRadius) return 1.0;
+            if (distance >= this.outerRadius) return 0.0;
+            double progress = (distance - this.innerRadius) / (this.outerRadius - this.innerRadius);
+            double smoothProgress = progress * progress * (3.0 - 2.0 * progress);
+            return 1.0 - smoothProgress;
         }
     }
 
     static final class StrataPlan {
         private final byte[] replacements = new byte[LOWER_STRATA_CELL_COUNT];
         private final byte[] boundaryThicknesses = new byte[COLUMN_COUNT];
+        private final SmoothPassageField passages;
+
+        private StrataPlan(SmoothPassageField passages) {
+            this.passages = passages;
+        }
 
         int boundaryThicknessAt(int localX, int localZ) {
             return this.boundaryThicknesses[columnIndex(localX, localZ)];
@@ -235,6 +347,10 @@ public final class MiteUnderworldStrata {
 
         boolean hasBedrockAt(int localX, int localZ, int relativeY) {
             return this.replacementAt(localX, localZ, relativeY) == BEDROCK;
+        }
+
+        double passageStrengthAt(int stratum, int localX, int localZ) {
+            return this.passages.strengthAt(stratum, columnIndex(localX, localZ));
         }
 
         private byte replacementAt(int localX, int localZ, int relativeY) {
