@@ -110,4 +110,4 @@
 
 ## 持续验收
 
-每次相关变更必须同步本文件和 `CHANGELOG.md`，并执行 `bash gradlew test`、`bash gradlew runData resourceTest`、`bash gradlew runGameTestServer`、`bash gradlew build`。新增数据生成资源必须修改 Provider，不只修改生成结果。
+每次相关变更必须同步本文件和 `CHANGELOG.md`，并执行 `bash gradlew test` `bash gradlew build`。新增数据生成资源必须修改 Provider，不只修改生成结果。

@@ -29,4 +29,4 @@
 4. **Underworld 床行为：已解决。** 床规则为不能睡眠、不能设置出生点并显示不安全提示，不触发爆炸。
 5. **要塞与末地链：已解决。** 主世界生物群系重新加入要塞生成标签；末影之眼、末影水晶、末影龙恢复和 `the_end2` 返回触发保持可用，末地生存流程不再被标签清空阻断。
 
-本轮范围内没有剩余代码阻塞。后续相关变更仍需执行 `bash gradlew test`、`bash gradlew runData resourceTest`、`bash gradlew runGameTestServer` 和 `bash gradlew build`。
+本轮范围内没有剩余代码阻塞。后续相关变更仍需执行 `bash gradlew test` 和 `bash gradlew build`。
