@@ -69,33 +69,94 @@ class MiteUnderworldStrataTest {
     }
 
     @Test
-    void internalBedrockCentersKeepOneSeededTwoByTwoPassagePerChunk() {
+    void internalBedrockCentersUseBroadSeededPassagesWithoutLosingMostOfEachLayer() {
         int[] centers = {32, 72, 96};
         int[][] ranges = {{3, 52}, {52, 84}, {84, 120}};
+        int macroRegionChunkSide = 2;
+        int macroRegionColumnCount = macroRegionChunkSide
+                * macroRegionChunkSide
+                * MiteUnderworldStrata.CHUNK_SIDE_LENGTH
+                * MiteUnderworldStrata.CHUNK_SIDE_LENGTH;
+        int oldRectangularPassageColumnCount = macroRegionChunkSide * macroRegionChunkSide * 4;
 
-        for (int chunkX = -2; chunkX <= 2; chunkX++) {
-            for (int chunkZ = -2; chunkZ <= 2; chunkZ++) {
-                MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(
-                        WORLD_SEED,
-                        new ChunkPos(chunkX, chunkZ));
-                Passage[] passages = new Passage[centers.length];
-                for (int stratum = 0; stratum < centers.length; stratum++) {
-                    passages[stratum] = assertTwoByTwoPassage(
-                            plan,
-                            new ChunkPos(chunkX, chunkZ),
-                            centers[stratum],
-                            ranges[stratum][0],
-                            ranges[stratum][1]);
+        for (int regionX = -1; regionX <= 1; regionX++) {
+            for (int regionZ = -1; regionZ <= 1; regionZ++) {
+                MiteUnderworldStrata.StrataPlan[][] plans =
+                        new MiteUnderworldStrata.StrataPlan[macroRegionChunkSide][macroRegionChunkSide];
+                for (int chunkOffsetX = 0; chunkOffsetX < macroRegionChunkSide; chunkOffsetX++) {
+                    for (int chunkOffsetZ = 0; chunkOffsetZ < macroRegionChunkSide; chunkOffsetZ++) {
+                        plans[chunkOffsetX][chunkOffsetZ] = MiteUnderworldStrata.plan(
+                                WORLD_SEED,
+                                new ChunkPos(
+                                        regionX * macroRegionChunkSide + chunkOffsetX,
+                                        regionZ * macroRegionChunkSide + chunkOffsetZ));
+                    }
                 }
-                for (int first = 0; first < passages.length; first++) {
-                    for (int second = first + 1; second < passages.length; second++) {
-                        assertFalse(
-                                passages[first].overlaps(passages[second]),
-                                "strata passages must not overlap in chunk " + chunkX + "," + chunkZ);
+
+                for (int stratum = 0; stratum < centers.length; stratum++) {
+                    int gapCount = 0;
+                    int coreColumnCount = 0;
+                    int transitionColumnCount = 0;
+                    for (int chunkOffsetX = 0; chunkOffsetX < macroRegionChunkSide; chunkOffsetX++) {
+                        for (int chunkOffsetZ = 0; chunkOffsetZ < macroRegionChunkSide; chunkOffsetZ++) {
+                            ChunkPos chunkPos = new ChunkPos(
+                                    regionX * macroRegionChunkSide + chunkOffsetX,
+                                    regionZ * macroRegionChunkSide + chunkOffsetZ);
+                            MiteUnderworldStrata.StrataPlan plan = plans[chunkOffsetX][chunkOffsetZ];
+                            PassageStrengthCounts strengthCounts = countPassageStrengths(plan, stratum);
+                            coreColumnCount += strengthCounts.coreColumns();
+                            transitionColumnCount += strengthCounts.transitionColumns();
+                            gapCount += assertPassageColumnsTraverseBand(
+                                    plan,
+                                    chunkPos,
+                                    centers[stratum],
+                                    ranges[stratum][0],
+                                    ranges[stratum][1]);
+                        }
+                    }
+
+                    String location = "macro region " + regionX + "," + regionZ + " stratum " + stratum;
+                    int observedGapCount = gapCount;
+                    int observedCoreColumnCount = coreColumnCount;
+                    int observedTransitionColumnCount = transitionColumnCount;
+                    assertAll(
+                            () -> assertTrue(
+                                    observedGapCount > oldRectangularPassageColumnCount,
+                                    location + " must be broader than four independent 2-by-2 cuts"),
+                            () -> assertTrue(
+                                    observedGapCount < macroRegionColumnCount / 2,
+                                    location + " must retain most of the center bedrock surface"),
+                            () -> assertTrue(
+                                    observedCoreColumnCount > 0,
+                                    location + " must contain a fully eroded passage core"),
+                            () -> assertTrue(
+                                    observedTransitionColumnCount > observedCoreColumnCount,
+                                    location + " must contain a broad fractional falloff"));
+                }
+            }
+        }
+    }
+
+    @Test
+    void smoothPassageFieldIsDeterministicAndWorldSeeded() {
+        MiteUnderworldStrata.StrataPlan first = MiteUnderworldStrata.plan(WORLD_SEED, CHUNK_POS);
+        MiteUnderworldStrata.StrataPlan repeated = MiteUnderworldStrata.plan(WORLD_SEED, CHUNK_POS);
+        MiteUnderworldStrata.StrataPlan otherSeed = MiteUnderworldStrata.plan(WORLD_SEED + 1, CHUNK_POS);
+        boolean differsFromOtherSeed = false;
+
+        for (int stratum = 0; stratum < 3; stratum++) {
+            for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
+                for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
+                    double firstStrength = first.passageStrengthAt(stratum, localX, localZ);
+                    assertEquals(firstStrength, repeated.passageStrengthAt(stratum, localX, localZ));
+                    if (firstStrength != otherSeed.passageStrengthAt(stratum, localX, localZ)) {
+                        differsFromOtherSeed = true;
                     }
                 }
             }
         }
+
+        assertTrue(differsFromOtherSeed);
     }
 
     @Test
@@ -120,17 +181,30 @@ class MiteUnderworldStrataTest {
         return count;
     }
 
-    private static Passage assertTwoByTwoPassage(
+    private static PassageStrengthCounts countPassageStrengths(
+            MiteUnderworldStrata.StrataPlan plan, int stratum) {
+        int coreColumns = 0;
+        int transitionColumns = 0;
+        for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
+            for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
+                double strength = plan.passageStrengthAt(stratum, localX, localZ);
+                if (strength == 1.0) {
+                    coreColumns++;
+                } else if (strength > 0.0) {
+                    transitionColumns++;
+                }
+            }
+        }
+        return new PassageStrengthCounts(coreColumns, transitionColumns);
+    }
+
+    private static int assertPassageColumnsTraverseBand(
             MiteUnderworldStrata.StrataPlan plan,
             ChunkPos chunkPos,
             int center,
             int minimumY,
             int maximumY) {
         int gapCount = 0;
-        int minimumX = MiteUnderworldStrata.CHUNK_SIDE_LENGTH;
-        int minimumZ = MiteUnderworldStrata.CHUNK_SIDE_LENGTH;
-        int maximumX = -1;
-        int maximumZ = -1;
         for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
             for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
                 if (plan.hasBedrockAt(localX, localZ, center)) continue;
@@ -141,30 +215,10 @@ class MiteUnderworldStrataTest {
                             "passage blocked at chunk " + chunkPos.x() + "," + chunkPos.z() + " column "
                                     + localX + "," + localZ + " relative Y=" + relativeY);
                 }
-                minimumX = Math.min(minimumX, localX);
-                minimumZ = Math.min(minimumZ, localZ);
-                maximumX = Math.max(maximumX, localX);
-                maximumZ = Math.max(maximumZ, localZ);
             }
         }
-
-        String location = "chunk " + chunkPos.x() + "," + chunkPos.z() + " relative Y=" + center;
-        int observedGapCount = gapCount;
-        int passageWidth = maximumX - minimumX;
-        int passageDepth = maximumZ - minimumZ;
-        assertAll(
-                () -> assertEquals(4, observedGapCount, location + " must contain four passage columns"),
-                () -> assertEquals(1, passageWidth, location + " passage must be two blocks wide"),
-                () -> assertEquals(1, passageDepth, location + " passage must be two blocks deep"));
-        return new Passage(minimumX, minimumZ);
+        return gapCount;
     }
 
-    private record Passage(int minimumX, int minimumZ) {
-        private boolean overlaps(Passage other) {
-            return this.minimumX < other.minimumX + 2
-                    && this.minimumX + 2 > other.minimumX
-                    && this.minimumZ < other.minimumZ + 2
-                    && this.minimumZ + 2 > other.minimumZ;
-        }
-    }
+    private record PassageStrengthCounts(int coreColumns, int transitionColumns) {}
 }
