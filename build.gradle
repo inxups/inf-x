@@ -207,7 +207,7 @@ tasks.named('check').configure {
     dependsOn tasks.named('resourceTest')
 }
 
-def prepareClientGeneratedResources = tasks.register('prepareClientGeneratedResources', Copy) {
+def prepareRuntimeGeneratedResources = tasks.register('prepareRuntimeGeneratedResources', Copy) {
     dependsOn tasks.named('runData')
     from layout.projectDirectory.dir('src/generated/resources')
     into layout.buildDirectory.dir('resources/main')
@@ -215,9 +215,13 @@ def prepareClientGeneratedResources = tasks.register('prepareClientGeneratedReso
 }
 
 // Fresh clones and worktrees do not contain ignored datagen output. Bootstrap it before
-// launching the client so world-creation registry reloads cannot observe partial data.
+// runtime registry reloads so items that reference dynamic registries can load safely.
 tasks.named('runClient').configure {
-    dependsOn prepareClientGeneratedResources
+    dependsOn prepareRuntimeGeneratedResources
+}
+
+tasks.named('runGameTestServer').configure {
+    dependsOn prepareRuntimeGeneratedResources
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
