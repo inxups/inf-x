@@ -504,6 +504,8 @@ public final class ModGameTests {
         var worldData = helper.getLevel().getServer().getWorldData();
         Difficulty gameplayDifficulty = helper.getLevel().getDifficulty();
         DifficultyInstance regionalDifficulty = helper.getLevel().getCurrentDifficultyAt(helper.absolutePos(WORK_POS));
+        DifficultyInstance directlyConstructedExtremeDifficulty = new DifficultyInstance(extreme, 72_000L, 0L, 0.0F);
+        DifficultyInstance directlyConstructedHardDifficulty = new DifficultyInstance(Difficulty.HARD, 72_000L, 0L, 0.0F);
         var difficultyCommand = helper.getLevel()
                 .getServer()
                 .getCommands()
@@ -536,6 +538,13 @@ public final class ModGameTests {
         helper.assertTrue(gameplayDifficulty == Difficulty.HARD, "Extreme gameplay values must resolve to Hard");
         helper.assertTrue(regionalDifficulty.getDifficulty() == Difficulty.HARD,
                 "regional difficulty must use Hard as its base value");
+        helper.assertTrue(directlyConstructedExtremeDifficulty.getDifficulty() == Difficulty.HARD,
+                "directly constructed regional difficulty must use Hard as its base value");
+        helper.assertTrue(
+                Math.abs(directlyConstructedExtremeDifficulty.getEffectiveDifficulty()
+                                - directlyConstructedHardDifficulty.getEffectiveDifficulty())
+                        < 0.001F,
+                "directly constructed regional difficulty must use Hard's effective value");
         helper.assertTrue(Math.abs(scaledMobDamage - 6.0F) < 0.001F,
                 "mob damage must use Hard's 1.5x difficulty scaling");
         helper.assertTrue(Math.abs(scaledExplosionDamage - 6.0F) < 0.001F,
