@@ -72,7 +72,6 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
-import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
@@ -133,8 +132,6 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("witherwood_patch"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
-    public static final ResourceKey<ConfiguredFeature<?, ?>> MANTLE_BASIN_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_mantle_basin"));
     private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
@@ -151,8 +148,6 @@ final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("witherwood_patch"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
-    public static final ResourceKey<PlacedFeature> MANTLE_BASIN_PLACED =
-            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_mantle_basin"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
@@ -267,15 +262,6 @@ final class ModWorldGen {
                         Feature.SIMPLE_BLOCK,
                         new SimpleBlockConfiguration(BlockStateProvider.simple(ModBlocks.WITHERWOOD.get()))));
         registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, ModBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
-        context.register(
-                MANTLE_BASIN_CONFIGURED,
-                new ConfiguredFeature<>(
-                        Feature.DISK,
-                        new DiskConfiguration(
-                                BlockStateProvider.simple(ModBlocks.MANTLE.get()),
-                                BlockPredicate.matchesBlocks(Blocks.STONE, Blocks.DEEPSLATE),
-                                UniformInt.of(3, 8),
-                                1)));
     }
 
     private static void registerConfiguredOre(
@@ -368,16 +354,6 @@ final class ModWorldGen {
                                 HeightRangePlacement.of(BiasedToBottomHeight.of(
                                         VerticalAnchor.absolute(0), VerticalAnchor.absolute(136), 1)),
                                 BiomeFilter.biome())));
-        context.register(
-                MANTLE_BASIN_PLACED,
-                new PlacedFeature(
-                        configuredFeatures.getOrThrow(MANTLE_BASIN_CONFIGURED),
-                        List.of(
-                                CountPlacement.of(2),
-                                InSquarePlacement.spread(),
-                                HeightRangePlacement.uniform(
-                                        VerticalAnchor.aboveBottom(120), VerticalAnchor.aboveBottom(136)),
-                                BiomeFilter.biome())));
     }
 
     private static void bootstrapBiomes(BootstrapContext<Biome> context) {
@@ -410,7 +386,6 @@ final class ModWorldGen {
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(SILVER_ORE_PLACED));
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(MITHRIL_ORE_PLACED));
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(ADAMANTIUM_ORE_PLACED));
-        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, placed.getOrThrow(MANTLE_BASIN_PLACED));
 
         context.register(
                 Underworld.BIOME,
