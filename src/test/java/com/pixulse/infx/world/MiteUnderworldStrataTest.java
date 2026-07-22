@@ -29,18 +29,19 @@ class MiteUnderworldStrataTest {
     }
 
     @Test
-    void lowerStrataKeepMiteMantleAndAllFourIrregularBedrockBands() {
+    void lowerStrataKeepMantleAndThreeInternalMiteBedrockBands() {
         MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(WORLD_SEED, CHUNK_POS);
-        int[] bandCounts = new int[4];
+        int[] bandCounts = new int[3];
+        int bottomSlabCount = 0;
         for (int chunkX = -2; chunkX <= 2; chunkX++) {
             for (int chunkZ = -2; chunkZ <= 2; chunkZ++) {
                 MiteUnderworldStrata.StrataPlan sampledPlan = MiteUnderworldStrata.plan(
                         WORLD_SEED,
                         new ChunkPos(chunkX, chunkZ));
-                bandCounts[0] += countBedrock(sampledPlan, 0, 24);
-                bandCounts[1] += countBedrock(sampledPlan, 24, 48);
-                bandCounts[2] += countBedrock(sampledPlan, 64, 88);
-                bandCounts[3] += countBedrock(sampledPlan, 88, 112);
+                bottomSlabCount += countBedrock(sampledPlan, 0, 16);
+                bandCounts[0] += countBedrock(sampledPlan, 24, 48);
+                bandCounts[1] += countBedrock(sampledPlan, 64, 88);
+                bandCounts[2] += countBedrock(sampledPlan, 88, 112);
             }
         }
 
@@ -51,19 +52,20 @@ class MiteUnderworldStrataTest {
                     assertTrue(plan.hasMantleAt(localX, localZ, relativeY));
                 }
                 assertFalse(plan.hasMantleAt(localX, localZ, thickness));
+                assertFalse(plan.hasBedrockAt(localX, localZ, thickness));
             }
         }
 
         int cellsPerBand = 25 * 24 * 16 * 16;
+        int observedBottomSlabCount = bottomSlabCount;
         assertAll(
+                () -> assertEquals(0, observedBottomSlabCount),
                 () -> assertTrue(bandCounts[0] > 0),
                 () -> assertTrue(bandCounts[1] > 0),
                 () -> assertTrue(bandCounts[2] > 0),
-                () -> assertTrue(bandCounts[3] > 0),
                 () -> assertTrue(bandCounts[0] < cellsPerBand),
                 () -> assertTrue(bandCounts[1] < cellsPerBand),
-                () -> assertTrue(bandCounts[2] < cellsPerBand),
-                () -> assertTrue(bandCounts[3] < cellsPerBand));
+                () -> assertTrue(bandCounts[2] < cellsPerBand));
     }
 
     @Test

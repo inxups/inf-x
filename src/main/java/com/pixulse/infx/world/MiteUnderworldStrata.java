@@ -12,8 +12,8 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  * MITE R196's Underworld mantle and bedrock pass, adapted to InfiniteX's taller dimension.
  *
  * <p>The original pass runs after terrain generation, so it cannot be expressed by a 26.2 surface rule:
- * both boundary thickness and the four lower bedrock strata depend on per-column random values and
- * legacy octave noise.</p>
+ * both boundary thickness and the three internal bedrock strata depend on per-column random values
+ * and legacy octave noise.</p>
  */
 public final class MiteUnderworldStrata {
     static final int LEGACY_TERRAIN_START_Y = 120;
@@ -99,8 +99,6 @@ public final class MiteUnderworldStrata {
         if (noise.fourthBump[column] > 0.0) {
             firstWidth += noise.fourthBump[column] * 0.09375 + 0.125;
         }
-        if (firstWidth > 0.0 && relativeY - 3 <= firstWidth * 7.0) return true;
-
         if (isWithinSecondaryStratum(
                 relativeY - 32,
                 noise.second[column] - firstWidth * 1.5,
