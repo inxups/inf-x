@@ -1044,35 +1044,67 @@ public final class ModR196CompletionGameTests {
                 "diamond table rejects emeralds");
         helper.assertFalse(menu.getSlot(1).mayPlace(Items.LAPIS_LAZULI.getDefaultInstance()),
                 "R196 tables reject vanilla lapis fuel");
+
+        ItemStack copperTool = ModItems.catalog()
+                .equipment(R196Material.COPPER, R196EquipmentType.PICKAXE)
+                .holder()
+                .toStack();
+        menu.getSlot(0).setByPlayer(copperTool);
+        helper.assertTrue(menu.costs[2] == R196EnchantmentRules.experienceCost(53),
+                "a full diamond table must reduce copper's 30 enchantability to 53 effective power");
+
+        ItemStack mithrilTool = ModItems.catalog()
+                .equipment(R196Material.MITHRIL, R196EquipmentType.PICKAXE)
+                .holder()
+                .toStack();
+        menu.getSlot(0).setByPlayer(mithrilTool);
+        helper.assertTrue(menu.costs[2] == R196EnchantmentRules.experienceCost(100),
+                "a full diamond table must preserve mithril's 100 enchantability");
+
+        menu.getSlot(0).setByPlayer(Items.BOOK.getDefaultInstance());
+        helper.assertTrue(menu.costs[2] == R196EnchantmentRules.experienceCost(53),
+                "books must use MITE's fixed enchantability of 30 instead of vanilla's value of one");
+
+        helper.setBlock(tableRelative, ModBlocks.EMERALD_ENCHANTING_TABLE.get());
+        R196EnchantmentMenu emeraldMenu = new R196EnchantmentMenu(
+                2,
+                owner.getInventory(),
+                ContainerLevelAccess.create(helper.getLevel(), table),
+                R196EnchantmentMenu.Kind.EMERALD);
+        emeraldMenu.getSlot(0).setByPlayer(mithrilTool.copy());
+        helper.assertTrue(emeraldMenu.costs[2] == R196EnchantmentRules.experienceCost(50),
+                "the same mithril tool must be limited to 50 power at a full emerald table");
+
+        helper.setBlock(tableRelative, ModBlocks.DIAMOND_ENCHANTING_TABLE.get());
         ItemStack enchantingTool = ModItems.catalog()
                 .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
         menu.getSlot(0).setByPlayer(enchantingTool);
-        menu.getSlot(1).setByPlayer(new ItemStack(Items.DIAMOND));
-        int experienceCost = menu.costs[0];
-        helper.assertTrue(experienceCost == R196EnchantmentRules.experienceCost(33),
-                "the first full-power option must display its 3,300 XP cost");
-        helper.assertTrue(menu.enchantClue[0] >= 0,
+        menu.getSlot(1).setByPlayer(new ItemStack(Items.DIAMOND, 3));
+        int experienceCost = menu.costs[2];
+        helper.assertTrue(experienceCost == R196EnchantmentRules.experienceCost(65),
+                "adamantium's 40 enchantability must reduce full diamond power to 65");
+        helper.assertTrue(menu.enchantClue[2] >= 0,
                 "the adamantium pickaxe must have a selectable enchantment");
         R196Experience.setTotal(owner, experienceCost - 1);
-        helper.assertFalse(menu.clickMenuButton(owner, 0),
+        helper.assertFalse(menu.clickMenuButton(owner, 2),
                 "one missing experience point must reject enchanting");
         helper.assertTrue(owner.totalExperience == experienceCost - 1,
                 "a rejected enchantment must not consume experience");
-        helper.assertTrue(menu.getSlot(1).getItem().getCount() == 1,
-                "a rejected enchantment must not consume its diamond");
+        helper.assertTrue(menu.getSlot(1).getItem().getCount() == 3,
+                "a rejected enchantment must not consume its diamonds");
         R196Experience.setTotal(owner, experienceCost);
-        helper.assertTrue(owner.experienceLevel < 33,
+        helper.assertTrue(owner.experienceLevel < 65,
                 "the raw XP test player must remain below the old level requirement");
-        helper.assertTrue(menu.clickMenuButton(owner, 0),
+        helper.assertTrue(menu.clickMenuButton(owner, 2),
                 "raw experience must permit enchanting without the matching player level");
         helper.assertTrue(owner.totalExperience == 0,
                 "enchanting must deduct the exact raw experience cost");
         helper.assertTrue(menu.getSlot(0).getItem().isEnchanted(),
                 "a successful raw-XP purchase must enchant the item");
         helper.assertTrue(menu.getSlot(1).getItem().isEmpty(),
-                "a successful first option must consume one diamond");
+                "a successful third option must consume three diamonds");
         owner.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
                 .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE).holder().toStack());
         helper.assertTrue(R196EndEvents.hasAdamantiumCrystalTool(owner),

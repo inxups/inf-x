@@ -2,10 +2,8 @@ package com.pixulse.infx.menu;
 
 import com.pixulse.infx.block.R196EnchantingTableBlock;
 import com.pixulse.infx.enchantment.R196EnchantmentRules;
-import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModMenus;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +30,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantable;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -93,21 +92,24 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
             IdMap<Holder<Enchantment>> holders = level.registryAccess()
                     .lookupOrThrow(Registries.ENCHANTMENT)
                     .asHolderIdMap();
-            int power = Math.min(kind.maximumPower(), (bookshelfCount(level, pos) + 1) * kind.powerPerShelf());
-            var equipment = ModItems.catalog().equipment(stack);
-            if (equipment != null && (equipment.key().material() == R196Material.COPPER
-                    || equipment.key().material() == R196Material.SILVER
-                    || equipment.key().material() == R196Material.GOLD)) {
-                power = Math.min(80, power);
-            }
+            int bookshelves = bookshelfCount(level, pos);
+            int tablePower = R196EnchantmentRules.enchantingTablePower(
+                    bookshelves, kind.powerPerShelf(), kind.maximumPower());
+            int effectivePower = R196EnchantmentRules.effectiveEnchantmentPower(
+                    tablePower, itemEnchantability(stack));
             accessors().infx$random().setSeed(accessors().infx$enchantmentSeed().get());
             for (int index = 0; index < 3; index++) {
-                enchantmentPowers[index] = Math.max(index + 1, Math.round(power * (index + 1) / 3.0F));
+                float randomFraction = index < 2 ? accessors().infx$random().nextFloat() : 0.5F;
+                enchantmentPowers[index] = R196EnchantmentRules.enchantmentOptionPower(
+                        effectivePower, index, randomFraction);
                 enchantClue[index] = -1;
                 levelClue[index] = -1;
                 enchantmentPowers[index] = net.neoforged.neoforge.event.EventHooks.onEnchantmentLevelSet(
-                        level, pos, index, bookshelfCount(level, pos), stack, enchantmentPowers[index]);
+                        level, pos, index, bookshelves, stack, enchantmentPowers[index]);
                 costs[index] = R196EnchantmentRules.experienceCost(enchantmentPowers[index]);
+            }
+            for (int index = 0; index < 3; index++) {
+                if (enchantmentPowers[index] <= 0) continue;
                 List<EnchantmentInstance> choices = accessors().infx$getEnchantmentList(
                         level.registryAccess(), stack, index, enchantmentPowers[index]);
                 if (!choices.isEmpty()) {
@@ -118,6 +120,12 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
             }
             broadcastChanges();
         });
+    }
+
+    private static int itemEnchantability(ItemStack stack) {
+        if (stack.is(Items.BOOK)) return R196EnchantmentRules.BOOK_ENCHANTABILITY;
+        Enchantable enchantable = stack.get(DataComponents.ENCHANTABLE);
+        return enchantable == null ? 0 : enchantable.value();
     }
 
     @Override
