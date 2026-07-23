@@ -32,6 +32,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         addPortableBlocks();
         addHarvestLevels();
         addWorldgenTags();
+        addGelatinousCubeTags();
         ModBlocks.R196_FLOWERS.forEach(flower -> tag(BlockTags.FLOWERS).add(flower.getKey()));
     }
 
@@ -39,6 +40,54 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         tag(ModTags.Blocks.UNDERWORLD_CARVER_REPLACEABLES)
                 .addTag(BlockTags.OVERWORLD_CARVER_REPLACEABLES)
                 .add(blockKey(Blocks.BEDROCK));
+    }
+
+    private void addGelatinousCubeTags() {
+        tag(ModTags.Blocks.PEPSIN_DISSOLVABLE)
+                .addTag(BlockTags.WOOL)
+                .addTag(BlockTags.WOOL_CARPETS)
+                .addTag(BlockTags.CANDLE_CAKES)
+                .add(blockKey(Blocks.CAKE), blockKey(Blocks.TRIPWIRE));
+
+        tag(ModTags.Blocks.ACID_DISSOLVES_INSTANTLY)
+                .addTag(BlockTags.LEAVES)
+                .addTag(BlockTags.WOOL)
+                .addTag(BlockTags.WOOL_CARPETS)
+                .addTag(BlockTags.CANDLE_CAKES)
+                .add(blockKey(Blocks.CAKE));
+
+        tag(ModTags.Blocks.ACID_DISSOLVES_GRADUALLY)
+                .addTag(BlockTags.DOORS)
+                .addTag(BlockTags.PRESSURE_PLATES)
+                .addTag(BlockTags.RAILS)
+                .addTag(BlockTags.WOODEN_BUTTONS)
+                .addTag(BlockTags.ALL_SIGNS)
+                .addTag(BlockTags.BEDS)
+                .addTag(BlockTags.TRAPDOORS)
+                .addTag(BlockTags.FENCES)
+                .addTag(BlockTags.FENCE_GATES)
+                .addTag(Tags.Blocks.GLASS_PANES)
+                .addTag(Tags.Blocks.CHESTS)
+                .add(
+                        blockKey(Blocks.LEVER),
+                        blockKey(Blocks.LADDER),
+                        blockKey(Blocks.PISTON),
+                        blockKey(Blocks.STICKY_PISTON),
+                        blockKey(Blocks.PISTON_HEAD),
+                        blockKey(Blocks.MOVING_PISTON),
+                        blockKey(Blocks.CACTUS),
+                        blockKey(Blocks.MELON),
+                        blockKey(Blocks.PUMPKIN),
+                        blockKey(Blocks.REPEATER),
+                        blockKey(Blocks.ENCHANTING_TABLE),
+                        blockKey(Blocks.SKELETON_SKULL),
+                        blockKey(Blocks.COMPARATOR),
+                        blockKey(Blocks.DAYLIGHT_DETECTOR),
+                        blockKey(Blocks.HOPPER),
+                        blockKey(Blocks.HAY_BLOCK),
+                        blockKey(Blocks.CAULDRON),
+                        blockKey(Blocks.COCOA),
+                        blockKey(Blocks.TRIPWIRE_HOOK));
     }
 
     private void addVanillaMiningTags() {

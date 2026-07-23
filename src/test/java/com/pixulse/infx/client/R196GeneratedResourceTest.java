@@ -1386,8 +1386,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(339, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(408, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(344, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(413, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -1771,6 +1771,8 @@ class R196GeneratedResourceTest {
                         + "|chocolate|pumpkin_soup|cream_of_mushroom_soup|onion|vegetable_soup"
                         + "|cream_of_vegetable_soup|chicken_soup|beef_stew|orange|fruit_ice|cheese"
                         + "|mashed_potato|ice_cream|banana|worm|cooked_worm)\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/item/gelatinous_sphere/(green|ochre|crimson|gray|black)\\.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
         assertFalse(Files.exists(GENERATED.resolve("assets/minecraft")));

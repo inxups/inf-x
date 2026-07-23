@@ -96,14 +96,11 @@ public final class R196MonsterEvents {
         event.put(ModEntityTypes.R196_CREEPER.get(), R196Creeper.attributes(R196Creeper.Variant.CREEPER).build());
         event.put(ModEntityTypes.INFERNAL_CREEPER.get(), R196Creeper.attributes(R196Creeper.Variant.INFERNAL).build());
 
-        for (var type : List.of(
-                ModEntityTypes.R196_SLIME,
-                ModEntityTypes.JELLY,
-                ModEntityTypes.BLOB,
-                ModEntityTypes.OOZE,
-                ModEntityTypes.PUDDING)) {
-            event.put(type.get(), R196Slime.attributes().build());
-        }
+        event.put(ModEntityTypes.R196_SLIME.get(), R196Slime.attributes(R196Slime.Variant.SLIME).build());
+        event.put(ModEntityTypes.JELLY.get(), R196Slime.attributes(R196Slime.Variant.JELLY).build());
+        event.put(ModEntityTypes.BLOB.get(), R196Slime.attributes(R196Slime.Variant.BLOB).build());
+        event.put(ModEntityTypes.OOZE.get(), R196Slime.attributes(R196Slime.Variant.OOZE).build());
+        event.put(ModEntityTypes.PUDDING.get(), R196Slime.attributes(R196Slime.Variant.PUDDING).build());
         event.put(ModEntityTypes.MAGMA_CUBE.get(), R196MagmaCube.attributes().build());
 
         for (var type : List.of(ModEntityTypes.NETHERSPAWN, ModEntityTypes.COPPERSPINE, ModEntityTypes.HOARY_SILVERFISH)) {

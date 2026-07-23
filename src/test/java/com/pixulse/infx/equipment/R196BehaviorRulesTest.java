@@ -54,12 +54,12 @@ class R196BehaviorRulesTest {
     }
 
     @Test
-    void corrosionDestroysLeatherAcceleratesMetalAndExemptsAdamantium() {
+    void elementalCorrosionDestroysLeatherAcceleratesMetalAndExemptsAdamantium() {
         assertEquals(160, R196EquipmentBehaviors.corrosionDamage(
-                R196Material.LEATHER, 160, 2.0F, true, false, false));
+                R196Material.LEATHER, 160, 2.0F, true, false));
         assertEquals(20, R196EquipmentBehaviors.corrosionDamage(
-                R196Material.IRON, 2400, 2.0F, false, true, false));
+                R196Material.IRON, 2400, 2.0F, false, true));
         assertEquals(0, R196EquipmentBehaviors.corrosionDamage(
-                R196Material.ADAMANTIUM, 80_000, 20.0F, false, true, true));
+                R196Material.ADAMANTIUM, 80_000, 20.0F, false, true));
     }
 }

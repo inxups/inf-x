@@ -40,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(527, lines.size(), "header plus 526 selected destinations");
+        assertEquals(532, lines.size(), "header plus 531 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -60,7 +60,7 @@ class R196TextureProvenanceTest {
     }
 
     @Test
-    void safeAndFoodDestinationsUseTheirExplicitMiteTextures() throws Exception {
+    void safeFoodAndSphereDestinationsUseTheirExplicitMiteTextures() throws Exception {
         Map<String, String> sourcesByDestination = Files.readAllLines(MANIFEST, UTF_8).stream()
                 .skip(1)
                 .map(line -> line.split("\\t", -1))
@@ -96,7 +96,12 @@ class R196TextureProvenanceTest {
                 Map.entry("textures/item/ice_cream.png", "items/bowls/ice_cream.png"),
                 Map.entry("textures/item/banana.png", "items/food/banana.png"),
                 Map.entry("textures/item/worm.png", "items/food/worm_raw.png"),
-                Map.entry("textures/item/cooked_worm.png", "items/food/worm_cooked.png"));
+                Map.entry("textures/item/cooked_worm.png", "items/food/worm_cooked.png"),
+                Map.entry("textures/item/gelatinous_sphere/green.png", "items/gelatinous_sphere/green.png"),
+                Map.entry("textures/item/gelatinous_sphere/ochre.png", "items/gelatinous_sphere/ochre.png"),
+                Map.entry("textures/item/gelatinous_sphere/crimson.png", "items/gelatinous_sphere/crimson.png"),
+                Map.entry("textures/item/gelatinous_sphere/gray.png", "items/gelatinous_sphere/gray.png"),
+                Map.entry("textures/item/gelatinous_sphere/black.png", "items/gelatinous_sphere/black.png"));
         assertEquals(expected, expected.keySet().stream()
                 .collect(Collectors.toMap(destination -> destination, sourcesByDestination::get)));
     }

@@ -32,6 +32,7 @@ import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SlimeRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.SquidRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
@@ -85,6 +86,8 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntityTypes.BLOB.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFFC9413B));
         event.registerEntityRenderer(ModEntityTypes.OOZE.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFF8A9295));
         event.registerEntityRenderer(ModEntityTypes.PUDDING.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFF202126));
+        event.registerEntityRenderer(
+                ModEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
         event.registerEntityRenderer(ModEntityTypes.MAGMA_CUBE.get(), MagmaCubeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.NETHERSPAWN.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFD45A30));
         event.registerEntityRenderer(ModEntityTypes.COPPERSPINE.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFB46A32));

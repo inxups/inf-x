@@ -5,6 +5,7 @@ import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.item.R196GelatinousSphereItem;
 import com.pixulse.infx.item.R196ToolItem;
 import com.pixulse.infx.item.RuneStoneItem;
 import com.pixulse.infx.block.RuneStoneBlock;
@@ -213,6 +214,23 @@ public final class ModItems {
     public static final List<DeferredItem<Item>> R196_RECORDS =
             List.of(RECORD_UNDERWORLD, RECORD_DESCENT, RECORD_WANDERER, RECORD_LEGENDS);
 
+    public static final DeferredItem<R196GelatinousSphereItem> GREEN_GELATINOUS_SPHERE = gelatinousSphere(
+            "green_gelatinous_sphere", R196GelatinousSphereItem.Color.GREEN);
+    public static final DeferredItem<R196GelatinousSphereItem> OCHRE_GELATINOUS_SPHERE = gelatinousSphere(
+            "ochre_gelatinous_sphere", R196GelatinousSphereItem.Color.OCHRE);
+    public static final DeferredItem<R196GelatinousSphereItem> CRIMSON_GELATINOUS_SPHERE = gelatinousSphere(
+            "crimson_gelatinous_sphere", R196GelatinousSphereItem.Color.CRIMSON);
+    public static final DeferredItem<R196GelatinousSphereItem> GRAY_GELATINOUS_SPHERE = gelatinousSphere(
+            "gray_gelatinous_sphere", R196GelatinousSphereItem.Color.GRAY);
+    public static final DeferredItem<R196GelatinousSphereItem> BLACK_GELATINOUS_SPHERE = gelatinousSphere(
+            "black_gelatinous_sphere", R196GelatinousSphereItem.Color.BLACK);
+    public static final List<DeferredItem<R196GelatinousSphereItem>> GELATINOUS_SPHERES = List.of(
+            GREEN_GELATINOUS_SPHERE,
+            OCHRE_GELATINOUS_SPHERE,
+            CRIMSON_GELATINOUS_SPHERE,
+            GRAY_GELATINOUS_SPHERE,
+            BLACK_GELATINOUS_SPHERE);
+
     private static final R196Catalog CATALOG = R196Catalog.register(ITEMS);
 
     public static final DeferredItem<Item> FLINT_CHIP = CATALOG.raw("flint_chip").holderAs(Item.class);
@@ -327,6 +345,11 @@ public final class ModItems {
                 path,
                 Item::new,
                 properties -> properties.stacksTo(1).rarity(Rarity.UNCOMMON).jukeboxPlayable(song));
+    }
+
+    private static DeferredItem<R196GelatinousSphereItem> gelatinousSphere(
+            String path, R196GelatinousSphereItem.Color color) {
+        return ITEMS.registerItem(path, properties -> new R196GelatinousSphereItem(color, properties));
     }
 
     public static DeferredItem<R196BucketItem> bucket(R196Material material, R196BucketItem.Contents contents) {

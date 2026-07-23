@@ -139,10 +139,12 @@ public final class ModCreativeTabs {
                         ModItems.R196_RECORDS));
         categories.put(
                 Category.COMBAT_AND_EQUIPMENT,
-                ModItems.catalog().equipmentEntries().stream()
-                        .filter(entry -> entry.key().type().category() != R196EquipmentCategory.TOOL)
-                        .map(ModCreativeTabs::holder)
-                        .toList());
+                concatenate(
+                        ModItems.catalog().equipmentEntries().stream()
+                                .filter(entry -> entry.key().type().category() != R196EquipmentCategory.TOOL)
+                                .map(ModCreativeTabs::holder)
+                                .toList(),
+                        ModItems.GELATINOUS_SPHERES));
         return Collections.unmodifiableMap(categories);
     }
 

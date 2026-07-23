@@ -69,6 +69,13 @@ class R196MonsterProfileTest {
         assertEquals(6.0, R196Slime.attackDamageForSize(R196Slime.Variant.BLOB, 2), EPSILON);
         assertEquals(6.0, R196Slime.attackDamageForSize(R196Slime.Variant.OOZE, 2), EPSILON);
         assertEquals(8.0, R196Slime.attackDamageForSize(R196Slime.Variant.PUDDING, 2), EPSILON);
+        assertEquals(32.0, stats(R196Slime.attributes(R196Slime.Variant.OOZE))
+                .getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
+        assertEquals(1, R196Slime.experienceForSize(R196Slime.Variant.SLIME, 1));
+        assertEquals(4, R196Slime.experienceForSize(R196Slime.Variant.JELLY, 2));
+        assertEquals(9, R196Slime.experienceForSize(R196Slime.Variant.BLOB, 3));
+        assertEquals(8, R196Slime.experienceForSize(R196Slime.Variant.OOZE, 2));
+        assertEquals(10, R196Slime.experienceForSize(R196Slime.Variant.PUDDING, 2));
         assertEquals(16.0, magmaCube.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(0.20, magmaCube.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(2.0, R196MagmaCube.attackDamageForSize(1), EPSILON);

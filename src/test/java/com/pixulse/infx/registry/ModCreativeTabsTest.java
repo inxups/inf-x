@@ -25,7 +25,7 @@ class ModCreativeTabsTest {
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(348, registered.size());
+        assertEquals(353, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -37,7 +37,7 @@ class ModCreativeTabsTest {
                 ModCreativeTabs.Category.INGREDIENTS, 31,
                 ModCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
                 ModCreativeTabs.Category.TOOLS_AND_UTILITIES, 135,
-                ModCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 108);
+                ModCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113);
 
         expected.forEach((category, size) ->
                 assertEquals(size, ModCreativeTabs.items(category).size(), category.name()));

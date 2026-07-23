@@ -34,7 +34,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import com.pixulse.infx.entity.R196Slime;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
 import com.pixulse.infx.block.R196FurnaceBlock;
@@ -230,21 +229,18 @@ public final class R196EquipmentBehaviors {
         }
         boolean lava = event.getSource().is(DamageTypes.LAVA);
         boolean fire = event.getSource().is(DamageTypeTags.IS_FIRE);
-        boolean acid = event.getSource().getEntity() instanceof R196Slime slime
-                && (slime.variant() == R196Slime.Variant.OOZE
-                        || slime.variant() == R196Slime.Variant.PUDDING);
-        if (!lava && !fire && !acid) {
+        if (!lava && !fire) {
             return;
         }
 
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
-            damageForCorrosion(player, player.getItemBySlot(slot), slot, event.getAmount(), fire, lava, acid);
+            damageForCorrosion(player, player.getItemBySlot(slot), slot, event.getAmount(), fire, lava);
         }
-        if (lava || acid) {
+        if (lava) {
             for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
                 if (stack.isDamageableItem() && player.getRandom().nextInt(4) == 0) {
-                    int damage = corrosionDamage(stack, event.getAmount(), fire, lava, acid);
+                    int damage = corrosionDamage(stack, event.getAmount(), fire, lava);
                     if (damage > 0) {
                         stack.hurtAndBreak(damage, player.level(), player, ignored -> {});
                     }
@@ -259,22 +255,19 @@ public final class R196EquipmentBehaviors {
             EquipmentSlot slot,
             float damage,
             boolean fire,
-            boolean lava,
-            boolean acid) {
-        int wear = corrosionDamage(stack, damage, fire, lava, acid);
+            boolean lava) {
+        int wear = corrosionDamage(stack, damage, fire, lava);
         if (wear > 0) {
             stack.hurtAndBreak(wear, player, slot);
         }
     }
 
-    public static int corrosionDamage(
-            ItemStack stack, float incomingDamage, boolean fire, boolean lava, boolean acid) {
+    public static int corrosionDamage(ItemStack stack, float incomingDamage, boolean fire, boolean lava) {
         R196Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
         if (entry == null || !stack.isDamageableItem()) {
             return 0;
         }
-        return corrosionDamage(
-                entry.key().material(), stack.getMaxDamage(), incomingDamage, fire, lava, acid);
+        return corrosionDamage(entry.key().material(), stack.getMaxDamage(), incomingDamage, fire, lava);
     }
 
     static int corrosionDamage(
@@ -282,19 +275,15 @@ public final class R196EquipmentBehaviors {
             int maxDamage,
             float incomingDamage,
             boolean fire,
-            boolean lava,
-            boolean acid) {
+            boolean lava) {
         if (material == R196Material.ADAMANTIUM) {
             return 0;
         }
-        if (material == R196Material.LEATHER && (fire || lava || acid)) {
+        if (material == R196Material.LEATHER && (fire || lava)) {
             return maxDamage;
         }
         if (lava) {
             return Math.max(1, Math.round(incomingDamage * 10.0F));
-        }
-        if (acid) {
-            return Math.max(1, Math.round(incomingDamage * 4.0F));
         }
         return 0;
     }
