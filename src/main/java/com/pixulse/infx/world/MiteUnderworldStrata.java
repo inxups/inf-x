@@ -109,9 +109,17 @@ public final class MiteUnderworldStrata {
                                         chanceIndex));
                     }
                 }
+                ensureInternalSheetCenters(plan, localX, localZ);
             }
         }
         return plan;
+    }
+
+    /** Prevents a non-positive noise width from removing an entire internal stratum. */
+    private static void ensureInternalSheetCenters(StrataPlan plan, int localX, int localZ) {
+        plan.setReplacement(localX, localZ, FIRST_SHEET_ANCHOR_Y, BEDROCK);
+        plan.setReplacement(localX, localZ, SECOND_SHEET_ANCHOR_Y, BEDROCK);
+        plan.setReplacement(localX, localZ, THIRD_SHEET_ANCHOR_Y, BEDROCK);
     }
 
     private static byte lowerStrataReplacement(
@@ -176,7 +184,7 @@ public final class MiteUnderworldStrata {
             double bump,
             boolean[] chanceIn2,
             int[] chanceIndex) {
-        if (width <= 0.0) return false;
+        if (width <= 0.0) return distanceFromCenter == 0;
         if (distanceFromCenter > 0 && bump > 0.0) {
             width += bump * 0.25 + 0.25;
         }

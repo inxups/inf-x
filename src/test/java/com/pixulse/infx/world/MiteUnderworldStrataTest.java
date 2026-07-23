@@ -99,6 +99,33 @@ class MiteUnderworldStrataTest {
     }
 
     @Test
+    void internalSheetsKeepAContinuousSeededCenterCore() {
+        int[] centers = {
+            MiteUnderworldStrata.FIRST_SHEET_ANCHOR_Y,
+            MiteUnderworldStrata.SECOND_SHEET_ANCHOR_Y,
+            MiteUnderworldStrata.THIRD_SHEET_ANCHOR_Y
+        };
+
+        for (int chunkX = -2; chunkX <= 2; chunkX++) {
+            for (int chunkZ = -2; chunkZ <= 2; chunkZ++) {
+                MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(
+                        WORLD_SEED,
+                        new ChunkPos(chunkX, chunkZ));
+                for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
+                    for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
+                        for (int center : centers) {
+                            assertTrue(
+                                    plan.hasBedrockAt(localX, localZ, center),
+                                    "missing internal sheet center at chunk " + chunkX + "," + chunkZ
+                                            + " column " + localX + "," + localZ + " relative Y=" + center);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
     void samplingIsStableAcrossRepeatedAndParallelCalls() {
         List<ChunkPos> chunks = List.of(
                 new ChunkPos(-19, -7),
@@ -127,10 +154,10 @@ class MiteUnderworldStrataTest {
 
         assertEquals(
                 List.of(
-                        new StrataProfile(2173, 2089, 2138, 761, -1603477306, 29983, 38006, 32754, -2007015789),
-                        new StrataProfile(2139, 2188, 2073, 80015, -1817601626, 4301, 83113, 978, -1737501236),
-                        new StrataProfile(2156, 2151, 2093, 136900, 1214704297, 18068, 32662, 3219, -2013366002),
-                        new StrataProfile(2100, 2135, 2165, 16964, 1470626957, 18635, 9290, 72875, 2122504710)),
+                        new StrataProfile(2173, 2089, 2138, 761, -1603477306, 31289, 40026, 35126, 1888433229),
+                        new StrataProfile(2139, 2188, 2073, 80015, -1817601626, 9528, 83438, 6983, 1964995620),
+                        new StrataProfile(2156, 2151, 2093, 136900, 1214704297, 22048, 34293, 8388, 940276732),
+                        new StrataProfile(2100, 2135, 2165, 16964, 1470626957, 22626, 13841, 73162, -577394016)),
                 profiles);
     }
 
