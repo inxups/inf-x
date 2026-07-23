@@ -1,5 +1,7 @@
 package com.pixulse.infx.enchantment;
 
+import net.minecraft.util.RandomSource;
+
 /**
  * Numeric R196 enchantment rules kept independent from the registry and game-event APIs.
  *
@@ -133,6 +135,61 @@ public final class R196EnchantmentRules {
 
     public static float harvestingBonusChance(int level) {
         return levelFraction(level, STANDARD_MAX_LEVEL) * 0.5F;
+    }
+
+    public static int harvestingBonusCount(int existingCount, int level, RandomSource random) {
+        int extra = 0;
+        float chance = harvestingBonusChance(level);
+        for (int unit = 0; unit < Math.max(0, existingCount); unit++) {
+            if (random.nextFloat() < chance) {
+                extra++;
+            }
+        }
+        return extra;
+    }
+
+    public static int butcheringExtraCount(int level, RandomSource random) {
+        int cappedLevel = Math.clamp(level, 0, BUTCHERING_MAX_LEVEL);
+        return cappedLevel == 0 ? 0 : random.nextInt(cappedLevel + 1);
+    }
+
+    /** Horses do not have vanilla meat drops, so retain MITE's complete horse-beef roll. */
+    public static int horseButcheringBeefCount(int level, RandomSource random) {
+        int cappedLevel = Math.clamp(level, 0, BUTCHERING_MAX_LEVEL);
+        return 1 + random.nextInt(cappedLevel + 1) + random.nextInt(2);
+    }
+
+    public static boolean butcheringAddsSpiderEye(int level, RandomSource random) {
+        int cappedLevel = Math.clamp(level, 0, BUTCHERING_MAX_LEVEL);
+        return cappedLevel > 0 && random.nextInt(cappedLevel + 1) > 0;
+    }
+
+    public static int fortuneOreBonusCount(int existingCount, int level, RandomSource random) {
+        int extra = 0;
+        float chance = fortuneOreBonusChance(level);
+        for (int unit = 0; unit < Math.max(0, existingCount); unit++) {
+            if (random.nextFloat() < chance) {
+                extra++;
+            }
+        }
+        return extra;
+    }
+
+    public static float fortuneOreBonusChance(int level) {
+        return Math.clamp(level, 0, FORTUNE_MAX_LEVEL) * 0.1F;
+    }
+
+    public static int grassWormDenominator(int fortuneLevel, boolean raining) {
+        int fortune = Math.clamp(fortuneLevel, 0, FORTUNE_MAX_LEVEL);
+        if (raining) {
+            fortune += 12;
+        }
+        return 16 - Math.min(fortune, 14);
+    }
+
+    public static int netherWartFortuneBonus(int level, RandomSource random) {
+        int cappedLevel = Math.clamp(level, 0, FORTUNE_MAX_LEVEL);
+        return cappedLevel == 0 ? 0 : random.nextInt(cappedLevel + 1);
     }
 
     public static int baitingLureDelay(int delay, int level) {

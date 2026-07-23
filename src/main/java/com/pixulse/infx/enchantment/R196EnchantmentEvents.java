@@ -2,12 +2,12 @@ package com.pixulse.infx.enchantment;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.agriculture.R196AgricultureData;
+import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModMobEffects;
 import com.pixulse.infx.tag.ModTags;
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -20,15 +20,24 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -141,40 +150,107 @@ public final class R196EnchantmentEvents {
     }
 
     private static void onLivingDrops(LivingDropsEvent event) {
-        if (!(event.getSource().getEntity() instanceof LivingEntity attacker)
-                || !(event.getEntity() instanceof Animal)) return;
+        if (!event.isRecentlyHit() || !(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
         int level = R196Enchantments.level(attacker.level(), attacker.getMainHandItem(), ModEnchantments.BUTCHERING);
-        int extra = level <= 0 ? 0 : attacker.getRandom().nextInt(level + 1);
-        if (extra <= 0) return;
-        ItemEntity foodDrop = null;
-        for (ItemEntity original : event.getDrops()) {
-            if (original.getItem().has(DataComponents.FOOD)) {
-                foodDrop = original;
-                break;
-            }
+        if (level <= 0) return;
+
+        LivingEntity target = event.getEntity();
+        if (target instanceof Cow) {
+            addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF, level);
+        } else if (target instanceof Pig) {
+            addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_PORKCHOP : Items.PORKCHOP, level);
+        } else if (target instanceof Sheep) {
+            addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_MUTTON : Items.MUTTON, level);
+        } else if (target instanceof Horse) {
+            addEntityDrop(event, new ItemStack(
+                    target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
+                    R196EnchantmentRules.horseButcheringBeefCount(level, target.getRandom())));
+        } else if (target instanceof Spider
+                && event.getDrops().stream().noneMatch(drop -> drop.getItem().is(Items.SPIDER_EYE))
+                && R196EnchantmentRules.butcheringAddsSpiderEye(level, target.getRandom())) {
+            addEntityDrop(event, new ItemStack(Items.SPIDER_EYE));
         }
-        if (foodDrop == null) return;
-        ItemStack bonus = foodDrop.getItem().copyWithCount(extra);
-        event.getDrops().add(new ItemEntity(
-                foodDrop.level(), foodDrop.getX(), foodDrop.getY(), foodDrop.getZ(), bonus));
     }
 
     private static void onBlockDrops(BlockDropsEvent event) {
-        if (!(event.getState().getBlock() instanceof CropBlock crop) || !crop.isMaxAge(event.getState())) return;
+        addHarvestingDrops(event);
+        addFortuneDrops(event);
+    }
+
+    private static void addButcheringMeat(LivingDropsEvent event, LivingEntity target, Item meat, int level) {
+        int extra = R196EnchantmentRules.butcheringExtraCount(level, target.getRandom());
+        if (extra > 0) {
+            addEntityDrop(event, new ItemStack(meat, extra));
+        }
+    }
+
+    private static void addEntityDrop(LivingDropsEvent event, ItemStack stack) {
+        LivingEntity entity = event.getEntity();
+        event.getDrops().add(new ItemEntity(
+                entity.level(), entity.getX(), entity.getY(), entity.getZ(), stack));
+    }
+
+    private static void addHarvestingDrops(BlockDropsEvent event) {
+        Item crop = matureCropProduct(event.getState());
+        if (crop == null) return;
         int harvesting = R196Enchantments.level(event.getLevel(), event.getTool(), ModEnchantments.HARVESTING);
         if (harvesting <= 0 || !event.getTool().isCorrectToolForDrops(event.getState())) return;
-        float chance = R196EnchantmentRules.harvestingBonusChance(harvesting);
         for (ItemEntity original : List.copyOf(event.getDrops())) {
-            int extra = 0;
-            for (int unit = 0; unit < original.getItem().getCount(); unit++) {
-                if (event.getLevel().getRandom().nextFloat() < chance) extra++;
-            }
+            if (!original.getItem().is(crop)) continue;
+            int extra = R196EnchantmentRules.harvestingBonusCount(
+                    original.getItem().getCount(), harvesting, event.getLevel().getRandom());
             if (extra > 0) {
                 event.getDrops().add(new ItemEntity(
                         original.level(), original.getX(), original.getY(), original.getZ(),
                         original.getItem().copyWithCount(extra)));
             }
         }
+    }
+
+    private static Item matureCropProduct(BlockState state) {
+        if (!(state.getBlock() instanceof CropBlock crop) || !crop.isMaxAge(state)) return null;
+        if (state.is(Blocks.WHEAT)) return Items.WHEAT;
+        if (state.is(Blocks.CARROTS)) return Items.CARROT;
+        if (state.is(Blocks.POTATOES)) return Items.POTATO;
+        return state.is(Blocks.BEETROOTS) ? Items.BEETROOT : null;
+    }
+
+    private static void addFortuneDrops(BlockDropsEvent event) {
+        int fortune = R196Enchantments.level(event.getLevel(), event.getTool(), ModEnchantments.FORTUNE);
+        if (fortune <= 0) return;
+
+        BlockState state = event.getState();
+        if (isFortuneOre(state)) {
+            for (ItemEntity original : List.copyOf(event.getDrops())) {
+                int extra = R196EnchantmentRules.fortuneOreBonusCount(
+                        original.getItem().getCount(), fortune, event.getLevel().getRandom());
+                if (extra > 0) {
+                    event.getDrops().add(new ItemEntity(
+                            original.level(), original.getX(), original.getY(), original.getZ(),
+                            original.getItem().copyWithCount(extra)));
+                }
+            }
+            return;
+        }
+
+        if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) == 3) {
+            int extra = R196EnchantmentRules.netherWartFortuneBonus(fortune, event.getLevel().getRandom());
+            if (extra > 0) {
+                event.getDrops().add(new ItemEntity(
+                        event.getLevel(),
+                        event.getPos().getX() + 0.5D,
+                        event.getPos().getY() + 0.5D,
+                        event.getPos().getZ() + 0.5D,
+                        new ItemStack(Items.NETHER_WART, extra)));
+            }
+        }
+    }
+
+    private static boolean isFortuneOre(BlockState state) {
+        return state.is(Tags.Blocks.ORES)
+                || state.is(ModBlocks.SILVER_ORE.get())
+                || state.is(ModBlocks.MITHRIL_ORE.get())
+                || state.is(ModBlocks.ADAMANTIUM_ORE.get());
     }
 
     private static void onBlockBroken(BreakBlockEvent event) {

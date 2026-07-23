@@ -1,8 +1,12 @@
 package com.pixulse.infx.enchantment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.registry.ModEnchantments;
+import net.minecraft.util.RandomSource;
 import org.junit.jupiter.api.Test;
 
 class R196EnchantmentRulesTest {
@@ -109,5 +113,29 @@ class R196EnchantmentRulesTest {
         assertEquals(.8F, R196EnchantmentRules.freeMovementResistance(4), .0001F);
         assertEquals(-.2D, R196EnchantmentRules.freeMovementAdjustedImpairment(-1.0D, 4), .0001D);
         assertEquals(.82F, R196EnchantmentRules.reducedImpairmentMultiplier(.1F, 4), .0001F);
+    }
+
+    @Test
+    void selectorUsesOnlyTheFixedR196CandidatePool() {
+        assertSame(ModEnchantments.R196, R196EnchantmentSelector.candidateKeys());
+        assertEquals(22, R196EnchantmentSelector.candidateKeys().size());
+        assertFalse(R196EnchantmentSelector.candidateKeys().contains(ModEnchantments.CLUMSINESS));
+    }
+
+    @Test
+    void butcheringAndFortuneHelpersKeepTheirTargetedMiteRanges() {
+        assertEquals(0, R196EnchantmentRules.butcheringExtraCount(0, RandomSource.create(1L)));
+        int horseBeef = R196EnchantmentRules.horseButcheringBeefCount(3, RandomSource.create(1L));
+        assertTrue(horseBeef >= 1 && horseBeef <= 5);
+        assertEquals(.0F, R196EnchantmentRules.fortuneOreBonusChance(0), .0001F);
+        assertEquals(.1F, R196EnchantmentRules.fortuneOreBonusChance(1), .0001F);
+        assertEquals(.3F, R196EnchantmentRules.fortuneOreBonusChance(3), .0001F);
+        assertEquals(.3F, R196EnchantmentRules.fortuneOreBonusChance(99), .0001F);
+        assertEquals(16, R196EnchantmentRules.grassWormDenominator(0, false));
+        assertEquals(13, R196EnchantmentRules.grassWormDenominator(3, false));
+        assertEquals(4, R196EnchantmentRules.grassWormDenominator(0, true));
+        assertEquals(2, R196EnchantmentRules.grassWormDenominator(3, true));
+        int netherWartBonus = R196EnchantmentRules.netherWartFortuneBonus(3, RandomSource.create(2L));
+        assertTrue(netherWartBonus >= 0 && netherWartBonus <= 3);
     }
 }

@@ -440,16 +440,15 @@ public final class ModEquipmentGameTests {
             helper.assertTrue(fired.getPickupItemStackOrigin().is(item), key.path() + " fired pickup identity");
             helper.assertTrue(dispensed.getPickupItemStackOrigin().is(item), key.path() + " dispensed pickup identity");
             helper.assertTrue(
+                    fired.pickup == AbstractArrow.Pickup.ALLOWED,
+                    key.path() + " player-fired arrows are normally recoverable from the ground");
+            helper.assertTrue(
                     dispensed.pickup == AbstractArrow.Pickup.DISALLOWED,
-                    key.path() + " dispenser pickup must await one recovery roll");
+                    key.path() + " dispenser arrows stay non-pickup");
             helper.assertTrue(
                     Math.abs(item.baseDamage() - key.arrowBaseDamage()) < 1.0E-9,
                     key.path() + " damage");
 
-            long seed = 1_000L + material.ordinal();
-            boolean expectedRecovery = RandomSource.create(seed).nextFloat()
-                    < R196EquipmentBehaviors.recoveryChance(material);
-            dispensed.getRandom().setSeed(seed);
             BlockHitResult impact = new BlockHitResult(
                     position,
                     Direction.UP,
@@ -457,15 +456,12 @@ public final class ModEquipmentGameTests {
                     false);
             R196EquipmentBehaviors.resolveArrowRecovery(dispensed, impact);
             helper.assertTrue(
-                    dispensed.pickup
-                            == (expectedRecovery
-                                    ? AbstractArrow.Pickup.ALLOWED
-                                    : AbstractArrow.Pickup.DISALLOWED),
-                    key.path() + " recovery roll");
-            AbstractArrow.Pickup resolved = dispensed.pickup;
-            dispensed.getRandom().setSeed(seed + 100L);
-            R196EquipmentBehaviors.resolveArrowRecovery(dispensed, impact);
-            helper.assertTrue(dispensed.pickup == resolved, key.path() + " recovery is checked only once");
+                    dispensed.pickup == AbstractArrow.Pickup.DISALLOWED,
+                    key.path() + " block impacts must not trigger recovery");
+            R196EquipmentBehaviors.resolveArrowRecovery(fired, impact);
+            helper.assertTrue(
+                    fired.pickup == AbstractArrow.Pickup.ALLOWED,
+                    key.path() + " block impacts preserve normal player-arrow pickup");
 
             ItemStack infiniteStack = stack.copy();
             infiniteStack.set(DataComponents.INTANGIBLE_PROJECTILE, Unit.INSTANCE);
@@ -500,6 +496,12 @@ public final class ModEquipmentGameTests {
                 .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
                 .size();
         helper.assertTrue(itemsAfter == itemsBefore + 1, "recovered entity hit drops exactly one material arrow");
+        entityArrow.getRandom().setSeed(recoveringSeed + 1L);
+        R196EquipmentBehaviors.resolveArrowRecovery(entityArrow, new EntityHitResult(target));
+        int repeatedItems = helper.getLevel()
+                .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
+                .size();
+        helper.assertTrue(repeatedItems == itemsAfter, "an entity hit receives only one recovery roll");
         target.discard();
         removePlayer(player);
         helper.succeed();
