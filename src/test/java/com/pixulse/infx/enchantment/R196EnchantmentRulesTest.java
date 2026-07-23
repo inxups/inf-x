@@ -16,6 +16,46 @@ class R196EnchantmentRulesTest {
     }
 
     @Test
+    void tablePowerUsesMiteTiersAndBookshelfLimit() {
+        assertEquals(2, R196EnchantmentRules.enchantingTablePower(0, 2, 50));
+        assertEquals(4, R196EnchantmentRules.enchantingTablePower(0, 4, 100));
+        assertEquals(50, R196EnchantmentRules.enchantingTablePower(24, 2, 50));
+        assertEquals(100, R196EnchantmentRules.enchantingTablePower(24, 4, 100));
+        assertEquals(50, R196EnchantmentRules.enchantingTablePower(30, 2, 50));
+        assertEquals(100, R196EnchantmentRules.enchantingTablePower(30, 4, 100));
+    }
+
+    @Test
+    void itemEnchantabilityUsesMiteDiminishingReturns() {
+        assertEquals(0, R196EnchantmentRules.effectiveEnchantmentPower(100, 0));
+        assertEquals(10, R196EnchantmentRules.effectiveEnchantmentPower(10, 10));
+        assertEquals(15, R196EnchantmentRules.effectiveEnchantmentPower(20, 10));
+        assertEquals(18, R196EnchantmentRules.effectiveEnchantmentPower(30, 10));
+        assertEquals(18, R196EnchantmentRules.effectiveEnchantmentPower(100, 10));
+        assertEquals(40, R196EnchantmentRules.effectiveEnchantmentPower(50, 30));
+        assertEquals(53, R196EnchantmentRules.effectiveEnchantmentPower(100, 30));
+        assertEquals(45, R196EnchantmentRules.effectiveEnchantmentPower(50, 40));
+        assertEquals(65, R196EnchantmentRules.effectiveEnchantmentPower(100, 40));
+        assertEquals(50, R196EnchantmentRules.effectiveEnchantmentPower(50, 50));
+        assertEquals(75, R196EnchantmentRules.effectiveEnchantmentPower(100, 50));
+        assertEquals(50, R196EnchantmentRules.effectiveEnchantmentPower(50, 100));
+        assertEquals(100, R196EnchantmentRules.effectiveEnchantmentPower(100, 100));
+    }
+
+    @Test
+    void optionPowerUsesMiteFractionsAndRandomness() {
+        assertEquals(23, R196EnchantmentRules.enchantmentOptionPower(100, 0, 0.0F));
+        assertEquals(33, R196EnchantmentRules.enchantmentOptionPower(100, 0, 0.5F));
+        assertEquals(43, R196EnchantmentRules.enchantmentOptionPower(100, 0, 1.0F));
+        assertEquals(57, R196EnchantmentRules.enchantmentOptionPower(100, 1, 0.0F));
+        assertEquals(67, R196EnchantmentRules.enchantmentOptionPower(100, 1, 0.5F));
+        assertEquals(77, R196EnchantmentRules.enchantmentOptionPower(100, 1, 1.0F));
+        assertEquals(100, R196EnchantmentRules.enchantmentOptionPower(100, 2, 0.0F));
+        assertEquals(0, R196EnchantmentRules.enchantmentOptionPower(0, 2, 0.5F));
+        assertEquals(1, R196EnchantmentRules.enchantmentOptionPower(1, 0, 0.0F));
+    }
+
+    @Test
     void maximumLevelsAndDurabilityFollowR196Fractions() {
         assertEquals(5, R196EnchantmentRules.STANDARD_MAX_LEVEL);
         assertEquals(3, R196EnchantmentRules.BUTCHERING_MAX_LEVEL);

@@ -9,6 +9,8 @@ package com.pixulse.infx.enchantment;
  */
 public final class R196EnchantmentRules {
     private static final int EXPERIENCE_PER_ENCHANTMENT_POWER = 100;
+    private static final int MAX_ACCESSIBLE_BOOKSHELVES = 24;
+    public static final int BOOK_ENCHANTABILITY = 30;
     public static final int STANDARD_MAX_LEVEL = 5;
     public static final int BUTCHERING_MAX_LEVEL = 3;
     public static final int FORTUNE_MAX_LEVEL = 3;
@@ -21,6 +23,34 @@ public final class R196EnchantmentRules {
     public static int experienceCost(int enchantmentPower) {
         long cost = Math.max(0L, enchantmentPower) * EXPERIENCE_PER_ENCHANTMENT_POWER;
         return (int) Math.min(Integer.MAX_VALUE, cost);
+    }
+
+    public static int enchantingTablePower(int bookshelfCount, int powerPerShelf, int maximumPower) {
+        if (powerPerShelf <= 0 || maximumPower <= 0) return 0;
+        int shelves = Math.clamp(bookshelfCount, 0, MAX_ACCESSIBLE_BOOKSHELVES);
+        long power = (long) (shelves + 1) * powerPerShelf;
+        return (int) Math.min(maximumPower, power);
+    }
+
+    public static int effectiveEnchantmentPower(int tablePower, int itemEnchantability) {
+        if (tablePower <= 0 || itemEnchantability <= 0) return 0;
+        if (tablePower <= itemEnchantability) return tablePower;
+
+        int halfPowerLevels = Math.min(tablePower, itemEnchantability * 2) - itemEnchantability;
+        int quarterPowerLevels = Math.max(
+                0,
+                Math.min(tablePower, itemEnchantability * 3) - itemEnchantability * 2);
+        return Math.round(itemEnchantability + halfPowerLevels * 0.5F + quarterPowerLevels * 0.25F);
+    }
+
+    public static int enchantmentOptionPower(int effectivePower, int slot, float randomFraction) {
+        if (slot < 0 || slot > 2) throw new IllegalArgumentException("Enchantment slot must be between 0 and 2");
+        if (effectivePower <= 0) return 0;
+        float fraction = (slot + 1) / 3.0F;
+        if (slot < 2) {
+            fraction += (randomFraction - 0.5F) * 0.2F;
+        }
+        return Math.max(Math.round(effectivePower * fraction), 1);
     }
 
     public static float levelFraction(int level, int maximumLevel) {
