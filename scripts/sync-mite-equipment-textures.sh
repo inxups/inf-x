@@ -288,8 +288,12 @@ for color in green ochre crimson gray black; do
   sync mite-src "items/gelatinous_sphere/${color}.png" "item/gelatinous_sphere/${color}.png"
 done
 
+for cube in slime jelly blob ooze pudding magmacube; do
+  sync resource-pack "entity/slime/${cube}.png" "entity/slime/${cube}.png"
+done
+
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 531 ]] || { echo "Expected 531 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 537 ]] || { echo "Expected 537 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

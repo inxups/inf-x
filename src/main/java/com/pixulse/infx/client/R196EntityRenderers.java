@@ -1,10 +1,13 @@
 package com.pixulse.infx.client;
 
+import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.entity.R196Spider;
 import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IronGolemRenderer;
+import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
 import net.minecraft.client.renderer.entity.SilverfishRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SlimeRenderer;
@@ -19,10 +22,11 @@ import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.client.renderer.entity.state.SlimeRenderState;
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.monster.Creeper;
 
-/** Vanilla-model renderers with per-variant tinting; no unlicensed texture files are introduced. */
+/** Vanilla-model renderers with the approved MITE textures for supported R196 variants. */
 final class R196EntityRenderers {
     private R196EntityRenderers() {}
 
@@ -106,18 +110,47 @@ final class R196EntityRenderers {
         }
     }
 
-    static final class SlimeTint extends SlimeRenderer {
-        private final int tint;
+    static final class SlimeTexture extends SlimeRenderer {
+        private final Identifier texture;
 
-        SlimeTint(EntityRendererProvider.Context context, int tint) {
+        SlimeTexture(EntityRendererProvider.Context context, R196Slime.Variant variant) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
         }
 
         @Override
-        protected int getModelTint(SlimeRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(SlimeRenderState state) {
+            return texture;
         }
+
+        static Identifier textureFor(R196Slime.Variant variant) {
+            return switch (variant) {
+                case SLIME -> miteGelatinousTexture("slime");
+                case JELLY -> miteGelatinousTexture("jelly");
+                case BLOB -> miteGelatinousTexture("blob");
+                case OOZE -> miteGelatinousTexture("ooze");
+                case PUDDING -> miteGelatinousTexture("pudding");
+            };
+        }
+    }
+
+    static final class MagmaCubeTexture extends MagmaCubeRenderer {
+        MagmaCubeTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public Identifier getTextureLocation(SlimeRenderState state) {
+            return texture();
+        }
+
+        static Identifier texture() {
+            return miteGelatinousTexture("magmacube");
+        }
+    }
+
+    private static Identifier miteGelatinousTexture(String name) {
+        return InfiniteX.id("textures/entity/slime/" + name + ".png");
     }
 
     static final class SilverfishTint extends SilverfishRenderer {
