@@ -1363,6 +1363,7 @@ class R196GeneratedResourceTest {
         JsonObject cakeFromMilkBowl = json(GENERATED.resolve("data/infx/recipe/cake_from_milk_bowl.json"));
         JsonObject mushroomStew = json(GENERATED.resolve("data/infx/recipe/mushroom_stew.json"));
         JsonObject snowSlab = json(GENERATED.resolve("data/infx/recipe/snow_slab.json"));
+        JsonObject snowSlabModel = json(GENERATED.resolve("assets/infx/models/block/snow_slab.json"));
         JsonObject saddle = json(GENERATED.resolve("data/infx/recipe/saddle.json"));
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -1388,6 +1389,9 @@ class R196GeneratedResourceTest {
                         GENERATED.resolve("assets/infx/items/snow_slab.json"))),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/models/block/snow_slab_top.json"))),
+                () -> assertEquals(
+                        "infx:block/snow_slab",
+                        snowSlabModel.getAsJsonObject("textures").get("all").getAsString()),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("data/infx/loot_table/blocks/snow_slab.json"))),
                 () -> assertEquals("Snow Slab", english.get("block.infx.snow_slab").getAsString()),
@@ -1858,6 +1862,7 @@ class R196GeneratedResourceTest {
         assertTrue(destinations.remove("textures/block/silver_ore.png"));
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
+        assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
