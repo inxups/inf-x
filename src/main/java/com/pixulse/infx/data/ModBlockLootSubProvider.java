@@ -26,6 +26,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         ModBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
         ModBlocks.METAL_SAFES.forEach(safe -> dropSelf(safe.get()));
         ModBlocks.R196_FLOWERS.forEach(flower -> dropSelf(flower.get()));
+        add(ModBlocks.SNOW_SLAB.get(), createSlabItemTable(ModBlocks.SNOW_SLAB.get()));
         dropSelf(ModBlocks.NETHER_GRAVEL.get());
         dropSelf(ModBlocks.WITHERWOOD.get());
         dropRuneStone(ModBlocks.MITHRIL_RUNE_STONE.get());
@@ -50,7 +51,8 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                         ModBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
                         ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.get()),
                         ModBlocks.R196_FLOWERS.stream().map(block -> (Block) block.get()),
-                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()))
+                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()),
+                        ModBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.get()))
                 .flatMap(stream -> stream)
                 .toList();
     }

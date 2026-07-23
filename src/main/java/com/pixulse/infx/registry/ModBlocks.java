@@ -36,6 +36,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ColoredFallingBlock;
 import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.InfestedBlock;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.util.ColorRGBA;
@@ -108,8 +109,16 @@ public final class ModBlocks {
                     .strength(-1.0F, 3_600_000.0F)
                     .sound(SoundType.BASALT)
                     .lightLevel(state -> 12));
+    public static final DeferredBlock<SlabBlock> SNOW_SLAB = BLOCKS.registerBlock(
+            "snow_slab",
+            SlabBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.SNOW)
+                    .strength(0.2F)
+                    .sound(SoundType.SNOW));
     public static final List<DeferredBlock<? extends Block>> FULLTEXT_BLOCKS =
             List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
+    public static final List<DeferredBlock<? extends Block>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
 
     public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(
             "underworld_portal",

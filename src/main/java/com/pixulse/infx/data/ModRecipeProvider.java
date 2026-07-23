@@ -51,7 +51,7 @@ final class ModRecipeProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes() {
-        addShapeless(
+        addShaped(
                 "flour",
                 BenchTier.HAND,
                 100.0F,
@@ -59,7 +59,8 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 ModItems.FLOUR,
                 1,
-                List.of(Ingredient.of(Items.WHEAT)));
+                Map.of('W', Ingredient.of(Items.WHEAT)),
+                List.of("WWW"));
         addShapeless(
                 "water_bowl",
                 BenchTier.FLINT,
@@ -79,6 +80,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.DOUGH,
                 1,
                 List.of(Ingredient.of(ModItems.FLOUR), Ingredient.of(ModItems.WATER_BOWL)));
+        addShaped(
+                "dough_from_water_bucket",
+                BenchTier.HAND,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                ModItems.DOUGH,
+                4,
+                Map.of('F', Ingredient.of(ModItems.FLOUR), 'W', Ingredient.of(Items.WATER_BUCKET)),
+                List.of("F F", " W ", "F F"));
         addShapeless(
                 "salad",
                 BenchTier.HAND,
@@ -250,17 +261,18 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('M', Ingredient.of(Items.MILK_BUCKET), 'F', Ingredient.of(ModItems.FLOUR),
                         'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
-                List.of("MMM", "SES", "FFF"));
-        addShapeless(
+                List.of("FS", "EM"));
+        addShaped(
                 "cake_from_milk_bowl",
-                BenchTier.HAND,
+                BenchTier.FLINT,
                 600.0F,
                 CraftingBookCategory.MISC,
                 "",
                 Items.CAKE,
                 1,
-                List.of(Ingredient.of(ModItems.FLOUR), Ingredient.of(Items.SUGAR),
-                        Ingredient.of(Items.EGG), Ingredient.of(ModItems.MILK_BOWL)));
+                Map.of('M', Ingredient.of(ModItems.MILK_BOWL), 'F', Ingredient.of(ModItems.FLOUR),
+                        'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
+                List.of("FS", "EM"));
         addShaped(
                 "golden_apple",
                 BenchTier.HAND,
@@ -271,16 +283,17 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('G', Ingredient.of(Items.GOLD_NUGGET), 'A', Ingredient.of(Items.APPLE)),
                 List.of("GGG", "GAG", "GGG"));
-        addShapeless(
-                "mushroom_stew_with_water",
+        addShaped(
+                "mushroom_stew",
                 BenchTier.HAND,
                 150.0F,
                 CraftingBookCategory.MISC,
                 "",
                 Items.MUSHROOM_STEW,
                 1,
-                List.of(Ingredient.of(Items.BROWN_MUSHROOM), Ingredient.of(Items.RED_MUSHROOM),
-                        Ingredient.of(ModItems.WATER_BOWL)));
+                Map.of('B', Ingredient.of(Items.BROWN_MUSHROOM), 'R', Ingredient.of(Items.RED_MUSHROOM),
+                        'W', Ingredient.of(ModItems.WATER_BOWL)),
+                List.of("RB", "W "));
         addShapeless(
                 "bottle_of_disenchanting",
                 BenchTier.HAND,
@@ -362,9 +375,11 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.SINEW,
                 4,
                 List.of(Ingredient.of(Items.LEATHER)));
+        addShardRecipes("obsidian", raw("obsidian_shard"), Blocks.OBSIDIAN, 200.0F);
         addShardRecipes("diamond", raw("diamond_shard"), Items.DIAMOND, 1600.0F);
         addShardRecipes("nether_quartz", raw("nether_quartz_shard"), Items.QUARTZ, 900.0F);
         addShardRecipes("glass", raw("glass_shard"), Blocks.GLASS_PANE, 200.0F);
+        addMiteBlockRecipes();
 
         addShaped(
                 "clay_furnace",
@@ -1092,6 +1107,159 @@ final class ModRecipeProvider extends RecipeProvider {
                 shard,
                 9,
                 List.of(Ingredient.of(whole)));
+    }
+
+    private void addMiteBlockRecipes() {
+        addShaped(
+                "stone_from_cobblestone",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.STONE,
+                2,
+                Map.of('C', Ingredient.of(Blocks.COBBLESTONE)),
+                List.of("CC", "CC"));
+        addShaped(
+                "stone_bricks",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.STONE_BRICKS,
+                2,
+                Map.of('S', Ingredient.of(Blocks.STONE)),
+                List.of("SS", "SS"));
+        addShaped(
+                "compass",
+                BenchTier.FLINT,
+                400.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.COMPASS,
+                1,
+                Map.of('N', Ingredient.of(Items.IRON_NUGGET), 'R', Ingredient.of(Items.REDSTONE)),
+                List.of("NNN", "NRN", "NNN"));
+        addShaped(
+                "clock",
+                BenchTier.FLINT,
+                400.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.CLOCK,
+                1,
+                Map.of('N', Ingredient.of(Items.GOLD_NUGGET), 'R', Ingredient.of(Items.REDSTONE)),
+                List.of("NNN", "NRN", "NNN"));
+        addShaped(
+                "flint_and_steel",
+                BenchTier.FLINT,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.FLINT_AND_STEEL,
+                1,
+                Map.of('N', Ingredient.of(Items.IRON_NUGGET), 'F', Ingredient.of(Items.FLINT)),
+                List.of("N ", " F"));
+        addShaped(
+                "glass_pane",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.GLASS_PANE,
+                6,
+                Map.of('G', Ingredient.of(Blocks.GLASS)),
+                List.of("G"));
+        addShaped(
+                "bricks",
+                BenchTier.FLINT,
+                800.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.BRICKS,
+                2,
+                Map.of('B', Ingredient.of(Items.BRICK), 'S', Ingredient.of(Blocks.SAND)),
+                List.of("BBB", "BSB", "BBB"));
+        addShaped(
+                "snow",
+                BenchTier.HAND,
+                25.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.SNOW,
+                1,
+                Map.of('S', Ingredient.of(Items.SNOWBALL)),
+                List.of("S"));
+        addShaped(
+                "snow_slab",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                ModBlocks.SNOW_SLAB,
+                1,
+                Map.of('S', Ingredient.of(Items.SNOWBALL)),
+                List.of("SS", "SS"));
+        addShaped(
+                "snow_block",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.SNOW_BLOCK,
+                1,
+                Map.of('S', Ingredient.of(ModBlocks.SNOW_SLAB)),
+                List.of("S", "S"));
+        addShaped(
+                "oak_sign",
+                BenchTier.FLINT,
+                50.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Items.OAK_SIGN,
+                1,
+                Map.of('W', ingredient(ItemTags.WOODEN_SLABS), 'S', Ingredient.of(Items.STICK)),
+                List.of("W", "S"));
+        addShaped(
+                "oak_fence",
+                BenchTier.FLINT,
+                150.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Items.OAK_FENCE,
+                2,
+                Map.of('S', Ingredient.of(Items.STICK)),
+                List.of("SSS", "SSS"));
+        addShaped(
+                "ladder",
+                BenchTier.FLINT,
+                175.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Items.LADDER,
+                2,
+                Map.of('S', Ingredient.of(Items.STICK)),
+                List.of("S S", "S S", "S S"));
+        addShaped(
+                "nether_bricks",
+                BenchTier.FLINT,
+                800.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.NETHER_BRICKS,
+                2,
+                Map.of('B', Ingredient.of(Items.NETHER_BRICK), 'S', Ingredient.of(Blocks.SOUL_SAND)),
+                List.of("BBB", "BSB", "BBB"));
+        addShaped(
+                "saddle",
+                BenchTier.FLINT,
+                600.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                Items.SADDLE,
+                4,
+                Map.of('L', Ingredient.of(Items.LEATHER), 'N', Ingredient.of(Items.IRON_NUGGET)),
+                List.of("LLL", "L L", "N N"));
     }
 
     private void addPlanks(String wood, ItemLike result, TagKey<Item> logs, int count) {

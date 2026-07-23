@@ -1303,9 +1303,15 @@ class R196GeneratedResourceTest {
         }
 
         Map<String, Float> shardDifficulties = Map.of(
+                "obsidian", 200.0F,
                 "diamond", 1_600.0F,
                 "nether_quartz", 900.0F,
                 "glass", 200.0F);
+        Map<String, String> shardResults = Map.of(
+                "obsidian", "minecraft:obsidian",
+                "diamond", "minecraft:diamond",
+                "nether_quartz", "minecraft:quartz",
+                "glass", "minecraft:glass_pane");
         for (var entry : shardDifficulties.entrySet()) {
             JsonObject combine = json(GENERATED.resolve(
                     "data/infx/recipe/" + entry.getKey() + "_from_shards.json"));
@@ -1315,8 +1321,104 @@ class R196GeneratedResourceTest {
                     entry.getKey() + " shards",
                     () -> assertEquals(entry.getValue(), combine.get("difficulty").getAsFloat()),
                     () -> assertEquals("flint", combine.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            shardResults.get(entry.getKey()),
+                            combine.getAsJsonObject("result").get("id").getAsString()),
                     () -> assertEquals(entry.getValue(), split.get("difficulty").getAsFloat()),
                     () -> assertEquals(9, split.getAsJsonObject("result").get("count").getAsInt()));
+        }
+    }
+
+    @Test
+    void miteRecipeTableOverridesMatchTheReferenceRecipes() throws Exception {
+        Map<String, String> shapedPatterns = Map.ofEntries(
+                Map.entry("flour", "[\"WWW\"]"),
+                Map.entry("dough_from_water_bucket", "[\"F F\",\" W \",\"F F\"]"),
+                Map.entry("pumpkin_pie", "[\"PF\",\"SE\"]"),
+                Map.entry("cake", "[\"FS\",\"EM\"]"),
+                Map.entry("cake_from_milk_bowl", "[\"FS\",\"EM\"]"),
+                Map.entry("mushroom_stew", "[\"RB\",\"W \"]"),
+                Map.entry("stone_from_cobblestone", "[\"CC\",\"CC\"]"),
+                Map.entry("stone_bricks", "[\"SS\",\"SS\"]"),
+                Map.entry("compass", "[\"NNN\",\"NRN\",\"NNN\"]"),
+                Map.entry("clock", "[\"NNN\",\"NRN\",\"NNN\"]"),
+                Map.entry("flint_and_steel", "[\"N \",\" F\"]"),
+                Map.entry("glass_pane", "[\"G\"]"),
+                Map.entry("bricks", "[\"BBB\",\"BSB\",\"BBB\"]"),
+                Map.entry("snow", "[\"S\"]"),
+                Map.entry("snow_slab", "[\"SS\",\"SS\"]"),
+                Map.entry("snow_block", "[\"S\",\"S\"]"),
+                Map.entry("oak_sign", "[\"W\",\"S\"]"),
+                Map.entry("oak_fence", "[\"SSS\",\"SSS\"]"),
+                Map.entry("ladder", "[\"S S\",\"S S\",\"S S\"]"),
+                Map.entry("nether_bricks", "[\"BBB\",\"BSB\",\"BBB\"]"),
+                Map.entry("saddle", "[\"LLL\",\"L L\",\"N N\"]"));
+        for (var entry : shapedPatterns.entrySet()) {
+            JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + entry.getKey() + ".json"));
+            assertEquals(entry.getValue(), recipe.getAsJsonArray("pattern").toString(), entry.getKey());
+        }
+
+        JsonObject dough = json(GENERATED.resolve("data/infx/recipe/dough.json"));
+        JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
+        JsonObject cakeFromMilkBowl = json(GENERATED.resolve("data/infx/recipe/cake_from_milk_bowl.json"));
+        JsonObject mushroomStew = json(GENERATED.resolve("data/infx/recipe/mushroom_stew.json"));
+        JsonObject snowSlab = json(GENERATED.resolve("data/infx/recipe/snow_slab.json"));
+        JsonObject saddle = json(GENERATED.resolve("data/infx/recipe/saddle.json"));
+        JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
+        JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        assertAll(
+                "MITE recipe table",
+                () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
+                () -> assertEquals(
+                        "minecraft:milk_bucket",
+                        cake.getAsJsonObject("key").get("M").getAsString()),
+                () -> assertEquals(
+                        "infx:milk_bowl",
+                        cakeFromMilkBowl.getAsJsonObject("key").get("M").getAsString()),
+                () -> assertEquals(
+                        "infx:water_bowl",
+                        mushroomStew.getAsJsonObject("key").get("W").getAsString()),
+                () -> assertEquals(
+                        "infx:snow_slab",
+                        snowSlab.getAsJsonObject("result").get("id").getAsString()),
+                () -> assertEquals(4, saddle.getAsJsonObject("result").get("count").getAsInt()),
+                () -> assertTrue(Files.isRegularFile(
+                        GENERATED.resolve("assets/infx/blockstates/snow_slab.json"))),
+                () -> assertTrue(Files.isRegularFile(
+                        GENERATED.resolve("assets/infx/items/snow_slab.json"))),
+                () -> assertTrue(Files.isRegularFile(
+                        GENERATED.resolve("assets/infx/models/block/snow_slab_top.json"))),
+                () -> assertTrue(Files.isRegularFile(
+                        GENERATED.resolve("data/infx/loot_table/blocks/snow_slab.json"))),
+                () -> assertEquals("Snow Slab", english.get("block.infx.snow_slab").getAsString()),
+                () -> assertEquals("雪台阶", chinese.get("block.infx.snow_slab").getAsString()));
+
+        for (String disabled : List.of(
+                "bricks",
+                "chiseled_stone_bricks",
+                "clock",
+                "compass",
+                "flint_and_steel",
+                "glass_pane",
+                "ladder",
+                "melon",
+                "nether_bricks",
+                "oak_fence",
+                "oak_sign",
+                "saddle",
+                "snow",
+                "snow_block",
+                "stone",
+                "stone_bricks")) {
+            JsonObject recipe = json(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json"));
+            assertEquals(
+                    "neoforge:never",
+                    recipe.getAsJsonArray("neoforge:conditions")
+                            .get(0)
+                            .getAsJsonObject()
+                            .get("type")
+                            .getAsString(),
+                    disabled);
         }
     }
 
@@ -1386,7 +1488,7 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(344, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(345, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(413, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
