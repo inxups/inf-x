@@ -12,12 +12,13 @@ import net.minecraft.world.level.chunk.ChunkAccess;
  * MITE R196's Underworld mantle and bedrock pass, adapted to InfiniteX's taller dimension.
  *
  * <p>The original pass runs after terrain generation, so it cannot be expressed by a 26.2 surface rule:
- * both boundary thickness and the four lower bedrock strata depend on per-column random values and
+ * both boundary thickness and the four bedrock strata depend on per-column random values and
  * legacy octave noise.</p>
  */
 public final class MiteUnderworldStrata {
     static final int LEGACY_TERRAIN_START_Y = 120;
-    static final int FOUNDATION_ANCHOR_Y = 3;
+    static final int FOUNDATION_WORLD_Y = 0;
+    private static final int LEGACY_FOUNDATION_ANCHOR_Y = 3;
     static final int FIRST_SHEET_ANCHOR_Y = 32;
     static final int SECOND_SHEET_ANCHOR_Y = 72;
     static final int THIRD_SHEET_ANCHOR_Y = 96;
@@ -26,7 +27,8 @@ public final class MiteUnderworldStrata {
     private static final int LOWER_STRATA_CELL_COUNT = COLUMN_COUNT * LEGACY_TERRAIN_START_Y;
     private static final byte NONE = 0;
     private static final byte MANTLE = 1;
-    private static final byte BEDROCK = 2;
+    private static final byte FOUNDATION = 2;
+    private static final byte BEDROCK = 3;
     private static final ConcurrentHashMap<Long, MiteLegacyStrataNoise> NOISES_BY_WORLD_SEED =
             new ConcurrentHashMap<>();
 
@@ -47,12 +49,20 @@ public final class MiteUnderworldStrata {
                 int blockZ = chunkPos.getBlockZ(localZ);
                 for (int relativeY = 0; relativeY < lowerHeight; relativeY++) {
                     byte replacement = plan.replacementAt(localX, localZ, relativeY);
-                    if (replacement == NONE) continue;
+                    if (replacement == NONE || replacement == FOUNDATION) continue;
                     chunk.setBlockState(
                             blockPos.set(blockX, minY + relativeY, blockZ),
                             replacement == MANTLE
                                     ? ModBlocks.MANTLE.get().defaultBlockState()
                                     : Blocks.BEDROCK.defaultBlockState());
+                }
+
+                int foundationHeight = plan.foundationHeightAt(localX, localZ);
+                for (int offset = 0; offset < foundationHeight; offset++) {
+                    int foundationY = FOUNDATION_WORLD_Y + offset;
+                    if (foundationY < minY || foundationY > topY) continue;
+                    chunk.setBlockState(
+                            blockPos.set(blockX, foundationY, blockZ), Blocks.BEDROCK.defaultBlockState());
                 }
 
                 int thickness = plan.boundaryThicknessAt(localX, localZ);
@@ -79,12 +89,24 @@ public final class MiteUnderworldStrata {
                 int column = columnIndex(localX, localZ);
                 int thickness = columnRandom.nextInt(3) + 1;
                 plan.setBoundaryThickness(localX, localZ, thickness);
+                double foundationWidth = foundationWidth(column, strataNoise);
+                plan.setFoundationHeight(localX, localZ, foundationHeight(foundationWidth));
 
                 for (int relativeY = 0; relativeY < LEGACY_TERRAIN_START_Y; relativeY++) {
                     if (relativeY < thickness) {
                         plan.setReplacement(localX, localZ, relativeY, MANTLE);
-                    } else if (isInternalBedrock(relativeY, column, strataNoise, noiseSet.chanceIn2, chanceIndex)) {
-                        plan.setReplacement(localX, localZ, relativeY, BEDROCK);
+                    } else {
+                        plan.setReplacement(
+                                localX,
+                                localZ,
+                                relativeY,
+                                lowerStrataReplacement(
+                                        relativeY,
+                                        column,
+                                        foundationWidth,
+                                        strataNoise,
+                                        noiseSet.chanceIn2,
+                                        chanceIndex));
                     }
                 }
             }
@@ -92,28 +114,23 @@ public final class MiteUnderworldStrata {
         return plan;
     }
 
-    private static boolean isInternalBedrock(
+    private static byte lowerStrataReplacement(
             int relativeY,
             int column,
+            double foundationWidth,
             StrataNoise noise,
             boolean[] chanceIn2,
             int[] chanceIndex) {
-        double firstWidth = Math.max(noise.firstA[column], noise.firstB[column]);
-        firstWidth += positiveContribution(noise.firstABump[column], 0.25);
-        firstWidth += positiveContribution(noise.firstBBump[column], 0.125);
-        firstWidth += positiveContribution(noise.firstCBump[column], 0.125);
-        if (noise.fourthBump[column] > 0.0) {
-            firstWidth += noise.fourthBump[column] * 0.09375 + 0.125;
-        }
-        if (firstWidth > 0.0 && relativeY - FOUNDATION_ANCHOR_Y <= firstWidth * 7.0) return true;
+        // Preserve the legacy early return so the secondary-sheet random edge stream stays stable.
+        if (isLegacyFoundationAt(relativeY, foundationWidth)) return FOUNDATION;
 
         if (isWithinSecondaryStratum(
                 relativeY - FIRST_SHEET_ANCHOR_Y,
-                noise.second[column] - firstWidth * 1.5,
+                noise.second[column] - foundationWidth * 1.5,
                 noise.secondBump[column],
                 chanceIn2,
                 chanceIndex)) {
-            return true;
+            return BEDROCK;
         }
         if (isWithinSecondaryStratum(
                 relativeY - SECOND_SHEET_ANCHOR_Y,
@@ -121,14 +138,36 @@ public final class MiteUnderworldStrata {
                 noise.thirdBump[column],
                 chanceIn2,
                 chanceIndex)) {
-            return true;
+            return BEDROCK;
         }
         return isWithinSecondaryStratum(
                 relativeY - THIRD_SHEET_ANCHOR_Y,
                 noise.fourth[column] - noise.third[column] * 0.375 + 0.5,
                 noise.fourthBump[column],
                 chanceIn2,
-                chanceIndex);
+                chanceIndex)
+                ? BEDROCK
+                : NONE;
+    }
+
+    private static double foundationWidth(int column, StrataNoise noise) {
+        double width = Math.max(noise.firstA[column], noise.firstB[column]);
+        width += positiveContribution(noise.firstABump[column], 0.25);
+        width += positiveContribution(noise.firstBBump[column], 0.125);
+        width += positiveContribution(noise.firstCBump[column], 0.125);
+        if (noise.fourthBump[column] > 0.0) {
+            width += noise.fourthBump[column] * 0.09375 + 0.125;
+        }
+        return width;
+    }
+
+    private static boolean isLegacyFoundationAt(int relativeY, double foundationWidth) {
+        return foundationWidth > 0.0
+                && relativeY - LEGACY_FOUNDATION_ANCHOR_Y <= foundationWidth * 7.0;
+    }
+
+    private static int foundationHeight(double foundationWidth) {
+        return foundationWidth > 0.0 ? (int) Math.floor(foundationWidth * 7.0) + 1 : 0;
     }
 
     private static boolean isWithinSecondaryStratum(
@@ -172,9 +211,19 @@ public final class MiteUnderworldStrata {
     static final class StrataPlan {
         private final byte[] replacements = new byte[LOWER_STRATA_CELL_COUNT];
         private final byte[] boundaryThicknesses = new byte[COLUMN_COUNT];
+        private final int[] foundationHeights = new int[COLUMN_COUNT];
 
         int boundaryThicknessAt(int localX, int localZ) {
             return this.boundaryThicknesses[columnIndex(localX, localZ)];
+        }
+
+        int foundationHeightAt(int localX, int localZ) {
+            return this.foundationHeights[columnIndex(localX, localZ)];
+        }
+
+        boolean hasFoundationAt(int localX, int localZ, int worldY) {
+            return worldY >= FOUNDATION_WORLD_Y
+                    && worldY < FOUNDATION_WORLD_Y + this.foundationHeightAt(localX, localZ);
         }
 
         boolean hasMantleAt(int localX, int localZ, int relativeY) {
@@ -195,6 +244,10 @@ public final class MiteUnderworldStrata {
 
         private void setBoundaryThickness(int localX, int localZ, int thickness) {
             this.boundaryThicknesses[columnIndex(localX, localZ)] = (byte) thickness;
+        }
+
+        private void setFoundationHeight(int localX, int localZ, int height) {
+            this.foundationHeights[columnIndex(localX, localZ)] = height;
         }
 
         private void setReplacement(int localX, int localZ, int relativeY, byte replacement) {
