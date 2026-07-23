@@ -57,6 +57,7 @@ sync resource-pack blocks/adamantium_ore.png block/adamantium_ore.png
 for material in silver ancient_metal mithril adamantium; do
   sync resource-pack "blocks/${material}_block.png" "block/${material}_block.png"
 done
+sync resource-pack blocks/snow.png block/snow_slab.png
 
 for material in copper silver gold iron ancient_metal mithril adamantium; do
   sync resource-pack "blocks/anvil/$material/base.png" "block/anvil/$material/base.png"
@@ -293,7 +294,7 @@ for cube in slime jelly blob ooze pudding magmacube; do
 done
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 537 ]] || { echo "Expected 537 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 538 ]] || { echo "Expected 538 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

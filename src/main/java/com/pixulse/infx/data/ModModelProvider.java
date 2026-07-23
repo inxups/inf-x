@@ -280,7 +280,7 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateSnowSlab(BlockModelGenerators blockModels) {
-        Material snow = new Material(Identifier.withDefaultNamespace("block/snow"));
+        Material snow = new Material(InfiniteX.id("block/snow_slab"));
         TextureMapping textures = TextureMapping.cube(snow);
         Identifier bottom = ModelTemplates.SLAB_BOTTOM.createWithSuffix(
                 ModBlocks.SNOW_SLAB.value(), "_bottom", textures, blockModels.modelOutput);
