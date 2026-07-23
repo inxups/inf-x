@@ -55,7 +55,7 @@ public final class R196Zombie extends Zombie implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        AttributeSupplier.Builder builder = Zombie.createAttributes();
+        AttributeSupplier.Builder builder = Zombie.createAttributes().add(Attributes.ARMOR, 0.0);
         return switch (variant) {
             case ZOMBIE -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)

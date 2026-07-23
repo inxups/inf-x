@@ -1,10 +1,12 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.ModMobEffects;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import com.pixulse.infx.registry.ModMobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -15,6 +17,8 @@ import net.minecraft.world.level.Level;
 
 /** Swamp-hut miniboss witch with a curse and occasional wolf summons. */
 public final class R196Witch extends Witch implements R196Mob {
+    private static final float INDIRECT_MAGIC_DEFENSE = 10.0F;
+
     public R196Witch(EntityType<? extends Witch> type, Level level) {
         super(type, level);
     }
@@ -25,6 +29,18 @@ public final class R196Witch extends Witch implements R196Mob {
                 .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.ATTACK_DAMAGE, 2.0);
+    }
+
+    static boolean hasIndirectMagicDefense(DamageSource source) {
+        return !source.isDirect() && source.is(DamageTypes.INDIRECT_MAGIC);
+    }
+
+    static float magicDefenseReduction(DamageSource source, float damage) {
+        if (!hasIndirectMagicDefense(source)) {
+            return 0.0F;
+        }
+        // MITE protection is flat and leaves one point of incoming damage.
+        return Math.min(INDIRECT_MAGIC_DEFENSE, Math.max(0.0F, damage - 1.0F));
     }
 
     @Override
