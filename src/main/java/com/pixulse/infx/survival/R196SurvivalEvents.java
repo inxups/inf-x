@@ -144,12 +144,25 @@ public final class R196SurvivalEvents {
 
     private static void onFoodFinished(LivingEntityUseItemEvent.Finish event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.isSpectator()) return;
-        R196FoodProfile food = R196FoodProfiles.forStack(event.getItem());
-        if (food == R196FoodProfile.EMPTY) return;
+        applyFood(player, event.getItem());
+    }
+
+    /** Applies an R196 food profile, or re-mirrors FoodData when the item has no profile. */
+    public static void applyFood(ServerPlayer player, ItemStack stack) {
+        R196FoodProfile food = R196FoodProfiles.forStack(stack);
+        if (food == R196FoodProfile.EMPTY) {
+            // Vanilla FoodData.eat may have already run; discard that temporary change.
+            mirrorFoodData(player, player.getData(ModAttachments.SURVIVAL));
+            return;
+        }
         R196SurvivalData updated = player.getData(ModAttachments.SURVIVAL)
                 .eat(food, R196SurvivalRules.foodCap(player.experienceLevel));
         player.setData(ModAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
+    }
+
+    public static void syncFoodData(ServerPlayer player) {
+        mirrorFoodData(player, player.getData(ModAttachments.SURVIVAL));
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {

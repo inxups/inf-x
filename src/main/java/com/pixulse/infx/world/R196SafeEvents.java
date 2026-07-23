@@ -6,6 +6,7 @@ import com.pixulse.infx.harvest.MiteMiningRules;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.survival.R196SurvivalEvents;
 import com.pixulse.infx.survival.R196SurvivalRules;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -127,6 +128,7 @@ public final class R196SafeEvents {
         var data = player.getData(ModAttachments.SURVIVAL)
                 .consume(2.0D, 2_000, R196SurvivalRules.foodCap(player.experienceLevel));
         player.setData(ModAttachments.SURVIVAL, data);
+        R196SurvivalEvents.syncFoodData(player);
         player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.infx.disconnect_penalty"));
     }
 }

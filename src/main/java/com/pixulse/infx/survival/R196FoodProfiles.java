@@ -9,7 +9,17 @@ import net.minecraft.world.item.Items;
 /** Nutrient metadata kept separate from modern {@code FoodProperties}. */
 public final class R196FoodProfiles {
     private static final Set<Item> RAW_MEAT = Set.of(
-            Items.BEEF, Items.PORKCHOP, Items.CHICKEN, Items.MUTTON, Items.RABBIT, Items.COD, Items.SALMON);
+            Items.BEEF,
+            Items.PORKCHOP,
+            Items.CHICKEN,
+            Items.MUTTON,
+            Items.RABBIT,
+            Items.COD,
+            Items.SALMON,
+            Items.TROPICAL_FISH,
+            Items.PUFFERFISH,
+            Items.ROTTEN_FLESH,
+            Items.SPIDER_EYE);
     private static final Set<Item> COOKED_MEAT = Set.of(
             Items.COOKED_BEEF,
             Items.COOKED_PORKCHOP,
@@ -26,7 +36,11 @@ public final class R196FoodProfiles {
             Items.MELON_SLICE,
             Items.SWEET_BERRIES,
             Items.GLOW_BERRIES,
-            Items.APPLE);
+            Items.APPLE,
+            Items.GOLDEN_CARROT,
+            Items.DRIED_KELP,
+            Items.CHORUS_FRUIT,
+            Items.POISONOUS_POTATO);
     private static final Set<Item> SWEETS = Set.of(
             Items.SUGAR,
             Items.COOKIE,

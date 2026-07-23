@@ -24,6 +24,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.equipment.R196QualitySystem;
 import com.pixulse.infx.material.R196Quality;
+import com.pixulse.infx.registry.ModAttachments;
 
 public final class TimedCraftingEngine {
     private TimedCraftingEngine() {}
@@ -144,7 +145,7 @@ public final class TimedCraftingEngine {
         boolean sameRecipe = match.isPresent() && currentRecipeId.equals(state.activeRecipeId());
         TimedCraftingState.TickResult result = state.tick(
                 currentRecipeId,
-                player.getFoodData().getFoodLevel() > 0,
+                player.getData(ModAttachments.SURVIVAL).hasFoodEnergy(),
                 timedMenu.infx$isCraftingContextValid(player),
                 sameRecipe);
 

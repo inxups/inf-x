@@ -39,27 +39,39 @@ public final class UnderworldPortalEvents {
         if (!supportsOrdinaryPortals(level.dimension())) {
             return false;
         }
+        // Frame support checks need portal surfaces; clear them if conversion cannot finish.
         shape.createPortalBlocks(level);
         PortalType portalType = UnderworldPortalBlock.hasRuneGate(level, origin)
                 ? PortalType.UNDERWORLD
                 : portalTypeFor(level, origin);
         if (portalType == null) {
+            clearConnectedPortal(level, origin);
             return false;
         }
         replaceConnectedPortal(level, origin, portalType);
-        return level.getBlockState(origin).is(portalBlock(portalType));
+        if (!level.getBlockState(origin).is(portalBlock(portalType))) {
+            clearConnectedPortal(level, origin);
+            return false;
+        }
+        return true;
     }
 
     public static boolean tryCreateUnderworldPortal(ServerLevel level, BlockPos origin, PortalShape shape) {
         if (!level.dimension().equals(Level.OVERWORLD)) {
             return false;
         }
+        // frameRestsOnBottomBedrock inspects portal faces, so create first then validate.
         shape.createPortalBlocks(level);
         if (!frameRestsOnBottomBedrock(level, origin)) {
+            clearConnectedPortal(level, origin);
             return false;
         }
         replaceConnectedPortal(level, origin, PortalType.UNDERWORLD);
-        return level.getBlockState(origin).is(ModBlocks.UNDERWORLD_PORTAL.get());
+        if (!level.getBlockState(origin).is(ModBlocks.UNDERWORLD_PORTAL.get())) {
+            clearConnectedPortal(level, origin);
+            return false;
+        }
+        return true;
     }
 
     /** Selects a block type once at creation time instead of routing later from nearby portal faces. */
@@ -138,6 +150,35 @@ public final class UnderworldPortalEvents {
             return;
         }
         replaceConnectedPortal(level, origin, originState.getBlock(), portalType, null);
+    }
+
+    /** Removes portal faces created for a failed conversion so no orphan interior remains. */
+    public static void clearConnectedPortal(ServerLevel level, BlockPos origin) {
+        BlockState originState = level.getBlockState(origin);
+        if (!isPortalSurface(originState)) {
+            return;
+        }
+        Block source = originState.getBlock();
+        Direction.Axis axis = originState.getValue(NetherPortalBlock.AXIS);
+        Direction horizontal = axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+        ArrayDeque<BlockPos> pending = new ArrayDeque<>();
+        Set<BlockPos> visited = new HashSet<>();
+        pending.add(origin.immutable());
+        while (!pending.isEmpty()) {
+            BlockPos pos = pending.removeFirst();
+            BlockState state = level.getBlockState(pos);
+            if (!state.is(source)
+                    || !state.hasProperty(NetherPortalBlock.AXIS)
+                    || state.getValue(NetherPortalBlock.AXIS) != axis
+                    || !visited.add(pos)) {
+                continue;
+            }
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 18);
+            pending.add(pos.above());
+            pending.add(pos.below());
+            pending.add(pos.relative(horizontal));
+            pending.add(pos.relative(horizontal.getOpposite()));
+        }
     }
 
     private static void replaceConnectedPortal(
