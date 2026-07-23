@@ -52,6 +52,16 @@ final class ModRecipeProvider extends RecipeProvider {
     @Override
     protected void buildRecipes() {
         addShaped(
+                "sugar_from_sugar_cane",
+                BenchTier.HAND,
+                800.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.SUGAR,
+                1,
+                Map.of('C', Ingredient.of(Items.SUGAR_CANE)),
+                List.of("C"));
+        addShaped(
                 "flour",
                 BenchTier.HAND,
                 100.0F,
@@ -366,6 +376,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.FLINT_CHIP,
                 4,
                 List.of(Ingredient.of(Items.FLINT)));
+        addShaped(
+                "flint_from_flint_chips",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.FLINT,
+                1,
+                Map.of('F', Ingredient.of(ModItems.FLINT_CHIP)),
+                List.of("FF", "FF"));
         addShapeless(
                 "leather_to_sinew",
                 BenchTier.HAND,
