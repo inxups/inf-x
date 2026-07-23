@@ -1,11 +1,13 @@
 package com.pixulse.infx.enchantment;
 
+import com.pixulse.infx.registry.ModEnchantments;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.item.ItemStack;
@@ -33,10 +35,8 @@ public final class R196EnchantmentSelector {
                 (int) (enchantmentPower * (1.0F + (random.nextFloat() - 0.5F) * 0.5F)));
         boolean book = stack.is(Items.BOOK);
         List<Holder<Enchantment>> candidates = new ArrayList<>();
-        registryAccess
-                .lookupOrThrow(Registries.ENCHANTMENT)
-                .getTagOrEmpty(EnchantmentTags.IN_ENCHANTING_TABLE)
-                .forEach(candidates::add);
+        HolderGetter<Enchantment> enchantments = registryAccess.lookupOrThrow(Registries.ENCHANTMENT);
+        candidateKeys().forEach(key -> candidates.add(enchantments.getOrThrow(key)));
         List<EnchantmentInstance> selected = new ArrayList<>();
 
         while (remainingPower > 0) {
@@ -79,6 +79,10 @@ public final class R196EnchantmentSelector {
             }
         }
         return available;
+    }
+
+    static List<ResourceKey<Enchantment>> candidateKeys() {
+        return ModEnchantments.R196;
     }
 
     private static void shuffle(RandomSource random, List<EnchantmentInstance> enchantments) {

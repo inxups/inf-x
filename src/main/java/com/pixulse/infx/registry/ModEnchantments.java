@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.tag.ModTags;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -50,6 +51,30 @@ public final class ModEnchantments {
             FERTILITY, TREE_FELLING, FORTUNE, FREE_MOVEMENT, REGENERATION, SPEED,
             ENDURANCE, PROTECTION);
 
+    private static final Map<ResourceKey<Enchantment>, R196EnchantmentProfile> R196_PROFILES = Map.ofEntries(
+            Map.entry(DURABILITY, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(DISARMING, profile(R196Rarity.RARE, 10)),
+            Map.entry(QUICKNESS, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(PRECISION, profile(R196Rarity.COMMON, 10)),
+            Map.entry(POISONING, profile(R196Rarity.RARE, 10)),
+            Map.entry(BUTCHERING, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(STUNNING, profile(R196Rarity.UNCOMMON, 15)),
+            Map.entry(VAMPIRISM, profile(R196Rarity.EPIC, 20)),
+            Map.entry(RECOVERY, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(SLAUGHTER, profile(R196Rarity.COMMON, 10)),
+            Map.entry(CLEAVING, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(HARVESTING, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(PENETRATION, profile(R196Rarity.RARE, 10)),
+            Map.entry(BAITING, profile(R196Rarity.COMMON, 10)),
+            Map.entry(FERTILITY, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(TREE_FELLING, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(FORTUNE, profile(R196Rarity.RARE, 10)),
+            Map.entry(FREE_MOVEMENT, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(REGENERATION, profile(R196Rarity.RARE, 20)),
+            Map.entry(SPEED, profile(R196Rarity.RARE, 10)),
+            Map.entry(ENDURANCE, profile(R196Rarity.UNCOMMON, 10)),
+            Map.entry(PROTECTION, profile(R196Rarity.COMMON, 10)));
+
     private ModEnchantments() {}
 
     private static ResourceKey<Enchantment> key(String path) {
@@ -58,77 +83,144 @@ public final class ModEnchantments {
 
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         HolderGetter<Item> items = context.lookup(Registries.ITEM);
-        register(context, items, DURABILITY, ModTags.Items.R196_DURABILITY_ENCHANTABLE, 8,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 5, 8, EquipmentSlotGroup.ANY);
-        register(context, items, DISARMING, ModTags.Items.R196_DISARMING_ENCHANTABLE, 3,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 15, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, QUICKNESS, ItemTags.BOW_ENCHANTABLE, 5,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, PRECISION, ItemTags.BOW_ENCHANTABLE, 5,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, POISONING, ItemTags.BOW_ENCHANTABLE, 3,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 18, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, BUTCHERING, ModTags.Items.R196_BUTCHERING_ENCHANTABLE, 4,
-                R196EnchantmentRules.BUTCHERING_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, STUNNING, ModTags.Items.R196_STUNNING_ENCHANTABLE, 3,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 18, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, VAMPIRISM, ModTags.Items.R196_VAMPIRISM_ENCHANTABLE, 2,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 25, 15, EquipmentSlotGroup.MAINHAND);
-        register(context, items, RECOVERY, ItemTags.BOW_ENCHANTABLE, 5,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, SLAUGHTER, ModTags.Items.R196_SLAUGHTER_ENCHANTABLE, 4,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, CLEAVING, ModTags.Items.R196_CLEAVING_ENCHANTABLE, 4,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, HARVESTING, ModTags.Items.R196_HARVESTING_ENCHANTABLE, 5,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 8, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, PENETRATION, ModTags.Items.R196_PENETRATION_ENCHANTABLE, 4,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, BAITING, ItemTags.FISHING_ENCHANTABLE, 5,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 10, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, FERTILITY, ModTags.Items.R196_FERTILITY_ENCHANTABLE, 4,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 10, EquipmentSlotGroup.MAINHAND);
-        register(context, items, TREE_FELLING, ModTags.Items.R196_TREE_FELLING_ENCHANTABLE, 3,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 15, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, FORTUNE, ModTags.Items.R196_FORTUNE_ENCHANTABLE, 3,
-                R196EnchantmentRules.FORTUNE_MAX_LEVEL, 18, 12, EquipmentSlotGroup.MAINHAND);
-        register(context, items, FREE_MOVEMENT, ModTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE, 4,
-                R196EnchantmentRules.FREE_MOVEMENT_MAX_LEVEL, 12, 12, EquipmentSlotGroup.LEGS);
-        register(context, items, REGENERATION, ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, 2,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 24, 16, EquipmentSlotGroup.CHEST);
-        register(context, items, SPEED, ItemTags.FOOT_ARMOR_ENCHANTABLE, 4,
-                R196EnchantmentRules.STANDARD_MAX_LEVEL, 12, 12, EquipmentSlotGroup.FEET);
-        register(context, items, ENDURANCE, ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, 4,
-                R196EnchantmentRules.ENDURANCE_MAX_LEVEL, 12, 12, EquipmentSlotGroup.CHEST);
-        register(context, items, PROTECTION, ItemTags.ARMOR_ENCHANTABLE, 6,
-                R196EnchantmentRules.PROTECTION_MAX_LEVEL, 8, 8, EquipmentSlotGroup.ARMOR);
-        register(context, items, CLUMSINESS, ItemTags.DURABILITY_ENCHANTABLE, 1, 1, 25, 25, EquipmentSlotGroup.ANY);
+        HolderGetter<Enchantment> enchantments = context.lookup(Registries.ENCHANTMENT);
+        register(context, items, enchantments, DURABILITY, ModTags.Items.R196_DURABILITY_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.ANY);
+        register(context, items, enchantments, DISARMING, ModTags.Items.R196_DISARMING_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, QUICKNESS, ItemTags.BOW_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, PRECISION, ItemTags.BOW_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, POISONING, ItemTags.BOW_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, BUTCHERING, ModTags.Items.R196_BUTCHERING_ENCHANTABLE,
+                R196EnchantmentRules.BUTCHERING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, STUNNING, ModTags.Items.R196_STUNNING_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, VAMPIRISM, ModTags.Items.R196_VAMPIRISM_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, RECOVERY, ItemTags.BOW_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, SLAUGHTER, ModTags.Items.R196_SLAUGHTER_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, CLEAVING, ModTags.Items.R196_CLEAVING_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, HARVESTING, ModTags.Items.R196_HARVESTING_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, PENETRATION, ModTags.Items.R196_PENETRATION_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, BAITING, ItemTags.FISHING_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, FERTILITY, ModTags.Items.R196_FERTILITY_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, TREE_FELLING, ModTags.Items.R196_TREE_FELLING_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, FORTUNE, ModTags.Items.R196_FORTUNE_ENCHANTABLE,
+                R196EnchantmentRules.FORTUNE_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, FREE_MOVEMENT, ModTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE,
+                R196EnchantmentRules.FREE_MOVEMENT_MAX_LEVEL, EquipmentSlotGroup.LEGS);
+        register(context, items, enchantments, REGENERATION, ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.CHEST);
+        register(context, items, enchantments, SPEED, ItemTags.FOOT_ARMOR_ENCHANTABLE,
+                R196EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.FEET);
+        register(context, items, enchantments, ENDURANCE, ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE,
+                R196EnchantmentRules.ENDURANCE_MAX_LEVEL, EquipmentSlotGroup.CHEST);
+        register(context, items, enchantments, PROTECTION, ItemTags.ARMOR_ENCHANTABLE,
+                R196EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
+        registerCraftingCurse(context, items, enchantments);
+    }
+
+    public static R196EnchantmentProfile profile(ResourceKey<Enchantment> key) {
+        R196EnchantmentProfile profile = R196_PROFILES.get(key);
+        if (profile == null) {
+            throw new IllegalArgumentException("Not an R196 enchantment: " + key.identifier());
+        }
+        return profile;
+    }
+
+    private static R196EnchantmentProfile profile(R196Rarity rarity, int difficulty) {
+        return new R196EnchantmentProfile(rarity, difficulty);
     }
 
     private static void register(
             BootstrapContext<Enchantment> context,
             HolderGetter<Item> items,
+            HolderGetter<Enchantment> enchantments,
             ResourceKey<Enchantment> key,
             TagKey<Item> supported,
-            int weight,
             int maximumLevel,
-            int minimumCost,
-            int costPerLevel,
             EquipmentSlotGroup slots) {
         HolderSet<Item> supportedItems = items.getOrThrow(supported);
+        R196EnchantmentProfile profile = profile(key);
         Enchantment.Builder builder = Enchantment.enchantment(Enchantment.definition(
                 supportedItems,
-                weight,
+                profile.weight(),
                 maximumLevel,
-                Enchantment.dynamicCost(minimumCost, costPerLevel),
-                Enchantment.dynamicCost(minimumCost + 20, costPerLevel),
+                Enchantment.dynamicCost(profile.minimumCost(1), profile.difficulty()),
+                Enchantment.dynamicCost(profile.maximumCost(1), profile.difficulty()),
                 8,
-                slots));
+                slots)).exclusiveWith(HolderSet.direct(enchantments.getOrThrow(key)));
         if (key.equals(DURABILITY)) {
             builder.withEffect(
                     EnchantmentEffectComponents.ITEM_DAMAGE,
                     new RemoveBinomial(LevelBasedValue.perLevel(0.15F)));
         }
         context.register(key, builder.build(key.identifier()));
+    }
+
+    private static void registerCraftingCurse(
+            BootstrapContext<Enchantment> context,
+            HolderGetter<Item> items,
+            HolderGetter<Enchantment> enchantments) {
+        Enchantment.Builder builder = Enchantment.enchantment(Enchantment.definition(
+                items.getOrThrow(ItemTags.DURABILITY_ENCHANTABLE),
+                1,
+                1,
+                Enchantment.dynamicCost(25, 25),
+                Enchantment.dynamicCost(45, 25),
+                8,
+                EquipmentSlotGroup.ANY)).exclusiveWith(HolderSet.direct(enchantments.getOrThrow(CLUMSINESS)));
+        context.register(CLUMSINESS, builder.build(CLUMSINESS.identifier()));
+    }
+
+    public enum R196Rarity {
+        COMMON(100),
+        UNCOMMON(25),
+        RARE(5),
+        EPIC(1);
+
+        private final int weight;
+
+        R196Rarity(int weight) {
+            this.weight = weight;
+        }
+
+        public int weight() {
+            return weight;
+        }
+    }
+
+    public record R196EnchantmentProfile(R196Rarity rarity, int difficulty) {
+        public R196EnchantmentProfile {
+            if (difficulty <= 0) {
+                throw new IllegalArgumentException("Difficulty must be positive");
+            }
+        }
+
+        public int weight() {
+            return rarity.weight();
+        }
+
+        public int minimumCost(int level) {
+            if (level < 1) {
+                throw new IllegalArgumentException("Level must be positive");
+            }
+            return Math.max(difficulty - 10, 0) + difficulty * (level - 1) + 1;
+        }
+
+        public int maximumCost(int level) {
+            return minimumCost(level) + difficulty - 1;
+        }
     }
 }

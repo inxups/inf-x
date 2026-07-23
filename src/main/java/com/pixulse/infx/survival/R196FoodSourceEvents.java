@@ -1,5 +1,8 @@
 package com.pixulse.infx.survival;
 
+import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
+import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModItems;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -28,9 +31,11 @@ public final class R196FoodSourceEvents {
         var state = event.getState();
         var random = level.getRandom();
 
+        int fortune = R196Enchantments.level(level, event.getTool(), ModEnchantments.FORTUNE);
         if (state.is(Blocks.GRASS_BLOCK)
                 && level.getBiome(event.getPos()).value().getBaseTemperature() > 0.15F
-                && random.nextInt(level.isRainingAt(event.getPos().above()) ? 4 : 16) == 0) {
+                && random.nextInt(R196EnchantmentRules.grassWormDenominator(
+                        fortune, level.isRainingAt(event.getPos().above()))) == 0) {
             event.getDrops().clear();
             addDrop(event, ModItems.WORM.toStack());
             return;

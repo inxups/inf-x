@@ -12,6 +12,7 @@ import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.equipment.R196QualitySystem;
+import com.pixulse.infx.enchantment.R196Enchantments;
 import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.item.R196ArrowItem;
@@ -27,6 +28,7 @@ import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModCreativeTabs;
 import com.pixulse.infx.registry.ModDataComponents;
+import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModMenus;
@@ -65,9 +67,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -85,14 +89,20 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.portal.TeleportTransition;
@@ -106,14 +116,18 @@ import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModR196CompletionGameTests {
+    private static final long DROP_RANDOM_MULTIPLIER = 341_873_128_712L;
+    private static final long DROP_RANDOM_OFFSET = 132_897_987_541L;
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
     private static final List<String> NAMES = List.of(
@@ -129,6 +143,7 @@ public final class ModR196CompletionGameTests {
             "r196_survival_modes",
             "r196_behavior_hunger",
             "r196_safe_enchanting",
+            "r196_enchantment_drops",
             "r196_creative_tabs",
             "r196_block_stack_limits",
             "r196_fulltext_systems");
@@ -147,6 +162,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_survival_modes", () -> ModR196CompletionGameTests::survivalModes);
         FUNCTIONS.register("r196_behavior_hunger", () -> ModR196CompletionGameTests::behaviorHunger);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModR196CompletionGameTests::safeAndEnchanting);
+        FUNCTIONS.register("r196_enchantment_drops", () -> ModR196CompletionGameTests::enchantmentDrops);
         FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
         FUNCTIONS.register("r196_block_stack_limits", () -> ModR196CompletionGameTests::blockStackLimits);
         FUNCTIONS.register("r196_fulltext_systems", () -> ModR196CompletionGameTests::fulltextSystems);
@@ -957,6 +973,7 @@ public final class ModR196CompletionGameTests {
     private static void safeAndEnchanting(GameTestHelper helper) {
         ServerPlayer owner = createPlayer(helper);
         ServerPlayer visitor = createPlayer(helper);
+        assertR196EnchantmentRegistry(helper);
         BlockPos safePos = new BlockPos(4, 2, 4);
         helper.setBlock(safePos, ModBlocks.COPPER_SAFE.get());
         R196SafeBlockEntity safe = helper.getBlockEntity(safePos, R196SafeBlockEntity.class);
@@ -1119,6 +1136,23 @@ public final class ModR196CompletionGameTests {
                 "a successful raw-XP purchase must enchant the item");
         helper.assertTrue(menu.getSlot(1).getItem().isEmpty(),
                 "a successful third option must consume three diamonds");
+        assertConversionOptions(
+                helper,
+                owner,
+                menu,
+                PotionContents.createItemStack(Items.POTION, Potions.WATER),
+                ModItems.BOTTLE_OF_DISENCHANTING.get(),
+                Items.DIAMOND,
+                "diamond water conversion");
+        helper.setBlock(tableRelative, ModBlocks.EMERALD_ENCHANTING_TABLE.get());
+        assertConversionOptions(
+                helper,
+                owner,
+                emeraldMenu,
+                Items.GOLDEN_APPLE.getDefaultInstance(),
+                Items.ENCHANTED_GOLDEN_APPLE,
+                Items.EMERALD,
+                "emerald golden-apple conversion");
         owner.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
                 .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE).holder().toStack());
         helper.assertTrue(R196EndEvents.hasAdamantiumCrystalTool(owner),
@@ -1126,6 +1160,266 @@ public final class ModR196CompletionGameTests {
         removePlayer(visitor);
         removePlayer(owner);
         helper.succeed();
+    }
+
+    private static void assertR196EnchantmentRegistry(GameTestHelper helper) {
+        var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Set<Holder<Enchantment>> expected = Set.copyOf(
+                ModEnchantments.R196.stream().map(enchantments::getOrThrow).toList());
+        for (var source : List.of(
+                EnchantmentTags.IN_ENCHANTING_TABLE,
+                EnchantmentTags.ON_MOB_SPAWN_EQUIPMENT,
+                EnchantmentTags.ON_TRADED_EQUIPMENT,
+                EnchantmentTags.ON_RANDOM_LOOT,
+                EnchantmentTags.TRADEABLE,
+                EnchantmentTags.TRADES_DESERT_COMMON,
+                EnchantmentTags.TRADES_JUNGLE_COMMON,
+                EnchantmentTags.TRADES_PLAINS_COMMON,
+                EnchantmentTags.TRADES_SAVANNA_COMMON,
+                EnchantmentTags.TRADES_SNOW_COMMON,
+                EnchantmentTags.TRADES_SWAMP_COMMON,
+                EnchantmentTags.TRADES_TAIGA_COMMON)) {
+            var actual = enchantments.getOrThrow(source);
+            helper.assertTrue(actual.size() == expected.size(), source.location() + " has exactly 22 R196 entries");
+            helper.assertTrue(actual.stream().allMatch(expected::contains), source.location() + " excludes modern entries");
+        }
+        for (ResourceKey<Enchantment> key : ModEnchantments.R196) {
+            Holder<Enchantment> enchantment = enchantments.getOrThrow(key);
+            helper.assertTrue(
+                    enchantment.value().exclusiveSet().contains(enchantment),
+                    key.identifier() + " is self-exclusive");
+            helper.assertFalse(
+                    Enchantment.areCompatible(enchantment, enchantment),
+                    key.identifier() + " cannot be selected twice");
+        }
+    }
+
+    private static void assertConversionOptions(
+            GameTestHelper helper,
+            ServerPlayer player,
+            R196EnchantmentMenu menu,
+            ItemStack input,
+            Item result,
+            Item currency,
+            String description) {
+        for (int option = 0; option < 3; option++) {
+            menu.getSlot(0).setByPlayer(input.copy());
+            menu.getSlot(1).setByPlayer(new ItemStack(currency, option + 1));
+            int experienceCost = R196EnchantmentRules.experienceCost(2);
+            helper.assertTrue(menu.costs[option] == experienceCost, description + " option " + option + " costs 200 XP");
+            helper.assertTrue(menu.enchantClue[option] == -1, description + " option " + option + " has no enchantment choice");
+            R196Experience.setTotal(player, experienceCost);
+            helper.assertTrue(menu.clickMenuButton(player, option), description + " option " + option + " completes");
+            helper.assertTrue(menu.getSlot(0).getItem().is(result), description + " yields its fixed result");
+            helper.assertTrue(player.totalExperience == 0, description + " spends its exact XP cost");
+            helper.assertTrue(menu.getSlot(1).getItem().isEmpty(), description + " consumes its exact currency tier");
+        }
+    }
+
+    private static void enchantmentDrops(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        ItemStack butcheringTool = ModItems.catalog()
+                .equipment(R196Material.COPPER, R196EquipmentType.SWORD)
+                .holder()
+                .toStack();
+        butcheringTool.enchant(enchantments.getOrThrow(ModEnchantments.BUTCHERING), 3);
+        player.setItemInHand(InteractionHand.MAIN_HAND, butcheringTool);
+        assertButcheringDrop(
+                helper,
+                player,
+                helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(2, 2, 2)),
+                Items.BEEF,
+                "cow");
+        assertButcheringDrop(
+                helper,
+                player,
+                helper.spawnWithNoFreeWill(EntityTypes.PIG, new BlockPos(3, 2, 2)),
+                Items.PORKCHOP,
+                "pig");
+        assertButcheringDrop(
+                helper,
+                player,
+                helper.spawnWithNoFreeWill(EntityTypes.SHEEP, new BlockPos(4, 2, 2)),
+                Items.MUTTON,
+                "sheep");
+        assertButcheringDrop(
+                helper,
+                player,
+                helper.spawnWithNoFreeWill(EntityTypes.HORSE, new BlockPos(5, 2, 2)),
+                Items.BEEF,
+                "horse");
+        assertButcheringDrop(
+                helper,
+                player,
+                helper.spawnWithNoFreeWill(EntityTypes.SPIDER, new BlockPos(6, 2, 2)),
+                Items.SPIDER_EYE,
+                "spider");
+
+        ItemStack harvestingScythe = ModItems.catalog()
+                .equipment(R196Material.COPPER, R196EquipmentType.SCYTHE)
+                .holder()
+                .toStack();
+        harvestingScythe.enchant(enchantments.getOrThrow(ModEnchantments.HARVESTING), 5);
+        ItemStack harvestingShovel = ModItems.catalog()
+                .equipment(R196Material.COPPER, R196EquipmentType.SHOVEL)
+                .holder()
+                .toStack();
+        harvestingShovel.enchant(enchantments.getOrThrow(ModEnchantments.HARVESTING), 5);
+        BlockPos cropPos = helper.absolutePos(new BlockPos(8, 2, 2));
+        helper.assertTrue(
+                R196Enchantments.level(helper.getLevel(), harvestingScythe, ModEnchantments.HARVESTING) == 5,
+                "harvesting test tool carries level five");
+        assertHarvestingDrops(helper, player, harvestingScythe, matureCropState(Blocks.WHEAT), Items.WHEAT, Items.WHEAT_SEEDS, cropPos, "wheat");
+        assertHarvestingDrops(helper, player, harvestingShovel, matureCropState(Blocks.CARROTS), Items.CARROT, null, cropPos, "carrot");
+        assertHarvestingDrops(helper, player, harvestingShovel, matureCropState(Blocks.POTATOES), Items.POTATO, null, cropPos, "potato");
+        assertHarvestingDrops(helper, player, harvestingShovel, matureCropState(Blocks.BEETROOTS), Items.BEETROOT, Items.BEETROOT_SEEDS, cropPos, "beetroot");
+        List<ItemEntity> nonCropDrops = List.of(new ItemEntity(
+                helper.getLevel(), cropPos.getX(), cropPos.getY(), cropPos.getZ(), new ItemStack(Items.NETHER_WART)));
+        List<ItemEntity> mutableNonCropDrops = new ArrayList<>(nonCropDrops);
+        NeoForge.EVENT_BUS.post(new BlockDropsEvent(
+                helper.getLevel(),
+                cropPos,
+                Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, 3),
+                null,
+                mutableNonCropDrops,
+                player,
+                harvestingShovel));
+        helper.assertTrue(itemCount(mutableNonCropDrops, Items.NETHER_WART) == 1, "harvesting does not multiply nether wart");
+
+        ItemStack fortuneTool = ModItems.catalog()
+                .equipment(R196Material.COPPER, R196EquipmentType.PICKAXE)
+                .holder()
+                .toStack();
+        fortuneTool.enchant(enchantments.getOrThrow(ModEnchantments.FORTUNE), 3);
+        BlockPos fortunePos = helper.absolutePos(new BlockPos(10, 2, 2));
+        assertFortuneAddsDrop(helper, player, fortuneTool, Blocks.DIAMOND_ORE.defaultBlockState(), Items.DIAMOND, fortunePos, "diamond ore");
+        assertFortuneAddsDrop(helper, player, fortuneTool, Blocks.REDSTONE_ORE.defaultBlockState(), Items.REDSTONE, fortunePos, "redstone ore");
+        assertFortuneAddsDrop(helper, player, fortuneTool, Blocks.NETHER_GOLD_ORE.defaultBlockState(), Items.GOLD_NUGGET, fortunePos, "nether gold ore");
+        assertNetherWartFortune(helper, player, fortuneTool, fortunePos);
+        assertGrassFortune(helper, player, fortuneTool, fortunePos);
+        List<ItemEntity> dirtDrops = new ArrayList<>(List.of(new ItemEntity(
+                helper.getLevel(), fortunePos.getX(), fortunePos.getY(), fortunePos.getZ(), new ItemStack(Items.DIRT))));
+        NeoForge.EVENT_BUS.post(new BlockDropsEvent(
+                helper.getLevel(), fortunePos, Blocks.DIRT.defaultBlockState(), null, dirtDrops, player, fortuneTool));
+        helper.assertTrue(itemCount(dirtDrops, Items.DIRT) == 1, "fortune does not multiply unrelated blocks");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void assertButcheringDrop(
+            GameTestHelper helper, ServerPlayer player, LivingEntity target, Item expected, String description) {
+        boolean found = false;
+        for (long seed = 0; seed < 128 && !found; seed++) {
+            target.getRandom().setSeed(seed);
+            List<ItemEntity> drops = new ArrayList<>();
+            drops.add(new ItemEntity(target.level(), target.getX(), target.getY(), target.getZ(), new ItemStack(Items.APPLE)));
+            NeoForge.EVENT_BUS.post(new LivingDropsEvent(
+                    target, helper.getLevel().damageSources().playerAttack(player), drops, true));
+            if (itemCount(drops, expected) > 0) {
+                helper.assertTrue(itemCount(drops, Items.APPLE) == 1, description + " does not duplicate an unrelated food drop");
+                found = true;
+            }
+        }
+        helper.assertTrue(found, description + " receives its MITE butchering drop");
+        target.discard();
+    }
+
+    private static void assertHarvestingDrops(
+            GameTestHelper helper,
+            ServerPlayer player,
+            ItemStack tool,
+            BlockState state,
+            Item product,
+            Item seed,
+            BlockPos pos,
+            String description) {
+        helper.assertTrue(tool.isCorrectToolForDrops(state), description + " uses the correct harvesting tool");
+        boolean found = false;
+        for (long randomSeed = 0; randomSeed < 128 && !found; randomSeed++) {
+            helper.getLevel().getRandom().setSeed(dropRandomSeed(randomSeed));
+            List<ItemEntity> drops = new ArrayList<>();
+            drops.add(new ItemEntity(helper.getLevel(), pos.getX(), pos.getY(), pos.getZ(), new ItemStack(product)));
+            if (seed != null) {
+                drops.add(new ItemEntity(helper.getLevel(), pos.getX(), pos.getY(), pos.getZ(), new ItemStack(seed)));
+            }
+            NeoForge.EVENT_BUS.post(new BlockDropsEvent(helper.getLevel(), pos, state, null, drops, player, tool));
+            if (itemCount(drops, product) > 1) {
+                if (seed != null) {
+                    helper.assertTrue(itemCount(drops, seed) == 1, description + " leaves its seed drop unchanged");
+                }
+                found = true;
+            }
+        }
+        helper.assertTrue(found, description + " gains only mature-crop product");
+    }
+
+    private static void assertFortuneAddsDrop(
+            GameTestHelper helper,
+            ServerPlayer player,
+            ItemStack tool,
+            BlockState state,
+            Item product,
+            BlockPos pos,
+            String description) {
+        boolean found = false;
+        for (long randomSeed = 0; randomSeed < 128 && !found; randomSeed++) {
+            helper.getLevel().getRandom().setSeed(dropRandomSeed(randomSeed));
+            List<ItemEntity> drops = new ArrayList<>(List.of(new ItemEntity(
+                    helper.getLevel(), pos.getX(), pos.getY(), pos.getZ(), new ItemStack(product))));
+            NeoForge.EVENT_BUS.post(new BlockDropsEvent(helper.getLevel(), pos, state, null, drops, player, tool));
+            found = itemCount(drops, product) > 1;
+        }
+        helper.assertTrue(found, description + " receives MITE fortune bonus drops");
+    }
+
+    private static void assertNetherWartFortune(
+            GameTestHelper helper, ServerPlayer player, ItemStack tool, BlockPos pos) {
+        boolean found = false;
+        BlockState state = Blocks.NETHER_WART.defaultBlockState().setValue(NetherWartBlock.AGE, 3);
+        for (long randomSeed = 0; randomSeed < 128 && !found; randomSeed++) {
+            helper.getLevel().getRandom().setSeed(dropRandomSeed(randomSeed));
+            List<ItemEntity> drops = new ArrayList<>(List.of(new ItemEntity(
+                    helper.getLevel(), pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.NETHER_WART))));
+            NeoForge.EVENT_BUS.post(new BlockDropsEvent(helper.getLevel(), pos, state, null, drops, player, tool));
+            found = itemCount(drops, Items.NETHER_WART) > 1;
+        }
+        helper.assertTrue(found, "mature nether wart receives MITE fortune bonus drops");
+    }
+
+    private static void assertGrassFortune(GameTestHelper helper, ServerPlayer player, ItemStack tool, BlockPos pos) {
+        helper.assertTrue(
+                helper.getLevel().getBiome(pos).value().getBaseTemperature() > 0.15F,
+                "GameTest grass position supports MITE worm drops");
+        boolean found = false;
+        for (long randomSeed = 0; randomSeed < 256 && !found; randomSeed++) {
+            helper.getLevel().getRandom().setSeed(dropRandomSeed(randomSeed));
+            List<ItemEntity> drops = new ArrayList<>(List.of(new ItemEntity(
+                    helper.getLevel(), pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.DIRT))));
+            NeoForge.EVENT_BUS.post(new BlockDropsEvent(
+                    helper.getLevel(), pos, Blocks.GRASS_BLOCK.defaultBlockState(), null, drops, player, tool));
+            if (itemCount(drops, ModItems.WORM.get()) > 0) {
+                helper.assertTrue(itemCount(drops, Items.DIRT) == 0, "grass fortune replaces dirt with a worm");
+                found = true;
+            }
+        }
+        helper.assertTrue(found, "fortune raises the grass worm drop chance");
+    }
+
+    private static BlockState matureCropState(Block cropBlock) {
+        CropBlock crop = (CropBlock) cropBlock;
+        return crop.getStateForAge(crop.getMaxAge());
+    }
+
+    private static int itemCount(List<ItemEntity> drops, Item item) {
+        return drops.stream()
+                .filter(drop -> drop.getItem().is(item))
+                .mapToInt(drop -> drop.getItem().getCount())
+                .sum();
+    }
+
+    private static long dropRandomSeed(long sample) {
+        return sample * DROP_RANDOM_MULTIPLIER + DROP_RANDOM_OFFSET;
     }
 
     private static void hopperExperience(GameTestHelper helper) {

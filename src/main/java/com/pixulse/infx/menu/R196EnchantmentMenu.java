@@ -5,6 +5,7 @@ import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.enchantment.R196EnchantmentSelector;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModMenus;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantable;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
@@ -40,6 +42,7 @@ import net.minecraft.world.level.block.Blocks;
 /** Server menu for R196's emerald (50 power) and diamond (100 power) tables. */
 public final class R196EnchantmentMenu extends EnchantmentMenu {
     private static final List<BlockPos> BOOKSHELVES = createBookshelfOffsets();
+    private static final int CONVERSION_POWER = 2;
     private final int[] enchantmentPowers = new int[3];
     private final Kind kind;
 
@@ -81,7 +84,7 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         Container enchantSlots = accessors().infx$enchantSlots();
         if (container != enchantSlots) return;
         ItemStack stack = container.getItem(0);
-        if (stack.isEmpty() || !stack.isEnchantable()) {
+        if (stack.isEmpty() || !isTableInput(stack)) {
             for (int index = 0; index < 3; index++) {
                 costs[index] = 0;
                 enchantmentPowers[index] = 0;
@@ -94,6 +97,16 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
             IdMap<Holder<Enchantment>> holders = level.registryAccess()
                     .lookupOrThrow(Registries.ENCHANTMENT)
                     .asHolderIdMap();
+            if (isConversionInput(stack)) {
+                for (int index = 0; index < 3; index++) {
+                    enchantmentPowers[index] = CONVERSION_POWER;
+                    costs[index] = R196EnchantmentRules.experienceCost(CONVERSION_POWER);
+                    enchantClue[index] = -1;
+                    levelClue[index] = -1;
+                }
+                broadcastChanges();
+                return;
+            }
             int bookshelves = bookshelfCount(level, pos);
             int tablePower = R196EnchantmentRules.enchantingTablePower(
                     bookshelves, kind.powerPerShelf(), kind.maximumPower());
@@ -132,6 +145,23 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         return enchantable == null ? 0 : enchantable.value();
     }
 
+    private static boolean isTableInput(ItemStack stack) {
+        return stack.isEnchantable() || isConversionInput(stack);
+    }
+
+    private static boolean isConversionInput(ItemStack stack) {
+        return isWaterBottle(stack) || stack.is(Items.GOLDEN_APPLE);
+    }
+
+    private static boolean isWaterBottle(ItemStack stack) {
+        var contents = stack.get(DataComponents.POTION_CONTENTS);
+        return stack.is(Items.POTION) && contents != null && contents.is(Potions.WATER);
+    }
+
+    private static ItemStack conversionResult(ItemStack stack) {
+        return isWaterBottle(stack) ? ModItems.BOTTLE_OF_DISENCHANTING.toStack() : Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance();
+    }
+
     private List<EnchantmentInstance> enchantmentChoices(RegistryAccess registryAccess, ItemStack stack, int option) {
         accessors().infx$random().setSeed((long) accessors().infx$enchantmentSeed().get() + option);
         return R196EnchantmentSelector.select(
@@ -150,9 +180,15 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         int currencyCost = buttonId + 1;
         int experienceCost = costs[buttonId];
         if ((!currency.is(kind.currency()) || currency.getCount() < currencyCost) && !player.hasInfiniteMaterials()) return false;
-        if (experienceCost <= 0 || input.isEmpty()
+        if (experienceCost <= 0 || input.isEmpty() || !isTableInput(input)
                 || player.totalExperience < experienceCost && !player.hasInfiniteMaterials()) return false;
         accessors().infx$access().execute((level, pos) -> {
+            if (isConversionInput(input)) {
+                completeConversion(player, slots, currency, currencyCost, experienceCost, input);
+                level.playSound(null, pos, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F,
+                        level.getRandom().nextFloat() * 0.1F + 0.9F);
+                return;
+            }
             List<EnchantmentInstance> selected = enchantmentChoices(level.registryAccess(), input, buttonId);
             if (selected.isEmpty()) return;
             player.onEnchantmentPerformed(input, 0);
@@ -175,6 +211,30 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
                     level.getRandom().nextFloat() * 0.1F + 0.9F);
         });
         return true;
+    }
+
+    private void completeConversion(
+            Player player,
+            Container slots,
+            ItemStack currency,
+            int currencyCost,
+            int experienceCost,
+            ItemStack input) {
+        ItemStack converted = conversionResult(input);
+        player.onEnchantmentPerformed(input, 0);
+        if (!player.hasInfiniteMaterials()) {
+            player.giveExperiencePoints(-experienceCost);
+        }
+        slots.setItem(0, converted);
+        currency.consume(currencyCost, player);
+        if (currency.isEmpty()) slots.setItem(1, ItemStack.EMPTY);
+        player.awardStat(Stats.ENCHANT_ITEM);
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.ENCHANTED_ITEM.trigger(serverPlayer, converted, currencyCost);
+        }
+        slots.setChanged();
+        accessors().infx$enchantmentSeed().set(player.getEnchantmentSeed());
+        slotsChanged(slots);
     }
 
     @Override

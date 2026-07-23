@@ -42,6 +42,36 @@ class R196GeneratedResourceTest {
     private static final Pattern FORMAT_SPECIFIER = Pattern.compile("%(?:\\d+\\$)?[A-Za-z]");
 
     @Test
+    void enchantmentSourcesStrictlyReplaceVanillaWithR196() throws Exception {
+        Set<String> expected = ModEnchantments.R196.stream()
+                .map(key -> key.identifier().toString())
+                .collect(Collectors.toSet());
+        for (String tag : List.of(
+                "in_enchanting_table",
+                "on_mob_spawn_equipment",
+                "on_traded_equipment",
+                "on_random_loot",
+                "tradeable",
+                "trades/desert_common",
+                "trades/jungle_common",
+                "trades/plains_common",
+                "trades/savanna_common",
+                "trades/snow_common",
+                "trades/swamp_common",
+                "trades/taiga_common")) {
+            JsonObject source = json(GENERATED.resolve("data/minecraft/tags/enchantment/" + tag + ".json"));
+            Set<String> values = source.getAsJsonArray("values").asList().stream()
+                    .map(JsonElement::getAsString)
+                    .collect(Collectors.toSet());
+            assertAll(
+                    tag,
+                    () -> assertTrue(source.has("replace") && source.get("replace").getAsBoolean()),
+                    () -> assertEquals(expected, values),
+                    () -> assertEquals(22, values.size()));
+        }
+    }
+
+    @Test
     void r196SpawnTablesUseCorrectPoolsAndSources() throws Exception {
         JsonObject modifier = json(GENERATED.resolve(
                 "data/infx/neoforge/biome_modifier/r196_spawns.json"));

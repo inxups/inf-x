@@ -33,7 +33,7 @@ public final class R196ArrowItem extends ArrowItem {
             Level level, ItemStack stack, LivingEntity owner, @Nullable ItemStack weapon) {
         Arrow arrow = new Arrow(level, owner, stack.copyWithCount(1), weapon);
         if (!stack.has(DataComponents.INTANGIBLE_PROJECTILE)) {
-            arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
+            arrow.pickup = AbstractArrow.Pickup.ALLOWED;
         }
         arrow.setBaseDamage(baseDamage());
         return arrow;

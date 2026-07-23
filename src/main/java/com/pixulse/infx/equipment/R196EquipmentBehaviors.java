@@ -88,7 +88,8 @@ public final class R196EquipmentBehaviors {
     }
 
     public static void resolveArrowRecovery(AbstractArrow arrow, HitResult hit) {
-        if (!(arrow.level() instanceof net.minecraft.server.level.ServerLevel level)
+        if (hit.getType() != HitResult.Type.ENTITY
+                || !(arrow.level() instanceof net.minecraft.server.level.ServerLevel level)
                 || !(arrow.getPickupItemStackOrigin().getItem() instanceof R196ArrowItem arrowItem)
                 || arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY
                 || arrow.getPersistentData().getBooleanOr(RECOVERY_CHECKED, false)) {
@@ -98,9 +99,7 @@ public final class R196EquipmentBehaviors {
         int enchantment = arrow.getPersistentData().getInt("infx_recovery_enchantment").orElse(0);
         boolean recovered = arrow.getRandom().nextFloat()
                 < recoveryChance(arrowItem.key().material(), enchantment);
-        if (hit.getType() == HitResult.Type.BLOCK) {
-            arrow.pickup = recovered ? AbstractArrow.Pickup.ALLOWED : AbstractArrow.Pickup.DISALLOWED;
-        } else if (hit.getType() == HitResult.Type.ENTITY && recovered) {
+        if (recovered) {
             arrow.spawnAtLocation(level, arrow.getPickupItemStackOrigin().copyWithCount(1));
         }
     }
