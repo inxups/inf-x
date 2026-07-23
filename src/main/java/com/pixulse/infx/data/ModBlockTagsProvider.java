@@ -31,7 +31,14 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         addEffectiveToolTags();
         addPortableBlocks();
         addHarvestLevels();
+        addWorldgenTags();
         ModBlocks.R196_FLOWERS.forEach(flower -> tag(BlockTags.FLOWERS).add(flower.getKey()));
+    }
+
+    private void addWorldgenTags() {
+        tag(ModTags.Blocks.UNDERWORLD_CARVER_REPLACEABLES)
+                .addTag(BlockTags.OVERWORLD_CARVER_REPLACEABLES)
+                .add(blockKey(Blocks.BEDROCK));
     }
 
     private void addVanillaMiningTags() {

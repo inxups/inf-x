@@ -6,6 +6,7 @@ import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModJukeboxSongs;
 import com.pixulse.infx.registry.ModWorldCarvers;
+import com.pixulse.infx.tag.ModTags;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.R196RiverBiomes;
 import com.pixulse.infx.world.R196SpawnsBiomeModifier;
@@ -17,7 +18,6 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
-import net.minecraft.data.worldgen.Carvers;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
@@ -30,6 +30,8 @@ import net.minecraft.tags.TimelineTags;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.valueproviders.TrapezoidFloat;
+import net.minecraft.util.valueproviders.UniformFloat;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.util.random.Weighted;
 import net.minecraft.util.random.WeightedList;
@@ -67,7 +69,10 @@ import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
+import net.minecraft.world.level.levelgen.carver.CanyonCarverConfiguration;
+import net.minecraft.world.level.levelgen.carver.CaveCarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -118,6 +123,12 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
     public static final ResourceKey<ConfiguredWorldCarver<?>> LARGE_CAVE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("large_cave"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CAVE =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_cave"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CAVE_EXTRA_UNDERGROUND =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_cave_extra_underground"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CANYON =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_canyon"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_STONE_CONFIGURED =
@@ -202,6 +213,9 @@ final class ModWorldGen {
     }
 
     private static void bootstrapConfiguredCarvers(BootstrapContext<ConfiguredWorldCarver<?>> context) {
+        HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
+        HolderSet<Block> underworldReplaceables =
+                blocks.getOrThrow(ModTags.Blocks.UNDERWORLD_CARVER_REPLACEABLES);
         context.register(
                 LARGE_CAVE_CONFIGURED,
                 ModWorldCarvers.LARGE_CAVE.get().configured(new CarverConfiguration(
@@ -210,7 +224,49 @@ final class ModWorldGen {
                         ConstantFloat.of(1.0F),
                         VerticalAnchor.aboveBottom(8),
                         CarverDebugSettings.of(false, Blocks.OAK_BUTTON.defaultBlockState()),
-                        context.lookup(Registries.BLOCK).getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES))));
+                        blocks.getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES))));
+
+        context.register(
+                UNDERWORLD_CAVE,
+                WorldCarver.CAVE.configured(new CaveCarverConfiguration(
+                        0.15F,
+                        UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(180)),
+                        UniformFloat.of(0.1F, 0.9F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.CRIMSON_BUTTON.defaultBlockState()),
+                        underworldReplaceables,
+                        UniformFloat.of(0.7F, 1.4F),
+                        UniformFloat.of(0.8F, 1.3F),
+                        UniformFloat.of(-1.0F, -0.4F))));
+        context.register(
+                UNDERWORLD_CAVE_EXTRA_UNDERGROUND,
+                WorldCarver.CAVE.configured(new CaveCarverConfiguration(
+                        0.07F,
+                        UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(47)),
+                        UniformFloat.of(0.1F, 0.9F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.OAK_BUTTON.defaultBlockState()),
+                        underworldReplaceables,
+                        UniformFloat.of(0.7F, 1.4F),
+                        UniformFloat.of(0.8F, 1.3F),
+                        UniformFloat.of(-1.0F, -0.4F))));
+        context.register(
+                UNDERWORLD_CANYON,
+                WorldCarver.CANYON.configured(new CanyonCarverConfiguration(
+                        0.01F,
+                        UniformHeight.of(VerticalAnchor.absolute(10), VerticalAnchor.absolute(67)),
+                        ConstantFloat.of(3.0F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.WARPED_BUTTON.defaultBlockState()),
+                        underworldReplaceables,
+                        UniformFloat.of(-0.125F, 0.125F),
+                        new CanyonCarverConfiguration.CanyonShapeConfiguration(
+                                UniformFloat.of(0.75F, 1.0F),
+                                TrapezoidFloat.of(0.0F, 6.0F, 2.0F),
+                                3,
+                                UniformFloat.of(0.75F, 1.0F),
+                                1.0F,
+                                0.0F))));
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -405,9 +461,9 @@ final class ModWorldGen {
 
     private static void addUnderworldCarvers(BiomeGenerationSettings.Builder generation) {
         // Keep the Overworld cave shapes without its two lava-lake placements.
-        generation.addCarver(Carvers.CAVE);
-        generation.addCarver(Carvers.CAVE_EXTRA_UNDERGROUND);
-        generation.addCarver(Carvers.CANYON);
+        generation.addCarver(UNDERWORLD_CAVE);
+        generation.addCarver(UNDERWORLD_CAVE_EXTRA_UNDERGROUND);
+        generation.addCarver(UNDERWORLD_CANYON);
     }
 
     private static void addUnderworldUndergroundVariety(BiomeGenerationSettings.Builder generation) {
