@@ -34,6 +34,12 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("banana", names("Banana", "香蕉")),
             Map.entry("worm", names("Worm", "虫子")),
             Map.entry("cooked_worm", names("Cooked Worm", "熟虫子")));
+    private static final Map<String, String[]> GELATINOUS_SPHERE_NAMES = Map.ofEntries(
+            Map.entry("green_gelatinous_sphere", names("Green Gelatinous Sphere", "绿色粘液球")),
+            Map.entry("ochre_gelatinous_sphere", names("Ochre Gelatinous Sphere", "赭色粘液球")),
+            Map.entry("crimson_gelatinous_sphere", names("Crimson Gelatinous Sphere", "深红粘液球")),
+            Map.entry("gray_gelatinous_sphere", names("Gray Gelatinous Sphere", "灰色粘液球")),
+            Map.entry("black_gelatinous_sphere", names("Black Gelatinous Sphere", "黑色粘液球")));
     private static final Map<String, String[]> ENCHANTMENT_NAMES = Map.ofEntries(
             Map.entry("durability", names("Durability", "耐久")),
             Map.entry("disarming", names("Disarming", "缴械")),
@@ -330,6 +336,8 @@ final class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         ModItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
         FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
+        GELATINOUS_SPHERE_NAMES.forEach(
+                (path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         for (var material : ModItems.BUCKET_MATERIALS) {
             for (var contents : com.pixulse.infx.item.R196BucketItem.Contents.values()) {
                 String englishContents = switch (contents) {

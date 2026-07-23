@@ -22,6 +22,9 @@ public final class ModTags {
         public static final TagKey<Block> AXE_HALF_SPEED = create("effective_tool/axe_half_speed");
         public static final TagKey<Block> UNDERWORLD_CARVER_REPLACEABLES =
                 create("underworld_carver_replaceables");
+        public static final TagKey<Block> PEPSIN_DISSOLVABLE = create("dissolves/pepsin");
+        public static final TagKey<Block> ACID_DISSOLVES_INSTANTLY = create("dissolves/acid_instantly");
+        public static final TagKey<Block> ACID_DISSOLVES_GRADUALLY = create("dissolves/acid_gradually");
 
         private Blocks() {}
 
@@ -64,6 +67,7 @@ public final class ModTags {
         public static final TagKey<Item> R196_FORTUNE_ENCHANTABLE = enchantable("r196_fortune");
         public static final TagKey<Item> R196_FREE_MOVEMENT_ENCHANTABLE = enchantable("r196_free_movement");
         public static final TagKey<Item> R196_CHEST_ARMOR_ENCHANTABLE = enchantable("r196_chest_armor");
+        public static final TagKey<Item> GELATINOUS_SPHERES = create("gelatinous_spheres");
 
         private Items() {}
 

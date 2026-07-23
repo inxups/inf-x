@@ -56,6 +56,12 @@ final class ModItemTagsProvider extends ItemTagsProvider {
                 .add(ModItems.SILVER_ORE.getKey());
         tag(ModTags.Items.SMELTING_INPUTS_HEAT_3).add(ModItems.MITHRIL_ORE.getKey());
         tag(ModTags.Items.SMELTING_INPUTS_HEAT_4).add(ModItems.ADAMANTIUM_ORE.getKey());
+        tag(ModTags.Items.GELATINOUS_SPHERES).add(
+                ModItems.GREEN_GELATINOUS_SPHERE.getKey(),
+                ModItems.OCHRE_GELATINOUS_SPHERE.getKey(),
+                ModItems.CRIMSON_GELATINOUS_SPHERE.getKey(),
+                ModItems.GRAY_GELATINOUS_SPHERE.getKey(),
+                ModItems.BLACK_GELATINOUS_SPHERE.getKey());
 
         for (R196Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(ModTags.Items.material(material), entry));

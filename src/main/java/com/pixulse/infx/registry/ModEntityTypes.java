@@ -7,6 +7,7 @@ import com.pixulse.infx.entity.R196Creeper;
 import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196FireElemental;
+import com.pixulse.infx.entity.R196GelatinousSphere;
 import com.pixulse.infx.entity.R196Ghast;
 import com.pixulse.infx.entity.R196MagmaCube;
 import com.pixulse.infx.entity.R196Silverfish;
@@ -99,6 +100,12 @@ public final class ModEntityTypes {
             "ooze", "Ooze", "灰色史莱姆", R196Slime::new, 0.5F, 0.5F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Slime>> PUDDING = register(
             "pudding", "Pudding", "黑色史莱姆", R196Slime::new, 0.5F, 0.5F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196GelatinousSphere>> GELATINOUS_SPHERE =
+            ENTITIES.registerEntityType(
+                    "gelatinous_sphere",
+                    R196GelatinousSphere::new,
+                    MobCategory.MISC,
+                    builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
     public static final DeferredHolder<EntityType<?>, EntityType<R196MagmaCube>> MAGMA_CUBE = register(
             "magma_cube", "Magma Cube", "岩浆怪", R196MagmaCube::new, 0.5F, 0.5F, true);
 

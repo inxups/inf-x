@@ -221,6 +221,16 @@ for material in "${HORSE[@]}"; do
     "entity/equipment/horse_body/${material}.png"
 done
 
+for material in mithril adamantium; do
+  for rune in {0..15}; do
+    sync resource-pack \
+      "blocks/runestones/${material}/${rune}.png" \
+      "block/runestones/${material}/${rune}.png"
+  done
+done
+sync resource-pack blocks/runegate.png block/runegate.png
+sync resource-pack blocks/runegate.png.mcmeta block/runegate.png.mcmeta
+
 sync resource-pack blocks/crafting_table/flint/top.png block/flint_workbench_top.png
 sync resource-pack blocks/crafting_table/obsidian/top.png block/obsidian_workbench_top.png
 for material in copper silver gold iron ancient_metal mithril adamantium; do
@@ -274,8 +284,12 @@ sync resource-pack items/food/banana.png item/banana.png
 sync resource-pack items/food/worm_raw.png item/worm.png
 sync resource-pack items/food/worm_cooked.png item/cooked_worm.png
 
+for color in green ochre crimson gray black; do
+  sync mite-src "items/gelatinous_sphere/${color}.png" "item/gelatinous_sphere/${color}.png"
+done
+
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 492 ]] || { echo "Expected 492 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 531 ]] || { echo "Expected 531 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

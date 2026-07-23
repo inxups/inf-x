@@ -31,7 +31,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         drops(ModEntityTypes.R196_SPIDER.get(), Items.STRING, 0.0F, 2.0F);
         drops(ModEntityTypes.R196_CAVE_SPIDER.get(), Items.STRING, 0.0F, 2.0F);
         drops(ModEntityTypes.R196_CREEPER.get(), Items.GUNPOWDER, 0.0F, 2.0F);
-        drops(ModEntityTypes.R196_SLIME.get(), Items.SLIME_BALL, 0.0F, 2.0F);
+        emptyDrops(ModEntityTypes.R196_SLIME.get());
         drops(ModEntityTypes.R196_ENDERMAN.get(), Items.ENDER_PEARL, 0.0F, 1.0F);
         drops(ModEntityTypes.R196_SQUID.get(), Items.INK_SAC, 1.0F, 3.0F);
         drops(ModEntityTypes.R196_WITCH.get(), Items.REDSTONE, 0.0F, 2.0F);
@@ -73,7 +73,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 ModEntityTypes.BLOB,
                 ModEntityTypes.OOZE,
                 ModEntityTypes.PUDDING)) {
-            drops(type.get(), Items.SLIME_BALL, 0.0F, 2.0F);
+            emptyDrops(type.get());
         }
         drops(ModEntityTypes.MAGMA_CUBE.get(), Items.MAGMA_CREAM, 0.0F, 1.0F);
         for (var type : java.util.List.of(
@@ -101,6 +101,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                 .setRolls(ConstantValue.exactly(1.0F))
                                 .add(LootItem.lootTableItem(item).apply(
                                         SetItemCountFunction.setCount(UniformGenerator.between(minimum, maximum))))));
+    }
+
+    private void emptyDrops(EntityType<?> custom) {
+        add(custom, LootTable.lootTable());
     }
 
     private void zombieDrops(EntityType<?> custom) {

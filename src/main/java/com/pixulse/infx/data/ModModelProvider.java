@@ -131,6 +131,7 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_RECORDS.stream().map(item -> (Item) item.value()),
+                        ModItems.GELATINOUS_SPHERES.stream().map(item -> (Item) item.value()),
                         Stream.of(ModItems.BOTTLE_OF_DISENCHANTING.value()),
                         Stream.concat(
                                 Stream.of(ModItems.FLOUR.value(), ModItems.WATER_BOWL.value()),
@@ -183,6 +184,7 @@ final class ModModelProvider extends ModelProvider {
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
         ModItems.R196_RECORDS.forEach(record ->
                 itemModels.generateFlatItem(record.value(), ModelTemplates.FLAT_ITEM));
+        generateGelatinousSphereModels(itemModels);
         itemModels.generateFlatItem(ModItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateR196FoodModels(itemModels);
         for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
@@ -302,6 +304,22 @@ final class ModModelProvider extends ModelProvider {
             Identifier model = ModelTemplates.FLAT_ITEM.create(
                     ModelLocationUtils.getModelLocation(item),
                     TextureMapping.layer0(new Material(InfiniteX.id("item/" + texture))),
+                    models.modelOutput);
+            models.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
+        });
+    }
+
+    private static void generateGelatinousSphereModels(ItemModelGenerators models) {
+        Map<Item, String> textures = Map.ofEntries(
+                Map.entry(ModItems.GREEN_GELATINOUS_SPHERE.value(), "green"),
+                Map.entry(ModItems.OCHRE_GELATINOUS_SPHERE.value(), "ochre"),
+                Map.entry(ModItems.CRIMSON_GELATINOUS_SPHERE.value(), "crimson"),
+                Map.entry(ModItems.GRAY_GELATINOUS_SPHERE.value(), "gray"),
+                Map.entry(ModItems.BLACK_GELATINOUS_SPHERE.value(), "black"));
+        textures.forEach((item, texture) -> {
+            Identifier model = ModelTemplates.FLAT_ITEM.create(
+                    ModelLocationUtils.getModelLocation(item),
+                    TextureMapping.layer0(new Material(InfiniteX.id("item/gelatinous_sphere/" + texture))),
                     models.modelOutput);
             models.itemModelOutput.accept(item, ItemModelUtils.plainModel(model));
         });
