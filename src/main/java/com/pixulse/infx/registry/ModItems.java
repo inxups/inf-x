@@ -66,7 +66,9 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(ModBlocks.NETHER_GRAVEL);
     public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(ModBlocks.WITHERWOOD);
     public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(ModBlocks.CORE);
+    public static final DeferredItem<BlockItem> SNOW_SLAB = ITEMS.registerSimpleBlockItem(ModBlocks.SNOW_SLAB);
     public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS = List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
+    public static final List<DeferredItem<BlockItem>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
     public static final DeferredItem<BlockItem> EMERALD_ENCHANTING_TABLE =
             ITEMS.registerSimpleBlockItem(ModBlocks.EMERALD_ENCHANTING_TABLE);
     public static final DeferredItem<BlockItem> DIAMOND_ENCHANTING_TABLE =

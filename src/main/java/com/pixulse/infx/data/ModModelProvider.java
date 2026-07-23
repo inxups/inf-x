@@ -44,7 +44,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 final class ModModelProvider extends ModelProvider {
     private static final TextureSlot ANVIL_BODY = TextureSlot.create("body");
@@ -105,7 +107,8 @@ final class ModModelProvider extends ModelProvider {
                         ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
                         ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
                         ModBlocks.R196_FLOWERS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()))
+                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
+                        ModBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
@@ -129,6 +132,7 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
                         ModItems.R196_FLOWERS.stream().map(item -> (Item) item.value()),
                         ModItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
+                        ModItems.MITE_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_RECORDS.stream().map(item -> (Item) item.value()),
                         ModItems.GELATINOUS_SPHERES.stream().map(item -> (Item) item.value()),
@@ -150,6 +154,7 @@ final class ModModelProvider extends ModelProvider {
         ModBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         ModBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
+        generateSnowSlab(blockModels);
         ModBlocks.R196_FLOWERS.forEach(flower -> blockModels.createCrossBlockWithDefaultItem(
                 flower.value(), BlockModelGenerators.PlantType.NOT_TINTED));
         blockModels.createCrossBlockWithDefaultItem(
@@ -272,6 +277,23 @@ final class ModModelProvider extends ModelProvider {
                 .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
                         .select(Direction.Axis.X, BlockModelGenerators.plainVariant(redNs))
                         .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(redEw))));
+    }
+
+    private static void generateSnowSlab(BlockModelGenerators blockModels) {
+        Material snow = new Material(Identifier.withDefaultNamespace("block/snow"));
+        TextureMapping textures = TextureMapping.cube(snow);
+        Identifier bottom = ModelTemplates.SLAB_BOTTOM.createWithSuffix(
+                ModBlocks.SNOW_SLAB.value(), "_bottom", textures, blockModels.modelOutput);
+        Identifier top = ModelTemplates.SLAB_TOP.create(
+                ModBlocks.SNOW_SLAB.value(), textures, blockModels.modelOutput);
+        Identifier full = ModelTemplates.CUBE_ALL.create(
+                ModBlocks.SNOW_SLAB.value(), textures, blockModels.modelOutput);
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(ModBlocks.SNOW_SLAB.value())
+                .with(PropertyDispatch.initial(SlabBlock.TYPE)
+                        .select(SlabType.BOTTOM, BlockModelGenerators.plainVariant(bottom))
+                        .select(SlabType.TOP, BlockModelGenerators.plainVariant(top))
+                        .select(SlabType.DOUBLE, BlockModelGenerators.plainVariant(full))));
+        blockModels.registerSimpleItemModel(ModBlocks.SNOW_SLAB.value(), bottom);
     }
 
     private static void generateR196FoodModels(ItemModelGenerators models) {
