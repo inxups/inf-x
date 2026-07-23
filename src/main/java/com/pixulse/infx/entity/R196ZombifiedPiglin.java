@@ -19,7 +19,8 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
                 .add(Attributes.MAX_HEALTH, 20.0)
                 .add(Attributes.FOLLOW_RANGE, 40.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.50)
-                .add(Attributes.ATTACK_DAMAGE, 8.0);
+                .add(Attributes.ATTACK_DAMAGE, 8.0)
+                .add(Attributes.ARMOR, 0.0);
     }
 
     @Override

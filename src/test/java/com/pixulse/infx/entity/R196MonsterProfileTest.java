@@ -24,6 +24,9 @@ class R196MonsterProfileTest {
         assertStats(R196Zombie.attributes(R196Zombie.Variant.SHADOW), 20.0, 40.0, 0.23, 5.0);
         assertStats(R196Zombie.attributes(R196Zombie.Variant.WIGHT), 20.0, 40.0, 0.25, 5.0);
         assertStats(R196Zombie.attributes(R196Zombie.Variant.REVENANT), 30.0, 40.0, 0.26, 7.0);
+        for (R196Zombie.Variant variant : R196Zombie.Variant.values()) {
+            assertEquals(0.0, stats(R196Zombie.attributes(variant)).getBaseValue(Attributes.ARMOR), EPSILON);
+        }
 
         assertStats(R196Skeleton.attributes(R196Skeleton.Variant.SKELETON), 6.0, 32.0, 0.30, 4.0);
         assertStats(R196Skeleton.attributes(R196Skeleton.Variant.LONGDEAD), 12.0, 40.0, 0.29, 6.0);
@@ -51,9 +54,11 @@ class R196MonsterProfileTest {
         assertStats(R196Enderman.attributes(), 40.0, 32.0, 0.30, 10.0);
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
         assertStats(R196ZombifiedPiglin.attributes(), 20.0, 40.0, 0.50, 8.0);
+        assertEquals(0.0, stats(R196ZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
 
         AttributeSupplier blaze = stats(R196Blaze.attributes());
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
+        assertEquals(0.70, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(6.0, blaze.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
     }
 
@@ -64,6 +69,12 @@ class R196MonsterProfileTest {
         AttributeSupplier squid = stats(R196Squid.attributes());
 
         assertEquals(16.0, slime.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
+        for (R196Slime.Variant variant : R196Slime.Variant.values()) {
+            assertEquals(0.70, stats(R196Slime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
+            for (int size : new int[] {1, 2, 4}) {
+                assertEquals(0.70, R196Slime.movementSpeedForSize(size), EPSILON);
+            }
+        }
         assertEquals(1.0, R196Slime.attackDamageForSize(R196Slime.Variant.SLIME, 1), EPSILON);
         assertEquals(4.0, R196Slime.attackDamageForSize(R196Slime.Variant.JELLY, 2), EPSILON);
         assertEquals(6.0, R196Slime.attackDamageForSize(R196Slime.Variant.BLOB, 2), EPSILON);

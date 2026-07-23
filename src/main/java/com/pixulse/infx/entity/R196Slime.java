@@ -31,6 +31,8 @@ import net.minecraft.world.level.Level;
 
 /** Vanilla slime replacement and the four corrosive R196 gelatinous cubes. */
 public final class R196Slime extends Slime implements R196Mob {
+    private static final double MOVEMENT_SPEED = 0.70;
+
     public enum Variant {
         SLIME(1, R196CorrosionType.PEPSIN, 16.0),
         JELLY(2, R196CorrosionType.PEPSIN, 16.0),
@@ -82,7 +84,9 @@ public final class R196Slime extends Slime implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, variant.followRange());
+        return Monster.createMonsterAttributes()
+                .add(Attributes.FOLLOW_RANGE, variant.followRange())
+                .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED);
     }
 
     static double attackDamageForSize(Variant variant, int size) {
@@ -93,12 +97,20 @@ public final class R196Slime extends Slime implements R196Mob {
         return size * (variant.damageMultiplier() + (variant.corrosionType() == R196CorrosionType.ACID ? 1 : 0));
     }
 
+    static double movementSpeedForSize(int size) {
+        return MOVEMENT_SPEED;
+    }
+
     @Override
     public void setSize(int size, boolean updateHealth) {
         if (variant() == Variant.OOZE) {
             size = Math.min(size, 2);
         }
         super.setSize(size, updateHealth);
+        var movementSpeed = getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed != null) {
+            movementSpeed.setBaseValue(movementSpeedForSize(getSize()));
+        }
         var attackDamage = getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackDamage != null) {
             attackDamage.setBaseValue(attackDamageForSize(variant(), getSize()));

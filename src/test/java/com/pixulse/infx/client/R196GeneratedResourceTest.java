@@ -1332,8 +1332,10 @@ class R196GeneratedResourceTest {
     @Test
     void miteRecipeTableOverridesMatchTheReferenceRecipes() throws Exception {
         Map<String, String> shapedPatterns = Map.ofEntries(
+                Map.entry("sugar_from_sugar_cane", "[\"C\"]"),
                 Map.entry("flour", "[\"WWW\"]"),
                 Map.entry("dough_from_water_bucket", "[\"F F\",\" W \",\"F F\"]"),
+                Map.entry("flint_from_flint_chips", "[\"FF\",\"FF\"]"),
                 Map.entry("pumpkin_pie", "[\"PF\",\"SE\"]"),
                 Map.entry("cake", "[\"FS\",\"EM\"]"),
                 Map.entry("cake_from_milk_bowl", "[\"FS\",\"EM\"]"),
@@ -1359,6 +1361,8 @@ class R196GeneratedResourceTest {
         }
 
         JsonObject dough = json(GENERATED.resolve("data/infx/recipe/dough.json"));
+        JsonObject sugar = json(GENERATED.resolve("data/infx/recipe/sugar_from_sugar_cane.json"));
+        JsonObject flintFromChips = json(GENERATED.resolve("data/infx/recipe/flint_from_flint_chips.json"));
         JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
         JsonObject cakeFromMilkBowl = json(GENERATED.resolve("data/infx/recipe/cake_from_milk_bowl.json"));
         JsonObject mushroomStew = json(GENERATED.resolve("data/infx/recipe/mushroom_stew.json"));
@@ -1370,6 +1374,18 @@ class R196GeneratedResourceTest {
         assertAll(
                 "MITE recipe table",
                 () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
+                () -> assertEquals(800.0F, sugar.get("difficulty").getAsFloat()),
+                () -> assertEquals("hand", sugar.get("required_bench").getAsString()),
+                () -> assertEquals(
+                        "minecraft:sugar_cane", sugar.getAsJsonObject("key").get("C").getAsString()),
+                () -> assertEquals(
+                        "minecraft:sugar", sugar.getAsJsonObject("result").get("id").getAsString()),
+                () -> assertEquals(100.0F, flintFromChips.get("difficulty").getAsFloat()),
+                () -> assertEquals("hand", flintFromChips.get("required_bench").getAsString()),
+                () -> assertEquals(
+                        "infx:flint_chip", flintFromChips.getAsJsonObject("key").get("F").getAsString()),
+                () -> assertEquals(
+                        "minecraft:flint", flintFromChips.getAsJsonObject("result").get("id").getAsString()),
                 () -> assertEquals(
                         "minecraft:milk_bucket",
                         cake.getAsJsonObject("key").get("M").getAsString()),
