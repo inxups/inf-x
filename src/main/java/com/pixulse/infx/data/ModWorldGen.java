@@ -18,6 +18,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.Carvers;
+import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
@@ -779,7 +780,7 @@ final class ModWorldGen {
                         vanilla.defaultBlock(),
                         vanilla.defaultFluid(),
                         withRaisedOverworldFloor(vanilla.noiseRouter()),
-                        vanilla.surfaceRule(),
+                        SurfaceRuleData.overworldLike(context.lookup(Registries.BIOME), true, false, false),
                         vanilla.spawnTarget(),
                         vanilla.seaLevel(),
                         false,

@@ -1175,6 +1175,9 @@ class R196GeneratedResourceTest {
                     settings,
                     () -> assertEquals(-16, shape.get("min_y").getAsInt()),
                     () -> assertEquals(336, shape.get("height").getAsInt()),
+                    () -> assertFalse(
+                            noise.getAsJsonObject("surface_rule").toString().contains("minecraft:bedrock"),
+                            "26.2's default bedrock floor must not be generated"),
                     () -> assertTrue(noise.getAsJsonObject("noise_router")
                             .get("final_density")
                             .toString()
