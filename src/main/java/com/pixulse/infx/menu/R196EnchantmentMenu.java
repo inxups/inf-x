@@ -2,6 +2,7 @@ package com.pixulse.infx.menu;
 
 import com.pixulse.infx.block.R196EnchantingTableBlock;
 import com.pixulse.infx.enchantment.R196EnchantmentRules;
+import com.pixulse.infx.enchantment.R196EnchantmentSelector;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModMenus;
@@ -11,6 +12,7 @@ import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.IdMap;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
@@ -110,12 +112,14 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
             }
             for (int index = 0; index < 3; index++) {
                 if (enchantmentPowers[index] <= 0) continue;
-                List<EnchantmentInstance> choices = accessors().infx$getEnchantmentList(
-                        level.registryAccess(), stack, index, enchantmentPowers[index]);
+                List<EnchantmentInstance> choices = enchantmentChoices(level.registryAccess(), stack, index);
                 if (!choices.isEmpty()) {
                     EnchantmentInstance choice = choices.get(accessors().infx$random().nextInt(choices.size()));
                     enchantClue[index] = holders.getId(choice.enchantment());
                     levelClue[index] = choice.level();
+                } else {
+                    costs[index] = 0;
+                    enchantmentPowers[index] = 0;
                 }
             }
             broadcastChanges();
@@ -126,6 +130,12 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         if (stack.is(Items.BOOK)) return R196EnchantmentRules.BOOK_ENCHANTABILITY;
         Enchantable enchantable = stack.get(DataComponents.ENCHANTABLE);
         return enchantable == null ? 0 : enchantable.value();
+    }
+
+    private List<EnchantmentInstance> enchantmentChoices(RegistryAccess registryAccess, ItemStack stack, int option) {
+        accessors().infx$random().setSeed((long) accessors().infx$enchantmentSeed().get() + option);
+        return R196EnchantmentSelector.select(
+                accessors().infx$random(), registryAccess, stack, enchantmentPowers[option]);
     }
 
     @Override
@@ -143,8 +153,7 @@ public final class R196EnchantmentMenu extends EnchantmentMenu {
         if (experienceCost <= 0 || input.isEmpty()
                 || player.totalExperience < experienceCost && !player.hasInfiniteMaterials()) return false;
         accessors().infx$access().execute((level, pos) -> {
-            List<EnchantmentInstance> selected = accessors().infx$getEnchantmentList(
-                    level.registryAccess(), input, buttonId, enchantmentPowers[buttonId]);
+            List<EnchantmentInstance> selected = enchantmentChoices(level.registryAccess(), input, buttonId);
             if (selected.isEmpty()) return;
             player.onEnchantmentPerformed(input, 0);
             if (!player.hasInfiniteMaterials()) {

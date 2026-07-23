@@ -60,18 +60,13 @@ public abstract class EnchantmentScreenMixin {
                     .lookupOrThrow(Registries.ENCHANTMENT)
                     .get(menu.enchantClue[index]);
             int enchantmentLevel = menu.levelClue[index];
+            if (enchantment.isEmpty() || enchantmentLevel < 1) continue;
             List<Component> tooltip = new ArrayList<>();
             tooltip.add(Component.translatable(
                             "container.enchant.clue",
-                            enchantment.isEmpty()
-                                    ? ""
-                                    : Enchantment.getFullname(enchantment.get(), enchantmentLevel))
+                            Enchantment.getFullname(enchantment.get(), enchantmentLevel))
                     .withStyle(ChatFormatting.WHITE));
-            if (enchantment.isEmpty()) {
-                tooltip.add(CommonComponents.EMPTY);
-                tooltip.add(Component.translatable("neoforge.container.enchant.limitedEnchantability")
-                        .withStyle(ChatFormatting.RED));
-            } else if (!infiniteMaterials) {
+            if (!infiniteMaterials) {
                 tooltip.add(CommonComponents.EMPTY);
                 if (minecraft.player.totalExperience < experienceCost) {
                     tooltip.add(Component.translatable(
