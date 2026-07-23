@@ -3,6 +3,7 @@ package com.pixulse.infx.client;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
+import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.registry.ModRecipes;
@@ -26,10 +27,8 @@ import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EndermanRenderer;
 import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.IronGolemRenderer;
-import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
 import net.minecraft.client.renderer.entity.SilverfishRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
-import net.minecraft.client.renderer.entity.SlimeRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.SquidRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -81,14 +80,24 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntityTypes.R196_CREEPER.get(), CreeperRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.INFERNAL_CREEPER.get(), context -> new R196EntityRenderers.CreeperTint(context, 0xFFA52D20, 1.5F));
 
-        event.registerEntityRenderer(ModEntityTypes.R196_SLIME.get(), SlimeRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.JELLY.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFFB58447));
-        event.registerEntityRenderer(ModEntityTypes.BLOB.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFFC9413B));
-        event.registerEntityRenderer(ModEntityTypes.OOZE.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFF8A9295));
-        event.registerEntityRenderer(ModEntityTypes.PUDDING.get(), context -> new R196EntityRenderers.SlimeTint(context, 0xFF202126));
+        event.registerEntityRenderer(
+                ModEntityTypes.R196_SLIME.get(),
+                context -> new R196EntityRenderers.SlimeTexture(context, R196Slime.Variant.SLIME));
+        event.registerEntityRenderer(
+                ModEntityTypes.JELLY.get(),
+                context -> new R196EntityRenderers.SlimeTexture(context, R196Slime.Variant.JELLY));
+        event.registerEntityRenderer(
+                ModEntityTypes.BLOB.get(),
+                context -> new R196EntityRenderers.SlimeTexture(context, R196Slime.Variant.BLOB));
+        event.registerEntityRenderer(
+                ModEntityTypes.OOZE.get(),
+                context -> new R196EntityRenderers.SlimeTexture(context, R196Slime.Variant.OOZE));
+        event.registerEntityRenderer(
+                ModEntityTypes.PUDDING.get(),
+                context -> new R196EntityRenderers.SlimeTexture(context, R196Slime.Variant.PUDDING));
         event.registerEntityRenderer(
                 ModEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
-        event.registerEntityRenderer(ModEntityTypes.MAGMA_CUBE.get(), MagmaCubeRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.MAGMA_CUBE.get(), R196EntityRenderers.MagmaCubeTexture::new);
         event.registerEntityRenderer(ModEntityTypes.NETHERSPAWN.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFD45A30));
         event.registerEntityRenderer(ModEntityTypes.COPPERSPINE.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFB46A32));
         event.registerEntityRenderer(ModEntityTypes.HOARY_SILVERFISH.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFE7EDF0));
