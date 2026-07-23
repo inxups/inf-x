@@ -1057,9 +1057,23 @@ public final class ModR196CompletionGameTests {
                 .equipment(R196Material.MITHRIL, R196EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
-        menu.getSlot(0).setByPlayer(mithrilTool);
+        menu.getSlot(0).setByPlayer(mithrilTool.copy());
         helper.assertTrue(menu.costs[2] == R196EnchantmentRules.experienceCost(100),
                 "a full diamond table must preserve mithril's 100 enchantability");
+        helper.assertTrue(menu.enchantClue[2] >= 0,
+                "a 100-strength mithril option must have a selectable enchantment");
+        menu.getSlot(1).setByPlayer(new ItemStack(Items.DIAMOND, 3));
+        R196Experience.setTotal(owner, menu.costs[2]);
+        helper.assertTrue(owner.experienceLevel < 100,
+                "10,000 raw XP must not require one hundred displayed levels");
+        helper.assertTrue(menu.clickMenuButton(owner, 2),
+                "a 10,000-XP third option must be enchantable with three diamonds");
+        helper.assertTrue(owner.totalExperience == 0,
+                "the 10,000-XP option must deduct its exact raw experience cost");
+        helper.assertTrue(menu.getSlot(0).getItem().isEnchanted(),
+                "the 10,000-XP option must apply an enchantment");
+        helper.assertTrue(menu.getSlot(1).getItem().isEmpty(),
+                "the 10,000-XP option must consume its three diamonds");
 
         menu.getSlot(0).setByPlayer(Items.BOOK.getDefaultInstance());
         helper.assertTrue(menu.costs[2] == R196EnchantmentRules.experienceCost(53),
