@@ -12,7 +12,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Surface rules cannot express MITE's seeded per-column boundary thickness. */
+/**
+ * Surface rules cannot express MITE's seeded per-column boundary thickness.
+ *
+ * <p>This tail pass writes the four Underworld strata before the later cave and canyon carving step.</p>
+ */
 @Mixin(NoiseBasedChunkGenerator.class)
 abstract class NoiseBasedChunkGeneratorMixin {
     @Inject(

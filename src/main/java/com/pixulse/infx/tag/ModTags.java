@@ -20,6 +20,8 @@ public final class ModTags {
         public static final TagKey<Block> METAL_SHOVEL_EFFECTIVE = create("effective_tool/metal_shovel");
         public static final TagKey<Block> WAR_HAMMER_EFFECTIVE = create("effective_tool/war_hammer");
         public static final TagKey<Block> AXE_HALF_SPEED = create("effective_tool/axe_half_speed");
+        public static final TagKey<Block> UNDERWORLD_CARVER_REPLACEABLES =
+                create("underworld_carver_replaceables");
 
         private Blocks() {}
 
