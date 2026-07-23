@@ -29,6 +29,7 @@ import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Items;
@@ -46,7 +47,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Runtime coverage for roster construction and vanilla natural-spawn replacement. */
 public final class ModMonsterGameTests {
+    private static final float DAMAGE_EPSILON = 0.001F;
     private static final String ROSTER = "r196_monster_roster";
+    private static final String ATTRIBUTES = "r196_monster_attributes";
     private static final String REPLACEMENT = "r196_monster_replacement";
     private static final String BEHAVIORS = "r196_monster_behaviors";
     private static final String TACTICS = "r196_monster_tactics";
@@ -56,6 +59,7 @@ public final class ModMonsterGameTests {
 
     static {
         FUNCTIONS.register(ROSTER, () -> ModMonsterGameTests::roster);
+        FUNCTIONS.register(ATTRIBUTES, () -> ModMonsterGameTests::attributes);
         FUNCTIONS.register(REPLACEMENT, () -> ModMonsterGameTests::replacement);
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
@@ -72,7 +76,7 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, REPLACEMENT, BEHAVIORS, TACTICS, SPAWNS)) {
+        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, TACTICS, SPAWNS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -130,6 +134,90 @@ public final class ModMonsterGameTests {
                 ModEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
                         && ModEntityTypes.DIRE_WOLF.get().isAllowedInPeaceful(),
                 "dire wolves must use animal spawning rather than the hostile cap");
+        helper.succeed();
+    }
+
+    private static void attributes(GameTestHelper helper) {
+        int zombieX = 1;
+        for (var type : List.of(
+                ModEntityTypes.R196_ZOMBIE,
+                ModEntityTypes.INVISIBLE_STALKER,
+                ModEntityTypes.GHOUL,
+                ModEntityTypes.SHADOW,
+                ModEntityTypes.WIGHT,
+                ModEntityTypes.REVENANT)) {
+            var zombie = helper.spawnWithNoFreeWill(type.get(), new BlockPos(zombieX++, 2, 1));
+            helper.assertTrue(
+                    zombie.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
+                    type.getId() + " must not inherit modern zombie armor");
+        }
+        var piglin = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(8, 2, 1));
+        helper.assertTrue(
+                piglin.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
+                "R196 zombified piglins must not inherit modern zombie armor");
+        var blaze = helper.spawnWithNoFreeWill(ModEntityTypes.R196_BLAZE.get(), new BlockPos(9, 2, 1));
+        helper.assertTrue(
+                blaze.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.70D,
+                "R196 blazes must retain MITE's 0.70 movement speed");
+
+        int slimeX = 1;
+        for (var type : List.of(
+                ModEntityTypes.R196_SLIME,
+                ModEntityTypes.JELLY,
+                ModEntityTypes.BLOB,
+                ModEntityTypes.OOZE,
+                ModEntityTypes.PUDDING)) {
+            var slime = helper.spawnWithNoFreeWill(type.get(), new BlockPos(slimeX++, 2, 4));
+            for (int size : List.of(1, 2, 4)) {
+                slime.setSize(size, true);
+                helper.assertTrue(
+                        slime.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.70D,
+                        type.getId() + " must retain 0.70 movement speed after size " + slime.getSize());
+            }
+        }
+        var magmaCube = helper.spawnWithNoFreeWill(ModEntityTypes.MAGMA_CUBE.get(), new BlockPos(7, 2, 4));
+        for (int size : List.of(1, 4)) {
+            magmaCube.setSize(size, true);
+            helper.assertTrue(
+                    magmaCube.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.20D,
+                    "R196 magma cubes must retain 0.20 movement speed after size " + size);
+            helper.assertTrue(
+                    magmaCube.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == size * 2.0D,
+                    "R196 magma cubes must retain two damage per size");
+            helper.assertTrue(
+                    magmaCube.getAttributeBaseValue(Attributes.ARMOR) == size * 2.0D,
+                    "R196 magma cubes must retain two defense per size");
+        }
+
+        var level = helper.getLevel();
+        ItemEntity magicOwner = new ItemEntity(level, 0.0, 0.0, 0.0, Items.SNOWBALL.getDefaultInstance());
+        Snowball magicProjectile = new Snowball(level, 0.0, 0.0, 0.0, Items.SNOWBALL.getDefaultInstance());
+        var directMagic = helper.spawnWithNoFreeWill(ModEntityTypes.R196_WITCH.get(), new BlockPos(1, 2, 8));
+        float before = directMagic.getHealth();
+        helper.assertTrue(
+                directMagic.hurtServer(level, level.damageSources().magic(), 20.0F),
+                "direct magic must damage the R196 witch");
+        helper.assertTrue(
+                Math.abs(directMagic.getHealth() - (before - 20.0F)) < DAMAGE_EPSILON,
+                "direct magic must not receive the R196 witch's indirect-magic defense");
+
+        var indirectNonMagic = helper.spawnWithNoFreeWill(ModEntityTypes.R196_WITCH.get(), new BlockPos(4, 2, 8));
+        before = indirectNonMagic.getHealth();
+        helper.assertTrue(
+                indirectNonMagic.hurtServer(level, level.damageSources().thrown(magicProjectile, magicOwner), 20.0F),
+                "indirect non-magic damage must damage the R196 witch");
+        helper.assertTrue(
+                Math.abs(indirectNonMagic.getHealth() - (before - 20.0F)) < DAMAGE_EPSILON,
+                "indirect non-magic damage must not receive the R196 witch's defense");
+
+        var indirectMagic = helper.spawnWithNoFreeWill(ModEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 8));
+        before = indirectMagic.getHealth();
+        helper.assertTrue(
+                indirectMagic.hurtServer(level, level.damageSources().indirectMagic(magicProjectile, magicOwner), 20.0F),
+                "indirect magic must damage the R196 witch");
+        helper.assertTrue(
+                Math.abs(indirectMagic.getHealth() - (before - 10.0F)) < DAMAGE_EPSILON,
+                "indirect magic must receive exactly ten points of R196 witch defense");
         helper.succeed();
     }
 

@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -45,6 +46,7 @@ import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.EnderManAngerEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
@@ -69,6 +71,7 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::limitCreeperTerrainDamage);
         gameBus.addListener(R196MonsterEvents::attractToPlayerActivity);
         gameBus.addListener(R196MonsterEvents::coordinateAndSeekLight);
+        gameBus.addListener(R196MonsterEvents::applyWitchMagicDefense);
         gameBus.addListener(R196MonsterEvents::limitSpawnerPopulation);
         gameBus.addListener(R196MonsterEvents::preventObservedDespawn);
     }
@@ -648,6 +651,18 @@ public final class R196MonsterEvents {
         if (event.getEntity() instanceof R196Enderman && event.getPlayer().isShiftKeyDown()) {
             event.setCanceled(true);
         }
+    }
+
+    private static void applyWitchMagicDefense(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof R196Witch witch)
+                || event.getSource().getEntity() == witch
+                || !event.getSource().is(DamageTypeTags.WITCH_RESISTANT_TO)) {
+            return;
+        }
+        event.addReductionModifier(
+                net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.INNATE_RESISTANCE,
+                (container, vanillaReduction) -> R196Witch.magicDefenseReduction(
+                        event.getSource(), container.getNewDamage()));
     }
 
     private static void shareTarget(LivingChangeTargetEvent event) {

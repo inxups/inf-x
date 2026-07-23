@@ -22,6 +22,7 @@ public final class R196Blaze extends Blaze implements R196Mob {
     public static AttributeSupplier.Builder attributes() {
         return Blaze.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.MOVEMENT_SPEED, 0.70)
                 .add(Attributes.ATTACK_DAMAGE, 6.0);
     }
 
