@@ -358,8 +358,6 @@ public final class ModMonsterGameTests {
                 "snowballs must hurt the R196 blaze");
         helper.assertTrue(blaze.getHealth() == before - 3.0F, "snowballs must deal three damage to the R196 blaze");
 
-        // Near-blaze combat often ignites the attacker. MITE only gates on the weapon's fire
-        // aspect / flame, never the attacker's on-fire state.
         var player = ModR196CompletionGameTests.createPlayer(helper);
         before = blaze.getHealth();
         player.setItemInHand(
@@ -370,24 +368,60 @@ public final class ModMonsterGameTests {
                 "burning players still cannot hurt blazes with unenchanted weapons");
         helper.assertTrue(blaze.getHealth() == before, "burning unenchanted hits must not change blaze health");
 
-        var sharpSword = Items.IRON_SWORD.getDefaultInstance();
+        var enchantedSword = Items.IRON_SWORD.getDefaultInstance();
         var registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        sharpSword.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.UNBREAKING), 1);
-        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, sharpSword);
+        enchantedSword.enchant(
+                registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.UNBREAKING), 1);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, enchantedSword);
         player.igniteForSeconds(8.0F);
         helper.assertTrue(
                 blaze.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
                 "burning players must still hurt blazes with non-fire enchanted weapons");
-        helper.assertTrue(blaze.getHealth() == before - 4.0F, "non-fire enchanted hits must deal damage while burning");
-
-        before = blaze.getHealth();
-        var flameSword = Items.IRON_SWORD.getDefaultInstance();
-        flameSword.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FIRE_ASPECT), 1);
-        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, flameSword);
         helper.assertTrue(
-                !blaze.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
-                "fire-aspect weapons must not hurt the R196 blaze");
-        helper.assertTrue(blaze.getHealth() == before, "fire-aspect hits must not change blaze health");
+                blaze.getHealth() == before - 4.0F,
+                "non-fire enchanted hits must deal damage while the attacker is burning");
+
+        var magma = helper.spawnWithNoFreeWill(ModEntityTypes.MAGMA_CUBE.get(), new BlockPos(4, 2, 1));
+        before = magma.getHealth();
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
+        helper.assertTrue(
+                !magma.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "swords must not hurt the R196 magma cube");
+        helper.assertTrue(magma.getHealth() == before, "sword hits must not change magma cube health");
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND, ModItems.IRON_PICKAXE.toStack());
+        helper.assertTrue(
+                magma.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "pickaxes must hurt the R196 magma cube");
+        helper.assertTrue(magma.getHealth() == before - 4.0F, "pickaxe hits must deal magma cube damage");
+
+        before = magma.getHealth();
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND,
+                ModItems.catalog()
+                        .equipment(R196Material.IRON, R196EquipmentType.WAR_HAMMER)
+                        .holder()
+                        .toStack());
+        helper.assertTrue(
+                magma.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "war hammers must hurt the R196 magma cube");
+        helper.assertTrue(magma.getHealth() == before - 4.0F, "war hammer hits must deal magma cube damage");
+
+        var earth = helper.spawnWithNoFreeWill(ModEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(5, 2, 1));
+        before = earth.getHealth();
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
+        helper.assertTrue(
+                !earth.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "swords must not hurt the earth elemental");
+        helper.assertTrue(earth.getHealth() == before, "sword hits must not change earth elemental health");
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND, ModItems.IRON_PICKAXE.toStack());
+        helper.assertTrue(
+                earth.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "pickaxes must hurt the earth elemental");
+        helper.assertTrue(earth.getHealth() == before - 4.0F, "pickaxe hits must deal earth elemental damage");
         ModR196CompletionGameTests.removePlayer(player);
 
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
