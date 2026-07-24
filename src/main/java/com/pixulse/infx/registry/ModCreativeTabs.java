@@ -30,6 +30,7 @@ public final class ModCreativeTabs {
     private static final Identifier INGREDIENTS_ID = InfiniteX.id("ingredients");
     private static final Identifier FOOD_AND_CONSUMABLES_ID = InfiniteX.id("food_and_consumables");
     private static final Identifier TOOLS_AND_UTILITIES_ID = InfiniteX.id("tools_and_utilities");
+    private static final Identifier COMBAT_AND_EQUIPMENT_ID = InfiniteX.id("combat_and_equipment");
     private static final Map<Category, List<DeferredItem<? extends Item>>> ITEMS_BY_CATEGORY =
             createCategorizedItems();
 
@@ -72,12 +73,22 @@ public final class ModCreativeTabs {
                             .withTabsBefore(TOOLS_AND_UTILITIES_ID)
                             .build());
 
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> SPAWN_EGGS =
+            TABS.register("spawn_eggs", () ->
+                    tab(
+                                    "itemGroup.infx.spawn_eggs",
+                                    () -> ModItems.SPAWN_EGGS.getFirst().toStack(),
+                                    Category.SPAWN_EGGS)
+                            .withTabsBefore(COMBAT_AND_EQUIPMENT_ID)
+                            .build());
+
     enum Category {
         BLOCKS,
         INGREDIENTS,
         FOOD_AND_CONSUMABLES,
         TOOLS_AND_UTILITIES,
-        COMBAT_AND_EQUIPMENT
+        COMBAT_AND_EQUIPMENT,
+        SPAWN_EGGS
     }
 
     private ModCreativeTabs() {}
@@ -146,6 +157,7 @@ public final class ModCreativeTabs {
                                 .map(ModCreativeTabs::holder)
                                 .toList(),
                         ModItems.GELATINOUS_SPHERES));
+        categories.put(Category.SPAWN_EGGS, List.copyOf(ModItems.SPAWN_EGGS));
         return Collections.unmodifiableMap(categories);
     }
 

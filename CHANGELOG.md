@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-24
 
+### R196 刷怪蛋
+
+- 为全部 40 个 R196 可刷怪生物注册 26.2 风格 `SpawnEggItem`（`Item.Properties#spawnEgg`），排除粘液球弹射物。
+- 刷怪蛋贴图以已授权 MITE `spawn_egg` / `spawn_egg_overlay` 为底板，按实体配色合成完整 16×16 图标；模型、双语名称与 `InfiniteX: Spawn Eggs` 创造页签由数据生成维护，来源清单记录 SHA-256。
+
 ### 游玩向实现修复
 
 - 蛋糕方块进食现在写入 R196 双层能量与营养表，不再只改原版 FoodData 后被 mirror 抹掉。
