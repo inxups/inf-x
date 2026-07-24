@@ -1,12 +1,9 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.block.R196SafeBlock;
 import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
 import com.pixulse.infx.entity.R196Slime;
-import com.pixulse.infx.registry.ModBlockEntityTypes;
-import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.registry.ModRecipes;
@@ -15,16 +12,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.minecraft.client.renderer.block.BuiltInBlockModels;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.BarrelBlock;
-import net.minecraft.world.level.block.state.properties.ChestType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
-import net.neoforged.neoforge.client.event.RegisterBlockModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.minecraft.client.model.animal.squid.SquidModel;
@@ -64,31 +56,8 @@ public final class ClientEvents {
         event.register(ModMenus.DIAMOND_ENCHANTING.get(), EnchantmentScreen::new);
     }
 
-    /**
-     * Inventory / held / display contexts use the 26.2 chest special model.
-     * Placed safes are rendered by {@link R196SafeRenderer} (block entity), matching vanilla chests.
-     */
-    @SubscribeEvent
-    private static void registerSafeBlockModels(RegisterBlockModelsEvent event) {
-        for (var holder : ModBlocks.METAL_SAFES) {
-            R196SafeBlock safe = holder.get();
-            var texture = InfiniteX.id(safe.material().path());
-            event.register(
-                    (BuiltInBlockModels.SpecialModelFactory)
-                            state -> {
-                                Direction facing = state.getValue(BarrelBlock.FACING);
-                                if (!facing.getAxis().isHorizontal()) {
-                                    facing = Direction.NORTH;
-                                }
-                                return BuiltInBlockModels.createChest(texture, ChestType.SINGLE, facing);
-                            },
-                    safe);
-        }
-    }
-
     @SubscribeEvent
     private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ZOMBIE.get(), ZombieRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF303846));
         event.registerEntityRenderer(ModEntityTypes.GHOUL.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF819064));
