@@ -1,7 +1,6 @@
 package com.pixulse.infx.entity;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -12,7 +11,10 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-/** Slow, heavily armoured earth elemental with R196's high melee damage. */
+/**
+ * Slow, heavily armoured earth elemental. Players must use a stone-mining tool
+ * (pickaxe / war hammer); explosions always land.
+ */
 public final class R196EarthElemental extends IronGolem implements Enemy, R196Mob {
     public R196EarthElemental(EntityType<? extends IronGolem> type, Level level) {
         super(type, level);
@@ -37,7 +39,7 @@ public final class R196EarthElemental extends IronGolem implements Enemy, R196Mo
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
-        if (source.getEntity() instanceof Player player && !player.getMainHandItem().is(ItemTags.PICKAXES)) {
+        if (!R196MobDamageRules.earthElementalAccepts(source)) {
             return false;
         }
         return super.hurtServer(level, source, damage);
