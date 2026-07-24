@@ -3,18 +3,25 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Blaze;
+import com.pixulse.infx.entity.R196Chicken;
+import com.pixulse.infx.entity.R196Cow;
 import com.pixulse.infx.entity.R196Creeper;
 import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196FireElemental;
 import com.pixulse.infx.entity.R196GelatinousSphere;
 import com.pixulse.infx.entity.R196Ghast;
+import com.pixulse.infx.entity.R196Horse;
 import com.pixulse.infx.entity.R196MagmaCube;
+import com.pixulse.infx.entity.R196Ocelot;
+import com.pixulse.infx.entity.R196Pig;
+import com.pixulse.infx.entity.R196Sheep;
 import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.entity.R196Skeleton;
 import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.entity.R196Spider;
 import com.pixulse.infx.entity.R196Squid;
+import com.pixulse.infx.entity.R196VanillaWolf;
 import com.pixulse.infx.entity.R196Witch;
 import com.pixulse.infx.entity.R196Wolf;
 import com.pixulse.infx.entity.R196Zombie;
@@ -57,6 +64,21 @@ public final class ModEntityTypes {
             "r196_blaze", "Blaze", "烈焰人", R196Blaze::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Ghast>> R196_GHAST = register(
             "r196_ghast", "Ghast", "恶魂", R196Ghast::new, 4.0F, 4.0F, true);
+
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Cow>> R196_COW = register(
+            "r196_cow", "Cow", "牛", R196Cow::new, MobCategory.CREATURE, 0.9F, 1.4F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Chicken>> R196_CHICKEN = register(
+            "r196_chicken", "Chicken", "鸡", R196Chicken::new, MobCategory.CREATURE, 0.4F, 0.7F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Sheep>> R196_SHEEP = register(
+            "r196_sheep", "Sheep", "羊", R196Sheep::new, MobCategory.CREATURE, 0.9F, 1.3F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Pig>> R196_PIG = register(
+            "r196_pig", "Pig", "猪", R196Pig::new, MobCategory.CREATURE, 0.9F, 0.9F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Horse>> R196_HORSE = register(
+            "r196_horse", "Horse", "马", R196Horse::new, MobCategory.CREATURE, 1.3964844F, 1.6F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Ocelot>> R196_OCELOT = register(
+            "r196_ocelot", "Ocelot", "豹猫", R196Ocelot::new, MobCategory.CREATURE, 0.6F, 0.7F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196VanillaWolf>> R196_WOLF = register(
+            "r196_wolf", "Wolf", "狼", R196VanillaWolf::new, MobCategory.CREATURE, 0.6F, 0.85F, false, true);
 
     public static final DeferredHolder<EntityType<?>, EntityType<R196Zombie>> INVISIBLE_STALKER = register(
             "invisible_stalker", "Invisible Stalker", "影子潜伏者", R196Zombie::new, 0.6F, 1.8F, false);
@@ -172,7 +194,14 @@ public final class ModEntityTypes {
             R196_ZOMBIFIED_PIGLIN,
             R196_BLAZE,
             R196_GHAST,
-            MAGMA_CUBE);
+            MAGMA_CUBE,
+            R196_COW,
+            R196_CHICKEN,
+            R196_SHEEP,
+            R196_PIG,
+            R196_HORSE,
+            R196_OCELOT,
+            R196_WOLF);
 
     public static final List<DeferredHolder<EntityType<?>, ? extends EntityType<?>>> ALL = java.util.stream.Stream
             .concat(REPLACEMENT_ENTITIES.stream(), NEW_MONSTERS.stream())

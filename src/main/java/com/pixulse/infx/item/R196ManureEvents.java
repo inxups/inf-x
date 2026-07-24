@@ -7,6 +7,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.cow.AbstractCow;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -25,7 +29,7 @@ public final class R196ManureEvents {
         if (!(entity instanceof Animal animal) || !(entity.level() instanceof ServerLevel level)) {
             return;
         }
-        int interval = interval(animal.getType());
+        int interval = interval(animal);
         if (interval <= 0) {
             return;
         }
@@ -40,6 +44,21 @@ public final class R196ManureEvents {
         }
     }
 
+    /** Prefer class checks so R196 replacements (subclasses) share MITE manure periods. */
+    static int interval(Entity entity) {
+        if (entity instanceof AbstractCow) {
+            return 24_000;
+        }
+        if (entity instanceof Pig || entity instanceof Sheep) {
+            return 48_000;
+        }
+        if (entity instanceof Chicken) {
+            return 384_000;
+        }
+        return 0;
+    }
+
+    /** Test helper matching vanilla entity types used by unit tests. */
     static int interval(EntityType<?> type) {
         if (type == EntityTypes.COW || type == EntityTypes.MOOSHROOM) {
             return 24_000;

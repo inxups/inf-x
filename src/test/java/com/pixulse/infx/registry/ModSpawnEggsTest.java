@@ -18,8 +18,8 @@ class ModSpawnEggsTest {
                 .map(item -> item.getId().getPath())
                 .collect(Collectors.toSet());
 
-        assertEquals(40, entityPaths.size());
-        assertEquals(40, eggPaths.size());
+        assertEquals(47, entityPaths.size());
+        assertEquals(47, eggPaths.size());
         for (String path : entityPaths) {
             assertTrue(eggPaths.contains(path + "_spawn_egg"), path);
         }

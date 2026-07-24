@@ -265,11 +265,11 @@ public final class ModMonsterGameTests {
         MobSpawnSettings plains = biomes.getOrThrow(Biomes.PLAINS).value().getMobSettings();
         helper.assertTrue(
                 Set.copyOf(spawnTypes(plains, MobCategory.CREATURE)).equals(Set.of(
-                        EntityTypes.SHEEP,
-                        EntityTypes.PIG,
-                        EntityTypes.CHICKEN,
-                        EntityTypes.COW,
-                        EntityTypes.HORSE)),
+                        ModEntityTypes.R196_SHEEP.get(),
+                        ModEntityTypes.R196_PIG.get(),
+                        ModEntityTypes.R196_CHICKEN.get(),
+                        ModEntityTypes.R196_COW.get(),
+                        ModEntityTypes.R196_HORSE.get())),
                 "plains must use only the R196 livestock and horse table");
         helper.assertTrue(
                 !spawnTypes(plains, MobCategory.MONSTER).contains(EntityTypes.DROWNED)
@@ -294,7 +294,10 @@ public final class ModMonsterGameTests {
                 spawnTypes(jungle, MobCategory.MONSTER).contains(ModEntityTypes.BLACK_WIDOW_SPIDER.get()),
                 "jungle biomes must include black widow spiders");
         helper.assertTrue(
-                spawnTypes(jungle, MobCategory.CREATURE).stream().filter(type -> type == EntityTypes.CHICKEN).count() == 2,
+                spawnTypes(jungle, MobCategory.CREATURE).stream()
+                                .filter(type -> type == ModEntityTypes.R196_CHICKEN.get())
+                                .count()
+                        == 2,
                 "jungle biomes must retain the additional R196 chicken entry");
 
         MobSpawnSettings jungleRiver = biomes.getOrThrow(R196RiverBiomes.JUNGLE_RIVER).value().getMobSettings();

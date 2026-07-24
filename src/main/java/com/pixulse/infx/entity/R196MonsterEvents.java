@@ -124,6 +124,14 @@ public final class R196MonsterEvents {
         event.put(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), R196ZombifiedPiglin.attributes().build());
         event.put(ModEntityTypes.R196_BLAZE.get(), R196Blaze.attributes().build());
         event.put(ModEntityTypes.R196_GHAST.get(), R196Ghast.attributes().build());
+
+        event.put(ModEntityTypes.R196_COW.get(), R196Cow.attributes().build());
+        event.put(ModEntityTypes.R196_CHICKEN.get(), R196Chicken.attributes().build());
+        event.put(ModEntityTypes.R196_SHEEP.get(), R196Sheep.attributes().build());
+        event.put(ModEntityTypes.R196_PIG.get(), R196Pig.attributes().build());
+        event.put(ModEntityTypes.R196_HORSE.get(), R196Horse.attributes().build());
+        event.put(ModEntityTypes.R196_OCELOT.get(), R196Ocelot.attributes().build());
+        event.put(ModEntityTypes.R196_WOLF.get(), R196VanillaWolf.attributes().build());
     }
 
     private static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
@@ -634,6 +642,13 @@ public final class R196MonsterEvents {
         if (original == EntityTypes.BLAZE) return ModEntityTypes.R196_BLAZE.get();
         if (original == EntityTypes.GHAST) return ModEntityTypes.R196_GHAST.get();
         if (original == EntityTypes.MAGMA_CUBE) return ModEntityTypes.MAGMA_CUBE.get();
+        if (original == EntityTypes.COW) return ModEntityTypes.R196_COW.get();
+        if (original == EntityTypes.CHICKEN) return ModEntityTypes.R196_CHICKEN.get();
+        if (original == EntityTypes.SHEEP) return ModEntityTypes.R196_SHEEP.get();
+        if (original == EntityTypes.PIG) return ModEntityTypes.R196_PIG.get();
+        if (original == EntityTypes.HORSE) return ModEntityTypes.R196_HORSE.get();
+        if (original == EntityTypes.OCELOT) return ModEntityTypes.R196_OCELOT.get();
+        if (original == EntityTypes.WOLF) return ModEntityTypes.R196_WOLF.get();
         return null;
     }
 
