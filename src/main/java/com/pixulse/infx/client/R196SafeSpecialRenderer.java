@@ -11,12 +11,9 @@ import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Vector3fc;
 
 /** Inventory/item display for metal safes using the non-overlapping safe model. */
-@OnlyIn(Dist.CLIENT)
 public final class R196SafeSpecialRenderer implements NoDataSpecialModelRenderer {
     public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(
             i -> i.group(Identifier.CODEC.fieldOf("texture").forGetter(Unbaked::texture))
