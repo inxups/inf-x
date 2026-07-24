@@ -67,6 +67,16 @@ class R196SurvivalRulesTest {
     }
 
     @Test
+    void emptyFoodProfileIsZeroed() {
+        assertEquals(0.0D, R196FoodProfile.EMPTY.satiation());
+        assertEquals(0.0D, R196FoodProfile.EMPTY.nutrition());
+        assertEquals(0, R196FoodProfile.EMPTY.protein());
+        assertEquals(0, R196FoodProfile.EMPTY.phytonutrients());
+        assertEquals(0, R196FoodProfile.EMPTY.essentialFats());
+        assertEquals(0, R196FoodProfile.EMPTY.sugar());
+    }
+
+    @Test
     void baselineAndStatusCostsMatchR196FoodUnits() {
         assertEquals(0.0005D, R196SurvivalRules.baselineMetabolism(false, false, false), 1.0E-9D);
         assertEquals(0.001D, R196SurvivalRules.baselineMetabolism(true, true, true), 1.0E-9D);

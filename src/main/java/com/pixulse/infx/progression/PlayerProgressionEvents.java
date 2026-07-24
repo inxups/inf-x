@@ -3,6 +3,7 @@ package com.pixulse.infx.progression;
 import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.R196Catalog;
+import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
@@ -143,7 +144,7 @@ public final class PlayerProgressionEvents {
 
     public static boolean isWeakStrike(Player player) {
         if (player.getHealth() < 2.0F
-                || player.getFoodData().getFoodLevel() <= 0
+                || !player.getData(ModAttachments.SURVIVAL).hasFoodEnergy()
                 || HarvestSpeedRules.isParalyzed(player)
                 || HarvestSpeedRules.isInCobweb(player)) {
             return true;

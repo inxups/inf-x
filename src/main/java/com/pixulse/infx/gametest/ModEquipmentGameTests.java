@@ -496,6 +496,9 @@ public final class ModEquipmentGameTests {
                 .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
                 .size();
         helper.assertTrue(itemsAfter == itemsBefore + 1, "recovered entity hit drops exactly one material arrow");
+        helper.assertTrue(
+                entityArrow.pickup == AbstractArrow.Pickup.DISALLOWED,
+                "recovered entity hit must not leave the projectile pickable");
         entityArrow.getRandom().setSeed(recoveringSeed + 1L);
         R196EquipmentBehaviors.resolveArrowRecovery(entityArrow, new EntityHitResult(target));
         int repeatedItems = helper.getLevel()

@@ -99,6 +99,8 @@ public final class R196EquipmentBehaviors {
         boolean recovered = arrow.getRandom().nextFloat()
                 < recoveryChance(arrowItem.key().material(), enchantment);
         if (recovered) {
+            // Drop the material arrow once; the projectile itself must not remain pickable.
+            arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
             arrow.spawnAtLocation(level, arrow.getPickupItemStackOrigin().copyWithCount(1));
         }
     }

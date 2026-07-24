@@ -1,17 +1,18 @@
 package com.pixulse.infx.harvest;
 
+import com.pixulse.infx.enchantment.R196EnchantmentRules;
+import com.pixulse.infx.enchantment.R196Enchantments;
 import com.pixulse.infx.progression.R196Experience;
+import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.ModEnchantments;
+import com.pixulse.infx.registry.ModMobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
-import com.pixulse.infx.enchantment.R196Enchantments;
-import com.pixulse.infx.enchantment.R196EnchantmentRules;
-import com.pixulse.infx.registry.ModEnchantments;
-import com.pixulse.infx.registry.ModMobEffects;
 
 /** R196 block strength, environmental multipliers and 512-unit mining progress. */
 public final class HarvestSpeedRules {
@@ -47,7 +48,7 @@ public final class HarvestSpeedRules {
                             player.experienceLevel,
                             false,
                             false,
-                            player.getFoodData().getFoodLevel() <= 0,
+                            !player.getData(ModAttachments.SURVIVAL).hasFoodEnergy(),
                             paralyzed,
                             inCobweb);
             strength = applyFreeMovementResistance(player, strength, paralyzed, inCobweb);
@@ -115,7 +116,7 @@ public final class HarvestSpeedRules {
             result *= (float) player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
         }
         if (!player.onGround()) result *= 0.2F;
-        if (player.getFoodData().getFoodLevel() <= 0) result *= 0.2F;
+        if (!player.getData(ModAttachments.SURVIVAL).hasFoodEnergy()) result *= 0.2F;
         boolean paralyzed = isParalyzed(player);
         boolean inCobweb = isInCobweb(player);
         if (paralyzed) result *= 0.1F;

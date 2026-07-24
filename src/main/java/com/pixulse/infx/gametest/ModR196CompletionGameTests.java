@@ -471,6 +471,13 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(
                 helper.getLevel().getBlockState(ineligibleOrigin).is(ModBlocks.UNDERWORLD_PORTAL.get()),
                 "ineligible portal interior is not converted");
+        helper.assertTrue(
+                helper.getLevel().getBlockState(ineligibleOrigin).isAir(),
+                "failed Underworld conversion must clear temporary portal faces");
+        ineligibleShape.createPortalBlocks(helper.getLevel());
+        helper.assertTrue(
+                helper.getLevel().getBlockState(ineligibleOrigin).is(Blocks.NETHER_PORTAL),
+                "legacy faces can be recreated for migration coverage");
         BlockPos migratedReturnArrival = ModBlocks.RETURN_SPAWN_PORTAL.get()
                 .findOrCreateArrivalPortal(helper.getLevel(), ineligibleOrigin);
         helper.assertTrue(
