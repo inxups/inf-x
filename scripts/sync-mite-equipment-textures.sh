@@ -68,10 +68,9 @@ for material in copper silver gold iron ancient_metal mithril adamantium; do
   done
 done
 
-# MITE stores each metal safe as a chest texture sheet.  The block model maps
-# the sheet's original 64x64 UV layout, so retain the complete source image.
+# MITE metal safes use the same 64x64 chest entity sheets as vanilla chest BER.
 for material in copper silver gold iron ancient_metal mithril adamantium; do
-  sync resource-pack "entity/chest/${material}_single.png" "block/safe/${material}.png"
+  sync resource-pack "entity/chest/${material}_single.png" "entity/chest/${material}.png"
 done
 
 for material in copper silver gold rusted_iron iron ancient_metal mithril adamantium; do
