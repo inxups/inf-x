@@ -1,5 +1,6 @@
 package com.pixulse.infx.crafting;
 
+import com.pixulse.infx.progression.R196Experience;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -35,7 +36,6 @@ public final class MiteCraftingRules {
     private static final float BLOCK_DIFFICULTY_SCALE = 100.0F;
     private static final float DEFAULT_BLOCK_DIFFICULTY = 25.0F;
     private static final float UNBREAKABLE_BLOCK_DIFFICULTY = 25_600.0F;
-    private static final double LEVEL_BONUS_PER_LEVEL = 0.02D;
 
     private MiteCraftingRules() {}
 
@@ -135,9 +135,10 @@ public final class MiteCraftingRules {
         return new CraftingProfile(required, representativeDifficulty(recipe), materialGated);
     }
 
-    /** R196's per-level crafting reduction: +2% per displayed level. */
+    /** R196's per-level crafting reduction: +2% per displayed level (negative debt slows craft). */
     public static double levelModifier(int level) {
-        return level * LEVEL_BONUS_PER_LEVEL;
+        int capped = Math.clamp(level, -R196Experience.MAX_DEBT_LEVEL, R196Experience.MAX_DISPLAY_LEVEL);
+        return capped * 0.02D;
     }
 
     /**

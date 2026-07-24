@@ -68,8 +68,10 @@ public final class R196Commands {
                 "Server view distance: " + player(context).level().getServer().getPlayerList().getViewDistance() + " chunks")));
         dispatcher.register(Commands.literal("skills").executes(context -> {
             int level = player(context).experienceLevel;
-            return reply(context, "Mining +" + level * 2 + "%; crafting +" + level * 2
-                    + "%; melee +" + format(level * .5F) + "%");
+            float harvest = R196Experience.harvestOrCraftLevelBonus(level) * 100.0F;
+            float melee = R196Experience.meleeLevelBonus(level) * 100.0F;
+            return reply(context, "Mining " + signedPercent(harvest) + "; crafting "
+                    + signedPercent(harvest) + "; melee " + signedPercent(melee));
         }));
         dispatcher.register(Commands.literal("stats").executes(context -> {
             ServerPlayer player = player(context);
@@ -122,6 +124,10 @@ public final class R196Commands {
 
     private static String format(float value) {
         return String.format(java.util.Locale.ROOT, "%.1f", value);
+    }
+
+    private static String signedPercent(float value) {
+        return String.format(java.util.Locale.ROOT, "%+.1f%%", value);
     }
 
     private static int personalRecords(CommandContext<CommandSourceStack> context)

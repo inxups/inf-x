@@ -96,4 +96,33 @@ public final class R196Experience {
     public static int droppedOnDeath(int totalExperience) {
         return Math.max(0, totalExperience) / 3;
     }
+
+    /**
+     * R196 {@code EnumLevelBonus.HARVESTING}/{@code CRAFTING}: {@code level × 0.02},
+     * including negative debt levels.
+     */
+    public static float harvestOrCraftLevelBonus(int level) {
+        return clampedLevel(level) * 0.02F;
+    }
+
+    /**
+     * R196 {@code EnumLevelBonus.MELEE_DAMAGE}: {@code level × 0.005} while positive,
+     * otherwise the same {@code level × 0.02} debt penalty as harvest/craft.
+     */
+    public static float meleeLevelBonus(int level) {
+        int capped = clampedLevel(level);
+        return capped > 0 ? capped * 0.005F : capped * 0.02F;
+    }
+
+    public static float harvestOrCraftMultiplier(int level) {
+        return 1.0F + harvestOrCraftLevelBonus(level);
+    }
+
+    public static float meleeMultiplier(int level) {
+        return 1.0F + meleeLevelBonus(level);
+    }
+
+    private static int clampedLevel(int level) {
+        return Math.clamp(level, -MAX_DEBT_LEVEL, MAX_DISPLAY_LEVEL);
+    }
 }
