@@ -91,6 +91,23 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         for (var type : java.util.List.of(ModEntityTypes.HELLHOUND, ModEntityTypes.DIRE_WOLF)) {
             add(type.get(), LootTable.lootTable());
         }
+
+        // R196 livestock replacements: simplified 26.2-style drops (models reuse vanilla assets).
+        add(
+                ModEntityTypes.R196_COW.get(),
+                LootTable.lootTable()
+                        .withPool(itemPool(Items.LEATHER, 0.0F, 2.0F))
+                        .withPool(itemPool(Items.BEEF, 1.0F, 3.0F)));
+        add(
+                ModEntityTypes.R196_CHICKEN.get(),
+                LootTable.lootTable()
+                        .withPool(itemPool(Items.FEATHER, 0.0F, 2.0F))
+                        .withPool(itemPool(Items.CHICKEN, 1.0F, 1.0F)));
+        drops(ModEntityTypes.R196_SHEEP.get(), Items.MUTTON, 1.0F, 2.0F);
+        drops(ModEntityTypes.R196_PIG.get(), Items.PORKCHOP, 1.0F, 3.0F);
+        drops(ModEntityTypes.R196_HORSE.get(), Items.LEATHER, 0.0F, 2.0F);
+        emptyDrops(ModEntityTypes.R196_OCELOT.get());
+        emptyDrops(ModEntityTypes.R196_WOLF.get());
     }
 
     private void drops(EntityType<?> custom, Item item, float minimum, float maximum) {

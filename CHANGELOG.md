@@ -8,6 +8,7 @@
 - 群系生成表改为直接投放 R196 替换体；世界生成时原版同种实体仍会经 `replacementFor` 替换。
 - 刷怪蛋由 `ModEntityTypes.ALL` 自动注册，物品贴图复用 Minecraft 26.2 对应原版刷怪蛋 PNG。
 - 粪肥周期按 `instanceof` 覆盖 R196 子类；名册单测更新为 20 个替换体、总计 47 实体。
+- `ModEntityLootSubProvider` 为七种家畜补齐 `infx:entities/r196_*` 掉落表，修复数据生成缺 loottable 失败。
 
 ### 火元素对齐 MITE
 
