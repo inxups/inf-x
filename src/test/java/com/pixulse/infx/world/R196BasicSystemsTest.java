@@ -42,6 +42,11 @@ class R196BasicSystemsTest {
     }
 
     @Test
+    void safeBlockItemDropsOnlyForOwnerOrCreative() {
+        assertFalse(R196SafeEvents.mayDropSafeItem(null, null));
+    }
+
+    @Test
     void allTwentyTwoEnchantmentsAreDeclared() {
         assertEquals(22, ModEnchantments.R196.size());
         assertEquals(22, ModEnchantments.R196.stream().distinct().count());

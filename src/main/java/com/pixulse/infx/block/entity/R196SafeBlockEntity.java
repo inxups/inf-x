@@ -5,6 +5,7 @@ import com.pixulse.infx.registry.ModBlockEntityTypes;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +18,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.ContainerUser;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +36,10 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
-public final class R196SafeBlockEntity extends RandomizableContainerBlockEntity implements LidBlockEntity {
+/** MITE strongbox: player-only inventory; hoppers and other automation get no sided slots. */
+public final class R196SafeBlockEntity extends RandomizableContainerBlockEntity
+        implements LidBlockEntity, WorldlyContainer {
+    private static final int[] NO_SLOTS = new int[0];
     private NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
     private @Nullable UUID owner;
     private String ownerName = "?";
@@ -182,6 +187,21 @@ public final class R196SafeBlockEntity extends RandomizableContainerBlockEntity 
 
     @Override
     public int getContainerSize() { return 27; }
+
+    @Override
+    public int[] getSlotsForFace(Direction side) {
+        return NO_SLOTS;
+    }
+
+    @Override
+    public boolean canPlaceItemThroughFace(int index, ItemStack stack, @Nullable Direction direction) {
+        return false;
+    }
+
+    @Override
+    public boolean canTakeItemThroughFace(int index, ItemStack stack, Direction direction) {
+        return false;
+    }
 
     @Override
     protected NonNullList<ItemStack> getItems() { return items; }

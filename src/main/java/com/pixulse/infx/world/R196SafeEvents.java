@@ -9,7 +9,10 @@ import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import com.pixulse.infx.survival.R196SurvivalRules;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -17,6 +20,7 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
+import org.jspecify.annotations.Nullable;
 
 /** Ownership, higher-tier multiplayer break checks and combat-disconnect penalty. */
 public final class R196SafeEvents {
@@ -51,12 +55,24 @@ public final class R196SafeEvents {
 
     private static void protectSafeDrops(BlockDropsEvent event) {
         if (!(event.getState().getBlock() instanceof R196SafeBlock safe)
-                || !(event.getBreaker() instanceof net.minecraft.world.entity.player.Player player)
-                || !(event.getBlockEntity() instanceof R196SafeBlockEntity safeBlockEntity)
-                || safeBlockEntity.isPortableTo(player)) {
+                || mayDropSafeItem(event.getBreaker(), event.getBlockEntity())) {
             return;
         }
         event.getDrops().removeIf(drop -> drop.getItem().is(safe.asItem()));
+    }
+
+    /**
+     * Only the owner (or creative) recovers the safe block item. Explosions and other
+     * non-player breakers never drop the box itself, matching MITE {@code dropBlockAsEntityItem}.
+     */
+    public static boolean mayDropSafeItem(@Nullable Entity breaker, @Nullable BlockEntity blockEntity) {
+        if (!(breaker instanceof Player player)) {
+            return false;
+        }
+        if (player.hasInfiniteMaterials()) {
+            return true;
+        }
+        return blockEntity instanceof R196SafeBlockEntity safe && safe.isPortableTo(player);
     }
 
     private static void protectSafeBreakSpeed(PlayerEvent.BreakSpeed event) {

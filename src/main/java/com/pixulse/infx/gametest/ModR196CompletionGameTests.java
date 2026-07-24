@@ -38,6 +38,7 @@ import com.pixulse.infx.survival.R196SurvivalData;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import com.pixulse.infx.survival.R196SurvivalRules;
 import com.pixulse.infx.world.R196EndEvents;
+import com.pixulse.infx.world.R196SafeEvents;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -1039,6 +1040,23 @@ public final class ModR196CompletionGameTests {
                                 entity -> entity.getItem().is(ModBlocks.COPPER_SAFE.get().asItem()))
                         .isEmpty(),
                 "MITE foreign strongboxes break without dropping the safe item");
+
+        helper.setBlock(safePos, ModBlocks.COPPER_SAFE.get());
+        safe = helper.getBlockEntity(safePos, R196SafeBlockEntity.class);
+        safe.setOwner(owner);
+        safe.setItem(0, new ItemStack(Items.IRON_INGOT));
+        helper.assertTrue(
+                safe.getSlotsForFace(Direction.DOWN).length == 0
+                        && !safe.canTakeItemThroughFace(0, safe.getItem(0), Direction.DOWN)
+                        && !safe.canPlaceItemThroughFace(0, new ItemStack(Items.IRON_INGOT), Direction.UP),
+                "MITE strongboxes expose no hopper slots");
+        helper.assertTrue(
+                !R196SafeEvents.mayDropSafeItem(null, safe),
+                "explosions must not drop the safe block item");
+        var safeShape = helper.getBlockState(safePos).getShape(helper.getLevel(), helper.absolutePos(safePos));
+        helper.assertTrue(
+                Math.abs(safeShape.max(net.minecraft.core.Direction.Axis.Y) - 0.875D) < 1.0E-6D,
+                "safe collision height matches MITE chest bounds: " + safeShape.max(net.minecraft.core.Direction.Axis.Y));
 
         BlockPos tableRelative = new BlockPos(8, 2, 8);
         helper.setBlock(tableRelative, ModBlocks.DIAMOND_ENCHANTING_TABLE.get());
