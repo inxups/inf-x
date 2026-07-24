@@ -34,7 +34,7 @@ import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
-import net.minecraft.client.renderer.special.ChestSpecialRenderer;
+import com.pixulse.infx.client.R196SafeSpecialRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Direction;
@@ -349,7 +349,7 @@ final class ModModelProvider extends ModelProvider {
                 safe.asItem(),
                 ItemModelUtils.specialModel(
                         itemModelBase,
-                        new ChestSpecialRenderer.Unbaked(InfiniteX.id(safe.material().path()))));
+                        new R196SafeSpecialRenderer.Unbaked(InfiniteX.id(safe.material().path()))));
     }
 
     private static Identifier safeParticleTexture(R196Material material) {

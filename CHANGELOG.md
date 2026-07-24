@@ -4,8 +4,8 @@
 
 ### 金属保险箱渲染
 
-- 保险箱改走原版箱子拆分路径：区块网格仅粒子模型，世界由 `R196SafeRenderer`（`ChestRenderer` BER）绘制，物品用 `ChestSpecialRenderer`，材质在 `textures/entity/chest/*`。
-- 不再把箱体/盖子 bake 进方块网格，避免盖底 z-fighting 中间闪烁；开盖只走 lid 控制器，不写 `OPEN` 状态。
+- 保险箱改走原版箱子拆分路径：区块网格仅粒子模型，世界由 `R196SafeRenderer` BER 绘制，物品用 `R196SafeSpecialRenderer`，材质在 `textures/entity/chest/*`。
+- 自定义 `R196SafeModel`：箱体高度 9、盖子自 y=9 起，去掉原版盖/体侧面 1px 重叠，避免金属材质中间色带 z-fighting 闪烁；开盖只走 lid 控制器，不写 `OPEN` 状态。
 
 ### 金属保险箱
 

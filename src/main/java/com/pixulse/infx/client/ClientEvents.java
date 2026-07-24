@@ -19,6 +19,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.minecraft.client.model.animal.squid.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -55,6 +56,16 @@ public final class ClientEvents {
         event.register(ModMenus.METAL_ANVIL.get(), MetalAnvilScreen::new);
         event.register(ModMenus.EMERALD_ENCHANTING.get(), EnchantmentScreen::new);
         event.register(ModMenus.DIAMOND_ENCHANTING.get(), EnchantmentScreen::new);
+    }
+
+    @SubscribeEvent
+    private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(R196SafeModel.LAYER, R196SafeModel::createBodyLayer);
+    }
+
+    @SubscribeEvent
+    private static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(InfiniteX.id("safe"), R196SafeSpecialRenderer.MAP_CODEC);
     }
 
     @SubscribeEvent

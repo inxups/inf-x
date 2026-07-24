@@ -1899,7 +1899,7 @@ class R196GeneratedResourceTest {
                             "minecraft:special",
                             itemModel.getAsJsonObject("model").get("type").getAsString()),
                     () -> assertEquals(
-                            "minecraft:chest",
+                            "infx:safe",
                             itemModel
                                     .getAsJsonObject("model")
                                     .getAsJsonObject("model")
