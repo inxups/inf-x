@@ -2,6 +2,12 @@
 
 ## [0v] - 2026-07-24
 
+### R196 家畜刷怪蛋材质清单与资源计数
+
+- 七枚 `r196_{cow,chicken,sheep,pig,horse,ocelot,wolf}_spawn_egg` 写入 `mite_texture_manifest.tsv`（来源 26.2 原版刷怪蛋 + SHA-256）。
+- `R196TextureProvenanceTest` 清单行数 603→610；`R196GeneratedResourceTest` 生成 items/models 计数 385/460→392/467。
+- `manifestHasOnlyCatalogOrApprovedDerivedTextures` 放行已入库的 R196 新增实体材质路径（僵尸/蜘蛛/蝙蝠/地狱犬等）。
+
 ### R196 家畜替换实体（相对 26.2）
 
 - 新增 `r196_cow` / `r196_chicken` / `r196_sheep` / `r196_pig` / `r196_horse` / `r196_ocelot` / `r196_wolf` 七种替换实体，继承对应 26.2 原版类，渲染器与模型/实体材质沿用原版。

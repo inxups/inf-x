@@ -1488,8 +1488,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(385, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(460, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(392, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(467, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -1878,6 +1878,17 @@ class R196GeneratedResourceTest {
                 "textures/item/gelatinous_sphere/(green|ochre|crimson|gray|black)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/entity/slime/(slime|jelly|blob|ooze|pudding|magmacube)\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/entity/(ghoul|shadow|wight|fire_elemental)\\.png"
+                        + "|textures/entity/zombie/revenant\\.png"
+                        + "|textures/entity/skeleton/(longdead|longdead_guardian|bone_lord)\\.png"
+                        + "|textures/entity/spider/(black_widow|cave_spider|demon_spider|wood_spider|phase_spider)\\.png"
+                        + "|textures/entity/creeper/infernal_creeper\\.png"
+                        + "|textures/entity/earth_elemental/stone\\.png"
+                        + "|textures/entity/silverfish/(netherspawn|copperspine|hoary)\\.png"
+                        + "|textures/entity/bat/(vampire|nightwing)\\.png"
+                        + "|textures/entity/hellhound/hellhound\\.png"
+                        + "|textures/entity/dire_wolf/(angry|neutral|tame)\\.png")));
         assertTrue(destinations.removeIf(path -> path.endsWith("_spawn_egg.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));
