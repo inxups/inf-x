@@ -2,12 +2,10 @@
 
 ## [0v] - 2026-07-24
 
-### 金属保险箱三维渲染
+### 金属保险箱渲染
 
-- 保险箱改为与原版箱子相同的 26.2 chest special model（`RegisterBlockModelsEvent` + `ChestSpecialRenderer`）用于物品与展示；放置在世界中的保险箱通过 `ChestRenderer` BER 绘制。
-- 材质回到 `textures/entity/chest/<metal>.png` 的 chest atlas 路径；方块模型仅保留粒子，不再使用扁平 `template_metal_safe`。
-- 修复仅注册 special block model 时世界中保险箱不可见的问题：补回 `R196SafeRenderer` 与客户端 lid ticker。
-- 打开/关闭不再写入 `BarrelBlock.OPEN` 方块状态，避免区块重网格与 BER 开盖动画叠闪；与原版箱子一致仅用 lid 控制器与 block event。
+- 保险箱恢复为物品展示前已验证的烘焙方块模型（`template_metal_safe` + `textures/block/safe/*`），世界与物品共用同一几何，避免 chest BER / special model 的中间闪烁。
+- 移除 `R196SafeRenderer`、`RegisterBlockModelsEvent` chest special 与客户端 lid ticker；材质清单与同步脚本回到 `block/safe` 路径。
 
 ### 金属保险箱
 
