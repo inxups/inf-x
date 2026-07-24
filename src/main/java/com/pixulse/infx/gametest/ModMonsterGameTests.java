@@ -358,6 +358,38 @@ public final class ModMonsterGameTests {
                 "snowballs must hurt the R196 blaze");
         helper.assertTrue(blaze.getHealth() == before - 3.0F, "snowballs must deal three damage to the R196 blaze");
 
+        // Near-blaze combat often ignites the attacker. MITE only gates on the weapon's fire
+        // aspect / flame, never the attacker's on-fire state.
+        var player = ModR196CompletionGameTests.createPlayer(helper);
+        before = blaze.getHealth();
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
+        player.igniteForSeconds(8.0F);
+        helper.assertTrue(
+                !blaze.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "burning players still cannot hurt blazes with unenchanted weapons");
+        helper.assertTrue(blaze.getHealth() == before, "burning unenchanted hits must not change blaze health");
+
+        var sharpSword = Items.IRON_SWORD.getDefaultInstance();
+        var registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        sharpSword.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.UNBREAKING), 1);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, sharpSword);
+        player.igniteForSeconds(8.0F);
+        helper.assertTrue(
+                blaze.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "burning players must still hurt blazes with non-fire enchanted weapons");
+        helper.assertTrue(blaze.getHealth() == before - 4.0F, "non-fire enchanted hits must deal damage while burning");
+
+        before = blaze.getHealth();
+        var flameSword = Items.IRON_SWORD.getDefaultInstance();
+        flameSword.enchant(registry.getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FIRE_ASPECT), 1);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, flameSword);
+        helper.assertTrue(
+                !blaze.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "fire-aspect weapons must not hurt the R196 blaze");
+        helper.assertTrue(blaze.getHealth() == before, "fire-aspect hits must not change blaze health");
+        ModR196CompletionGameTests.removePlayer(player);
+
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 2, 4));
         helper.startSequence()
