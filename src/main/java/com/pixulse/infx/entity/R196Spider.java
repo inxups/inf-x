@@ -1,7 +1,9 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -50,6 +52,21 @@ public final class R196Spider extends Spider implements R196Mob {
             case "phase_spider" -> Variant.PHASE;
             default -> Variant.SPIDER;
         };
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return variant() == Variant.DEMON ? ModSounds.DEMON_SPIDER_AMBIENT.get() : super.getAmbientSound();
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return variant() == Variant.DEMON ? ModSounds.DEMON_SPIDER_HURT.get() : super.getHurtSound(source);
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return variant() == Variant.DEMON ? ModSounds.DEMON_SPIDER_DEATH.get() : super.getDeathSound();
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {

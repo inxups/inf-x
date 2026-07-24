@@ -19,10 +19,48 @@ public final class ModSounds {
     public static final List<DeferredHolder<SoundEvent, SoundEvent>> RECORDS =
             List.of(RECORD_UNDERWORLD, RECORD_DESCENT, RECORD_WANDERER, RECORD_LEGENDS);
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> GHOUL_AMBIENT = mob("ghoul", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> GHOUL_HURT = mob("ghoul", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> GHOUL_DEATH = mob("ghoul", "death");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> WIGHT_AMBIENT = mob("wight", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> WIGHT_HURT = mob("wight", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> WIGHT_DEATH = mob("wight", "death");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHADOW_AMBIENT = mob("shadow", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHADOW_HURT = mob("shadow", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHADOW_DEATH = mob("shadow", "death");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> INVISIBLE_STALKER_AMBIENT =
+            mob("invisible_stalker", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> INVISIBLE_STALKER_HURT =
+            mob("invisible_stalker", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> INVISIBLE_STALKER_DEATH =
+            mob("invisible_stalker", "death");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> DEMON_SPIDER_AMBIENT = mob("demon_spider", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> DEMON_SPIDER_HURT = mob("demon_spider", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> DEMON_SPIDER_DEATH = mob("demon_spider", "death");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> HELLHOUND_AMBIENT = mob("hellhound", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> HELLHOUND_HURT = mob("hellhound", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> HELLHOUND_DEATH = mob("hellhound", "death");
+    public static final DeferredHolder<SoundEvent, SoundEvent> HELLHOUND_BREATH = mob("hellhound", "breath");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_AMBIENT = mob("witch", "ambient");
+    public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_HURT = mob("witch", "hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_DEATH = mob("witch", "death");
+
     private ModSounds() {}
 
     private static DeferredHolder<SoundEvent, SoundEvent> record(String name) {
-        return SOUNDS.register("record." + name, () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("record." + name)));
+        return SOUNDS.register(
+                "record." + name, () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("record." + name)));
+    }
+
+    private static DeferredHolder<SoundEvent, SoundEvent> mob(String mob, String kind) {
+        String path = "entity." + mob + "." + kind;
+        return SOUNDS.register(path, () -> SoundEvent.createVariableRangeEvent(InfiniteX.id(path)));
     }
 
     public static void register(IEventBus modBus) {

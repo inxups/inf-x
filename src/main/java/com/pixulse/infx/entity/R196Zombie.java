@@ -1,8 +1,11 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -14,14 +17,15 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import org.jspecify.annotations.Nullable;
 
 /** Zombie-shaped R196 mobs, including the replacement zombie and five new variants. */
 public final class R196Zombie extends Zombie implements R196Mob {
@@ -94,6 +98,39 @@ public final class R196Zombie extends Zombie implements R196Mob {
     protected void addBehaviourGoals() {
         super.addBehaviourGoals();
         targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Animal.class, true));
+    }
+
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return switch (variant()) {
+            case GHOUL -> ModSounds.GHOUL_AMBIENT.get();
+            case SHADOW -> ModSounds.SHADOW_AMBIENT.get();
+            case WIGHT -> ModSounds.WIGHT_AMBIENT.get();
+            case INVISIBLE_STALKER -> ModSounds.INVISIBLE_STALKER_AMBIENT.get();
+            case REVENANT, ZOMBIE -> super.getAmbientSound();
+        };
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return switch (variant()) {
+            case GHOUL -> ModSounds.GHOUL_HURT.get();
+            case SHADOW -> ModSounds.SHADOW_HURT.get();
+            case WIGHT -> ModSounds.WIGHT_HURT.get();
+            case INVISIBLE_STALKER -> ModSounds.INVISIBLE_STALKER_HURT.get();
+            case REVENANT, ZOMBIE -> super.getHurtSound(source);
+        };
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return switch (variant()) {
+            case GHOUL -> ModSounds.GHOUL_DEATH.get();
+            case SHADOW -> ModSounds.SHADOW_DEATH.get();
+            case WIGHT -> ModSounds.WIGHT_DEATH.get();
+            case INVISIBLE_STALKER -> ModSounds.INVISIBLE_STALKER_DEATH.get();
+            case REVENANT, ZOMBIE -> super.getDeathSound();
+        };
     }
 
     @Override

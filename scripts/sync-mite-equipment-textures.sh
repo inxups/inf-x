@@ -292,8 +292,36 @@ for cube in slime jelly blob ooze pudding magmacube; do
   sync resource-pack "entity/slime/${cube}.png" "entity/slime/${cube}.png"
 done
 
+# R196 new-monster entity skins from the authorized MITE pack.
+sync resource-pack entity/ghoul.png entity/ghoul.png
+sync resource-pack entity/shadow.png entity/shadow.png
+sync resource-pack entity/wight.png entity/wight.png
+sync resource-pack entity/zombie/revenant.png entity/zombie/revenant.png
+sync resource-pack entity/skeleton/longdead.png entity/skeleton/longdead.png
+sync resource-pack entity/skeleton/bone_lord.png entity/skeleton/bone_lord.png
+sync resource-pack entity/skeleton/longdead_guardian.png entity/skeleton/longdead_guardian.png
+sync resource-pack entity/spider/black_widow.png entity/spider/black_widow.png
+sync resource-pack entity/spider/demon_spider.png entity/spider/demon_spider.png
+sync resource-pack entity/spider/wood_spider.png entity/spider/wood_spider.png
+sync resource-pack entity/spider/phase_spider.png entity/spider/phase_spider.png
+sync resource-pack entity/spider/cave_spider.png entity/spider/cave_spider.png
+sync resource-pack entity/creeper/infernal_creeper.png entity/creeper/infernal_creeper.png
+sync resource-pack entity/fire_elemental.png entity/fire_elemental.png
+sync resource-pack \
+  entity/earth_elemental/stone/earth_elemental_stone.png \
+  entity/earth_elemental/stone.png
+sync resource-pack entity/silverfish/netherspawn.png entity/silverfish/netherspawn.png
+sync resource-pack entity/silverfish/copperspine.png entity/silverfish/copperspine.png
+sync resource-pack entity/silverfish/hoary.png entity/silverfish/hoary.png
+sync resource-pack entity/bat/vampire.png entity/bat/vampire.png
+sync resource-pack entity/bat/nightwing.png entity/bat/nightwing.png
+sync resource-pack entity/hellhound/hellhound.png entity/hellhound/hellhound.png
+sync resource-pack entity/dire_wolf/neutral.png entity/dire_wolf/neutral.png
+sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
+sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
+
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 538 ]] || { echo "Expected 538 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 562 ]] || { echo "Expected 562 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

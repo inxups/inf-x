@@ -2,7 +2,9 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMobEffects;
+import com.pixulse.infx.registry.ModSounds;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 /** Swamp-hut miniboss witch with a curse and occasional wolf summons. */
 public final class R196Witch extends Witch implements R196Mob {
@@ -29,6 +32,21 @@ public final class R196Witch extends Witch implements R196Mob {
                 .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.ATTACK_DAMAGE, 2.0);
+    }
+
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return ModSounds.WITCH_AMBIENT.get();
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return ModSounds.WITCH_HURT.get();
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return ModSounds.WITCH_DEATH.get();
     }
 
     static boolean hasIndirectMagicDefense(DamageSource source) {

@@ -23,10 +23,10 @@ class R196FulltextAssetProvenanceTest {
     private static final Path MANIFEST = ASSETS.resolve("mite_fulltext_manifest.tsv");
 
     @Test
-    void allFiftyFourAuthorizedAssetsAreUniqueReadableAndHashPinned() throws Exception {
+    void allAuthorizedFulltextAssetsAreUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(55, lines.size());
+        assertEquals(96, lines.size(), "header plus 95 authorized fulltext destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -49,9 +49,10 @@ class R196FulltextAssetProvenanceTest {
     @Test
     void optionalAuthorizedSourceStillMatchesEveryCommittedAsset() throws Exception {
         Path source = Path.of(
-                "/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite- resource-pack/assets/minecraft");
+                "/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite-resource-pack/assets/minecraft");
         if (!Files.isDirectory(source)) return;
-        for (String line : Files.readAllLines(MANIFEST, UTF_8).subList(1, 55)) {
+        List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
+        for (String line : lines.subList(1, lines.size())) {
             String[] fields = line.split("\t", -1);
             assertEquals(-1L, Files.mismatch(source.resolve(fields[1]), ASSETS.resolve(fields[2])), fields[2]);
         }

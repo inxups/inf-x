@@ -3,7 +3,14 @@ package com.pixulse.infx.client;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
+import com.pixulse.infx.entity.R196Bat;
+import com.pixulse.infx.entity.R196Creeper;
+import com.pixulse.infx.entity.R196Silverfish;
+import com.pixulse.infx.entity.R196Skeleton;
 import com.pixulse.infx.entity.R196Slime;
+import com.pixulse.infx.entity.R196Spider;
+import com.pixulse.infx.entity.R196Wolf;
+import com.pixulse.infx.entity.R196Zombie;
 import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
@@ -23,19 +30,15 @@ import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.minecraft.client.model.animal.squid.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EndermanRenderer;
 import net.minecraft.client.renderer.entity.GhastRenderer;
-import net.minecraft.client.renderer.entity.IronGolemRenderer;
-import net.minecraft.client.renderer.entity.SilverfishRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.SquidRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
-import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
@@ -73,26 +76,54 @@ public final class ClientEvents {
         // World geometry only — chunk mesh is particle-only (see ModModelProvider).
         event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ZOMBIE.get(), ZombieRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF303846));
-        event.registerEntityRenderer(ModEntityTypes.GHOUL.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF819064));
-        event.registerEntityRenderer(ModEntityTypes.SHADOW.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF18182A));
-        event.registerEntityRenderer(ModEntityTypes.WIGHT.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFFD8DFD0));
-        event.registerEntityRenderer(ModEntityTypes.REVENANT.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF8A604A));
+        event.registerEntityRenderer(
+                ModEntityTypes.INVISIBLE_STALKER.get(),
+                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.INVISIBLE_STALKER));
+        event.registerEntityRenderer(
+                ModEntityTypes.GHOUL.get(),
+                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.GHOUL));
+        event.registerEntityRenderer(
+                ModEntityTypes.SHADOW.get(),
+                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.SHADOW));
+        event.registerEntityRenderer(
+                ModEntityTypes.WIGHT.get(),
+                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.WIGHT));
+        event.registerEntityRenderer(
+                ModEntityTypes.REVENANT.get(),
+                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.REVENANT));
 
         event.registerEntityRenderer(ModEntityTypes.R196_SKELETON.get(), SkeletonRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.LONGDEAD.get(), context -> new R196EntityRenderers.SkeletonTint(context, 0xFFB5A078));
-        event.registerEntityRenderer(ModEntityTypes.BONE_LORD.get(), context -> new R196EntityRenderers.SkeletonTint(context, 0xFFB9BEC6));
-        event.registerEntityRenderer(ModEntityTypes.ANCIENT_BONE_LORD.get(), context -> new R196EntityRenderers.SkeletonTint(context, 0xFFD2B46B));
+        event.registerEntityRenderer(
+                ModEntityTypes.LONGDEAD.get(),
+                context -> new R196EntityRenderers.SkeletonTexture(context, R196Skeleton.Variant.LONGDEAD));
+        event.registerEntityRenderer(
+                ModEntityTypes.BONE_LORD.get(),
+                context -> new R196EntityRenderers.SkeletonTexture(context, R196Skeleton.Variant.BONE_LORD));
+        event.registerEntityRenderer(
+                ModEntityTypes.ANCIENT_BONE_LORD.get(),
+                context -> new R196EntityRenderers.SkeletonTexture(context, R196Skeleton.Variant.ANCIENT_BONE_LORD));
 
         event.registerEntityRenderer(ModEntityTypes.R196_SPIDER.get(), SpiderRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_CAVE_SPIDER.get(), context -> new R196EntityRenderers.SpiderTint(context, 0xFF407E78, 0.5F));
-        event.registerEntityRenderer(ModEntityTypes.BLACK_WIDOW_SPIDER.get(), context -> new R196EntityRenderers.SpiderTint(context, 0xFF24151A, 0.6F));
-        event.registerEntityRenderer(ModEntityTypes.DEMON_SPIDER.get(), context -> new R196EntityRenderers.SpiderTint(context, 0xFF8E3024));
-        event.registerEntityRenderer(ModEntityTypes.WOOD_SPIDER.get(), context -> new R196EntityRenderers.SpiderTint(context, 0xFF7D5D3C, 0.6F));
-        event.registerEntityRenderer(ModEntityTypes.PHASE_SPIDER.get(), context -> new R196EntityRenderers.SpiderTint(context, 0xFF493F93, 0.6F));
+        event.registerEntityRenderer(
+                ModEntityTypes.R196_CAVE_SPIDER.get(),
+                context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.CAVE_SPIDER, 0.5F));
+        event.registerEntityRenderer(
+                ModEntityTypes.BLACK_WIDOW_SPIDER.get(),
+                context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.BLACK_WIDOW, 0.6F));
+        event.registerEntityRenderer(
+                ModEntityTypes.DEMON_SPIDER.get(),
+                context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.DEMON));
+        event.registerEntityRenderer(
+                ModEntityTypes.WOOD_SPIDER.get(),
+                context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.WOOD, 0.6F));
+        event.registerEntityRenderer(
+                ModEntityTypes.PHASE_SPIDER.get(),
+                context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.PHASE, 0.6F));
 
         event.registerEntityRenderer(ModEntityTypes.R196_CREEPER.get(), CreeperRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.INFERNAL_CREEPER.get(), context -> new R196EntityRenderers.CreeperTint(context, 0xFFA52D20, 1.5F));
+        event.registerEntityRenderer(
+                ModEntityTypes.INFERNAL_CREEPER.get(),
+                context -> new R196EntityRenderers.CreeperTexture(context, R196Creeper.Variant.INFERNAL, 1.5F));
 
         event.registerEntityRenderer(
                 ModEntityTypes.R196_SLIME.get(),
@@ -112,16 +143,32 @@ public final class ClientEvents {
         event.registerEntityRenderer(
                 ModEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
         event.registerEntityRenderer(ModEntityTypes.MAGMA_CUBE.get(), R196EntityRenderers.MagmaCubeTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.NETHERSPAWN.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFD45A30));
-        event.registerEntityRenderer(ModEntityTypes.COPPERSPINE.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFB46A32));
-        event.registerEntityRenderer(ModEntityTypes.HOARY_SILVERFISH.get(), context -> new R196EntityRenderers.SilverfishTint(context, 0xFFE7EDF0));
-        event.registerEntityRenderer(ModEntityTypes.VAMPIRE_BAT.get(), context -> new R196EntityRenderers.BatTint(context, 0xFF704047));
-        event.registerEntityRenderer(ModEntityTypes.NIGHTWING.get(), context -> new R196EntityRenderers.BatTint(context, 0xFF292441));
-        event.registerEntityRenderer(ModEntityTypes.GIANT_VAMPIRE_BAT.get(), context -> new R196EntityRenderers.BatTint(context, 0xFF8E3540, 2.0F));
-        event.registerEntityRenderer(ModEntityTypes.HELLHOUND.get(), context -> new R196EntityRenderers.WolfTint(context, 0xFF5B211B));
-        event.registerEntityRenderer(ModEntityTypes.DIRE_WOLF.get(), context -> new R196EntityRenderers.WolfTint(context, 0xFF8A8175));
-        event.registerEntityRenderer(ModEntityTypes.FIRE_ELEMENTAL.get(), BlazeRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.EARTH_ELEMENTAL.get(), context -> new R196EntityRenderers.EarthTint(context, 0xFF79644C));
+        event.registerEntityRenderer(
+                ModEntityTypes.NETHERSPAWN.get(),
+                context -> new R196EntityRenderers.SilverfishTexture(context, R196Silverfish.Variant.NETHERSPAWN));
+        event.registerEntityRenderer(
+                ModEntityTypes.COPPERSPINE.get(),
+                context -> new R196EntityRenderers.SilverfishTexture(context, R196Silverfish.Variant.COPPERSPINE));
+        event.registerEntityRenderer(
+                ModEntityTypes.HOARY_SILVERFISH.get(),
+                context -> new R196EntityRenderers.SilverfishTexture(context, R196Silverfish.Variant.HOARY));
+        event.registerEntityRenderer(
+                ModEntityTypes.VAMPIRE_BAT.get(),
+                context -> new R196EntityRenderers.BatTexture(context, R196Bat.Variant.VAMPIRE));
+        event.registerEntityRenderer(
+                ModEntityTypes.NIGHTWING.get(),
+                context -> new R196EntityRenderers.BatTexture(context, R196Bat.Variant.NIGHTWING));
+        event.registerEntityRenderer(
+                ModEntityTypes.GIANT_VAMPIRE_BAT.get(),
+                context -> new R196EntityRenderers.BatTexture(context, R196Bat.Variant.GIANT_VAMPIRE, 2.0F));
+        event.registerEntityRenderer(
+                ModEntityTypes.HELLHOUND.get(),
+                context -> new R196EntityRenderers.WolfTexture(context, R196Wolf.Variant.HELLHOUND));
+        event.registerEntityRenderer(
+                ModEntityTypes.DIRE_WOLF.get(),
+                context -> new R196EntityRenderers.WolfTexture(context, R196Wolf.Variant.DIRE_WOLF));
+        event.registerEntityRenderer(ModEntityTypes.FIRE_ELEMENTAL.get(), R196EntityRenderers.FireElementalTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.EARTH_ELEMENTAL.get(), R196EntityRenderers.EarthElementalTexture::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ENDERMAN.get(), EndermanRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.R196_SQUID.get(),
