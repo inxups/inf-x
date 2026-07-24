@@ -366,7 +366,8 @@ public final class ModBlocks {
                         .mapColor(color)
                         .strength(strength, material == R196Material.ADAMANTIUM ? 3_600.0F : strength * 8.0F)
                         .sound(SoundType.METAL)
-                        .requiresCorrectToolForDrops());
+                        .requiresCorrectToolForDrops()
+                        .noOcclusion());
     }
 
     private static DeferredBlock<MetalAnvilBlock> metalAnvil(R196Material material, MapColor color) {
