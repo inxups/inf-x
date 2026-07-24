@@ -9,6 +9,12 @@
 - 每 40 tick 承受 1 点水伤；岩浆中每 40 tick 回复 4 生命；始终显示燃烧；经验为普通怪物 3 倍。
 - GameTest 覆盖雪球与附魔武器门控及燃烧/水敏感标志。
 
+### 火元素声音改为 MITE 风格
+
+- 返回 null 音效并设置 `isSilent()` 彻底静音烈焰人环境/受伤/死亡及客户端 `BLAZE_BURN`。
+- 干燥时播放 `fire.ambient`，湿态播放 `fire.extinguish` + 授权资源包 `imported.random.sizzle`。
+- 新增 `ModSounds.FIRE_ELEMENTAL_SIZZLE` 及 `sounds.json` 注册；同步脚本添加 sizzle，清单与单测计数更新。
+
 ### 刷怪蛋贴图替换
 
 - 40 枚 R196 刷怪蛋物品贴图改为：有专用源的用 `textures/item/spawn_egg/spawn_egg_*.png`，其余用 Minecraft 26.2 原版对应刷怪蛋（`r196_*` 替换体、岩浆怪、三种蝙蝠）。

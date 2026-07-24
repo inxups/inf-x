@@ -103,5 +103,6 @@ copy_asset "sound/imported/mob/witch/cackle2.ogg" "sounds/mob/witch/cackle2.ogg"
 copy_asset "sound/imported/mob/witch/cackle3.ogg" "sounds/mob/witch/cackle3.ogg"
 copy_asset "sound/imported/mob/witch/hurt.ogg" "sounds/mob/witch/hurt.ogg"
 copy_asset "sound/imported/mob/witch/death.ogg" "sounds/mob/witch/death.ogg"
+copy_asset "sound/imported/random/sizzle.ogg" "sounds/random/sizzle.ogg"
 
 echo "Synced $(($(wc -l < "$manifest") - 1)) authorized R196 full-text assets."

@@ -51,6 +51,12 @@ public final class ModSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_HURT = mob("witch", "hurt");
     public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_DEATH = mob("witch", "death");
 
+    /** MITE imported sizzle for fire elemental. */
+    public static final DeferredHolder<SoundEvent, SoundEvent> FIRE_ELEMENTAL_SIZZLE =
+            SOUNDS.register(
+                    "entity.fire_elemental.sizzle",
+                    () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.fire_elemental.sizzle")));
+
     private ModSounds() {}
 
     private static DeferredHolder<SoundEvent, SoundEvent> record(String name) {

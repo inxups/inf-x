@@ -88,5 +88,8 @@
   },
   "entity.witch.death": {
     "sounds": [ "infx:mob/witch/death" ]
+  },
+  "entity.fire_elemental.sizzle": {
+    "sounds": [ "infx:random/sizzle" ]
   }
 }
