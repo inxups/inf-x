@@ -103,4 +103,12 @@ public final class R196MobDamageRules {
         ItemStack weapon = resolveWeapon(source);
         return !weapon.isEmpty() && weapon.isEnchanted() && !hasFireEnchantment(level, weapon);
     }
+
+    /**
+     * MITE fire elemental uses the same immunity shape as blaze: water/snowball always hurt;
+     * only non-fire enchanted weapons land otherwise.
+     */
+    public static boolean fireElementalAccepts(ServerLevel level, DamageSource source) {
+        return blazeAccepts(level, source);
+    }
 }

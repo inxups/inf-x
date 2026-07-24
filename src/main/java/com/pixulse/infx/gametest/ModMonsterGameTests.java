@@ -422,6 +422,30 @@ public final class ModMonsterGameTests {
                 earth.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
                 "pickaxes must hurt the earth elemental");
         helper.assertTrue(earth.getHealth() == before - 4.0F, "pickaxe hits must deal earth elemental damage");
+
+        var fire = helper.spawnWithNoFreeWill(ModEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 1));
+        before = fire.getHealth();
+        player.setItemInHand(
+                net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
+        helper.assertTrue(
+                !fire.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "unenchanted swords must not hurt the fire elemental");
+        helper.assertTrue(fire.getHealth() == before, "rejected fire elemental damage must not change health");
+        Snowball fireSnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                fire.hurtServer(level, level.damageSources().thrown(fireSnowball, player), 3.0F),
+                "snowballs must hurt the fire elemental");
+        helper.assertTrue(
+                fire.getHealth() == before - 3.0F, "snowballs must deal three damage to the fire elemental");
+        before = fire.getHealth();
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, enchantedSword);
+        helper.assertTrue(
+                fire.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                "non-fire enchanted weapons must hurt the fire elemental");
+        helper.assertTrue(
+                fire.getHealth() == before - 4.0F, "non-fire enchanted hits must deal fire elemental damage");
+        helper.assertTrue(fire.isOnFire(), "fire elementals must always render as burning");
+        helper.assertTrue(fire.isSensitiveToWater(), "fire elementals must be sensitive to water");
         ModR196CompletionGameTests.removePlayer(player);
 
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
