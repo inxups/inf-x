@@ -2,6 +2,12 @@
 
 ## [0v] - 2026-07-24
 
+### 刷怪蛋贴图替换
+
+- 40 枚 R196 刷怪蛋物品贴图改为：有专用源的用 `textures/item/spawn_egg/spawn_egg_*.png`，其余用 Minecraft 26.2 原版对应刷怪蛋（`r196_*` 替换体、岩浆怪、三种蝙蝠）。
+- 名称映射含 `copper_silverfish→copperspine`、`nether_silverfish→netherspawn`、`fire/earth_element*→*_elemental`；土元素取 clay 变体。
+- `mite_texture_manifest.tsv` 中 40 条 derived 行的来源说明与 SHA-256 已同步。
+
 ### R196 新增实体材质与声音
 
 - 有专用 MITE 贴图的 R196 新增实体改为绑定授权资源包实体材质（僵尸系、骷髅系、蜘蛛系、地狱爬行者、火/土元素、蠹虫、蝙蝠、地狱犬/惧狼等），不再仅用运行时着色区分。
