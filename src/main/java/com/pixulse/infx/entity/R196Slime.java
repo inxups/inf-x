@@ -6,7 +6,6 @@ import com.pixulse.infx.registry.ModItems;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,8 +24,6 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 
 /** Vanilla slime replacement and the four corrosive R196 gelatinous cubes. */
@@ -196,15 +193,7 @@ public final class R196Slime extends Slime implements R196Mob {
                 || source.getDirectEntity() instanceof Snowball) {
             return true;
         }
-        return variant == Variant.PUDDING && hasFireEnchantment(level, source.getWeaponItem());
-    }
-
-    private static boolean hasFireEnchantment(ServerLevel level, ItemStack weapon) {
-        if (weapon == null || weapon.isEmpty()) {
-            return false;
-        }
-        var enchantments = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        return weapon.getEnchantmentLevel(enchantments.getOrThrow(Enchantments.FIRE_ASPECT)) > 0
-                || weapon.getEnchantmentLevel(enchantments.getOrThrow(Enchantments.FLAME)) > 0;
+        return variant == Variant.PUDDING
+                && R196MobDamageRules.hasFireEnchantment(level, R196MobDamageRules.resolveWeapon(source));
     }
 }
