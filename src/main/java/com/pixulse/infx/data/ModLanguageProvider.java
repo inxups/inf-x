@@ -117,6 +117,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("itemGroup.infx.food_and_consumables", "InfiniteX: Food & Consumables"),
                 Map.entry("itemGroup.infx.tools_and_utilities", "InfiniteX: Tools & Utilities"),
                 Map.entry("itemGroup.infx.combat_and_equipment", "InfiniteX: Combat & Equipment"),
+                Map.entry("itemGroup.infx.spawn_eggs", "InfiniteX: Spawn Eggs"),
                 Map.entry("block.infx.flint_workbench", "Flint Workbench"),
                 Map.entry("block.infx.copper_workbench", "Copper Workbench"),
                 Map.entry("block.infx.silver_workbench", "Silver Workbench"),
@@ -223,6 +224,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("itemGroup.infx.food_and_consumables", "InfiniteX：食物与消耗品"),
                 Map.entry("itemGroup.infx.tools_and_utilities", "InfiniteX：工具与实用品"),
                 Map.entry("itemGroup.infx.combat_and_equipment", "InfiniteX：战斗与装备"),
+                Map.entry("itemGroup.infx.spawn_eggs", "InfiniteX：刷怪蛋"),
                 Map.entry("block.infx.flint_workbench", "燧石工具台"),
                 Map.entry("block.infx.copper_workbench", "铜工具台"),
                 Map.entry("block.infx.silver_workbench", "银工具台"),
@@ -386,9 +388,16 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
                 : "重连受限：请等待次日调整时刻 %s 左右（至少 %s 秒）");
         ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
-        ModEntityTypes.names().forEach(entity -> add(
-                "entity.infx." + entity.path(),
-                locale == Locale.EN_US ? entity.english() : entity.chinese()));
+        ModEntityTypes.names().forEach(entity -> {
+            add(
+                    "entity.infx." + entity.path(),
+                    locale == Locale.EN_US ? entity.english() : entity.chinese());
+            add(
+                    "item.infx." + entity.path() + "_spawn_egg",
+                    locale == Locale.EN_US
+                            ? entity.english() + " Spawn Egg"
+                            : entity.chinese() + "刷怪蛋");
+        });
         locale.baseTranslations.forEach(this::add);
         REMAINING_ADVANCEMENTS.forEach((path, names) -> {
             String name = names[locale == Locale.EN_US ? 0 : 1];

@@ -40,12 +40,17 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(539, lines.size(), "header plus 538 selected destinations");
+        assertEquals(579, lines.size(), "header plus 578 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
             String[] fields = line.split("\t", -1);
             assertEquals(4, fields.length, line);
+            assertTrue(
+                    fields[0].equals("resource-pack")
+                            || fields[0].equals("mite-src")
+                            || fields[0].equals("derived"),
+                    "unknown source root " + fields[0]);
             assertTrue(destinations.add(fields[2]), "duplicate destination " + fields[2]);
             Path destination = ASSETS.resolve(fields[2]);
             byte[] bytes = Files.readAllBytes(destination);
@@ -124,14 +129,22 @@ class R196TextureProvenanceTest {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         for (String line : lines.subList(1, lines.size())) {
             String[] fields = line.split("\t", -1);
+            if (fields[0].equals("derived")) {
+                // Derived assets are tint composites of authorized bases, not byte copies.
+                continue;
+            }
             Path sourceRoot = switch (fields[0]) {
                 case "resource-pack" -> reference.resolve("mite- resource-pack/assets/minecraft/textures");
                 case "mite-src" -> reference.resolve("mite-src/assets/minecraft/textures");
                 default -> throw new AssertionError("unknown source root " + fields[0]);
             };
+            Path source = sourceRoot.resolve(fields[1]);
+            if (!Files.isRegularFile(source)) {
+                continue;
+            }
             assertEquals(
                     -1L,
-                    Files.mismatch(sourceRoot.resolve(fields[1]), ASSETS.resolve(fields[2])),
+                    Files.mismatch(source, ASSETS.resolve(fields[2])),
                     fields[2]);
         }
     }

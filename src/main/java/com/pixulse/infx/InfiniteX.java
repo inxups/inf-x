@@ -78,9 +78,10 @@ public final class InfiniteX {
         ModPoiTypes.register(modBus);
         ModBlockEntityTypes.register(modBus);
         ModDataComponents.register(modBus);
+        // Entity types must register before spawn eggs bind via Item.Properties#spawnEgg.
+        ModEntityTypes.register(modBus);
         ModItems.register(modBus);
         R196BlockStackLimits.register(modBus);
-        ModEntityTypes.register(modBus);
         ModLootModifiers.register(modBus);
         ModRecipes.register(modBus);
         ModMenus.register(modBus);

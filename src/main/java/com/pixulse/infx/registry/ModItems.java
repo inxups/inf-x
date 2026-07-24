@@ -16,13 +16,16 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.food.FoodProperties;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -233,6 +236,9 @@ public final class ModItems {
             GRAY_GELATINOUS_SPHERE,
             BLACK_GELATINOUS_SPHERE);
 
+    /** One 26.2-style spawn egg for every R196 mob entity (excludes gelatinous_sphere projectile). */
+    public static final List<DeferredItem<SpawnEggItem>> SPAWN_EGGS = registerSpawnEggs();
+
     private static final R196Catalog CATALOG = R196Catalog.register(ITEMS);
 
     public static final DeferredItem<Item> FLINT_CHIP = CATALOG.raw("flint_chip").holderAs(Item.class);
@@ -352,6 +358,18 @@ public final class ModItems {
     private static DeferredItem<R196GelatinousSphereItem> gelatinousSphere(
             String path, R196GelatinousSphereItem.Color color) {
         return ITEMS.registerItem(path, properties -> new R196GelatinousSphereItem(color, properties));
+    }
+
+    private static List<DeferredItem<SpawnEggItem>> registerSpawnEggs() {
+        List<DeferredItem<SpawnEggItem>> eggs = new ArrayList<>();
+        for (DeferredHolder<EntityType<?>, ? extends EntityType<?>> type : ModEntityTypes.ALL) {
+            String path = type.getId().getPath() + "_spawn_egg";
+            eggs.add(ITEMS.registerItem(
+                    path,
+                    SpawnEggItem::new,
+                    properties -> properties.spawnEgg(type.get())));
+        }
+        return List.copyOf(eggs);
     }
 
     public static DeferredItem<R196BucketItem> bucket(R196Material material, R196BucketItem.Contents contents) {
