@@ -5,6 +5,7 @@ import com.pixulse.infx.block.R196SafeBlock;
 import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
 import com.pixulse.infx.entity.R196Slime;
+import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
@@ -63,7 +64,10 @@ public final class ClientEvents {
         event.register(ModMenus.DIAMOND_ENCHANTING.get(), EnchantmentScreen::new);
     }
 
-    /** World and held safes use the same 26.2 chest special model as vanilla chests. */
+    /**
+     * Inventory / held / display contexts use the 26.2 chest special model.
+     * Placed safes are rendered by {@link R196SafeRenderer} (block entity), matching vanilla chests.
+     */
     @SubscribeEvent
     private static void registerSafeBlockModels(RegisterBlockModelsEvent event) {
         for (var holder : ModBlocks.METAL_SAFES) {
@@ -84,6 +88,7 @@ public final class ClientEvents {
 
     @SubscribeEvent
     private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ZOMBIE.get(), ZombieRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF303846));
         event.registerEntityRenderer(ModEntityTypes.GHOUL.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF819064));
