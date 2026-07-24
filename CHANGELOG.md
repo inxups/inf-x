@@ -4,8 +4,8 @@
 
 ### 金属保险箱渲染
 
-- 保险箱恢复为物品展示前已验证的烘焙方块模型（`template_metal_safe` + `textures/block/safe/*`），世界与物品共用同一几何，避免 chest BER / special model 的中间闪烁。
-- 移除 `R196SafeRenderer`、`RegisterBlockModelsEvent` chest special 与客户端 lid ticker；材质清单与同步脚本回到 `block/safe` 路径。
+- 保险箱改走原版箱子拆分路径：区块网格仅粒子模型，世界由 `R196SafeRenderer`（`ChestRenderer` BER）绘制，物品用 `ChestSpecialRenderer`，材质在 `textures/entity/chest/*`。
+- 不再把箱体/盖子 bake 进方块网格，避免盖底 z-fighting 中间闪烁；开盖只走 lid 控制器，不写 `OPEN` 状态。
 
 ### 金属保险箱
 
