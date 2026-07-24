@@ -7,6 +7,7 @@
 - 保险箱改为与原版箱子相同的 26.2 chest special model（`RegisterBlockModelsEvent` + `ChestSpecialRenderer`）用于物品与展示；放置在世界中的保险箱通过 `ChestRenderer` BER 绘制。
 - 材质回到 `textures/entity/chest/<metal>.png` 的 chest atlas 路径；方块模型仅保留粒子，不再使用扁平 `template_metal_safe`。
 - 修复仅注册 special block model 时世界中保险箱不可见的问题：补回 `R196SafeRenderer` 与客户端 lid ticker。
+- 打开/关闭不再写入 `BarrelBlock.OPEN` 方块状态，避免区块重网格与 BER 开盖动画叠闪；与原版箱子一致仅用 lid 控制器与 block event。
 
 ### 金属保险箱
 

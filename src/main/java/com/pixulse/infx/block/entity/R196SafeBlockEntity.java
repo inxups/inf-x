@@ -47,14 +47,14 @@ public final class R196SafeBlockEntity extends RandomizableContainerBlockEntity
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
         protected void onOpen(Level level, BlockPos pos, BlockState state) {
+            // Match vanilla chests: lid animation is BER-only; do not rewrite OPEN block state
+            // (that rebuilds the chunk section and flashes the safe model).
             R196SafeBlockEntity.this.playSound(SoundEvents.CHEST_OPEN);
-            R196SafeBlockEntity.this.updateBlockState(state, true);
         }
 
         @Override
         protected void onClose(Level level, BlockPos pos, BlockState state) {
             R196SafeBlockEntity.this.playSound(SoundEvents.CHEST_CLOSE);
-            R196SafeBlockEntity.this.updateBlockState(state, false);
         }
 
         @Override
@@ -220,12 +220,6 @@ public final class R196SafeBlockEntity extends RandomizableContainerBlockEntity
     @Override
     protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
         return ChestMenu.threeRows(containerId, inventory, this);
-    }
-
-    private void updateBlockState(BlockState state, boolean open) {
-        if (level != null) {
-            level.setBlock(worldPosition, state.setValue(BarrelBlock.OPEN, open), 3);
-        }
     }
 
     private void playSound(SoundEvent sound) {
