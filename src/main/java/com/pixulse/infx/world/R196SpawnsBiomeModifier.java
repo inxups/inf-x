@@ -126,25 +126,25 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
         add(spawns, EntityTypes.SQUID, 10, 4, 4);
 
         if (!isAny(biome, ANIMAL_BIOMES)) return;
-        add(spawns, EntityTypes.SHEEP, 10, 1, 1);
-        add(spawns, EntityTypes.PIG, 10, 1, 1);
-        add(spawns, EntityTypes.CHICKEN, 10, 1, 1);
-        add(spawns, EntityTypes.COW, 10, 1, 1);
+        add(spawns, ModEntityTypes.R196_SHEEP.get(), 10, 1, 1);
+        add(spawns, ModEntityTypes.R196_PIG.get(), 10, 1, 1);
+        add(spawns, ModEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
+        add(spawns, ModEntityTypes.R196_COW.get(), 10, 1, 1);
         if (biome.is(BiomeTags.IS_FOREST) && !isAny(biome, SNOW_BIOMES)) {
-            add(spawns, EntityTypes.WOLF, 10, 1, 3);
+            add(spawns, ModEntityTypes.R196_WOLF.get(), 10, 1, 3);
         }
         if (biome.is(BiomeTags.IS_TAIGA)) {
-            add(spawns, EntityTypes.WOLF, 10, 1, 3);
+            add(spawns, ModEntityTypes.R196_WOLF.get(), 10, 1, 3);
             add(spawns, ModEntityTypes.DIRE_WOLF.get(), 5, 1, 3);
         }
         if (isAny(biome, SNOW_BIOMES)) {
-            add(spawns, EntityTypes.WOLF, 4, 1, 3);
+            add(spawns, ModEntityTypes.R196_WOLF.get(), 4, 1, 3);
             add(spawns, ModEntityTypes.DIRE_WOLF.get(), 1, 1, 3);
         }
-        if (isAny(biome, PLAINS)) add(spawns, EntityTypes.HORSE, 5, 1, 2);
+        if (isAny(biome, PLAINS)) add(spawns, ModEntityTypes.R196_HORSE.get(), 5, 1, 2);
         if (isAny(biome, JUNGLES)) {
-            add(spawns, EntityTypes.OCELOT, 10, 1, 1);
-            add(spawns, EntityTypes.CHICKEN, 10, 1, 1);
+            add(spawns, ModEntityTypes.R196_OCELOT.get(), 10, 1, 1);
+            add(spawns, ModEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
         }
     }
 

@@ -140,6 +140,13 @@ class R196MonsterProfileTest {
         assertDimensions(entities, checked, 0.5F, 0.9F, "vampire_bat", "nightwing");
         assertDimensions(entities, checked, 1.0F, 1.8F, "giant_vampire_bat");
         assertDimensions(entities, checked, 0.6F, 0.8F, "hellhound", "dire_wolf");
+        assertDimensions(entities, checked, 0.9F, 1.4F, "r196_cow");
+        assertDimensions(entities, checked, 0.4F, 0.7F, "r196_chicken");
+        assertDimensions(entities, checked, 0.9F, 1.3F, "r196_sheep");
+        assertDimensions(entities, checked, 0.9F, 0.9F, "r196_pig");
+        assertDimensions(entities, checked, 1.3964844F, 1.6F, "r196_horse");
+        assertDimensions(entities, checked, 0.6F, 0.7F, "r196_ocelot");
+        assertDimensions(entities, checked, 0.6F, 0.85F, "r196_wolf");
         assertEquals(entities.keySet(), checked);
     }
 
@@ -219,6 +226,13 @@ class R196MonsterProfileTest {
         add(names, "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠");
         add(names, "hellhound", "Hellhound", "地狱犬");
         add(names, "dire_wolf", "Dire Wolf", "惧狼");
+        add(names, "r196_cow", "Cow", "牛");
+        add(names, "r196_chicken", "Chicken", "鸡");
+        add(names, "r196_sheep", "Sheep", "羊");
+        add(names, "r196_pig", "Pig", "猪");
+        add(names, "r196_horse", "Horse", "马");
+        add(names, "r196_ocelot", "Ocelot", "豹猫");
+        add(names, "r196_wolf", "Wolf", "狼");
         return names;
     }
 
