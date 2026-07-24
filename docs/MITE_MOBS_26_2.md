@@ -90,7 +90,7 @@ MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`
 |---|---|---|---|
 | `r196_creeper` 苦力怕 | `20/32/0.25/2/0/0` | 已对齐 | 无基础属性改动。 |
 | `infernal_creeper` 地狱爬行者 | `20/32/0.25/2/2/0` | 已映射 | `EntityInfernalCreeper#getNaturalDefense` 的 2 点非绕过防御映射为 `Ar=2`。 |
-| `fire_elemental` 火元素 | `20/40/0.25/5/0/0` | 已对齐 | 无基础属性改动。 |
+| `fire_elemental` 火元素 | `20/40/0.25/5/0/0` | 已对齐 | 属性已对齐；近战 AI、水/雪球/附魔门控、周期水伤与岩浆回血已按 MITE `EntityFireElemental` 还原。 |
 | `earth_elemental` 土元素 | `30/20/0.20/12/4/0` | 已映射 | 覆盖铁傀儡的生命、攻击、击退抗性，4 点自然防御映射为 `Ar=4`。 |
 | `r196_blaze` 烈焰人 | `20/32/0.70/6/0/0` | `S=0.23` | 显式写入 `S=0.70`。 |
 

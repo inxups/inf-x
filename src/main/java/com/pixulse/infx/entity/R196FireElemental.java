@@ -1,17 +1,38 @@
 package com.pixulse.infx.entity;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Blaze;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-/** Fire elemental: fireproof, aggressive, and vulnerable to Blaze-effective snowballs. */
+/**
+ * MITE fire elemental: melee, fireproof, lava-healing, and only vulnerable to water, snowballs,
+ * and non-fire enchanted weapons — not a blaze fireball clone.
+ */
 public final class R196FireElemental extends Blaze implements R196Mob {
+    private static final int WATER_TICK_INTERVAL = 40;
+    private static final int LAVA_HEAL_INTERVAL = 40;
+    private static final float LAVA_HEAL_AMOUNT = 4.0F;
+    private static final float WATER_DAMAGE = 1.0F;
+    private static final int MELEE_IGNITE_SECONDS = 6;
+    private static final int EXPERIENCE_MULTIPLIER = 3;
+
     public R196FireElemental(EntityType<? extends Blaze> type, Level level) {
         super(type, level);
+        this.xpReward = 5 * EXPERIENCE_MULTIPLIER;
     }
 
     public static AttributeSupplier.Builder attributes() {
@@ -23,11 +44,59 @@ public final class R196FireElemental extends Blaze implements R196Mob {
     }
 
     @Override
+    protected void registerGoals() {
+        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
+        goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
+        goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
+        goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
+    }
+
+    @Override
+    protected void customServerAiStep(ServerLevel level) {
+        // Skip Blaze hover offset; MITE fire elementals are ground melee mobs.
+    }
+
+    @Override
+    public void aiStep() {
+        if (level() instanceof ServerLevel serverLevel) {
+            if (tickCount % WATER_TICK_INTERVAL == 0) {
+                hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
+            }
+            if (isInLava() && !isInWaterOrRain() && tickCount % LAVA_HEAL_INTERVAL == 0) {
+                heal(LAVA_HEAL_AMOUNT);
+            }
+        }
+        super.aiStep();
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        if (!R196MobDamageRules.fireElementalAccepts(level, source)) {
+            return false;
+        }
+        return super.hurtServer(level, source, damage);
+    }
+
+    @Override
     public boolean doHurtTarget(ServerLevel level, Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt) {
-            target.igniteForSeconds(6.0F);
+            target.igniteForSeconds(MELEE_IGNITE_SECONDS);
         }
         return hurt;
+    }
+
+    @Override
+    public boolean isOnFire() {
+        return true;
+    }
+
+    @Override
+    public boolean isSensitiveToWater() {
+        return true;
     }
 }
