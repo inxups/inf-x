@@ -7,11 +7,13 @@ import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
@@ -75,7 +77,9 @@ public final class PlayerProgressionEvents {
     }
 
     private static void onClone(PlayerEvent.Clone event) {
-        if (!event.isWasDeath()) {
+        if (!event.isWasDeath()
+                || keepsExperienceOnDeath(event.getEntity())
+                || event.getOriginal().isSpectator()) {
             R196Experience.setTotal(event.getEntity(), event.getOriginal().totalExperience);
             R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
             return;
@@ -96,8 +100,17 @@ public final class PlayerProgressionEvents {
 
     private static void onExperienceDrop(LivingExperienceDropEvent event) {
         if (event.getEntity() instanceof Player player) {
+            if (keepsExperienceOnDeath(player) || player.isSpectator()) {
+                event.setDroppedExperience(0);
+                return;
+            }
             event.setDroppedExperience(R196Experience.droppedOnDeath(player.totalExperience));
         }
+    }
+
+    private static boolean keepsExperienceOnDeath(Player player) {
+        return player.level() instanceof ServerLevel serverLevel
+                && serverLevel.getGameRules().get(GameRules.KEEP_INVENTORY);
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -139,7 +152,7 @@ public final class PlayerProgressionEvents {
     }
 
     public static float meleeMultiplier(int level) {
-        return 1.0F + Math.max(0, Math.min(level, R196Experience.MAX_DISPLAY_LEVEL)) * 0.005F;
+        return R196Experience.meleeMultiplier(level);
     }
 
     public static boolean isWeakStrike(Player player) {

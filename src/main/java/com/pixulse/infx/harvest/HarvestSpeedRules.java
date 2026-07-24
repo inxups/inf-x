@@ -72,7 +72,7 @@ public final class HarvestSpeedRules {
             boolean hungry,
             boolean paralyzed,
             boolean inCobweb) {
-        float result = 1.0F + Math.max(0, Math.min(level, R196Experience.MAX_DISPLAY_LEVEL)) * 0.02F;
+        float result = R196Experience.harvestOrCraftMultiplier(level);
         if (submerged) result *= 0.2F;
         if (airborne) result *= 0.2F;
         if (hungry) result *= 0.2F;
@@ -122,8 +122,7 @@ public final class HarvestSpeedRules {
         if (paralyzed) result *= 0.1F;
         if (inCobweb) result *= 0.1F;
         result = applyFreeMovementResistance(player, result, paralyzed, inCobweb);
-        result *= 1.0F
-                + Math.max(0, Math.min(player.experienceLevel, R196Experience.MAX_DISPLAY_LEVEL)) * 0.02F;
+        result *= R196Experience.harvestOrCraftMultiplier(player.experienceLevel);
         return result;
     }
 

@@ -58,4 +58,10 @@ class CraftingTimeCalculatorTest {
         assertEquals(25, CraftingTimeCalculator.requiredTicks(
                 25.0, 200, BenchTier.ADAMANTIUM, true, true));
     }
+
+    @Test
+    void negativeDebtLevelsSlowCraftingWithoutCrossingZeroDivisor() {
+        assertEquals(980, CraftingTimeCalculator.requiredTicks(400.0, -40, BenchTier.HAND));
+        assertEquals(490, CraftingTimeCalculator.requiredTicks(400.0, -40, BenchTier.FLINT));
+    }
 }
