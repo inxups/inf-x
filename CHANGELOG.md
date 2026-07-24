@@ -6,6 +6,7 @@
 
 - 为全部 40 个 R196 可刷怪生物注册 26.2 风格 `SpawnEggItem`（`Item.Properties#spawnEgg`），排除粘液球弹射物。
 - 刷怪蛋贴图以已授权 MITE `spawn_egg` / `spawn_egg_overlay` 为底板，按实体配色合成完整 16×16 图标；模型、双语名称与 `InfiniteX: Spawn Eggs` 创造页签由数据生成维护，来源清单记录 SHA-256。
+- 生成资源测试计数与材质清单校验同步计入 40 枚刷怪蛋，避免 `resourceTest` 误报。
 
 ### 游玩向实现修复
 
