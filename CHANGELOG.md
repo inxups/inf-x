@@ -2,6 +2,10 @@
 
 ## [0v] - 2026-07-24
 
+### 构建警告清理
+
+- 移除 `R196SafeModel` / `R196SafeSpecialRenderer` 上已无运行时成员剥离效果的 `@OnlyIn(Dist.CLIENT)`，客户端隔离改由 `client` 包与 `@EventBusSubscriber(value = Dist.CLIENT)` 承担。
+
 ### 金属保险箱渲染
 
 - 保险箱改走原版箱子拆分路径：区块网格仅粒子模型，世界由 `R196SafeRenderer` BER 绘制，物品用 `R196SafeSpecialRenderer`，材质在 `textures/entity/chest/*`。

@@ -9,15 +9,12 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * Chest-like safe geometry without the vanilla 1px body/lid side overlap.
  * Vanilla lid sits at y=9 while the body reaches y=10, so side faces z-fight
  * and metal textures flash a mid-body seam. Body ends at y=9; lid starts there.
  */
-@OnlyIn(Dist.CLIENT)
 final class R196SafeModel extends Model<Float> {
     static final ModelLayerLocation LAYER = new ModelLayerLocation(com.pixulse.infx.InfiniteX.id("safe"), "main");
 
