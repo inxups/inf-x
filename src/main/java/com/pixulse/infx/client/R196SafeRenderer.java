@@ -1,13 +1,19 @@
 package com.pixulse.infx.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.entity.R196SafeBlockEntity;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.blockentity.state.ChestRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.BarrelBlock;
@@ -16,12 +22,21 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Placed safes use the same entity-path renderer as vanilla chests.
- * Chunk meshes stay particle-only so the BER is the only world geometry.
+ * Placed safes use a non-overlapping chest model so metal lid/body seams do not z-fight.
+ * Chunk meshes stay particle-only; this BER is the only world geometry.
  */
-final class R196SafeRenderer extends ChestRenderer<R196SafeBlockEntity> {
+final class R196SafeRenderer implements BlockEntityRenderer<R196SafeBlockEntity, ChestRenderState> {
+    private final SpriteGetter sprites;
+    private final R196SafeModel model;
+
     R196SafeRenderer(BlockEntityRendererProvider.Context context) {
-        super(context);
+        this.sprites = context.sprites();
+        this.model = new R196SafeModel(context.bakeLayer(R196SafeModel.LAYER));
+    }
+
+    @Override
+    public ChestRenderState createRenderState() {
+        return new ChestRenderState();
     }
 
     @Override
@@ -39,5 +54,39 @@ final class R196SafeRenderer extends ChestRenderer<R196SafeBlockEntity> {
         state.material = ChestRenderState.ChestMaterialType.REGULAR;
         state.customSprite = Sheets.CHEST_MAPPER.apply(
                 InfiniteX.id(blockEntity.materialBlock().material().path()));
+    }
+
+    @Override
+    public void submit(
+            ChestRenderState state,
+            PoseStack poseStack,
+            SubmitNodeCollector submitNodeCollector,
+            CameraRenderState camera) {
+        poseStack.pushPose();
+        poseStack.mulPose(ChestRenderer.modelTransformation(state.facing));
+        float open = state.open;
+        open = 1.0F - open;
+        open = 1.0F - open * open * open;
+        SpriteId spriteId = state.customSprite != null
+                ? state.customSprite
+                : Sheets.chooseSprite(state.material, state.type);
+        submitNodeCollector.submitModel(
+                model,
+                open,
+                poseStack,
+                state.lightCoords,
+                OverlayTexture.NO_OVERLAY,
+                -1,
+                spriteId,
+                sprites,
+                0,
+                state.breakProgress);
+        poseStack.popPose();
+    }
+
+    @Override
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(R196SafeBlockEntity blockEntity) {
+        net.minecraft.core.BlockPos pos = blockEntity.getBlockPos();
+        return net.minecraft.world.phys.AABB.encapsulatingFullBlocks(pos.offset(-1, 0, -1), pos.offset(1, 1, 1));
     }
 }
