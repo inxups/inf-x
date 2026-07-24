@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-24
 
+### 金属保险箱三维渲染
+
+- 保险箱改为与原版箱子相同的 26.2 chest special model（`RegisterBlockModelsEvent` + `ChestSpecialRenderer`），世界与物品均三维展示并可开盖朝向。
+- 材质回到 `textures/entity/chest/<metal>.png` 的 chest atlas 路径；方块模型仅保留粒子，不再使用扁平 `template_metal_safe`。
+
 ### 金属保险箱
 
 - 保险箱实现 `WorldlyContainer` 且侧向槽位为空，漏斗等自动化无法抽入或抽出，对齐 MITE strongbox。
