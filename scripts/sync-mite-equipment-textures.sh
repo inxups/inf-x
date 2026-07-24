@@ -68,9 +68,9 @@ for material in copper silver gold iron ancient_metal mithril adamantium; do
   done
 done
 
-# MITE metal safes use 64x64 chest sheets baked into a static block model.
+# MITE metal safes use 64x64 chest sheets on the chest entity atlas (vanilla BER path).
 for material in copper silver gold iron ancient_metal mithril adamantium; do
-  sync resource-pack "entity/chest/${material}_single.png" "block/safe/${material}.png"
+  sync resource-pack "entity/chest/${material}_single.png" "entity/chest/${material}.png"
 done
 
 for material in copper silver gold rusted_iron iron ancient_metal mithril adamantium; do

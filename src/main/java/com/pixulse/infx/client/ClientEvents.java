@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
 import com.pixulse.infx.crafting.TimedCraftingRecipe;
 import com.pixulse.infx.entity.R196Slime;
+import com.pixulse.infx.registry.ModBlockEntityTypes;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.registry.ModRecipes;
@@ -58,6 +59,8 @@ public final class ClientEvents {
 
     @SubscribeEvent
     private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        // World geometry only — chunk mesh is particle-only (see ModModelProvider).
+        event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ZOMBIE.get(), ZombieRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF303846));
         event.registerEntityRenderer(ModEntityTypes.GHOUL.get(), context -> new R196EntityRenderers.ZombieTint(context, 0xFF819064));
