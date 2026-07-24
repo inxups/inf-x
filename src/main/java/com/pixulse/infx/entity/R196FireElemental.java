@@ -1,6 +1,10 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.registry.ModSounds;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,6 +21,7 @@ import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 /**
  * MITE fire elemental: melee, fireproof, lava-healing, and only vulnerable to water, snowballs,
@@ -24,11 +29,13 @@ import net.minecraft.world.level.Level;
  */
 public final class R196FireElemental extends Blaze implements R196Mob {
     private static final int WATER_TICK_INTERVAL = 40;
-    private static final int LAVA_HEAL_INTERVAL = 40;
     private static final float LAVA_HEAL_AMOUNT = 4.0F;
     private static final float WATER_DAMAGE = 1.0F;
     private static final int MELEE_IGNITE_SECONDS = 6;
     private static final int EXPERIENCE_MULTIPLIER = 3;
+
+    private int ticksUntilNextFireSound;
+    private int ticksUntilNextFizzSound;
 
     public R196FireElemental(EntityType<? extends Blaze> type, Level level) {
         super(type, level);
@@ -63,14 +70,45 @@ public final class R196FireElemental extends Blaze implements R196Mob {
     @Override
     public void aiStep() {
         if (level() instanceof ServerLevel serverLevel) {
-            if (tickCount % WATER_TICK_INTERVAL == 0) {
-                hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
+            tickMiteEffects(serverLevel);
+        }
+        // isSilent() suppresses Blaze BLAZE_BURN; explicit MITE fire/fizz playback below.
+        super.aiStep();
+    }
+
+    private void tickMiteEffects(ServerLevel serverLevel) {
+        if (tickCount % WATER_TICK_INTERVAL == 0) {
+            hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
+        }
+        if (isInWaterOrRain()) {
+            if (--ticksUntilNextFizzSound <= 0) {
+                playMiteSound(
+                        SoundEvents.FIRE_EXTINGUISH,
+                        0.7F,
+                        1.6F + (random.nextFloat() - random.nextFloat()) * 0.4F);
+                if (random.nextInt(4) == 0) {
+                    playMiteSound(ModSounds.FIRE_ELEMENTAL_SIZZLE.get(), 1.0F, 1.0F);
+                }
+                ticksUntilNextFizzSound = random.nextInt(7) + 2;
+                if (random.nextInt(isInWater() ? 1 : 4) == 0) {
+                    hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
+                }
             }
-            if (isInLava() && !isInWaterOrRain() && tickCount % LAVA_HEAL_INTERVAL == 0) {
+        } else if (--ticksUntilNextFireSound <= 0) {
+            playMiteSound(
+                    SoundEvents.FIRE_AMBIENT,
+                    1.0F + random.nextFloat(),
+                    random.nextFloat() * 0.7F + 0.3F);
+            ticksUntilNextFireSound = random.nextInt(21) + 30;
+            if (isInLava()) {
                 heal(LAVA_HEAL_AMOUNT);
             }
         }
-        super.aiStep();
+    }
+
+    private void playMiteSound(SoundEvent sound, float volume, float pitch) {
+        // Use level().playSound directly so isSilent() does not suppress MITE fire/fizz.
+        level().playSound(null, getX(), getY(), getZ(), sound, SoundSource.HOSTILE, volume, pitch);
     }
 
     @Override
@@ -91,12 +129,33 @@ public final class R196FireElemental extends Blaze implements R196Mob {
     }
 
     @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return null;
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource source) {
+        return null;
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return null;
+    }
+
+    @Override
     public boolean isOnFire() {
         return true;
     }
 
     @Override
     public boolean isSensitiveToWater() {
+        return true;
+    }
+
+    @Override
+    public boolean isSilent() {
+        // Suppress Blaze client BLAZE_BURN loop; MITE fire/fizz uses direct level playSound.
         return true;
     }
 }

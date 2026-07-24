@@ -26,7 +26,7 @@ class R196FulltextAssetProvenanceTest {
     void allAuthorizedFulltextAssetsAreUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(96, lines.size(), "header plus 95 authorized fulltext destinations");
+        assertEquals(97, lines.size(), "header plus 96 authorized fulltext destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
