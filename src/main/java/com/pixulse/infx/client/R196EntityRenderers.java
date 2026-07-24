@@ -1,9 +1,16 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.R196Bat;
+import com.pixulse.infx.entity.R196Creeper;
+import com.pixulse.infx.entity.R196Silverfish;
+import com.pixulse.infx.entity.R196Skeleton;
 import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.entity.R196Spider;
+import com.pixulse.infx.entity.R196Wolf;
+import com.pixulse.infx.entity.R196Zombie;
 import net.minecraft.client.renderer.entity.BatRenderer;
+import net.minecraft.client.renderer.entity.BlazeRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IronGolemRenderer;
@@ -24,57 +31,77 @@ import net.minecraft.client.renderer.entity.state.WolfRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
 
-/** Vanilla-model renderers with the approved MITE textures for supported R196 variants. */
+/** Vanilla-model renderers that bind authorized MITE entity textures for R196 variants. */
 final class R196EntityRenderers {
     private R196EntityRenderers() {}
 
-    static final class ZombieTint extends ZombieRenderer {
-        private final int tint;
+    static final class ZombieTexture extends ZombieRenderer {
+        private final Identifier texture;
 
-        ZombieTint(EntityRendererProvider.Context context, int tint) {
+        ZombieTexture(EntityRendererProvider.Context context, R196Zombie.Variant variant) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
         }
 
         @Override
-        protected int getModelTint(ZombieRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(ZombieRenderState state) {
+            return texture;
+        }
+
+        static Identifier textureFor(R196Zombie.Variant variant) {
+            return switch (variant) {
+                case GHOUL -> mite("textures/entity/ghoul.png");
+                case SHADOW -> mite("textures/entity/shadow.png");
+                case WIGHT -> mite("textures/entity/wight.png");
+                case REVENANT -> mite("textures/entity/zombie/revenant.png");
+                case INVISIBLE_STALKER, ZOMBIE -> Identifier.withDefaultNamespace("textures/entity/zombie/zombie.png");
+            };
         }
     }
 
-    static final class SkeletonTint extends SkeletonRenderer {
-        private final int tint;
+    static final class SkeletonTexture extends SkeletonRenderer {
+        private final Identifier texture;
 
-        SkeletonTint(EntityRendererProvider.Context context, int tint) {
+        SkeletonTexture(EntityRendererProvider.Context context, R196Skeleton.Variant variant) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
         }
 
         @Override
-        protected int getModelTint(SkeletonRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(SkeletonRenderState state) {
+            return texture;
+        }
+
+        static Identifier textureFor(R196Skeleton.Variant variant) {
+            return switch (variant) {
+                case LONGDEAD -> mite("textures/entity/skeleton/longdead.png");
+                case BONE_LORD -> mite("textures/entity/skeleton/bone_lord.png");
+                case ANCIENT_BONE_LORD -> mite("textures/entity/skeleton/longdead_guardian.png");
+                case SKELETON -> Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
+            };
         }
     }
 
-    static final class SpiderTint extends SpiderRenderer<R196Spider> {
-        private final int tint;
+    static final class SpiderTexture extends SpiderRenderer<R196Spider> {
+        private final Identifier texture;
         private final float renderScale;
 
-        SpiderTint(EntityRendererProvider.Context context, int tint) {
-            this(context, tint, 1.0F);
+        SpiderTexture(EntityRendererProvider.Context context, R196Spider.Variant variant) {
+            this(context, variant, 1.0F);
         }
 
-        SpiderTint(EntityRendererProvider.Context context, int tint, float renderScale) {
+        SpiderTexture(EntityRendererProvider.Context context, R196Spider.Variant variant, float renderScale) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
             this.renderScale = renderScale;
         }
 
         @Override
-        protected int getModelTint(LivingEntityRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(LivingEntityRenderState state) {
+            return texture;
         }
 
         @Override
@@ -82,31 +109,49 @@ final class R196EntityRenderers {
             super.extractRenderState(entity, state, partialTicks);
             state.scale *= renderScale;
         }
+
+        static Identifier textureFor(R196Spider.Variant variant) {
+            return switch (variant) {
+                case CAVE_SPIDER -> mite("textures/entity/spider/cave_spider.png");
+                case BLACK_WIDOW -> mite("textures/entity/spider/black_widow.png");
+                case DEMON -> mite("textures/entity/spider/demon_spider.png");
+                case WOOD -> mite("textures/entity/spider/wood_spider.png");
+                case PHASE -> mite("textures/entity/spider/phase_spider.png");
+                case SPIDER -> Identifier.withDefaultNamespace("textures/entity/spider/spider.png");
+            };
+        }
     }
 
-    static final class CreeperTint extends CreeperRenderer {
-        private final int tint;
+    static final class CreeperTexture extends CreeperRenderer {
+        private final Identifier texture;
         private final float renderScale;
 
-        CreeperTint(EntityRendererProvider.Context context, int tint) {
-            this(context, tint, 1.0F);
+        CreeperTexture(EntityRendererProvider.Context context, R196Creeper.Variant variant) {
+            this(context, variant, 1.0F);
         }
 
-        CreeperTint(EntityRendererProvider.Context context, int tint, float renderScale) {
+        CreeperTexture(EntityRendererProvider.Context context, R196Creeper.Variant variant, float renderScale) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
             this.renderScale = renderScale;
         }
 
         @Override
-        protected int getModelTint(CreeperRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(CreeperRenderState state) {
+            return texture;
         }
 
         @Override
         public void extractRenderState(Creeper entity, CreeperRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
             state.scale *= renderScale;
+        }
+
+        static Identifier textureFor(R196Creeper.Variant variant) {
+            return switch (variant) {
+                case INFERNAL -> mite("textures/entity/creeper/infernal_creeper.png");
+                case CREEPER -> Identifier.withDefaultNamespace("textures/entity/creeper/creeper.png");
+            };
         }
     }
 
@@ -125,11 +170,11 @@ final class R196EntityRenderers {
 
         static Identifier textureFor(R196Slime.Variant variant) {
             return switch (variant) {
-                case SLIME -> miteGelatinousTexture("slime");
-                case JELLY -> miteGelatinousTexture("jelly");
-                case BLOB -> miteGelatinousTexture("blob");
-                case OOZE -> miteGelatinousTexture("ooze");
-                case PUDDING -> miteGelatinousTexture("pudding");
+                case SLIME -> mite("textures/entity/slime/slime.png");
+                case JELLY -> mite("textures/entity/slime/jelly.png");
+                case BLOB -> mite("textures/entity/slime/blob.png");
+                case OOZE -> mite("textures/entity/slime/ooze.png");
+                case PUDDING -> mite("textures/entity/slime/pudding.png");
             };
         }
     }
@@ -145,45 +190,49 @@ final class R196EntityRenderers {
         }
 
         static Identifier texture() {
-            return miteGelatinousTexture("magmacube");
+            return mite("textures/entity/slime/magmacube.png");
         }
     }
 
-    private static Identifier miteGelatinousTexture(String name) {
-        return InfiniteX.id("textures/entity/slime/" + name + ".png");
-    }
+    static final class SilverfishTexture extends SilverfishRenderer {
+        private final Identifier texture;
 
-    static final class SilverfishTint extends SilverfishRenderer {
-        private final int tint;
-
-        SilverfishTint(EntityRendererProvider.Context context, int tint) {
+        SilverfishTexture(EntityRendererProvider.Context context, R196Silverfish.Variant variant) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
         }
 
         @Override
-        protected int getModelTint(LivingEntityRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(LivingEntityRenderState state) {
+            return texture;
+        }
+
+        static Identifier textureFor(R196Silverfish.Variant variant) {
+            return switch (variant) {
+                case NETHERSPAWN -> mite("textures/entity/silverfish/netherspawn.png");
+                case COPPERSPINE -> mite("textures/entity/silverfish/copperspine.png");
+                case HOARY -> mite("textures/entity/silverfish/hoary.png");
+            };
         }
     }
 
-    static final class BatTint extends BatRenderer {
-        private final int tint;
+    static final class BatTexture extends BatRenderer {
+        private final Identifier texture;
         private final float renderScale;
 
-        BatTint(EntityRendererProvider.Context context, int tint) {
-            this(context, tint, 1.0F);
+        BatTexture(EntityRendererProvider.Context context, R196Bat.Variant variant) {
+            this(context, variant, 1.0F);
         }
 
-        BatTint(EntityRendererProvider.Context context, int tint, float renderScale) {
+        BatTexture(EntityRendererProvider.Context context, R196Bat.Variant variant, float renderScale) {
             super(context);
-            this.tint = tint;
+            this.texture = textureFor(variant);
             this.renderScale = renderScale;
         }
 
         @Override
-        protected int getModelTint(BatRenderState state) {
-            return tint;
+        public Identifier getTextureLocation(BatRenderState state) {
+            return texture;
         }
 
         @Override
@@ -191,33 +240,91 @@ final class R196EntityRenderers {
             super.extractRenderState(entity, state, partialTicks);
             state.scale *= renderScale;
         }
-    }
 
-    static final class WolfTint extends WolfRenderer {
-        private final int tint;
-
-        WolfTint(EntityRendererProvider.Context context, int tint) {
-            super(context);
-            this.tint = tint;
-        }
-
-        @Override
-        protected int getModelTint(WolfRenderState state) {
-            return tint;
+        static Identifier textureFor(R196Bat.Variant variant) {
+            return switch (variant) {
+                case VAMPIRE, GIANT_VAMPIRE -> mite("textures/entity/bat/vampire.png");
+                case NIGHTWING -> mite("textures/entity/bat/nightwing.png");
+            };
         }
     }
 
-    static final class EarthTint extends IronGolemRenderer {
-        private final int tint;
+    static final class WolfTexture extends WolfRenderer {
+        private final Identifier wild;
+        private final Identifier tame;
+        private final Identifier angry;
 
-        EarthTint(EntityRendererProvider.Context context, int tint) {
+        WolfTexture(EntityRendererProvider.Context context, R196Wolf.Variant variant) {
             super(context);
-            this.tint = tint;
+            this.wild = textureFor(variant, false, false);
+            this.tame = textureFor(variant, true, false);
+            this.angry = textureFor(variant, false, true);
         }
 
         @Override
-        protected int getModelTint(IronGolemRenderState state) {
-            return tint;
+        public void extractRenderState(Wolf entity, WolfRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            if (!(entity instanceof R196Wolf wolf)) {
+                return;
+            }
+            if (wolf.variant() == R196Wolf.Variant.HELLHOUND) {
+                state.texture = wild;
+                return;
+            }
+            if (entity.isTame()) {
+                state.texture = tame;
+            } else if (entity.isAngry()) {
+                state.texture = angry;
+            } else {
+                state.texture = wild;
+            }
         }
+
+        static Identifier textureFor(R196Wolf.Variant variant, boolean tame, boolean angry) {
+            if (variant == R196Wolf.Variant.HELLHOUND) {
+                return mite("textures/entity/hellhound/hellhound.png");
+            }
+            if (tame) {
+                return mite("textures/entity/dire_wolf/tame.png");
+            }
+            if (angry) {
+                return mite("textures/entity/dire_wolf/angry.png");
+            }
+            return mite("textures/entity/dire_wolf/neutral.png");
+        }
+    }
+
+    static final class FireElementalTexture extends BlazeRenderer {
+        FireElementalTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public Identifier getTextureLocation(LivingEntityRenderState state) {
+            return texture();
+        }
+
+        static Identifier texture() {
+            return mite("textures/entity/fire_elemental.png");
+        }
+    }
+
+    static final class EarthElementalTexture extends IronGolemRenderer {
+        EarthElementalTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public Identifier getTextureLocation(IronGolemRenderState state) {
+            return texture();
+        }
+
+        static Identifier texture() {
+            return mite("textures/entity/earth_elemental/stone.png");
+        }
+    }
+
+    private static Identifier mite(String path) {
+        return InfiniteX.id(path);
     }
 }

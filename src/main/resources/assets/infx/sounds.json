@@ -18,5 +18,75 @@
     "sounds": [
       { "name": "infx:records/legends", "stream": true }
     ]
+  },
+  "entity.ghoul.ambient": {
+    "sounds": [ "infx:mob/ghoul/say1", "infx:mob/ghoul/say2" ]
+  },
+  "entity.ghoul.hurt": {
+    "sounds": [ "infx:mob/ghoul/hurt1", "infx:mob/ghoul/hurt2" ]
+  },
+  "entity.ghoul.death": {
+    "sounds": [ "infx:mob/ghoul/death" ]
+  },
+  "entity.wight.ambient": {
+    "sounds": [ "infx:mob/wight/say1", "infx:mob/wight/say2" ]
+  },
+  "entity.wight.hurt": {
+    "sounds": [ "infx:mob/wight/hurt1", "infx:mob/wight/hurt2" ]
+  },
+  "entity.wight.death": {
+    "sounds": [ "infx:mob/wight/death" ]
+  },
+  "entity.shadow.ambient": {
+    "sounds": [ "infx:mob/shadow/say1", "infx:mob/shadow/say2", "infx:mob/shadow/say3" ]
+  },
+  "entity.shadow.hurt": {
+    "sounds": [ "infx:mob/shadow/hurt1", "infx:mob/shadow/hurt2" ]
+  },
+  "entity.shadow.death": {
+    "sounds": [ "infx:mob/shadow/death1", "infx:mob/shadow/death2" ]
+  },
+  "entity.invisible_stalker.ambient": {
+    "sounds": [
+      "infx:mob/invisiblestalker/say1",
+      "infx:mob/invisiblestalker/say2",
+      "infx:mob/invisiblestalker/say3"
+    ]
+  },
+  "entity.invisible_stalker.hurt": {
+    "sounds": [ "infx:mob/invisiblestalker/hurt1", "infx:mob/invisiblestalker/hurt2" ]
+  },
+  "entity.invisible_stalker.death": {
+    "sounds": [ "infx:mob/invisiblestalker/death" ]
+  },
+  "entity.demon_spider.ambient": {
+    "sounds": [ "infx:mob/demonspider/say1", "infx:mob/demonspider/say2", "infx:mob/demonspider/say3" ]
+  },
+  "entity.demon_spider.hurt": {
+    "sounds": [ "infx:mob/demonspider/hurt1", "infx:mob/demonspider/hurt2" ]
+  },
+  "entity.demon_spider.death": {
+    "sounds": [ "infx:mob/demonspider/death" ]
+  },
+  "entity.hellhound.ambient": {
+    "sounds": [ "infx:mob/hellhound/say1", "infx:mob/hellhound/say2", "infx:mob/hellhound/say3" ]
+  },
+  "entity.hellhound.hurt": {
+    "sounds": [ "infx:mob/hellhound/hurt1", "infx:mob/hellhound/hurt2" ]
+  },
+  "entity.hellhound.death": {
+    "sounds": [ "infx:mob/hellhound/death" ]
+  },
+  "entity.hellhound.breath": {
+    "sounds": [ "infx:mob/hellhound/breath" ]
+  },
+  "entity.witch.ambient": {
+    "sounds": [ "infx:mob/witch/cackle1", "infx:mob/witch/cackle2", "infx:mob/witch/cackle3" ]
+  },
+  "entity.witch.hurt": {
+    "sounds": [ "infx:mob/witch/hurt" ]
+  },
+  "entity.witch.death": {
+    "sounds": [ "infx:mob/witch/death" ]
   }
 }

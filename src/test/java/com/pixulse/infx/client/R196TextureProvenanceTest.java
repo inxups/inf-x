@@ -40,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(579, lines.size(), "header plus 578 selected destinations");
+        assertEquals(603, lines.size(), "header plus 602 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -112,7 +112,37 @@ class R196TextureProvenanceTest {
                 Map.entry("textures/entity/slime/blob.png", "entity/slime/blob.png"),
                 Map.entry("textures/entity/slime/ooze.png", "entity/slime/ooze.png"),
                 Map.entry("textures/entity/slime/pudding.png", "entity/slime/pudding.png"),
-                Map.entry("textures/entity/slime/magmacube.png", "entity/slime/magmacube.png"));
+                Map.entry("textures/entity/slime/magmacube.png", "entity/slime/magmacube.png"),
+                Map.entry("textures/entity/ghoul.png", "entity/ghoul.png"),
+                Map.entry("textures/entity/shadow.png", "entity/shadow.png"),
+                Map.entry("textures/entity/wight.png", "entity/wight.png"),
+                Map.entry("textures/entity/zombie/revenant.png", "entity/zombie/revenant.png"),
+                Map.entry("textures/entity/skeleton/longdead.png", "entity/skeleton/longdead.png"),
+                Map.entry("textures/entity/skeleton/bone_lord.png", "entity/skeleton/bone_lord.png"),
+                Map.entry(
+                        "textures/entity/skeleton/longdead_guardian.png",
+                        "entity/skeleton/longdead_guardian.png"),
+                Map.entry("textures/entity/spider/black_widow.png", "entity/spider/black_widow.png"),
+                Map.entry("textures/entity/spider/demon_spider.png", "entity/spider/demon_spider.png"),
+                Map.entry("textures/entity/spider/wood_spider.png", "entity/spider/wood_spider.png"),
+                Map.entry("textures/entity/spider/phase_spider.png", "entity/spider/phase_spider.png"),
+                Map.entry("textures/entity/spider/cave_spider.png", "entity/spider/cave_spider.png"),
+                Map.entry(
+                        "textures/entity/creeper/infernal_creeper.png",
+                        "entity/creeper/infernal_creeper.png"),
+                Map.entry("textures/entity/fire_elemental.png", "entity/fire_elemental.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/stone.png",
+                        "entity/earth_elemental/stone/earth_elemental_stone.png"),
+                Map.entry("textures/entity/silverfish/netherspawn.png", "entity/silverfish/netherspawn.png"),
+                Map.entry("textures/entity/silverfish/copperspine.png", "entity/silverfish/copperspine.png"),
+                Map.entry("textures/entity/silverfish/hoary.png", "entity/silverfish/hoary.png"),
+                Map.entry("textures/entity/bat/vampire.png", "entity/bat/vampire.png"),
+                Map.entry("textures/entity/bat/nightwing.png", "entity/bat/nightwing.png"),
+                Map.entry("textures/entity/hellhound/hellhound.png", "entity/hellhound/hellhound.png"),
+                Map.entry("textures/entity/dire_wolf/neutral.png", "entity/dire_wolf/neutral.png"),
+                Map.entry("textures/entity/dire_wolf/tame.png", "entity/dire_wolf/tame.png"),
+                Map.entry("textures/entity/dire_wolf/angry.png", "entity/dire_wolf/angry.png"));
         assertEquals(expected, expected.keySet().stream()
                 .collect(Collectors.toMap(destination -> destination, sourcesByDestination::get)));
     }

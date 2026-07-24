@@ -1,6 +1,9 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.registry.ModSounds;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -10,6 +13,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 /** Dire wolves retain wolf taming, while hellhounds remain permanently wild and hostile. */
 public final class R196Wolf extends Wolf implements Enemy, R196Mob {
@@ -82,9 +86,25 @@ public final class R196Wolf extends Wolf implements Enemy, R196Mob {
     }
 
     @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return variant() == Variant.HELLHOUND ? ModSounds.HELLHOUND_AMBIENT.get() : super.getAmbientSound();
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return variant() == Variant.HELLHOUND ? ModSounds.HELLHOUND_HURT.get() : super.getHurtSound(source);
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return variant() == Variant.HELLHOUND ? ModSounds.HELLHOUND_DEATH.get() : super.getDeathSound();
+    }
+
+    @Override
     public boolean doHurtTarget(ServerLevel level, Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt && variant() == Variant.HELLHOUND && random.nextFloat() < 0.4F) {
+            playSound(ModSounds.HELLHOUND_BREATH.get(), 4.0F, 1.0F);
             target.igniteForSeconds(1 + random.nextInt(8));
         }
         return hurt;

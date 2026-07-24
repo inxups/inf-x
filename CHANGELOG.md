@@ -2,6 +2,12 @@
 
 ## [0v] - 2026-07-24
 
+### R196 新增实体材质与声音
+
+- 有专用 MITE 贴图的 R196 新增实体改为绑定授权资源包实体材质（僵尸系、骷髅系、蜘蛛系、地狱爬行者、火/土元素、蠹虫、蝙蝠、地狱犬/惧狼等），不再仅用运行时着色区分。
+- 影子潜伏者、食尸鬼、黑色食尸鬼、尸妖、恶魔蜘蛛、地狱犬与女巫接入授权 MITE `imported.mob` 环境/受伤/死亡声音；地狱犬点燃攻击补回 breath 音效。
+- 材质与声音来源路径、目标路径和 SHA-256 分别写入 `mite_texture_manifest.tsv` 与 `mite_fulltext_manifest.tsv`；渲染路径与清单由单测锁定。
+
 ### 构建警告清理
 
 - 移除 `R196SafeModel` / `R196SafeSpecialRenderer` 上已无运行时成员剥离效果的 `@OnlyIn(Dist.CLIENT)`，客户端隔离改由 `client` 包与 `@EventBusSubscriber(value = Dist.CLIENT)` 承担。
