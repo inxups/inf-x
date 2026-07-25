@@ -20,6 +20,7 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
@@ -158,26 +159,20 @@ public final class R196AnimalEvents {
                 if (!takeMilk(level, cow, 1)) {
                     deny(event);
                 } else {
-                    ItemStack filled = ModItems.MILK_BOWL.toStack();
-                    ItemStack result = ItemUtils.createFilledResult(
-                            event.getItemStack(), event.getEntity(), filled);
-                    event.getEntity().awardStat(Stats.ITEM_USED.get(Items.BOWL));
-                    cow.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
-                    event.setCanceled(true);
-                    event.setCancellationResult(InteractionResult.SUCCESS.heldItemTransformedTo(result));
+                    // Apply stack change directly: createFilledResult already consumes the bowl,
+                    // and heldItemTransformedTo can leave the hand empty when the result is already applied.
+                    giveFilledContainer(event, cow, ModItems.MILK_BOWL.toStack(), Items.BOWL);
                 }
             } else if (event.getItemStack().getItem() instanceof R196BucketItem bucket
                     && bucket.contents() == R196BucketItem.Contents.EMPTY) {
                 if (!takeMilk(level, cow, MILK_UNITS_PER_DAY)) {
                     deny(event);
                 } else {
-                    ItemStack filled = ModItems.bucket(bucket.material(), R196BucketItem.Contents.MILK).toStack();
-                    ItemStack result = ItemUtils.createFilledResult(
-                            event.getItemStack(), event.getEntity(), filled);
-                    event.getEntity().awardStat(Stats.ITEM_USED.get(bucket));
-                    cow.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
-                    event.setCanceled(true);
-                    event.setCancellationResult(InteractionResult.SUCCESS.heldItemTransformedTo(result));
+                    giveFilledContainer(
+                            event,
+                            cow,
+                            ModItems.bucket(bucket.material(), R196BucketItem.Contents.MILK).toStack(),
+                            bucket);
                 }
             }
         } else if (event.getTarget() instanceof Sheep sheep && event.getItemStack().is(Items.SHEARS)) {
@@ -197,6 +192,25 @@ public final class R196AnimalEvents {
         if (used + units > MILK_UNITS_PER_DAY) return false;
         data.putInt(MILK_UNITS, used + units);
         return true;
+    }
+
+    /**
+     * Consumes one empty container and puts the filled stack in hand (or inventory/drop).
+     * Cancels the interact event with a plain SUCCESS so the hand is not cleared twice.
+     */
+    private static void giveFilledContainer(
+            PlayerInteractEvent.EntityInteractSpecific event, Cow cow, ItemStack filled, Item usedItem) {
+        Player player = event.getEntity();
+        ItemStack empty = event.getItemStack();
+        ItemStack remainder = ItemUtils.createFilledResult(empty, player, filled);
+        // createFilledResult already consumes one empty container and may stash the filled stack
+        // in inventory when the hand still holds remaining empties. Always write the remainder
+        // back so the hand is never left empty by a discarded heldItemTransformedTo result.
+        player.setItemInHand(event.getHand(), remainder);
+        player.awardStat(Stats.ITEM_USED.get(usedItem));
+        cow.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
     }
 
     private static void deny(PlayerInteractEvent.EntityInteractSpecific event) {
