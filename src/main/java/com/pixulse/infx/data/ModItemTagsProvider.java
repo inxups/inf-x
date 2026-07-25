@@ -33,6 +33,14 @@ final class ModItemTagsProvider extends ItemTagsProvider {
         tag(ModTags.Items.FURNACE_FUELS_HEAT_2)
                 .add(itemKey(Items.COAL))
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));
+        var waterBuckets = tag(ModTags.Items.WATER_BUCKETS).add(itemKey(Items.WATER_BUCKET));
+        var milkBuckets = tag(ModTags.Items.MILK_BUCKETS).add(itemKey(Items.MILK_BUCKET));
+        for (R196Material material : ModItems.BUCKET_MATERIALS) {
+            waterBuckets.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.WATER)
+                    .getKey());
+            milkBuckets.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.MILK)
+                    .getKey());
+        }
         tag(ModTags.Items.SMELTING_INPUTS_HEAT_2)
                 .add(itemKey(Items.RAW_COPPER))
                 .add(itemKey(Items.RAW_GOLD))

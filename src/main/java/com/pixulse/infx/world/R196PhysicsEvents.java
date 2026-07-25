@@ -67,6 +67,11 @@ public final class R196PhysicsEvents {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
             wetInventory(player);
         }
+        if (event.getEntity() instanceof ItemEntity item
+                && item.level() instanceof ServerLevel
+                && item.isInWater()) {
+            wetDroppedBucket(item);
+        }
         if (event.getEntity() instanceof FallingBlockEntity falling
                 && falling.level() instanceof ServerLevel level) {
             BlockState occupied = level.getBlockState(falling.blockPosition());
@@ -81,6 +86,35 @@ public final class R196PhysicsEvents {
                 && event.getEntity().onGround()
                 && event.getEntity().tickCount % 5 == 0) {
             tryFall(level, event.getEntity().blockPosition().below());
+        }
+    }
+
+    /** MITE EntityItem.spentTickInWater: lava solidifies; other vessels fill with water. */
+    private static void wetDroppedBucket(ItemEntity entity) {
+        ItemStack stack = entity.getItem();
+        if (stack.getItem() instanceof R196BucketItem bucket) {
+            if (bucket.contents() == R196BucketItem.Contents.LAVA) {
+                entity.setItem(ModItems.bucket(bucket.material(), R196BucketItem.Contents.STONE)
+                        .toStack(stack.getCount()));
+                entity.level()
+                        .playSound(
+                                null,
+                                entity.blockPosition(),
+                                SoundEvents.FIRE_EXTINGUISH,
+                                SoundSource.BLOCKS,
+                                0.5F,
+                                1.0F);
+            } else if (bucket.contents() != R196BucketItem.Contents.STONE
+                    && bucket.contents() != R196BucketItem.Contents.WATER) {
+                entity.setItem(ModItems.bucket(bucket.material(), R196BucketItem.Contents.WATER)
+                        .toStack(stack.getCount()));
+            }
+            return;
+        }
+        if (stack.is(Items.LAVA_BUCKET)) {
+            entity.setItem(new ItemStack(Items.OBSIDIAN, stack.getCount()));
+        } else if (stack.is(Items.BUCKET) || stack.is(Items.MILK_BUCKET)) {
+            entity.setItem(new ItemStack(Items.WATER_BUCKET, stack.getCount()));
         }
     }
 

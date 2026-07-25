@@ -79,8 +79,12 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 ModItems.WATER_BOWL,
                 4,
-                List.of(Ingredient.of(Items.WATER_BUCKET), Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL),
-                        Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL)));
+                List.of(
+                        ingredient(ModTags.Items.WATER_BUCKETS),
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL)));
         addShapeless(
                 "dough",
                 BenchTier.HAND,
@@ -98,7 +102,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 ModItems.DOUGH,
                 4,
-                Map.of('F', Ingredient.of(ModItems.FLOUR), 'W', Ingredient.of(Items.WATER_BUCKET)),
+                Map.of('F', Ingredient.of(ModItems.FLOUR), 'W', ingredient(ModTags.Items.WATER_BUCKETS)),
                 List.of("F F", " W ", "F F"));
         addShapeless(
                 "salad",
@@ -131,8 +135,12 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 ModItems.MILK_BOWL,
                 4,
-                List.of(Ingredient.of(Items.MILK_BUCKET), Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL),
-                        Ingredient.of(Items.BOWL), Ingredient.of(Items.BOWL)));
+                List.of(
+                        ingredient(ModTags.Items.MILK_BUCKETS),
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(Items.BOWL)));
         addShapeless(
                 "cereal_porridge",
                 BenchTier.HAND,
@@ -269,8 +277,15 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.CAKE,
                 1,
-                Map.of('M', Ingredient.of(Items.MILK_BUCKET), 'F', Ingredient.of(ModItems.FLOUR),
-                        'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
+                Map.of(
+                        'M',
+                        ingredient(ModTags.Items.MILK_BUCKETS),
+                        'F',
+                        Ingredient.of(ModItems.FLOUR),
+                        'S',
+                        Ingredient.of(Items.SUGAR),
+                        'E',
+                        Ingredient.of(Items.EGG)),
                 List.of("FS", "EM"));
         addShaped(
                 "cake_from_milk_bowl",
