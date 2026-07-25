@@ -108,6 +108,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
@@ -1843,6 +1844,41 @@ public final class ModR196CompletionGameTests {
                 player.getMainHandItem().is(ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER)),
                 "a Ctrl scoop still fills the bucket");
         helper.assertBlockPresent(Blocks.AIR, water);
+
+        // Flowing liquid cells can also fill a bucket and remain in place without Ctrl.
+        BlockPos flowingWater = new BlockPos(4, 2, 4);
+        helper.setBlock(flowingWater.below(), Blocks.STONE);
+        helper.setBlock(flowingWater, Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 4));
+        aimDownAt(helper, player, flowingWater.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
+        player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                player.getMainHandItem().is(ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER)),
+                "flowing water fills the same-material bucket");
+        helper.assertTrue(
+                helper.getBlockState(flowingWater).is(Blocks.WATER)
+                        && !helper.getBlockState(flowingWater).getFluidState().isSource(),
+                "scooping flowing water without Ctrl keeps its flowing cell");
+
+        // The Ctrl packet path must apply the returned empty bucket instead of leaving an empty slot.
+        BlockPos paidSource = new BlockPos(6, 2, 4);
+        helper.setBlock(paidSource.below(), Blocks.STONE);
+        helper.setBlock(paidSource, Blocks.AIR);
+        aimDownAt(helper, player, paidSource.above());
+        player.giveExperiencePoints(R196BucketItem.SOURCE_EXPERIENCE_COST);
+        int experienceBefore = player.totalExperience;
+        R196BucketItem waterBucket =
+                ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER).value();
+        player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
+        waterBucket.useWithCtrl(player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(player.getMainHandItem().is(emptyIron), "Ctrl source placement returns the empty bucket");
+        helper.assertTrue(
+                helper.getBlockState(paidSource).getFluidState().isSource(),
+                "Ctrl source placement leaves a permanent source cell");
+        helper.assertTrue(
+                player.totalExperience == experienceBefore - R196BucketItem.SOURCE_EXPERIENCE_COST,
+                "Ctrl source placement spends 100 XP");
+        helper.setBlock(paidSource, Blocks.AIR);
         bucketFluidInteractions(helper, player, level);
     }
 

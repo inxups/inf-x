@@ -1,6 +1,7 @@
 package com.pixulse.infx.network;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.world.RunegateTeleportation;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -8,7 +9,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -43,29 +43,8 @@ public final class R196Network {
                             if (!(context.player() instanceof ServerPlayer player)) return;
                             InteractionHand hand =
                                     payload.offhand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-                            ItemStack held = player.getItemInHand(hand);
-                            if (!(held.getItem() instanceof com.pixulse.infx.item.R196BucketItem bucket)) {
-                                return;
-                            }
-                            // Ctrl-fill (empty bucket takes the liquid cell) is free; Ctrl-place of a
-                            // permanent source still costs experience.
-                            boolean filling =
-                                    bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.EMPTY;
-                            boolean pouring =
-                                    bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.WATER
-                                            || bucket.contents()
-                                                    == com.pixulse.infx.item.R196BucketItem.Contents.LAVA;
-                            if (!filling && !pouring) {
-                                return;
-                            }
-                            if (pouring && !com.pixulse.infx.item.R196BucketItem.canPlaceAsSource(player, true)) {
-                                return;
-                            }
-                            player.getPersistentData().putBoolean(CTRL_USE, true);
-                            try {
-                                held.getItem().use(player.level(), player, hand);
-                            } finally {
-                                player.getPersistentData().remove(CTRL_USE);
+                            if (player.getItemInHand(hand).getItem() instanceof R196BucketItem bucket) {
+                                bucket.useWithCtrl(player, hand);
                             }
                         })
                 .playToServer(

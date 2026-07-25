@@ -223,6 +223,23 @@ public final class R196BucketItem extends BucketItem {
         return forceSource && player.totalExperience >= SOURCE_EXPERIENCE_COST;
     }
 
+    /** Replays a Ctrl-modified use through the server game mode so its returned hand item is applied. */
+    public InteractionResult useWithCtrl(ServerPlayer player, InteractionHand hand) {
+        ItemStack held = player.getItemInHand(hand);
+        if (!held.is(this)
+                || contents == Contents.MILK
+                || contents == Contents.STONE
+                || contents != Contents.EMPTY && !canPlaceAsSource(player, true)) {
+            return InteractionResult.FAIL;
+        }
+        player.getPersistentData().putBoolean(R196Network.CTRL_USE, true);
+        try {
+            return player.gameMode.useItem(player, player.level(), held, hand);
+        } finally {
+            player.getPersistentData().remove(R196Network.CTRL_USE);
+        }
+    }
+
     /** Returns whether a lava-melted bucket is still suppressing this player's item pickup. */
     public static boolean isMeltPickupBlocked(Player player) {
         long until = player.getPersistentData().getLong(MELT_PICKUP_BLOCK).orElse(0L);
@@ -383,7 +400,7 @@ public final class R196BucketItem extends BucketItem {
 
     private InteractionResult fill(Level level, Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
-        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         if (hit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
         BlockPos pos = hit.getBlockPos();
         Direction direction = hit.getDirection();
@@ -392,29 +409,34 @@ public final class R196BucketItem extends BucketItem {
         }
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof BucketPickup pickup)) return InteractionResult.FAIL;
-        Supplier<? extends Item> filled = state.getFluidState().is(Fluids.WATER)
+        FluidState fluidState = state.getFluidState();
+        Supplier<? extends Item> filled = fluidState.is(FluidTags.WATER)
                 ? waterBucket
-                : state.getFluidState().is(Fluids.LAVA)
+                : fluidState.is(FluidTags.LAVA)
                         ? lavaBucket
                         : state.is(Blocks.POWDER_SNOW)
                                 ? () -> com.pixulse.infx.registry.ModItems.powderSnowBucket(material).value()
                                 : null;
         if (filled == null) return InteractionResult.FAIL;
 
-        // MITE ItemBucket#onItemRightClick: scooping a liquid leaves its cell in place. The source is
-        // only consumed in creative or with Ctrl held, which is MITE's "take this cell" modifier.
+        // MITE ItemBucket#onItemRightClick: scooping source or flowing liquid leaves its cell in place.
+        // The cell is only consumed in creative or with Ctrl held, MITE's "take this cell" modifier.
         // Waterlogged blocks are not liquid cells, so they keep vanilla pickup.
         boolean liquidCell = state.getBlock() instanceof LiquidBlock;
-        if (!liquidCell || shouldTakeSource(player)) {
+        if (!liquidCell) {
             if (pickup.pickupBlock(player, level, pos, state).isEmpty()) return InteractionResult.FAIL;
-        } else if (!state.getFluidState().isSource()) {
-            return InteractionResult.FAIL;
+        } else if (shouldTakeLiquidCell(player)) {
+            if (fluidState.isSource()) {
+                if (pickup.pickupBlock(player, level, pos, state).isEmpty()) return InteractionResult.FAIL;
+            } else if (!level.setBlock(pos, Blocks.AIR.defaultBlockState(), 11)) {
+                return InteractionResult.FAIL;
+            }
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
         pickup.getPickupSound(state).ifPresent(sound -> player.playSound(sound, 1.0F, 1.0F));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-        if (!level.isClientSide() && state.getFluidState().is(Fluids.LAVA)
+        if (!level.isClientSide() && fluidState.is(FluidTags.LAVA)
                 && level.getRandom().nextFloat() < lavaMeltChance()) {
             return meltInLava(level, player, hand, pos);
         }
@@ -427,7 +449,7 @@ public final class R196BucketItem extends BucketItem {
     }
 
     /** MITE ctrl_is_down while filling: consume the liquid cell instead of leaving it behind. */
-    private static boolean shouldTakeSource(Player player) {
+    private static boolean shouldTakeLiquidCell(Player player) {
         return player.hasInfiniteMaterials()
                 || player.getPersistentData().getBooleanOr(R196Network.CTRL_USE, false);
     }
