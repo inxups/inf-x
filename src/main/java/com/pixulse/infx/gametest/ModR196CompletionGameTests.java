@@ -626,6 +626,26 @@ public final class ModR196CompletionGameTests {
         interactAt(player, cow);
         helper.assertTrue(player.getMainHandItem().is(Items.BUCKET), "a second same-day milk bucket must be denied");
 
+        Cow bowlCow = helper.spawn(EntityTypes.COW, new BlockPos(1, 2, 8));
+        bowlCow.getPersistentData().putBoolean("infx_livestock_healthy", true);
+        bowlCow.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        for (int bowl = 0; bowl < 4; bowl++) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
+            interactAt(player, bowlCow);
+            helper.assertTrue(
+                    player.getMainHandItem().is(ModItems.MILK_BOWL.get()),
+                    "healthy cow must fill milk bowl " + (bowl + 1) + " of 4");
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
+        interactAt(player, bowlCow);
+        helper.assertTrue(
+                player.getMainHandItem().is(Items.BOWL), "a fifth same-day milk bowl must be denied");
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
+        interactAt(player, bowlCow);
+        helper.assertTrue(
+                player.getMainHandItem().is(Items.BUCKET),
+                "after four bowls the daily quota is spent and buckets must be denied");
+
         Sheep sheep = helper.spawn(EntityTypes.SHEEP, new BlockPos(4, 2, 8));
         sheep.getPersistentData().putBoolean("infx_livestock_healthy", true);
         sheep.getPersistentData().putBoolean("infx_livestock_diseased", true);

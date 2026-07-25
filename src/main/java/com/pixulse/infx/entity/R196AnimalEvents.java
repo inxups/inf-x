@@ -38,6 +38,8 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 public final class R196AnimalEvents {
     private static final String MILK_DAY = "infx_cow_milk_day";
     private static final String MILK_UNITS = "infx_cow_milk_units";
+    /** Daily milk budget shared by buckets (4) and bowls (1 each, max 4). */
+    static final int MILK_UNITS_PER_DAY = 4;
     private static final String NEXT_FEATHER = "infx_chicken_next_feather";
     private static final String HORSE_RETRY = "infx_horse_tame_retry";
     private static final long FEATHER_INTERVAL = 96_000L;
@@ -149,10 +151,24 @@ public final class R196AnimalEvents {
         }
         if (event.getTarget() instanceof Cow cow && !cow.isBaby()) {
             if (event.getItemStack().is(Items.BUCKET)) {
-                if (!takeMilk(level, cow, 4)) deny(event);
+                // One bucket consumes the full daily quota (4 units).
+                if (!takeMilk(level, cow, MILK_UNITS_PER_DAY)) deny(event);
+            } else if (event.getItemStack().is(Items.BOWL)) {
+                // Bowls take one unit each (up to four per day); any bowl milking exhausts the bucket quota.
+                if (!takeMilk(level, cow, 1)) {
+                    deny(event);
+                } else {
+                    ItemStack filled = ModItems.MILK_BOWL.toStack();
+                    ItemStack result = ItemUtils.createFilledResult(
+                            event.getItemStack(), event.getEntity(), filled);
+                    event.getEntity().awardStat(Stats.ITEM_USED.get(Items.BOWL));
+                    cow.playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
+                    event.setCanceled(true);
+                    event.setCancellationResult(InteractionResult.SUCCESS.heldItemTransformedTo(result));
+                }
             } else if (event.getItemStack().getItem() instanceof R196BucketItem bucket
                     && bucket.contents() == R196BucketItem.Contents.EMPTY) {
-                if (!takeMilk(level, cow, 4)) {
+                if (!takeMilk(level, cow, MILK_UNITS_PER_DAY)) {
                     deny(event);
                 } else {
                     ItemStack filled = ModItems.bucket(bucket.material(), R196BucketItem.Contents.MILK).toStack();
@@ -178,7 +194,7 @@ public final class R196AnimalEvents {
             data.putInt(MILK_UNITS, 0);
         }
         int used = data.getInt(MILK_UNITS).orElse(0);
-        if (used + units > 4) return false;
+        if (used + units > MILK_UNITS_PER_DAY) return false;
         data.putInt(MILK_UNITS, used + units);
         return true;
     }
