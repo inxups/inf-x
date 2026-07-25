@@ -1,5 +1,6 @@
-### Codex ###
+### AI ###
 codex
+.claude/
 
 ### Gradle ###
 .gradle
