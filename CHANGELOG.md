@@ -6,6 +6,7 @@
 
 - 空碗对健康成牛右键得到 `milk_bowl`，每次消耗 1 单位日配额（最多 4 碗/天）。
 - 碗与桶共用 `infx_cow_milk_units`：接满 4 碗后当天桶与碗均拒绝；一桶仍消耗全部 4 单位。
+- 修复碗接奶后手持清空：不再用 `heldItemTransformedTo` 覆盖 `createFilledResult` 已写回的栈。
 
 ### R196 家畜刷怪蛋材质清单与资源计数
 
