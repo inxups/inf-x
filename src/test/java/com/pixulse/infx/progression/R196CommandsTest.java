@@ -8,8 +8,9 @@ import org.junit.jupiter.api.Test;
 
 class R196CommandsTest {
     @Test
-    void commandRosterContainsOnlyDayVillagesAndLivestock() {
-        assertEquals(List.of("day", "villages", "infxlivestock"), R196Commands.NAMES);
+    void commandRosterUsesInfxRootWithDayVillagesAndLivestock() {
+        assertEquals("infx", R196Commands.ROOT);
+        assertEquals(List.of("infx day", "infx villages", "infx livestock"), R196Commands.NAMES);
         assertEquals(3, new HashSet<>(R196Commands.NAMES).size());
     }
 }

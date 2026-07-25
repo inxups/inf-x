@@ -19,9 +19,11 @@ import net.minecraft.world.entity.animal.Animal;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
-/** R196 game commands: survival day, village unlock status, and livestock disease admin tools. */
+/** R196 game commands under the single root `/infx`. */
 public final class R196Commands {
-    public static final List<String> NAMES = List.of("day", "villages", "infxlivestock");
+    public static final String ROOT = "infx";
+    public static final List<String> NAMES = List.of(
+            "infx day", "infx villages", "infx livestock");
 
     private R196Commands() {}
 
@@ -31,24 +33,25 @@ public final class R196Commands {
 
     private static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-        dispatcher.register(Commands.literal("day").executes(context -> reply(
-                context, "Survival day: " + R196MonsterDay.day(player(context)))));
-        dispatcher.register(Commands.literal("villages").executes(context -> {
-            ServerPlayer player = player(context);
-            long day = R196VillageProgression.day(player.level());
-            boolean ironTool = R196WorldData.get(player.level()).ironToolCrafted();
-            return reply(context, "Village generation: day " + day + "/60; world iron-tier milestone: "
-                    + (ironTool ? "yes" : "no") + "; unlocked: "
-                    + R196VillageProgression.generationUnlocked(player.level()));
-        }));
-        dispatcher.register(Commands.literal("infxlivestock")
-                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
-                .then(Commands.literal("sick")
-                        .then(Commands.argument("targets", EntityArgument.entities())
-                                .executes(context -> forceLivestockDisease(context, true))))
-                .then(Commands.literal("cure")
-                        .then(Commands.argument("targets", EntityArgument.entities())
-                                .executes(context -> forceLivestockDisease(context, false)))));
+        dispatcher.register(Commands.literal(ROOT)
+                .then(Commands.literal("day").executes(context -> reply(
+                        context, "Survival day: " + R196MonsterDay.day(player(context)))))
+                .then(Commands.literal("villages").executes(context -> {
+                    ServerPlayer player = player(context);
+                    long day = R196VillageProgression.day(player.level());
+                    boolean ironTool = R196WorldData.get(player.level()).ironToolCrafted();
+                    return reply(context, "Village generation: day " + day + "/60; world iron-tier milestone: "
+                            + (ironTool ? "yes" : "no") + "; unlocked: "
+                            + R196VillageProgression.generationUnlocked(player.level()));
+                }))
+                .then(Commands.literal("livestock")
+                        .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        .then(Commands.literal("sick")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .executes(context -> forceLivestockDisease(context, true))))
+                        .then(Commands.literal("cure")
+                                .then(Commands.argument("targets", EntityArgument.entities())
+                                        .executes(context -> forceLivestockDisease(context, false))))));
     }
 
     private static int forceLivestockDisease(CommandContext<CommandSourceStack> context, boolean diseased)
