@@ -76,8 +76,10 @@ public final class R196Pig extends Pig {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        R196Livestock.markFedIfFood(this, player.getItemInHand(hand));
-        return super.mobInteract(player, hand);
+        boolean offeredFood = isFood(player.getItemInHand(hand));
+        InteractionResult result = super.mobInteract(player, hand);
+        R196Livestock.markFedAfterInteraction(this, offeredFood, result);
+        return result;
     }
 
     @Override

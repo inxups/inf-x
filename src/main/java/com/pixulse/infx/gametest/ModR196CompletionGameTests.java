@@ -654,12 +654,57 @@ public final class ModR196CompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
         interactAt(player, sheep);
         helper.assertFalse(sheep.isSheared(), "diseased sheep must not be shearable");
-        sheep.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        R196Livestock.setDiseased(cow, true);
+        long infectionSeed = 0L;
+        while (true) {
+            sheep.getRandom().setSeed(infectionSeed);
+            if (sheep.getRandom().nextInt(16) == 0) break;
+            infectionSeed++;
+        }
+        sheep.getRandom().setSeed(infectionSeed);
+        helper.assertTrue(R196Livestock.setDiseased(sheep, false), "R196 sheep must accept forced curing");
+        helper.assertFalse(
+                R196Livestock.isDiseased(sheep),
+                "forced curing must not immediately reroll infection from a sick neighbor");
+        R196Livestock.setDiseased(cow, false);
         sheep.hurtServer(level, level.damageSources().inFire(), 1.0F);
         helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
+        sheep.discard();
 
         Pig pig = helper.spawn(ModEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 8));
         helper.assertTrue(R196Livestock.isWell(pig), "R196 pigs must initialize their synced isWell flag");
+        level.setBlockAndUpdate(pig.blockPosition().below(2), Blocks.STONE.defaultBlockState());
+        level.setBlockAndUpdate(pig.blockPosition().below(), Blocks.GRASS_BLOCK.defaultBlockState());
+        pig.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime() - 48_001L);
+        helper.assertTrue(
+                R196Livestock.update(level, pig).fed(),
+                "grass beneath livestock must satisfy hunger without a dropped breeding item");
+
+        helper.setBlock(new BlockPos(5, 1, 6), Blocks.STONE);
+        Pig feedingPig = helper.spawn(ModEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 6));
+        feedingPig.goalSelector.removeAllGoals(goal -> true);
+        feedingPig.setAge(6_000);
+        long staleFood = level.getGameTime() - 48_001L;
+        feedingPig.getPersistentData().putLong("infx_livestock_last_food", staleFood);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.CARROT));
+        interactAt(player, feedingPig);
+        helper.assertTrue(
+                player.getMainHandItem().is(Items.CARROT)
+                        && feedingPig.getPersistentData()
+                                .getLong("infx_livestock_last_food")
+                                .orElse(Long.MIN_VALUE)
+                                == staleFood,
+                "breeding-cooldown interaction must neither consume food nor refresh livestock hunger");
+        feedingPig.setAge(0);
+        interactAt(player, feedingPig);
+        helper.assertTrue(
+                player.getMainHandItem().isEmpty()
+                        && feedingPig.getPersistentData()
+                                .getLong("infx_livestock_last_food")
+                                .orElse(Long.MIN_VALUE)
+                                > staleFood,
+                "a successful feeding interaction must consume food and refresh livestock hunger");
+        feedingPig.discard();
 
         Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(6, 2, 8));
         chicken.setAge(0);
@@ -667,6 +712,13 @@ public final class ModR196CompletionGameTests {
         chicken.getPersistentData().putBoolean("infx_livestock_diseased", false);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", -1L);
         ((com.pixulse.infx.entity.R196Chicken) chicken).updateProduction(level);
+        BlockPos cauldron = new BlockPos(7, 1, 8);
+        helper.setBlock(cauldron, Blocks.WATER_CAULDRON);
+        chicken.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
+        helper.assertTrue(
+                R196Livestock.update(level, chicken).watered(),
+                "a nearby filled water cauldron must satisfy livestock thirst");
+        helper.setBlock(cauldron, Blocks.STONE);
 
         // Build the dry approach before spawning the seeker so its first AI
         // tick cannot run while it is falling through uninitialized ground.
@@ -677,6 +729,26 @@ public final class ModR196CompletionGameTests {
         }
         BlockPos water = new BlockPos(11, 1, 4);
         helper.setBlock(water, Blocks.WATER);
+        R196Livestock.update(level, cow);
+        BlockPos grass = new BlockPos(11, 2, 3);
+        helper.setBlock(grass.below(2), Blocks.STONE);
+        helper.setBlock(grass.below(), Blocks.GRASS_BLOCK);
+        helper.setBlock(grass, Blocks.SHORT_GRASS);
+        Cow foodSeeker = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(8, 2, 3));
+        foodSeeker.goalSelector.removeAllGoals(goal -> true);
+        foodSeeker.setDeltaMovement(Vec3.ZERO);
+        foodSeeker.setOnGround(true);
+        foodSeeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime());
+        foodSeeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime() - 48_001L);
+        R196Livestock.NeedsGoal foodGoal = new R196Livestock.NeedsGoal(foodSeeker);
+        helper.assertTrue(foodGoal.canUse(), "hungry livestock must select a reachable grass approach");
+        BlockPos foodTarget = foodGoal.selectedTarget();
+        helper.assertTrue(
+                foodTarget != null && foodTarget.distManhattan(helper.absolutePos(grass)) <= 2,
+                "hungry livestock must target a standable position beside edible grass");
+        foodGoal.stop();
+        foodSeeker.goalSelector.addGoal(0, foodGoal);
+
         Cow seeker = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
         // Keep the manually exercised goal in sole control. The production goal
         // is registered on join and can otherwise reach the water before this
@@ -705,6 +777,10 @@ public final class ModR196CompletionGameTests {
                             "panic must propagate across animal species");
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
+                        R196Livestock.update(level, foodSeeker).fed(),
+                        "grass-seeking livestock must reach its food source and become fed"))
+                .thenExecute(foodSeeker::discard)
+                .thenWaitUntil(() -> helper.assertTrue(
                         !level.getEntitiesOfClass(
                                         ItemEntity.class,
                                         chicken.getBoundingBox().inflate(3.0),
@@ -729,6 +805,11 @@ public final class ModR196CompletionGameTests {
                     helper.assertFalse(
                             seeker.getNavigation().isDone(),
                             "water-seeking navigation must start");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        R196Livestock.update(level, seeker).watered(),
+                        "water-seeking livestock must reach the source and become watered"))
+                .thenExecute(() -> {
                     removePlayer(player);
                     seeker.discard();
                 })

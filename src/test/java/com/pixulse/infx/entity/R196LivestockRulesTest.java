@@ -2,11 +2,13 @@ package com.pixulse.infx.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.world.R196MoonPhase;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.pathfinder.Node;
 import net.minecraft.world.level.pathfinder.Path;
 import org.junit.jupiter.api.Test;
@@ -54,11 +56,35 @@ class R196LivestockRulesTest {
     }
 
     @Test
-    void waterGoalRejectsEmptyPartialPaths() {
-        Path empty = new Path(List.of(), BlockPos.ZERO, false);
-        Path partial = new Path(List.of(new Node(0, 0, 0)), BlockPos.ZERO, false);
+    void foodIsRecordedOnlyForSuccessfulServerInteractions() {
+        assertTrue(R196Livestock.foodInteractionSucceeded(true, InteractionResult.SUCCESS_SERVER));
+        assertTrue(R196Livestock.foodInteractionSucceeded(true, InteractionResult.SUCCESS));
+        assertFalse(R196Livestock.foodInteractionSucceeded(true, InteractionResult.CONSUME));
+        assertFalse(R196Livestock.foodInteractionSucceeded(true, InteractionResult.PASS));
+        assertFalse(R196Livestock.foodInteractionSucceeded(false, InteractionResult.SUCCESS_SERVER));
+    }
+
+    @Test
+    void needSearchRangeExpandsAsHungerOrThirstDeepens() {
+        assertEquals(16, R196Livestock.searchRange(24_001L, 24_000L));
+        assertEquals(32, R196Livestock.searchRange(48_000L, 24_000L));
+        assertEquals(48, R196Livestock.searchRange(72_000L, 24_000L));
+    }
+
+    @Test
+    void waterGoalPrefersReachablePathsAndRejectsStationaryPartials() {
+        BlockPos target = new BlockPos(4, 0, 0);
+        Path empty = new Path(List.of(), target, false);
+        Path stationary = new Path(List.of(new Node(0, 0, 0)), target, false);
+        Path partial = new Path(List.of(new Node(0, 0, 0), new Node(2, 0, 0)), target, false);
+        Path reached = new Path(List.of(new Node(0, 0, 0), new Node(4, 0, 0)), target, true);
 
         assertFalse(R196Livestock.NeedsGoal.hasNavigableNodes(empty));
         assertTrue(R196Livestock.NeedsGoal.hasNavigableNodes(partial));
+        assertFalse(R196Livestock.NeedsGoal.isUsefulPath(stationary, BlockPos.ZERO));
+        assertTrue(R196Livestock.NeedsGoal.isUsefulPath(partial, BlockPos.ZERO));
+        assertSame(
+                reached,
+                R196Livestock.NeedsGoal.preferredPath(List.of(partial, reached), BlockPos.ZERO));
     }
 }

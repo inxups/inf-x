@@ -4,12 +4,18 @@ import com.pixulse.infx.world.R196MoonPhase;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -22,9 +28,9 @@ import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -46,6 +52,10 @@ public final class R196Livestock {
     static final long WATER_GRACE = 24_000L;
     static final long FOOD_GRACE = 48_000L;
     static final long PANIC_TICKS = 600L;
+    static final int NEEDS_TICK_INTERVAL = 100;
+    static final int BASE_SEARCH_RANGE = 16;
+    static final int VERY_NEEDY_SEARCH_RANGE = 32;
+    static final int DESPERATE_SEARCH_RANGE = 48;
     static final String HORSE_RETRY = "infx_horse_tame_retry";
     static final long HORSE_RETRY_TICKS = 4_000L;
 
@@ -119,10 +129,10 @@ public final class R196Livestock {
         animal.getPersistentData().putBoolean(GOALS_ADDED, true);
     }
 
-    /** Server tick hook: refresh needs every 100 ticks. */
+    /** Server tick hook: refresh needs and advance disease at one fixed cadence. */
     public static void serverTick(Animal animal) {
         if (!(animal.level() instanceof ServerLevel level)) return;
-        if (animal.tickCount % 100 == 0) update(level, animal);
+        if (animal.tickCount % NEEDS_TICK_INTERVAL == 0) update(level, animal, true);
     }
 
     /** Panic nearby animals when this one is hurt. */
@@ -131,10 +141,21 @@ public final class R196Livestock {
         panic(level, animal);
     }
 
-    /** Mark fed when a player offers a food item (called from mobInteract). */
-    public static void markFedIfFood(Animal animal, ItemStack stack) {
-        if (!(animal.level() instanceof ServerLevel level) || !animal.isFood(stack)) return;
+    /** Mark fed only after vanilla confirms that a food interaction actually succeeded. */
+    public static void markFedAfterInteraction(
+            Animal animal, boolean offeredFood, InteractionResult result) {
+        if (!(animal.level() instanceof ServerLevel level)
+                || !foodInteractionSucceeded(offeredFood, result)) {
+            return;
+        }
         markFed(animal, level.getGameTime());
+    }
+
+    static boolean foodInteractionSucceeded(boolean offeredFood, InteractionResult result) {
+        return offeredFood
+                && result instanceof InteractionResult.Success success
+                && success.wasItemInteraction()
+                && success.swingSource() != InteractionResult.SwingSource.NONE;
     }
 
     public static boolean canMateWith(ServerLevel level, Animal self, Animal partner) {
@@ -156,12 +177,17 @@ public final class R196Livestock {
     }
 
     public static Needs update(ServerLevel level, Animal animal) {
+        return update(level, animal, false);
+    }
+
+    private static Needs update(ServerLevel level, Animal animal, boolean advanceDisease) {
         long now = level.getGameTime();
         var data = animal.getPersistentData();
         if (data.getLong(LAST_WATER).orElse(0L) == 0L) data.putLong(LAST_WATER, now);
         if (data.getLong(LAST_FOOD).orElse(0L) == 0L) data.putLong(LAST_FOOD, now);
 
-        if (touchesWater(level, animal.blockPosition())) data.putLong(LAST_WATER, now);
+        if (isNearWaterSource(level, animal)) data.putLong(LAST_WATER, now);
+        if (isNearFoodSource(level, animal)) markFed(animal, now);
         consumeNearbyFood(level, animal, now);
 
         boolean watered = now - data.getLong(LAST_WATER).orElse(now) <= WATER_GRACE;
@@ -180,20 +206,22 @@ public final class R196Livestock {
         boolean panicked = data.getLong(PANIC_UNTIL).orElse(0L) > now;
         boolean diseased = data.getBooleanOr(DISEASED, false);
 
-        if (!diseased && isExposedToDisease(level, animal)) {
-            diseased = true;
-            data.putBoolean(DISEASED, true);
-        } else if (!diseased && (!watered || !fed || !open || !safe)) {
-            int chance = R196MoonPhase.at(level) == R196MoonPhase.BLOOD ? 2_000 : 8_000;
-            if (animal.getRandom().nextInt(chance) == 0) {
+        if (advanceDisease) {
+            if (!diseased && isExposedToDisease(level, animal)) {
                 diseased = true;
                 data.putBoolean(DISEASED, true);
-            }
-        } else if (diseased && watered && fed && open && naturalLight && safe && sheltered) {
-            int chance = R196MoonPhase.at(level) == R196MoonPhase.BLUE ? 4 : 1_200;
-            if (animal.getRandom().nextInt(chance) == 0) {
-                diseased = false;
-                data.putBoolean(DISEASED, false);
+            } else if (!diseased && (!watered || !fed || !open || !safe)) {
+                int chance = R196MoonPhase.at(level) == R196MoonPhase.BLOOD ? 2_000 : 8_000;
+                if (animal.getRandom().nextInt(chance) == 0) {
+                    diseased = true;
+                    data.putBoolean(DISEASED, true);
+                }
+            } else if (diseased && watered && fed && open && naturalLight && safe && sheltered) {
+                int chance = R196MoonPhase.at(level) == R196MoonPhase.BLUE ? 4 : 1_200;
+                if (animal.getRandom().nextInt(chance) == 0) {
+                    diseased = false;
+                    data.putBoolean(DISEASED, false);
+                }
             }
         }
 
@@ -295,11 +323,48 @@ public final class R196Livestock {
         return open >= 12;
     }
 
-    private static boolean touchesWater(ServerLevel level, BlockPos origin) {
-        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(1, 1, 1))) {
-            if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
+    private static boolean isNearWaterSource(ServerLevel level, Animal animal) {
+        BlockPos origin = animal.blockPosition();
+        int height = Math.max(0, Mth.floor(animal.getBbHeight()));
+        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(1, height, 1))) {
+            if (isWaterSource(level, pos)) return true;
         }
         return false;
+    }
+
+    private static boolean isWaterSource(ServerLevel level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        return level.getFluidState(pos).is(FluidTags.WATER)
+                || state.is(Blocks.SNOW)
+                || state.is(Blocks.SNOW_BLOCK)
+                || state.is(Blocks.WATER_CAULDRON);
+    }
+
+    private static boolean isNearFoodSource(ServerLevel level, Animal animal) {
+        BlockPos origin = animal.blockPosition();
+        int height = Math.max(0, Mth.floor(animal.getBbHeight()));
+        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-1, -1, -1), origin.offset(1, height, 1))) {
+            if (isFoodSource(animal, level.getBlockState(pos))) return true;
+        }
+        return false;
+    }
+
+    private static boolean isFoodSource(Animal animal, BlockState state) {
+        if (animal instanceof AbstractCow) {
+            return state.is(Blocks.SHORT_GRASS)
+                    || state.is(Blocks.TALL_GRASS)
+                    || state.is(Blocks.DANDELION);
+        }
+        return state.is(Blocks.GRASS_BLOCK)
+                || state.is(Blocks.SHORT_GRASS)
+                || state.is(Blocks.TALL_GRASS);
+    }
+
+    static int searchRange(long elapsed, long grace) {
+        long overdue = Math.max(0L, elapsed - grace);
+        if (overdue >= grace * 2L) return DESPERATE_SEARCH_RANGE;
+        if (overdue >= grace) return VERY_NEEDY_SEARCH_RANGE;
+        return BASE_SEARCH_RANGE;
     }
 
     private static void consumeNearbyFood(ServerLevel level, Animal animal, long now) {
@@ -363,10 +428,17 @@ public final class R196Livestock {
             target = null;
             path = null;
             if (!needs.fed()) {
-                food = nearestFood(level);
-                if (food != null) target = food.blockPosition();
+                target = findFood(level, searchRange(
+                        level.getGameTime()
+                                - animal.getPersistentData().getLong(LAST_FOOD).orElse(level.getGameTime()),
+                        FOOD_GRACE));
             }
-            if (target == null && !needs.watered()) target = findWater(level);
+            if (target == null && !needs.watered()) {
+                target = findWater(level, searchRange(
+                        level.getGameTime()
+                                - animal.getPersistentData().getLong(LAST_WATER).orElse(level.getGameTime()),
+                        WATER_GRACE));
+            }
             if (target == null
                     && (!needs.sheltered()
                             || !needs.open()
@@ -379,7 +451,7 @@ public final class R196Livestock {
             if (target != null && path == null) {
                 path = animal.getNavigation().createPath(target, 1);
             }
-            if (!hasNavigableNodes(path)) {
+            if (!isUsefulPath(path, animal.blockPosition())) {
                 target = null;
                 food = null;
                 return false;
@@ -394,7 +466,7 @@ public final class R196Livestock {
 
         @Override
         public boolean canContinueToUse() {
-            return target != null && !animal.getNavigation().isDone() && animal.distanceToSqr(Vec3.atCenterOf(target)) > 1.5;
+            return target != null && !animal.getNavigation().isDone();
         }
 
         @Override
@@ -403,55 +475,133 @@ public final class R196Livestock {
             if (food != null && food.isAlive() && animal.distanceToSqr(food) <= 2.25) {
                 consumeNearbyFood(level, animal, level.getGameTime());
             }
-            if (target != null
-                    && animal.distanceToSqr(Vec3.atCenterOf(target)) <= 2.25
-                    && touchesWater(level, animal.blockPosition())) {
-                markWatered(animal, level.getGameTime());
+            if (target != null && animal.distanceToSqr(Vec3.atCenterOf(target)) <= 2.25) {
+                update(level, animal);
             }
         }
 
-        private @Nullable ItemEntity nearestFood(ServerLevel level) {
-            return level.getEntitiesOfClass(
+        @Override
+        public void stop() {
+            if (animal.level() instanceof ServerLevel level) {
+                update(level, animal);
+            }
+            target = null;
+            food = null;
+            path = null;
+        }
+
+        private @Nullable BlockPos findFood(ServerLevel level, int range) {
+            BlockPos origin = animal.blockPosition();
+            Map<BlockPos, ItemEntity> itemTargets = new LinkedHashMap<>();
+            level.getEntitiesOfClass(
                             ItemEntity.class,
-                            animal.getBoundingBox().inflate(12.0),
+                            animal.getBoundingBox().inflate(range),
                             item -> item.isAlive() && animal.isFood(item.getItem()))
                     .stream()
-                    .min(Comparator.comparingDouble(animal::distanceToSqr))
-                    .orElse(null);
+                    .sorted(Comparator.comparingDouble(animal::distanceToSqr))
+                    .forEach(item -> itemTargets.putIfAbsent(item.blockPosition(), item));
+
+            Set<BlockPos> targets = new LinkedHashSet<>(itemTargets.keySet());
+            int sources = 0;
+            int verticalRange = Math.max(2, range / 8);
+            int sourceLimit =
+                    range == DESPERATE_SEARCH_RANGE ? 24 : range == VERY_NEEDY_SEARCH_RANGE ? 16 : 8;
+            for (BlockPos pos : BlockPos.withinManhattan(origin, range, verticalRange, range)) {
+                if (!level.hasChunkAt(pos) || !isFoodSource(animal, level.getBlockState(pos))) continue;
+                addStandableApproaches(level, pos, targets);
+                if (++sources >= sourceLimit) break;
+            }
+
+            path = preferredPath(createPaths(targets), origin);
+            if (path == null) return null;
+            target = path.getTarget();
+            food = itemTargets.get(target);
+            return target;
         }
 
-        private @Nullable BlockPos findWater(ServerLevel level) {
+        private @Nullable BlockPos findWater(ServerLevel level, int range) {
             BlockPos origin = animal.blockPosition();
-            List<BlockPos> approaches = new ArrayList<>();
-            for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-8, -2, -8), origin.offset(8, 2, 8))) {
-                if (!level.getFluidState(pos).is(FluidTags.WATER)) continue;
-                for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.Plane.HORIZONTAL) {
-                    for (BlockPos approach : new BlockPos[]{
-                        pos.relative(direction), pos.above().relative(direction)
-                    }) {
-                        if (!level.getBlockState(approach).isAir()
-                                || !level.getBlockState(approach.above()).isAir()
-                                || !level.getBlockState(approach.below()).isFaceSturdy(
-                                        level, approach.below(), net.minecraft.core.Direction.UP)) {
-                            continue;
-                        }
-                        approaches.add(approach.immutable());
-                    }
+            Set<BlockPos> approaches = new LinkedHashSet<>();
+            int sources = 0;
+            int verticalRange = Math.max(2, range / 8);
+            int sourceLimit =
+                    range == DESPERATE_SEARCH_RANGE ? 24 : range == VERY_NEEDY_SEARCH_RANGE ? 16 : 8;
+            for (BlockPos pos : BlockPos.withinManhattan(origin, range, verticalRange, range)) {
+                if (!level.hasChunkAt(pos) || !isWaterSource(level, pos)) continue;
+                addStandableApproaches(level, pos, approaches);
+                if (++sources >= sourceLimit) break;
+            }
+            path = preferredPath(createPaths(approaches), origin);
+            return path == null ? null : path.getTarget();
+        }
+
+        private List<Path> createPaths(Set<BlockPos> targets) {
+            return targets.stream()
+                    .sorted(Comparator.comparingDouble(
+                            target -> distanceToSqr(animal.blockPosition(), target)))
+                    .map(target -> animal.getNavigation().createPath(target, 0))
+                    .filter(java.util.Objects::nonNull)
+                    .toList();
+        }
+
+        private static void addStandableApproaches(
+                ServerLevel level, BlockPos source, Set<BlockPos> approaches) {
+            List<BlockPos> candidates = new ArrayList<>();
+            candidates.add(source);
+            candidates.add(source.above());
+            for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+                candidates.add(source.relative(direction));
+                candidates.add(source.above().relative(direction));
+            }
+            for (BlockPos approach : candidates) {
+                if (canStandAt(level, approach)) {
+                    approaches.add(approach.immutable());
                 }
             }
-            for (BlockPos approach : approaches) {
-                Path candidate = animal.getNavigation().createPath(approach, 1);
-                if (hasNavigableNodes(candidate)) {
-                    path = candidate;
-                    return approach;
+        }
+
+        private static boolean canStandAt(ServerLevel level, BlockPos pos) {
+            return level.getFluidState(pos).isEmpty()
+                    && level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()
+                    && level.getBlockState(pos.above()).getCollisionShape(level, pos.above()).isEmpty()
+                    && level.getBlockState(pos.below())
+                            .isFaceSturdy(level, pos.below(), net.minecraft.core.Direction.UP);
+        }
+
+        static @Nullable Path preferredPath(List<Path> candidates, BlockPos origin) {
+            Path bestPartial = null;
+            double bestRemainingFraction = Double.POSITIVE_INFINITY;
+            for (Path candidate : candidates) {
+                if (!hasNavigableNodes(candidate)) continue;
+                if (candidate.canReach()) return candidate;
+                if (!isUsefulPath(candidate, origin)) continue;
+                double startDistance = distanceToSqr(origin, candidate.getTarget());
+                double endDistance = distanceToSqr(candidate.getEndNode().asBlockPos(), candidate.getTarget());
+                double remainingFraction = endDistance / Math.max(1.0, startDistance);
+                if (remainingFraction < bestRemainingFraction) {
+                    bestPartial = candidate;
+                    bestRemainingFraction = remainingFraction;
                 }
             }
-            path = null;
-            return null;
+            return bestPartial;
         }
 
         static boolean hasNavigableNodes(@Nullable Path path) {
-            return path != null && path.getNodeCount() > 0;
+            return path != null && path.getNodeCount() > 0 && path.getEndNode() != null;
+        }
+
+        static boolean isUsefulPath(@Nullable Path path, BlockPos origin) {
+            if (!hasNavigableNodes(path)) return false;
+            if (path.canReach()) return true;
+            return distanceToSqr(path.getEndNode().asBlockPos(), path.getTarget())
+                    < distanceToSqr(origin, path.getTarget());
+        }
+
+        private static double distanceToSqr(BlockPos first, BlockPos second) {
+            double dx = first.getX() - second.getX();
+            double dy = first.getY() - second.getY();
+            double dz = first.getZ() - second.getZ();
+            return dx * dx + dy * dy + dz * dz;
         }
 
         private @Nullable BlockPos findSafeOpenPosition(ServerLevel level, Needs needs) {
