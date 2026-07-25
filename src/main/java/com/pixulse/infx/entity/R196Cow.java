@@ -90,7 +90,7 @@ public final class R196Cow extends Cow {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        R196Livestock.markFedIfFood(this, stack);
+        boolean offeredFood = isFood(stack);
         if (!isBaby() && level() instanceof ServerLevel serverLevel) {
             if (R196Livestock.isDiseased(this)) {
                 return InteractionResult.CONSUME;
@@ -119,7 +119,9 @@ public final class R196Cow extends Cow {
                 return InteractionResult.SUCCESS;
             }
         }
-        return super.mobInteract(player, hand);
+        InteractionResult result = super.mobInteract(player, hand);
+        R196Livestock.markFedAfterInteraction(this, offeredFood, result);
+        return result;
     }
 
     boolean takeMilk(ServerLevel level, int units) {
