@@ -222,12 +222,30 @@ public final class ModEquipmentGameTests {
                 .holder()
                 .value()
                 .getDefaultInstance();
+        helper.assertTrue(
+                !shears.has(DataComponents.BLOCKS_ATTACKS),
+                "material shears must not right-click block/parry");
         player.setItemInHand(InteractionHand.MAIN_HAND, shears);
         helper.assertTrue(
                 shears.interactLivingEntity(player, sheep, InteractionHand.MAIN_HAND).consumesAction(),
                 "material shears must interact with sheep");
         helper.assertTrue(sheep.isSheared(), "material shears must shear sheep");
         sheep.discard();
+
+        var shearTarget = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(6, 1, 2));
+        float shearTargetHealth = shearTarget.getHealth();
+        helper.assertTrue(
+                shears.interactLivingEntity(player, shearTarget, InteractionHand.MAIN_HAND).consumesAction(),
+                "material shears must right-click attack non-shearable targets");
+        helper.assertTrue(
+                shearTarget.getHealth() < shearTargetHealth, "shears right-click must deal melee damage");
+        helper.assertTrue(
+                player.getCooldowns().isOnCooldown(shears),
+                "shears right-click attack must apply a short cooldown");
+        helper.assertTrue(
+                !shears.interactLivingEntity(player, shearTarget, InteractionHand.MAIN_HAND).consumesAction(),
+                "shears must refuse another right-click attack during cooldown");
+        shearTarget.discard();
 
         var zombie = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(7, 1, 1));
         ItemStack sword = ModItems.catalog()
