@@ -664,7 +664,14 @@ public final class R196BucketItem extends BucketItem {
         if (soundEvent == null) {
             soundEvent = this.content.is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
         }
-        level.playSound(user, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F);
+        // Ctrl use is canceled client-side and replayed only on the server, so the placing player
+        // needs the server broadcast that ordinary bucket use replaces with a local sound.
+        @Nullable LivingEntity excludedPlayer = user;
+        if (user instanceof ServerPlayer player
+                && player.getPersistentData().getBooleanOr(R196Network.CTRL_USE, false)) {
+            excludedPlayer = null;
+        }
+        level.playSound(excludedPlayer, pos, soundEvent, SoundSource.BLOCKS, 1.0F, 1.0F);
         level.gameEvent(user, GameEvent.FLUID_PLACE, pos);
     }
 
