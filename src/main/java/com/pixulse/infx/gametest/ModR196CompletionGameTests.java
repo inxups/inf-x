@@ -81,6 +81,7 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -656,6 +657,9 @@ public final class ModR196CompletionGameTests {
         sheep.getPersistentData().putBoolean("infx_livestock_diseased", false);
         sheep.hurtServer(level, level.damageSources().inFire(), 1.0F);
         helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
+
+        Pig pig = helper.spawn(ModEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 8));
+        helper.assertTrue(R196Livestock.isWell(pig), "R196 pigs must initialize their synced isWell flag");
 
         Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(6, 2, 8));
         chicken.setAge(0);

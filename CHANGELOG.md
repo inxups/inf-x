@@ -2,6 +2,10 @@
 
 ## [0v] - 2026-07-25
 
+### 修复 R196 家畜自然生成崩溃
+
+- 根因：牛/鸡/羊/猪的 `isWell` 同步数据访问器在 `SynchedEntityData.Builder` 创建后才惰性注册；26.2 的 Builder 已按旧 ID 数量分配固定数组，写入新 ID 时触发数组越界，导致自然生成失败。
+- 四种 R196 家畜现在在类初始化时为各自的具体类注册访问器，既让 Builder 获得完整容量，也避免复用 `Animal` 的原版变体数据 ID。
 ### 修复陈旧 datagen 花世界生成导致进世界崩溃
 
 - 根因：移除六种 R196 花后，`src/generated` / `build/resources/main` 仍残留 `r196_flowers`、`r196_allium` 等 configured feature，运行时解析 `infx:allium` 等已不存在的方块并抛出 `Unbound values in registry ... configured_feature`。

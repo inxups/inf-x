@@ -24,10 +24,12 @@ import org.jspecify.annotations.Nullable;
 /** R196 chicken: egg delay, feather shedding, and livestock needs. */
 public final class R196Chicken extends Chicken {
     /**
-     * Per-class isWell id (lazy for pure unit tests). Must not use {@code Animal.class} — that
-     * collides with Chicken variant data and crashes spawn eggs.
+     * Per-class isWell id. It must be registered while this class initializes, before Entity builds
+     * its fixed-size synced-data array, and not on {@code Animal.class} where it collides with
+     * Chicken variant data.
      */
-    private static @Nullable EntityDataAccessor<Boolean> dataWell;
+    private static final EntityDataAccessor<Boolean> DATA_WELL =
+            SynchedEntityData.defineId(R196Chicken.class, EntityDataSerializers.BOOLEAN);
     private static final String NEXT_FEATHER = "infx_chicken_next_feather";
     private static final long FEATHER_INTERVAL = 96_000L;
 
@@ -36,17 +38,7 @@ public final class R196Chicken extends Chicken {
     }
 
     static EntityDataAccessor<Boolean> dataWell() {
-        EntityDataAccessor<Boolean> local = dataWell;
-        if (local == null) {
-            synchronized (R196Chicken.class) {
-                local = dataWell;
-                if (local == null) {
-                    dataWell = local = SynchedEntityData.defineId(
-                            R196Chicken.class, EntityDataSerializers.BOOLEAN);
-                }
-            }
-        }
-        return local;
+        return DATA_WELL;
     }
 
     public static AttributeSupplier.Builder attributes() {
