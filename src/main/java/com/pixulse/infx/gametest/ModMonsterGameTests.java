@@ -28,6 +28,8 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
@@ -39,6 +41,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.IEventBus;
@@ -275,6 +278,25 @@ public final class ModMonsterGameTests {
                 !spawnTypes(plains, MobCategory.MONSTER).contains(EntityTypes.DROWNED)
                         && spawnTypes(plains, MobCategory.MONSTER).contains(ModEntityTypes.GHOUL.get()),
                 "Overworld monster tables must replace modern biome additions");
+        for (var type : List.of(
+                ModEntityTypes.R196_COW,
+                ModEntityTypes.R196_CHICKEN,
+                ModEntityTypes.R196_SHEEP,
+                ModEntityTypes.R196_PIG,
+                ModEntityTypes.R196_HORSE,
+                ModEntityTypes.R196_WOLF)) {
+            helper.assertTrue(
+                    SpawnPlacements.getPlacementType(type.get()) == SpawnPlacementTypes.ON_GROUND
+                            && SpawnPlacements.getHeightmapType(type.get())
+                                    == Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    type.getId() + " must retain vanilla ground spawn placement restrictions");
+        }
+        helper.assertTrue(
+                SpawnPlacements.getPlacementType(ModEntityTypes.R196_OCELOT.get())
+                                == SpawnPlacementTypes.ON_GROUND
+                        && SpawnPlacements.getHeightmapType(ModEntityTypes.R196_OCELOT.get())
+                                == Heightmap.Types.MOTION_BLOCKING,
+                "R196 ocelots must retain vanilla ocelot spawn placement restrictions");
 
         MobSpawnSettings mushroom = biomes.getOrThrow(Biomes.MUSHROOM_FIELDS).value().getMobSettings();
         helper.assertTrue(
