@@ -2,26 +2,32 @@ package com.pixulse.infx.progression;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.server.R196ServerMetrics;
+import com.pixulse.infx.world.R196VillageProgression;
+import com.pixulse.infx.world.R196WorldData;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.SharedConstants;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import com.pixulse.infx.world.R196VillageProgression;
-import com.pixulse.infx.world.R196WorldData;
-import net.minecraft.server.permissions.Permissions;
 
 /** The fourteen read-only diagnostic and survival commands shipped by R196. */
 public final class R196Commands {
@@ -111,9 +117,34 @@ public final class R196Commands {
             lines.forEach(line -> context.getSource().sendSuccess(() -> Component.literal(line), false));
             return lines.size();
         }));
+        dispatcher.register(Commands.literal("infxlivestock")
+                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .then(Commands.literal("sick")
+                        .then(Commands.argument("targets", EntityArgument.entities())
+                                .executes(context -> forceLivestockDisease(context, true))))
+                .then(Commands.literal("cure")
+                        .then(Commands.argument("targets", EntityArgument.entities())
+                                .executes(context -> forceLivestockDisease(context, false)))));
     }
 
-    private static ServerPlayer player(CommandContext<CommandSourceStack> context) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    private static int forceLivestockDisease(CommandContext<CommandSourceStack> context, boolean diseased)
+            throws CommandSyntaxException {
+        Collection<? extends Entity> targets = EntityArgument.getEntities(context, "targets");
+        int count = 0;
+        for (Entity entity : targets) {
+            if (entity instanceof Animal animal && R196Livestock.setDiseased(animal, diseased)) {
+                count++;
+            }
+        }
+        String action = diseased ? "diseased" : "cured";
+        int finalCount = count;
+        context.getSource().sendSuccess(
+                () -> Component.literal("Forced " + action + " on " + finalCount + " livestock"),
+                true);
+        return count;
+    }
+
+    private static ServerPlayer player(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         return context.getSource().getPlayerOrException();
     }
 
@@ -131,7 +162,7 @@ public final class R196Commands {
     }
 
     private static int personalRecords(CommandContext<CommandSourceStack> context)
-            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+            throws CommandSyntaxException {
         ServerPlayer player = player(context);
         long completed = player.level().getServer().getAdvancements().getAllAdvancements().stream()
                 .filter(advancement -> advancement.id().getNamespace().equals(InfiniteX.MOD_ID))
@@ -141,7 +172,7 @@ public final class R196Commands {
     }
 
     private static int worldRecords(CommandContext<CommandSourceStack> context)
-            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+            throws CommandSyntaxException {
         ServerPlayer player = player(context);
         var records = R196WorldData.get(player.level()).firstCompletions();
         context.getSource().sendSuccess(() -> Component.literal("World-first R196 records: " + records.size() + "/62"), false);
@@ -152,7 +183,7 @@ public final class R196Commands {
     }
 
     private static int developmentRecords(CommandContext<CommandSourceStack> context)
-            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+            throws CommandSyntaxException {
         ServerPlayer player = player(context);
         R196WorldData data = R196WorldData.get(player.level());
         return reply(context, "R196 dev records: firsts=" + data.firstCompletions().size()
