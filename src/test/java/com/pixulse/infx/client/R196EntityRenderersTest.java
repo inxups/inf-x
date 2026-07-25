@@ -14,6 +14,22 @@ import org.junit.jupiter.api.Test;
 
 class R196EntityRenderersTest {
     @Test
+    void sickLivestockUseAuthorizedMiteSickTextures() {
+        assertEquals(
+                "infx:textures/entity/cow/sick.png",
+                R196EntityRenderers.CowTexture.sickTexture().toString());
+        assertEquals(
+                "infx:textures/entity/chicken/sick.png",
+                R196EntityRenderers.ChickenTexture.sickTexture().toString());
+        assertEquals(
+                "infx:textures/entity/pig/sick.png",
+                R196EntityRenderers.PigTexture.sickTexture().toString());
+        assertEquals(
+                "infx:textures/entity/sheep/sick.png",
+                R196EntityRenderers.SheepTexture.sickTexture().toString());
+    }
+
+    @Test
     void gelatinousVariantsUseTheirMatchingMiteEntityTextures() {
         assertEquals(
                 "infx:textures/entity/slime/slime.png",

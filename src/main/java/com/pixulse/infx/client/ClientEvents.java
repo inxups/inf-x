@@ -31,15 +31,11 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.minecraft.client.model.animal.squid.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
-import net.minecraft.client.renderer.entity.ChickenRenderer;
-import net.minecraft.client.renderer.entity.CowRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EndermanRenderer;
 import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.HorseRenderer;
 import net.minecraft.client.renderer.entity.OcelotRenderer;
-import net.minecraft.client.renderer.entity.PigRenderer;
-import net.minecraft.client.renderer.entity.SheepRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.SquidRenderer;
@@ -195,11 +191,11 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntityTypes.R196_BLAZE.get(), BlazeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_GHAST.get(), GhastRenderer::new);
 
-        // R196 livestock replacements reuse 26.2 vanilla renderers/models/textures.
-        event.registerEntityRenderer(ModEntityTypes.R196_COW.get(), CowRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_CHICKEN.get(), ChickenRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_SHEEP.get(), SheepRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_PIG.get(), PigRenderer::new);
+        // R196 livestock: vanilla models; sick skins when !isWell (MITE).
+        event.registerEntityRenderer(ModEntityTypes.R196_COW.get(), R196EntityRenderers.CowTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_CHICKEN.get(), R196EntityRenderers.ChickenTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_SHEEP.get(), R196EntityRenderers.SheepTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_PIG.get(), R196EntityRenderers.PigTexture::new);
         event.registerEntityRenderer(ModEntityTypes.R196_HORSE.get(), HorseRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_OCELOT.get(), OcelotRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_WOLF.get(), WolfRenderer::new);

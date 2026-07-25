@@ -49,6 +49,7 @@ import com.pixulse.infx.world.R196SafeEvents;
 import com.pixulse.infx.world.R196BucketEvents;
 import com.pixulse.infx.world.R196StructureSafetyEvents;
 import com.pixulse.infx.agriculture.R196AgricultureEvents;
+import com.pixulse.infx.agriculture.R196GrassTrampling;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import com.pixulse.infx.survival.R196FireCookingEvents;
 import com.pixulse.infx.survival.R196FoodSourceEvents;
@@ -117,6 +118,7 @@ public final class InfiniteX {
         R196FireCookingEvents.register(NeoForge.EVENT_BUS);
         R196FoodSourceEvents.register(NeoForge.EVENT_BUS);
         R196AgricultureEvents.register(NeoForge.EVENT_BUS);
+        R196GrassTrampling.register(NeoForge.EVENT_BUS);
         R196Commands.register(NeoForge.EVENT_BUS);
         ModernContentAuditEvents.register(NeoForge.EVENT_BUS);
         R196AchievementEvents.register(NeoForge.EVENT_BUS);

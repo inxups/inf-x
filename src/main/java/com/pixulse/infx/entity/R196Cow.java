@@ -3,6 +3,7 @@ package com.pixulse.infx.entity;
 import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
@@ -38,6 +39,12 @@ public final class R196Cow extends Cow {
 
     public static AttributeSupplier.Builder attributes() {
         return AbstractCow.createAttributes().add(Attributes.MAX_HEALTH, 20.0);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+        super.defineSynchedData(entityData);
+        R196Livestock.defineWellData(entityData);
     }
 
     @Override

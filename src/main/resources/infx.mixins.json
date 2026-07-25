@@ -27,7 +27,8 @@
     "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
     "LevelAccessorMixin",
-    "RaidMixin"
+    "RaidMixin",
+    "SpreadingSnowyBlockMixin"
   ],
   "client": [
     "DifficultyButtonsMixin",
