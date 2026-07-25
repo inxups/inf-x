@@ -48,14 +48,18 @@ public final class R196ItemProperties {
     }
 
     private static Item.Properties tool(R196EquipmentKey key, Item.Properties properties) {
-        return commonDamageable(key, properties)
+        var p = commonDamageable(key, properties)
                 .component(DataComponents.TOOL, key.type().miningFamily().createTool(key))
                 .attributes(toolAttributes(key))
                 .component(DataComponents.ATTACK_RANGE, attackRange(key.type()))
                 .component(
                         DataComponents.WEAPON,
-                        new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()))
-                .component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
+                        new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
+        // Shears: no right-click block stance; melee is handled on right-click with cooldown.
+        if (key.type() != R196EquipmentType.SHEARS) {
+            p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
+        }
+        return p;
     }
 
     static AttackRange attackRange(R196EquipmentType type) {

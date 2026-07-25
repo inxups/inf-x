@@ -7,6 +7,11 @@
 - 实现：R196Cow.mobInteract 早返回；R196AnimalEvents.onDrops 清空掉落；R196Sheep.die 跳过额外皮革掉落。
 - 符合 MITE 行为：生病动物产出为零，击杀无收获。
 
+### 剪刀右键攻击与冷却
+
+- 材料剪刀移除 `BLOCKS_ATTACKS`，右键不再进入格挡姿态。
+- 左键实体攻击被取消；对不可剪毛目标的右键改为执行近战攻击，并施加 10 tick（0.5 秒）物品冷却。
+- 剪羊毛 / 修剪植物等既有右键行为保持不变。
 ### 移除六种 R196 花
 
 - 删除 `rose` / `orchid` / `allium` / `tulip` / `dahlia` / `daisy` 方块与物品注册、创造栏、掉落、语言、模型、世界生成（`r196_flowers` / `r196_allium`）及材质清单条目。
