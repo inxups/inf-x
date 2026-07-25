@@ -2,6 +2,7 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.world.R196MoonPhase;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -29,6 +30,12 @@ public final class R196Chicken extends Chicken {
 
     public static AttributeSupplier.Builder attributes() {
         return Chicken.createAttributes().add(Attributes.MAX_HEALTH, 4.0);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+        super.defineSynchedData(entityData);
+        R196Livestock.defineWellData(entityData);
     }
 
     @Override

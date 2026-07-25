@@ -23,6 +23,13 @@ class R196LivestockRulesTest {
     }
 
     @Test
+    void wellFlagMatchesProductiveHealthForSickSkins() {
+        // MITE isWell gates sick textures; infx maps that to healthy && !diseased.
+        assertTrue(R196Livestock.healthy(true, true, true, true, true, true, false, false));
+        assertFalse(R196Livestock.healthy(true, true, true, true, true, true, false, true));
+    }
+
+    @Test
     void lunarCalendarKeepsBloodAndBlueMoonReplacementRules() {
         assertEquals(R196MoonPhase.FULL, R196MoonPhase.atDay(1));
         assertEquals(R196MoonPhase.NEW, R196MoonPhase.atDay(5));

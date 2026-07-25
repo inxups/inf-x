@@ -3,6 +3,7 @@ package com.pixulse.infx.client;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Creeper;
+import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.entity.R196Skeleton;
 import com.pixulse.infx.entity.R196Slime;
@@ -11,10 +12,14 @@ import com.pixulse.infx.entity.R196Wolf;
 import com.pixulse.infx.entity.R196Zombie;
 import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
+import net.minecraft.client.renderer.entity.ChickenRenderer;
+import net.minecraft.client.renderer.entity.CowRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.IronGolemRenderer;
 import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
+import net.minecraft.client.renderer.entity.PigRenderer;
+import net.minecraft.client.renderer.entity.SheepRenderer;
 import net.minecraft.client.renderer.entity.SilverfishRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SlimeRenderer;
@@ -22,21 +27,139 @@ import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
+import net.minecraft.client.renderer.entity.state.ChickenRenderState;
+import net.minecraft.client.renderer.entity.state.CowRenderState;
 import net.minecraft.client.renderer.entity.state.CreeperRenderState;
 import net.minecraft.client.renderer.entity.state.IronGolemRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
+import net.minecraft.client.renderer.entity.state.PigRenderState;
+import net.minecraft.client.renderer.entity.state.SheepRenderState;
 import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.client.renderer.entity.state.SlimeRenderState;
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.ambient.Bat;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.cow.Cow;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
 
 /** Vanilla-model renderers that bind authorized MITE entity textures for R196 variants. */
 final class R196EntityRenderers {
+    private static final ContextKey<Boolean> LIVESTOCK_WELL =
+            new ContextKey<>(InfiniteX.id("livestock_well"));
+
     private R196EntityRenderers() {}
+
+    private static void extractWell(Animal animal, LivingEntityRenderState state) {
+        state.setRenderData(LIVESTOCK_WELL, R196Livestock.isWell(animal));
+    }
+
+    private static boolean isWell(LivingEntityRenderState state) {
+        Boolean well = state.getRenderData(LIVESTOCK_WELL);
+        return well == null || well;
+    }
+
+    /** MITE sick cow skin when !isWell(). */
+    static final class CowTexture extends CowRenderer {
+        private static final Identifier SICK = mite("textures/entity/cow/sick.png");
+
+        CowTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public void extractRenderState(Cow entity, CowRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            extractWell(entity, state);
+        }
+
+        @Override
+        public Identifier getTextureLocation(CowRenderState state) {
+            return isWell(state) ? super.getTextureLocation(state) : SICK;
+        }
+
+        static Identifier sickTexture() {
+            return SICK;
+        }
+    }
+
+    /** MITE sick chicken skin when !isWell(). */
+    static final class ChickenTexture extends ChickenRenderer {
+        private static final Identifier SICK = mite("textures/entity/chicken/sick.png");
+
+        ChickenTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public void extractRenderState(Chicken entity, ChickenRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            extractWell(entity, state);
+        }
+
+        @Override
+        public Identifier getTextureLocation(ChickenRenderState state) {
+            return isWell(state) ? super.getTextureLocation(state) : SICK;
+        }
+
+        static Identifier sickTexture() {
+            return SICK;
+        }
+    }
+
+    /** MITE sick pig skin when !isWell(). */
+    static final class PigTexture extends PigRenderer {
+        private static final Identifier SICK = mite("textures/entity/pig/sick.png");
+
+        PigTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public void extractRenderState(Pig entity, PigRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            extractWell(entity, state);
+        }
+
+        @Override
+        public Identifier getTextureLocation(PigRenderState state) {
+            return isWell(state) ? super.getTextureLocation(state) : SICK;
+        }
+
+        static Identifier sickTexture() {
+            return SICK;
+        }
+    }
+
+    /** MITE sick sheep body skin when !isWell(); wool layers stay vanilla. */
+    static final class SheepTexture extends SheepRenderer {
+        private static final Identifier SICK = mite("textures/entity/sheep/sick.png");
+
+        SheepTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public void extractRenderState(Sheep entity, SheepRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            extractWell(entity, state);
+        }
+
+        @Override
+        public Identifier getTextureLocation(SheepRenderState state) {
+            return isWell(state) ? super.getTextureLocation(state) : SICK;
+        }
+
+        static Identifier sickTexture() {
+            return SICK;
+        }
+    }
 
     static final class ZombieTexture extends ZombieRenderer {
         private final Identifier texture;

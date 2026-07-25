@@ -6,6 +6,9 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
@@ -13,7 +16,11 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.cow.AbstractCow;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -37,6 +44,12 @@ public final class R196Livestock {
     static final String SAFE = "infx_livestock_safe";
     static final String GOALS_ADDED = "infx_livestock_goals_added";
 
+    /**
+     * Client-visible MITE isWell flag. Lazy so pure unit tests can load this class without
+     * bootstrapping SynchedEntityData.
+     */
+    private static @Nullable EntityDataAccessor<Boolean> dataWell;
+
     static final long WATER_GRACE = 24_000L;
     static final long FOOD_GRACE = 48_000L;
     static final long PANIC_TICKS = 600L;
@@ -44,6 +57,42 @@ public final class R196Livestock {
     static final long HORSE_RETRY_TICKS = 4_000L;
 
     private R196Livestock() {}
+
+    private static EntityDataAccessor<Boolean> dataWell() {
+        EntityDataAccessor<Boolean> local = dataWell;
+        if (local == null) {
+            synchronized (R196Livestock.class) {
+                local = dataWell;
+                if (local == null) {
+                    dataWell = local = SynchedEntityData.defineId(Animal.class, EntityDataSerializers.BOOLEAN);
+                }
+            }
+        }
+        return local;
+    }
+
+    /** Define the shared well flag once per livestock entity class. */
+    public static void defineWellData(SynchedEntityData.Builder entityData) {
+        entityData.define(dataWell(), true);
+    }
+
+    /** MITE isWell: healthy and not diseased (client-synced). */
+    public static boolean isWell(Animal animal) {
+        return animal.getEntityData().get(dataWell());
+    }
+
+    public static void setWell(Animal animal, boolean well) {
+        if (animal.getEntityData().get(dataWell()) != well) {
+            animal.getEntityData().set(dataWell(), well);
+        }
+    }
+
+    public static boolean isLivestock(Entity entity) {
+        return entity instanceof AbstractCow
+                || entity instanceof Pig
+                || entity instanceof Sheep
+                || entity instanceof Chicken;
+    }
 
     /**
      * Install needs/seek and flee goals once on R196 livestock (cow/chicken/sheep/pig).
@@ -150,6 +199,8 @@ public final class R196Livestock {
         data.putBoolean(SHELTERED, sheltered);
         data.putBoolean(SAFE, safe);
         data.putBoolean(HEALTHY, healthy);
+        // MITE skins use !isWell(); keep client in sync with productive health.
+        setWell(animal, healthy && !diseased);
         return new Needs(watered, fed, open, naturalLight, sheltered, safe, panicked, diseased, healthy);
     }
 
@@ -183,6 +234,9 @@ public final class R196Livestock {
                 other -> other.isAlive() && !(other instanceof AbstractHorse))) {
             nearby.getPersistentData().putLong(PANIC_UNTIL, until);
             nearby.getPersistentData().putBoolean(HEALTHY, false);
+            if (isLivestock(nearby)) {
+                setWell(nearby, false);
+            }
         }
     }
 

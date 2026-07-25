@@ -1,6 +1,7 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
@@ -28,6 +29,12 @@ public final class R196Sheep extends Sheep {
 
     public static AttributeSupplier.Builder attributes() {
         return Sheep.createAttributes().add(Attributes.MAX_HEALTH, 8.0);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+        super.defineSynchedData(entityData);
+        R196Livestock.defineWellData(entityData);
     }
 
     @Override
