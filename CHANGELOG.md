@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-25
 
+### 修复 R196 羊死亡不掉羊毛
+
+- `infx:entities/r196_sheep` 原先只有羊肉；补上按颜色 alternatives 羊毛池（未剪毛时掉对应色羊毛方块）。
+- 剪毛门控改为覆写 `readyForShearing()`（需 `isProductive`），原版与 R196 剪刀均走 `IShearable`，不再只拦截 `Items.SHEARS`。
+
 ### 修复牛刷怪蛋 Duplicate id value for 18
 
 - 根因：`R196Livestock` 对 `Animal.class` 做 `SynchedEntityData.defineId`，与 26.2 `Cow` 变体/音效 synched 槽位冲突，刷怪蛋放置时构造 `R196Cow` 崩溃。

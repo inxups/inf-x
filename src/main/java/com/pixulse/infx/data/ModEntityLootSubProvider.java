@@ -3,17 +3,25 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
 import java.util.stream.Stream;
+import net.minecraft.advancements.predicates.entity.EntityPredicate;
+import net.minecraft.advancements.predicates.entity.SheepPredicate;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentExactPredicate;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
@@ -103,11 +111,31 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 LootTable.lootTable()
                         .withPool(itemPool(Items.FEATHER, 0.0F, 2.0F))
                         .withPool(itemPool(Items.CHICKEN, 1.0F, 1.0F)));
-        drops(ModEntityTypes.R196_SHEEP.get(), Items.MUTTON, 1.0F, 2.0F);
+        // Mutton + one matching wool block when not sheared (inline; no nested vanilla tables).
+        add(
+                ModEntityTypes.R196_SHEEP.get(),
+                LootTable.lootTable()
+                        .withPool(itemPool(Items.MUTTON, 1.0F, 2.0F))
+                        .withPool(sheepWoolPool()));
         drops(ModEntityTypes.R196_PIG.get(), Items.PORKCHOP, 1.0F, 3.0F);
         drops(ModEntityTypes.R196_HORSE.get(), Items.LEATHER, 0.0F, 2.0F);
         emptyDrops(ModEntityTypes.R196_OCELOT.get());
         emptyDrops(ModEntityTypes.R196_WOLF.get());
+    }
+
+    private static LootPool.Builder sheepWoolPool() {
+        AlternativesEntry.Builder variants = AlternativesEntry.alternatives();
+        for (DyeColor color : DyeColor.VALUES) {
+            variants = variants.otherwise(
+                    LootItem.lootTableItem(Blocks.WOOL.pick(color))
+                            .when(LootItemEntityPropertyCondition.hasProperties(
+                                    LootContext.EntityTarget.THIS,
+                                    EntityPredicate.Builder.entity()
+                                            .components(DataComponentExactPredicate.expect(
+                                                    DataComponents.SHEEP_COLOR, color))
+                                            .sheep(SheepPredicate.hasWool()))));
+        }
+        return LootPool.lootPool().add(variants);
     }
 
     private void drops(EntityType<?> custom, Item item, float minimum, float maximum) {
