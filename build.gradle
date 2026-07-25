@@ -208,11 +208,41 @@ tasks.named('check').configure {
     dependsOn tasks.named('resourceTest')
 }
 
-def prepareRuntimeGeneratedResources = tasks.register('prepareRuntimeGeneratedResources', Copy) {
+// processResources / plain Copy merge into build/resources/main and never delete removed
+// generated files. After runData (HashCache drops stale src/generated outputs) and a full
+// generated Copy, Sync exclusive trees so runtime packs cannot keep Unbound
+// configured_feature JSON (e.g. r196_flowers after flower blocks were removed).
+def generatedExclusiveRuntimeTrees = [
+        'data/infx/worldgen',
+        'data/infx/neoforge',
+        'data/infx/dimension',
+        'data/infx/dimension_type',
+        'data/minecraft/worldgen',
+        'data/minecraft/dimension',
+        'data/minecraft/dimension_type',
+        'data/minecraft/tags',
+]
+
+def copyRuntimeGeneratedResources = tasks.register('copyRuntimeGeneratedResources', Copy) {
     dependsOn tasks.named('runData')
     from layout.projectDirectory.dir('src/generated/resources')
     into layout.buildDirectory.dir('resources/main')
     exclude '.cache/**'
+}
+
+def syncExclusiveGeneratedResources = generatedExclusiveRuntimeTrees.collect { relativePath ->
+    tasks.register("syncGenerated_${relativePath.replace('/', '_')}", Sync) {
+        dependsOn copyRuntimeGeneratedResources
+        from layout.projectDirectory.dir("src/generated/resources/${relativePath}")
+        into layout.buildDirectory.dir("resources/main/${relativePath}")
+        // Destination extras (stale JSON left by prior Copy) must always be pruned.
+        outputs.upToDateWhen { false }
+    }
+}
+
+def prepareRuntimeGeneratedResources = tasks.register('prepareRuntimeGeneratedResources') {
+    dependsOn copyRuntimeGeneratedResources
+    dependsOn syncExclusiveGeneratedResources
 }
 
 // Fresh clones and worktrees do not contain ignored datagen output. Bootstrap it before
