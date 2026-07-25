@@ -70,9 +70,8 @@ public final class R196Livestock {
     public static void setWell(Animal animal, boolean value) {
         EntityDataAccessor<Boolean> well = wellData(animal);
         if (well == null) return;
-        if (animal.getEntityData().get(well) != value) {
-            animal.getEntityData().set(well, value);
-        }
+        // Force dirty so clients always resync when disease is toggled by command.
+        animal.getEntityData().set(well, value, true);
     }
 
     private static @Nullable EntityDataAccessor<Boolean> wellData(Animal animal) {
@@ -83,11 +82,20 @@ public final class R196Livestock {
         return null;
     }
 
+    /** True for cow/pig/sheep/chicken classes (including vanilla). */
     public static boolean isLivestock(Entity entity) {
         return entity instanceof AbstractCow
                 || entity instanceof Pig
                 || entity instanceof Sheep
                 || entity instanceof Chicken;
+    }
+
+    /** R196 livestock that carry client-synced isWell and sick skins. */
+    public static boolean hasSickSkin(Entity entity) {
+        return entity instanceof R196Cow
+                || entity instanceof R196Chicken
+                || entity instanceof R196Pig
+                || entity instanceof R196Sheep;
     }
 
     /**
@@ -222,11 +230,12 @@ public final class R196Livestock {
     }
 
     /**
-     * Force or clear disease on livestock (cow/chicken/sheep/pig). No-op for non-livestock.
+     * Force or clear disease on R196 livestock (cow/chicken/sheep/pig).
+     * No-op for vanilla livestock (no isWell / sick renderer) and non-livestock.
      * Sets well/healthy flags immediately so production and sick skins update without waiting for tick.
      */
     public static boolean setDiseased(Animal animal, boolean diseased) {
-        if (!isLivestock(animal) || animal instanceof AbstractHorse) {
+        if (!hasSickSkin(animal)) {
             return false;
         }
         animal.getPersistentData().putBoolean(DISEASED, diseased);
