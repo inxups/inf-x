@@ -18,11 +18,13 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.material.R196Quality;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.progression.R196Experience;
+import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModRecipes;
 import com.pixulse.infx.server.ExtremeDifficulty;
+import com.pixulse.infx.survival.R196SurvivalData;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -619,6 +621,7 @@ public final class ModGameTests {
 
     private static void timedCrafting(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
+        R196SurvivalData initialSurvival = player.getData(ModAttachments.SURVIVAL);
         helper.onEachTick(player::doTick);
         TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
@@ -639,14 +642,26 @@ public final class ModGameTests {
         helper.startSequence()
                 .thenExecuteAfter(10, () -> {
                     helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "result must still be delayed");
-                    player.getFoodData().setFoodLevel(0);
+                    player.setData(
+                            ModAttachments.SURVIVAL,
+                            new R196SurvivalData(
+                                    0.0D,
+                                    0.0D,
+                                    initialSurvival.protein(),
+                                    initialSurvival.phytonutrients(),
+                                    initialSurvival.essentialFats(),
+                                    initialSurvival.insulinResponse(),
+                                    initialSurvival.recoveryProgress(),
+                                    initialSurvival.hungerProgress(),
+                                    initialSurvival.nutritionHungerProgress(),
+                                    initialSurvival.starvationProgress()));
                     pausedProgress[0] = menu.infx$craftingState().progressTicks();
                 })
                 .thenExecuteAfter(10, () -> {
                     helper.assertTrue(
                             menu.infx$craftingState().progressTicks() == pausedProgress[0],
                             "zero hunger must pause without losing progress");
-                    player.getFoodData().setFoodLevel(20);
+                    player.setData(ModAttachments.SURVIVAL, initialSurvival);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
                         countItem(player.getInventory(), ModItems.SINEW.get()) == 4,
