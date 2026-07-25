@@ -31,10 +31,12 @@ import org.jspecify.annotations.Nullable;
 /** R196 cow: livestock needs, milk quota, and panic live on the entity. */
 public final class R196Cow extends Cow {
     /**
-     * Per-class isWell id (lazy for pure unit tests). Must not use {@code Animal.class} — that
-     * collides with Cow variant data and crashes spawn eggs with {@code Duplicate id value for 18!}.
+     * Per-class isWell id. It must be registered while this class initializes, before Entity builds
+     * its fixed-size synced-data array, and not on {@code Animal.class} where it collides with Cow
+     * variant data.
      */
-    private static @Nullable EntityDataAccessor<Boolean> dataWell;
+    private static final EntityDataAccessor<Boolean> DATA_WELL =
+            SynchedEntityData.defineId(R196Cow.class, EntityDataSerializers.BOOLEAN);
     private static final String MILK_DAY = "infx_cow_milk_day";
     private static final String MILK_UNITS = "infx_cow_milk_units";
     /** Daily milk budget shared by buckets (4) and bowls (1 each, max 4). */
@@ -45,17 +47,7 @@ public final class R196Cow extends Cow {
     }
 
     static EntityDataAccessor<Boolean> dataWell() {
-        EntityDataAccessor<Boolean> local = dataWell;
-        if (local == null) {
-            synchronized (R196Cow.class) {
-                local = dataWell;
-                if (local == null) {
-                    dataWell = local =
-                            SynchedEntityData.defineId(R196Cow.class, EntityDataSerializers.BOOLEAN);
-                }
-            }
-        }
-        return local;
+        return DATA_WELL;
     }
 
     public static AttributeSupplier.Builder attributes() {

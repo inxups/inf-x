@@ -52,9 +52,9 @@ public final class R196Livestock {
     private R196Livestock() {}
 
     /**
-     * Define a per-class isWell flag. Must use {@code defineId} on the concrete R196 entity class
-     * (not {@code Animal}) so ClassTreeIdRegistry does not collide with vanilla Cow/Pig/etc. variant
-     * data ids — that collision crashed spawn eggs with {@code Duplicate id value for 18!}.
+     * Define a per-class isWell flag. Its accessor is registered while the concrete R196 entity
+     * class initializes, before the entity's {@link SynchedEntityData.Builder} sizes its data array.
+     * It must not use {@code Animal.class}, which collides with vanilla Cow/Pig/etc. variant data.
      */
     public static void defineWellData(
             SynchedEntityData.Builder entityData, EntityDataAccessor<Boolean> well) {
