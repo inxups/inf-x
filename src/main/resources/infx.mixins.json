@@ -22,6 +22,7 @@
     "FoodDataMixin",
     "GameTestServerMixin",
     "InventoryMenuMixin",
+    "ItemEntityPickupMixin",
     "LavaFluidMixin",
     "HopperBlockEntityMixin",
     "PlayerExperienceMixin",
@@ -29,6 +30,7 @@
     "PlayerFoodMixin",
     "LevelAccessorMixin",
     "RaidMixin",
+    "ServerLevelFluidTickMixin",
     "SpreadingSnowyBlockMixin"
   ],
   "client": [

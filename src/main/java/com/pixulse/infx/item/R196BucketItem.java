@@ -22,7 +22,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.EnvironmentAttributes;
@@ -59,10 +58,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jspecify.annotations.Nullable;
 
 /** A material-preserving R196 bucket for empty, water, lava, milk and stone contents. */
@@ -119,70 +114,21 @@ public final class R196BucketItem extends BucketItem {
         this.emptyBucket = emptyBucket;
         this.waterBucket = waterBucket;
         this.lavaBucket = lavaBucket;
+        registerDispenserBehavior();
     }
 
-    public static void register(IEventBus modBus, IEventBus gameBus) {
-        modBus.addListener(R196BucketItem::commonSetup);
-        gameBus.addListener(R196BucketItem::tickFluidDecay);
-        gameBus.addListener(R196BucketItem::suppressMeltPickup);
-    }
-
-    /** Runs the MITE scheduleBlockChange queue that degrades unpaid source cells to flowing. */
-    private static void tickFluidDecay(LevelTickEvent.Post event) {
-        if (event.getLevel() instanceof ServerLevel level) {
-            R196FluidDecayData.get(level).tick(level);
-        }
-    }
-
-    /**
-     * MITE prevent_item_pickup_due_to_held_item_breaking_until: after a bucket melts, the now-empty
-     * hand must not immediately scoop up a nearby drop.
-     */
-    private static void suppressMeltPickup(ItemEntityPickupEvent.Pre event) {
-        Player player = event.getPlayer();
-        long until = player.getPersistentData().getLong(MELT_PICKUP_BLOCK).orElse(0L);
-        if (until <= 0L) {
-            return;
-        }
-        if (player.level().getGameTime() < until) {
-            event.setCanPickup(TriState.FALSE);
-        } else {
-            player.getPersistentData().remove(MELT_PICKUP_BLOCK);
-        }
-    }
-
-    private static void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            for (R196Material material : ModItems.BUCKET_MATERIALS) {
-                registerEmpty(material);
-                registerFilled(material, Contents.WATER);
-                registerFilled(material, Contents.LAVA);
-                registerPowderSnow(material);
-                for (R196MobBucketKind kind : R196MobBucketKind.values()) {
-                    registerMob(material, kind);
-                }
+    private void registerDispenserBehavior() {
+        switch (contents) {
+            case EMPTY -> DispenserBlock.registerBehavior(this, emptyDispenserBehavior());
+            case WATER, LAVA -> registerFilledDispenserBehavior(this, emptyBucket);
+            case MILK, STONE -> {
+                // These contents cannot be placed, so the dispenser keeps its default drop behavior.
             }
-        });
+        }
     }
 
-    private static void registerFilled(R196Material material, Contents contents) {
-        Item filled = ModItems.bucket(material, contents).value();
-        Item empty = ModItems.bucket(material, Contents.EMPTY).value();
-        DispenserBlock.registerBehavior(filled, filledBehavior(empty));
-    }
-
-    private static void registerPowderSnow(R196Material material) {
-        R196SolidBucketItem filled = ModItems.powderSnowBucket(material).value();
-        DispenserBlock.registerBehavior(filled, filledBehavior(filled.emptyBucket()));
-    }
-
-    private static void registerMob(R196Material material, R196MobBucketKind kind) {
-        R196MobBucketItem filled = ModItems.mobBucket(material, kind).value();
-        DispenserBlock.registerBehavior(filled, filledBehavior(filled.emptyBucket()));
-    }
-
-    private static DefaultDispenseItemBehavior filledBehavior(Item empty) {
-        return new DefaultDispenseItemBehavior() {
+    static void registerFilledDispenserBehavior(Item filled, Supplier<? extends Item> emptyBucket) {
+        DispenserBlock.registerBehavior(filled, new DefaultDispenseItemBehavior() {
             private final DefaultDispenseItemBehavior fallback = new DefaultDispenseItemBehavior();
 
             @Override
@@ -194,14 +140,13 @@ public final class R196BucketItem extends BucketItem {
                     return fallback.dispense(source, dispensed);
                 }
                 container.checkExtraContent(null, level, dispensed, target);
-                return consumeWithRemainder(source, dispensed, new ItemStack(empty));
+                return consumeWithRemainder(source, dispensed, new ItemStack(emptyBucket.get()));
             }
-        };
+        });
     }
 
-    private static void registerEmpty(R196Material material) {
-        Item empty = ModItems.bucket(material, Contents.EMPTY).value();
-        DispenserBlock.registerBehavior(empty, new DefaultDispenseItemBehavior() {
+    private DefaultDispenseItemBehavior emptyDispenserBehavior() {
+        return new DefaultDispenseItemBehavior() {
             @Override
             public ItemStack execute(net.minecraft.core.dispenser.BlockSource source, ItemStack dispensed) {
                 LevelAccessor level = source.level();
@@ -210,9 +155,9 @@ public final class R196BucketItem extends BucketItem {
                 if (!(state.getBlock() instanceof BucketPickup pickup)) return super.execute(source, dispensed);
                 ItemStack filledStack;
                 if (state.getFluidState().is(Fluids.WATER)) {
-                    filledStack = ModItems.bucket(material, Contents.WATER).toStack();
+                    filledStack = new ItemStack(waterBucket.get());
                 } else if (state.getFluidState().is(Fluids.LAVA)) {
-                    filledStack = ModItems.bucket(material, Contents.LAVA).toStack();
+                    filledStack = new ItemStack(lavaBucket.get());
                 } else if (state.is(Blocks.POWDER_SNOW)) {
                     filledStack = ModItems.powderSnowBucket(material).toStack();
                 } else {
@@ -230,7 +175,7 @@ public final class R196BucketItem extends BucketItem {
                 }
                 return consumeWithRemainder(source, dispensed, filledStack);
             }
-        });
+        };
     }
 
     private static Fluid fluid(Contents contents) {
@@ -276,6 +221,19 @@ public final class R196BucketItem extends BucketItem {
             return true;
         }
         return forceSource && player.totalExperience >= SOURCE_EXPERIENCE_COST;
+    }
+
+    /** Returns whether a lava-melted bucket is still suppressing this player's item pickup. */
+    public static boolean isMeltPickupBlocked(Player player) {
+        long until = player.getPersistentData().getLong(MELT_PICKUP_BLOCK).orElse(0L);
+        if (until <= 0L) {
+            return false;
+        }
+        if (player.level().getGameTime() < until) {
+            return true;
+        }
+        player.getPersistentData().remove(MELT_PICKUP_BLOCK);
+        return false;
     }
 
     @Override
@@ -623,6 +581,7 @@ public final class R196BucketItem extends BucketItem {
         }
         int delay = content.is(FluidTags.LAVA) ? LAVA_DECAY_DELAY : WATER_DECAY_DELAY;
         R196FluidDecayData.get(serverLevel).schedule(pos, content.is(FluidTags.LAVA), serverLevel.getGameTime() + delay);
+        serverLevel.scheduleTick(pos, content, delay);
     }
 
     /** Drops any queued degrade for a cell, so a paid source stays permanent. */

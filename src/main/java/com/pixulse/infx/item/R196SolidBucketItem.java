@@ -27,6 +27,7 @@ public final class R196SolidBucketItem extends SolidBucketItem {
         super(content, placeSound, properties);
         this.material = material;
         this.emptyBucket = emptyBucket;
+        R196BucketItem.registerFilledDispenserBehavior(this, emptyBucket);
     }
 
     public R196Material material() {

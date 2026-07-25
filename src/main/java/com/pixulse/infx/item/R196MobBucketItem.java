@@ -28,6 +28,7 @@ public final class R196MobBucketItem extends MobBucketItem {
         this.material = material;
         this.kind = kind;
         this.emptyBucket = emptyBucket;
+        R196BucketItem.registerFilledDispenserBehavior(this, emptyBucket);
     }
 
     public R196Material material() {

@@ -17,6 +17,7 @@ import com.pixulse.infx.enchantment.R196EnchantmentRules;
 import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.item.R196ArrowItem;
 import com.pixulse.infx.item.R196BucketItem;
+import com.pixulse.infx.item.R196MobBucketKind;
 import com.pixulse.infx.item.R196CoinItem;
 import com.pixulse.infx.item.R196EquipmentKey;
 import com.pixulse.infx.item.R196EquipmentType;
@@ -105,6 +106,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
@@ -1798,6 +1800,20 @@ public final class ModR196CompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         ServerLevel level = helper.getLevel();
         Item emptyIron = ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.EMPTY).value();
+        helper.assertTrue(
+                DispenserBlock.DISPENSER_REGISTRY.containsKey(emptyIron),
+                "the empty bucket registers its own dispenser behavior");
+        helper.assertTrue(
+                DispenserBlock.DISPENSER_REGISTRY.containsKey(
+                        ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER).value()),
+                "the water bucket registers its own dispenser behavior");
+        helper.assertTrue(
+                DispenserBlock.DISPENSER_REGISTRY.containsKey(ModItems.powderSnowBucket(R196Material.IRON).value()),
+                "the powder-snow bucket registers its own dispenser behavior");
+        helper.assertTrue(
+                DispenserBlock.DISPENSER_REGISTRY.containsKey(
+                        ModItems.mobBucket(R196Material.IRON, R196MobBucketKind.COD).value()),
+                "the mob bucket registers its own dispenser behavior");
 
         // MITE ItemBucket: scooping leaves the liquid cell in place unless Ctrl is held.
         BlockPos water = new BlockPos(2, 2, 2);
@@ -1921,6 +1937,20 @@ public final class ModR196CompletionGameTests {
                 "water quenches a fire elemental");
         helper.assertTrue(
                 player.getMainHandItem().is(emptyIron), "quenching spends the water bucket");
+
+        ItemEntity nearbyDrop = new ItemEntity(
+                level, player.getX(), player.getY(), player.getZ(), Items.DIAMOND.getDefaultInstance());
+        level.addFreshEntity(nearbyDrop);
+        player.getPersistentData()
+                .putLong(
+                        R196BucketItem.MELT_PICKUP_BLOCK,
+                        level.getGameTime() + R196BucketItem.MELT_PICKUP_DELAY);
+        nearbyDrop.playerTouch(player);
+        helper.assertFalse(
+                nearbyDrop.isRemoved(), "a player cannot immediately pick up an item after a bucket melts");
+        player.getPersistentData().remove(R196BucketItem.MELT_PICKUP_BLOCK);
+        nearbyDrop.playerTouch(player);
+        helper.assertTrue(nearbyDrop.isRemoved(), "item pickup resumes after the bucket melt grace expires");
     }
 
     /** Places the player one cell above a target and points straight down at it. */
