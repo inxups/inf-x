@@ -56,4 +56,10 @@ class R196BucketRulesTest {
                 R196Material.ADAMANTIUM, 0.0F);
         expected.forEach((material, chance) -> assertEquals(chance, R196BucketItem.lavaMeltChance(material)));
     }
+
+    @Test
+    void sourcePlacementRequiresOneHundredTotalExperience() {
+        assertEquals(100, R196BucketItem.SOURCE_EXPERIENCE_COST);
+        assertEquals(3200, R196BucketItem.LAVA_BURN_TIME);
+    }
 }

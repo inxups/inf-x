@@ -520,6 +520,15 @@ final class ModLanguageProvider extends LanguageProvider {
         add("tooltip.infx.fuel_heat", locale == Locale.EN_US ? "Fuel heat: %s" : "燃料热量：%s");
         add("tooltip.infx.recipe_heat", locale == Locale.EN_US ? "Required heat: %s" : "所需热量：%s");
         add("tooltip.infx.furnace_heat", locale == Locale.EN_US ? "Maximum heat: %s" : "最高热量：%s");
+        add(
+                "tooltip.infx.place_bucket_as_source",
+                locale == Locale.EN_US ? "Hold Ctrl to place a source block" : "按住Ctrl键来放置源头");
+        add(
+                "tooltip.infx.when_bucket_filled",
+                locale == Locale.EN_US ? "When filled with lava:" : "捞岩浆时:");
+        add(
+                "tooltip.infx.chance_of_bucket_melting",
+                locale == Locale.EN_US ? "%s%% chance of melting" : "有%s%%的几率融化");
         add("enchantment.infx.clumsiness", locale == Locale.EN_US ? "Curse of Clumsiness" : "笨拙诅咒");
     }
 

@@ -56,6 +56,7 @@ public final class R196EquipmentBehaviors {
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyFixedResistance);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::applyElementalCorrosion);
         NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::addQualityTooltip);
+        NeoForge.EVENT_BUS.addListener(R196EquipmentBehaviors::addBucketTooltip);
     }
 
     static void applySilverBonus(LivingIncomingDamageEvent event) {
@@ -328,9 +329,44 @@ public final class R196EquipmentBehaviors {
 
     private static int tooltipFuelHeat(ItemStack stack) {
         if (stack.is(Items.BLAZE_ROD)) return FurnaceHeatPolicy.HEAT_BLAZE;
-        if (stack.is(Items.LAVA_BUCKET)) return FurnaceHeatPolicy.HEAT_LAVA;
+        if (stack.is(Items.LAVA_BUCKET)
+                || stack.getItem() instanceof com.pixulse.infx.item.R196BucketItem bucket
+                        && bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.LAVA) {
+            return FurnaceHeatPolicy.HEAT_LAVA;
+        }
         if (stack.is(ModTags.Items.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
         if (stack.is(ItemTags.LOGS) || stack.is(ItemTags.PLANKS)) return FurnaceHeatPolicy.HEAT_WOOD;
         return 0;
+    }
+
+    static void addBucketTooltip(ItemTooltipEvent event) {
+        if (!(event.getItemStack().getItem() instanceof com.pixulse.infx.item.R196BucketItem bucket)) {
+            return;
+        }
+        var player = event.getEntity();
+        if (player != null
+                && player.totalExperience >= com.pixulse.infx.item.R196BucketItem.SOURCE_EXPERIENCE_COST
+                && (bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.WATER
+                        || bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.LAVA)) {
+            event.getToolTip()
+                    .add(net.minecraft.network.chat.Component.translatable("tooltip.infx.place_bucket_as_source")
+                            .withStyle(
+                                    bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.WATER
+                                            ? net.minecraft.ChatFormatting.BLUE
+                                            : net.minecraft.ChatFormatting.RED));
+        }
+        if (bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.LAVA) {
+            int chance = Math.round(bucket.lavaMeltChance() * 100.0F);
+            if (chance > 0) {
+                event.getToolTip().add(net.minecraft.network.chat.Component.empty());
+                event.getToolTip()
+                        .add(net.minecraft.network.chat.Component.translatable("tooltip.infx.when_bucket_filled")
+                                .withStyle(net.minecraft.ChatFormatting.DARK_PURPLE));
+                event.getToolTip()
+                        .add(net.minecraft.network.chat.Component.translatable(
+                                        "tooltip.infx.chance_of_bucket_melting", chance)
+                                .withStyle(net.minecraft.ChatFormatting.RED));
+            }
+        }
     }
 }

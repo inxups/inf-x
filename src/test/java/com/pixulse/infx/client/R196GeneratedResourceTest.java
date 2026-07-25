@@ -1367,7 +1367,7 @@ class R196GeneratedResourceTest {
                 () -> assertEquals(
                         "minecraft:flint", flintFromChips.getAsJsonObject("result").get("id").getAsString()),
                 () -> assertEquals(
-                        "minecraft:milk_bucket",
+                        "#infx:milk_buckets",
                         cake.getAsJsonObject("key").get("M").getAsString()),
                 () -> assertEquals(
                         "infx:milk_bowl",

@@ -344,7 +344,7 @@ public final class ModItems {
                                 properties),
                         properties -> {
                             Item.Properties configured = properties.stacksTo(
-                                    contents == R196BucketItem.Contents.EMPTY ? 16 : 1);
+                                    contents == R196BucketItem.Contents.EMPTY ? 8 : 1);
                             if (contents == R196BucketItem.Contents.MILK) {
                                 configured.component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET);
                             }

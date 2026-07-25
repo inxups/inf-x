@@ -8,12 +8,14 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 public final class R196Network {
     public static final String FORCE_EGG_THROW = "infx_force_egg_throw";
+    public static final String FORCE_PLACE_FLUID_SOURCE = "infx_force_place_fluid_source";
 
     private R196Network() {}
 
@@ -22,24 +24,50 @@ public final class R196Network {
     }
 
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        event.registrar("2").playToServer(EggThrowPayload.TYPE, EggThrowPayload.STREAM_CODEC, (payload, context) -> {
-            if (!(context.player() instanceof ServerPlayer player)) return;
-            InteractionHand hand = payload.offhand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-            if (!player.getItemInHand(hand).is(Items.EGG)) return;
-            player.getPersistentData().putBoolean(FORCE_EGG_THROW, true);
-            try {
-                player.getItemInHand(hand).getItem().use(player.level(), player, hand);
-            } finally {
-                player.getPersistentData().remove(FORCE_EGG_THROW);
-            }
-        }).playToServer(
-                RunegateExecutePayload.TYPE,
-                RunegateExecutePayload.STREAM_CODEC,
-                (payload, context) -> {
-                    if (context.player() instanceof ServerPlayer player) {
-                        RunegateTeleportation.execute(player);
+        event.registrar("2")
+                .playToServer(EggThrowPayload.TYPE, EggThrowPayload.STREAM_CODEC, (payload, context) -> {
+                    if (!(context.player() instanceof ServerPlayer player)) return;
+                    InteractionHand hand = payload.offhand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+                    if (!player.getItemInHand(hand).is(Items.EGG)) return;
+                    player.getPersistentData().putBoolean(FORCE_EGG_THROW, true);
+                    try {
+                        player.getItemInHand(hand).getItem().use(player.level(), player, hand);
+                    } finally {
+                        player.getPersistentData().remove(FORCE_EGG_THROW);
                     }
                 })
+                .playToServer(
+                        PlaceFluidSourcePayload.TYPE,
+                        PlaceFluidSourcePayload.STREAM_CODEC,
+                        (payload, context) -> {
+                            if (!(context.player() instanceof ServerPlayer player)) return;
+                            InteractionHand hand =
+                                    payload.offhand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+                            ItemStack held = player.getItemInHand(hand);
+                            if (!(held.getItem() instanceof com.pixulse.infx.item.R196BucketItem bucket)
+                                    || (bucket.contents() != com.pixulse.infx.item.R196BucketItem.Contents.WATER
+                                            && bucket.contents()
+                                                    != com.pixulse.infx.item.R196BucketItem.Contents.LAVA)) {
+                                return;
+                            }
+                            if (!com.pixulse.infx.item.R196BucketItem.canPlaceAsSource(player, true)) {
+                                return;
+                            }
+                            player.getPersistentData().putBoolean(FORCE_PLACE_FLUID_SOURCE, true);
+                            try {
+                                held.getItem().use(player.level(), player, hand);
+                            } finally {
+                                player.getPersistentData().remove(FORCE_PLACE_FLUID_SOURCE);
+                            }
+                        })
+                .playToServer(
+                        RunegateExecutePayload.TYPE,
+                        RunegateExecutePayload.STREAM_CODEC,
+                        (payload, context) -> {
+                            if (context.player() instanceof ServerPlayer player) {
+                                RunegateTeleportation.execute(player);
+                            }
+                        })
                 .playToClient(RunegateStartPayload.TYPE, RunegateStartPayload.STREAM_CODEC)
                 .playToClient(RunegateFinishedPayload.TYPE, RunegateFinishedPayload.STREAM_CODEC);
     }
@@ -48,6 +76,19 @@ public final class R196Network {
         public static final Type<EggThrowPayload> TYPE = new Type<>(InfiniteX.id("egg_throw"));
         public static final StreamCodec<RegistryFriendlyByteBuf, EggThrowPayload> STREAM_CODEC =
                 StreamCodec.composite(ByteBufCodecs.BOOL, EggThrowPayload::offhand, EggThrowPayload::new);
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    public record PlaceFluidSourcePayload(boolean offhand) implements CustomPacketPayload {
+        public static final Type<PlaceFluidSourcePayload> TYPE =
+                new Type<>(InfiniteX.id("place_fluid_source"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, PlaceFluidSourcePayload> STREAM_CODEC =
+                StreamCodec.composite(
+                        ByteBufCodecs.BOOL, PlaceFluidSourcePayload::offhand, PlaceFluidSourcePayload::new);
 
         @Override
         public Type<? extends CustomPacketPayload> type() {
