@@ -63,9 +63,6 @@ public final class ModItems {
                     .component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
-    public static final List<DeferredItem<BlockItem>> R196_FLOWERS = ModBlocks.R196_FLOWERS.stream()
-            .map(ITEMS::registerSimpleBlockItem)
-            .toList();
     public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(ModBlocks.NETHER_GRAVEL);
     public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(ModBlocks.WITHERWOOD);
     public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(ModBlocks.CORE);

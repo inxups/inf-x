@@ -25,7 +25,7 @@ class ModCreativeTabsTest {
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(401, registered.size());
+        assertEquals(395, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -33,7 +33,7 @@ class ModCreativeTabsTest {
     @Test
     void categorySizesMatchTheCreativeInventoryDesign() {
         Map<ModCreativeTabs.Category, Integer> expected = Map.of(
-                ModCreativeTabs.Category.BLOCKS, 51,
+                ModCreativeTabs.Category.BLOCKS, 45,
                 ModCreativeTabs.Category.INGREDIENTS, 31,
                 ModCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
                 ModCreativeTabs.Category.TOOLS_AND_UTILITIES, 135,
@@ -63,7 +63,7 @@ class ModCreativeTabsTest {
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(55, ModBlocks.BLOCKS.getEntries().size());
+        assertEquals(49, ModBlocks.BLOCKS.getEntries().size());
         assertEquals(expectedBlockItems, creativeBlocks);
         assertFalse(registeredItems.contains(underworldPortal), "Underworld portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(netherPortal), "Nether portal must remain without a BlockItem");

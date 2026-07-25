@@ -1627,7 +1627,6 @@ public final class ModR196CompletionGameTests {
         ModItems.ORES.forEach(item -> assertStackLimit(helper, 4, item.value()));
         ModItems.METAL_STORAGE_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
         ModItems.WORLD_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        ModItems.R196_FLOWERS.forEach(item -> assertStackLimit(helper, 32, item.value()));
         ModItems.ENCHANTING_TABLES.forEach(item -> assertStackLimit(helper, 4, item.value()));
         ModItems.METAL_SAFES.forEach(item -> assertStackLimit(helper, 4, item.value()));
         assertStackLimit(helper, 4, ModItems.NETHER_GRAVEL.value());

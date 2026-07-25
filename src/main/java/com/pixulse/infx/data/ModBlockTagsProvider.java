@@ -33,7 +33,6 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         addHarvestLevels();
         addWorldgenTags();
         addGelatinousCubeTags();
-        ModBlocks.R196_FLOWERS.forEach(flower -> tag(BlockTags.FLOWERS).add(flower.getKey()));
     }
 
     private void addWorldgenTags() {

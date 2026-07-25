@@ -91,7 +91,6 @@ final class ModModelProvider extends ModelProvider {
                         ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
                         ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
                         ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.R196_FLOWERS.stream().map(block -> (Block) block.value()),
                         ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
                         ModBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
@@ -115,7 +114,6 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.ENCHANTING_TABLES.stream().map(item -> (Item) item.value()),
                         ModItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
-                        ModItems.R196_FLOWERS.stream().map(item -> (Item) item.value()),
                         ModItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.MITE_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
@@ -140,8 +138,6 @@ final class ModModelProvider extends ModelProvider {
         ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         ModBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
         generateSnowSlab(blockModels);
-        ModBlocks.R196_FLOWERS.forEach(flower -> blockModels.createCrossBlockWithDefaultItem(
-                flower.value(), BlockModelGenerators.PlantType.NOT_TINTED));
         blockModels.createCrossBlockWithDefaultItem(
                 ModBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
         blockModels.createTrivialCube(ModBlocks.NETHER_GRAVEL.value());

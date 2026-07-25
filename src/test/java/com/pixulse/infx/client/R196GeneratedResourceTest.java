@@ -1488,8 +1488,8 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(392, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(467, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(386, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(461, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
