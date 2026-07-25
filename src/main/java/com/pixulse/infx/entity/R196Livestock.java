@@ -9,10 +9,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
@@ -35,8 +40,71 @@ public final class R196Livestock {
     static final long WATER_GRACE = 24_000L;
     static final long FOOD_GRACE = 48_000L;
     static final long PANIC_TICKS = 600L;
+    static final String HORSE_RETRY = "infx_horse_tame_retry";
+    static final long HORSE_RETRY_TICKS = 4_000L;
 
     private R196Livestock() {}
+
+    /** Install needs/seek and flee goals once on an R196 replacement animal. */
+    public static void ensureGoals(Animal animal) {
+        if (animal.getPersistentData().getBooleanOr(GOALS_ADDED, false)) return;
+        animal.goalSelector.addGoal(2, new NeedsGoal(animal));
+        animal.goalSelector.addGoal(1, new AvoidEntityGoal<>(
+                animal,
+                Mob.class,
+                mob -> mob instanceof Enemy,
+                10.0F,
+                1.15,
+                1.4,
+                entity -> entity.isAlive()));
+        if (animal instanceof AbstractHorse horse) {
+            horse.goalSelector.addGoal(3, new AvoidEntityGoal<>(
+                    horse,
+                    Player.class,
+                    player -> !horse.isTamed(),
+                    10.0F,
+                    1.1,
+                    1.35,
+                    entity -> !entity.isSpectator()));
+        }
+        animal.getPersistentData().putBoolean(GOALS_ADDED, true);
+    }
+
+    /** Server tick hook: refresh needs every 100 ticks. */
+    public static void serverTick(Animal animal) {
+        if (!(animal.level() instanceof ServerLevel level)) return;
+        if (animal.tickCount % 100 == 0) update(level, animal);
+    }
+
+    /** Panic nearby animals when this one is hurt. */
+    public static void onHurt(Animal animal, float inflictedDamage) {
+        if (inflictedDamage <= 0.0F || !(animal.level() instanceof ServerLevel level)) return;
+        panic(level, animal);
+    }
+
+    /** Mark fed when a player offers a food item (called from mobInteract). */
+    public static void markFedIfFood(Animal animal, ItemStack stack) {
+        if (!(animal.level() instanceof ServerLevel level) || !animal.isFood(stack)) return;
+        markFed(animal, level.getGameTime());
+    }
+
+    public static boolean canMateWith(ServerLevel level, Animal self, Animal partner) {
+        return canBreed(level, self) && canBreed(level, partner);
+    }
+
+    public static long horseRetryTicks() {
+        return HORSE_RETRY_TICKS;
+    }
+
+    public static boolean isHorseMountBlocked(AbstractHorse horse, long now) {
+        return !horse.isTamed() && horse.getPersistentData().getLong(HORSE_RETRY).orElse(0L) > now;
+    }
+
+    public static void markHorseDismount(AbstractHorse horse, long now) {
+        if (!horse.isTamed()) {
+            horse.getPersistentData().putLong(HORSE_RETRY, now + HORSE_RETRY_TICKS);
+        }
+    }
 
     public static Needs update(ServerLevel level, Animal animal) {
         long now = level.getGameTime();
@@ -120,7 +188,7 @@ public final class R196Livestock {
         }
     }
 
-    static void markFed(Animal animal, long now) {
+    public static void markFed(Animal animal, long now) {
         animal.getPersistentData().putLong(LAST_FOOD, now);
     }
 

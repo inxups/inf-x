@@ -13,7 +13,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * R196 vanilla-wolf replacement (separate from hellhound/dire wolf).
- * Reuses 26.2 wolf model/textures; blood/blue moon rules apply via events.
+ * Reuses 26.2 wolf model/textures; blood/blue moon rules apply via moon events.
  */
 public final class R196VanillaWolf extends Wolf {
     public R196VanillaWolf(EntityType<? extends Wolf> type, Level level) {
