@@ -25,7 +25,8 @@ class ModCreativeTabsTest {
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(395, registered.size());
+        // 395 baseline + 42 mob buckets + 7 powder-snow buckets
+        assertEquals(444, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -36,7 +37,7 @@ class ModCreativeTabsTest {
                 ModCreativeTabs.Category.BLOCKS, 45,
                 ModCreativeTabs.Category.INGREDIENTS, 31,
                 ModCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
-                ModCreativeTabs.Category.TOOLS_AND_UTILITIES, 135,
+                ModCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
                 ModCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113,
                 ModCreativeTabs.Category.SPAWN_EGGS, 47);
 

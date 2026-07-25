@@ -1488,8 +1488,9 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        assertEquals(386, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(461, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // 386/461 baseline + 49 material fish/mob/powder-snow buckets
+        assertEquals(435, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(510, jsonCount(GENERATED.resolve("assets/infx/models/item"))); // 461 + 49
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -1874,6 +1875,9 @@ class R196GeneratedResourceTest {
                         + "|chocolate|pumpkin_soup|cream_of_mushroom_soup|onion|vegetable_soup"
                         + "|cream_of_vegetable_soup|chicken_soup|beef_stew|orange|fruit_ice|cheese"
                         + "|mashed_potato|ice_cream|banana|worm|cooked_worm)\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/item/(cod|salmon|pufferfish|tropical|axolotl|tadpole|powder_snow)_"
+                        + "(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_bucket\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/item/gelatinous_sphere/(green|ochre|crimson|gray|black)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(

@@ -117,6 +117,8 @@ final class ModModelProvider extends ModelProvider {
                         ModItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.MITE_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
+                        ModItems.R196_MOB_BUCKETS.stream().map(item -> (Item) item.value()),
+                        ModItems.R196_POWDER_SNOW_BUCKETS.stream().map(item -> (Item) item.value()),
                         ModItems.R196_RECORDS.stream().map(item -> (Item) item.value()),
                         ModItems.GELATINOUS_SPHERES.stream().map(item -> (Item) item.value()),
                         Stream.of(ModItems.BOTTLE_OF_DISENCHANTING.value()),
@@ -167,6 +169,10 @@ final class ModModelProvider extends ModelProvider {
         ModItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
         ModItems.R196_BUCKETS.forEach(bucket ->
+                itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
+        ModItems.R196_MOB_BUCKETS.forEach(bucket ->
+                itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
+        ModItems.R196_POWDER_SNOW_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
         ModItems.R196_RECORDS.forEach(record ->
                 itemModels.generateFlatItem(record.value(), ModelTemplates.FLAT_ITEM));
