@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-25
 
+### 修复陈旧 datagen 花世界生成导致进世界崩溃
+
+- 根因：移除六种 R196 花后，`src/generated` / `build/resources/main` 仍残留 `r196_flowers`、`r196_allium` 等 configured feature，运行时解析 `infx:allium` 等已不存在的方块并抛出 `Unbound values in registry ... configured_feature`。
+- `prepareRuntimeGeneratedResources` 对 worldgen / neoforge biome modifier / dimension / tags 等 datagen 独占目录使用 `Sync`（先 `runData` 由 HashCache 剔除 `src/generated` 陈旧文件），避免过期 JSON 继续打进运行时资源包。
+
 ### 生病家畜规则
 - 生病（diseased）的 R196 牛无法被挤奶（接奶）；所有生病 R196 家畜（牛/鸡/羊/猪）被击杀时不掉落任何物品。
 - 实现：R196Cow.mobInteract 早返回；R196AnimalEvents.onDrops 清空掉落；R196Sheep.die 跳过额外皮革掉落。
