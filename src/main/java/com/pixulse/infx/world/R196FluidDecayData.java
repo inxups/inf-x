@@ -3,15 +3,15 @@ package com.pixulse.infx.world;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.InfiniteX;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -68,47 +68,46 @@ public final class R196FluidDecayData extends SavedData {
         return water.size() + lava.size();
     }
 
-    /** Applies every degrade whose delay has elapsed and whose chunk is loaded. */
-    public void tick(ServerLevel level) {
-        if (water.isEmpty() && lava.isEmpty()) {
-            return;
-        }
-        long now = level.getGameTime();
-        boolean changed = degrade(level, water, Fluids.WATER, now);
-        changed |= degrade(level, lava, Fluids.LAVA, now);
-        if (changed) {
-            setDirty();
-        }
-    }
-
-    private static boolean degrade(ServerLevel level, Map<String, Long> pending, FlowingFluid fluid, long now) {
-        if (pending.isEmpty()) {
+    /** Handles an original scheduled fluid tick when it belongs to an unpaid R196 bucket pour. */
+    public static boolean handleScheduledTick(ServerLevel level, BlockPos pos, Fluid scheduledFluid) {
+        R196FluidDecayData data = level.getDataStorage().get(TYPE);
+        if (data == null) {
             return false;
         }
-        List<String> due = new ArrayList<>();
-        for (Map.Entry<String, Long> entry : pending.entrySet()) {
-            if (entry.getValue() <= now) {
-                due.add(entry.getKey());
-            }
+        return data.handleScheduledTick(level, pos, scheduledFluid, level.getGameTime());
+    }
+
+    private boolean handleScheduledTick(ServerLevel level, BlockPos pos, Fluid scheduledFluid, long now) {
+        boolean isLava = scheduledFluid.is(FluidTags.LAVA);
+        if (!isLava && !scheduledFluid.is(FluidTags.WATER)) {
+            return false;
         }
-        boolean changed = false;
-        for (String encoded : due) {
-            BlockPos pos = BlockPos.of(Long.parseLong(encoded));
-            // Leave the entry queued while the chunk sleeps so the degrade is not silently lost.
-            if (!level.isLoaded(pos)) {
-                continue;
-            }
-            pending.remove(encoded);
-            changed = true;
-            BlockState state = level.getBlockState(pos);
-            // Only a pure liquid cell degrades. A waterlogged block also reports a water source, and
-            // replacing it would destroy the block a stale entry happens to land on.
-            if (state.getBlock() instanceof LiquidBlock
-                    && state.getFluidState().is(fluid)
-                    && state.getFluidState().isSource()) {
-                level.setBlock(pos, fluid.getFlowing(1, false).createLegacyBlock(), 3);
-            }
+
+        Map<String, Long> pending = isLava ? lava : water;
+        String encoded = key(pos);
+        Long dueTick = pending.get(encoded);
+        if (dueTick == null) {
+            return false;
         }
-        return changed;
+        if (dueTick > now) {
+            int delay = (int) Math.min(Integer.MAX_VALUE, dueTick - now);
+            level.scheduleTick(pos, scheduledFluid, Math.max(1, delay));
+            return false;
+        }
+
+        pending.remove(encoded);
+        setDirty();
+        BlockState state = level.getBlockState(pos);
+        boolean matchingFluid = isLava
+                ? state.getFluidState().is(FluidTags.LAVA)
+                : state.getFluidState().is(FluidTags.WATER);
+        // Only a pure liquid cell degrades. A waterlogged block also reports a source, and replacing
+        // it would destroy a block that happened to inherit a stale scheduled entry.
+        if (state.getBlock() instanceof LiquidBlock && matchingFluid && state.getFluidState().isSource()) {
+            FlowingFluid fluid = isLava ? Fluids.LAVA : Fluids.WATER;
+            level.setBlock(pos, fluid.getFlowing(1, false).createLegacyBlock(), 3);
+            return true;
+        }
+        return false;
     }
 }

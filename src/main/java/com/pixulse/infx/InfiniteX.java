@@ -34,7 +34,6 @@ import com.pixulse.infx.progression.R196AchievementEvents;
 import com.pixulse.infx.equipment.R196EquipmentBehaviors;
 import com.pixulse.infx.enchantment.R196EnchantmentEvents;
 import com.pixulse.infx.item.R196BlockStackLimits;
-import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196ManureEvents;
 import com.pixulse.infx.equipment.R196RustedIronSources;
 import com.pixulse.infx.entity.R196MonsterEvents;
@@ -73,7 +72,6 @@ public final class InfiniteX {
         ModSounds.register(modBus);
         ModWorldCarvers.register(modBus);
         ModBiomeModifiers.register(modBus);
-        R196BucketItem.register(modBus, NeoForge.EVENT_BUS);
         ModAttachments.register(modBus);
         ModBlocks.register(modBus);
         ModPoiTypes.register(modBus);
