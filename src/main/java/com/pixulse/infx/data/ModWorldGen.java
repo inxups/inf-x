@@ -34,7 +34,6 @@ import net.minecraft.util.valueproviders.TrapezoidFloat;
 import net.minecraft.util.valueproviders.UniformFloat;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.util.random.Weighted;
-import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.attribute.AmbientSounds;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.BedRule;
@@ -48,7 +47,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -80,7 +78,6 @@ import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguratio
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
-import net.minecraft.world.level.levelgen.feature.stateproviders.WeightedStateProvider;
 import net.minecraft.world.level.levelgen.heightproviders.BiasedToBottomHeight;
 import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
@@ -135,10 +132,6 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_stone"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_NETHERRACK_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
-    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_FLOWERS_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_flowers"));
-    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_ALLIUM_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_allium"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> WITHERWOOD_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("witherwood_patch"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
@@ -151,10 +144,6 @@ final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_stone"));
     private static final ResourceKey<PlacedFeature> R196_INFESTED_NETHERRACK_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
-    private static final ResourceKey<PlacedFeature> R196_FLOWERS_PLACED =
-            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_flowers"));
-    private static final ResourceKey<PlacedFeature> R196_ALLIUM_PLACED =
-            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_allium"));
     private static final ResourceKey<PlacedFeature> WITHERWOOD_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("witherwood_patch"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
@@ -169,10 +158,6 @@ final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_netherrack"));
     private static final ResourceKey<BiomeModifier> ADD_LARGE_CAVES =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_large_caves"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_FLOWERS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_flowers"));
-    private static final ResourceKey<BiomeModifier> ADD_R196_ALLIUM =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_allium"));
     private static final ResourceKey<BiomeModifier> ADD_WITHERWOOD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
     private static final ResourceKey<BiomeModifier> R196_SPAWNS =
@@ -297,22 +282,6 @@ final class ModWorldGen {
                                 ModBlocks.INFESTED_NETHERRACK.get().defaultBlockState(),
                                 8)));
         context.register(
-                R196_FLOWERS_CONFIGURED,
-                new ConfiguredFeature<>(
-                        Feature.SIMPLE_BLOCK,
-                        new SimpleBlockConfiguration(new WeightedStateProvider(
-                                WeightedList.<BlockState>builder()
-                                        .add(ModBlocks.ROSE.get().defaultBlockState(), 2)
-                                        .add(ModBlocks.ORCHID.get().defaultBlockState(), 1)
-                                        .add(ModBlocks.TULIP.get().defaultBlockState(), 1)
-                                        .add(ModBlocks.DAHLIA.get().defaultBlockState(), 1)
-                                        .add(ModBlocks.DAISY.get().defaultBlockState(), 2)))));
-        context.register(
-                R196_ALLIUM_CONFIGURED,
-                new ConfiguredFeature<>(
-                        Feature.SIMPLE_BLOCK,
-                        new SimpleBlockConfiguration(BlockStateProvider.simple(ModBlocks.ALLIUM.get()))));
-        context.register(
                 WITHERWOOD_CONFIGURED,
                 new ConfiguredFeature<>(
                         Feature.SIMPLE_BLOCK,
@@ -360,30 +329,6 @@ final class ModWorldGen {
                                 HeightRangePlacement.uniform(
                                         VerticalAnchor.absolute(10), VerticalAnchor.absolute(117)),
                                 BiomeFilter.biome())));
-        context.register(
-                R196_FLOWERS_PLACED,
-                new PlacedFeature(
-                        configuredFeatures.getOrThrow(R196_FLOWERS_CONFIGURED),
-                        List.of(
-                                CountPlacement.of(1),
-                                InSquarePlacement.spread(),
-                                PlacementUtils.HEIGHTMAP,
-                                BiomeFilter.biome(),
-                                CountPlacement.of(32),
-                                RandomOffsetPlacement.ofTriangle(7, 3),
-                                BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE))));
-        context.register(
-                R196_ALLIUM_PLACED,
-                new PlacedFeature(
-                        configuredFeatures.getOrThrow(R196_ALLIUM_CONFIGURED),
-                        List.of(
-                                CountPlacement.of(1),
-                                InSquarePlacement.spread(),
-                                PlacementUtils.HEIGHTMAP,
-                                BiomeFilter.biome(),
-                                CountPlacement.of(8),
-                                RandomOffsetPlacement.ofTriangle(7, 3),
-                                BlockPredicateFilter.forPredicate(BlockPredicate.ONLY_IN_AIR_PREDICATE))));
         context.register(
                 WITHERWOOD_PLACED,
                 new PlacedFeature(
@@ -929,21 +874,6 @@ final class ModWorldGen {
                 new BiomeModifiers.AddCarversBiomeModifier(
                         biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
                         HolderSet.direct(carvers.getOrThrow(LARGE_CAVE_CONFIGURED))));
-        context.register(
-                ADD_R196_FLOWERS,
-                new BiomeModifiers.AddFeaturesBiomeModifier(
-                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
-                        HolderSet.direct(placedFeatures.getOrThrow(R196_FLOWERS_PLACED)),
-                        GenerationStep.Decoration.VEGETAL_DECORATION));
-        context.register(
-                ADD_R196_ALLIUM,
-                new BiomeModifiers.AddFeaturesBiomeModifier(
-                        HolderSet.direct(
-                                biomes.getOrThrow(Biomes.SWAMP),
-                                biomes.getOrThrow(Biomes.MANGROVE_SWAMP),
-                                biomes.getOrThrow(R196RiverBiomes.SWAMP_RIVER)),
-                        HolderSet.direct(placedFeatures.getOrThrow(R196_ALLIUM_PLACED)),
-                        GenerationStep.Decoration.VEGETAL_DECORATION));
         context.register(
                 ADD_WITHERWOOD,
                 new BiomeModifiers.AddFeaturesBiomeModifier(

@@ -51,11 +51,6 @@ for record in "${records[@]}"; do
   copy_asset "records/imported/${record}.ogg" "sounds/records/${record}.ogg"
 done
 
-flowers=(rose orchid allium tulip dahlia daisy)
-for flower in "${flowers[@]}"; do
-  copy_asset "textures/blocks/flowers/${flower}.png" "textures/block/${flower}.png"
-done
-
 copy_asset "textures/blocks/witherwood.png" "textures/block/witherwood.png"
 copy_asset "textures/blocks/nether_gravel.png" "textures/block/nether_gravel.png"
 copy_asset "textures/blocks/core.png" "textures/block/core.png"

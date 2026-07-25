@@ -92,10 +92,8 @@ class R196FulltextGeneratedResourceTest {
     }
 
     @Test
-    void flowersNetherBlocksCoreAndRecordsHaveCompleteGeneratedData() throws Exception {
-        for (String block : List.of(
-                "rose", "orchid", "allium", "tulip", "dahlia", "daisy",
-                "witherwood", "nether_gravel", "core")) {
+    void netherBlocksCoreAndRecordsHaveCompleteGeneratedData() throws Exception {
+        for (String block : List.of("witherwood", "nether_gravel", "core")) {
             assertAll(
                     block,
                     () -> assertTrue(Files.isRegularFile(
@@ -167,18 +165,12 @@ class R196FulltextGeneratedResourceTest {
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
                         "data/infx/neoforge/biome_modifier/add_large_caves.json"))));
 
-        for (String feature : List.of("r196_flowers", "r196_allium", "witherwood_patch")) {
-            assertAll(
-                    feature,
-                    () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
-                            "data/infx/worldgen/configured_feature/" + feature + ".json"))),
-                    () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
-                            "data/infx/worldgen/placed_feature/" + feature + ".json"))));
-        }
-        assertTrue(Files.isRegularFile(GENERATED.resolve(
-                "data/infx/neoforge/biome_modifier/add_r196_flowers.json")));
-        assertTrue(Files.isRegularFile(GENERATED.resolve(
-                "data/infx/neoforge/biome_modifier/add_r196_allium.json")));
+        assertAll(
+                "witherwood_patch",
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/worldgen/configured_feature/witherwood_patch.json"))),
+                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
+                        "data/infx/worldgen/placed_feature/witherwood_patch.json"))));
         JsonObject witherwoodModifier = json(GENERATED.resolve(
                 "data/infx/neoforge/biome_modifier/add_witherwood.json"));
         assertAll(

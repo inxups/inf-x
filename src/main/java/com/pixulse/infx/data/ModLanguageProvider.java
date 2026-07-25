@@ -370,12 +370,6 @@ final class ModLanguageProvider extends LanguageProvider {
         addRecord("descent", "Descent");
         addRecord("wanderer", "Wanderer");
         addRecord("legends", "Legends");
-        add("block.infx.rose", locale == Locale.EN_US ? "Rose" : "玫瑰");
-        add("block.infx.orchid", locale == Locale.EN_US ? "Orchid" : "兰花");
-        add("block.infx.allium", locale == Locale.EN_US ? "Allium" : "绒球葱");
-        add("block.infx.tulip", locale == Locale.EN_US ? "Tulip" : "郁金香");
-        add("block.infx.dahlia", locale == Locale.EN_US ? "Dahlia" : "大丽花");
-        add("block.infx.daisy", locale == Locale.EN_US ? "Daisy" : "雏菊");
         add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
         add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
