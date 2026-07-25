@@ -2,6 +2,7 @@ package com.pixulse.infx.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -22,6 +23,15 @@ public final class R196AnimalEvents {
 
     private static void onDrops(LivingDropsEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
+
+        // Diseased R196 livestock drop nothing (MITE rule: sick animals yield no items on kill).
+        if (event.getEntity() instanceof Animal animal
+                && R196Livestock.hasSickSkin(animal)
+                && R196Livestock.isDiseased(animal)) {
+            event.getDrops().clear();
+            return;
+        }
+
         if (event.getEntity() instanceof IronGolem golem) {
             event.getDrops().removeIf(drop -> drop.getItem().is(Items.IRON_INGOT));
             event.getDrops()
