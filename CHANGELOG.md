@@ -2,6 +2,13 @@
 
 ## [0v] - 2026-07-25
 
+### 移除全部自定义快捷键
+
+- 删除 6 个 R196 自定义热键（CapsLock 锁定疾跑、C 拉近镜头、R 重载区块、P 智能采集、U 智能使用、G 放置流体源）及其注册、状态、语言条目与全部处理逻辑。
+- `R196ClientControls` 不再注册任何 KeyMapping，`registeredKeyCount()` 返回 0；相关语言键（`key.infx.*`、`message.infx.sprint_lock` 等）全部移除。
+- 保留 F3 调试精简、睡眠界面去按钮、营养值食物栏等非按键控制行为。
+- README、ROADMAP、审计状态同步移除“六类热键”描述。
+
 ### 指令统一为 `/infx` 根路径
 
 - 所有自定义指令改为 `/infx ...`：`/infx day`、`/infx villages`、`/infx livestock sick|cure <targets>`。

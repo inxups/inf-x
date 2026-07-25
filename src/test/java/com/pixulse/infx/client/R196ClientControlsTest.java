@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 class R196ClientControlsTest {
     @Test
-    void sixR196ControlsAreRegistered() {
-        assertEquals(6, R196ClientControls.registeredKeyCount());
+    void noCustomHotkeysAreRegistered() {
+        assertEquals(0, R196ClientControls.registeredKeyCount());
     }
 
     @Test

@@ -470,17 +470,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.safe_tool", locale == Locale.EN_US ? "A matching metal tool is required" : "需要对应金属等级的工具");
         add("message.infx.safe_foreign_tool", locale == Locale.EN_US ? "Another player's safe requires a tool one metal tier higher" : "破坏其他玩家的保险箱需要高一级金属工具");
         add("message.infx.disconnect_penalty", locale == Locale.EN_US ? "Combat disconnect penalty applied" : "已应用战斗断线惩罚");
-        add("key.categories.infx.controls", locale == Locale.EN_US ? "InfiniteX" : "InfiniteX");
-        add("key.infx.lock_sprint", locale == Locale.EN_US ? "Lock Sprint" : "锁定疾跑");
-        add("key.infx.zoom", locale == Locale.EN_US ? "Zoom" : "拉近镜头");
-        add("key.infx.reload_chunks", locale == Locale.EN_US ? "Reload Chunks" : "重载区块");
-        add("key.infx.smart_pickup", locale == Locale.EN_US ? "Smart Harvest" : "智能采集模式");
-        add("key.infx.smart_use", locale == Locale.EN_US ? "Smart Use" : "智能使用模式");
-        add("key.infx.place_fluid_source", locale == Locale.EN_US ? "Place Fluid Source" : "放置流体源");
-        add("message.infx.sprint_lock", locale == Locale.EN_US ? "Sprint lock: %s" : "疾跑锁定：%s");
-        add("message.infx.smart_pickup", locale == Locale.EN_US ? "Smart harvest: %s" : "智能采集：%s");
-        add("message.infx.smart_use", locale == Locale.EN_US ? "Smart use: %s" : "智能使用：%s");
-        add("message.infx.chunks_reloaded", locale == Locale.EN_US ? "Chunks reloaded" : "区块已重载");
         add("effect.infx.malnutrition", locale == Locale.EN_US ? "Malnutrition" : "营养不良");
         add("effect.infx.witch_curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
         add("effect.infx.insulin_resistance", locale == Locale.EN_US ? "Insulin Resistance" : "胰岛素抵抗");
