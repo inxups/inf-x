@@ -2,9 +2,14 @@
 
 ## [0v] - 2026-07-25
 
+### 指令统一为 `/infx` 根路径
+
+- 所有自定义指令改为 `/infx ...`：`/infx day`、`/infx villages`、`/infx livestock sick|cure <targets>`。
+- 移除顶层 `/day`、`/villages`、`/infxlivestock` 注册。
+
 ### 精简游戏内指令
 
-- 游戏内自定义指令仅保留 `/day`、`/villages`、`/infxlivestock sick|cure`。
+- 游戏内自定义指令仅保留 day / villages / livestock（现均挂在 `/infx` 下）。
 - 移除 `/ground`、`/hunger`、`/load`、`/mem`、`/xp`、`/rendering`、`/skills`、`/stats`、`/version`、`/versions`、`/syncpos`、`/chunks`、`/infxrecords`。
 - `R196Commands.NAMES` 与单测同步为上述 3 条；性能日志等服务端指标逻辑仍保留，仅不再经聊天指令暴露。
 
