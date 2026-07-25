@@ -28,6 +28,7 @@ import net.neoforged.neoforge.client.event.RecipesReceivedEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.minecraft.client.model.animal.squid.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
@@ -199,6 +200,16 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntityTypes.R196_HORSE.get(), HorseRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_OCELOT.get(), OcelotRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_WOLF.get(), WolfRenderer::new);
+    }
+
+    /**
+     * Livestock isWell must be attached here, not in extractRenderState: createRenderState clears
+     * render data immediately after extraction, so only modifiers registered here survive to the
+     * sick-skin texture lookup.
+     */
+    @SubscribeEvent
+    private static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+        R196EntityRenderers.registerRenderStateModifiers(event);
     }
 
     @SubscribeEvent

@@ -1889,6 +1889,10 @@ class R196GeneratedResourceTest {
                         + "|textures/entity/bat/(vampire|nightwing)\\.png"
                         + "|textures/entity/hellhound/hellhound\\.png"
                         + "|textures/entity/dire_wolf/(angry|neutral|tame)\\.png")));
+        // Sick livestock skins derived from the 26.2 healthy variants (see sickTextureFor).
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/entity/(cow|pig|chicken)/(cow|pig|chicken)_(temperate|warm|cold)_sick(_baby)?\\.png"
+                        + "|textures/entity/sheep/sheep_sick(_baby)?\\.png")));
         assertTrue(destinations.removeIf(path -> path.endsWith("_spawn_egg.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));

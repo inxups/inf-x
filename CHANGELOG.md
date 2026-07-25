@@ -2,6 +2,13 @@
 
 ## [0v] - 2026-07-25
 
+### 修复强制生病后贴图仍不变（渲染数据被清空）
+
+- 根因：`EntityRenderer#createRenderState` 在 `extractRenderState` 之后立即调用 `RenderStateExtensions#onUpdateEntityRenderState`，而后者开头就执行 `resetRenderData()`；在 `extractRenderState` 里写入的 `isWell` 渲染数据每帧都被清空，`getTextureLocation` 读到 null 并回退到健康贴图，因此指令成功但贴图不变。
+- 改用 NeoForge 官方 `RegisterRenderStateModifiersEvent` 注册 render state modifier（在 reset 之后执行），`isWell` 得以保留到贴图查找；移除牛/鸡/羊/猪四个渲染器中已失效的 `extractRenderState` 覆写。
+- 新增回归测试：四个渲染器不得声明 `extractRenderState`，并校验 modifier 注册时的泛型边界（NeoForge 在注册时会校验并抛异常）。
+- 顺带修复既有构建失败：`manifestHasOnlyCatalogOrApprovedDerivedTextures` 缺少 20 张 sick 家畜贴图的允许规则（此前 PR 补了清单行但漏了测试规则），`./gradlew build` 在 master 上即失败；仅补允许规则，未改动清单与素材。
+
 ### 修复强制生病不换贴图
 
 - `/infxlivestock sick|cure` 仅对 R196 牛/鸡/羊/猪生效（原版实体无 `isWell` 同步与 sick 渲染器，此前会假成功）。

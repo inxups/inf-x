@@ -1,6 +1,8 @@
 package com.pixulse.infx.client;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Creeper;
@@ -13,6 +15,37 @@ import com.pixulse.infx.entity.R196Zombie;
 import org.junit.jupiter.api.Test;
 
 class R196EntityRenderersTest {
+    /**
+     * createRenderState clears render data right after extractRenderState, so isWell set during
+     * extraction never reaches getTextureLocation and every animal stays on its healthy skin.
+     * The flag must come from a registered render state modifier instead.
+     */
+    @Test
+    void livestockRenderersDoNotSetWellDuringExtraction() {
+        for (Class<?> renderer : new Class<?>[] {
+            R196EntityRenderers.CowTexture.class,
+            R196EntityRenderers.ChickenTexture.class,
+            R196EntityRenderers.PigTexture.class,
+            R196EntityRenderers.SheepTexture.class
+        }) {
+            for (java.lang.reflect.Method method : renderer.getDeclaredMethods()) {
+                assertNotEquals(
+                        "extractRenderState",
+                        method.getName(),
+                        renderer.getSimpleName()
+                                + " sets render data during extraction; it is wiped before the texture"
+                                + " lookup. Register a render state modifier instead.");
+            }
+        }
+    }
+
+    /** Guards the modifier type parameters, which NeoForge validates at registration time. */
+    @Test
+    void livestockRenderStateModifiersRegisterForEachSickSkinRenderer() {
+        assertDoesNotThrow(() -> R196EntityRenderers.registerRenderStateModifiers(
+                new net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent()));
+    }
+
     @Test
     void sickLivestockUseDerived26_2LayoutTextures() {
         assertEquals(

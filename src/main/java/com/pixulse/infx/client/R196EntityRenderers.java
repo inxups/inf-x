@@ -38,6 +38,7 @@ import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.client.renderer.entity.state.SlimeRenderState;
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.ambient.Bat;
@@ -55,6 +56,27 @@ final class R196EntityRenderers {
             new ContextKey<>(InfiniteX.id("livestock_well"));
 
     private R196EntityRenderers() {}
+
+    /**
+     * Attach isWell to livestock render states.
+     *
+     * <p>Must be registered as a render state modifier rather than set from
+     * {@code extractRenderState}: {@code EntityRenderer#createRenderState} calls
+     * {@code RenderStateExtensions#onUpdateEntityRenderState} right after extraction, and that
+     * starts by calling {@code resetRenderData()}. Data attached during extraction is therefore
+     * wiped before {@code getTextureLocation} runs, leaving every animal on its healthy skin.
+     * Registered modifiers run after the reset, so the flag survives to the texture lookup.
+     */
+    static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+        event.registerEntityModifier(
+                CowTexture.class, (Cow entity, CowRenderState state) -> extractWell(entity, state));
+        event.registerEntityModifier(
+                ChickenTexture.class, (Chicken entity, ChickenRenderState state) -> extractWell(entity, state));
+        event.registerEntityModifier(
+                PigTexture.class, (Pig entity, PigRenderState state) -> extractWell(entity, state));
+        event.registerEntityModifier(
+                SheepTexture.class, (Sheep entity, SheepRenderState state) -> extractWell(entity, state));
+    }
 
     private static void extractWell(Animal animal, LivingEntityRenderState state) {
         state.setRenderData(LIVESTOCK_WELL, R196Livestock.isWell(animal));
@@ -100,12 +122,6 @@ final class R196EntityRenderers {
         }
 
         @Override
-        public void extractRenderState(Cow entity, CowRenderState state, float partialTicks) {
-            super.extractRenderState(entity, state, partialTicks);
-            extractWell(entity, state);
-        }
-
-        @Override
         public Identifier getTextureLocation(CowRenderState state) {
             Identifier healthy = super.getTextureLocation(state);
             return isWell(state) ? healthy : sickTextureFor(healthy);
@@ -120,12 +136,6 @@ final class R196EntityRenderers {
     static final class ChickenTexture extends ChickenRenderer {
         ChickenTexture(EntityRendererProvider.Context context) {
             super(context);
-        }
-
-        @Override
-        public void extractRenderState(Chicken entity, ChickenRenderState state, float partialTicks) {
-            super.extractRenderState(entity, state, partialTicks);
-            extractWell(entity, state);
         }
 
         @Override
@@ -146,12 +156,6 @@ final class R196EntityRenderers {
         }
 
         @Override
-        public void extractRenderState(Pig entity, PigRenderState state, float partialTicks) {
-            super.extractRenderState(entity, state, partialTicks);
-            extractWell(entity, state);
-        }
-
-        @Override
         public Identifier getTextureLocation(PigRenderState state) {
             Identifier healthy = super.getTextureLocation(state);
             return isWell(state) ? healthy : sickTextureFor(healthy);
@@ -166,12 +170,6 @@ final class R196EntityRenderers {
     static final class SheepTexture extends SheepRenderer {
         SheepTexture(EntityRendererProvider.Context context) {
             super(context);
-        }
-
-        @Override
-        public void extractRenderState(Sheep entity, SheepRenderState state, float partialTicks) {
-            super.extractRenderState(entity, state, partialTicks);
-            extractWell(entity, state);
         }
 
         @Override
