@@ -2,6 +2,8 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.world.R196MoonPhase;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -21,11 +23,30 @@ import org.jspecify.annotations.Nullable;
 
 /** R196 chicken: egg delay, feather shedding, and livestock needs. */
 public final class R196Chicken extends Chicken {
+    /**
+     * Per-class isWell id (lazy for pure unit tests). Must not use {@code Animal.class} — that
+     * collides with Chicken variant data and crashes spawn eggs.
+     */
+    private static @Nullable EntityDataAccessor<Boolean> dataWell;
     private static final String NEXT_FEATHER = "infx_chicken_next_feather";
     private static final long FEATHER_INTERVAL = 96_000L;
 
     public R196Chicken(EntityType<? extends Chicken> type, Level level) {
         super(type, level);
+    }
+
+    static EntityDataAccessor<Boolean> dataWell() {
+        EntityDataAccessor<Boolean> local = dataWell;
+        if (local == null) {
+            synchronized (R196Chicken.class) {
+                local = dataWell;
+                if (local == null) {
+                    dataWell = local = SynchedEntityData.defineId(
+                            R196Chicken.class, EntityDataSerializers.BOOLEAN);
+                }
+            }
+        }
+        return local;
     }
 
     public static AttributeSupplier.Builder attributes() {
@@ -35,7 +56,7 @@ public final class R196Chicken extends Chicken {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
         super.defineSynchedData(entityData);
-        R196Livestock.defineWellData(entityData);
+        R196Livestock.defineWellData(entityData, dataWell());
     }
 
     @Override

@@ -3,6 +3,8 @@ package com.pixulse.infx.entity;
 import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -28,6 +30,11 @@ import org.jspecify.annotations.Nullable;
 
 /** R196 cow: livestock needs, milk quota, and panic live on the entity. */
 public final class R196Cow extends Cow {
+    /**
+     * Per-class isWell id (lazy for pure unit tests). Must not use {@code Animal.class} — that
+     * collides with Cow variant data and crashes spawn eggs with {@code Duplicate id value for 18!}.
+     */
+    private static @Nullable EntityDataAccessor<Boolean> dataWell;
     private static final String MILK_DAY = "infx_cow_milk_day";
     private static final String MILK_UNITS = "infx_cow_milk_units";
     /** Daily milk budget shared by buckets (4) and bowls (1 each, max 4). */
@@ -37,6 +44,20 @@ public final class R196Cow extends Cow {
         super(type, level);
     }
 
+    static EntityDataAccessor<Boolean> dataWell() {
+        EntityDataAccessor<Boolean> local = dataWell;
+        if (local == null) {
+            synchronized (R196Cow.class) {
+                local = dataWell;
+                if (local == null) {
+                    dataWell = local =
+                            SynchedEntityData.defineId(R196Cow.class, EntityDataSerializers.BOOLEAN);
+                }
+            }
+        }
+        return local;
+    }
+
     public static AttributeSupplier.Builder attributes() {
         return AbstractCow.createAttributes().add(Attributes.MAX_HEALTH, 20.0);
     }
@@ -44,7 +65,7 @@ public final class R196Cow extends Cow {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
         super.defineSynchedData(entityData);
-        R196Livestock.defineWellData(entityData);
+        R196Livestock.defineWellData(entityData, dataWell());
     }
 
     @Override

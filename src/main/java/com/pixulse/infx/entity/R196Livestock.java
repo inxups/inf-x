@@ -7,7 +7,6 @@ import java.util.EnumSet;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
@@ -44,12 +43,6 @@ public final class R196Livestock {
     static final String SAFE = "infx_livestock_safe";
     static final String GOALS_ADDED = "infx_livestock_goals_added";
 
-    /**
-     * Client-visible MITE isWell flag. Lazy so pure unit tests can load this class without
-     * bootstrapping SynchedEntityData.
-     */
-    private static @Nullable EntityDataAccessor<Boolean> dataWell;
-
     static final long WATER_GRACE = 24_000L;
     static final long FOOD_GRACE = 48_000L;
     static final long PANIC_TICKS = 600L;
@@ -58,33 +51,36 @@ public final class R196Livestock {
 
     private R196Livestock() {}
 
-    private static EntityDataAccessor<Boolean> dataWell() {
-        EntityDataAccessor<Boolean> local = dataWell;
-        if (local == null) {
-            synchronized (R196Livestock.class) {
-                local = dataWell;
-                if (local == null) {
-                    dataWell = local = SynchedEntityData.defineId(Animal.class, EntityDataSerializers.BOOLEAN);
-                }
-            }
-        }
-        return local;
+    /**
+     * Define a per-class isWell flag. Must use {@code defineId} on the concrete R196 entity class
+     * (not {@code Animal}) so ClassTreeIdRegistry does not collide with vanilla Cow/Pig/etc. variant
+     * data ids — that collision crashed spawn eggs with {@code Duplicate id value for 18!}.
+     */
+    public static void defineWellData(
+            SynchedEntityData.Builder entityData, EntityDataAccessor<Boolean> well) {
+        entityData.define(well, true);
     }
 
-    /** Define the shared well flag once per livestock entity class. */
-    public static void defineWellData(SynchedEntityData.Builder entityData) {
-        entityData.define(dataWell(), true);
-    }
-
-    /** MITE isWell: healthy and not diseased (client-synced). */
+    /** MITE isWell: healthy and not diseased (client-synced). Vanilla livestock default well. */
     public static boolean isWell(Animal animal) {
-        return animal.getEntityData().get(dataWell());
+        EntityDataAccessor<Boolean> well = wellData(animal);
+        return well == null || animal.getEntityData().get(well);
     }
 
-    public static void setWell(Animal animal, boolean well) {
-        if (animal.getEntityData().get(dataWell()) != well) {
-            animal.getEntityData().set(dataWell(), well);
+    public static void setWell(Animal animal, boolean value) {
+        EntityDataAccessor<Boolean> well = wellData(animal);
+        if (well == null) return;
+        if (animal.getEntityData().get(well) != value) {
+            animal.getEntityData().set(well, value);
         }
+    }
+
+    private static @Nullable EntityDataAccessor<Boolean> wellData(Animal animal) {
+        if (animal instanceof R196Cow) return R196Cow.dataWell();
+        if (animal instanceof R196Chicken) return R196Chicken.dataWell();
+        if (animal instanceof R196Pig) return R196Pig.dataWell();
+        if (animal instanceof R196Sheep) return R196Sheep.dataWell();
+        return null;
     }
 
     public static boolean isLivestock(Entity entity) {
