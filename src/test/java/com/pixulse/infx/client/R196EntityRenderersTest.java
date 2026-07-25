@@ -14,19 +14,37 @@ import org.junit.jupiter.api.Test;
 
 class R196EntityRenderersTest {
     @Test
-    void sickLivestockUseAuthorizedMiteSickTextures() {
+    void sickLivestockUseDerived26_2LayoutTextures() {
         assertEquals(
-                "infx:textures/entity/cow/sick.png",
+                "infx:textures/entity/cow/cow_temperate_sick.png",
                 R196EntityRenderers.CowTexture.sickTexture().toString());
         assertEquals(
-                "infx:textures/entity/chicken/sick.png",
+                "infx:textures/entity/chicken/chicken_temperate_sick.png",
                 R196EntityRenderers.ChickenTexture.sickTexture().toString());
         assertEquals(
-                "infx:textures/entity/pig/sick.png",
+                "infx:textures/entity/pig/pig_temperate_sick.png",
                 R196EntityRenderers.PigTexture.sickTexture().toString());
         assertEquals(
-                "infx:textures/entity/sheep/sick.png",
+                "infx:textures/entity/sheep/sheep_sick.png",
                 R196EntityRenderers.SheepTexture.sickTexture().toString());
+        assertEquals(
+                "infx:textures/entity/cow/cow_warm_sick.png",
+                R196EntityRenderers.sickTextureFor(
+                                net.minecraft.resources.Identifier.withDefaultNamespace(
+                                        "textures/entity/cow/cow_warm.png"))
+                        .toString());
+        assertEquals(
+                "infx:textures/entity/pig/pig_cold_sick_baby.png",
+                R196EntityRenderers.sickTextureFor(
+                                net.minecraft.resources.Identifier.withDefaultNamespace(
+                                        "textures/entity/pig/pig_cold_baby.png"))
+                        .toString());
+        assertEquals(
+                "infx:textures/entity/sheep/sheep_sick_baby.png",
+                R196EntityRenderers.sickTextureFor(
+                                net.minecraft.resources.Identifier.withDefaultNamespace(
+                                        "textures/entity/sheep/sheep_baby.png"))
+                        .toString());
     }
 
     @Test

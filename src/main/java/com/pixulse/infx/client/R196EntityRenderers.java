@@ -65,10 +65,36 @@ final class R196EntityRenderers {
         return well == null || well;
     }
 
-    /** MITE sick cow skin when !isWell(). */
-    static final class CowTexture extends CowRenderer {
-        private static final Identifier SICK = mite("textures/entity/cow/sick.png");
+    /**
+     * Map a 26.2 healthy livestock texture id to the derived sick skin.
+     * e.g. minecraft:textures/entity/cow/cow_temperate.png
+     *   -> infx:textures/entity/cow/cow_temperate_sick.png
+     *      minecraft:textures/entity/cow/cow_temperate_baby.png
+     *   -> infx:textures/entity/cow/cow_temperate_sick_baby.png
+     */
+    static Identifier sickTextureFor(Identifier healthy) {
+        String path = healthy.getPath();
+        if (!path.startsWith("textures/entity/") || !path.endsWith(".png")) {
+            return healthy;
+        }
+        String withoutExt = path.substring(0, path.length() - 4);
+        String sickPath;
+        if (withoutExt.endsWith("_baby")) {
+            sickPath = withoutExt.substring(0, withoutExt.length() - 5) + "_sick_baby.png";
+        } else {
+            sickPath = withoutExt + "_sick.png";
+        }
+        // sheep healthy is sheep.png / sheep_baby.png -> sheep_sick.png / sheep_sick_baby.png
+        if (withoutExt.endsWith("/sheep")) {
+            sickPath = "textures/entity/sheep/sheep_sick.png";
+        } else if (withoutExt.endsWith("/sheep_baby")) {
+            sickPath = "textures/entity/sheep/sheep_sick_baby.png";
+        }
+        return mite(sickPath);
+    }
 
+    /** 26.2 UV sick cow skins (temperate/warm/cold + baby) when !isWell(). */
+    static final class CowTexture extends CowRenderer {
         CowTexture(EntityRendererProvider.Context context) {
             super(context);
         }
@@ -81,18 +107,17 @@ final class R196EntityRenderers {
 
         @Override
         public Identifier getTextureLocation(CowRenderState state) {
-            return isWell(state) ? super.getTextureLocation(state) : SICK;
+            Identifier healthy = super.getTextureLocation(state);
+            return isWell(state) ? healthy : sickTextureFor(healthy);
         }
 
         static Identifier sickTexture() {
-            return SICK;
+            return mite("textures/entity/cow/cow_temperate_sick.png");
         }
     }
 
-    /** MITE sick chicken skin when !isWell(). */
+    /** 26.2 UV sick chicken skins when !isWell(). */
     static final class ChickenTexture extends ChickenRenderer {
-        private static final Identifier SICK = mite("textures/entity/chicken/sick.png");
-
         ChickenTexture(EntityRendererProvider.Context context) {
             super(context);
         }
@@ -105,18 +130,17 @@ final class R196EntityRenderers {
 
         @Override
         public Identifier getTextureLocation(ChickenRenderState state) {
-            return isWell(state) ? super.getTextureLocation(state) : SICK;
+            Identifier healthy = super.getTextureLocation(state);
+            return isWell(state) ? healthy : sickTextureFor(healthy);
         }
 
         static Identifier sickTexture() {
-            return SICK;
+            return mite("textures/entity/chicken/chicken_temperate_sick.png");
         }
     }
 
-    /** MITE sick pig skin when !isWell(). */
+    /** 26.2 UV sick pig skins when !isWell(). */
     static final class PigTexture extends PigRenderer {
-        private static final Identifier SICK = mite("textures/entity/pig/sick.png");
-
         PigTexture(EntityRendererProvider.Context context) {
             super(context);
         }
@@ -129,18 +153,17 @@ final class R196EntityRenderers {
 
         @Override
         public Identifier getTextureLocation(PigRenderState state) {
-            return isWell(state) ? super.getTextureLocation(state) : SICK;
+            Identifier healthy = super.getTextureLocation(state);
+            return isWell(state) ? healthy : sickTextureFor(healthy);
         }
 
         static Identifier sickTexture() {
-            return SICK;
+            return mite("textures/entity/pig/pig_temperate_sick.png");
         }
     }
 
-    /** MITE sick sheep body skin when !isWell(); wool layers stay vanilla. */
+    /** 26.2 UV sick sheep body skins when !isWell(); wool layers stay vanilla. */
     static final class SheepTexture extends SheepRenderer {
-        private static final Identifier SICK = mite("textures/entity/sheep/sick.png");
-
         SheepTexture(EntityRendererProvider.Context context) {
             super(context);
         }
@@ -153,11 +176,12 @@ final class R196EntityRenderers {
 
         @Override
         public Identifier getTextureLocation(SheepRenderState state) {
-            return isWell(state) ? super.getTextureLocation(state) : SICK;
+            Identifier healthy = super.getTextureLocation(state);
+            return isWell(state) ? healthy : sickTextureFor(healthy);
         }
 
         static Identifier sickTexture() {
-            return SICK;
+            return mite("textures/entity/sheep/sheep_sick.png");
         }
     }
 
