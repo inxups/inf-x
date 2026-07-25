@@ -55,4 +55,9 @@ class R196ItemPropertiesTest {
         assertEquals(2.5F, R196ItemProperties.attackRange(R196EquipmentType.SCYTHE).maxReach());
         assertEquals(1.75F, R196ItemProperties.attackRange(R196EquipmentType.KNIFE).maxReach());
     }
+
+    @Test
+    void shearsRightClickAttackUsesAShortCooldown() {
+        assertEquals(10, R196ShearsItem.ATTACK_COOLDOWN_TICKS);
+    }
 }
