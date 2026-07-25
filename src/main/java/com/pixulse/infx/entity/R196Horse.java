@@ -9,19 +9,26 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
-/** R196 horse: untamed mount cooldown, beef drop, livestock-style flee/needs goals. */
+/**
+ * R196 horse: untamed remount cooldown and beef drop only.
+ * Does <strong>not</strong> use livestock needs/disease (matches MITE: horse is not EntityLivestock).
+ */
 public final class R196Horse extends Horse {
+    private static final String GOALS_ADDED = "infx_horse_goals_added";
+
     public R196Horse(EntityType<? extends Horse> type, Level level) {
         super(type, level);
     }
@@ -33,33 +40,29 @@ public final class R196Horse extends Horse {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        R196Livestock.ensureGoals(this);
-    }
-
-    @Override
-    public void aiStep() {
-        super.aiStep();
-        if (!level().isClientSide()) {
-            R196Livestock.serverTick(this);
-        }
-    }
-
-    @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        boolean hurt = super.hurtServer(level, source, amount);
-        if (hurt) R196Livestock.onHurt(this, amount);
-        return hurt;
-    }
-
-    @Override
-    public boolean canMate(Animal partner) {
-        if (!(level() instanceof ServerLevel serverLevel)) return super.canMate(partner);
-        return super.canMate(partner) && R196Livestock.canMateWith(serverLevel, this, partner);
+        if (getPersistentData().getBooleanOr(GOALS_ADDED, false)) return;
+        // Flee hostiles; untamed horses also keep distance from players (no needs/disease AI).
+        goalSelector.addGoal(1, new AvoidEntityGoal<>(
+                this,
+                Mob.class,
+                mob -> mob instanceof Enemy,
+                10.0F,
+                1.15,
+                1.4,
+                entity -> entity.isAlive()));
+        goalSelector.addGoal(3, new AvoidEntityGoal<>(
+                this,
+                Player.class,
+                player -> !isTamed(),
+                10.0F,
+                1.1,
+                1.35,
+                entity -> !entity.isSpectator()));
+        getPersistentData().putBoolean(GOALS_ADDED, true);
     }
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        R196Livestock.markFedIfFood(this, player.getItemInHand(hand));
         if (!isTamed()
                 && level() instanceof ServerLevel serverLevel
                 && R196Livestock.isHorseMountBlocked(this, serverLevel.getGameTime())) {

@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-24
 
+### 马不参与家畜生病
+
+- `R196Horse` 移除需求/疾病 tick、恐慌与繁殖健康门控；仅保留未驯服再骑冷却、避敌/避玩家与牛肉掉落。
+- `R196Livestock.ensureGoals` 拒绝马；`panic` 不再波及 `AbstractHorse`。
+
 ### 家畜规则迁入 R196 替换实体
 
 - 牛/鸡/羊/猪/马的需求、恐慌、繁殖门控、产奶/羽毛/剪毛/驯服冷却等从 `R196AnimalEvents` 迁入对应 `R196*` 实体覆写（`registerGoals`/`aiStep`/`mobInteract`/`hurtServer`/`canMate`/`die`）。

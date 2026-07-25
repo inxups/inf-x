@@ -45,8 +45,14 @@ public final class R196Livestock {
 
     private R196Livestock() {}
 
-    /** Install needs/seek and flee goals once on an R196 replacement animal. */
+    /**
+     * Install needs/seek and flee goals once on R196 livestock (cow/chicken/sheep/pig).
+     * Horses are not livestock and must not call this.
+     */
     public static void ensureGoals(Animal animal) {
+        if (animal instanceof AbstractHorse) {
+            return;
+        }
         if (animal.getPersistentData().getBooleanOr(GOALS_ADDED, false)) return;
         animal.goalSelector.addGoal(2, new NeedsGoal(animal));
         animal.goalSelector.addGoal(1, new AvoidEntityGoal<>(
@@ -57,16 +63,6 @@ public final class R196Livestock {
                 1.15,
                 1.4,
                 entity -> entity.isAlive()));
-        if (animal instanceof AbstractHorse horse) {
-            horse.goalSelector.addGoal(3, new AvoidEntityGoal<>(
-                    horse,
-                    Player.class,
-                    player -> !horse.isTamed(),
-                    10.0F,
-                    1.1,
-                    1.35,
-                    entity -> !entity.isSpectator()));
-        }
         animal.getPersistentData().putBoolean(GOALS_ADDED, true);
     }
 
@@ -182,7 +178,9 @@ public final class R196Livestock {
     public static void panic(ServerLevel level, Animal source) {
         long until = level.getGameTime() + PANIC_TICKS;
         for (Animal nearby : level.getEntitiesOfClass(
-                Animal.class, source.getBoundingBox().inflate(12.0), Animal::isAlive)) {
+                Animal.class,
+                source.getBoundingBox().inflate(12.0),
+                other -> other.isAlive() && !(other instanceof AbstractHorse))) {
             nearby.getPersistentData().putLong(PANIC_UNTIL, until);
             nearby.getPersistentData().putBoolean(HEALTHY, false);
         }
