@@ -2,6 +2,14 @@
 
 ## [0v] - 2026-07-25
 
+### 移植 MITE 水流与游泳物理
+
+- 水流推力改用 MITE `World.handleMaterialAcceleration` 的算法：把玩家碰到的每个水格单位流向求和后**归一化一次**再乘 `0.014`，取消原版 26.2 对玩家的取均值、浅水按液面高度衰减和最小推力钳制。一格深的溪流与满格水推力相同，逆流终速约 0.48 格/秒、顺流约 2.7 格/秒。
+- 水中下沉改用 MITE 的 `0.02`/tick（原版为 `0.005`）：`travelInWater` 的 `baseGravity` 对玩家乘 4，使 `getFluidFallingAdjustedMovement` 的 `baseGravity / 16` 得到 MITE 数值，静水终速由约 -0.025 变为 -0.1 格/tick。缓降等重力修改仍按比例生效。
+- 水中按住跳跃的上浮改用 MITE `EntityLivingBase.onLivingUpdate` 的因子：脚下非液体（浮出水面）或脚与头同处下落水柱时降为 7/16，因此瀑布无法再靠上浮爬升；拉弓且悬浮于液体中再乘 7/16，缓慢药水与蛛网按 `getSpeedBoostVsSlowDown` 封顶，贴墙时按 `f * 0.7 + 0.3` 部分回补。
+- 三项改动只作用于玩家，生物与美西螈、海豚恩惠等现代水生行为保持原版；MITE 不存在的抗麻痹项没有对应移植。原版游泳冲刺（爬泳姿势、水阻 0.9）按现状保留。
+- 新增 `R196SwimRules` 纯数学与 `R196SwimPhysics` 世界读取，`EntitySwimMixin` 与 `LivingEntitySwimMixin` 分别接入水流推力和水中移动；补充单元测试与 `r196_swim_physics` GameTest，覆盖浅水足额推力、下落水柱上浮封顶与实际下沉速率。
+
 ### R196 桶改用具体物品实现
 
 - 移除 `R196BucketEvents` 以及 `R196BucketItem` 的模组生命周期、世界 tick 与物品拾取事件监听；空桶、液体桶、生物桶和细雪桶在各自实例构造时直接注册发射器行为。

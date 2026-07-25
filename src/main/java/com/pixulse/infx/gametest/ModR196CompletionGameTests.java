@@ -43,6 +43,8 @@ import com.pixulse.infx.network.R196Network;
 import com.pixulse.infx.world.R196EndEvents;
 import com.pixulse.infx.world.R196FluidDecayData;
 import com.pixulse.infx.world.R196SafeEvents;
+import com.pixulse.infx.world.R196SwimPhysics;
+import com.pixulse.infx.world.R196SwimRules;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -76,6 +78,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -159,6 +162,7 @@ public final class ModR196CompletionGameTests {
             "r196_creative_tabs",
             "r196_block_stack_limits",
             "r196_bucket_mechanics",
+            "r196_swim_physics",
             "r196_fulltext_systems");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -179,6 +183,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
         FUNCTIONS.register("r196_block_stack_limits", () -> ModR196CompletionGameTests::blockStackLimits);
         FUNCTIONS.register("r196_bucket_mechanics", () -> ModR196CompletionGameTests::bucketMechanics);
+        FUNCTIONS.register("r196_swim_physics", () -> ModR196CompletionGameTests::swimPhysics);
         FUNCTIONS.register("r196_fulltext_systems", () -> ModR196CompletionGameTests::fulltextSystems);
     }
 
@@ -1797,6 +1802,80 @@ public final class ModR196CompletionGameTests {
                         "an immersed milk bucket leaks into its matching empty bucket"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
+    }
+
+    private static void swimPhysics(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        ServerLevel level = helper.getLevel();
+
+        // A shallow west-to-east channel. Vanilla tapers the push by the 0.333 fluid height and would
+        // apply roughly 0.0047; MITE normalises the summed flow and always applies 0.014.
+        for (int x = 3; x <= 7; x++) helper.setBlock(new BlockPos(x, 1, 2), Blocks.STONE);
+        helper.setBlock(new BlockPos(4, 2, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 4));
+        helper.setBlock(new BlockPos(5, 2, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 5));
+        helper.setBlock(new BlockPos(6, 2, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 6));
+        Vec3 channel = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(5, 2, 2)));
+        player.snapTo(channel.x, channel.y, channel.z, 0.0F, 0.0F);
+        player.setDeltaMovement(Vec3.ZERO);
+        R196SwimPhysics.applyNormalizedCurrent(player, R196SwimRules.CURRENT_SCALE);
+        Vec3 push = player.getDeltaMovement();
+        helper.assertTrue(
+                Math.abs(push.length() - R196SwimRules.CURRENT_SCALE) < 1.0E-6D,
+                "a shallow stream must push at the full 0.014, not vanilla's depth-tapered value");
+        helper.assertTrue(push.x > 0.0D, "the push must follow the channel's descending flow");
+        helper.assertTrue(Math.abs(push.y) < 1.0E-6D, "a level channel must not push vertically");
+
+        // The same channel through a live tick, which proves EntitySwimMixin is wired: MITE's
+        // 0.014 survives the 0.8 water drag as 0.0112, where vanilla's tapered push leaves 0.0037.
+        player.snapTo(channel.x, channel.y, channel.z, 0.0F, 0.0F);
+        player.setDeltaMovement(Vec3.ZERO);
+        player.doTick();
+        double drift = player.getDeltaMovement().x;
+        helper.assertTrue(
+                drift > 0.008D,
+                "a live tick must carry MITE's untapered current, measured " + drift);
+
+        // A falling column cuts the swim-up impulse to 7/16 so waterfalls cannot be climbed.
+        helper.setBlock(new BlockPos(9, 1, 2), Blocks.STONE);
+        helper.setBlock(new BlockPos(9, 2, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
+        helper.setBlock(new BlockPos(9, 3, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 8));
+        helper.setBlock(new BlockPos(9, 4, 2), Blocks.WATER);
+        Vec3 column = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(9, 2, 2)));
+        player.snapTo(column.x, column.y, column.z, 0.0F, 0.0F);
+        helper.assertTrue(
+                Math.abs(R196SwimPhysics.swimUpImpulse(player)
+                                - R196SwimRules.SWIM_UP_IMPULSE * R196SwimRules.SURFACE_FACTOR)
+                        < 1.0E-6D,
+                "a falling column must cut the swim-up impulse to 7/16");
+
+        // A walled shaft so the column cannot drain while the sink rate is measured.
+        helper.setBlock(new BlockPos(12, 1, 2), Blocks.STONE);
+        for (int y = 2; y <= 6; y++) {
+            helper.setBlock(new BlockPos(11, y, 2), Blocks.STONE);
+            helper.setBlock(new BlockPos(13, y, 2), Blocks.STONE);
+            helper.setBlock(new BlockPos(12, y, 1), Blocks.STONE);
+            helper.setBlock(new BlockPos(12, y, 3), Blocks.STONE);
+            helper.setBlock(new BlockPos(12, y, 2), Blocks.WATER);
+        }
+        Vec3 still = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(12, 4, 2)));
+        player.snapTo(still.x, still.y, still.z, 0.0F, 0.0F);
+        helper.assertTrue(
+                Math.abs(R196SwimPhysics.swimUpImpulse(player) - R196SwimRules.SWIM_UP_IMPULSE) < 1.0E-6D,
+                "still water must keep the full swim-up impulse");
+
+        // Submerged sinking: MITE's 0.02/tick settles near -0.1, vanilla's 0.005/tick near -0.025.
+        // Driving doTick directly also proves the travelInWater gravity mixin is wired.
+        player.setDeltaMovement(Vec3.ZERO);
+        for (int tick = 0; tick < 20; tick++) player.doTick();
+        double sink = player.getDeltaMovement().y;
+        helper.assertTrue(
+                level.getFluidState(player.blockPosition()).is(FluidTags.WATER),
+                "the sink measurement must stay inside the water column");
+        helper.assertTrue(
+                sink < -0.06D, "a submerged player must sink at MITE's 0.02/tick, measured " + sink);
+
+        removePlayer(player);
+        helper.succeed();
     }
 
     private static void bucketMechanics(GameTestHelper helper) {
