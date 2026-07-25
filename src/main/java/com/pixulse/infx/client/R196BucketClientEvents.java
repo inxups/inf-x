@@ -12,7 +12,11 @@ import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
-/** Ctrl-use places a fluid source when the player has enough total XP. */
+/**
+ * MITE ctrl_is_down for buckets. An empty bucket takes the liquid cell it scoops from; a filled one
+ * places a permanent source for 100 XP. Both need the server to know Ctrl was held, so the use is
+ * cancelled client-side and replayed server-side under the flag.
+ */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class R196BucketClientEvents {
     private R196BucketClientEvents() {}
@@ -23,16 +27,23 @@ public final class R196BucketClientEvents {
         if (!event.isUseItem()
                 || minecraft.player == null
                 || !(minecraft.player.getItemInHand(event.getHand()).getItem() instanceof R196BucketItem bucket)
-                || (bucket.contents() != R196BucketItem.Contents.WATER
-                        && bucket.contents() != R196BucketItem.Contents.LAVA)
                 || !controlDown(minecraft)
-                || !R196BucketItem.canPlaceAsSource(minecraft.player, true)) {
+                || !ctrlIsMeaningful(bucket, minecraft)) {
             return;
         }
         ClientPacketDistributor.sendToServer(
                 new R196Network.PlaceFluidSourcePayload(event.getHand() == InteractionHand.OFF_HAND));
         event.setCanceled(true);
         event.setSwingHand(true);
+    }
+
+    /** Empty buckets always honour Ctrl; filled ones only when the source can actually be paid for. */
+    private static boolean ctrlIsMeaningful(R196BucketItem bucket, Minecraft minecraft) {
+        return switch (bucket.contents()) {
+            case EMPTY -> true;
+            case WATER, LAVA -> R196BucketItem.canPlaceAsSource(minecraft.player, true);
+            case MILK, STONE -> false;
+        };
     }
 
     private static boolean controlDown(Minecraft minecraft) {

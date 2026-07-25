@@ -1,13 +1,18 @@
 package com.pixulse.infx.item;
 
+import com.pixulse.infx.entity.R196FireElemental;
+import com.pixulse.infx.entity.R196Livestock;
+import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.network.R196Network;
+import com.pixulse.infx.world.R196FluidDecayData;
 import java.util.function.Supplier;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -19,6 +24,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
@@ -32,9 +38,12 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmlandBlock;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.block.state.BlockState;
@@ -51,6 +60,18 @@ import org.jspecify.annotations.Nullable;
 public final class R196BucketItem extends BucketItem {
     public static final int SOURCE_EXPERIENCE_COST = 100;
     public static final int LAVA_BURN_TIME = 3200;
+    /** MITE scheduleBlockChange delay before a placed water cell degrades to flowing. */
+    public static final int WATER_DECAY_DELAY = 16;
+    /** MITE scheduleBlockChange delay before a placed lava cell degrades to flowing. */
+    public static final int LAVA_DECAY_DELAY = 48;
+    /** MITE prevent_item_pickup_due_to_held_item_breaking_until: 1.5s in ticks. */
+    public static final int MELT_PICKUP_DELAY = 30;
+    /** Persistent key holding the game time until which melt-induced pickup stays suppressed. */
+    public static final String MELT_PICKUP_BLOCK = "infx_bucket_melt_pickup_block";
+    /** MITE ItemVessel water damage to fire elementals. */
+    public static final float FIRE_ELEMENTAL_QUENCH_DAMAGE = 20.0F;
+    /** MITE ItemVessel water damage to netherspawn. */
+    public static final float NETHERSPAWN_QUENCH_DAMAGE = 8.0F;
 
     public enum Contents {
         EMPTY(""),
@@ -115,14 +136,16 @@ public final class R196BucketItem extends BucketItem {
         return lavaMeltChance(material);
     }
 
+    /**
+     * MITE ItemBucket#getChanceOfMeltingWhenFilledWithLava: adamantium is lava safe, gold is a flat
+     * 20%, everything else scales inversely with material durability against mithril's 1% baseline.
+     */
     public static float lavaMeltChance(R196Material material) {
         return switch (material) {
-            case COPPER, SILVER -> 0.16F;
-            case GOLD -> 0.20F;
-            case IRON -> 0.08F;
-            case ANCIENT_METAL -> 0.04F;
-            case MITHRIL -> 0.01F;
             case ADAMANTIUM -> 0.0F;
+            case GOLD -> 0.20F;
+            case COPPER, SILVER, IRON, ANCIENT_METAL, MITHRIL ->
+                0.01F * (R196Material.MITHRIL.durabilityMultiplier() / material.durabilityMultiplier());
             default -> throw new IllegalArgumentException("No R196 bucket for " + material);
         };
     }
@@ -151,6 +174,15 @@ public final class R196BucketItem extends BucketItem {
 
     private InteractionResult consume(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        // MITE ItemBucketMilk#onItemRightClick: milk douses fire before it can be drunk.
+        Level level = player.level();
+        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        if (hit.getType() == HitResult.Type.BLOCK) {
+            BlockPos firePos = fireTarget(level, hit);
+            if (firePos != null) {
+                return douse(level, player, hand, firePos);
+            }
+        }
         Consumable consumable = stack.get(DataComponents.CONSUMABLE);
         return consumable == null ? InteractionResult.FAIL : consumable.startConsuming(player, stack, hand);
     }
@@ -164,6 +196,21 @@ public final class R196BucketItem extends BucketItem {
                 player.awardStat(Stats.ITEM_USED.get(this));
                 ItemStack emptied = ItemUtils.createFilledResult(held, player, new ItemStack(emptyBucket.get()));
                 return InteractionResult.SUCCESS.heldItemTransformedTo(emptied);
+            }
+        }
+        // MITE ItemBucket#onItemRightClick: pouring a liquid back into itself only spends the bucket.
+        if (hit.getType() == HitResult.Type.BLOCK && !player.hasInfiniteMaterials() && sameLiquidAt(level, hit)) {
+            player.awardStat(Stats.ITEM_USED.get(this));
+            ItemStack emptied = ItemUtils.createFilledResult(held, player, new ItemStack(emptyBucket.get()));
+            return InteractionResult.SUCCESS.heldItemTransformedTo(emptied);
+        }
+        // Vanilla use() hands emptyContents the neighbour of the clicked cell, so a fire hit would place
+        // water beside the flame instead of dousing it. Intercept here; the dispenser path is guarded
+        // inside emptyContents.
+        if (hit.getType() == HitResult.Type.BLOCK && canDouseFire()) {
+            BlockPos firePos = fireTarget(level, hit);
+            if (firePos != null) {
+                return douse(level, player, hand, firePos);
             }
         }
 
@@ -188,6 +235,38 @@ public final class R196BucketItem extends BucketItem {
             return below;
         }
         return null;
+    }
+
+    /**
+     * MITE ItemBucket#onItemRightClick: the contents already occupy the hit cell or the cell beyond
+     * the hit face, so emptying changes nothing. Matches both source and flowing states.
+     */
+    private boolean sameLiquidAt(Level level, BlockHitResult hit) {
+        if (content == Fluids.EMPTY) {
+            return false;
+        }
+        BlockPos pos = hit.getBlockPos();
+        return level.getFluidState(pos).is(content)
+                || level.getFluidState(pos.relative(hit.getDirection())).is(content);
+    }
+
+    /** MITE World#douseFire target: the fire cell hit directly, or the one beyond the hit face. */
+    private static @Nullable BlockPos fireTarget(Level level, BlockHitResult hit) {
+        BlockPos pos = hit.getBlockPos();
+        if (level.getBlockState(pos).getBlock() instanceof BaseFireBlock) {
+            return pos;
+        }
+        BlockPos neighbor = pos.relative(hit.getDirection());
+        return level.getBlockState(neighbor).getBlock() instanceof BaseFireBlock ? neighbor : null;
+    }
+
+    /** MITE World#douseFire: extinguish without placing the contents, still spending the vessel. */
+    private InteractionResult douse(Level level, Player player, InteractionHand hand, BlockPos pos) {
+        ItemStack held = player.getItemInHand(hand);
+        douseFire(level, pos);
+        player.awardStat(Stats.ITEM_USED.get(this));
+        ItemStack emptied = ItemUtils.createFilledResult(held, player, new ItemStack(emptyBucket.get()));
+        return InteractionResult.SUCCESS.heldItemTransformedTo(emptied);
     }
 
     /** Moistens a 3×3 farmland patch (MITE water-bucket fertilize). */
@@ -242,17 +321,23 @@ public final class R196BucketItem extends BucketItem {
                                 ? () -> com.pixulse.infx.registry.ModItems.powderSnowBucket(material).value()
                                 : null;
         if (filled == null) return InteractionResult.FAIL;
-        ItemStack vanillaResult = pickup.pickupBlock(player, level, pos, state);
-        if (vanillaResult.isEmpty()) return InteractionResult.FAIL;
+
+        // MITE ItemBucket#onItemRightClick: scooping a liquid leaves its cell in place. The source is
+        // only consumed in creative or with Ctrl held, which is MITE's "take this cell" modifier.
+        // Waterlogged blocks are not liquid cells, so they keep vanilla pickup.
+        boolean liquidCell = state.getBlock() instanceof LiquidBlock;
+        if (!liquidCell || shouldTakeSource(player)) {
+            if (pickup.pickupBlock(player, level, pos, state).isEmpty()) return InteractionResult.FAIL;
+        } else if (!state.getFluidState().isSource()) {
+            return InteractionResult.FAIL;
+        }
 
         player.awardStat(Stats.ITEM_USED.get(this));
         pickup.getPickupSound(state).ifPresent(sound -> player.playSound(sound, 1.0F, 1.0F));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-        if (!level.isClientSide() && vanillaResult.is(Items.LAVA_BUCKET)
+        if (!level.isClientSide() && state.getFluidState().is(Fluids.LAVA)
                 && level.getRandom().nextFloat() < lavaMeltChance()) {
-            held.consume(1, player);
-            level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 0.7F);
-            return InteractionResult.SUCCESS.heldItemTransformedTo(held);
+            return meltInLava(level, player, hand, pos);
         }
 
         ItemStack result = ItemUtils.createFilledResult(held, player, new ItemStack(filled.get()));
@@ -260,6 +345,41 @@ public final class R196BucketItem extends BucketItem {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, new ItemStack(filled.get()));
         }
         return InteractionResult.SUCCESS.heldItemTransformedTo(result);
+    }
+
+    /** MITE ctrl_is_down while filling: consume the liquid cell instead of leaving it behind. */
+    private static boolean shouldTakeSource(Player player) {
+        return player.hasInfiniteMaterials()
+                || player.getPersistentData().getBooleanOr(R196Network.CTRL_USE, false);
+    }
+
+    /**
+     * MITE ItemBucket#onItemRightClick melt branch: the vessel is destroyed outright because every
+     * bucket metal except adamantium is harmed by lava, and adamantium never melts. Pickup is
+     * suppressed briefly so the empty hand does not immediately grab a nearby drop.
+     */
+    private InteractionResult meltInLava(Level level, Player player, InteractionHand hand, BlockPos pos) {
+        ItemStack held = player.getItemInHand(hand);
+        player.awardStat(Stats.ITEM_BROKEN.get(this));
+        held.consume(1, player);
+        level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 0.7F);
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(
+                    ParticleTypes.LARGE_SMOKE,
+                    pos.getX() + 0.5,
+                    pos.getY() + 0.5,
+                    pos.getZ() + 0.5,
+                    8,
+                    0.25,
+                    0.25,
+                    0.25,
+                    0.0);
+        }
+        if (player.getItemInHand(hand).isEmpty()) {
+            player.getPersistentData()
+                    .putLong(MELT_PICKUP_BLOCK, player.level().getGameTime() + MELT_PICKUP_DELAY);
+        }
+        return InteractionResult.SUCCESS.heldItemTransformedTo(player.getItemInHand(hand));
     }
 
     @Override
@@ -283,6 +403,12 @@ public final class R196BucketItem extends BucketItem {
             return hitResult != null
                     && this.emptyContents(
                             user, level, hitResult.getBlockPos().relative(hitResult.getDirection()), null, containerItem);
+        }
+
+        // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
+        if (canDouseFire() && blockState.getBlock() instanceof BaseFireBlock) {
+            douseFire(level, pos);
+            return true;
         }
 
         if (level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, pos)
@@ -325,15 +451,87 @@ public final class R196BucketItem extends BucketItem {
             level.destroyBlock(pos, true);
         }
 
-        FluidState fluidState = placeAsSource
-                ? flowingFluid.getSource(false)
-                : flowingFluid.getFlowing(1, false);
-        if (!level.setBlock(pos, fluidState.createLegacyBlock(), 11) && !blockState.getFluidState().isSource()) {
+        // MITE tryConvertLavaToCobblestoneOrObsidian / tryConvertWaterToCobblestone: contact between the
+        // two liquids sets stone instead of leaving a fluid cell.
+        if (convertOnContact(level, pos)) {
+            return true;
+        }
+
+        // MITE always writes a source cell and schedules the degrade separately, so the pour spreads
+        // once before settling to flowing unless the player paid for a permanent source.
+        if (!level.setBlock(pos, flowingFluid.getSource(false).createLegacyBlock(), 11)
+                && !blockState.getFluidState().isSource()) {
             return false;
         }
-        chargeSourceExperience(user, placeAsSource);
+        if (placeAsSource) {
+            chargeSourceExperience(user, true);
+            // A paid source must not be demoted by a degrade an earlier free pour left queued here.
+            cancelSourceDecay(level, pos);
+        } else {
+            scheduleSourceDecay(level, pos);
+        }
         this.playEmptySound(user, level, pos);
         return true;
+    }
+
+    /** MITE water↔lava contact conversion. Returns true when stone replaced the fluid cell. */
+    private boolean convertOnContact(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return false;
+        }
+        FluidState target = level.getFluidState(pos);
+        if (content.is(FluidTags.WATER) && target.is(FluidTags.LAVA)) {
+            // A full lava source becomes obsidian; anything shallower becomes cobblestone.
+            boolean source = target.isSource();
+            level.levelEvent(LevelEvent.LAVA_FIZZ, pos, 0);
+            level.setBlockAndUpdate(pos, source ? Blocks.OBSIDIAN.defaultBlockState() : Blocks.COBBLESTONE.defaultBlockState());
+            return true;
+        }
+        if (content.is(FluidTags.LAVA) && target.is(FluidTags.WATER)) {
+            level.levelEvent(LevelEvent.LAVA_FIZZ, pos, 0);
+            level.setBlockAndUpdate(pos, Blocks.COBBLESTONE.defaultBlockState());
+            return true;
+        }
+        return false;
+    }
+
+    /** Queues the MITE scheduleBlockChange that degrades an unpaid source cell to flowing. */
+    private void scheduleSourceDecay(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        int delay = content.is(FluidTags.LAVA) ? LAVA_DECAY_DELAY : WATER_DECAY_DELAY;
+        R196FluidDecayData.get(serverLevel).schedule(pos, content.is(FluidTags.LAVA), serverLevel.getGameTime() + delay);
+    }
+
+    /** Drops any queued degrade for a cell, so a paid source stays permanent. */
+    private static void cancelSourceDecay(Level level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            R196FluidDecayData.get(serverLevel).cancel(pos);
+        }
+    }
+
+    private boolean canDouseFire() {
+        return content.is(FluidTags.WATER) || contents == Contents.MILK;
+    }
+
+    /** MITE World#douseFire: smoke and steam, then the fire cell clears. */
+    static void douseFire(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        serverLevel.levelEvent(LevelEvent.SOUND_EXTINGUISH_FIRE, pos, 0);
+        serverLevel.sendParticles(
+                ParticleTypes.LARGE_SMOKE,
+                pos.getX() + 0.5,
+                pos.getY() + 0.5,
+                pos.getZ() + 0.5,
+                8,
+                0.25,
+                0.25,
+                0.25,
+                0.0);
+        serverLevel.removeBlock(pos, false);
     }
 
     private boolean shouldPlaceAsSource(@Nullable LivingEntity user) {
@@ -341,7 +539,7 @@ public final class R196BucketItem extends BucketItem {
             // Dispensers keep source placement so automated infinite sources stay gated by CreateFluidSourceEvent.
             return true;
         }
-        boolean force = player.getPersistentData().getBooleanOr(R196Network.FORCE_PLACE_FLUID_SOURCE, false);
+        boolean force = player.getPersistentData().getBooleanOr(R196Network.CTRL_USE, false);
         return canPlaceAsSource(player, force);
     }
 
@@ -352,7 +550,7 @@ public final class R196BucketItem extends BucketItem {
                 || player.level().isClientSide()) {
             return;
         }
-        if (player.getPersistentData().getBooleanOr(R196Network.FORCE_PLACE_FLUID_SOURCE, false)) {
+        if (player.getPersistentData().getBooleanOr(R196Network.CTRL_USE, false)) {
             player.giveExperiencePoints(-SOURCE_EXPERIENCE_COST);
         }
     }
@@ -375,6 +573,60 @@ public final class R196BucketItem extends BucketItem {
             return new ItemStack(emptyBucket.get());
         }
         return result;
+    }
+
+    /**
+     * MITE ItemVessel#tryEntityInteraction: water satisfies thirsty livestock and quenches
+     * fire-aligned mobs. Thirst lives in server-side persistent data, so the client defers.
+     */
+    @Override
+    public InteractionResult interactLivingEntity(
+            ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+        if (contents != Contents.WATER || !(player.level() instanceof ServerLevel serverLevel)) {
+            return InteractionResult.PASS;
+        }
+        if (target instanceof Animal animal
+                && R196Livestock.isLivestock(animal)
+                && R196Livestock.isThirsty(animal, serverLevel.getGameTime())) {
+            R196Livestock.markWatered(animal, serverLevel.getGameTime());
+            serverLevel.playSound(
+                    null, target.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.NEUTRAL, 1.0F, 1.0F);
+            return spendOnEntity(player, hand);
+        }
+        float damage = quenchDamage(target);
+        if (damage <= 0.0F) {
+            return InteractionResult.PASS;
+        }
+        target.hurtServer(serverLevel, serverLevel.damageSources().drown(), damage);
+        target.clearFire();
+        serverLevel.playSound(
+                null, target.blockPosition(), SoundEvents.FIRE_EXTINGUISH, SoundSource.NEUTRAL, 0.7F, 1.6F);
+        serverLevel.sendParticles(
+                ParticleTypes.LARGE_SMOKE, target.getX(), target.getY(0.5), target.getZ(), 8, 0.25, 0.25, 0.25, 0.0);
+        return spendOnEntity(player, hand);
+    }
+
+    /**
+     * MITE water damage tiers: 20 against fire elementals, 8 against netherspawn. Deliberately not
+     * keyed on {@code isSensitiveToWater}, which also covers endermen, snow golems and striders that
+     * MITE's vessel interaction never touched.
+     */
+    private static float quenchDamage(LivingEntity target) {
+        if (target instanceof R196FireElemental) {
+            return FIRE_ELEMENTAL_QUENCH_DAMAGE;
+        }
+        if (target instanceof R196Silverfish silverfish
+                && silverfish.variant() == R196Silverfish.Variant.NETHERSPAWN) {
+            return NETHERSPAWN_QUENCH_DAMAGE;
+        }
+        return 0.0F;
+    }
+
+    private InteractionResult spendOnEntity(Player player, InteractionHand hand) {
+        ItemStack held = player.getItemInHand(hand);
+        player.awardStat(Stats.ITEM_USED.get(this));
+        player.setItemInHand(hand, ItemUtils.createFilledResult(held, player, new ItemStack(emptyBucket.get())));
+        return InteractionResult.SUCCESS;
     }
 
     @Override

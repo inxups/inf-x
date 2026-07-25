@@ -73,7 +73,7 @@ public final class InfiniteX {
         ModSounds.register(modBus);
         ModWorldCarvers.register(modBus);
         ModBiomeModifiers.register(modBus);
-        R196BucketEvents.register(modBus);
+        R196BucketEvents.register(modBus, NeoForge.EVENT_BUS);
         ModAttachments.register(modBus);
         ModBlocks.register(modBus);
         ModPoiTypes.register(modBus);

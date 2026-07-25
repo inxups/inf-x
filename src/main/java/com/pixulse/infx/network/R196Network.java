@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 public final class R196Network {
     public static final String FORCE_EGG_THROW = "infx_force_egg_throw";
-    public static final String FORCE_PLACE_FLUID_SOURCE = "infx_force_place_fluid_source";
+    public static final String CTRL_USE = "infx_ctrl_use";
 
     private R196Network() {}
 
@@ -44,20 +44,28 @@ public final class R196Network {
                             InteractionHand hand =
                                     payload.offhand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
                             ItemStack held = player.getItemInHand(hand);
-                            if (!(held.getItem() instanceof com.pixulse.infx.item.R196BucketItem bucket)
-                                    || (bucket.contents() != com.pixulse.infx.item.R196BucketItem.Contents.WATER
-                                            && bucket.contents()
-                                                    != com.pixulse.infx.item.R196BucketItem.Contents.LAVA)) {
+                            if (!(held.getItem() instanceof com.pixulse.infx.item.R196BucketItem bucket)) {
                                 return;
                             }
-                            if (!com.pixulse.infx.item.R196BucketItem.canPlaceAsSource(player, true)) {
+                            // Ctrl-fill (empty bucket takes the liquid cell) is free; Ctrl-place of a
+                            // permanent source still costs experience.
+                            boolean filling =
+                                    bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.EMPTY;
+                            boolean pouring =
+                                    bucket.contents() == com.pixulse.infx.item.R196BucketItem.Contents.WATER
+                                            || bucket.contents()
+                                                    == com.pixulse.infx.item.R196BucketItem.Contents.LAVA;
+                            if (!filling && !pouring) {
                                 return;
                             }
-                            player.getPersistentData().putBoolean(FORCE_PLACE_FLUID_SOURCE, true);
+                            if (pouring && !com.pixulse.infx.item.R196BucketItem.canPlaceAsSource(player, true)) {
+                                return;
+                            }
+                            player.getPersistentData().putBoolean(CTRL_USE, true);
                             try {
                                 held.getItem().use(player.level(), player, hand);
                             } finally {
-                                player.getPersistentData().remove(FORCE_PLACE_FLUID_SOURCE);
+                                player.getPersistentData().remove(CTRL_USE);
                             }
                         })
                 .playToServer(

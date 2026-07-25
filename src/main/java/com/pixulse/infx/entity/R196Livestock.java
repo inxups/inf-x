@@ -299,8 +299,17 @@ public final class R196Livestock {
         animal.getPersistentData().putLong(LAST_FOOD, now);
     }
 
-    static void markWatered(Animal animal, long now) {
+    public static void markWatered(Animal animal, long now) {
         animal.getPersistentData().putLong(LAST_WATER, now);
+    }
+
+    /**
+     * Read-only thirst check for water-bucket interaction. Unlike {@link #update} this advances no
+     * state, so it is safe to call before deciding whether an offered vessel should be spent.
+     */
+    public static boolean isThirsty(Animal animal, long now) {
+        long lastWater = animal.getPersistentData().getLong(LAST_WATER).orElse(0L);
+        return lastWater != 0L && now - lastWater > WATER_GRACE;
     }
 
     private static boolean hasOpenSpace(ServerLevel level, Animal animal) {
