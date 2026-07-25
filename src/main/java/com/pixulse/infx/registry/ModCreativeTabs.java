@@ -19,6 +19,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -183,5 +184,19 @@ public final class ModCreativeTabs {
 
     public static void register(IEventBus modBus) {
         TABS.register(modBus);
+        modBus.addListener(ModCreativeTabs::addSpawnEggsToVanillaTab);
+    }
+
+    /** Also surface every R196 spawn egg in the vanilla Spawn Eggs tab (animals included). */
+    private static void addSpawnEggsToVanillaTab(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() != CreativeModeTabs.SPAWN_EGGS) {
+            return;
+        }
+        for (DeferredItem<? extends Item> egg : ModItems.SPAWN_EGGS) {
+            Item item = egg.get();
+            if (item.isEnabled(event.getFlags())) {
+                event.accept(item);
+            }
+        }
     }
 }
