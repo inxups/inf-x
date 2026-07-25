@@ -2,6 +2,12 @@
 
 ## [0v] - 2026-07-25
 
+### 精简游戏内指令
+
+- 游戏内自定义指令仅保留 `/day`、`/villages`、`/infxlivestock sick|cure`。
+- 移除 `/ground`、`/hunger`、`/load`、`/mem`、`/xp`、`/rendering`、`/skills`、`/stats`、`/version`、`/versions`、`/syncpos`、`/chunks`、`/infxrecords`。
+- `R196Commands.NAMES` 与单测同步为上述 3 条；性能日志等服务端指标逻辑仍保留，仅不再经聊天指令暴露。
+
 ### 修复强制生病后贴图仍不变（渲染数据被清空）
 
 - 根因：`EntityRenderer#createRenderState` 在 `extractRenderState` 之后立即调用 `RenderStateExtensions#onUpdateEntityRenderState`，而后者开头就执行 `resetRenderData()`；在 `extractRenderState` 里写入的 `isWell` 渲染数据每帧都被清空，`getTextureLocation` 读到 null 并回退到健康贴图，因此指令成功但贴图不变。
