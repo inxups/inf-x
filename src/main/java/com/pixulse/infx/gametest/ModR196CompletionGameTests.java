@@ -66,11 +66,13 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.EnchantmentTags;
@@ -1870,6 +1872,8 @@ public final class ModR196CompletionGameTests {
         R196BucketItem waterBucket =
                 ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER).value();
         player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
+        EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
+        while (playerChannel.readOutbound() != null) {}
         waterBucket.useWithCtrl(player, InteractionHand.MAIN_HAND);
         helper.assertTrue(player.getMainHandItem().is(emptyIron), "Ctrl source placement returns the empty bucket");
         helper.assertTrue(
@@ -1878,6 +1882,15 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 player.totalExperience == experienceBefore - R196BucketItem.SOURCE_EXPERIENCE_COST,
                 "Ctrl source placement spends 100 XP");
+        boolean receivedBucketSound = false;
+        Object outbound;
+        while ((outbound = playerChannel.readOutbound()) != null) {
+            if (outbound instanceof ClientboundSoundPacket soundPacket
+                    && soundPacket.getSound().value() == SoundEvents.BUCKET_EMPTY) {
+                receivedBucketSound = true;
+            }
+        }
+        helper.assertTrue(receivedBucketSound, "the Ctrl source placer receives the bucket-empty sound");
         helper.setBlock(paidSource, Blocks.AIR);
         bucketFluidInteractions(helper, player, level);
     }
