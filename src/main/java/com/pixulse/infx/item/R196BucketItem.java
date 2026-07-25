@@ -5,12 +5,14 @@ import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.network.R196Network;
+import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.world.R196FluidDecayData;
 import java.util.function.Supplier;
 import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +22,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.attribute.EnvironmentAttributes;
@@ -27,6 +30,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
@@ -41,6 +45,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -54,6 +59,10 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jspecify.annotations.Nullable;
 
 /** A material-preserving R196 bucket for empty, water, lava, milk and stone contents. */
@@ -110,6 +119,118 @@ public final class R196BucketItem extends BucketItem {
         this.emptyBucket = emptyBucket;
         this.waterBucket = waterBucket;
         this.lavaBucket = lavaBucket;
+    }
+
+    public static void register(IEventBus modBus, IEventBus gameBus) {
+        modBus.addListener(R196BucketItem::commonSetup);
+        gameBus.addListener(R196BucketItem::tickFluidDecay);
+        gameBus.addListener(R196BucketItem::suppressMeltPickup);
+    }
+
+    /** Runs the MITE scheduleBlockChange queue that degrades unpaid source cells to flowing. */
+    private static void tickFluidDecay(LevelTickEvent.Post event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            R196FluidDecayData.get(level).tick(level);
+        }
+    }
+
+    /**
+     * MITE prevent_item_pickup_due_to_held_item_breaking_until: after a bucket melts, the now-empty
+     * hand must not immediately scoop up a nearby drop.
+     */
+    private static void suppressMeltPickup(ItemEntityPickupEvent.Pre event) {
+        Player player = event.getPlayer();
+        long until = player.getPersistentData().getLong(MELT_PICKUP_BLOCK).orElse(0L);
+        if (until <= 0L) {
+            return;
+        }
+        if (player.level().getGameTime() < until) {
+            event.setCanPickup(TriState.FALSE);
+        } else {
+            player.getPersistentData().remove(MELT_PICKUP_BLOCK);
+        }
+    }
+
+    private static void commonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            for (R196Material material : ModItems.BUCKET_MATERIALS) {
+                registerEmpty(material);
+                registerFilled(material, Contents.WATER);
+                registerFilled(material, Contents.LAVA);
+                registerPowderSnow(material);
+                for (R196MobBucketKind kind : R196MobBucketKind.values()) {
+                    registerMob(material, kind);
+                }
+            }
+        });
+    }
+
+    private static void registerFilled(R196Material material, Contents contents) {
+        Item filled = ModItems.bucket(material, contents).value();
+        Item empty = ModItems.bucket(material, Contents.EMPTY).value();
+        DispenserBlock.registerBehavior(filled, filledBehavior(empty));
+    }
+
+    private static void registerPowderSnow(R196Material material) {
+        R196SolidBucketItem filled = ModItems.powderSnowBucket(material).value();
+        DispenserBlock.registerBehavior(filled, filledBehavior(filled.emptyBucket()));
+    }
+
+    private static void registerMob(R196Material material, R196MobBucketKind kind) {
+        R196MobBucketItem filled = ModItems.mobBucket(material, kind).value();
+        DispenserBlock.registerBehavior(filled, filledBehavior(filled.emptyBucket()));
+    }
+
+    private static DefaultDispenseItemBehavior filledBehavior(Item empty) {
+        return new DefaultDispenseItemBehavior() {
+            private final DefaultDispenseItemBehavior fallback = new DefaultDispenseItemBehavior();
+
+            @Override
+            public ItemStack execute(net.minecraft.core.dispenser.BlockSource source, ItemStack dispensed) {
+                DispensibleContainerItem container = (DispensibleContainerItem) dispensed.getItem();
+                BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+                Level level = source.level();
+                if (!container.emptyContents(null, level, target, null, dispensed)) {
+                    return fallback.dispense(source, dispensed);
+                }
+                container.checkExtraContent(null, level, dispensed, target);
+                return consumeWithRemainder(source, dispensed, new ItemStack(empty));
+            }
+        };
+    }
+
+    private static void registerEmpty(R196Material material) {
+        Item empty = ModItems.bucket(material, Contents.EMPTY).value();
+        DispenserBlock.registerBehavior(empty, new DefaultDispenseItemBehavior() {
+            @Override
+            public ItemStack execute(net.minecraft.core.dispenser.BlockSource source, ItemStack dispensed) {
+                LevelAccessor level = source.level();
+                BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+                BlockState state = level.getBlockState(target);
+                if (!(state.getBlock() instanceof BucketPickup pickup)) return super.execute(source, dispensed);
+                ItemStack filledStack;
+                if (state.getFluidState().is(Fluids.WATER)) {
+                    filledStack = ModItems.bucket(material, Contents.WATER).toStack();
+                } else if (state.getFluidState().is(Fluids.LAVA)) {
+                    filledStack = ModItems.bucket(material, Contents.LAVA).toStack();
+                } else if (state.is(Blocks.POWDER_SNOW)) {
+                    filledStack = ModItems.powderSnowBucket(material).toStack();
+                } else {
+                    return super.execute(source, dispensed);
+                }
+                ItemStack vanilla = pickup.pickupBlock(null, level, target, state);
+                if (vanilla.isEmpty()) return super.execute(source, dispensed);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, target);
+                if (state.getFluidState().is(Fluids.LAVA)
+                        && source.level().getRandom().nextFloat() < lavaMeltChance(material)) {
+                    dispensed.shrink(1);
+                    source.level().playSound(
+                            null, target, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 0.7F);
+                    return dispensed;
+                }
+                return consumeWithRemainder(source, dispensed, filledStack);
+            }
+        });
     }
 
     private static Fluid fluid(Contents contents) {
