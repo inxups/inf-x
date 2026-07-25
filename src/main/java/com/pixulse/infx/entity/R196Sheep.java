@@ -96,12 +96,14 @@ public final class R196Sheep extends Sheep {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        R196Livestock.markFedIfFood(this, stack);
-        if (stack.is(Items.SHEARS) && !R196Livestock.isProductive(this)) {
-            return InteractionResult.CONSUME;
-        }
+        R196Livestock.markFedIfFood(this, player.getItemInHand(hand));
         return super.mobInteract(player, hand);
+    }
+
+    /** Neo shears call IShearable → readyForShearing; gate wool on productive health (MITE). */
+    @Override
+    public boolean readyForShearing() {
+        return super.readyForShearing() && R196Livestock.isProductive(this);
     }
 
     @Override
