@@ -6,6 +6,10 @@
 
 - 根因：牛/鸡/羊/猪的 `isWell` 同步数据访问器在 `SynchedEntityData.Builder` 创建后才惰性注册；26.2 的 Builder 已按旧 ID 数量分配固定数组，写入新 ID 时触发数组越界，导致自然生成失败。
 - 四种 R196 家畜现在在类初始化时为各自的具体类注册访问器，既让 Builder 获得完整容量，也避免复用 `Animal` 的原版变体数据 ID。
+### 修复陈旧 datagen 花世界生成导致进世界崩溃
+
+- 根因：移除六种 R196 花后，`src/generated` / `build/resources/main` 仍残留 `r196_flowers`、`r196_allium` 等 configured feature，运行时解析 `infx:allium` 等已不存在的方块并抛出 `Unbound values in registry ... configured_feature`。
+- `prepareRuntimeGeneratedResources` 对 worldgen / neoforge biome modifier / dimension / tags 等 datagen 独占目录使用 `Sync`（先 `runData` 由 HashCache 剔除 `src/generated` 陈旧文件），避免过期 JSON 继续打进运行时资源包。
 
 ### 生病家畜规则
 - 生病（diseased）的 R196 牛无法被挤奶（接奶）；所有生病 R196 家畜（牛/鸡/羊/猪）被击杀时不掉落任何物品。
