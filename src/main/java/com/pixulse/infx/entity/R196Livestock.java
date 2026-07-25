@@ -217,6 +217,28 @@ public final class R196Livestock {
                 && !animal.getPersistentData().getBooleanOr(DISEASED, false);
     }
 
+    public static boolean isDiseased(Animal animal) {
+        return animal.getPersistentData().getBooleanOr(DISEASED, false);
+    }
+
+    /**
+     * Force or clear disease on livestock (cow/chicken/sheep/pig). No-op for non-livestock.
+     * Sets well/healthy flags immediately so production and sick skins update without waiting for tick.
+     */
+    public static boolean setDiseased(Animal animal, boolean diseased) {
+        if (!isLivestock(animal) || animal instanceof AbstractHorse) {
+            return false;
+        }
+        animal.getPersistentData().putBoolean(DISEASED, diseased);
+        if (diseased) {
+            animal.getPersistentData().putBoolean(HEALTHY, false);
+            setWell(animal, false);
+        } else if (animal.level() instanceof ServerLevel level) {
+            update(level, animal);
+        }
+        return true;
+    }
+
     public static boolean canBreed(ServerLevel level, Animal animal) {
         R196MoonPhase moon = R196MoonPhase.at(level);
         return isProductive(animal) && moon != R196MoonPhase.BLOOD && moon != R196MoonPhase.NEW;

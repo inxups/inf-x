@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-25
 
+### 强制家畜生病指令
+
+- 新增管理员指令 `/infxlivestock sick|cure <targets>`（需 gamemaster 权限），对牛/鸡/羊/猪强制设置或清除 `infx_livestock_diseased`。
+- `R196Livestock.setDiseased` / `isDiseased` 公开 API：立即同步 `HEALTHY`/`isWell`，生病贴图与产奶/剪毛/产蛋门控即时生效。
+
 ### 修复 R196 羊死亡不掉羊毛
 
 - `infx:entities/r196_sheep` 原先只有羊肉；补上按颜色 alternatives 羊毛池（未剪毛时掉对应色羊毛方块）。
