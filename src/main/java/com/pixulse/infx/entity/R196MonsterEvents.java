@@ -20,6 +20,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.feline.Ocelot;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.cubemob.MagmaCube;
@@ -225,6 +227,29 @@ public final class R196MonsterEvents {
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 R196MonsterEvents::checkR196MonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        registerAnimalSpawnPlacement(event, ModEntityTypes.R196_COW.get());
+        registerAnimalSpawnPlacement(event, ModEntityTypes.R196_CHICKEN.get());
+        registerAnimalSpawnPlacement(event, ModEntityTypes.R196_SHEEP.get());
+        registerAnimalSpawnPlacement(event, ModEntityTypes.R196_PIG.get());
+        registerAnimalSpawnPlacement(event, ModEntityTypes.R196_HORSE.get());
+        event.register(ModEntityTypes.R196_OCELOT.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                (type, level, reason, pos, random) -> Ocelot.checkOcelotSpawnRules(
+                        asEntityType(type), level, reason, pos, random),
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.R196_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                (type, level, reason, pos, random) -> Wolf.checkWolfSpawnRules(
+                        asEntityType(type), level, reason, pos, random),
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
+    }
+
+    /** Match vanilla passive-animal ground and light spawn restrictions. */
+    private static void registerAnimalSpawnPlacement(
+            RegisterSpawnPlacementsEvent event, EntityType<? extends Animal> type) {
+        event.register(type, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                Animal::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
     static boolean checkR196MonsterSpawnRules(
