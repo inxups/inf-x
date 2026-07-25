@@ -131,15 +131,29 @@ public final class R196Commands {
             throws CommandSyntaxException {
         Collection<? extends Entity> targets = EntityArgument.getEntities(context, "targets");
         int count = 0;
+        int skippedVanilla = 0;
         for (Entity entity : targets) {
-            if (entity instanceof Animal animal && R196Livestock.setDiseased(animal, diseased)) {
+            if (!(entity instanceof Animal animal)) {
+                continue;
+            }
+            if (R196Livestock.setDiseased(animal, diseased)) {
                 count++;
+            } else if (R196Livestock.isLivestock(animal) && !R196Livestock.hasSickSkin(animal)) {
+                skippedVanilla++;
             }
         }
         String action = diseased ? "diseased" : "cured";
         int finalCount = count;
+        int finalSkipped = skippedVanilla;
+        if (finalCount == 0 && finalSkipped > 0) {
+            context.getSource().sendFailure(Component.literal(
+                    "No R196 livestock matched; skipped " + finalSkipped
+                            + " vanilla animals (use type=infx:r196_cow|chicken|sheep|pig)"));
+            return 0;
+        }
         context.getSource().sendSuccess(
-                () -> Component.literal("Forced " + action + " on " + finalCount + " livestock"),
+                () -> Component.literal("Forced " + action + " on " + finalCount + " livestock"
+                        + (finalSkipped > 0 ? " (skipped " + finalSkipped + " vanilla)" : "")),
                 true);
         return count;
     }

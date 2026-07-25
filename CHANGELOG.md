@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-25
 
+### 修复强制生病不换贴图
+
+- `/infxlivestock sick|cure` 仅对 R196 牛/鸡/羊/猪生效（原版实体无 `isWell` 同步与 sick 渲染器，此前会假成功）。
+- `setWell` 强制标记 dirty，确保客户端立即收到生病贴图状态；选中原版家畜时提示改用 `infx:r196_*`。
+
 ### 强制家畜生病指令
 
 - 新增管理员指令 `/infxlivestock sick|cure <targets>`（需 gamemaster 权限），对牛/鸡/羊/猪强制设置或清除 `infx_livestock_diseased`。
