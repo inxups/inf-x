@@ -1506,8 +1506,10 @@ public final class ModR196CompletionGameTests {
                 ModCreativeTabs.INGREDIENTS.get(),
                 ModCreativeTabs.FOOD_AND_CONSUMABLES.get(),
                 ModCreativeTabs.TOOLS_AND_UTILITIES.get(),
-                ModCreativeTabs.COMBAT_AND_EQUIPMENT.get());
-        List<Integer> expectedSizes = List.of(80, 31, 24, 135, 108);
+                ModCreativeTabs.COMBAT_AND_EQUIPMENT.get(),
+                ModCreativeTabs.SPAWN_EGGS.get());
+        // Blocks expand two rune stones (16 each): 45 - 2 + 32 = 75.
+        List<Integer> expectedSizes = List.of(75, 31, 24, 135, 113, 47);
         CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(
                 helper.getLevel().enabledFeatures(), true, helper.getLevel().registryAccess());
         List<ItemStack> displayed = new ArrayList<>();

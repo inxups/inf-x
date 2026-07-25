@@ -45,6 +45,17 @@ class ModCreativeTabsTest {
     }
 
     @Test
+    void animalReplacementSpawnEggsAreInTheSpawnEggsCategory() {
+        Set<String> eggPaths = ModCreativeTabs.items(ModCreativeTabs.Category.SPAWN_EGGS).stream()
+                .map(item -> item.getId().getPath())
+                .collect(Collectors.toSet());
+        for (String animal : List.of(
+                "r196_cow", "r196_chicken", "r196_sheep", "r196_pig", "r196_horse", "r196_ocelot", "r196_wolf")) {
+            assertTrue(eggPaths.contains(animal + "_spawn_egg"), animal);
+        }
+    }
+
+    @Test
     void everyPlayerObtainableBlockHasOneCreativeBlockItem() {
         Identifier underworldPortal = ModBlocks.UNDERWORLD_PORTAL.getId();
         Identifier netherPortal = ModBlocks.NETHER_PORTAL.getId();
