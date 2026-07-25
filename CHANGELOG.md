@@ -2,6 +2,12 @@
 
 ## [0v] - 2026-07-24
 
+### 家畜规则迁入 R196 替换实体
+
+- 牛/鸡/羊/猪/马的需求、恐慌、繁殖门控、产奶/羽毛/剪毛/驯服冷却等从 `R196AnimalEvents` 迁入对应 `R196*` 实体覆写（`registerGoals`/`aiStep`/`mobInteract`/`hurtServer`/`canMate`/`die`）。
+- `R196Livestock` 提供共用 `ensureGoals`/`serverTick`/`onHurt`/`canMateWith`/马匹冷却辅助。
+- `R196AnimalEvents` 仅保留铁傀儡掉落改写；生成仍走 `r196_*` 替换体。
+
 ### 牛可用碗接奶
 
 - 空碗对健康成牛右键得到 `milk_bowl`，每次消耗 1 单位日配额（最多 4 碗/天）。

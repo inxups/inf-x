@@ -34,16 +34,16 @@ class R196LivestockRulesTest {
 
     @Test
     void horseFailureCooldownIsExactlyTwoHundredSeconds() {
-        assertEquals(4_000L, R196AnimalEvents.horseRetryTicks());
+        assertEquals(4_000L, R196Livestock.horseRetryTicks());
     }
 
     @Test
     void unhealthyAdultChickenCannotLayAnEggOnTheNextTick() {
-        assertTrue(R196AnimalEvents.shouldDelayEgg(true, false, false, 1));
-        assertFalse(R196AnimalEvents.shouldDelayEgg(true, false, true, 1));
-        assertFalse(R196AnimalEvents.shouldDelayEgg(false, false, false, 1));
-        assertFalse(R196AnimalEvents.shouldDelayEgg(true, true, false, 1));
-        assertFalse(R196AnimalEvents.shouldDelayEgg(true, false, false, 2));
+        assertTrue(R196Chicken.shouldDelayEgg(true, false, false, 1));
+        assertFalse(R196Chicken.shouldDelayEgg(true, false, true, 1));
+        assertFalse(R196Chicken.shouldDelayEgg(false, false, false, 1));
+        assertFalse(R196Chicken.shouldDelayEgg(true, true, false, 1));
+        assertFalse(R196Chicken.shouldDelayEgg(true, false, false, 2));
     }
 
     @Test

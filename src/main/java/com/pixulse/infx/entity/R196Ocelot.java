@@ -10,7 +10,7 @@ import net.minecraft.world.entity.animal.feline.Ocelot;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
-/** R196 ocelot replacement; reuses 26.2 ocelot model/textures. */
+/** R196 ocelot replacement; reuses 26.2 ocelot model/textures (no livestock needs). */
 public final class R196Ocelot extends Ocelot {
     public R196Ocelot(EntityType<? extends Ocelot> type, Level level) {
         super(type, level);

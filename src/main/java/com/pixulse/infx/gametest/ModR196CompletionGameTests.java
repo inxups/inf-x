@@ -31,6 +31,7 @@ import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModMenus;
 import com.pixulse.infx.progression.R196Experience;
 import com.pixulse.infx.survival.R196FoodProfile;
@@ -610,7 +611,7 @@ public final class ModR196CompletionGameTests {
     private static void livestock(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
-        Cow cow = helper.spawn(EntityTypes.COW, new BlockPos(2, 2, 8));
+        Cow cow = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(2, 2, 8));
         helper.assertTrue(cow.getMaxHealth() == 20.0F, "R196 cows must have twenty health");
         helper.setBlock(new BlockPos(3, 1, 8), Blocks.WATER);
         ItemEntity wheat = new ItemEntity(
@@ -626,7 +627,7 @@ public final class ModR196CompletionGameTests {
         interactAt(player, cow);
         helper.assertTrue(player.getMainHandItem().is(Items.BUCKET), "a second same-day milk bucket must be denied");
 
-        Cow bowlCow = helper.spawn(EntityTypes.COW, new BlockPos(1, 2, 8));
+        Cow bowlCow = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(1, 2, 8));
         bowlCow.getPersistentData().putBoolean("infx_livestock_healthy", true);
         bowlCow.getPersistentData().putBoolean("infx_livestock_diseased", false);
         for (int bowl = 0; bowl < 4; bowl++) {
@@ -646,7 +647,7 @@ public final class ModR196CompletionGameTests {
                 player.getMainHandItem().is(Items.BUCKET),
                 "after four bowls the daily quota is spent and buckets must be denied");
 
-        Sheep sheep = helper.spawn(EntityTypes.SHEEP, new BlockPos(4, 2, 8));
+        Sheep sheep = helper.spawn(ModEntityTypes.R196_SHEEP.get(), new BlockPos(4, 2, 8));
         sheep.getPersistentData().putBoolean("infx_livestock_healthy", true);
         sheep.getPersistentData().putBoolean("infx_livestock_diseased", true);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
@@ -656,12 +657,12 @@ public final class ModR196CompletionGameTests {
         sheep.hurtServer(level, level.damageSources().inFire(), 1.0F);
         helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
 
-        Chicken chicken = helper.spawn(EntityTypes.CHICKEN, new BlockPos(6, 2, 8));
+        Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(6, 2, 8));
         chicken.setAge(0);
         chicken.getPersistentData().putBoolean("infx_livestock_healthy", true);
         chicken.getPersistentData().putBoolean("infx_livestock_diseased", false);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", -1L);
-        com.pixulse.infx.entity.R196AnimalEvents.updateChicken(level, chicken);
+        ((com.pixulse.infx.entity.R196Chicken) chicken).updateProduction(level);
 
         // Build the dry approach before spawning the seeker so its first AI
         // tick cannot run while it is falling through uninitialized ground.
@@ -672,7 +673,7 @@ public final class ModR196CompletionGameTests {
         }
         BlockPos water = new BlockPos(11, 1, 4);
         helper.setBlock(water, Blocks.WATER);
-        Cow seeker = helper.spawn(EntityTypes.COW, new BlockPos(8, 2, 4));
+        Cow seeker = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
         // Keep the manually exercised goal in sole control. The production goal
         // is registered on join and can otherwise reach the water before this
         // assertion gets a chance to inspect its selected navigation target.
