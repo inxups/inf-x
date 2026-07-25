@@ -8,8 +8,11 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.TriState;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,13 +25,41 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-/** Registers dispenser behavior for every material-preserving R196 bucket. */
+/** Dispenser behavior, MITE source decay and melt pickup suppression for R196 buckets. */
 public final class R196BucketEvents {
     private R196BucketEvents() {}
 
-    public static void register(IEventBus modBus) {
+    public static void register(IEventBus modBus, IEventBus gameBus) {
         modBus.addListener(R196BucketEvents::commonSetup);
+        gameBus.addListener(R196BucketEvents::tickFluidDecay);
+        gameBus.addListener(R196BucketEvents::suppressMeltPickup);
+    }
+
+    /** Runs the MITE scheduleBlockChange queue that degrades unpaid source cells to flowing. */
+    private static void tickFluidDecay(LevelTickEvent.Post event) {
+        if (event.getLevel() instanceof ServerLevel level) {
+            R196FluidDecayData.get(level).tick(level);
+        }
+    }
+
+    /**
+     * MITE prevent_item_pickup_due_to_held_item_breaking_until: after a bucket melts, the now-empty
+     * hand must not immediately scoop up a nearby drop.
+     */
+    private static void suppressMeltPickup(ItemEntityPickupEvent.Pre event) {
+        Player player = event.getPlayer();
+        long until = player.getPersistentData().getLong(R196BucketItem.MELT_PICKUP_BLOCK).orElse(0L);
+        if (until <= 0L) {
+            return;
+        }
+        if (player.level().getGameTime() < until) {
+            event.setCanPickup(TriState.FALSE);
+        } else {
+            player.getPersistentData().remove(R196BucketItem.MELT_PICKUP_BLOCK);
+        }
     }
 
     private static void commonSetup(FMLCommonSetupEvent event) {

@@ -38,7 +38,9 @@ import com.pixulse.infx.survival.R196FoodProfile;
 import com.pixulse.infx.survival.R196SurvivalData;
 import com.pixulse.infx.survival.R196SurvivalEvents;
 import com.pixulse.infx.survival.R196SurvivalRules;
+import com.pixulse.infx.network.R196Network;
 import com.pixulse.infx.world.R196EndEvents;
+import com.pixulse.infx.world.R196FluidDecayData;
 import com.pixulse.infx.world.R196SafeEvents;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
@@ -65,6 +67,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.stats.Stats;
@@ -90,6 +93,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
@@ -149,6 +153,7 @@ public final class ModR196CompletionGameTests {
             "r196_enchantment_drops",
             "r196_creative_tabs",
             "r196_block_stack_limits",
+            "r196_bucket_mechanics",
             "r196_fulltext_systems");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -168,6 +173,7 @@ public final class ModR196CompletionGameTests {
         FUNCTIONS.register("r196_enchantment_drops", () -> ModR196CompletionGameTests::enchantmentDrops);
         FUNCTIONS.register("r196_creative_tabs", () -> ModR196CompletionGameTests::creativeTabs);
         FUNCTIONS.register("r196_block_stack_limits", () -> ModR196CompletionGameTests::blockStackLimits);
+        FUNCTIONS.register("r196_bucket_mechanics", () -> ModR196CompletionGameTests::bucketMechanics);
         FUNCTIONS.register("r196_fulltext_systems", () -> ModR196CompletionGameTests::fulltextSystems);
     }
 
@@ -1786,6 +1792,141 @@ public final class ModR196CompletionGameTests {
                         "an immersed milk bucket leaks into its matching empty bucket"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
+    }
+
+    private static void bucketMechanics(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        ServerLevel level = helper.getLevel();
+        Item emptyIron = ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.EMPTY).value();
+
+        // MITE ItemBucket: scooping leaves the liquid cell in place unless Ctrl is held.
+        BlockPos water = new BlockPos(2, 2, 2);
+        helper.setBlock(water.below(), Blocks.STONE);
+        helper.setBlock(water, Blocks.WATER);
+        player.setNoGravity(true);
+        aimDownAt(helper, player, water.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
+        player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                player.getMainHandItem().is(ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER)),
+                "scooping water yields the same-material water bucket");
+        helper.assertBlockPresent(Blocks.WATER, water);
+
+        // MITE: pouring a liquid back into itself spends the vessel and changes nothing.
+        player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                player.getMainHandItem().is(emptyIron),
+                "pouring water back into water empties the bucket");
+        helper.assertBlockPresent(Blocks.WATER, water);
+
+        // MITE ctrl_is_down while filling: the source cell is consumed.
+        player.getPersistentData().putBoolean(R196Network.CTRL_USE, true);
+        player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
+        player.getPersistentData().remove(R196Network.CTRL_USE);
+        helper.assertTrue(
+                player.getMainHandItem().is(ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER)),
+                "a Ctrl scoop still fills the bucket");
+        helper.assertBlockPresent(Blocks.AIR, water);
+        bucketFluidInteractions(helper, player, level);
+    }
+
+    private static void bucketFluidInteractions(GameTestHelper helper, ServerPlayer player, ServerLevel level) {
+        BucketItem waterBucket =
+                (BucketItem) ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.WATER).value();
+        BucketItem lavaBucket =
+                (BucketItem) ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.LAVA).value();
+
+        // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
+        BlockPos fire = helper.absolutePos(new BlockPos(4, 2, 2));
+        level.setBlock(fire.below(), Blocks.NETHERRACK.defaultBlockState(), 3);
+        level.setBlock(fire, Blocks.FIRE.defaultBlockState(), 3);
+        helper.assertTrue(
+                waterBucket.emptyContents(player, level, fire, null, null),
+                "water aimed at fire reports a successful pour");
+        helper.assertTrue(level.getBlockState(fire).isAir(), "the fire cell is cleared, not flooded");
+
+        // MITE tryConvertLavaToCobblestoneOrObsidian: a full lava source becomes obsidian.
+        BlockPos lava = helper.absolutePos(new BlockPos(6, 2, 2));
+        level.setBlock(lava.below(), Blocks.STONE.defaultBlockState(), 3);
+        level.setBlock(lava, Blocks.LAVA.defaultBlockState(), 3);
+        helper.assertTrue(
+                waterBucket.emptyContents(player, level, lava, null, null),
+                "water poured onto lava reports success");
+        helper.assertTrue(
+                level.getBlockState(lava).is(Blocks.OBSIDIAN),
+                "water on a full lava source sets obsidian");
+
+        // MITE tryConvertWaterToCobblestone: lava poured onto water always sets cobblestone.
+        BlockPos pool = helper.absolutePos(new BlockPos(8, 2, 2));
+        level.setBlock(pool.below(), Blocks.STONE.defaultBlockState(), 3);
+        level.setBlock(pool, Blocks.WATER.defaultBlockState(), 3);
+        helper.assertTrue(
+                lavaBucket.emptyContents(player, level, pool, null, null),
+                "lava poured onto water reports success");
+        helper.assertTrue(
+                level.getBlockState(pool).is(Blocks.COBBLESTONE), "lava on water sets cobblestone");
+        bucketSourceDecay(helper, player, level, waterBucket);
+    }
+
+    private static void bucketSourceDecay(
+            GameTestHelper helper, ServerPlayer player, ServerLevel level, BucketItem waterBucket) {
+        // MITE scheduleBlockChange: an unpaid pour lands as a source, then degrades to flowing.
+        BlockPos poured = helper.absolutePos(new BlockPos(2, 2, 6));
+        level.setBlock(poured.below(), Blocks.STONE.defaultBlockState(), 3);
+        level.setBlock(poured, Blocks.AIR.defaultBlockState(), 3);
+        int pendingBefore = R196FluidDecayData.get(level).pending();
+        helper.assertTrue(
+                waterBucket.emptyContents(player, level, poured, null, null),
+                "an unpaid pour still reports success");
+        helper.assertTrue(
+                level.getFluidState(poured).isSource(), "the pour lands as a source so it spreads once");
+        helper.assertTrue(
+                R196FluidDecayData.get(level).pending() > pendingBefore,
+                "an unpaid pour queues the MITE degrade");
+
+        helper.startSequence()
+                .thenExecuteAfter(R196BucketItem.WATER_DECAY_DELAY + 1, () -> helper.assertFalse(
+                        level.getFluidState(poured).isSource(),
+                        "the queued degrade turns the unpaid source into flowing water"))
+                .thenExecute(() -> bucketEntityInteractions(helper, player, level, waterBucket))
+                .thenExecute(() -> removePlayer(player))
+                .thenSucceed();
+    }
+
+    private static void bucketEntityInteractions(
+            GameTestHelper helper, ServerPlayer player, ServerLevel level, BucketItem waterBucket) {
+        Item emptyIron = ModItems.bucket(R196Material.IRON, R196BucketItem.Contents.EMPTY).value();
+
+        // MITE ItemVessel#tryEntityInteraction: water satisfies a thirsty animal and spends the vessel.
+        var cow = helper.spawnWithNoFreeWill(ModEntityTypes.R196_COW.get(), new BlockPos(4, 2, 6));
+        cow.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
+        helper.assertTrue(
+                R196Livestock.isThirsty(cow, level.getGameTime()), "the cow must start out thirsty");
+        player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
+        waterBucket.interactLivingEntity(
+                player.getMainHandItem(), player, cow, InteractionHand.MAIN_HAND);
+        helper.assertFalse(
+                R196Livestock.isThirsty(cow, level.getGameTime()), "watering the cow clears its thirst");
+        helper.assertTrue(
+                player.getMainHandItem().is(emptyIron), "watering an animal spends the water bucket");
+
+        // MITE ItemVessel: water quenches a fire elemental for 20 damage.
+        var elemental = helper.spawnWithNoFreeWill(ModEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 6));
+        float before = elemental.getHealth();
+        player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
+        waterBucket.interactLivingEntity(
+                player.getMainHandItem(), player, elemental, InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                !elemental.isAlive() || elemental.getHealth() < before,
+                "water quenches a fire elemental");
+        helper.assertTrue(
+                player.getMainHandItem().is(emptyIron), "quenching spends the water bucket");
+    }
+
+    /** Places the player one cell above a target and points straight down at it. */
+    private static void aimDownAt(GameTestHelper helper, ServerPlayer player, BlockPos relativeStand) {
+        Vec3 stand = helper.absoluteVec(Vec3.atBottomCenterOf(relativeStand));
+        player.snapTo(stand.x, stand.y, stand.z, 0.0F, 90.0F);
     }
 
     private static BlockPos buildObsidianFrame(GameTestHelper helper, BlockPos base, boolean addBedrock) {

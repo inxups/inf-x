@@ -57,9 +57,41 @@ class R196BucketRulesTest {
         expected.forEach((material, chance) -> assertEquals(chance, R196BucketItem.lavaMeltChance(material)));
     }
 
+    /**
+     * MITE derives the chance from material durability rather than a table, so a metal twice as
+     * durable must melt half as often. Gold is exempt: MITE hardcodes it at 20%.
+     */
+    @Test
+    void lavaMeltingScalesInverselyWithDurability() {
+        assertEquals(
+                R196BucketItem.lavaMeltChance(R196Material.COPPER) / 2.0F,
+                R196BucketItem.lavaMeltChance(R196Material.IRON));
+        assertEquals(
+                R196BucketItem.lavaMeltChance(R196Material.IRON) / 2.0F,
+                R196BucketItem.lavaMeltChance(R196Material.ANCIENT_METAL));
+        assertEquals(
+                R196BucketItem.lavaMeltChance(R196Material.ANCIENT_METAL) / 4.0F,
+                R196BucketItem.lavaMeltChance(R196Material.MITHRIL));
+    }
+
     @Test
     void sourcePlacementRequiresOneHundredTotalExperience() {
         assertEquals(100, R196BucketItem.SOURCE_EXPERIENCE_COST);
         assertEquals(3200, R196BucketItem.LAVA_BURN_TIME);
+    }
+
+    /** MITE scheduleBlockChange delays and the melt pickup grace, all in ticks. */
+    @Test
+    void pourDecayAndMeltDelaysMatchMite() {
+        assertEquals(16, R196BucketItem.WATER_DECAY_DELAY);
+        assertEquals(48, R196BucketItem.LAVA_DECAY_DELAY);
+        assertEquals(30, R196BucketItem.MELT_PICKUP_DELAY);
+    }
+
+    /** MITE ItemVessel water damage tiers for a bucket-sized vessel. */
+    @Test
+    void quenchDamageMatchesMiteVesselTiers() {
+        assertEquals(20.0F, R196BucketItem.FIRE_ELEMENTAL_QUENCH_DAMAGE);
+        assertEquals(8.0F, R196BucketItem.NETHERSPAWN_QUENCH_DAMAGE);
     }
 }
