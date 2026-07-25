@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-25
 
+### 修复牛刷怪蛋 Duplicate id value for 18
+
+- 根因：`R196Livestock` 对 `Animal.class` 做 `SynchedEntityData.defineId`，与 26.2 `Cow` 变体/音效 synched 槽位冲突，刷怪蛋放置时构造 `R196Cow` 崩溃。
+- `isWell` 改为在 `R196Cow`/`R196Chicken`/`R196Pig`/`R196Sheep` 各自 `defineId`（懒加载，便于纯单测加载实体类）；原版家畜 `setWell`/`isWell` 安全 no-op。
+
 ### 生病家畜贴图适配 26.2 UV/变体
 
 - 移除旧版 64×32 单张 `sick.png`（与 26.2 牛/猪 64×64 模型 UV 不兼容）。

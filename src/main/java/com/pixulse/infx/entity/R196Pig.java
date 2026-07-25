@@ -1,6 +1,8 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -19,8 +21,28 @@ import org.jspecify.annotations.Nullable;
 
 /** R196 pig: livestock needs and breeding gates. */
 public final class R196Pig extends Pig {
+    /**
+     * Per-class isWell id (lazy for pure unit tests). Must not use {@code Animal.class} — that
+     * collides with Pig variant data and crashes spawn eggs.
+     */
+    private static @Nullable EntityDataAccessor<Boolean> dataWell;
+
     public R196Pig(EntityType<? extends Pig> type, Level level) {
         super(type, level);
+    }
+
+    static EntityDataAccessor<Boolean> dataWell() {
+        EntityDataAccessor<Boolean> local = dataWell;
+        if (local == null) {
+            synchronized (R196Pig.class) {
+                local = dataWell;
+                if (local == null) {
+                    dataWell = local =
+                            SynchedEntityData.defineId(R196Pig.class, EntityDataSerializers.BOOLEAN);
+                }
+            }
+        }
+        return local;
     }
 
     public static AttributeSupplier.Builder attributes() {
@@ -30,7 +52,7 @@ public final class R196Pig extends Pig {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder entityData) {
         super.defineSynchedData(entityData);
-        R196Livestock.defineWellData(entityData);
+        R196Livestock.defineWellData(entityData, dataWell());
     }
 
     @Override
