@@ -364,6 +364,18 @@ final class ModLanguageProvider extends LanguageProvider {
                                 ? material.englishNoun() + englishContents + " Bucket"
                                 : material.chinesePrefix() + chineseContents + "桶");
             }
+            for (var kind : com.pixulse.infx.item.R196MobBucketKind.values()) {
+                add(
+                        "item.infx." + kind.path(material),
+                        locale == Locale.EN_US
+                                ? material.englishNoun() + " " + kind.englishName() + " Bucket"
+                                : material.chinesePrefix() + kind.chineseName() + "桶");
+            }
+            add(
+                    "item.infx.powder_snow_" + material.path() + "_bucket",
+                    locale == Locale.EN_US
+                            ? material.englishNoun() + " Powder Snow Bucket"
+                            : material.chinesePrefix() + "细雪桶");
         }
         add("item.infx.bottle_of_disenchanting", locale == Locale.EN_US ? "Bottle of Disenchanting" : "祛魔之瓶");
         addRecord("underworld", "Underworld");

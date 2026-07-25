@@ -150,7 +150,11 @@ public final class R196BucketItem extends BucketItem {
         if (!(state.getBlock() instanceof BucketPickup pickup)) return InteractionResult.FAIL;
         Supplier<? extends Item> filled = state.getFluidState().is(Fluids.WATER)
                 ? waterBucket
-                : state.getFluidState().is(Fluids.LAVA) ? lavaBucket : null;
+                : state.getFluidState().is(Fluids.LAVA)
+                        ? lavaBucket
+                        : state.is(net.minecraft.world.level.block.Blocks.POWDER_SNOW)
+                                ? () -> com.pixulse.infx.registry.ModItems.powderSnowBucket(material).value()
+                                : null;
         if (filled == null) return InteractionResult.FAIL;
         ItemStack vanillaResult = pickup.pickupBlock(player, level, pos, state);
         if (vanillaResult.isEmpty()) return InteractionResult.FAIL;

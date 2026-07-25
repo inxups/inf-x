@@ -6,6 +6,7 @@
     "AbstractContainerMenuMixin",
     "AbstractFurnaceBlockEntityMixin",
     "BaseFireBlockMixin",
+    "BucketableMixin",
     "CakeBlockMixin",
     "ChunkGeneratorMixin",
     "NoiseBasedChunkGeneratorMixin",

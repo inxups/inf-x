@@ -6,6 +6,9 @@ import com.pixulse.infx.item.R196Catalog;
 import com.pixulse.infx.item.R196BucketItem;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.item.R196GelatinousSphereItem;
+import com.pixulse.infx.item.R196MobBucketItem;
+import com.pixulse.infx.item.R196MobBucketKind;
+import com.pixulse.infx.item.R196SolidBucketItem;
 import com.pixulse.infx.item.R196ToolItem;
 import com.pixulse.infx.item.RuneStoneItem;
 import com.pixulse.infx.block.RuneStoneBlock;
@@ -16,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -23,7 +27,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -202,6 +208,15 @@ public final class ModItems {
             BUCKETS_BY_MATERIAL = new EnumMap<>(R196Material.class);
     public static final List<DeferredItem<R196BucketItem>> R196_BUCKETS = registerBuckets();
 
+    private static final Map<R196Material, EnumMap<R196MobBucketKind, DeferredItem<R196MobBucketItem>>>
+            MOB_BUCKETS_BY_MATERIAL = new EnumMap<>(R196Material.class);
+    public static final List<DeferredItem<R196MobBucketItem>> R196_MOB_BUCKETS = registerMobBuckets();
+
+    private static final Map<R196Material, DeferredItem<R196SolidBucketItem>> POWDER_SNOW_BUCKETS_BY_MATERIAL =
+            new EnumMap<>(R196Material.class);
+    public static final List<DeferredItem<R196SolidBucketItem>> R196_POWDER_SNOW_BUCKETS =
+            registerPowderSnowBuckets();
+
     public static final DeferredItem<Item> BOTTLE_OF_DISENCHANTING = ITEMS.registerItem(
             "bottle_of_disenchanting",
             Item::new,
@@ -344,6 +359,61 @@ public final class ModItems {
         return List.copyOf(registered);
     }
 
+    private static List<DeferredItem<R196MobBucketItem>> registerMobBuckets() {
+        List<DeferredItem<R196MobBucketItem>> registered = new ArrayList<>();
+        for (R196Material material : BUCKET_MATERIALS) {
+            EnumMap<R196MobBucketKind, DeferredItem<R196MobBucketItem>> variants =
+                    new EnumMap<>(R196MobBucketKind.class);
+            MOB_BUCKETS_BY_MATERIAL.put(material, variants);
+            for (R196MobBucketKind kind : R196MobBucketKind.values()) {
+                DeferredItem<R196MobBucketItem> bucket = ITEMS.registerItem(
+                        kind.path(material),
+                        properties -> new R196MobBucketItem(
+                                material,
+                                kind,
+                                () -> bucket(material, R196BucketItem.Contents.EMPTY).value(),
+                                properties),
+                        properties -> {
+                            Item.Properties configured = properties
+                                    .stacksTo(1)
+                                    .component(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
+                            if (kind.food() != null) {
+                                configured.component(DataComponents.FOOD, kind.food());
+                            }
+                            return material == R196Material.ADAMANTIUM
+                                    ? configured.fireResistant()
+                                    : configured;
+                        });
+                variants.put(kind, bucket);
+                registered.add(bucket);
+            }
+        }
+        return List.copyOf(registered);
+    }
+
+    private static List<DeferredItem<R196SolidBucketItem>> registerPowderSnowBuckets() {
+        List<DeferredItem<R196SolidBucketItem>> registered = new ArrayList<>();
+        for (R196Material material : BUCKET_MATERIALS) {
+            DeferredItem<R196SolidBucketItem> bucket = ITEMS.registerItem(
+                    "powder_snow_" + material.path() + "_bucket",
+                    properties -> new R196SolidBucketItem(
+                            material,
+                            Blocks.POWDER_SNOW,
+                            SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
+                            () -> bucket(material, R196BucketItem.Contents.EMPTY).value(),
+                            properties),
+                    properties -> {
+                        Item.Properties configured = properties.stacksTo(1);
+                        return material == R196Material.ADAMANTIUM
+                                ? configured.fireResistant()
+                                : configured;
+                    });
+            POWDER_SNOW_BUCKETS_BY_MATERIAL.put(material, bucket);
+            registered.add(bucket);
+        }
+        return List.copyOf(registered);
+    }
+
     private static DeferredItem<Item> record(
             String path, net.minecraft.resources.ResourceKey<net.minecraft.world.item.JukeboxSong> song) {
         return ITEMS.registerItem(
@@ -375,6 +445,22 @@ public final class ModItems {
             throw new IllegalArgumentException("No bucket registered for " + material + " / " + contents);
         }
         return variants.get(contents);
+    }
+
+    public static DeferredItem<R196MobBucketItem> mobBucket(R196Material material, R196MobBucketKind kind) {
+        EnumMap<R196MobBucketKind, DeferredItem<R196MobBucketItem>> variants = MOB_BUCKETS_BY_MATERIAL.get(material);
+        if (variants == null || !variants.containsKey(kind)) {
+            throw new IllegalArgumentException("No mob bucket registered for " + material + " / " + kind);
+        }
+        return variants.get(kind);
+    }
+
+    public static DeferredItem<R196SolidBucketItem> powderSnowBucket(R196Material material) {
+        DeferredItem<R196SolidBucketItem> bucket = POWDER_SNOW_BUCKETS_BY_MATERIAL.get(material);
+        if (bucket == null) {
+            throw new IllegalArgumentException("No powder snow bucket registered for " + material);
+        }
+        return bucket;
     }
 
     public static R196Catalog catalog() {

@@ -148,6 +148,8 @@ public final class ModCreativeTabs {
                 concatenate(
                         equipmentItems(R196EquipmentCategory.TOOL),
                         ModItems.R196_BUCKETS,
+                        ModItems.R196_MOB_BUCKETS,
+                        ModItems.R196_POWDER_SNOW_BUCKETS,
                         ModItems.R196_RECORDS));
         categories.put(
                 Category.COMBAT_AND_EQUIPMENT,
