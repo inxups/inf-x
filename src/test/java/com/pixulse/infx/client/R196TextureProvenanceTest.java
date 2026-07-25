@@ -40,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(614, lines.size(), "header plus 613 selected destinations");
+        assertEquals(630, lines.size(), "header plus 629 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -143,10 +143,18 @@ class R196TextureProvenanceTest {
                 Map.entry("textures/entity/dire_wolf/neutral.png", "entity/dire_wolf/neutral.png"),
                 Map.entry("textures/entity/dire_wolf/tame.png", "entity/dire_wolf/tame.png"),
                 Map.entry("textures/entity/dire_wolf/angry.png", "entity/dire_wolf/angry.png"),
-                Map.entry("textures/entity/cow/sick.png", "entity/cow/sick.png"),
-                Map.entry("textures/entity/chicken/sick.png", "entity/chicken/sick.png"),
-                Map.entry("textures/entity/pig/sick.png", "entity/pig/sick.png"),
-                Map.entry("textures/entity/sheep/sick.png", "entity/sheep/sick.png"));
+                Map.entry(
+                        "textures/entity/cow/cow_temperate_sick.png",
+                        "26.2/cow/cow_temperate.png+mite/cow/sick.png"),
+                Map.entry(
+                        "textures/entity/pig/pig_temperate_sick.png",
+                        "26.2/pig/pig_temperate.png+mite/pig/sick.png"),
+                Map.entry(
+                        "textures/entity/chicken/chicken_temperate_sick.png",
+                        "26.2/chicken/chicken_temperate.png+mite/chicken/sick.png"),
+                Map.entry(
+                        "textures/entity/sheep/sheep_sick.png",
+                        "26.2/sheep/sheep.png+mite/sheep/sick.png"));
         assertEquals(expected, expected.keySet().stream()
                 .collect(Collectors.toMap(destination -> destination, sourcesByDestination::get)));
     }
