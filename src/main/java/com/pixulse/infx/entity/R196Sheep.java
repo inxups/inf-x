@@ -108,7 +108,10 @@ public final class R196Sheep extends Sheep {
 
     @Override
     public void die(DamageSource source) {
-        if (!level().isClientSide() && getRandom().nextBoolean() && level() instanceof ServerLevel serverLevel) {
+        if (!level().isClientSide()
+                && getRandom().nextBoolean()
+                && level() instanceof ServerLevel serverLevel
+                && !R196Livestock.isDiseased(this)) {
             serverLevel.addFreshEntity(new ItemEntity(
                     serverLevel, getX(), getY(), getZ(), new ItemStack(Items.LEATHER)));
         }

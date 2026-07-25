@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-25
 
+### 生病家畜规则
+- 生病（diseased）的 R196 牛无法被挤奶（接奶）；所有生病 R196 家畜（牛/鸡/羊/猪）被击杀时不掉落任何物品。
+- 实现：R196Cow.mobInteract 早返回；R196AnimalEvents.onDrops 清空掉落；R196Sheep.die 跳过额外皮革掉落。
+- 符合 MITE 行为：生病动物产出为零，击杀无收获。
+
 ### 移除六种 R196 花
 
 - 删除 `rose` / `orchid` / `allium` / `tulip` / `dahlia` / `daisy` 方块与物品注册、创造栏、掉落、语言、模型、世界生成（`r196_flowers` / `r196_allium`）及材质清单条目。

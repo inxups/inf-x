@@ -100,6 +100,9 @@ public final class R196Cow extends Cow {
         ItemStack stack = player.getItemInHand(hand);
         R196Livestock.markFedIfFood(this, stack);
         if (!isBaby() && level() instanceof ServerLevel serverLevel) {
+            if (R196Livestock.isDiseased(this)) {
+                return InteractionResult.CONSUME;
+            }
             if (stack.is(Items.BUCKET)) {
                 if (!takeMilk(serverLevel, MILK_UNITS_PER_DAY)) {
                     return InteractionResult.CONSUME;
