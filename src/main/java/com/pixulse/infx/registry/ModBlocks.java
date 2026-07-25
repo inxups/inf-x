@@ -34,13 +34,11 @@ import java.util.Map;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ColoredFallingBlock;
-import net.minecraft.world.level.block.FlowerBlock;
 import net.minecraft.world.level.block.InfestedBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.util.ColorRGBA;
-import net.minecraft.world.effect.MobEffects;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -75,15 +73,6 @@ public final class ModBlocks {
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHERRACK));
 
     public static final List<DeferredBlock<Block>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
-
-    public static final DeferredBlock<FlowerBlock> ROSE = flower("rose");
-    public static final DeferredBlock<FlowerBlock> ORCHID = flower("orchid");
-    public static final DeferredBlock<FlowerBlock> ALLIUM = flower("allium");
-    public static final DeferredBlock<FlowerBlock> TULIP = flower("tulip");
-    public static final DeferredBlock<FlowerBlock> DAHLIA = flower("dahlia");
-    public static final DeferredBlock<FlowerBlock> DAISY = flower("daisy");
-    public static final List<DeferredBlock<FlowerBlock>> R196_FLOWERS =
-            List.of(ROSE, ORCHID, ALLIUM, TULIP, DAHLIA, DAISY);
 
     public static final DeferredBlock<ColoredFallingBlock> NETHER_GRAVEL = BLOCKS.registerBlock(
             "nether_gravel",
@@ -334,19 +323,6 @@ public final class ModBlocks {
             OBSIDIAN_WORKBENCH);
 
     private ModBlocks() {}
-
-    private static DeferredBlock<FlowerBlock> flower(String name) {
-        return BLOCKS.registerBlock(
-                name,
-                properties -> new FlowerBlock(MobEffects.SATURATION, 0.35F, properties),
-                properties -> properties
-                        .mapColor(MapColor.PLANT)
-                        .replaceable()
-                        .noCollision()
-                        .instabreak()
-                        .sound(SoundType.GRASS)
-                        .offsetType(Block.OffsetType.XZ));
-    }
 
     private static DeferredBlock<Block> metalStorageBlock(String name, MapColor color, float strength) {
         return BLOCKS.registerSimpleBlock(

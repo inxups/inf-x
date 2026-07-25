@@ -126,7 +126,6 @@ public final class ModCreativeTabs {
                         ModItems.WORLD_BLOCKS,
                         ModItems.FULLTEXT_BLOCKS,
                         ModItems.MITE_RECIPE_BLOCKS,
-                        ModItems.R196_FLOWERS,
                         ModItems.WORKBENCHES,
                         ModItems.FURNACES,
                         ModItems.METAL_ANVILS,
