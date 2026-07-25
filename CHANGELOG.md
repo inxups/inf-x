@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-24
 
+### 牛可用碗接奶
+
+- 空碗对健康成牛右键得到 `milk_bowl`，每次消耗 1 单位日配额（最多 4 碗/天）。
+- 碗与桶共用 `infx_cow_milk_units`：接满 4 碗后当天桶与碗均拒绝；一桶仍消耗全部 4 单位。
+
 ### R196 家畜刷怪蛋材质清单与资源计数
 
 - 七枚 `r196_{cow,chicken,sheep,pig,horse,ocelot,wolf}_spawn_egg` 写入 `mite_texture_manifest.tsv`（来源 26.2 原版刷怪蛋 + SHA-256）。
