@@ -55,6 +55,18 @@ public final class R196SwimRules {
     }
 
     /**
+     * Vanilla skips {@code getFluidFallingAdjustedMovement} while sprinting. MITE's reduced
+     * waterfall swim-up impulse still needs the normal water pull, otherwise sprinting can build
+     * upward speed in a falling column.
+     *
+     * @param verticalMovement vertical movement after water drag
+     * @param waterBaseGravity base gravity after {@link #waterGravity(double)} has been applied
+     */
+    public static double sprintWaterfallVerticalMovement(double verticalMovement, double waterBaseGravity) {
+        return verticalMovement - waterBaseGravity / 16.0D;
+    }
+
+    /**
      * MITE {@code EntityLivingBase.onLivingUpdate} swim-up factor.
      *
      * @param feetInLiquid feet block is water or lava

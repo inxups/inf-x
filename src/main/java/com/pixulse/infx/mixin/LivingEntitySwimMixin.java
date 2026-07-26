@@ -50,6 +50,27 @@ abstract class LivingEntitySwimMixin {
         return movement.multiply(blended, y, blended);
     }
 
+    /**
+     * Vanilla intentionally omits {@code baseGravity / 16} while sprinting. That makes MITE's
+     * 7/16 waterfall jump impulse positive after drag, so reapply the same MITE water pull only
+     * when both the player's feet and head are in the falling column.
+     */
+    @Redirect(
+            method = "travelInWater",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target =
+                                    "Lnet/minecraft/world/entity/LivingEntity;getFluidFallingAdjustedMovement(DZLnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/phys/Vec3;"))
+    private Vec3 infx$restoreWaterfallGravityForSprinting(
+            LivingEntity entity, double baseGravity, boolean isFalling, Vec3 movement) {
+        Vec3 adjusted = entity.getFluidFallingAdjustedMovement(baseGravity, isFalling, movement);
+        if (entity instanceof Player player && player.isSprinting()) {
+            return R196SwimPhysics.applyFallingWaterSprintGravity(player, baseGravity, adjusted);
+        }
+        return adjusted;
+    }
+
     @Redirect(
             method = "aiStep",
             at =

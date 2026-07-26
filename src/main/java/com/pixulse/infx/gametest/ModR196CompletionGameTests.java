@@ -1848,6 +1848,18 @@ public final class ModR196CompletionGameTests {
                         < 1.0E-6D,
                 "a falling column must cut the swim-up impulse to 7/16");
 
+        // Vanilla omits water gravity while sprinting. Seed the player with the reduced jump
+        // impulse, then run a live tick to prove the waterfall-specific gravity redirect prevents
+        // it from becoming an upward climb.
+        player.setSprinting(true);
+        player.setDeltaMovement(new Vec3(0.0D, R196SwimPhysics.swimUpImpulse(player), 0.0D));
+        player.doTick();
+        helper.assertTrue(
+                player.getDeltaMovement().y < 0.0D,
+                "a sprinting player must lose height after the reduced waterfall swim-up impulse, measured "
+                        + player.getDeltaMovement().y);
+        player.setSprinting(false);
+
         // A walled shaft so the column cannot drain while the sink rate is measured.
         helper.setBlock(new BlockPos(12, 1, 2), Blocks.STONE);
         for (int y = 2; y <= 6; y++) {

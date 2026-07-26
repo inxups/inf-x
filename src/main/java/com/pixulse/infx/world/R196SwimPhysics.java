@@ -80,6 +80,20 @@ public final class R196SwimPhysics {
         return R196SwimRules.waterGravity(baseGravity);
     }
 
+    /**
+     * Restores MITE's water pull for a sprinting player in a falling water column. Vanilla omits
+     * this pull while sprinting, which would otherwise let the reduced waterfall swim-up impulse
+     * accumulate into upward movement.
+     */
+    public static Vec3 applyFallingWaterSprintGravity(
+            LivingEntity entity, double waterBaseGravity, Vec3 movement) {
+        if (!isFallingWaterColumn(entity)) return movement;
+        return new Vec3(
+                movement.x,
+                R196SwimRules.sprintWaterfallVerticalMovement(movement.y, waterBaseGravity),
+                movement.z);
+    }
+
     /** Adds MITE's factored swim-up impulse in place of vanilla's flat 0.04. */
     public static void swimUp(LivingEntity entity) {
         entity.addDeltaMovement(new Vec3(0.0D, swimUpImpulse(entity), 0.0D));
@@ -95,7 +109,7 @@ public final class R196SwimPhysics {
         BlockPos head = BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ());
         FluidState feetFluid = level.getFluidState(feet);
         boolean feetInLiquid = feetFluid.is(FluidTags.WATER) || feetFluid.is(FluidTags.LAVA);
-        boolean fallingColumn = isFalling(feetFluid) && isFalling(level.getFluidState(head));
+        boolean fallingColumn = isFallingWaterColumn(entity);
         boolean suspended = !entity.isPassenger()
                 && !entity.onGround()
                 && (entity.isInWater() || entity.isInLava());
@@ -124,5 +138,12 @@ public final class R196SwimPhysics {
         return fluid.is(FluidTags.WATER)
                 && fluid.hasProperty(FlowingFluid.FALLING)
                 && fluid.getValue(FlowingFluid.FALLING);
+    }
+
+    private static boolean isFallingWaterColumn(LivingEntity entity) {
+        BlockGetter level = entity.level();
+        BlockPos feet = entity.blockPosition();
+        BlockPos head = BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ());
+        return isFalling(level.getFluidState(feet)) && isFalling(level.getFluidState(head));
     }
 }

@@ -111,6 +111,17 @@ class R196SwimRulesTest {
         assertEquals(-0.1D, velocity, 1.0E-6D);
     }
 
+    @Test
+    void sprintingWaterfallSwimmerStillDescendsAfterTheReducedSwimUpImpulse() {
+        double reducedSwimUp = R196SwimRules.swimUpImpulse(R196SwimRules.SURFACE_FACTOR);
+        double afterWaterDrag = reducedSwimUp * WATER_DRAG;
+        double verticalMovement = R196SwimRules.sprintWaterfallVerticalMovement(
+                afterWaterDrag, R196SwimRules.waterGravity(0.08D));
+
+        assertEquals(-0.006D, verticalMovement, 1.0E-9D);
+        assertTrue(verticalMovement < 0.0D, "a sprinting player must not gain height in a waterfall");
+    }
+
     /** MITE applies acceleration first, then the 0.8 drag, so the fixed point is 4x the acceleration. */
     private static double terminalSpeed(double acceleration) {
         double velocity = 0.0D;
