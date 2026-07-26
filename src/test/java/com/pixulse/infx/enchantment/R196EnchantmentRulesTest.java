@@ -69,6 +69,18 @@ class R196EnchantmentRulesTest {
         assertEquals(.75F, R196EnchantmentRules.durabilityNegationChance(5), .0001F);
     }
 
+    /** The registered item_damage effect is built from this constant, so both must stay in step. */
+    @Test
+    void durabilityNegationScalesLinearlyFromThePerLevelConstant() {
+        assertEquals(.15F, R196EnchantmentRules.DURABILITY_NEGATION_PER_LEVEL, .0001F);
+        for (int level = 0; level <= R196EnchantmentRules.STANDARD_MAX_LEVEL; level++) {
+            assertEquals(
+                    level * R196EnchantmentRules.DURABILITY_NEGATION_PER_LEVEL,
+                    R196EnchantmentRules.durabilityNegationChance(level),
+                    .0001F);
+        }
+    }
+
     @Test
     void bowRulesUseR196PullAndTrueFlightScaling() {
         assertEquals(20, R196EnchantmentRules.quicknessPullTicks(0));

@@ -62,7 +62,9 @@ public final class ModEnchantments {
             Map.entry(VAMPIRISM, profile(R196Rarity.EPIC, 20)),
             Map.entry(RECOVERY, profile(R196Rarity.UNCOMMON, 10)),
             Map.entry(SLAUGHTER, profile(R196Rarity.COMMON, 10)),
-            Map.entry(CLEAVING, profile(R196Rarity.UNCOMMON, 10)),
+            // R196 exposes cleaving and penetration as one rare piercing enchantment that merely
+            // renames itself on axes, so the split registration must keep the rare weight.
+            Map.entry(CLEAVING, profile(R196Rarity.RARE, 10)),
             Map.entry(HARVESTING, profile(R196Rarity.UNCOMMON, 10)),
             Map.entry(PENETRATION, profile(R196Rarity.RARE, 10)),
             Map.entry(BAITING, profile(R196Rarity.COMMON, 10)),
@@ -164,7 +166,8 @@ public final class ModEnchantments {
         if (key.equals(DURABILITY)) {
             builder.withEffect(
                     EnchantmentEffectComponents.ITEM_DAMAGE,
-                    new RemoveBinomial(LevelBasedValue.perLevel(0.15F)));
+                    new RemoveBinomial(LevelBasedValue.perLevel(
+                            R196EnchantmentRules.DURABILITY_NEGATION_PER_LEVEL)));
         }
         context.register(key, builder.build(key.identifier()));
     }

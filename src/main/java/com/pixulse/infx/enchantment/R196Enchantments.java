@@ -17,15 +17,7 @@ public final class R196Enchantments {
                 .orElse(0);
     }
 
-    public static int armorLevel(LivingEntity entity, ResourceKey<Enchantment> key) {
-        int result = 0;
-        for (EquipmentSlot slot : new EquipmentSlot[]{
-                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
-            result += level(entity.level(), entity.getItemBySlot(slot), key);
-        }
-        return result;
-    }
-
+    /** R196 reads every armor enchantment as the highest equipped level, never as a sum. */
     public static int maxArmorLevel(LivingEntity entity, ResourceKey<Enchantment> key) {
         int result = 0;
         for (EquipmentSlot slot : new EquipmentSlot[]{

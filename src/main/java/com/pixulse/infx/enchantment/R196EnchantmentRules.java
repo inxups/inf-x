@@ -19,6 +19,8 @@ public final class R196EnchantmentRules {
     public static final int FREE_MOVEMENT_MAX_LEVEL = 4;
     public static final int ENDURANCE_MAX_LEVEL = 4;
     public static final int PROTECTION_MAX_LEVEL = 4;
+    /** Per-level slice of durability's 75% negation chance, shared with the registered item effect. */
+    public static final float DURABILITY_NEGATION_PER_LEVEL = 0.75F / STANDARD_MAX_LEVEL;
 
     private R196EnchantmentRules() {}
 
@@ -61,7 +63,7 @@ public final class R196EnchantmentRules {
     }
 
     public static float durabilityNegationChance(int level) {
-        return levelFraction(level, STANDARD_MAX_LEVEL) * 0.75F;
+        return Math.clamp(level, 0, STANDARD_MAX_LEVEL) * DURABILITY_NEGATION_PER_LEVEL;
     }
 
     public static int quicknessPullTicks(int level) {
