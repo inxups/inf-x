@@ -1,27 +1,38 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.world.Underworld;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.Nullable;
 
 /** Spider replacement and the four R196 spider variants. */
 public final class R196Spider extends Spider implements R196Mob {
@@ -35,12 +46,20 @@ public final class R196Spider extends Spider implements R196Mob {
     }
 
     private int phaseEvasions;
+    private int maxPhaseEvasions;
 
     public R196Spider(EntityType<? extends Spider> type, Level level) {
         super(type, level);
         if (variant() == Variant.PHASE) {
-            phaseEvasions = random.nextInt(3) + 2;
+            maxPhaseEvasions = random.nextInt(3) + 2;
+            phaseEvasions = maxPhaseEvasions;
         }
+        xpReward = switch (variant()) {
+            case SPIDER, WOOD -> xpReward;
+            case CAVE_SPIDER, PHASE -> 10;
+            case DEMON -> 15;
+            case BLACK_WIDOW -> 8;
+        };
     }
 
     public Variant variant() {
@@ -102,6 +121,19 @@ public final class R196Spider extends Spider implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        if (variant() != Variant.SPIDER) {
+            // MITE: only the base spider turns peaceful in daylight; the variants ignore light
+            // both when acquiring targets and when continuing an attack.
+            targetSelector.removeAllGoals(goal -> goal instanceof NearestAttackableTargetGoal<?>);
+            targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+            goalSelector.removeAllGoals(goal -> goal instanceof MeleeAttackGoal);
+            goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, true) {
+                @Override
+                public boolean canUse() {
+                    return super.canUse() && !mob.isVehicle();
+                }
+            });
+        }
         goalSelector.addGoal(2, new AvoidEntityGoal<>(
                 this,
                 Player.class,
@@ -114,6 +146,48 @@ public final class R196Spider extends Spider implements R196Mob {
     }
 
     @Override
+    public @Nullable SpawnGroupData finalizeSpawn(
+            ServerLevelAccessor level,
+            DifficultyInstance difficulty,
+            EntitySpawnReason spawnReason,
+            @Nullable SpawnGroupData groupData) {
+        if (groupData == null) {
+            SpiderEffectsGroupData effects = new SpiderEffectsGroupData();
+            if (variant() == Variant.SPIDER
+                    && level.getDifficulty() == Difficulty.HARD
+                    && random.nextFloat() < 0.1F * difficulty.getSpecialMultiplier()) {
+                // MITE buff table: speed 1/2, strength 1/4, regeneration 1/4 — never invisibility.
+                int roll = random.nextInt(4);
+                effects.effect = roll <= 1
+                        ? MobEffects.SPEED
+                        : roll == 2 ? MobEffects.STRENGTH : MobEffects.REGENERATION;
+            }
+            groupData = effects;
+        }
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
+        for (Entity passenger : List.copyOf(getPassengers())) {
+            if (!(passenger instanceof AbstractSkeleton)) {
+                continue;
+            }
+            // MITE: variants never carry jockeys; base-spider jockeys are R196 skeletons,
+            // or longdead in the Underworld.
+            passenger.discard();
+            if (variant() == Variant.SPIDER) {
+                EntityType<R196Skeleton> jockeyType = level.getLevel().dimension() == Underworld.LEVEL
+                        ? ModEntityTypes.LONGDEAD.get()
+                        : ModEntityTypes.R196_SKELETON.get();
+                R196Skeleton jockey = jockeyType.create(level.getLevel(), EntitySpawnReason.JOCKEY);
+                if (jockey != null) {
+                    jockey.snapTo(getX(), getY(), getZ(), getYRot(), 0.0F);
+                    jockey.finalizeSpawn(level, difficulty, spawnReason, null);
+                    jockey.startRiding(this, false, false);
+                }
+            }
+        }
+        return data;
+    }
+
+    @Override
     public boolean doHurtTarget(ServerLevel level, Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (!hurt || !(target instanceof LivingEntity living)) {
@@ -121,12 +195,13 @@ public final class R196Spider extends Spider implements R196Mob {
         }
 
         switch (variant()) {
-            case CAVE_SPIDER -> living.addEffect(new MobEffectInstance(MobEffects.POISON, 240, 0), this);
+            case CAVE_SPIDER -> living.addEffect(new MobEffectInstance(MobEffects.POISON, 480, 0), this);
             case BLACK_WIDOW -> living.addEffect(new MobEffectInstance(MobEffects.POISON, 960, 0), this);
+            // MITE demon spiders poison and slow but never ignite on melee; their fire comes
+            // from burning webs only.
             case DEMON -> {
                 living.addEffect(new MobEffectInstance(MobEffects.POISON, 480, 0), this);
                 living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 50, 5), this);
-                living.igniteForSeconds(4.0F);
             }
             case WOOD -> living.addEffect(new MobEffectInstance(MobEffects.POISON, 240, 0), this);
             case PHASE, SPIDER -> {
@@ -179,14 +254,28 @@ public final class R196Spider extends Spider implements R196Mob {
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
-        if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null
-                && random.nextFloat() < 0.75F) {
-            for (int attempt = 0; attempt < 16; attempt++) {
-                double x = getX() + random.nextInt(11) - 5;
-                double y = getY() + random.nextInt(9) - 4;
-                double z = getZ() + random.nextInt(11) - 5;
+        // MITE phase spiders always evade while they have evasions left, jumping at least three
+        // blocks sideways and away from the threat, then reacquire a player within 24 blocks.
+        if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null) {
+            for (int attempt = 0; attempt < 64; attempt++) {
+                int dx = random.nextInt(11) - 5;
+                int dy = random.nextInt(9) - 4;
+                int dz = random.nextInt(11) - 5;
+                if (Math.abs(dx) < 3 && Math.abs(dz) < 3) {
+                    continue;
+                }
+                double x = getX() + dx;
+                double y = getY() + dy;
+                double z = getZ() + dz;
+                if (source.getEntity().distanceToSqr(x, y, z) < 9.0) {
+                    continue;
+                }
                 if (randomTeleport(x, y, z, true)) {
                     phaseEvasions--;
+                    Player nearest = level.getNearestPlayer(this, 24.0);
+                    if (nearest != null) {
+                        setTarget(nearest);
+                    }
                     return false;
                 }
             }
@@ -197,7 +286,7 @@ public final class R196Spider extends Spider implements R196Mob {
     @Override
     public void aiStep() {
         super.aiStep();
-        if (variant() == Variant.PHASE && phaseEvasions < 4 && tickCount % 100 == 0) {
+        if (variant() == Variant.PHASE && phaseEvasions < maxPhaseEvasions && tickCount % 100 == 0) {
             phaseEvasions++;
         }
     }
@@ -206,11 +295,13 @@ public final class R196Spider extends Spider implements R196Mob {
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt("R196PhaseEvasions", phaseEvasions);
+        output.putInt("R196PhaseMaxEvasions", maxPhaseEvasions);
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         phaseEvasions = input.getIntOr("R196PhaseEvasions", phaseEvasions);
+        maxPhaseEvasions = input.getIntOr("R196PhaseMaxEvasions", maxPhaseEvasions);
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -24,6 +25,8 @@ public final class R196Wolf extends Wolf implements Enemy, R196Mob {
 
     public R196Wolf(EntityType<? extends Wolf> type, Level level) {
         super(type, level);
+        // MITE experience: hellhounds are worth triple, dire wolves double the base value.
+        xpReward = variant() == Variant.HELLHOUND ? 15 : 10;
     }
 
     public Variant variant() {
@@ -76,13 +79,53 @@ public final class R196Wolf extends Wolf implements Enemy, R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
-                this,
-                Player.class,
-                10,
-                true,
-                false,
-                (target, level) -> !isTame()));
+        // MITE: only hellhounds hunt players on sight; dire wolves are near-neutral (see aiStep).
+        if (variant() == Variant.HELLHOUND) {
+            targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
+                    this,
+                    Player.class,
+                    10,
+                    true,
+                    false,
+                    (target, level) -> true));
+        }
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+        // MITE dire wolves snap at players within 4 blocks at 0.4% per tick, sparing pups,
+        // breeding pairs and blue-moon nights.
+        if (variant() == Variant.DIRE_WOLF
+                && !isTame()
+                && !isBaby()
+                && getTarget() == null
+                && !isInLove()
+                && level() instanceof ServerLevel level
+                && com.pixulse.infx.world.R196MoonPhase.at(level) != com.pixulse.infx.world.R196MoonPhase.BLUE
+                && random.nextFloat() < 0.004F) {
+            Player near = level.getNearestPlayer(this, 4.0);
+            if (near != null && !near.isCreative() && !near.isSpectator()) {
+                setTarget(near);
+            }
+        }
+    }
+
+    /** MITE: untamed wolves fade out after two minutes; hellhounds despawn like any monster. */
+    @Override
+    public boolean removeWhenFarAway(double distance) {
+        return variant() == Variant.HELLHOUND || (!isTame() && tickCount > 2400);
+    }
+
+    /** MITE wolves shrug off half the damage from non-player, non-arrow attackers. */
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        if (source.getEntity() != null
+                && !(source.getEntity() instanceof Player)
+                && !(source.getDirectEntity() instanceof AbstractArrow)) {
+            damage = (damage + 1.0F) / 2.0F;
+        }
+        return super.hurtServer(level, source, damage);
     }
 
     @Override

@@ -544,7 +544,9 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 fire.getHealth() < before, "non-fire enchanted hits must deal fire elemental damage");
         helper.assertTrue(fire.isOnFire(), "fire elementals must always render as burning");
-        helper.assertTrue(fire.isSensitiveToWater(), "fire elementals must be sensitive to water");
+        helper.assertTrue(
+                !fire.isSensitiveToWater(),
+                "fire elementals must not stack the modern per-tick water damage on MITE's own drain");
         ModR196CompletionGameTests.removePlayer(player);
 
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
