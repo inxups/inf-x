@@ -333,7 +333,8 @@ public final class R196MonsterEvents {
                 ModEntityTypes.R196_TROPICAL_FISH.get(),
                 SpawnPlacementTypes.IN_WATER,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                TropicalFish::checkTropicalFishSpawnRules,
+                (type, level, reason, pos, random) -> TropicalFish.checkTropicalFishSpawnRules(
+                        asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
