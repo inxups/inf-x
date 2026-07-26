@@ -2,6 +2,11 @@
 
 ## [0v] - 2026-07-26
 
+### resourceTest 自动依赖 runData，消除过期数据生成产物导致的假失败
+
+- `src/generated/resources` 在 `.gitignore` 中，`resourceTest` 直接从磁盘读取该目录：新 worktree（文件缺失）或刚合并了改动数据生成 Provider 的分支（文件过期）都会出现 `NoSuchFileException` 或断言不匹配的假失败（如合并 #173 后 `R196GeneratedResourceTest` 两例失败）。
+- 将 `resourceTest` 对 `runData` 的 `mustRunAfter`（仅排序、不触发）改为 `dependsOn`，与 `runClient`/`runGameTestServer` 依赖 `prepareRuntimeGeneratedResources` 的既有约定一致；此后 `resourceTest`/`check`/`build` 总是先重新生成数据再校验，无需手动补跑 `runData`。
+
 ### 修复 R196 热带鱼生成规则注册的编译错误
 
 - `R196MonsterEvents` 注册热带鱼生成规则时直接引用 `TropicalFish::checkTropicalFishSpawnRules`,其首参是精确的 `EntityType<TropicalFish>`,与本模组的 `EntityType<R196TropicalFish>` 类型推断冲突导致 `compileJava` 失败;改为与狼/豹猫/蝙蝠一致的 lambda + `asEntityType` 适配写法,运行时仍传入本模组实体类型。
