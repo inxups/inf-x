@@ -36,6 +36,9 @@ import org.jspecify.annotations.Nullable;
 
 /** Spider replacement and the four R196 spider variants. */
 public final class R196Spider extends Spider implements R196Mob {
+    private static final double MODERN_SPIDER_MOVEMENT_SPEED = 0.30;
+    private static final double MITE_ARACHNID_SPEED_MULTIPLIER = 1.25;
+
     public enum Variant {
         SPIDER,
         CAVE_SPIDER,
@@ -89,32 +92,43 @@ public final class R196Spider extends Spider implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
+        // Legacy MITE arachnids use the old AI pathing formula, where the attribute is a
+        // forward-input multiplier under a fixed 0.1 throttle.  Its 1.0/0.8 values cannot
+        // be assigned directly to 26.2's movement attribute.  Preserve only the source's
+        // 25% base/cave/demon boost over the vanilla arachnid family.
         AttributeSupplier.Builder builder = Spider.createAttributes().add(Attributes.FOLLOW_RANGE, 28.0);
         return switch (variant) {
             case SPIDER -> builder
                     .add(Attributes.MAX_HEALTH, 12.0)
-                    .add(Attributes.MOVEMENT_SPEED, 1.0)
+                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
             case CAVE_SPIDER -> builder
                     .add(Attributes.MAX_HEALTH, 16.0)
-                    .add(Attributes.MOVEMENT_SPEED, 1.0)
+                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
             case BLACK_WIDOW -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.80)
+                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 1.0);
             case DEMON -> builder
                     .add(Attributes.MAX_HEALTH, 18.0)
-                    .add(Attributes.MOVEMENT_SPEED, 1.0)
+                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case WOOD -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.80)
+                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 1.0);
             case PHASE -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.80)
+                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 3.0);
+        };
+    }
+
+    static double movementSpeed(Variant variant) {
+        return switch (variant) {
+            case SPIDER, CAVE_SPIDER, DEMON -> MODERN_SPIDER_MOVEMENT_SPEED * MITE_ARACHNID_SPEED_MULTIPLIER;
+            case BLACK_WIDOW, WOOD, PHASE -> MODERN_SPIDER_MOVEMENT_SPEED;
         };
     }
 

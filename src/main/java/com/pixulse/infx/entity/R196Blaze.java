@@ -49,9 +49,11 @@ public final class R196Blaze extends Blaze implements R196Mob {
     }
 
     public static AttributeSupplier.Builder attributes() {
+        // EntityBlaze uses MITE's legacy, fixed-throttle AI and does not override its
+        // movement input.  Retain the modern Blaze baseline instead of copying the old
+        // SharedMonsterAttributes default (0.7) into the modern movement scale.
         return Blaze.createAttributes()
                 .add(Attributes.FOLLOW_RANGE, 32.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.70)
                 .add(Attributes.ATTACK_DAMAGE, 6.0);
     }
 

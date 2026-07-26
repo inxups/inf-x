@@ -31,7 +31,8 @@ import net.minecraft.world.level.ServerLevelAccessor;
 
 /** Vanilla slime replacement and the four corrosive R196 gelatinous cubes. */
 public final class R196Slime extends Slime implements R196Mob {
-    private static final double MOVEMENT_SPEED = 0.70;
+    private static final double MODERN_BASE_MOVEMENT_SPEED = 0.20;
+    private static final double MODERN_MOVEMENT_SPEED_PER_SIZE = 0.10;
 
     public enum Variant {
         SLIME(1, R196CorrosionType.PEPSIN, 16.0),
@@ -86,7 +87,7 @@ public final class R196Slime extends Slime implements R196Mob {
     public static AttributeSupplier.Builder attributes(Variant variant) {
         return Monster.createMonsterAttributes()
                 .add(Attributes.FOLLOW_RANGE, variant.followRange())
-                .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED);
+                .add(Attributes.MOVEMENT_SPEED, movementSpeedForSize(1));
     }
 
     static double attackDamageForSize(Variant variant, int size) {
@@ -98,7 +99,9 @@ public final class R196Slime extends Slime implements R196Mob {
     }
 
     static double movementSpeedForSize(int size) {
-        return MOVEMENT_SPEED;
+        // MITE's old cube AI used a fixed 0.1 movement throttle; the inherited 0.7
+        // attribute was not a modern-speed value.  Keep 26.2's cube size curve.
+        return MODERN_BASE_MOVEMENT_SPEED + MODERN_MOVEMENT_SPEED_PER_SIZE * Math.max(1, size);
     }
 
     @Override
