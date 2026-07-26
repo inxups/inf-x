@@ -2,6 +2,13 @@
 
 ## [0v] - 2026-07-26
 
+### 修复冲刺游泳可爬上瀑布
+
+- 根因：原版 `getFluidFallingAdjustedMovement` 在冲刺时跳过水中重力；MITE 的瀑布上浮冲量虽已降为 `7/16 * 0.04`，经水阻后仍为正值，因此冲刺玩家会积累向上速度。
+- `R196SwimRules` 新增瀑布冲刺纵向运动计算；`R196SwimPhysics` 复用脚与头同处下落水的判定，仅在该状态为冲刺玩家补回已放大的 `baseGravity / 16`，默认即 `0.02/tick` 下拉。
+- `LivingEntitySwimMixin` 对 `travelInWater` 的 `getFluidFallingAdjustedMovement` 增加最小范围 `@Redirect`，先保留原版结果，再只为冲刺玩家的瀑布柱应用该下拉；静水、普通冲刺游泳、岩浆和生物不变。
+- 扩充 `R196SwimRulesTest` 与 `r196_swim_physics` GameTest，分别验证瀑布冲量经水阻和下拉后为 `-0.006/tick`，以及运行时冲刺玩家无法从瀑布获得正向 Y 速度。
+
 ### 修复游泳冲刺可逆流而上
 
 - 根因：MITE 没有冲刺抗流模型，原版 1.13+ 的冲刺游泳水阻（0.9）在移植后依旧生效，使冲刺玩家能在 MITE 的任意流向水流中轻松逆流游动，包括正面顶流。
