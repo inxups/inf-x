@@ -22,7 +22,7 @@ class ModEnchantmentsTest {
                 Map.entry(ModEnchantments.VAMPIRISM, expected(ModEnchantments.R196Rarity.EPIC, 20)),
                 Map.entry(ModEnchantments.RECOVERY, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
                 Map.entry(ModEnchantments.SLAUGHTER, expected(ModEnchantments.R196Rarity.COMMON, 10)),
-                Map.entry(ModEnchantments.CLEAVING, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.CLEAVING, expected(ModEnchantments.R196Rarity.RARE, 10)),
                 Map.entry(ModEnchantments.HARVESTING, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
                 Map.entry(ModEnchantments.PENETRATION, expected(ModEnchantments.R196Rarity.RARE, 10)),
                 Map.entry(ModEnchantments.BAITING, expected(ModEnchantments.R196Rarity.COMMON, 10)),
@@ -59,6 +59,14 @@ class ModEnchantmentsTest {
                         key.identifier() + " level " + level);
             }
         }
+    }
+
+    /** R196 registers one rare piercing enchantment that only renames itself on axes. */
+    @Test
+    void cleavingSharesPenetrationsPiercingProfile() {
+        assertEquals(
+                ModEnchantments.profile(ModEnchantments.PENETRATION),
+                ModEnchantments.profile(ModEnchantments.CLEAVING));
     }
 
     private static ExpectedProfile expected(ModEnchantments.R196Rarity rarity, int difficulty) {

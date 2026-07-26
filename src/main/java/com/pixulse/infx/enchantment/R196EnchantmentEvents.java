@@ -355,7 +355,7 @@ public final class R196EnchantmentEvents {
         Player player = event.getEntity();
         var movement = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (movement == null) return;
-        int speed = R196Enchantments.armorLevel(player, ModEnchantments.SPEED);
+        int speed = R196Enchantments.maxArmorLevel(player, ModEnchantments.SPEED);
         if (speed > 0) {
             movement.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
                     SPEED, speed * 0.05D,
