@@ -31,24 +31,20 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.minecraft.client.model.animal.squid.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.renderer.entity.BlazeRenderer;
 import net.minecraft.client.renderer.entity.CodRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EndermanRenderer;
-import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.HorseRenderer;
 import net.minecraft.client.renderer.entity.OcelotRenderer;
 import net.minecraft.client.renderer.entity.PufferfishRenderer;
 import net.minecraft.client.renderer.entity.SalmonRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
-import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.SquidRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.TropicalFishRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
-import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -111,7 +107,9 @@ public final class ClientEvents {
                 ModEntityTypes.ANCIENT_BONE_LORD.get(),
                 context -> new R196EntityRenderers.SkeletonTexture(context, R196Skeleton.Variant.ANCIENT_BONE_LORD));
 
-        event.registerEntityRenderer(ModEntityTypes.R196_SPIDER.get(), SpiderRenderer::new);
+        event.registerEntityRenderer(
+                ModEntityTypes.R196_SPIDER.get(),
+                context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.SPIDER));
         event.registerEntityRenderer(
                 ModEntityTypes.R196_CAVE_SPIDER.get(),
                 context -> new R196EntityRenderers.SpiderTexture(context, R196Spider.Variant.CAVE_SPIDER, 0.5F));
@@ -189,16 +187,11 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntityTypes.R196_PUFFERFISH.get(), PufferfishRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_TROPICAL_FISH.get(), TropicalFishRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_WITCH.get(), WitchRenderer::new);
+        // MITE zombie pigmen keep the humanoid zombie model instead of the modern piglin model.
         event.registerEntityRenderer(
-                ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(),
-                context -> new ZombifiedPiglinRenderer(
-                        context,
-                        ModelLayers.ZOMBIFIED_PIGLIN,
-                        ModelLayers.ZOMBIFIED_PIGLIN_BABY,
-                        ModelLayers.ZOMBIFIED_PIGLIN_ARMOR,
-                        ModelLayers.ZOMBIFIED_PIGLIN_BABY_ARMOR));
-        event.registerEntityRenderer(ModEntityTypes.R196_BLAZE.get(), BlazeRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_GHAST.get(), GhastRenderer::new);
+                ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), R196EntityRenderers.ZombiePigmanTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_BLAZE.get(), R196EntityRenderers.BlazeTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_GHAST.get(), R196EntityRenderers.GhastTexture::new);
 
         // R196 livestock: vanilla models; sick skins when !isWell (MITE).
         event.registerEntityRenderer(ModEntityTypes.R196_COW.get(), R196EntityRenderers.CowTexture::new);

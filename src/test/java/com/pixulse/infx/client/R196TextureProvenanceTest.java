@@ -40,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(683, lines.size(), "header plus 682 selected destinations");
+        assertEquals(693, lines.size(), "header plus 692 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -113,10 +113,22 @@ class R196TextureProvenanceTest {
                 Map.entry("textures/entity/slime/ooze.png", "entity/slime/ooze.png"),
                 Map.entry("textures/entity/slime/pudding.png", "entity/slime/pudding.png"),
                 Map.entry("textures/entity/slime/magmacube.png", "entity/slime/magmacube.png"),
-                Map.entry("textures/entity/ghoul.png", "entity/ghoul.png"),
-                Map.entry("textures/entity/shadow.png", "entity/shadow.png"),
-                Map.entry("textures/entity/wight.png", "entity/wight.png"),
+                Map.entry("textures/entity/ghoul.png", "mite/entity/ghoul.png+expand64x64"),
+                Map.entry("textures/entity/shadow.png", "mite/entity/shadow.png+expand64x64"),
+                Map.entry("textures/entity/wight.png", "mite/entity/wight.png+expand64x64"),
+                Map.entry("textures/entity/ghoul_baby.png", "mite/entity/ghoul.png+baby_uv"),
+                Map.entry("textures/entity/shadow_baby.png", "mite/entity/shadow.png+baby_uv"),
+                Map.entry("textures/entity/wight_baby.png", "mite/entity/wight.png+baby_uv"),
                 Map.entry("textures/entity/zombie/revenant.png", "entity/zombie/revenant.png"),
+                Map.entry(
+                        "textures/entity/zombie/revenant_baby.png",
+                        "mite/entity/zombie/revenant.png+baby_uv"),
+                Map.entry("textures/entity/spider/spider.png", "entity/spider/spider.png"),
+                Map.entry("textures/entity/blaze.png", "entity/blaze.png"),
+                Map.entry("textures/entity/ghast/ghast.png", "entity/ghast/ghast.png"),
+                Map.entry("textures/entity/ghast/ghast_shooting.png", "entity/ghast/ghast_shooting.png"),
+                Map.entry("textures/entity/zombie_pigman.png", "entity/zombie_pigman.png"),
+                Map.entry("textures/entity/zombie_pigman_baby.png", "mite/entity/zombie_pigman.png+baby_uv"),
                 Map.entry("textures/entity/skeleton/longdead.png", "entity/skeleton/longdead.png"),
                 Map.entry("textures/entity/skeleton/bone_lord.png", "entity/skeleton/bone_lord.png"),
                 Map.entry(
