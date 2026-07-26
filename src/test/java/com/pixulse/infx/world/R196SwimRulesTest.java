@@ -119,4 +119,59 @@ class R196SwimRulesTest {
         }
         return velocity;
     }
+
+    @Test
+    void oppositionIsZeroWhenSwimmingWithOrAcrossTheCurrent() {
+        Vec3 current = new Vec3(1.0D, 0.0D, 0.0D);
+        assertEquals(0.0D, R196SwimRules.opposition(new Vec3(1.0D, 0.0D, 0.0D), current), 1.0E-9D);
+        assertEquals(0.0D, R196SwimRules.opposition(new Vec3(0.0D, 0.0D, 1.0D), current), 1.0E-9D);
+    }
+
+    @Test
+    void oppositionIsOneWhenSwimmingDirectlyUpstream() {
+        Vec3 current = new Vec3(1.0D, 0.0D, 0.0D);
+        assertEquals(1.0D, R196SwimRules.opposition(new Vec3(-1.0D, 0.0D, 0.0D), current), 1.0E-9D);
+    }
+
+    @Test
+    void oppositionIsPartialAtAnAngleAndIgnoresVerticalMotion() {
+        Vec3 current = new Vec3(1.0D, 0.0D, 0.0D);
+        Vec3 backAndUp = new Vec3(-1.0D, 5.0D, 0.0D);
+        assertEquals(1.0D, R196SwimRules.opposition(backAndUp, current), 1.0E-9D);
+        Vec3 diagonal = new Vec3(-1.0D, 0.0D, 1.0D);
+        assertEquals(Math.sqrt(2.0D) / 2.0D, R196SwimRules.opposition(diagonal, current), 1.0E-9D);
+    }
+
+    @Test
+    void oppositionIsZeroWhenMovementOrCurrentIsNegligible() {
+        Vec3 current = new Vec3(1.0D, 0.0D, 0.0D);
+        assertEquals(0.0D, R196SwimRules.opposition(Vec3.ZERO, current), 1.0E-9D);
+        assertEquals(0.0D, R196SwimRules.opposition(new Vec3(-1.0D, 0.0D, 0.0D), Vec3.ZERO), 1.0E-9D);
+    }
+
+    @Test
+    void antiCurrentSprintDragOnlyKicksInWhileSwimmingUpstream() {
+        float sprintSlowDown = 0.9F;
+        float normalSlowDown = 0.8F;
+        Vec3 current = new Vec3(1.0D, 0.0D, 0.0D);
+
+        assertEquals(
+                sprintSlowDown,
+                R196SwimRules.antiCurrentSprintDrag(
+                        sprintSlowDown, normalSlowDown, new Vec3(1.0D, 0.0D, 0.0D), current),
+                1.0E-6D,
+                "swimming with the current keeps the sprint slowdown unchanged");
+        assertEquals(
+                normalSlowDown,
+                R196SwimRules.antiCurrentSprintDrag(
+                        sprintSlowDown, normalSlowDown, new Vec3(-1.0D, 0.0D, 0.0D), current),
+                1.0E-6D,
+                "swimming directly upstream falls all the way back to the non-sprint slowdown");
+
+        double partial = R196SwimRules.antiCurrentSprintDrag(
+                sprintSlowDown, normalSlowDown, new Vec3(-1.0D, 0.0D, 1.0D), current);
+        assertTrue(
+                partial > normalSlowDown && partial < sprintSlowDown,
+                "swimming diagonally against the current only partly restores drag");
+    }
 }

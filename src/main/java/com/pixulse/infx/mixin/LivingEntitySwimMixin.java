@@ -1,11 +1,14 @@
 package com.pixulse.infx.mixin;
 
 import com.pixulse.infx.world.R196SwimPhysics;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -17,10 +20,34 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  */
 @Mixin(LivingEntity.class)
 abstract class LivingEntitySwimMixin {
+    @Shadow
+    protected abstract float getWaterSlowDown();
+
     /** MITE applies a constant 0.02 downward pull in water; vanilla derives it from baseGravity/16. */
     @ModifyVariable(method = "travelInWater", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private double infx$useMiteWaterGravity(double baseGravity) {
         return (Object) this instanceof Player ? R196SwimPhysics.waterGravity(baseGravity) : baseGravity;
+    }
+
+    /**
+     * MITE has no counter-current sprint model; vanilla's sprint-swim drag reduction otherwise lets a
+     * sprinting player trivially out-swim MITE's current in any direction, including upstream.
+     * {@code movement} (the multiply receiver) is this tick's already-computed thrust, so it doubles
+     * as the direction proxy for how directly the player is swimming against the current.
+     */
+    @Redirect(
+            method = "travelInWater",
+            at =
+                    @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/world/phys/Vec3;multiply(DDD)Lnet/minecraft/world/phys/Vec3;"))
+    private Vec3 infx$antiCurrentSprintDrag(Vec3 movement, double x, double y, double z) {
+        Entity self = (Entity) (Object) this;
+        if (!(self instanceof Player) || !self.isSprinting()) {
+            return movement.multiply(x, y, z);
+        }
+        double blended = R196SwimPhysics.antiCurrentSprintDrag(self, (float) x, this.getWaterSlowDown(), movement);
+        return movement.multiply(blended, y, blended);
     }
 
     @Redirect(

@@ -1874,6 +1874,27 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 sink < -0.06D, "a submerged player must sink at MITE's 0.02/tick, measured " + sink);
 
+        // Sprinting upstream against the channel's current must bleed the 0.9 sprint drag back
+        // toward the non-sprint 0.8 factor; sprinting downstream keeps the full 0.9 benefit.
+        player.setSprinting(true);
+        player.snapTo(channel.x, channel.y, channel.z, 0.0F, 0.0F);
+        player.setDeltaMovement(new Vec3(-0.3D, 0.0D, 0.0D));
+        player.doTick();
+        double upstreamRetention = player.getDeltaMovement().x / -0.3D;
+        helper.assertTrue(
+                upstreamRetention < 0.85D,
+                "sprinting upstream must bleed drag back toward the non-sprint 0.8 factor, measured "
+                        + upstreamRetention);
+
+        player.snapTo(channel.x, channel.y, channel.z, 0.0F, 0.0F);
+        player.setDeltaMovement(new Vec3(0.3D, 0.0D, 0.0D));
+        player.doTick();
+        double downstreamRetention = player.getDeltaMovement().x / 0.3D;
+        helper.assertTrue(
+                downstreamRetention > 0.88D,
+                "sprinting downstream must keep the full 0.9 sprint factor, measured "
+                        + downstreamRetention);
+
         removePlayer(player);
         helper.succeed();
     }
