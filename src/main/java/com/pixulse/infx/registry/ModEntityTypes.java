@@ -5,6 +5,7 @@ import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Blaze;
 import com.pixulse.infx.entity.R196Chicken;
 import com.pixulse.infx.entity.R196Cow;
+import com.pixulse.infx.entity.R196Cod;
 import com.pixulse.infx.entity.R196Creeper;
 import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
@@ -14,13 +15,16 @@ import com.pixulse.infx.entity.R196Ghast;
 import com.pixulse.infx.entity.R196Horse;
 import com.pixulse.infx.entity.R196MagmaCube;
 import com.pixulse.infx.entity.R196Ocelot;
+import com.pixulse.infx.entity.R196Pufferfish;
 import com.pixulse.infx.entity.R196Pig;
+import com.pixulse.infx.entity.R196Salmon;
 import com.pixulse.infx.entity.R196Sheep;
 import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.entity.R196Skeleton;
 import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.entity.R196Spider;
 import com.pixulse.infx.entity.R196Squid;
+import com.pixulse.infx.entity.R196TropicalFish;
 import com.pixulse.infx.entity.R196VanillaWolf;
 import com.pixulse.infx.entity.R196Witch;
 import com.pixulse.infx.entity.R196Wolf;
@@ -56,6 +60,14 @@ public final class ModEntityTypes {
             "r196_enderman", "Enderman", "末影人", R196Enderman::new, 0.6F, 2.9F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Squid>> R196_SQUID = register(
             "r196_squid", "Squid", "鱿鱼", R196Squid::new, MobCategory.WATER_CREATURE, 0.95F, 0.95F, false, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Cod>> R196_COD = registerWaterAmbient(
+            "r196_cod", "Cod", "鳕鱼", R196Cod::new, 0.5F, 0.3F, 0.195F);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Salmon>> R196_SALMON = registerWaterAmbient(
+            "r196_salmon", "Salmon", "鲑鱼", R196Salmon::new, 0.7F, 0.4F, 0.26F);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196Pufferfish>> R196_PUFFERFISH = registerWaterAmbient(
+            "r196_pufferfish", "Pufferfish", "河豚", R196Pufferfish::new, 0.7F, 0.7F, 0.455F);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196TropicalFish>> R196_TROPICAL_FISH = registerWaterAmbient(
+            "r196_tropical_fish", "Tropical Fish", "热带鱼", R196TropicalFish::new, 0.5F, 0.4F, 0.26F);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Witch>> R196_WITCH = register(
             "r196_witch", "Witch", "女巫", R196Witch::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196ZombifiedPiglin>> R196_ZOMBIFIED_PIGLIN = register(
@@ -190,6 +202,10 @@ public final class ModEntityTypes {
             R196_SLIME,
             R196_ENDERMAN,
             R196_SQUID,
+            R196_COD,
+            R196_SALMON,
+            R196_PUFFERFISH,
+            R196_TROPICAL_FISH,
             R196_WITCH,
             R196_ZOMBIFIED_PIGLIN,
             R196_BLAZE,
@@ -242,6 +258,19 @@ public final class ModEntityTypes {
             }
             return builder;
         });
+    }
+
+    private static <E extends Entity> DeferredHolder<EntityType<?>, EntityType<E>> registerWaterAmbient(
+            String path,
+            String englishName,
+            String chineseName,
+            EntityType.EntityFactory<E> factory,
+            float width,
+            float height,
+            float eyeHeight) {
+        NAMES.add(new EntityName(path, englishName, chineseName, width, height));
+        return ENTITIES.registerEntityType(path, factory, MobCategory.WATER_AMBIENT,
+                builder -> builder.sized(width, height).eyeHeight(eyeHeight).clientTrackingRange(4));
     }
 
     public static List<EntityName> names() {

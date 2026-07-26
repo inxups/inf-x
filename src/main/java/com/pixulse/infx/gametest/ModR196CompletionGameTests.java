@@ -1607,7 +1607,7 @@ public final class ModR196CompletionGameTests {
                 ModCreativeTabs.SPAWN_EGGS.get());
         // Blocks expand two rune stones (16 each): 45 - 2 + 32 = 75.
         // Tools: 135 baseline + 42 mob buckets + 7 powder-snow buckets = 184.
-        List<Integer> expectedSizes = List.of(75, 31, 24, 184, 113, 47);
+        List<Integer> expectedSizes = List.of(75, 31, 24, 184, 113, 51);
         CreativeModeTab.ItemDisplayParameters parameters = new CreativeModeTab.ItemDisplayParameters(
                 helper.getLevel().enabledFeatures(), true, helper.getLevel().registryAccess());
         List<ItemStack> displayed = new ArrayList<>();

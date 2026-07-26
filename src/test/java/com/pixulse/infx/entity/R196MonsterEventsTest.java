@@ -2,6 +2,8 @@ package com.pixulse.infx.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.pixulse.infx.registry.ModEntityTypes;
+import net.minecraft.world.entity.EntityTypes;
 import org.junit.jupiter.api.Test;
 
 class R196MonsterEventsTest {
@@ -25,5 +27,15 @@ class R196MonsterEventsTest {
             }
             assertEquals(1, searches, "each mob must retain its original 80-tick scan cadence");
         }
+    }
+
+    @Test
+    void worldSpawnReplacementMapsEveryVanillaFishToItsR196Entity() {
+        assertEquals(ModEntityTypes.R196_COD.get(), R196MonsterEvents.replacementFor(EntityTypes.COD));
+        assertEquals(ModEntityTypes.R196_SALMON.get(), R196MonsterEvents.replacementFor(EntityTypes.SALMON));
+        assertEquals(ModEntityTypes.R196_PUFFERFISH.get(), R196MonsterEvents.replacementFor(EntityTypes.PUFFERFISH));
+        assertEquals(
+                ModEntityTypes.R196_TROPICAL_FISH.get(),
+                R196MonsterEvents.replacementFor(EntityTypes.TROPICAL_FISH));
     }
 }

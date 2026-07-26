@@ -63,6 +63,14 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
             Set.of(Biomes.SNOWY_PLAINS, Biomes.ICE_SPIKES, Biomes.GROVE);
     private static final Set<ResourceKey<Biome>> PLAINS =
             Set.of(Biomes.PLAINS, Biomes.SUNFLOWER_PLAINS);
+    private static final Set<ResourceKey<Biome>> NORMAL_OCEANS =
+            Set.of(Biomes.OCEAN, Biomes.DEEP_OCEAN);
+    private static final Set<ResourceKey<Biome>> LUKEWARM_OCEANS =
+            Set.of(Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN);
+    private static final Set<ResourceKey<Biome>> COLD_OCEANS =
+            Set.of(Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN);
+    private static final Set<ResourceKey<Biome>> FROZEN_OCEANS =
+            Set.of(Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
     private static final List<MobCategory> NATURAL_CATEGORIES = List.of(
             MobCategory.MONSTER,
             MobCategory.CREATURE,
@@ -124,6 +132,7 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
             add(spawns, EntityTypes.SLIME, 10, 1, 1);
         }
         add(spawns, EntityTypes.SQUID, 10, 4, 4);
+        addFishSpawns(biome, spawns);
 
         if (!isAny(biome, ANIMAL_BIOMES)) return;
         add(spawns, ModEntityTypes.R196_SHEEP.get(), 10, 1, 1);
@@ -145,6 +154,41 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
         if (isAny(biome, JUNGLES)) {
             add(spawns, ModEntityTypes.R196_OCELOT.get(), 10, 1, 1);
             add(spawns, ModEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
+        }
+    }
+
+    /** Mirrors vanilla fish habitats while every natural entry uses the InfiniteX entity type. */
+    private static void addFishSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
+        if (biome.is(BiomeTags.IS_RIVER)) {
+            add(spawns, ModEntityTypes.R196_SALMON.get(), 5, 1, 5);
+            return;
+        }
+        if (biome.is(Biomes.LUSH_CAVES) || biome.is(Biomes.MANGROVE_SWAMP)) {
+            add(spawns, ModEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            return;
+        }
+        if (biome.is(Biomes.WARM_OCEAN)) {
+            add(spawns, ModEntityTypes.R196_PUFFERFISH.get(), 15, 1, 3);
+            add(spawns, ModEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            return;
+        }
+        if (isAny(biome, LUKEWARM_OCEANS)) {
+            add(spawns, ModEntityTypes.R196_COD.get(), biome.is(Biomes.DEEP_LUKEWARM_OCEAN) ? 8 : 15, 3, 6);
+            add(spawns, ModEntityTypes.R196_PUFFERFISH.get(), 5, 1, 3);
+            add(spawns, ModEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            return;
+        }
+        if (isAny(biome, COLD_OCEANS)) {
+            add(spawns, ModEntityTypes.R196_COD.get(), 15, 3, 6);
+            add(spawns, ModEntityTypes.R196_SALMON.get(), 15, 1, 5);
+            return;
+        }
+        if (isAny(biome, FROZEN_OCEANS)) {
+            add(spawns, ModEntityTypes.R196_SALMON.get(), 15, 1, 5);
+            return;
+        }
+        if (isAny(biome, NORMAL_OCEANS)) {
+            add(spawns, ModEntityTypes.R196_COD.get(), 10, 3, 6);
         }
     }
 

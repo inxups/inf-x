@@ -32,15 +32,19 @@ import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEve
 import net.minecraft.client.model.animal.squid.SquidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
+import net.minecraft.client.renderer.entity.CodRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EndermanRenderer;
 import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.HorseRenderer;
 import net.minecraft.client.renderer.entity.OcelotRenderer;
+import net.minecraft.client.renderer.entity.PufferfishRenderer;
+import net.minecraft.client.renderer.entity.SalmonRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.SquidRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.entity.TropicalFishRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
@@ -180,6 +184,10 @@ public final class ClientEvents {
                         context,
                         new SquidModel(context.bakeLayer(ModelLayers.SQUID)),
                         new SquidModel(context.bakeLayer(ModelLayers.SQUID_BABY))));
+        event.registerEntityRenderer(ModEntityTypes.R196_COD.get(), CodRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_SALMON.get(), SalmonRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_PUFFERFISH.get(), PufferfishRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.R196_TROPICAL_FISH.get(), TropicalFishRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_WITCH.get(), WitchRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(),

@@ -3,7 +3,9 @@ package com.pixulse.infx.item;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.registry.ModEntityTypes;
 import java.util.Map;
+import net.minecraft.world.entity.EntityTypes;
 import org.junit.jupiter.api.Test;
 
 class R196BucketRulesTest {
@@ -42,6 +44,18 @@ class R196BucketRulesTest {
         assertEquals("axolotl_mithril_bucket", R196MobBucketKind.AXOLOTL.path(R196Material.MITHRIL));
         assertEquals("tadpole_adamantium_bucket", R196MobBucketKind.TADPOLE.path(R196Material.ADAMANTIUM));
         assertEquals("powder_snow_copper_bucket", "powder_snow_" + R196Material.COPPER.path() + "_bucket");
+    }
+
+    @Test
+    void fishBucketsReleaseReplacementEntitiesAndMigrateLegacyFish() {
+        assertEquals(ModEntityTypes.R196_COD.get(), R196MobBucketKind.COD.entityType());
+        assertEquals(ModEntityTypes.R196_SALMON.get(), R196MobBucketKind.SALMON.entityType());
+        assertEquals(ModEntityTypes.R196_PUFFERFISH.get(), R196MobBucketKind.PUFFERFISH.entityType());
+        assertEquals(ModEntityTypes.R196_TROPICAL_FISH.get(), R196MobBucketKind.TROPICAL.entityType());
+        assertEquals(R196MobBucketKind.COD, R196MobBucketKind.of(EntityTypes.COD));
+        assertEquals(R196MobBucketKind.SALMON, R196MobBucketKind.of(EntityTypes.SALMON));
+        assertEquals(R196MobBucketKind.PUFFERFISH, R196MobBucketKind.of(EntityTypes.PUFFERFISH));
+        assertEquals(R196MobBucketKind.TROPICAL, R196MobBucketKind.of(EntityTypes.TROPICAL_FISH));
     }
 
     @Test

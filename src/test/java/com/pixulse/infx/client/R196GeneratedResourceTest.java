@@ -1488,9 +1488,9 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // 386/461 baseline + 49 material fish/mob/powder-snow buckets
-        assertEquals(435, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(510, jsonCount(GENERATED.resolve("assets/infx/models/item"))); // 461 + 49
+        // Four replacement fish spawn eggs add one item definition and model each.
+        assertEquals(439, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(514, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
