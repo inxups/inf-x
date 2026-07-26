@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 
 class R196CommandsTest {
     @Test
-    void commandRosterUsesInfxRootWithDayVillagesAndLivestock() {
+    void commandRosterUsesInfxRootWithDayAndVillages() {
         assertEquals("infx", R196Commands.ROOT);
-        assertEquals(List.of("infx day", "infx villages", "infx livestock"), R196Commands.NAMES);
-        assertEquals(3, new HashSet<>(R196Commands.NAMES).size());
+        assertEquals(List.of("infx day", "infx villages"), R196Commands.NAMES);
+        assertEquals(2, new HashSet<>(R196Commands.NAMES).size());
     }
 }

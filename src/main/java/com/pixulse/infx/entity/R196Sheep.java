@@ -94,22 +94,24 @@ public final class R196Sheep extends Sheep {
         return result;
     }
 
-    /** Neo shears call IShearable → readyForShearing; gate wool on productive health (MITE). */
-    @Override
-    public boolean readyForShearing() {
-        return super.readyForShearing() && R196Livestock.isProductive(this);
-    }
-
     @Override
     public void die(DamageSource source) {
         if (!level().isClientSide()
                 && getRandom().nextBoolean()
-                && level() instanceof ServerLevel serverLevel
-                && !R196Livestock.isDiseased(this)) {
+                && level() instanceof ServerLevel serverLevel) {
             serverLevel.addFreshEntity(new ItemEntity(
                     serverLevel, getX(), getY(), getZ(), new ItemStack(Items.LEATHER)));
         }
         super.die(source);
+    }
+
+    @Override
+    public void finalizeSpawnChildFromBreeding(
+            ServerLevel level, Animal partner, @Nullable AgeableMob offspring) {
+        super.finalizeSpawnChildFromBreeding(level, partner, offspring);
+        if (offspring instanceof Animal child) {
+            R196Livestock.adoptWellnessFromParents(child, this, partner);
+        }
     }
 
     @Override

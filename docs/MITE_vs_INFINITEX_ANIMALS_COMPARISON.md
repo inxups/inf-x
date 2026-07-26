@@ -4,6 +4,8 @@
 
 **对比范围**：牛、鸡、羊、猪、马、豹猫、狼（含变体）。
 
+> **2026-07-26 更新**：第 1 节和第 9 节的表格反映当前实现。后续动物细节中仍提及 `diseased`、旧剪毛门槛或旧粪肥门槛的段落是迁移前的对比记录，已由本次 MITE 1.6 对齐取代。
+
 ---
 
 ## 1. 整体架构差异
@@ -11,16 +13,16 @@
 | 维度               | MITE (原版)                              | InfiniteX (infx)                              | 备注 |
 |--------------------|------------------------------------------|-----------------------------------------------|------|
 | 基类               | EntityLivestock（Cow/Chicken/Sheep/Pig） | 原版 Animal（Cow/Chicken/Sheep/Pig）+ 事件叠加 | infx 不修改原版实体类 |
-| 需求模型           | food/water/freedom 三个 0~1 浮点         | LAST_WATER / LAST_FOOD + 多个布尔需求（watered/fed/open/light/shelter/safe） | 语义接近，但实现完全不同 |
-| 健康判定           | isWell() = min(...) >= 0.25              | healthy = 全部需求满足 && !panicked && !diseased | infx 额外引入 DISEASED 状态 |
-| 产出 gating        | isWell() + production_counter            | isProductive() = healthy && !diseased         | 基本等价 |
-| 繁殖 gating        | isWell() 才能进入 love 模式              | canBreed() = productive && 非 BLOOD/NEW 月    | 月相限制更严格 |
-| 疾病系统           | 无显式疾病（仅 well 值下降）             | 显式 diseased（传播/自愈，蓝月更快）          | infx 新增机制 |
+| 需求模型           | food/water/freedom 三个 0~1 浮点         | 同样持久化三个浮点，自然生成以 0.8~1.0 开始 | 使用 26.2 的 PersistentData |
+| 健康判定           | isWell() = min(...) >= 0.25              | isWell() = min(food, water, freedom) >= 0.25 | 客户端同步标志用于病皮 |
+| 产出 gating        | isWell() + production_counter            | 三项健康度限制牛奶/鸡蛋/羽毛；不健康时仅移除肉类掉落 | 生产模型仍有差异 |
+| 繁殖 gating        | isWell() 才能进入 love 模式              | canBreed() = isWell()                         | 不再另加月相限制 |
+| 疾病系统           | 无显式疾病（仅 well 值下降）             | 无显式疾病；不健康映射为病皮          | 已移除传播/自愈与专用指令 |
 | AI 实现            | 原生 EntityAI* 任务（SeekFood 等）       | 自定义 NeedsGoal（寻路到水/食物/安全点）+ AvoidEnemy | 效果相似，实现不同 |
 | 马的地位           | 独立复杂系统（不继承 Livestock）         | 原版 AbstractHorse + 轻量规则（避开、冷却、掉牛肉） | 保真度最低 |
 | 豹猫               | 完整驯服/攻击/繁殖逻辑                   | 无自定义（仅丛林生成）                        | infx 未移植 |
 | 狼变体             | DireWolf / Hellhound                     | DireWolf / Hellhound（基于 R196Wolf）         | 机制类似 |
-| 月相影响           | Blood/Blue 影响生成、驯服、狼行为        | R196MoonPhase 全面 gating（生成、繁殖、鸡蛋、疾病、驯服、狼敌对） | infx 更系统化 |
+| 月相影响           | Blood/Blue 影响生成、驯服、狼行为        | 生成、驯服、狼行为等世界机制保留月相影响 | 家畜 wellness 不再受月相干预 |
 | 数据持久化         | 原生 dataWatcher + NBT                   | PersistentData（infx_* 键）                   | 现代方式 |
 
 ---
@@ -38,12 +40,11 @@
 - 无累加奶值。
 - 每天最多 4 单位奶（`MILK_DAY` + `MILK_UNITS`）。
 - 仅 `isProductive(cow)` 时允许挤奶（包括原版桶和 R196 材质桶）。
-- 健康时掉牛肉（原版行为保留）。
+- 健康时掉牛肉；不健康仍保留皮革掉落。
 - 注册 NeedsGoal + 健康时把 MAX_HEALTH 设为 20。
 
 ### 关键差异
 - MITE 是“奶量累加”模型；infx 是“每日配额”模型。
-- infx 额外有“diseased”完全阻断产奶。
 - 挤奶限制更严格（同一天内多次挤奶被拒绝）。
 
 ---
@@ -76,6 +77,8 @@
 
 ## 4. 羊（Sheep）
 
+> 当前实现：羊毛只由是否已剪毛决定；不健康仅移除羊肉掉落，仍保留羊毛和皮革。
+
 ### MITE
 - `produceGoods()` 置零 → 不产东西。
 - 产出 = 手动剪毛。
@@ -83,10 +86,9 @@
 - well 时掉羊肉 + 可能掉羊毛（未剪）+ 皮革。
 
 ### InfiniteX
-- 仅 `isProductive(sheep)` 时允许剪毛。
+- 剪毛仅取决于未被剪的羊毛状态，不受 `isWell()` 限制。
 - 火伤 或 酸性伤害 强制剪毛（`setSheared(true)`）。
-- 死亡时可能额外掉皮革。
-- diseased 羊不可剪。
+- 死亡时可能额外掉皮革；不健康时不掉羊肉。
 
 ### 关键差异
 - 核心 gating 从 MITE 的“未剪毛状态”变成了 infx 的“productive 状态”。
@@ -188,12 +190,12 @@
 
 | 机制         | MITE                          | InfiniteX                              |
 |--------------|-------------------------------|----------------------------------------|
-| 粪肥         | 周期 + 健康掉落               | R196ManureEvents + isProductive        |
-| 恐慌传播     | 受伤后附近 Livestock 恐慌     | R196Livestock.panic() 传播 600 tick    |
-| 疾病         | 无                            | diseased 状态（传播/自愈/月相）        |
-| 繁殖月相     | well 时可繁殖                 | productive + 非 BLOOD/NEW 月           |
+| 粪肥         | 成年、food >= 0.05 时推进倒计时 | 同样使用持久倒计时与 food >= 0.05 条件 |
+| 恐慌传播     | 受伤后附近 Livestock 恐慌     | R196Livestock.panic() 传播 400~799 tick，且不改变 wellness |
+| 疾病         | 无显式状态                    | 无显式状态，仅 wellness 下降            |
+| 繁殖月相     | well 时可繁殖                 | well 时可繁殖，无额外月相门槛           |
 | 生成限制     | 原版群系规则 + 月相调整       | 完全替换群系表 + 仅蓝月生成动物        |
-| 掉落修改     | well 时高质量肉               | 部分保留（牛肉、羊额外皮革）           |
+| 掉落修改     | well 时掉肉，其他掉落保留     | 同样只移除不健康家畜的肉类掉落          |
 
 ---
 
@@ -201,9 +203,9 @@
 
 | 动物   | 保真度 | 主要缺失 / 差异 |
 |--------|--------|-----------------|
-| 牛     | 高     | 奶模型从“累加”改为“每日配额”+ 疾病阻断 |
+| 牛     | 高     | 奶模型从“累加”改为“每日配额” |
 | 鸡     | 高     | 羽毛从库存改为定时 + 月相调速 |
-| 羊     | 高     | gating 从“未剪”改为“productive” |
+| 羊     | 高     | 胶质类强制剪毛仍是近似实现 |
 | 猪     | 中     | 几乎无改动（仅肥料） |
 | 马     | 低     | 仅轻量规则，缺少完整驯服/叛逆/护甲/箱子系统 |
 | 豹猫   | 低     | 完全未移植（仅生成） |

@@ -15,20 +15,25 @@ import org.junit.jupiter.api.Test;
 
 class R196LivestockRulesTest {
     @Test
-    void everyNeedIsRequiredForHealthyProduction() {
-        assertTrue(R196Livestock.healthy(true, true, true, true, true, true, false, false));
-        assertFalse(R196Livestock.healthy(false, true, true, true, true, true, false, false));
-        assertFalse(R196Livestock.healthy(true, false, true, true, true, true, false, false));
-        assertFalse(R196Livestock.healthy(true, true, false, true, true, true, false, false));
-        assertFalse(R196Livestock.healthy(true, true, true, true, true, true, true, false));
-        assertFalse(R196Livestock.healthy(true, true, true, true, true, true, false, true));
+    void wellnessUsesTheMiteMinimumThreshold() {
+        assertTrue(R196Livestock.isWell(0.25F, 0.25F, 0.25F));
+        assertFalse(R196Livestock.isWell(0.249F, 1.0F, 1.0F));
+        assertFalse(R196Livestock.isWell(1.0F, 0.249F, 1.0F));
+        assertFalse(R196Livestock.isWell(1.0F, 1.0F, 0.249F));
     }
 
     @Test
-    void wellFlagMatchesProductiveHealthForSickSkins() {
-        // MITE isWell gates sick textures; infx maps that to healthy && !diseased.
-        assertTrue(R196Livestock.healthy(true, true, true, true, true, true, false, false));
-        assertFalse(R196Livestock.healthy(true, true, true, true, true, true, false, true));
+    void wellnessGainsAndLossesMatchMiteRates() {
+        assertEquals(0.9F, R196Livestock.adjustNeed(0.8F, true), 1.0E-6F);
+        assertEquals(0.795F, R196Livestock.adjustNeed(0.8F, false), 1.0E-6F);
+        assertEquals(1.0F, R196Livestock.adjustNeed(0.95F, true), 1.0E-6F);
+        assertEquals(0.0F, R196Livestock.adjustNeed(0.0F, false), 1.0E-6F);
+    }
+
+    @Test
+    void onlyExtremeHungerStopsMiteManure() {
+        assertFalse(R196Livestock.isDesperateForFood(0.05F));
+        assertTrue(R196Livestock.isDesperateForFood(0.049F));
     }
 
     @Test
@@ -65,10 +70,10 @@ class R196LivestockRulesTest {
     }
 
     @Test
-    void needSearchRangeExpandsAsHungerOrThirstDeepens() {
-        assertEquals(16, R196Livestock.searchRange(24_001L, 24_000L));
-        assertEquals(32, R196Livestock.searchRange(48_000L, 24_000L));
-        assertEquals(48, R196Livestock.searchRange(72_000L, 24_000L));
+    void needSearchRangeExpandsWithTheMiteWellnessThresholds() {
+        assertEquals(16, R196Livestock.searchRange(0.5F));
+        assertEquals(32, R196Livestock.searchRange(0.249F));
+        assertEquals(48, R196Livestock.searchRange(0.049F));
     }
 
     @Test

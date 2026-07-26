@@ -16,7 +16,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Server-authoritative livestock manure cycles from R196. */
 public final class R196ManureEvents {
-    private static final String NEXT_DROP_TAG = "infx_manure_next_drop";
+    private static final String COUNTDOWN_TAG = "infx_manure_countdown";
 
     private R196ManureEvents() {}
 
@@ -26,7 +26,9 @@ public final class R196ManureEvents {
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
-        if (!(entity instanceof Animal animal) || !(entity.level() instanceof ServerLevel level)) {
+        if (!(entity instanceof Animal animal)
+                || !(entity.level() instanceof ServerLevel level)
+                || !R196Livestock.hasSickSkin(animal)) {
             return;
         }
         int interval = interval(animal);
@@ -34,14 +36,13 @@ public final class R196ManureEvents {
             return;
         }
 
-        long now = level.getGameTime();
-        long next = animal.getPersistentData().getLong(NEXT_DROP_TAG).orElse(0L);
-        if (next == 0L) {
-            animal.getPersistentData().putLong(NEXT_DROP_TAG, now + interval);
-        } else if (now >= next && R196Livestock.isProductive(animal)) {
+        var data = animal.getPersistentData();
+        int countdown = data.getInt(COUNTDOWN_TAG).orElse(animal.getRandom().nextInt(interval));
+        if (!animal.isBaby() && !R196Livestock.isDesperateForFood(animal) && --countdown <= 0) {
             animal.spawnAtLocation(level, ModItems.catalog().raw("manure").holder());
-            animal.getPersistentData().putLong(NEXT_DROP_TAG, now + interval);
+            countdown = interval / 2 + animal.getRandom().nextInt(interval);
         }
+        data.putInt(COUNTDOWN_TAG, countdown);
     }
 
     /** Prefer class checks so R196 replacements (subclasses) share MITE manure periods. */
