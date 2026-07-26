@@ -78,6 +78,19 @@ class R196LivestockRulesTest {
     }
 
     @Test
+    void panicIsActiveOnlyBeforeItsDeadline() {
+        assertTrue(R196Livestock.isPanicActive(101L, 100L));
+        assertFalse(R196Livestock.isPanicActive(100L, 100L));
+        assertFalse(R196Livestock.isPanicActive(99L, 100L));
+    }
+
+    @Test
+    void repeatedPanicCannotShortenTheCurrentDeadline() {
+        assertEquals(800L, R196Livestock.extendPanicUntil(800L, 600L));
+        assertEquals(800L, R196Livestock.extendPanicUntil(600L, 800L));
+    }
+
+    @Test
     void waterGoalPrefersReachablePathsAndRejectsStationaryPartials() {
         BlockPos target = new BlockPos(4, 0, 0);
         Path empty = new Path(List.of(), target, false);

@@ -724,6 +724,24 @@ public final class ModR196CompletionGameTests {
                 "a nearby filled water cauldron must improve the MITE water meter");
         helper.setBlock(cauldron, Blocks.STONE);
 
+        // Keep the panic assertion on settled animals with a deterministic open floor. The empty
+        // GameTest template has no terrain around the earlier production chicken.
+        for (int x = 5; x <= 14; x++) {
+            for (int z = 5; z <= 14; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+            }
+        }
+        Cow panicSource = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(9, 2, 9));
+        Chicken panickedChicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(10, 2, 9));
+        panicSource.goalSelector.removeAllGoals(goal -> true);
+        panicSource.setDeltaMovement(Vec3.ZERO);
+        panicSource.setOnGround(true);
+        panickedChicken.goalSelector.removeAllGoals(goal -> true);
+        panickedChicken.setDeltaMovement(Vec3.ZERO);
+        panickedChicken.setOnGround(true);
+        R196Livestock.LivestockPanicGoal panicGoal =
+                new R196Livestock.LivestockPanicGoal(panickedChicken);
+
         // Build the dry approach before spawning the seeker so its first AI
         // tick cannot run while it is falling through uninitialized ground.
         for (int x = 7; x <= 11; x++) {
@@ -778,6 +796,25 @@ public final class ModR196CompletionGameTests {
                     helper.assertTrue(
                             R196Livestock.isWell(chicken) == wellBeforePanic,
                             "panic must not alter MITE food, water, or freedom");
+                    helper.assertTrue(
+                            R196Livestock.isPanicked(chicken, level.getGameTime()),
+                            "nearby R196 livestock must receive an active panic signal");
+                    helper.assertTrue(
+                            chicken.goalSelector.getAvailableGoals().stream().anyMatch(
+                                    goal -> goal.getGoal() instanceof R196Livestock.LivestockPanicGoal),
+                            "R196 livestock must install a goal that consumes the panic signal");
+                    R196Livestock.panic(level, panicSource);
+                    helper.assertTrue(
+                            R196Livestock.isPanicked(panickedChicken, level.getGameTime()),
+                            "nearby settled livestock must receive the panic signal");
+                    helper.assertTrue(
+                            panicGoal.canUse(),
+                            "panicked livestock must choose a reachable route away from the scare");
+                    panicGoal.start();
+                    helper.assertFalse(
+                            panickedChicken.getNavigation().isDone(),
+                            "the livestock panic goal must start escape navigation");
+                    panicGoal.stop();
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
                         R196Livestock.update(level, foodSeeker).food() >= 0.5F,
@@ -815,6 +852,8 @@ public final class ModR196CompletionGameTests {
                 .thenExecute(() -> {
                     removePlayer(player);
                     seeker.discard();
+                    panicSource.discard();
+                    panickedChicken.discard();
                 })
                 .thenSucceed();
     }

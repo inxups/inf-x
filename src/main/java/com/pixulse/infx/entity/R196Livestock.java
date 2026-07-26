@@ -20,6 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.util.DefaultRandomPos;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.cow.AbstractCow;
@@ -42,6 +43,7 @@ public final class R196Livestock {
     static final String FREEDOM = "infx_livestock_freedom";
     static final String WELLNESS_INITIALIZED = "infx_livestock_wellness_initialized";
     static final String PANIC_UNTIL = "infx_livestock_panic_until";
+    static final String PANIC_ORIGIN = "infx_livestock_panic_origin";
     static final String GOALS_ADDED = "infx_livestock_goals_added";
 
     static final float INITIAL_WELLNESS_MIN = 0.8F;
@@ -55,6 +57,10 @@ public final class R196Livestock {
     static final int BASE_SEARCH_RANGE = 16;
     static final int VERY_NEEDY_SEARCH_RANGE = 32;
     static final int DESPERATE_SEARCH_RANGE = 48;
+    static final int PANIC_ESCAPE_HORIZONTAL_RANGE = 4;
+    static final int PANIC_ESCAPE_VERTICAL_RANGE = 3;
+    static final int PANIC_ESCAPE_ATTEMPTS = 8;
+    static final double PANIC_ESCAPE_SPEED = 1.4;
     static final String HORSE_RETRY = "infx_horse_tame_retry";
     static final long HORSE_RETRY_TICKS = 4_000L;
 
@@ -126,17 +132,26 @@ public final class R196Livestock {
         if (animal instanceof AbstractHorse) {
             return;
         }
-        if (animal.getPersistentData().getBooleanOr(GOALS_ADDED, false)) return;
-        animal.goalSelector.addGoal(2, new NeedsGoal(animal));
-        animal.goalSelector.addGoal(1, new AvoidEntityGoal<>(
-                animal,
-                Mob.class,
-                mob -> mob instanceof Enemy,
-                10.0F,
-                1.15,
-                1.4,
-                entity -> entity.isAlive()));
-        animal.getPersistentData().putBoolean(GOALS_ADDED, true);
+        if (!hasLivestockPanicGoal(animal)) {
+            animal.goalSelector.addGoal(1, new LivestockPanicGoal(animal));
+        }
+        if (!animal.getPersistentData().getBooleanOr(GOALS_ADDED, false)) {
+            animal.goalSelector.addGoal(2, new NeedsGoal(animal));
+            animal.goalSelector.addGoal(1, new AvoidEntityGoal<>(
+                    animal,
+                    Mob.class,
+                    mob -> mob instanceof Enemy,
+                    10.0F,
+                    1.15,
+                    1.4,
+                    entity -> entity.isAlive()));
+            animal.getPersistentData().putBoolean(GOALS_ADDED, true);
+        }
+    }
+
+    private static boolean hasLivestockPanicGoal(Animal animal) {
+        return animal.goalSelector.getAvailableGoals().stream()
+                .anyMatch(goal -> goal.getGoal() instanceof LivestockPanicGoal);
     }
 
     /** MITE advances the three wellness values at most once every 100 ticks. */
@@ -245,8 +260,33 @@ public final class R196Livestock {
                 Animal.class,
                 source.getBoundingBox().inflate(8.0, 4.0, 8.0),
                 other -> other != source && other.isAlive() && hasSickSkin(other))) {
-            nearby.getPersistentData().putLong(PANIC_UNTIL, until);
+            markPanicked(nearby, until, source.blockPosition());
         }
+    }
+
+    /** Returns whether this R196 livestock animal must keep fleeing at the supplied game time. */
+    public static boolean isPanicked(Animal animal, long now) {
+        return isPanicActive(animal.getPersistentData().getLong(PANIC_UNTIL).orElse(0L), now);
+    }
+
+    static boolean isPanicActive(long until, long now) {
+        return until > now;
+    }
+
+    private static void markPanicked(Animal animal, long until, BlockPos origin) {
+        var data = animal.getPersistentData();
+        data.putLong(PANIC_UNTIL, extendPanicUntil(data.getLong(PANIC_UNTIL).orElse(0L), until));
+        // The newest scare gives the herd an escape direction even when an older panic lasts longer.
+        data.putLong(PANIC_ORIGIN, origin.asLong());
+    }
+
+    static long extendPanicUntil(long currentUntil, long proposedUntil) {
+        return Math.max(currentUntil, proposedUntil);
+    }
+
+    private static @Nullable Vec3 panicOrigin(Animal animal) {
+        long packedOrigin = animal.getPersistentData().getLong(PANIC_ORIGIN).orElse(Long.MIN_VALUE);
+        return packedOrigin == Long.MIN_VALUE ? null : Vec3.atCenterOf(BlockPos.of(packedOrigin));
     }
 
     /** MITE feeding restores half of the food meter. */
@@ -403,6 +443,66 @@ public final class R196Livestock {
     }
 
     public record Wellness(float food, float water, float freedom, boolean crowded, boolean well) {}
+
+    /** Flee while the livestock panic marker is active, away from the animal that raised it. */
+    public static final class LivestockPanicGoal extends Goal {
+        private final Animal animal;
+        private @Nullable Path path;
+
+        public LivestockPanicGoal(Animal animal) {
+            this.animal = animal;
+            setFlags(EnumSet.of(Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            if (!(animal.level() instanceof ServerLevel level)
+                    || !isPanicked(animal, level.getGameTime())) {
+                return false;
+            }
+            path = findEscapePath();
+            return NeedsGoal.isUsefulPath(path, animal.blockPosition());
+        }
+
+        @Override
+        public void start() {
+            if (path != null) {
+                animal.getNavigation().moveTo(path, PANIC_ESCAPE_SPEED);
+            }
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return animal.level() instanceof ServerLevel level
+                    && isPanicked(animal, level.getGameTime())
+                    && !animal.getNavigation().isDone();
+        }
+
+        @Override
+        public void stop() {
+            path = null;
+        }
+
+        private @Nullable Path findEscapePath() {
+            Vec3 origin = panicOrigin(animal);
+            for (int attempt = 0; attempt < PANIC_ESCAPE_ATTEMPTS; attempt++) {
+                Vec3 destination = origin == null
+                        ? DefaultRandomPos.getPos(
+                                animal, PANIC_ESCAPE_HORIZONTAL_RANGE, PANIC_ESCAPE_VERTICAL_RANGE)
+                        : DefaultRandomPos.getPosAway(
+                                animal,
+                                PANIC_ESCAPE_HORIZONTAL_RANGE,
+                                PANIC_ESCAPE_VERTICAL_RANGE,
+                                origin);
+                if (destination == null) continue;
+                Path candidate = animal.getNavigation().createPath(BlockPos.containing(destination), 0);
+                if (NeedsGoal.isUsefulPath(candidate, animal.blockPosition())) {
+                    return candidate;
+                }
+            }
+            return null;
+        }
+    }
 
     public static final class NeedsGoal extends Goal {
         private final Animal animal;
