@@ -2,6 +2,10 @@
 
 ## [0v] - 2026-07-26
 
+### 修复 R196 热带鱼生成规则注册的编译错误
+
+- `R196MonsterEvents` 注册热带鱼生成规则时直接引用 `TropicalFish::checkTropicalFishSpawnRules`,其首参是精确的 `EntityType<TropicalFish>`,与本模组的 `EntityType<R196TropicalFish>` 类型推断冲突导致 `compileJava` 失败;改为与狼/豹猫/蝙蝠一致的 lambda + `asEntityType` 适配写法,运行时仍传入本模组实体类型。
+
 ### 重新注册 26.2 原版附魔并接入 MITE 附魔机制
 
 - 通过数据生成覆盖 `data/minecraft/enchantment/`，把 MITE 中存在的 17 个原版系附魔（火焰保护、摔落缓冲、爆炸保护、弹射物保护、水下呼吸、水下速掘、荆棘、亡灵杀手、节肢杀手、击退、火焰附加、抢夺、效率、精准采集、力量、冲击、火矢）按 MITE 的稀有度、难度成本窗口、等级上限与自身互斥重新注册，并加入附魔台、村民交易、随机战利品与怪物装备的 R196 来源标签；附魔池从 22 项扩至 39 项，经验消耗沿用附魔强度 ×100 规则。
