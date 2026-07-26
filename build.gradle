@@ -193,8 +193,10 @@ tasks.register('resourceTest', Test) { resourceTest ->
     def unitTest = tasks.named('test', Test).get()
     unitTest.copyTo(resourceTest)
     resourceTest.jvmArgumentProviders.addAll(unitTest.jvmArgumentProviders)
-    dependsOn tasks.named('downloadAssets'), tasks.named('prepareNeoForgeTestFiles')
-    mustRunAfter tasks.named('runData')
+    // resourceTest reads src/generated/resources from disk; that tree is gitignored, so a
+    // fresh worktree (missing files) or a checkout that just pulled datagen-affecting
+    // changes (stale files) fails spuriously unless runData regenerates it first.
+    dependsOn tasks.named('downloadAssets'), tasks.named('prepareNeoForgeTestFiles'), tasks.named('runData')
     description = 'Validates resources produced by runData.'
     group = 'verification'
     testClassesDirs = sourceSets.test.output.classesDirs
