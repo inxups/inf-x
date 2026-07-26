@@ -29,8 +29,18 @@ public final class R196SwimPhysics {
      * magnitude, so a one-deep stream pushes exactly as hard as a full block.
      */
     public static void applyNormalizedCurrent(Entity entity, double scale) {
+        Vec3 impulse = R196SwimRules.currentImpulse(accumulatedCurrentFlow(entity), scale);
+        if (impulse.lengthSqr() > 0.0D) entity.addDeltaMovement(impulse);
+    }
+
+    /**
+     * Raw, un-normalised sum of every touched water block's unit flow, as MITE's
+     * {@code World.handleMaterialAcceleration} computes it before normalising. Exposed separately so
+     * callers that only need the current's direction (not its impulse) don't repeat the scan.
+     */
+    public static Vec3 accumulatedCurrentFlow(Entity entity) {
         AABB box = entity.getFluidInteractionBox();
-        if (box == null) return;
+        if (box == null) return Vec3.ZERO;
         BlockGetter level = entity.level();
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         Vec3 accumulated = Vec3.ZERO;
@@ -51,8 +61,18 @@ public final class R196SwimPhysics {
                 }
             }
         }
-        Vec3 impulse = R196SwimRules.currentImpulse(accumulated, scale);
-        if (impulse.lengthSqr() > 0.0D) entity.addDeltaMovement(impulse);
+        return accumulated;
+    }
+
+    /**
+     * MITE has no counter-current sprint model; scales {@code sprintSlowDown} back toward
+     * {@code normalSlowDown} proportionally to how directly the entity's own movement opposes the
+     * surrounding current, so a sprinting player can no longer trivially out-swim it upstream.
+     */
+    public static double antiCurrentSprintDrag(
+            Entity entity, float sprintSlowDown, float normalSlowDown, Vec3 movement) {
+        Vec3 current = accumulatedCurrentFlow(entity);
+        return R196SwimRules.antiCurrentSprintDrag(sprintSlowDown, normalSlowDown, movement, current);
     }
 
     /** Quadruples the effective gravity so vanilla's {@code baseGravity / 16} becomes MITE's 0.02. */

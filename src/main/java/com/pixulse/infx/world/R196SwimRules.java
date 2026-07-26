@@ -87,6 +87,38 @@ public final class R196SwimRules {
     }
 
     /**
+     * MITE has no counter-current sprint model; vanilla's post-1.13 sprint-swim drag reduction
+     * otherwise lets a sprinting player trivially out-swim MITE's current in any direction,
+     * including upstream. Blends {@code sprintSlowDown} back toward {@code normalSlowDown}
+     * proportionally to how directly {@code movement} opposes {@code current}, so swimming with,
+     * across, or without a current is unaffected.
+     */
+    public static double antiCurrentSprintDrag(
+            float sprintSlowDown, float normalSlowDown, Vec3 movement, Vec3 current) {
+        double opposition = opposition(movement, current);
+        return Mth.lerp(opposition, sprintSlowDown, normalSlowDown);
+    }
+
+    /**
+     * 0 when {@code movement} does not oppose {@code current} or either is negligible, rising to 1
+     * when they point directly against each other. Compares horizontal components only, since
+     * MITE's current push is horizontal.
+     */
+    public static double opposition(Vec3 movement, Vec3 current) {
+        double mx = movement.x;
+        double mz = movement.z;
+        double cx = current.x;
+        double cz = current.z;
+        double mLenSqr = mx * mx + mz * mz;
+        double cLenSqr = cx * cx + cz * cz;
+        if (mLenSqr < CURRENT_EPSILON_SQR || cLenSqr < CURRENT_EPSILON_SQR) {
+            return 0.0D;
+        }
+        double cos = (mx * cx + mz * cz) / Math.sqrt(mLenSqr * cLenSqr);
+        return Mth.clamp(-cos, 0.0D, 1.0D);
+    }
+
+    /**
      * MITE {@code getSpeedBoostVsSlowDown} without paralysis resistance, which has no modern
      * counterpart.
      */

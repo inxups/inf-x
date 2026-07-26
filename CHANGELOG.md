@@ -1,5 +1,15 @@
 # InfiniteX 更新日志
 
+## [0v] - 2026-07-26
+
+### 修复游泳冲刺可逆流而上
+
+- 根因：MITE 没有冲刺抗流模型，原版 1.13+ 的冲刺游泳水阻（0.9）在移植后依旧生效，使冲刺玩家能在 MITE 的任意流向水流中轻松逆流游动，包括正面顶流。
+- `R196SwimRules` 新增 `opposition(movement, current)`：只比较水平分量，移动与流向夹角越接近正对（180°）值越接近 1，顺流、横流或静水中为 0；新增 `antiCurrentSprintDrag`，按该系数把冲刺水阻 `0.9` 线性插值回非冲刺水阻 `0.8`（`Mth.lerp`），完全顶流时退化为普通游泳阻力，顺流/横流/静水中冲刺增益不变。
+- `R196SwimPhysics` 新增同名重载，读取实体当前 tick 的累计水流方向后委托给 `R196SwimRules`。
+- `LivingEntitySwimMixin` 对 `travelInWater` 内 `Vec3.multiply(DDD)` 调用新增 `@Redirect`，仅对冲刺中的玩家生效，用插值后的阻力替换水平两轴的乘数；非冲刺、非玩家实体或生物不受影响。
+- 新增 `R196SwimRulesTest` 五项单测覆盖 `opposition` 的顺流/逆流/斜角/静水退化，以及 `antiCurrentSprintDrag` 仅在逆流冲刺时生效；扩充 `r196_swim_physics` GameTest，验证冲刺逆流阻力回落到 0.85 以下、冲刺顺流阻力仍保持 0.88 以上。
+
 ## [0v] - 2026-07-25
 
 ### 移植 MITE 水流与游泳物理
