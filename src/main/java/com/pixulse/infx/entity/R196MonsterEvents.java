@@ -22,6 +22,8 @@ import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.feline.Ocelot;
+import net.minecraft.world.entity.animal.fish.TropicalFish;
+import net.minecraft.world.entity.animal.fish.WaterAnimal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.cubemob.MagmaCube;
@@ -122,6 +124,10 @@ public final class R196MonsterEvents {
 
         event.put(ModEntityTypes.R196_ENDERMAN.get(), R196Enderman.attributes().build());
         event.put(ModEntityTypes.R196_SQUID.get(), R196Squid.attributes().build());
+        event.put(ModEntityTypes.R196_COD.get(), R196Cod.attributes().build());
+        event.put(ModEntityTypes.R196_SALMON.get(), R196Salmon.attributes().build());
+        event.put(ModEntityTypes.R196_PUFFERFISH.get(), R196Pufferfish.attributes().build());
+        event.put(ModEntityTypes.R196_TROPICAL_FISH.get(), R196TropicalFish.attributes().build());
         event.put(ModEntityTypes.R196_WITCH.get(), R196Witch.attributes().build());
         event.put(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), R196ZombifiedPiglin.attributes().build());
         event.put(ModEntityTypes.R196_BLAZE.get(), R196Blaze.attributes().build());
@@ -243,6 +249,15 @@ public final class R196MonsterEvents {
                 (type, level, reason, pos, random) -> Wolf.checkWolfSpawnRules(
                         asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        registerWaterAnimalSpawnPlacement(event, ModEntityTypes.R196_COD.get());
+        registerWaterAnimalSpawnPlacement(event, ModEntityTypes.R196_SALMON.get());
+        registerWaterAnimalSpawnPlacement(event, ModEntityTypes.R196_PUFFERFISH.get());
+        event.register(
+                ModEntityTypes.R196_TROPICAL_FISH.get(),
+                SpawnPlacementTypes.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                TropicalFish::checkTropicalFishSpawnRules,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
     /** Match vanilla passive-animal ground and light spawn restrictions. */
@@ -250,6 +265,12 @@ public final class R196MonsterEvents {
             RegisterSpawnPlacementsEvent event, EntityType<? extends Animal> type) {
         event.register(type, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 Animal::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+    }
+
+    private static void registerWaterAnimalSpawnPlacement(
+            RegisterSpawnPlacementsEvent event, EntityType<? extends WaterAnimal> type) {
+        event.register(type, SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                WaterAnimal::checkSurfaceWaterAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
     static boolean checkR196MonsterSpawnRules(
@@ -662,6 +683,10 @@ public final class R196MonsterEvents {
         if (original == EntityTypes.SLIME) return ModEntityTypes.R196_SLIME.get();
         if (original == EntityTypes.ENDERMAN) return ModEntityTypes.R196_ENDERMAN.get();
         if (original == EntityTypes.SQUID) return ModEntityTypes.R196_SQUID.get();
+        if (original == EntityTypes.COD) return ModEntityTypes.R196_COD.get();
+        if (original == EntityTypes.SALMON) return ModEntityTypes.R196_SALMON.get();
+        if (original == EntityTypes.PUFFERFISH) return ModEntityTypes.R196_PUFFERFISH.get();
+        if (original == EntityTypes.TROPICAL_FISH) return ModEntityTypes.R196_TROPICAL_FISH.get();
         if (original == EntityTypes.WITCH) return ModEntityTypes.R196_WITCH.get();
         if (original == EntityTypes.ZOMBIFIED_PIGLIN) return ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get();
         if (original == EntityTypes.BLAZE) return ModEntityTypes.R196_BLAZE.get();

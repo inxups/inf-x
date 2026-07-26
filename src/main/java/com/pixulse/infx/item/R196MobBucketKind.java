@@ -1,5 +1,6 @@
 package com.pixulse.infx.item;
 
+import com.pixulse.infx.registry.ModEntityTypes;
 import java.util.function.Supplier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -14,12 +15,13 @@ import org.jspecify.annotations.Nullable;
 
 /** Bucketable water-mob contents that keep the R196 bucket material. */
 public enum R196MobBucketKind {
-    COD("cod", "Cod", "鳕鱼", EntityTypes.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
-    SALMON("salmon", "Salmon", "鲑鱼", EntityTypes.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
+    COD("cod", "Cod", "鳕鱼", () -> ModEntityTypes.R196_COD.get(), EntityTypes.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
+    SALMON("salmon", "Salmon", "鲑鱼", () -> ModEntityTypes.R196_SALMON.get(), EntityTypes.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
     PUFFERFISH(
             "pufferfish",
             "Pufferfish",
             "河豚",
+            () -> ModEntityTypes.R196_PUFFERFISH.get(),
             EntityTypes.PUFFERFISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.PUFFERFISH),
@@ -27,31 +29,34 @@ public enum R196MobBucketKind {
             "tropical",
             "Tropical Fish",
             "热带鱼",
+            () -> ModEntityTypes.R196_TROPICAL_FISH.get(),
             EntityTypes.TROPICAL_FISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.TROPICAL_FISH),
-    AXOLOTL("axolotl", "Axolotl", "美西螈", EntityTypes.AXOLOTL, SoundEvents.BUCKET_EMPTY_AXOLOTL, null),
-    TADPOLE("tadpole", "Tadpole", "蝌蚪", EntityTypes.TADPOLE, SoundEvents.BUCKET_EMPTY_TADPOLE, null);
+    AXOLOTL("axolotl", "Axolotl", "美西螈", () -> EntityTypes.AXOLOTL, EntityTypes.AXOLOTL, SoundEvents.BUCKET_EMPTY_AXOLOTL, null),
+    TADPOLE("tadpole", "Tadpole", "蝌蚪", () -> EntityTypes.TADPOLE, EntityTypes.TADPOLE, SoundEvents.BUCKET_EMPTY_TADPOLE, null);
 
     private final String pathPrefix;
     private final String englishName;
     private final String chineseName;
     private final Supplier<? extends EntityType<? extends Mob>> type;
+    private final EntityType<?> legacyType;
     private final SoundEvent emptySound;
     private final @Nullable FoodProperties food;
 
-    @SuppressWarnings("unchecked")
     R196MobBucketKind(
             String pathPrefix,
             String englishName,
             String chineseName,
-            EntityType<? extends Mob> type,
+            Supplier<? extends EntityType<? extends Mob>> type,
+            EntityType<?> legacyType,
             SoundEvent emptySound,
             @Nullable FoodProperties food) {
         this.pathPrefix = pathPrefix;
         this.englishName = englishName;
         this.chineseName = chineseName;
-        this.type = () -> type;
+        this.type = type;
+        this.legacyType = legacyType;
         this.emptySound = emptySound;
         this.food = food;
     }
@@ -90,7 +95,7 @@ public enum R196MobBucketKind {
 
     public static @Nullable R196MobBucketKind of(EntityType<?> type) {
         for (R196MobBucketKind kind : values()) {
-            if (kind.entityType() == type) {
+            if (kind.entityType() == type || kind.legacyType == type) {
                 return kind;
             }
         }

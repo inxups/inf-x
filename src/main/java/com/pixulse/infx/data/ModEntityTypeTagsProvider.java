@@ -63,8 +63,28 @@ final class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                 ModEntityTypes.WOOD_SPIDER.getKey(),
                 ModEntityTypes.PHASE_SPIDER.getKey());
 
-        tag(EntityTypeTags.AQUATIC).add(ModEntityTypes.R196_SQUID.getKey());
-        tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER).add(ModEntityTypes.R196_SQUID.getKey());
+        tag(EntityTypeTags.AQUATIC).add(
+                ModEntityTypes.R196_SQUID.getKey(),
+                ModEntityTypes.R196_COD.getKey(),
+                ModEntityTypes.R196_SALMON.getKey(),
+                ModEntityTypes.R196_PUFFERFISH.getKey(),
+                ModEntityTypes.R196_TROPICAL_FISH.getKey());
+        tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER).add(
+                ModEntityTypes.R196_SQUID.getKey(),
+                ModEntityTypes.R196_COD.getKey(),
+                ModEntityTypes.R196_SALMON.getKey(),
+                ModEntityTypes.R196_PUFFERFISH.getKey(),
+                ModEntityTypes.R196_TROPICAL_FISH.getKey());
+        tag(EntityTypeTags.AXOLOTL_HUNT_TARGETS).add(
+                ModEntityTypes.R196_COD.getKey(),
+                ModEntityTypes.R196_SALMON.getKey(),
+                ModEntityTypes.R196_PUFFERFISH.getKey(),
+                ModEntityTypes.R196_TROPICAL_FISH.getKey());
+        tag(EntityTypeTags.NOT_SCARY_FOR_PUFFERFISH).add(
+                ModEntityTypes.R196_COD.getKey(),
+                ModEntityTypes.R196_SALMON.getKey(),
+                ModEntityTypes.R196_PUFFERFISH.getKey(),
+                ModEntityTypes.R196_TROPICAL_FISH.getKey());
         tag(EntityTypeTags.RAIDERS).add(ModEntityTypes.R196_WITCH.getKey());
 
         tag(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES).add(

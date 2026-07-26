@@ -98,6 +98,10 @@ class R196MonsterProfileTest {
         assertEquals(10.0, squid.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(16.0, squid.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertFalse(squid.hasAttribute(Attributes.ATTACK_DAMAGE));
+        assertEquals(3.0, stats(R196Cod.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(R196Salmon.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(R196Pufferfish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(R196TropicalFish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
 
         assertBat(R196Bat.Variant.VAMPIRE, 3.0, 1.0);
         assertBat(R196Bat.Variant.NIGHTWING, 3.0, 1.0);
@@ -135,6 +139,10 @@ class R196MonsterProfileTest {
                 "r196_slime", "jelly", "blob", "ooze", "pudding", "magma_cube");
         assertDimensions(entities, checked, 0.6F, 2.9F, "r196_enderman");
         assertDimensions(entities, checked, 0.95F, 0.95F, "r196_squid");
+        assertDimensions(entities, checked, 0.5F, 0.3F, "r196_cod");
+        assertDimensions(entities, checked, 0.7F, 0.4F, "r196_salmon");
+        assertDimensions(entities, checked, 0.7F, 0.7F, "r196_pufferfish");
+        assertDimensions(entities, checked, 0.5F, 0.4F, "r196_tropical_fish");
         assertDimensions(entities, checked, 4.0F, 4.0F, "r196_ghast");
         assertDimensions(entities, checked, 0.3F, 0.7F, "netherspawn", "copperspine", "hoary_silverfish");
         assertDimensions(entities, checked, 0.5F, 0.9F, "vampire_bat", "nightwing");
@@ -194,6 +202,10 @@ class R196MonsterProfileTest {
         add(names, "r196_slime", "Slime", "史莱姆");
         add(names, "r196_enderman", "Enderman", "末影人");
         add(names, "r196_squid", "Squid", "鱿鱼");
+        add(names, "r196_cod", "Cod", "鳕鱼");
+        add(names, "r196_salmon", "Salmon", "鲑鱼");
+        add(names, "r196_pufferfish", "Pufferfish", "河豚");
+        add(names, "r196_tropical_fish", "Tropical Fish", "热带鱼");
         add(names, "r196_witch", "Witch", "女巫");
         add(names, "r196_zombified_piglin", "Zombie Pigman", "僵尸猪人");
         add(names, "r196_blaze", "Blaze", "烈焰人");

@@ -139,6 +139,23 @@ public final class ModMonsterGameTests {
                 ModEntityTypes.R196_SQUID.get().getCategory() == MobCategory.WATER_CREATURE
                         && ModEntityTypes.R196_SQUID.get().isAllowedInPeaceful(),
                 "replacement squid must use the peaceful water-creature cap");
+        for (var type : List.of(
+                ModEntityTypes.R196_COD,
+                ModEntityTypes.R196_SALMON,
+                ModEntityTypes.R196_PUFFERFISH,
+                ModEntityTypes.R196_TROPICAL_FISH)) {
+            helper.assertTrue(
+                    BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type.get()).is(EntityTypeTags.AQUATIC)
+                            && BuiltInRegistries.ENTITY_TYPE
+                                    .wrapAsHolder(type.get())
+                                    .is(EntityTypeTags.AXOLOTL_HUNT_TARGETS)
+                            && BuiltInRegistries.ENTITY_TYPE
+                                    .wrapAsHolder(type.get())
+                                    .is(EntityTypeTags.NOT_SCARY_FOR_PUFFERFISH)
+                            && type.get().getCategory() == MobCategory.WATER_AMBIENT
+                            && type.get().isAllowedInPeaceful(),
+                    type.getId() + " must retain vanilla aquatic interaction semantics");
+        }
         helper.assertTrue(
                 ModEntityTypes.VAMPIRE_BAT.get().getCategory() == MobCategory.AMBIENT
                         && ModEntityTypes.NIGHTWING.get().getCategory() == MobCategory.AMBIENT,
@@ -309,6 +326,48 @@ public final class ModMonsterGameTests {
                         && SpawnPlacements.getHeightmapType(ModEntityTypes.R196_OCELOT.get())
                                 == Heightmap.Types.MOTION_BLOCKING,
                 "R196 ocelots must retain vanilla ocelot spawn placement restrictions");
+        for (var type : List.of(
+                ModEntityTypes.R196_COD,
+                ModEntityTypes.R196_SALMON,
+                ModEntityTypes.R196_PUFFERFISH,
+                ModEntityTypes.R196_TROPICAL_FISH)) {
+            helper.assertTrue(
+                    SpawnPlacements.getPlacementType(type.get()) == SpawnPlacementTypes.IN_WATER
+                            && SpawnPlacements.getHeightmapType(type.get())
+                                    == Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    type.getId() + " must retain vanilla water spawn placement restrictions");
+        }
+
+        MobSpawnSettings ocean = biomes.getOrThrow(Biomes.OCEAN).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(ocean, MobCategory.WATER_AMBIENT).equals(List.of(ModEntityTypes.R196_COD.get())),
+                "normal oceans must spawn only InfiniteX cod");
+        MobSpawnSettings coldOcean = biomes.getOrThrow(Biomes.COLD_OCEAN).value().getMobSettings();
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(coldOcean, MobCategory.WATER_AMBIENT)).equals(Set.of(
+                        ModEntityTypes.R196_COD.get(), ModEntityTypes.R196_SALMON.get())),
+                "cold oceans must replace cod and salmon with InfiniteX fish");
+        MobSpawnSettings lukewarmOcean = biomes.getOrThrow(Biomes.LUKEWARM_OCEAN).value().getMobSettings();
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(lukewarmOcean, MobCategory.WATER_AMBIENT)).equals(Set.of(
+                        ModEntityTypes.R196_COD.get(),
+                        ModEntityTypes.R196_PUFFERFISH.get(),
+                        ModEntityTypes.R196_TROPICAL_FISH.get())),
+                "lukewarm oceans must use InfiniteX cod, pufferfish and tropical fish");
+        MobSpawnSettings warmOcean = biomes.getOrThrow(Biomes.WARM_OCEAN).value().getMobSettings();
+        helper.assertTrue(
+                Set.copyOf(spawnTypes(warmOcean, MobCategory.WATER_AMBIENT)).equals(Set.of(
+                        ModEntityTypes.R196_PUFFERFISH.get(), ModEntityTypes.R196_TROPICAL_FISH.get())),
+                "warm oceans must use InfiniteX pufferfish and tropical fish");
+        MobSpawnSettings river = biomes.getOrThrow(Biomes.RIVER).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(river, MobCategory.WATER_AMBIENT).equals(List.of(ModEntityTypes.R196_SALMON.get())),
+                "rivers must use InfiniteX salmon");
+        MobSpawnSettings lushCaves = biomes.getOrThrow(Biomes.LUSH_CAVES).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(lushCaves, MobCategory.WATER_AMBIENT)
+                        .equals(List.of(ModEntityTypes.R196_TROPICAL_FISH.get())),
+                "lush caves must use InfiniteX tropical fish");
 
         MobSpawnSettings mushroom = biomes.getOrThrow(Biomes.MUSHROOM_FIELDS).value().getMobSettings();
         helper.assertTrue(

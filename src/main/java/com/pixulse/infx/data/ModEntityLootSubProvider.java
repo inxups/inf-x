@@ -42,6 +42,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         emptyDrops(ModEntityTypes.R196_SLIME.get());
         drops(ModEntityTypes.R196_ENDERMAN.get(), Items.ENDER_PEARL, 0.0F, 1.0F);
         drops(ModEntityTypes.R196_SQUID.get(), Items.INK_SAC, 1.0F, 3.0F);
+        drops(ModEntityTypes.R196_COD.get(), Items.COD, 1.0F, 1.0F);
+        drops(ModEntityTypes.R196_SALMON.get(), Items.SALMON, 1.0F, 1.0F);
+        drops(ModEntityTypes.R196_PUFFERFISH.get(), Items.PUFFERFISH, 1.0F, 1.0F);
+        drops(ModEntityTypes.R196_TROPICAL_FISH.get(), Items.TROPICAL_FISH, 1.0F, 1.0F);
         drops(ModEntityTypes.R196_WITCH.get(), Items.REDSTONE, 0.0F, 2.0F);
         drops(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), Items.GOLD_NUGGET, 0.0F, 1.0F);
         drops(ModEntityTypes.R196_BLAZE.get(), Items.BLAZE_ROD, 0.0F, 1.0F);
