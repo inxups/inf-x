@@ -181,14 +181,61 @@ public final class ModMonsterGameTests {
                     zombie.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
                     type.getId() + " must not inherit modern zombie armor");
         }
-        var piglin = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(8, 2, 1));
+        var piglin = helper.spawn(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(8, 2, 1));
         helper.assertTrue(
                 piglin.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
                 "R196 zombified piglins must not inherit modern zombie armor");
+        helper.assertTrue(
+                piglin.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.23D,
+                "R196 zombified piglins must use the normalized modern base movement speed");
+        var piglinTarget = ModR196CompletionGameTests.createPlayer(helper);
+        piglin.setTarget(piglinTarget);
+        // The replacement adjusts its modifier from customServerAiStep, which is
+        // invoked by the real entity tick rather than by the client-side aiStep hook.
+        piglin.tick();
+        helper.assertTrue(
+                Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.437D) < DAMAGE_EPSILON,
+                "R196 zombified piglins must retain MITE's 1.9x chase-speed ratio");
+        piglin.setTarget(null);
+        ModR196CompletionGameTests.removePlayer(piglinTarget);
+        piglin.tick();
+        helper.assertTrue(
+                Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
+                "R196 zombified piglins must remove the chase-speed modifier without a target");
         var blaze = helper.spawnWithNoFreeWill(ModEntityTypes.R196_BLAZE.get(), new BlockPos(9, 2, 1));
         helper.assertTrue(
-                blaze.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.70D,
-                "R196 blazes must retain MITE's 0.70 movement speed");
+                Math.abs(blaze.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
+                "R196 blazes must retain the modern baseline movement speed");
+
+        int spiderX = 1;
+        for (var type : List.of(
+                ModEntityTypes.R196_SPIDER,
+                ModEntityTypes.R196_CAVE_SPIDER,
+                ModEntityTypes.BLACK_WIDOW_SPIDER,
+                ModEntityTypes.DEMON_SPIDER,
+                ModEntityTypes.WOOD_SPIDER,
+                ModEntityTypes.PHASE_SPIDER)) {
+            var spider = helper.spawnWithNoFreeWill(type.get(), new BlockPos(spiderX++, 2, 2));
+            double expectedSpeed = type == ModEntityTypes.R196_SPIDER
+                            || type == ModEntityTypes.R196_CAVE_SPIDER
+                            || type == ModEntityTypes.DEMON_SPIDER
+                    ? 0.375D
+                    : 0.30D;
+            helper.assertTrue(
+                    spider.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == expectedSpeed,
+                    type.getId() + " must retain its normalized arachnid movement speed");
+        }
+
+        int silverfishX = 1;
+        for (var type : List.of(
+                ModEntityTypes.NETHERSPAWN,
+                ModEntityTypes.COPPERSPINE,
+                ModEntityTypes.HOARY_SILVERFISH)) {
+            var silverfish = helper.spawnWithNoFreeWill(type.get(), new BlockPos(silverfishX++, 2, 3));
+            helper.assertTrue(
+                    silverfish.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.25D,
+                    type.getId() + " must retain the modern silverfish movement baseline");
+        }
 
         int slimeX = 1;
         for (var type : List.of(
@@ -201,8 +248,8 @@ public final class ModMonsterGameTests {
             for (int size : List.of(1, 2, 4)) {
                 slime.setSize(size, true);
                 helper.assertTrue(
-                        slime.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.70D,
-                        type.getId() + " must retain 0.70 movement speed after size " + slime.getSize());
+                        slime.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.20D + 0.10D * slime.getSize(),
+                        type.getId() + " must retain modern movement speed after size " + slime.getSize());
             }
         }
         var magmaCube = helper.spawnWithNoFreeWill(ModEntityTypes.MAGMA_CUBE.get(), new BlockPos(7, 2, 4));

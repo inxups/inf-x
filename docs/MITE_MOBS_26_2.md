@@ -8,16 +8,15 @@
 
 基线为：
 
-- MITE R196 参考源码中的 `SharedMonsterAttributes` 与各 `Entity*.java`；它只定义生命、追踪范围、击退抗性、移速、攻击五项共享属性。
+- MITE R196 参考源码中的 `SharedMonsterAttributes` 与各 `Entity*.java`；它只定义生命、追踪范围、击退抗性、移速、攻击五项共享属性。对于旧 AI（`isAIEnabled=false`）实体，移速字段还是固定 `0.1` 节流下的路径前进输入，不能直接作为 26.2 的移动属性复制。
 - Minecraft `26.2` 的 `createAttributes()` 和 `EntityTypes` 默认尺寸，读取的是本项目 NeoForm 下载的 `minecraft_26.2_client.jar`，且在 `finalizeSpawn` 前读取基础值，不包含装备、难度或随机出生修饰符。
 - 当前实现为本仓库 `master` 的 `f38dabf` 基线，属性注册入口是 `R196MonsterEvents#createAttributes`。
 
-审计结果是：大多数生命、追踪、移速、攻击、尺寸与 R196 一致，但当前仍有三项确定的静态属性差异，以及一项需要单独实现的条件性防御：
+审计结果是：生命、追踪、攻击、尺寸和新 AI 实体的移速可直接逐项对照；旧 AI 实体的移速必须改按 26.2 父类基线及 MITE 的相对倍率迁移。下列规则是这一迁移中最容易误用的边界：
 
 1. `R196Zombie` 的六个实体和 `R196ZombifiedPiglin` 继承了 26.2 僵尸系的基础 `Armor=2`；MITE 没有这项基础自然防御，应为 `0`。
-2. `R196Slime` 及其四个变体会被 26.2 的 `AbstractCubeMob#setSize` 改写为 `0.2 + 0.1 * size` 移速；MITE 普通胶质方块保持共享属性默认值 `0.7`。
-3. `R196Blaze` 继承了 26.2 烈焰人的 `0.23` 移速；MITE `EntityBlaze` 未覆盖其 `EntityMob` 基础移速，目标值为 `0.7`。
-4. MITE 女巫只对“间接且带魔法属性”的伤害提供 `10` 点自然防御；这不能用通用 `Armor=10` 代替，需要按伤害来源做条件性处理。
+2. `R196Spider`、`R196Silverfish`、`R196Blaze`、`R196Slime` 和 `R196ZombifiedPiglin` 均来自旧 AI 路径；旧版的原始移速不能直接写入 26.2。蜘蛛仅保留相对 25% 加速，僵尸猪人仅保留 1.9 倍追击比例，其余回到对应现代家族基线。
+3. MITE 女巫只对“间接且带魔法属性”的伤害提供 `10` 点自然防御；这不能用通用 `Armor=10` 代替，需要按伤害来源做条件性处理。
 
 本文是当前怪物的修改清单，不会仅凭文档把 26.2 的额外属性照搬为 MITE 数值。
 
@@ -33,7 +32,7 @@
 - `K`：击退抗性。
 - `s`：胶质方块当前尺寸，范围和伤害会按尺寸变化。
 
-MITE 的默认共享值为 `20/32/0.7/2/--/0`；`EntityLiving` 会把追踪范围改为 `16`，`EntityMob` 保持/写入 `32` 并注册攻击属性。不要把 26.2 的父类默认 `Armor`、尺寸或动态属性当成 MITE 源码值。
+MITE 的默认共享值为 `20/32/0.7/2/--/0`；`EntityLiving` 会把追踪范围改为 `16`，`EntityMob` 保持/写入 `32` 并注册攻击属性。旧 AI 的 `EntityLivingBase` 会先把移速设为 `0.1`，并在路径计算中将属性作为前进输入；26.2 的 `MoveControl` 则直接以属性作为速度。因此旧 AI 数值只能保留同族相对倍率，绝不能逐字搬运。不要把 26.2 的父类默认 `Armor`、尺寸或动态属性当成 MITE 源码值。
 
 ## 逐项属性对照
 
@@ -73,14 +72,14 @@ MITE 来源：`EntitySkeleton`、`EntityLongdead`、`EntityBoneLord`、`EntityAn
 
 | 当前实体 | MITE R196 目标 | 当前状态 | 修改结论 |
 |---|---|---|---|
-| `r196_spider` 蜘蛛 | `12/28/1.00/4/0/0` | 已对齐 | 无基础属性改动。 |
-| `r196_cave_spider` 洞穴蜘蛛 | `16/28/1.00/4/0/0` | 已对齐 | 无基础属性改动。 |
-| `black_widow_spider` 黑寡妇蜘蛛 | `6/28/0.80/1/0/0` | 已对齐 | 无基础属性改动。 |
-| `demon_spider` 恶魔蜘蛛 | `18/28/1.00/5/0/0` | 已对齐 | 无基础属性改动。 |
-| `wood_spider` 木蜘蛛 | `6/28/0.80/1/0/0` | 已对齐 | 无基础属性改动。 |
-| `phase_spider` 相位蜘蛛 | `6/28/0.80/3/0/0` | 已对齐 | 无基础属性改动。 |
+| `r196_spider` 蜘蛛 | `12/28/0.375/4/0/0` | 已对齐 | 保留旧版基础蜘蛛相对原版的 25% 加速。 |
+| `r196_cave_spider` 洞穴蜘蛛 | `16/28/0.375/4/0/0` | 已对齐 | 保留旧版基础蜘蛛相对原版的 25% 加速。 |
+| `black_widow_spider` 黑寡妇蜘蛛 | `6/28/0.30/1/0/0` | 已对齐 | 使用现代蜘蛛基线。 |
+| `demon_spider` 恶魔蜘蛛 | `18/28/0.375/5/0/0` | 已对齐 | 保留旧版基础蜘蛛相对原版的 25% 加速。 |
+| `wood_spider` 木蜘蛛 | `6/28/0.30/1/0/0` | 已对齐 | 使用现代蜘蛛基线。 |
+| `phase_spider` 相位蜘蛛 | `6/28/0.30/3/0/0` | 已对齐 | 使用现代蜘蛛基线。 |
 
-MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`EntityDemonSpider`、`EntityWoodSpider`、`EntityPhaseSpider`。这里的 `1.00` 是 MITE 源码属性值，不能保留 26.2 的 `0.30`。
+MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`EntityDemonSpider`、`EntityWoodSpider`、`EntityPhaseSpider`。旧版原版蜘蛛的 `0.80` 已迁移为 26.2 的 `0.30`；MITE 基础/洞穴/恶魔蜘蛛的 `1.00` 因而映射为 `0.30×(1.00/0.80)=0.375`，而木、黑寡妇和相位蜘蛛保留现代 `0.30`。
 
 ### 苦力怕与元素
 
@@ -92,9 +91,9 @@ MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`
 | `infernal_creeper` 地狱爬行者 | `20/32/0.25/2/2/0` | 已映射 | `EntityInfernalCreeper#getNaturalDefense` 的 2 点非绕过防御映射为 `Ar=2`。 |
 | `fire_elemental` 火元素 | `20/40/0.25/5/0/0` | 已对齐 | 属性已对齐；近战 AI、水/雪球/附魔门控、周期水伤与岩浆回血已按 MITE `EntityFireElemental` 还原。 |
 | `earth_elemental` 土元素 | `30/20/0.20/12/4/0` | 已映射 | 覆盖铁傀儡的生命、攻击、击退抗性，4 点自然防御映射为 `Ar=4`。 |
-| `r196_blaze` 烈焰人 | `20/32/0.70/6/0/0` | `S=0.23` | 显式写入 `S=0.70`。 |
+| `r196_blaze` 烈焰人 | `20/32/0.23/6/0/0` | 已对齐 | 使用现代烈焰人移速基线。 |
 
-MITE `EntityBlaze` 只覆盖攻击为 6，因此继承 `EntityMob` 的 `0.7` 移速。火元素不是烈焰人的属性副本，它在 MITE `EntityFireElemental` 中明确写入 `0.25`；不要对两者做同一速度修复。
+MITE `EntityBlaze` 只覆盖攻击为 6；它走旧 AI 的固定节流，而不是可直接复制的 `0.7` 现代属性。火元素不是烈焰人的属性副本，它在 MITE `EntityFireElemental` 中明确写入 `0.25` 且使用新 AI；不要对两者做同一速度修复。
 
 ### 胶质方块与岩浆怪
 
@@ -102,14 +101,14 @@ MITE `EntityBlaze` 只覆盖攻击为 6，因此继承 `EntityMob` 的 `0.7` 移
 
 | 当前实体 | MITE R196 目标 | 当前状态 | 修改结论 |
 |---|---|---|---|
-| `r196_slime` 史莱姆 | `s^2/16/0.70/s/0/0` | `S=0.2 + 0.1s` | `setSize` 后恢复 `S=0.70`。 |
-| `jelly` 褐色史莱姆 | `s^2/16/0.70/(2s)/0/0` | `S=0.2 + 0.1s` | `setSize` 后恢复 `S=0.70`。 |
-| `blob` 红色史莱姆 | `s^2/16/0.70/(3s)/0/0` | `S=0.2 + 0.1s` | `setSize` 后恢复 `S=0.70`。 |
-| `ooze` 灰色史莱姆 | `s^2/32/0.70/(3s)/0/0`，`s<=2` | `S=0.2 + 0.1s` | 保留尺寸上限，`setSize` 后恢复 `S=0.70`。 |
-| `pudding` 黑色史莱姆 | `s^2/16/0.70/(4s)/0/0` | `S=0.2 + 0.1s` | `setSize` 后恢复 `S=0.70`。 |
+| `r196_slime` 史莱姆 | `s^2/16/(0.2+0.1s)/s/0/0` | 已对齐 | 保留现代立方体尺寸速度曲线。 |
+| `jelly` 褐色史莱姆 | `s^2/16/(0.2+0.1s)/(2s)/0/0` | 已对齐 | 保留现代立方体尺寸速度曲线。 |
+| `blob` 红色史莱姆 | `s^2/16/(0.2+0.1s)/(3s)/0/0` | 已对齐 | 保留现代立方体尺寸速度曲线。 |
+| `ooze` 灰色史莱姆 | `s^2/32/(0.2+0.1s)/(3s)/0/0`，`s<=2` | 已对齐 | 保留尺寸上限与现代速度曲线。 |
+| `pudding` 黑色史莱姆 | `s^2/16/(0.2+0.1s)/(4s)/0/0` | 已对齐 | 保留现代立方体尺寸速度曲线。 |
 | `magma_cube` 岩浆怪 | `s^2/16/0.20/(2s)/(2s)/0` | 已对齐 | `R196MagmaCube#setSize` 已覆盖 26.2 的速度、攻击和 `3s` 护甲公式。 |
 
-MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`EntityOoze`、`EntityPudding`、`EntityMagmaCube`。普通胶质方块本身继承 `EntityLiving` 的 `0.7`；岩浆怪是唯一在源码中明确改为 `0.2` 的这一族成员。
+MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`EntityOoze`、`EntityPudding`、`EntityMagmaCube`。普通胶质方块走旧 AI，`EntityLivingBase` 的固定 `0.1` 节流而非共享 `0.7` 决定实际速度；岩浆怪是唯一在源码中明确写入 `0.2` 的这一族成员。
 
 ### 其余替换体与特殊生物
 
@@ -118,11 +117,11 @@ MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`En
 | `r196_enderman` 末影人 | EnderMan `40/64/0.30/7/0/0` | `40/32/0.30/10/0/0` | 已对齐 | 无基础属性改动。 |
 | `r196_squid` 鱿鱼 | Squid `10/16/0.70/-/0/0` | `10/16/0.70/-/0/0` | 已对齐 | 无基础属性改动；攻击是接触缓慢，不添加近战属性。 |
 | `r196_witch` 女巫 | Witch `26/16/0.25/2/0/0` | `26/32/0.25/2/0/0` | 基础值对齐 | 另行实现“间接魔法”10 点自然防御，不能提升通用护甲。 |
-| `r196_zombified_piglin` 僵尸猪人 | ZombifiedPiglin `20/35/0.23/5/2/0` | `20/40/0.50/8/0/0` | `Ar=2` | 基础护甲归零。 |
+| `r196_zombified_piglin` 僵尸猪人 | ZombifiedPiglin `20/35/0.23/5/2/0` | 常态 `20/40/0.23/8/0/0`；追击 `S=0.437` | 已对齐 | 归零基础护甲，并保留 MITE 的 1.9 倍追击比例。 |
 | `r196_ghast` 恶魂 | Ghast `10/100/0.70/-/0/0` | `10/100/0.70/-/0/0` | 已对齐 | 无基础属性改动。 |
-| `netherspawn` 爆炸蠹虫 | Silverfish `8/16/0.25/1/0/0` | `8/32/0.60/3/0/0` | 已对齐 | 无基础属性改动。 |
-| `copperspine` 铜毒蠹虫 | Silverfish `8/16/0.25/1/0/0` | `8/32/0.60/3/0/0` | 已对齐 | 无基础属性改动。 |
-| `hoary_silverfish` 白化蠹虫 | Silverfish `8/16/0.25/1/0/0` | `8/32/0.60/3/0/0` | 已对齐 | 无基础属性改动。 |
+| `netherspawn` 爆炸蠹虫 | Silverfish `8/16/0.25/1/0/0` | `8/32/0.25/3/0/0` | 已对齐 | 使用现代蠹虫移速基线。 |
+| `copperspine` 铜毒蠹虫 | Silverfish `8/16/0.25/1/0/0` | `8/32/0.25/3/0/0` | 已对齐 | 使用现代蠹虫移速基线。 |
+| `hoary_silverfish` 白化蠹虫 | Silverfish `8/16/0.25/1/0/0` | `8/32/0.25/3/0/0` | 已对齐 | 使用现代蠹虫移速基线。 |
 | `vampire_bat` 吸血蝙蝠 | Bat `6/16/0.70/-/0/0` | `3/16/0.70/1/0/0` | 已对齐 | 无基础属性改动。 |
 | `nightwing` 暗影蝙蝠 | Bat `6/16/0.70/-/0/0` | `3/16/0.70/1/0/0` | 已对齐 | 无基础属性改动。 |
 | `giant_vampire_bat` 吸血巨蝠 | Bat `6/16/0.70/-/0/0` | `6/16/0.70/2/0/0` | 已对齐 | 无基础属性改动。 |
@@ -154,16 +153,10 @@ MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`En
 
 当前尺寸的单一事实来源是 `ModEntityTypes`，并由 `R196MonsterProfileTest#allRegisteredMobNamesAndDimensionsMatchTheR196Roster` 覆盖；不要因为渲染器缩放而再放大物理碰撞箱。
 
-## 实施清单
+## 移动速度迁移回归面
 
-以下是后续生物代码修改的最小范围。它们在本文提交中仅被记录，尚未实施。
-
-1. 在 `R196Zombie#attributes` 的公共 builder 上写入 `Attributes.ARMOR, 0.0`，覆盖 26.2 僵尸默认护甲；六个变体会共享该修正。
-2. 在 `R196ZombifiedPiglin#attributes` 写入 `Attributes.ARMOR, 0.0`，避免继承僵尸猪人的现代护甲。
-3. 在 `R196Blaze#attributes` 写入 `Attributes.MOVEMENT_SPEED, 0.70`。
-4. 为 `R196Slime` 定义 MITE 的 `0.70` 移速，并在每次 `setSize` 调用 `super` 后重新写入它；不能只在 attributes builder 中设置，因为 26.2 的 `AbstractCubeMob#setSize` 会再次覆盖。
-5. 为女巫添加窄范围的伤害处理：仅当伤害能可靠对应 MITE 的“间接魔法”时应用 10 点自然防御。先写单元/游戏测试锁定直接魔法、间接非魔法、间接魔法三种边界，再决定使用公开伤害事件还是最小 Mixin。
-6. 扩展 `R196MonsterProfileTest`：断言僵尸系与僵尸猪人基础护甲为 0、烈焰人移速为 0.70、五种普通胶质方块在多个尺寸下移速均为 0.70；岩浆怪仍应维持 0.20 和 `2s` 防御。
+- `R196MonsterProfileTest` 锁定蜘蛛六种变体、烈焰人、三种蠹虫、僵尸猪人和胶质方块的迁移后数值；僵尸猪人的追击倍率固定为 `1.9`。
+- `r196_monster_attributes` GameTest 在实际注册后的实体上复查这些基础值与胶质方块的尺寸速度曲线；岩浆怪继续维持 `0.20` 和 `2s` 防御。
 
 ## 验证要求
 

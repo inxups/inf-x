@@ -4,6 +4,7 @@ import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModItems;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -25,8 +26,14 @@ import org.jspecify.annotations.Nullable;
 /** Zombified piglin replacement that is hostile at close range without provocation. */
 public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mob {
     private static final Identifier MITE_CHASE_SPEED_ID = Identifier.fromNamespaceAndPath("infx", "mite_chase_speed");
+    private static final Identifier VANILLA_CHASE_SPEED_ID = Identifier.withDefaultNamespace("attacking");
+    private static final double MODERN_BASE_MOVEMENT_SPEED = 0.23;
+    private static final double MITE_CHASE_SPEED_MULTIPLIER = 0.95 / 0.50;
     private static final AttributeModifier MITE_CHASE_SPEED =
-            new AttributeModifier(MITE_CHASE_SPEED_ID, 0.45, AttributeModifier.Operation.ADD_VALUE);
+            new AttributeModifier(
+                    MITE_CHASE_SPEED_ID,
+                    MITE_CHASE_SPEED_MULTIPLIER - 1.0,
+                    AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
 
     public R196ZombifiedPiglin(EntityType<? extends ZombifiedPiglin> type, Level level) {
         super(type, level);
@@ -38,7 +45,7 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
         return ZombifiedPiglin.createAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
                 .add(Attributes.FOLLOW_RANGE, 40.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.50)
+                .add(Attributes.MOVEMENT_SPEED, MODERN_BASE_MOVEMENT_SPEED)
                 .add(Attributes.ATTACK_DAMAGE, 8.0)
                 .add(Attributes.ARMOR, 0.0);
     }
@@ -99,21 +106,26 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
     }
 
     @Override
-    public void aiStep() {
-        super.aiStep();
-        if (level().isClientSide()) {
-            return;
-        }
-        // MITE: +0.45 speed whenever a pig zombie has a target, nearly doubling its pace.
+    protected void customServerAiStep(ServerLevel level) {
+        super.customServerAiStep(level);
+        // MITE's legacy 0.50 -> 0.95 path-input values mean a 1.9x chase multiplier,
+        // not a +0.45 value on the modern movement scale.  Replace vanilla's smaller
+        // anger modifier before MoveControl reads it, so the MITE ratio is the sole
+        // chase-speed adjustment for this movement tick.
         AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
         }
+        speed.removeModifier(VANILLA_CHASE_SPEED_ID);
         boolean chasing = getTarget() != null;
         if (chasing && !speed.hasModifier(MITE_CHASE_SPEED_ID)) {
             speed.addTransientModifier(MITE_CHASE_SPEED);
         } else if (!chasing && speed.hasModifier(MITE_CHASE_SPEED_ID)) {
             speed.removeModifier(MITE_CHASE_SPEED_ID);
         }
+    }
+
+    static double chasingMovementSpeed(double baseMovementSpeed) {
+        return baseMovementSpeed * MITE_CHASE_SPEED_MULTIPLIER;
     }
 }

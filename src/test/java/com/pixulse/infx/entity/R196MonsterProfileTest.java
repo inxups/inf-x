@@ -33,19 +33,19 @@ class R196MonsterProfileTest {
         assertStats(R196Skeleton.attributes(R196Skeleton.Variant.BONE_LORD), 20.0, 40.0, 0.26, 5.0);
         assertStats(R196Skeleton.attributes(R196Skeleton.Variant.ANCIENT_BONE_LORD), 24.0, 40.0, 0.27, 8.0);
 
-        assertStats(R196Spider.attributes(R196Spider.Variant.SPIDER), 12.0, 28.0, 1.0, 4.0);
-        assertStats(R196Spider.attributes(R196Spider.Variant.CAVE_SPIDER), 16.0, 28.0, 1.0, 4.0);
-        assertStats(R196Spider.attributes(R196Spider.Variant.BLACK_WIDOW), 6.0, 28.0, 0.80, 1.0);
-        assertStats(R196Spider.attributes(R196Spider.Variant.DEMON), 18.0, 28.0, 1.0, 5.0);
-        assertStats(R196Spider.attributes(R196Spider.Variant.WOOD), 6.0, 28.0, 0.80, 1.0);
-        assertStats(R196Spider.attributes(R196Spider.Variant.PHASE), 6.0, 28.0, 0.80, 3.0);
+        assertStats(R196Spider.attributes(R196Spider.Variant.SPIDER), 12.0, 28.0, 0.375, 4.0);
+        assertStats(R196Spider.attributes(R196Spider.Variant.CAVE_SPIDER), 16.0, 28.0, 0.375, 4.0);
+        assertStats(R196Spider.attributes(R196Spider.Variant.BLACK_WIDOW), 6.0, 28.0, 0.30, 1.0);
+        assertStats(R196Spider.attributes(R196Spider.Variant.DEMON), 18.0, 28.0, 0.375, 5.0);
+        assertStats(R196Spider.attributes(R196Spider.Variant.WOOD), 6.0, 28.0, 0.30, 1.0);
+        assertStats(R196Spider.attributes(R196Spider.Variant.PHASE), 6.0, 28.0, 0.30, 3.0);
 
         assertStats(R196Creeper.attributes(R196Creeper.Variant.CREEPER), 20.0, 32.0, 0.25, 2.0);
         assertStats(R196Creeper.attributes(R196Creeper.Variant.INFERNAL), 20.0, 32.0, 0.25, 2.0);
         assertEquals(2.0, stats(R196Creeper.attributes(R196Creeper.Variant.INFERNAL))
                 .getBaseValue(Attributes.ARMOR), EPSILON);
 
-        assertStats(R196Silverfish.attributes(), 8.0, 32.0, 0.60, 3.0);
+        assertStats(R196Silverfish.attributes(), 8.0, 32.0, 0.25, 3.0);
         assertStats(R196FireElemental.attributes(), 20.0, 40.0, 0.25, 5.0);
         assertStats(R196EarthElemental.attributes(), 30.0, 20.0, 0.20, 12.0);
         AttributeSupplier earthElemental = stats(R196EarthElemental.attributes());
@@ -53,12 +53,13 @@ class R196MonsterProfileTest {
         assertEquals(0.0, earthElemental.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
         assertStats(R196Enderman.attributes(), 40.0, 32.0, 0.30, 10.0);
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
-        assertStats(R196ZombifiedPiglin.attributes(), 20.0, 40.0, 0.50, 8.0);
+        assertStats(R196ZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
         assertEquals(0.0, stats(R196ZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
+        assertEquals(0.437, R196ZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
 
         AttributeSupplier blaze = stats(R196Blaze.attributes());
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
-        assertEquals(0.70, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
+        assertEquals(0.23, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(6.0, blaze.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
     }
 
@@ -70,11 +71,11 @@ class R196MonsterProfileTest {
 
         assertEquals(16.0, slime.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         for (R196Slime.Variant variant : R196Slime.Variant.values()) {
-            assertEquals(0.70, stats(R196Slime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
-            for (int size : new int[] {1, 2, 4}) {
-                assertEquals(0.70, R196Slime.movementSpeedForSize(size), EPSILON);
-            }
+            assertEquals(0.30, stats(R196Slime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         }
+        assertEquals(0.30, R196Slime.movementSpeedForSize(1), EPSILON);
+        assertEquals(0.40, R196Slime.movementSpeedForSize(2), EPSILON);
+        assertEquals(0.60, R196Slime.movementSpeedForSize(4), EPSILON);
         assertEquals(1.0, R196Slime.attackDamageForSize(R196Slime.Variant.SLIME, 1), EPSILON);
         assertEquals(4.0, R196Slime.attackDamageForSize(R196Slime.Variant.JELLY, 2), EPSILON);
         assertEquals(6.0, R196Slime.attackDamageForSize(R196Slime.Variant.BLOB, 2), EPSILON);
