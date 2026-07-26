@@ -140,7 +140,11 @@ public final class R196SwimPhysics {
                 && fluid.getValue(FlowingFluid.FALLING);
     }
 
-    private static boolean isFallingWaterColumn(LivingEntity entity) {
+    /**
+     * Returns whether both the entity's feet and head are inside falling water. This mirrors the
+     * MITE metadata-9 check used for waterfall swim penalties.
+     */
+    public static boolean isFallingWaterColumn(LivingEntity entity) {
         BlockGetter level = entity.level();
         BlockPos feet = entity.blockPosition();
         BlockPos head = BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ());

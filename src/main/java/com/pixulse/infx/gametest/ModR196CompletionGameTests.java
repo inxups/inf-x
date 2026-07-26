@@ -1858,6 +1858,20 @@ public final class ModR196CompletionGameTests {
                 player.getDeltaMovement().y < 0.0D,
                 "a sprinting player must lose height after the reduced waterfall swim-up impulse, measured "
                         + player.getDeltaMovement().y);
+
+        // Modern Player.travel gives sprint swimmers an extra upward pull toward their camera
+        // direction. MITE has no equivalent, so looking straight up in a waterfall must not
+        // restore the climb that the reduced jump impulse prevents.
+        player.setSwimming(true);
+        player.setXRot(-90.0F);
+        player.setDeltaMovement(Vec3.ZERO);
+        player.travel(Vec3.ZERO);
+        helper.assertTrue(
+                player.getDeltaMovement().y < 0.0D,
+                "a sprinting player looking upward must still lose height in a waterfall, measured "
+                        + player.getDeltaMovement().y);
+        player.setSwimming(false);
+        player.setXRot(0.0F);
         player.setSprinting(false);
 
         // A walled shaft so the column cannot drain while the sink rate is measured.

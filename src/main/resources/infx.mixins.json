@@ -30,6 +30,7 @@
     "PlayerExperienceMixin",
     "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
+    "PlayerWaterfallSwimMixin",
     "LevelAccessorMixin",
     "RaidMixin",
     "ServerLevelFluidTickMixin",
