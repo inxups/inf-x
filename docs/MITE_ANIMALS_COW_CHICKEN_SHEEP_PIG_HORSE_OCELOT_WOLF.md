@@ -17,10 +17,10 @@
 - `isWell()` = `min(food, water, freedom) >= 0.25`
 
 ### 需求维持与产出
-- 每 100 tick（非幼年）调用 `updateWellness()`：
+- 每 100 tick 以 90% 概率调用 `updateWellness()`：
   - 靠近食物/水/不拥挤 → +0.1
   - 否则 → -0.005
-- `production_counter` 仅在 `isWell() && !child` 时增长。
+- `production_counter` 仅在上述更新成功且 `isWell() && !child` 时增长。
 - 抽象方法 `produceGoods()` 由子类实现具体产出。
 
 ### 繁殖守卫

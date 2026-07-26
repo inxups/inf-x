@@ -83,6 +83,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -635,8 +636,7 @@ public final class ModR196CompletionGameTests {
                 level, cow.getX(), cow.getY(), cow.getZ(), new ItemStack(Items.WHEAT));
         level.addFreshEntity(wheat);
 
-        cow.getPersistentData().putBoolean("infx_livestock_healthy", true);
-        cow.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        setLivestockWellness(cow, 1.0F, 1.0F, 1.0F);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BUCKET));
         interactAt(player, cow);
         helper.assertTrue(player.getMainHandItem().is(Items.MILK_BUCKET), "healthy cow produces its daily milk bucket");
@@ -645,8 +645,7 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(player.getMainHandItem().is(Items.BUCKET), "a second same-day milk bucket must be denied");
 
         Cow bowlCow = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(1, 2, 8));
-        bowlCow.getPersistentData().putBoolean("infx_livestock_healthy", true);
-        bowlCow.getPersistentData().putBoolean("infx_livestock_diseased", false);
+        setLivestockWellness(bowlCow, 1.0F, 1.0F, 1.0F);
         for (int bowl = 0; bowl < 4; bowl++) {
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
             interactAt(player, bowlCow);
@@ -664,25 +663,22 @@ public final class ModR196CompletionGameTests {
                 player.getMainHandItem().is(Items.BUCKET),
                 "after four bowls the daily quota is spent and buckets must be denied");
 
+        setLivestockWellness(cow, 0.24F, 1.0F, 1.0F);
+        List<ItemEntity> unwellCowDrops = new ArrayList<>(List.of(
+                new ItemEntity(level, cow.getX(), cow.getY(), cow.getZ(), new ItemStack(Items.BEEF)),
+                new ItemEntity(level, cow.getX(), cow.getY(), cow.getZ(), new ItemStack(Items.LEATHER))));
+        NeoForge.EVENT_BUS.post(new LivingDropsEvent(
+                cow, level.damageSources().playerAttack(player), unwellCowDrops, true));
+        helper.assertTrue(
+                itemCount(unwellCowDrops, Items.BEEF) == 0 && itemCount(unwellCowDrops, Items.LEATHER) == 1,
+                "unwell MITE livestock keep leather but lose their meat yield");
+        setLivestockWellness(cow, 1.0F, 1.0F, 1.0F);
+
         Sheep sheep = helper.spawn(ModEntityTypes.R196_SHEEP.get(), new BlockPos(4, 2, 8));
-        sheep.getPersistentData().putBoolean("infx_livestock_healthy", true);
-        sheep.getPersistentData().putBoolean("infx_livestock_diseased", true);
-        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.SHEARS));
-        interactAt(player, sheep);
-        helper.assertFalse(sheep.isSheared(), "diseased sheep must not be shearable");
-        R196Livestock.setDiseased(cow, true);
-        long infectionSeed = 0L;
-        while (true) {
-            sheep.getRandom().setSeed(infectionSeed);
-            if (sheep.getRandom().nextInt(16) == 0) break;
-            infectionSeed++;
-        }
-        sheep.getRandom().setSeed(infectionSeed);
-        helper.assertTrue(R196Livestock.setDiseased(sheep, false), "R196 sheep must accept forced curing");
-        helper.assertFalse(
-                R196Livestock.isDiseased(sheep),
-                "forced curing must not immediately reroll infection from a sick neighbor");
-        R196Livestock.setDiseased(cow, false);
+        setLivestockWellness(sheep, 0.24F, 1.0F, 1.0F);
+        helper.assertTrue(sheep.readyForShearing(), "MITE wool is gated by shearing state, not wellness");
+        setLivestockWellness(sheep, 1.0F, 1.0F, 1.0F);
+        helper.assertTrue(sheep.readyForShearing(), "well sheep must be shearable");
         sheep.hurtServer(level, level.damageSources().inFire(), 1.0F);
         helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
         sheep.discard();
@@ -691,49 +687,41 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(R196Livestock.isWell(pig), "R196 pigs must initialize their synced isWell flag");
         level.setBlockAndUpdate(pig.blockPosition().below(2), Blocks.STONE.defaultBlockState());
         level.setBlockAndUpdate(pig.blockPosition().below(), Blocks.GRASS_BLOCK.defaultBlockState());
-        pig.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime() - 48_001L);
+        setLivestockWellness(pig, 0.2F, 1.0F, 1.0F);
         helper.assertTrue(
-                R196Livestock.update(level, pig).fed(),
-                "grass beneath livestock must satisfy hunger without a dropped breeding item");
+                R196Livestock.update(level, pig).food() > 0.2F,
+                "grass beneath livestock must improve the MITE food meter without a dropped breeding item");
 
         helper.setBlock(new BlockPos(5, 1, 6), Blocks.STONE);
         Pig feedingPig = helper.spawn(ModEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 6));
         feedingPig.goalSelector.removeAllGoals(goal -> true);
         feedingPig.setAge(6_000);
-        long staleFood = level.getGameTime() - 48_001L;
-        feedingPig.getPersistentData().putLong("infx_livestock_last_food", staleFood);
+        setLivestockWellness(feedingPig, 0.2F, 1.0F, 1.0F);
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.CARROT));
         interactAt(player, feedingPig);
         helper.assertTrue(
                 player.getMainHandItem().is(Items.CARROT)
-                        && feedingPig.getPersistentData()
-                                .getLong("infx_livestock_last_food")
-                                .orElse(Long.MIN_VALUE)
-                                == staleFood,
-                "breeding-cooldown interaction must neither consume food nor refresh livestock hunger");
+                        && feedingPig.getPersistentData().getFloatOr("infx_livestock_food", -1.0F) == 0.2F,
+                "breeding-cooldown interaction must neither consume food nor refresh the food meter");
         feedingPig.setAge(0);
         interactAt(player, feedingPig);
         helper.assertTrue(
                 player.getMainHandItem().isEmpty()
-                        && feedingPig.getPersistentData()
-                                .getLong("infx_livestock_last_food")
-                                .orElse(Long.MIN_VALUE)
-                                > staleFood,
-                "a successful feeding interaction must consume food and refresh livestock hunger");
+                        && feedingPig.getPersistentData().getFloatOr("infx_livestock_food", 0.0F) > 0.2F,
+                "a successful feeding interaction must consume food and restore the food meter");
         feedingPig.discard();
 
         Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(6, 2, 8));
         chicken.setAge(0);
-        chicken.getPersistentData().putBoolean("infx_livestock_healthy", true);
-        chicken.getPersistentData().putBoolean("infx_livestock_diseased", false);
-        chicken.getPersistentData().putLong("infx_chicken_next_feather", -1L);
+        setLivestockWellness(chicken, 1.0F, 1.0F, 1.0F);
+        chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
         ((com.pixulse.infx.entity.R196Chicken) chicken).updateProduction(level);
         BlockPos cauldron = new BlockPos(7, 1, 8);
         helper.setBlock(cauldron, Blocks.WATER_CAULDRON);
-        chicken.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
+        setLivestockWellness(chicken, 1.0F, 0.4F, 1.0F);
         helper.assertTrue(
-                R196Livestock.update(level, chicken).watered(),
-                "a nearby filled water cauldron must satisfy livestock thirst");
+                R196Livestock.update(level, chicken).water() >= 0.5F,
+                "a nearby filled water cauldron must improve the MITE water meter");
         helper.setBlock(cauldron, Blocks.STONE);
 
         // Build the dry approach before spawning the seeker so its first AI
@@ -754,8 +742,7 @@ public final class ModR196CompletionGameTests {
         foodSeeker.goalSelector.removeAllGoals(goal -> true);
         foodSeeker.setDeltaMovement(Vec3.ZERO);
         foodSeeker.setOnGround(true);
-        foodSeeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime());
-        foodSeeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime() - 48_001L);
+        setLivestockWellness(foodSeeker, 0.2F, 1.0F, 1.0F);
         R196Livestock.NeedsGoal foodGoal = new R196Livestock.NeedsGoal(foodSeeker);
         helper.assertTrue(foodGoal.canUse(), "hungry livestock must select a reachable grass approach");
         BlockPos foodTarget = foodGoal.selectedTarget();
@@ -775,26 +762,26 @@ public final class ModR196CompletionGameTests {
         // directly, so establish that normal settled state explicitly.
         seeker.setDeltaMovement(Vec3.ZERO);
         seeker.setOnGround(true);
-        seeker.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
-        seeker.getPersistentData().putLong("infx_livestock_last_food", level.getGameTime());
-        R196Livestock.Needs thirsty = R196Livestock.update(level, seeker);
-        helper.assertFalse(thirsty.watered(), "seeker setup must begin thirsty");
+        setLivestockWellness(seeker, 1.0F, 0.2F, 1.0F);
+        R196Livestock.Wellness thirsty = R196Livestock.update(level, seeker);
+        helper.assertTrue(thirsty.water() < 0.5F, "seeker setup must begin thirsty");
         R196Livestock.NeedsGoal waterGoal = new R196Livestock.NeedsGoal(seeker);
         helper.startSequence()
                 .thenExecuteAfter(1, () -> {
-                    R196Livestock.Needs needs = R196Livestock.update(level, cow);
-                    helper.assertTrue(needs.watered(), "nearby water must satisfy livestock thirst");
+                    R196Livestock.Wellness needs = R196Livestock.update(level, cow);
+                    helper.assertTrue(needs.water() >= 0.5F, "nearby water must satisfy livestock thirst");
                     helper.assertTrue(
-                            needs.fed() && (wheat.getItem().isEmpty() || !wheat.isAlive()),
+                            needs.food() >= 0.5F && (wheat.getItem().isEmpty() || !wheat.isAlive()),
                             "livestock must consume suitable dropped food");
+                    boolean wellBeforePanic = R196Livestock.isWell(chicken);
                     R196Livestock.panic(level, cow);
-                    helper.assertFalse(
-                            chicken.getPersistentData().getBooleanOr("infx_livestock_healthy", true),
-                            "panic must propagate across animal species");
+                    helper.assertTrue(
+                            R196Livestock.isWell(chicken) == wellBeforePanic,
+                            "panic must not alter MITE food, water, or freedom");
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        R196Livestock.update(level, foodSeeker).fed(),
-                        "grass-seeking livestock must reach its food source and become fed"))
+                        R196Livestock.update(level, foodSeeker).food() >= 0.5F,
+                        "grass-seeking livestock must reach its food source and improve its food meter"))
                 .thenExecute(foodSeeker::discard)
                 .thenWaitUntil(() -> helper.assertTrue(
                         !level.getEntitiesOfClass(
@@ -823,8 +810,8 @@ public final class ModR196CompletionGameTests {
                             "water-seeking navigation must start");
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        R196Livestock.update(level, seeker).watered(),
-                        "water-seeking livestock must reach the source and become watered"))
+                        R196Livestock.update(level, seeker).water() >= 0.5F,
+                        "water-seeking livestock must reach the source and improve its water meter"))
                 .thenExecute(() -> {
                     removePlayer(player);
                     seeker.discard();
@@ -2090,7 +2077,7 @@ public final class ModR196CompletionGameTests {
 
         // MITE ItemVessel#tryEntityInteraction: water satisfies a thirsty animal and spends the vessel.
         var cow = helper.spawnWithNoFreeWill(ModEntityTypes.R196_COW.get(), new BlockPos(4, 2, 6));
-        cow.getPersistentData().putLong("infx_livestock_last_water", level.getGameTime() - 24_001L);
+        setLivestockWellness(cow, 1.0F, 0.2F, 1.0F);
         helper.assertTrue(
                 R196Livestock.isThirsty(cow, level.getGameTime()), "the cow must start out thirsty");
         player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
@@ -2175,6 +2162,15 @@ public final class ModR196CompletionGameTests {
             }
         }
         return false;
+    }
+
+    private static void setLivestockWellness(Animal animal, float food, float water, float freedom) {
+        var data = animal.getPersistentData();
+        data.putFloat("infx_livestock_food", food);
+        data.putFloat("infx_livestock_water", water);
+        data.putFloat("infx_livestock_freedom", freedom);
+        data.putBoolean("infx_livestock_wellness_initialized", true);
+        R196Livestock.setWell(animal, R196Livestock.isWell(animal));
     }
 
     private static void interactAt(ServerPlayer player, net.minecraft.world.entity.Mob target) {

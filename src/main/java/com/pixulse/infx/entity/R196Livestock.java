@@ -1,6 +1,5 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.world.R196MoonPhase;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -17,6 +16,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -28,7 +28,6 @@ import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.Path;
@@ -36,22 +35,22 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/** Persistent R196 livestock needs and the goal used to satisfy them. */
+/** MITE R196 livestock wellness and the goals that keep food, water, and freedom healthy. */
 public final class R196Livestock {
-    static final String LAST_WATER = "infx_livestock_last_water";
-    static final String LAST_FOOD = "infx_livestock_last_food";
+    static final String FOOD = "infx_livestock_food";
+    static final String WATER = "infx_livestock_water";
+    static final String FREEDOM = "infx_livestock_freedom";
+    static final String WELLNESS_INITIALIZED = "infx_livestock_wellness_initialized";
     static final String PANIC_UNTIL = "infx_livestock_panic_until";
-    static final String DISEASED = "infx_livestock_diseased";
-    static final String HEALTHY = "infx_livestock_healthy";
-    static final String OPEN_SPACE = "infx_livestock_open_space";
-    static final String NATURAL_LIGHT = "infx_livestock_natural_light";
-    static final String SHELTERED = "infx_livestock_sheltered";
-    static final String SAFE = "infx_livestock_safe";
     static final String GOALS_ADDED = "infx_livestock_goals_added";
 
-    static final long WATER_GRACE = 24_000L;
-    static final long FOOD_GRACE = 48_000L;
-    static final long PANIC_TICKS = 600L;
+    static final float INITIAL_WELLNESS_MIN = 0.8F;
+    static final float WELLNESS_BENEFIT = 0.1F;
+    static final float WELLNESS_PENALTY = -0.005F;
+    static final float RAIN_WATER_BENEFIT = WELLNESS_BENEFIT / 10.0F;
+    static final float WELL_THRESHOLD = 0.25F;
+    static final float NEEDY_THRESHOLD = 0.5F;
+    static final float DESPERATE_THRESHOLD = 0.05F;
     static final int NEEDS_TICK_INTERVAL = 100;
     static final int BASE_SEARCH_RANGE = 16;
     static final int VERY_NEEDY_SEARCH_RANGE = 32;
@@ -71,17 +70,28 @@ public final class R196Livestock {
         entityData.define(well, true);
     }
 
-    /** MITE isWell: healthy and not diseased (client-synced). Vanilla livestock default well. */
+    /**
+     * MITE isWell: the minimum of food, water, and freedom must remain at least 0.25.
+     * The server owns the float values; the synced flag is used by clients for the unwell skin.
+     */
     public static boolean isWell(Animal animal) {
         EntityDataAccessor<Boolean> well = wellData(animal);
-        return well == null || animal.getEntityData().get(well);
+        if (well == null) return true;
+        if (animal.level() instanceof ServerLevel) {
+            return isWell(food(animal), water(animal), freedom(animal));
+        }
+        return animal.getEntityData().get(well);
+    }
+
+    static boolean isWell(float food, float water, float freedom) {
+        return Math.min(freedom, Math.min(food, water)) >= WELL_THRESHOLD;
     }
 
     public static void setWell(Animal animal, boolean value) {
         EntityDataAccessor<Boolean> well = wellData(animal);
-        if (well == null) return;
-        // Force dirty so clients always resync when disease is toggled by command.
-        animal.getEntityData().set(well, value, true);
+        if (well != null) {
+            animal.getEntityData().set(well, value);
+        }
     }
 
     private static @Nullable EntityDataAccessor<Boolean> wellData(Animal animal) {
@@ -100,7 +110,7 @@ public final class R196Livestock {
                 || entity instanceof Chicken;
     }
 
-    /** R196 livestock that carry client-synced isWell and sick skins. */
+    /** R196 livestock that carry the client-synced isWell flag and unwell skin. */
     public static boolean hasSickSkin(Entity entity) {
         return entity instanceof R196Cow
                 || entity instanceof R196Chicken
@@ -109,7 +119,7 @@ public final class R196Livestock {
     }
 
     /**
-     * Install needs/seek and flee goals once on R196 livestock (cow/chicken/sheep/pig).
+     * Install MITE-style seek and flee goals once on R196 livestock (cow/chicken/sheep/pig).
      * Horses are not livestock and must not call this.
      */
     public static void ensureGoals(Animal animal) {
@@ -129,26 +139,28 @@ public final class R196Livestock {
         animal.getPersistentData().putBoolean(GOALS_ADDED, true);
     }
 
-    /** Server tick hook: refresh needs and advance disease at one fixed cadence. */
+    /** MITE advances the three wellness values at most once every 100 ticks. */
     public static void serverTick(Animal animal) {
         if (!(animal.level() instanceof ServerLevel level)) return;
-        if (animal.tickCount % NEEDS_TICK_INTERVAL == 0) update(level, animal, true);
+        ensureWellness(animal);
+        if (animal.tickCount % NEEDS_TICK_INTERVAL == 0 && animal.getRandom().nextInt(10) > 0) {
+            update(level, animal);
+        }
     }
 
-    /** Panic nearby animals when this one is hurt. */
+    /** Keep the R196 livestock panic signal without making it a fourth wellness requirement. */
     public static void onHurt(Animal animal, float inflictedDamage) {
         if (inflictedDamage <= 0.0F || !(animal.level() instanceof ServerLevel level)) return;
         panic(level, animal);
     }
 
-    /** Mark fed only after vanilla confirms that a food interaction actually succeeded. */
+    /** MITE food interactions add 0.5 food only after vanilla accepts the item. */
     public static void markFedAfterInteraction(
             Animal animal, boolean offeredFood, InteractionResult result) {
-        if (!(animal.level() instanceof ServerLevel level)
-                || !foodInteractionSucceeded(offeredFood, result)) {
+        if (!(animal.level() instanceof ServerLevel) || !foodInteractionSucceeded(offeredFood, result)) {
             return;
         }
-        markFed(animal, level.getGameTime());
+        markFed(animal, 0L);
     }
 
     static boolean foodInteractionSucceeded(boolean offeredFood, InteractionResult result) {
@@ -159,7 +171,7 @@ public final class R196Livestock {
     }
 
     public static boolean canMateWith(ServerLevel level, Animal self, Animal partner) {
-        return canBreed(level, self) && canBreed(level, partner);
+        return canBreed(self) && canBreed(partner);
     }
 
     public static long horseRetryTicks() {
@@ -176,160 +188,167 @@ public final class R196Livestock {
         }
     }
 
-    public static Needs update(ServerLevel level, Animal animal) {
-        return update(level, animal, false);
+    /** Advance one MITE wellness cycle. This is intentionally not called by navigation goals. */
+    public static Wellness update(ServerLevel level, Animal animal) {
+        ensureWellness(animal);
+        consumeNearbyFood(level, animal);
+
+        float food = adjustNeed(food(animal), isNearFoodSource(level, animal));
+        boolean nearWater = isNearWaterSource(level, animal);
+        float water = nearWater
+                ? Mth.clamp(water(animal) + WELLNESS_BENEFIT, 0.0F, 1.0F)
+                : level.isRainingAt(animal.blockPosition().above())
+                        ? Mth.clamp(water(animal) + RAIN_WATER_BENEFIT, 0.0F, 1.0F)
+                        : adjustNeed(water(animal), false);
+        boolean crowded = isCrowded(level, animal);
+        float freedom = adjustNeed(freedom(animal), !crowded);
+
+        setWellness(animal, food, water, freedom);
+        return new Wellness(food, water, freedom, crowded, isWell(food, water, freedom));
     }
 
-    private static Needs update(ServerLevel level, Animal animal, boolean advanceDisease) {
-        long now = level.getGameTime();
-        var data = animal.getPersistentData();
-        if (data.getLong(LAST_WATER).orElse(0L) == 0L) data.putLong(LAST_WATER, now);
-        if (data.getLong(LAST_FOOD).orElse(0L) == 0L) data.putLong(LAST_FOOD, now);
-
-        if (isNearWaterSource(level, animal)) data.putLong(LAST_WATER, now);
-        if (isNearFoodSource(level, animal)) markFed(animal, now);
-        consumeNearbyFood(level, animal, now);
-
-        boolean watered = now - data.getLong(LAST_WATER).orElse(now) <= WATER_GRACE;
-        boolean fed = now - data.getLong(LAST_FOOD).orElse(now) <= FOOD_GRACE;
-        boolean open = hasOpenSpace(level, animal);
-        boolean naturalLight = level.getBrightness(LightLayer.SKY, animal.blockPosition().above()) >= 8;
-        boolean sheltered = !level.isRainingAt(animal.blockPosition().above())
-                || !level.canSeeSky(animal.blockPosition().above());
-        boolean safe = !animal.isOnFire()
-                && !animal.isInWater()
-                && level.getEntitiesOfClass(
-                                Entity.class,
-                                animal.getBoundingBox().inflate(10.0),
-                                entity -> entity instanceof Enemy && entity.isAlive())
-                        .isEmpty();
-        boolean panicked = data.getLong(PANIC_UNTIL).orElse(0L) > now;
-        boolean diseased = data.getBooleanOr(DISEASED, false);
-
-        if (advanceDisease) {
-            if (!diseased && isExposedToDisease(level, animal)) {
-                diseased = true;
-                data.putBoolean(DISEASED, true);
-            } else if (!diseased && (!watered || !fed || !open || !safe)) {
-                int chance = R196MoonPhase.at(level) == R196MoonPhase.BLOOD ? 2_000 : 8_000;
-                if (animal.getRandom().nextInt(chance) == 0) {
-                    diseased = true;
-                    data.putBoolean(DISEASED, true);
-                }
-            } else if (diseased && watered && fed && open && naturalLight && safe && sheltered) {
-                int chance = R196MoonPhase.at(level) == R196MoonPhase.BLUE ? 4 : 1_200;
-                if (animal.getRandom().nextInt(chance) == 0) {
-                    diseased = false;
-                    data.putBoolean(DISEASED, false);
-                }
-            }
-        }
-
-        boolean healthy = healthy(watered, fed, open, naturalLight, sheltered, safe, panicked, diseased);
-        data.putBoolean(OPEN_SPACE, open);
-        data.putBoolean(NATURAL_LIGHT, naturalLight);
-        data.putBoolean(SHELTERED, sheltered);
-        data.putBoolean(SAFE, safe);
-        data.putBoolean(HEALTHY, healthy);
-        // MITE skins use !isWell(); keep client in sync with productive health.
-        setWell(animal, healthy && !diseased);
-        return new Needs(watered, fed, open, naturalLight, sheltered, safe, panicked, diseased, healthy);
+    /** Returns the current MITE wellness values without advancing the 100-tick cycle. */
+    private static Wellness snapshot(ServerLevel level, Animal animal) {
+        ensureWellness(animal);
+        float food = food(animal);
+        float water = water(animal);
+        float freedom = freedom(animal);
+        return new Wellness(food, water, freedom, isCrowded(level, animal), isWell(food, water, freedom));
     }
 
-    public static boolean healthy(
-            boolean watered,
-            boolean fed,
-            boolean open,
-            boolean naturalLight,
-            boolean sheltered,
-            boolean safe,
-            boolean panicked,
-            boolean diseased) {
-        return watered && fed && open && naturalLight && sheltered && safe && !panicked && !diseased;
+    static float adjustNeed(float value, boolean satisfied) {
+        return Mth.clamp(value + (satisfied ? WELLNESS_BENEFIT : WELLNESS_PENALTY), 0.0F, 1.0F);
     }
 
     public static boolean isProductive(Animal animal) {
-        return animal.getPersistentData().getBooleanOr(HEALTHY, false)
-                && !animal.getPersistentData().getBooleanOr(DISEASED, false);
+        return hasSickSkin(animal) && isWell(animal);
     }
 
-    public static boolean isDiseased(Animal animal) {
-        return animal.getPersistentData().getBooleanOr(DISEASED, false);
+    public static boolean canBreed(Animal animal) {
+        return isProductive(animal);
     }
 
-    /**
-     * Force or clear disease on R196 livestock (cow/chicken/sheep/pig).
-     * No-op for vanilla livestock (no isWell / sick renderer) and non-livestock.
-     * Sets well/healthy flags immediately so production and sick skins update without waiting for tick.
-     */
-    public static boolean setDiseased(Animal animal, boolean diseased) {
-        if (!hasSickSkin(animal)) {
-            return false;
-        }
-        animal.getPersistentData().putBoolean(DISEASED, diseased);
-        if (diseased) {
-            animal.getPersistentData().putBoolean(HEALTHY, false);
-            setWell(animal, false);
-        } else if (animal.level() instanceof ServerLevel level) {
-            update(level, animal);
-        }
-        return true;
+    /** Newborn R196 livestock inherit the lowest wellness value from each parent. */
+    public static void adoptWellnessFromParents(Animal child, Animal firstParent, Animal secondParent) {
+        if (!hasSickSkin(child)) return;
+        setWellness(
+                child,
+                Math.min(food(firstParent), food(secondParent)),
+                Math.min(water(firstParent), water(secondParent)),
+                Math.min(freedom(firstParent), freedom(secondParent)));
     }
 
-    public static boolean canBreed(ServerLevel level, Animal animal) {
-        R196MoonPhase moon = R196MoonPhase.at(level);
-        return isProductive(animal) && moon != R196MoonPhase.BLOOD && moon != R196MoonPhase.NEW;
-    }
-
+    /** Panic spreads to nearby R196 livestock but does not alter food, water, or freedom. */
     public static void panic(ServerLevel level, Animal source) {
-        long until = level.getGameTime() + PANIC_TICKS;
+        long until = level.getGameTime() + 400L + source.getRandom().nextInt(400);
         for (Animal nearby : level.getEntitiesOfClass(
                 Animal.class,
-                source.getBoundingBox().inflate(12.0),
-                other -> other.isAlive() && !(other instanceof AbstractHorse))) {
+                source.getBoundingBox().inflate(8.0, 4.0, 8.0),
+                other -> other != source && other.isAlive() && hasSickSkin(other))) {
             nearby.getPersistentData().putLong(PANIC_UNTIL, until);
-            nearby.getPersistentData().putBoolean(HEALTHY, false);
-            if (isLivestock(nearby)) {
-                setWell(nearby, false);
-            }
         }
     }
 
-    public static void markFed(Animal animal, long now) {
-        animal.getPersistentData().putLong(LAST_FOOD, now);
+    /** MITE feeding restores half of the food meter. */
+    public static void markFed(Animal animal, long ignoredNow) {
+        ensureWellness(animal);
+        setWellness(animal, food(animal) + 0.5F, water(animal), freedom(animal));
     }
 
-    public static void markWatered(Animal animal, long now) {
-        animal.getPersistentData().putLong(LAST_WATER, now);
+    /** MITE buckets have standard volume four and therefore refill the whole water meter. */
+    public static void markWatered(Animal animal, long ignoredNow) {
+        ensureWellness(animal);
+        setWellness(animal, food(animal), water(animal) + 1.0F, freedom(animal));
     }
 
-    /**
-     * Read-only thirst check for water-bucket interaction. Unlike {@link #update} this advances no
-     * state, so it is safe to call before deciding whether an offered vessel should be spent.
-     */
-    public static boolean isThirsty(Animal animal, long now) {
-        long lastWater = animal.getPersistentData().getLong(LAST_WATER).orElse(0L);
-        return lastWater != 0L && now - lastWater > WATER_GRACE;
+    /** Read-only thirst check for water-vessel interaction. */
+    public static boolean isThirsty(Animal animal, long ignoredNow) {
+        return water(animal) < NEEDY_THRESHOLD;
     }
 
-    private static boolean hasOpenSpace(ServerLevel level, Animal animal) {
-        int sameKind = level.getEntitiesOfClass(
-                        Animal.class,
-                        animal.getBoundingBox().inflate(6.0, 3.0, 6.0),
-                        other -> other.isAlive() && other.getType() == animal.getType())
-                .size();
-        if (sameKind > 6) return false;
-        BlockPos origin = animal.blockPosition();
-        int open = 0;
-        for (int x = -2; x <= 2; x++) {
-            for (int z = -2; z <= 2; z++) {
-                if (level.getBlockState(origin.offset(x, 0, z)).isAir()
-                        && level.getBlockState(origin.offset(x, 1, z)).isAir()) {
-                    open++;
-                }
-            }
-        }
-        return open >= 12;
+    /** MITE suppresses manure only when the food meter is below 0.05. */
+    public static boolean isDesperateForFood(Animal animal) {
+        return isDesperateForFood(food(animal));
+    }
+
+    static boolean isDesperateForFood(float food) {
+        return food < DESPERATE_THRESHOLD;
+    }
+
+    static int searchRange(float wellness) {
+        if (wellness < DESPERATE_THRESHOLD) return DESPERATE_SEARCH_RANGE;
+        if (wellness < WELL_THRESHOLD) return VERY_NEEDY_SEARCH_RANGE;
+        return BASE_SEARCH_RANGE;
+    }
+
+    private static void ensureWellness(Animal animal) {
+        var data = animal.getPersistentData();
+        if (data.getBooleanOr(WELLNESS_INITIALIZED, false)) return;
+        data.putFloat(FOOD, initialWellness(animal));
+        data.putFloat(WATER, initialWellness(animal));
+        data.putFloat(FREEDOM, initialWellness(animal));
+        data.putBoolean(WELLNESS_INITIALIZED, true);
+        // Old saves can retain these unused extension tags; they must no longer influence livestock.
+        data.remove("infx_livestock_diseased");
+        data.remove("infx_livestock_healthy");
+        data.remove("infx_livestock_last_food");
+        data.remove("infx_livestock_last_water");
+        data.remove("infx_livestock_open_space");
+        data.remove("infx_livestock_natural_light");
+        data.remove("infx_livestock_sheltered");
+        data.remove("infx_livestock_safe");
+        syncWellFlag(animal);
+    }
+
+    private static float initialWellness(Animal animal) {
+        return INITIAL_WELLNESS_MIN + animal.getRandom().nextFloat() * (1.0F - INITIAL_WELLNESS_MIN);
+    }
+
+    private static float food(Animal animal) {
+        return wellnessValue(animal, FOOD);
+    }
+
+    private static float water(Animal animal) {
+        return wellnessValue(animal, WATER);
+    }
+
+    private static float freedom(Animal animal) {
+        return wellnessValue(animal, FREEDOM);
+    }
+
+    private static float wellnessValue(Animal animal, String key) {
+        return Mth.clamp(animal.getPersistentData().getFloatOr(key, 1.0F), 0.0F, 1.0F);
+    }
+
+    private static void setWellness(Animal animal, float food, float water, float freedom) {
+        var data = animal.getPersistentData();
+        data.putFloat(FOOD, Mth.clamp(food, 0.0F, 1.0F));
+        data.putFloat(WATER, Mth.clamp(water, 0.0F, 1.0F));
+        data.putFloat(FREEDOM, Mth.clamp(freedom, 0.0F, 1.0F));
+        data.putBoolean(WELLNESS_INITIALIZED, true);
+        syncWellFlag(animal);
+    }
+
+    private static void syncWellFlag(Animal animal) {
+        setWell(animal, isWell(food(animal), water(animal), freedom(animal)));
+    }
+
+    private static boolean isCrowded(ServerLevel level, Animal animal) {
+        return isCrowded(level, animal.blockPosition(), animal.getBoundingBox());
+    }
+
+    private static boolean isCrowded(ServerLevel level, BlockPos pos, AABB bounds) {
+        return !isOutdoors(level, pos)
+                || level.getEntitiesOfClass(
+                                        LivingEntity.class,
+                                        bounds.inflate(2.0, 0.5, 2.0),
+                                        living -> living.isAlive())
+                                .size()
+                        > 2;
+    }
+
+    private static boolean isOutdoors(ServerLevel level, BlockPos pos) {
+        return level.canSeeSky(pos.above());
     }
 
     private static boolean isNearWaterSource(ServerLevel level, Animal animal) {
@@ -369,14 +388,7 @@ public final class R196Livestock {
                 || state.is(Blocks.TALL_GRASS);
     }
 
-    static int searchRange(long elapsed, long grace) {
-        long overdue = Math.max(0L, elapsed - grace);
-        if (overdue >= grace * 2L) return DESPERATE_SEARCH_RANGE;
-        if (overdue >= grace) return VERY_NEEDY_SEARCH_RANGE;
-        return BASE_SEARCH_RANGE;
-    }
-
-    private static void consumeNearbyFood(ServerLevel level, Animal animal, long now) {
+    private static void consumeNearbyFood(ServerLevel level, Animal animal) {
         ItemEntity food = level.getEntitiesOfClass(
                         ItemEntity.class,
                         animal.getBoundingBox().inflate(1.4),
@@ -387,30 +399,10 @@ public final class R196Livestock {
         if (food == null) return;
         food.getItem().shrink(1);
         if (food.getItem().isEmpty()) food.discard();
-        markFed(animal, now);
+        markFed(animal, 0L);
     }
 
-    private static boolean isExposedToDisease(ServerLevel level, Animal animal) {
-        return level.getEntitiesOfClass(
-                        Animal.class,
-                        animal.getBoundingBox().inflate(4.0),
-                        other -> other != animal
-                                && other.isAlive()
-                                && other.getPersistentData().getBooleanOr(DISEASED, false))
-                .stream()
-                .anyMatch(other -> animal.getRandom().nextInt(16) == 0);
-    }
-
-    public record Needs(
-            boolean watered,
-            boolean fed,
-            boolean open,
-            boolean naturalLight,
-            boolean sheltered,
-            boolean safe,
-            boolean panicked,
-            boolean diseased,
-            boolean healthy) {}
+    public record Wellness(float food, float water, float freedom, boolean crowded, boolean well) {}
 
     public static final class NeedsGoal extends Goal {
         private final Animal animal;
@@ -432,30 +424,18 @@ public final class R196Livestock {
         public boolean canUse() {
             if (!(animal.level() instanceof ServerLevel level) || animal.tickCount < nextSearch) return false;
             nextSearch = animal.tickCount + 40;
-            Needs needs = update(level, animal);
+            Wellness wellness = snapshot(level, animal);
             food = null;
             target = null;
             path = null;
-            if (!needs.fed()) {
-                target = findFood(level, searchRange(
-                        level.getGameTime()
-                                - animal.getPersistentData().getLong(LAST_FOOD).orElse(level.getGameTime()),
-                        FOOD_GRACE));
+            if (wellness.food() < NEEDY_THRESHOLD) {
+                target = findFood(level, searchRange(wellness.food()));
             }
-            if (target == null && !needs.watered()) {
-                target = findWater(level, searchRange(
-                        level.getGameTime()
-                                - animal.getPersistentData().getLong(LAST_WATER).orElse(level.getGameTime()),
-                        WATER_GRACE));
+            if (target == null && wellness.water() < NEEDY_THRESHOLD) {
+                target = findWater(level, searchRange(wellness.water()));
             }
-            if (target == null
-                    && (!needs.sheltered()
-                            || !needs.open()
-                            || !needs.naturalLight()
-                            || !needs.safe()
-                            || animal.isInWater()
-                            || animal.isOnFire())) {
-                target = findSafeOpenPosition(level, needs);
+            if (target == null && wellness.freedom() <= NEEDY_THRESHOLD && wellness.crowded()) {
+                target = findOpenPosition(level);
             }
             if (target != null && path == null) {
                 path = animal.getNavigation().createPath(target, 1);
@@ -482,18 +462,12 @@ public final class R196Livestock {
         public void tick() {
             if (!(animal.level() instanceof ServerLevel level)) return;
             if (food != null && food.isAlive() && animal.distanceToSqr(food) <= 2.25) {
-                consumeNearbyFood(level, animal, level.getGameTime());
-            }
-            if (target != null && animal.distanceToSqr(Vec3.atCenterOf(target)) <= 2.25) {
-                update(level, animal);
+                consumeNearbyFood(level, animal);
             }
         }
 
         @Override
         public void stop() {
-            if (animal.level() instanceof ServerLevel level) {
-                update(level, animal);
-            }
             target = null;
             food = null;
             path = null;
@@ -613,33 +587,17 @@ public final class R196Livestock {
             return dx * dx + dy * dy + dz * dz;
         }
 
-        private @Nullable BlockPos findSafeOpenPosition(ServerLevel level, Needs needs) {
+        private @Nullable BlockPos findOpenPosition(ServerLevel level) {
             BlockPos origin = animal.blockPosition();
-            boolean shelterWanted = !needs.sheltered() && level.isRainingAt(origin.above());
-            boolean lightWanted = !needs.naturalLight() && !shelterWanted;
-            for (boolean strict : new boolean[]{true, false}) {
-                for (int radius = 2; radius <= 10; radius += 2) {
-                    for (int x = -radius; x <= radius; x++) {
-                        for (int z = -radius; z <= radius; z++) {
-                            BlockPos pos = origin.offset(x, 0, z);
-                            if (!level.getBlockState(pos).isAir()
-                                    || !level.getBlockState(pos.above()).isAir()
-                                    || !level.getFluidState(pos).isEmpty()
-                                    || !level.getBlockState(pos.below()).isFaceSturdy(
-                                            level, pos.below(), net.minecraft.core.Direction.UP)) {
-                                continue;
-                            }
-                            if (strict && shelterWanted && level.canSeeSky(pos.above())) continue;
-                            if (strict && lightWanted && level.getBrightness(LightLayer.SKY, pos.above()) < 8) continue;
-                            if (strict && !level.getEntitiesOfClass(
-                                            Entity.class,
-                                            new AABB(pos).inflate(6.0),
-                                            entity -> entity instanceof Enemy && entity.isAlive())
-                                    .isEmpty()) {
-                                continue;
-                            }
-                            return pos;
+            for (int radius = 2; radius <= 16; radius += 2) {
+                for (int x = -radius; x <= radius; x++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        BlockPos pos = origin.offset(x, 0, z);
+                        if (!canStandAt(level, pos)
+                                || isCrowded(level, pos, new AABB(pos))) {
+                            continue;
                         }
+                        return pos;
                     }
                 }
             }

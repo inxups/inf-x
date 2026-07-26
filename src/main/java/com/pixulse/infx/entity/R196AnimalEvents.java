@@ -24,12 +24,11 @@ public final class R196AnimalEvents {
     private static void onDrops(LivingDropsEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
 
-        // Diseased R196 livestock drop nothing (MITE rule: sick animals yield no items on kill).
         if (event.getEntity() instanceof Animal animal
                 && R196Livestock.hasSickSkin(animal)
-                && R196Livestock.isDiseased(animal)) {
-            event.getDrops().clear();
-            return;
+                && !R196Livestock.isWell(animal)) {
+            // MITE's unwell state removes only the meat yield. Leather, wool and feathers remain.
+            event.getDrops().removeIf(drop -> isLivestockMeat(animal, drop.getItem()));
         }
 
         if (event.getEntity() instanceof IronGolem golem) {
@@ -37,6 +36,22 @@ public final class R196AnimalEvents {
             event.getDrops()
                     .add(drop(level, golem, new ItemStack(Items.IRON_NUGGET, 2 + golem.getRandom().nextInt(4))));
         }
+    }
+
+    private static boolean isLivestockMeat(Animal animal, ItemStack stack) {
+        if (animal instanceof R196Cow) {
+            return stack.is(Items.BEEF) || stack.is(Items.COOKED_BEEF);
+        }
+        if (animal instanceof R196Chicken) {
+            return stack.is(Items.CHICKEN) || stack.is(Items.COOKED_CHICKEN);
+        }
+        if (animal instanceof R196Pig) {
+            return stack.is(Items.PORKCHOP) || stack.is(Items.COOKED_PORKCHOP);
+        }
+        if (animal instanceof R196Sheep) {
+            return stack.is(Items.MUTTON) || stack.is(Items.COOKED_MUTTON);
+        }
+        return false;
     }
 
     private static ItemEntity drop(ServerLevel level, Entity source, ItemStack stack) {

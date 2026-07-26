@@ -1,7 +1,6 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.world.R196MoonPhase;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -104,10 +103,6 @@ public final class R196Chicken extends Chicken {
         if (isBaby() || isChickenJockey()) return;
         if (!R196Livestock.isProductive(this)) {
             eggTime = Math.max(eggTime, 1_200);
-        } else if (R196MoonPhase.at(level) == R196MoonPhase.FULL && tickCount % 2 == 0) {
-            eggTime--;
-        } else if (R196MoonPhase.at(level) == R196MoonPhase.NEW && tickCount % 2 == 0) {
-            eggTime++;
         }
 
         long now = level.getGameTime();
@@ -117,6 +112,15 @@ public final class R196Chicken extends Chicken {
         } else if (now >= next && R196Livestock.isProductive(this)) {
             spawnAtLocation(level, Items.FEATHER);
             getPersistentData().putLong(NEXT_FEATHER, now + FEATHER_INTERVAL);
+        }
+    }
+
+    @Override
+    public void finalizeSpawnChildFromBreeding(
+            ServerLevel level, Animal partner, @Nullable AgeableMob offspring) {
+        super.finalizeSpawnChildFromBreeding(level, partner, offspring);
+        if (offspring instanceof Animal child) {
+            R196Livestock.adoptWellnessFromParents(child, this, partner);
         }
     }
 

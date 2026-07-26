@@ -83,6 +83,15 @@ public final class R196Pig extends Pig {
     }
 
     @Override
+    public void finalizeSpawnChildFromBreeding(
+            ServerLevel level, Animal partner, @Nullable AgeableMob offspring) {
+        super.finalizeSpawnChildFromBreeding(level, partner, offspring);
+        if (offspring instanceof Animal child) {
+            R196Livestock.adoptWellnessFromParents(child, this, partner);
+        }
+    }
+
+    @Override
     public @Nullable Pig getBreedOffspring(ServerLevel level, AgeableMob partner) {
         return ModEntityTypes.R196_PIG.get().create(level, EntitySpawnReason.BREEDING);
     }

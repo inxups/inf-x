@@ -92,9 +92,6 @@ public final class R196Cow extends Cow {
         ItemStack stack = player.getItemInHand(hand);
         boolean offeredFood = isFood(stack);
         if (!isBaby() && level() instanceof ServerLevel serverLevel) {
-            if (R196Livestock.isDiseased(this)) {
-                return InteractionResult.CONSUME;
-            }
             if (stack.is(Items.BUCKET)) {
                 if (!takeMilk(serverLevel, MILK_UNITS_PER_DAY)) {
                     return InteractionResult.CONSUME;
@@ -144,6 +141,15 @@ public final class R196Cow extends Cow {
         player.setItemInHand(hand, remainder);
         player.awardStat(Stats.ITEM_USED.get(usedItem));
         playSound(SoundEvents.COW_MILK, 1.0F, 1.0F);
+    }
+
+    @Override
+    public void finalizeSpawnChildFromBreeding(
+            ServerLevel level, Animal partner, @Nullable AgeableMob offspring) {
+        super.finalizeSpawnChildFromBreeding(level, partner, offspring);
+        if (offspring instanceof Animal child) {
+            R196Livestock.adoptWellnessFromParents(child, this, partner);
+        }
     }
 
     @Override
