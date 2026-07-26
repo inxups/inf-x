@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.entity.ChickenRenderer;
 import net.minecraft.client.renderer.entity.CowRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.IronGolemRenderer;
 import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
 import net.minecraft.client.renderer.entity.PigRenderer;
@@ -30,6 +31,7 @@ import net.minecraft.client.renderer.entity.state.BatRenderState;
 import net.minecraft.client.renderer.entity.state.ChickenRenderState;
 import net.minecraft.client.renderer.entity.state.CowRenderState;
 import net.minecraft.client.renderer.entity.state.CreeperRenderState;
+import net.minecraft.client.renderer.entity.state.GhastRenderState;
 import net.minecraft.client.renderer.entity.state.IronGolemRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.entity.state.PigRenderState;
@@ -50,7 +52,14 @@ import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Creeper;
 
-/** Vanilla-model renderers that bind authorized MITE entity textures for R196 variants. */
+/**
+ * Vanilla-model renderers that bind authorized MITE entity textures for R196 variants.
+ *
+ * <p>Base monsters keep vanilla texture ids wherever the authorized MITE pack is pixel-identical
+ * to vanilla 26.2 (zombie, skeleton, creeper + armor, enderman + eyes, witch, spider eyes). Only
+ * the audited divergences bind {@code infx:} sheets: spider, blaze, ghast, and the humanoid
+ * zombie pigman that replaces the modern piglin-model look.
+ */
 final class R196EntityRenderers {
     private static final ContextKey<Boolean> LIVESTOCK_WELL =
             new ContextKey<>(InfiniteX.id("livestock_well"));
@@ -185,15 +194,17 @@ final class R196EntityRenderers {
 
     static final class ZombieTexture extends ZombieRenderer {
         private final Identifier texture;
+        private final Identifier babyTexture;
 
         ZombieTexture(EntityRendererProvider.Context context, R196Zombie.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
+            this.babyTexture = babyTextureFor(variant);
         }
 
         @Override
         public Identifier getTextureLocation(ZombieRenderState state) {
-            return texture;
+            return state.isBaby ? babyTexture : texture;
         }
 
         static Identifier textureFor(R196Zombie.Variant variant) {
@@ -204,6 +215,38 @@ final class R196EntityRenderers {
                 case REVENANT -> mite("textures/entity/zombie/revenant.png");
                 case INVISIBLE_STALKER, ZOMBIE -> Identifier.withDefaultNamespace("textures/entity/zombie/zombie.png");
             };
+        }
+
+        /** 26.2 babies render with BabyZombieModel's own UV sheet, so adult sheets cannot be reused. */
+        static Identifier babyTextureFor(R196Zombie.Variant variant) {
+            return switch (variant) {
+                case GHOUL -> mite("textures/entity/ghoul_baby.png");
+                case SHADOW -> mite("textures/entity/shadow_baby.png");
+                case WIGHT -> mite("textures/entity/wight_baby.png");
+                case REVENANT -> mite("textures/entity/zombie/revenant_baby.png");
+                case INVISIBLE_STALKER, ZOMBIE ->
+                        Identifier.withDefaultNamespace("textures/entity/zombie/zombie_baby.png");
+            };
+        }
+    }
+
+    /** MITE zombie pigmen are humanoid zombies with the pack's 64x64 sheet, not modern piglin models. */
+    static final class ZombiePigmanTexture extends ZombieRenderer {
+        ZombiePigmanTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public Identifier getTextureLocation(ZombieRenderState state) {
+            return state.isBaby ? babyTexture() : texture();
+        }
+
+        static Identifier texture() {
+            return mite("textures/entity/zombie_pigman.png");
+        }
+
+        static Identifier babyTexture() {
+            return mite("textures/entity/zombie_pigman_baby.png");
         }
     }
 
@@ -262,7 +305,7 @@ final class R196EntityRenderers {
                 case DEMON -> mite("textures/entity/spider/demon_spider.png");
                 case WOOD -> mite("textures/entity/spider/wood_spider.png");
                 case PHASE -> mite("textures/entity/spider/phase_spider.png");
-                case SPIDER -> Identifier.withDefaultNamespace("textures/entity/spider/spider.png");
+                case SPIDER -> mite("textures/entity/spider/spider.png");
             };
         }
     }
@@ -451,6 +494,40 @@ final class R196EntityRenderers {
 
         static Identifier texture() {
             return mite("textures/entity/fire_elemental.png");
+        }
+    }
+
+    /** MITE blaze sheet: brighter rod pixels than vanilla 26.2. */
+    static final class BlazeTexture extends BlazeRenderer {
+        BlazeTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public Identifier getTextureLocation(LivingEntityRenderState state) {
+            return texture();
+        }
+
+        static Identifier texture() {
+            return mite("textures/entity/blaze.png");
+        }
+    }
+
+    /** MITE ghast face art; 64x32 matches the ghast model's declared UV size. */
+    static final class GhastTexture extends GhastRenderer {
+        GhastTexture(EntityRendererProvider.Context context) {
+            super(context);
+        }
+
+        @Override
+        public Identifier getTextureLocation(GhastRenderState state) {
+            return texture(state.isCharging);
+        }
+
+        static Identifier texture(boolean charging) {
+            return charging
+                    ? mite("textures/entity/ghast/ghast_shooting.png")
+                    : mite("textures/entity/ghast/ghast.png");
         }
     }
 

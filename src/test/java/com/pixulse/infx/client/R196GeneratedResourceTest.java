@@ -1925,10 +1925,13 @@ class R196GeneratedResourceTest {
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/entity/slime/(slime|jelly|blob|ooze|pudding|magmacube)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
-                "textures/entity/(ghoul|shadow|wight|fire_elemental)\\.png"
-                        + "|textures/entity/zombie/revenant\\.png"
+                "textures/entity/(ghoul|shadow|wight)(_baby)?\\.png"
+                        + "|textures/entity/(fire_elemental|blaze)\\.png"
+                        + "|textures/entity/zombie/revenant(_baby)?\\.png"
+                        + "|textures/entity/zombie_pigman(_baby)?\\.png"
+                        + "|textures/entity/ghast/(ghast|ghast_shooting)\\.png"
                         + "|textures/entity/skeleton/(longdead|longdead_guardian|bone_lord)\\.png"
-                        + "|textures/entity/spider/(black_widow|cave_spider|demon_spider|wood_spider|phase_spider)\\.png"
+                        + "|textures/entity/spider/(spider|black_widow|cave_spider|demon_spider|wood_spider|phase_spider)\\.png"
                         + "|textures/entity/creeper/infernal_creeper\\.png"
                         + "|textures/entity/earth_elemental/stone\\.png"
                         + "|textures/entity/silverfish/(netherspawn|copperspine|hoary)\\.png"

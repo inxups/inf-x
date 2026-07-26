@@ -97,7 +97,7 @@ public final class ModEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<R196Zombie>> GHOUL = register(
             "ghoul", "Ghoul", "食尸鬼", R196Zombie::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Zombie>> SHADOW = register(
-            "shadow", "Shadow", "黑色食尸鬼", R196Zombie::new, 0.6F, 1.8F, false);
+            "shadow", "Shadow", "黑色食尸鬼", R196Zombie::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Zombie>> WIGHT = register(
             "wight", "Wight", "尸妖", R196Zombie::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Zombie>> REVENANT = register(
@@ -153,7 +153,7 @@ public final class ModEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<R196Bat>> VAMPIRE_BAT = register(
             "vampire_bat", "Vampire Bat", "吸血蝙蝠", R196Bat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Bat>> NIGHTWING = register(
-            "nightwing", "Nightwing", "暗影蝙蝠", R196Bat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, false);
+            "nightwing", "Nightwing", "暗影蝙蝠", R196Bat::new, MobCategory.AMBIENT, 0.5F, 0.9F, true, false);
     public static final DeferredHolder<EntityType<?>, EntityType<R196Bat>> GIANT_VAMPIRE_BAT = register(
             "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", R196Bat::new, MobCategory.AMBIENT, 1.0F, 1.8F, false, false);
 

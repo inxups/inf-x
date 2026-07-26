@@ -1,5 +1,6 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.world.R196MoonPhase;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -26,6 +27,12 @@ public final class R196Squid extends Squid implements R196Mob {
                 .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
+    /** MITE squid grant no experience. */
+    @Override
+    public int getBaseExperienceReward(ServerLevel level) {
+        return 0;
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
@@ -34,6 +41,10 @@ public final class R196Squid extends Squid implements R196Mob {
         }
         if (attackCooldown > 0) {
             attackCooldown--;
+        }
+        // MITE squid keep the peace on blue-moon nights.
+        if (R196MoonPhase.at(level) == R196MoonPhase.BLUE) {
+            return;
         }
         Player target = level.getNearestPlayer(this, 16.0);
         if (target == null

@@ -8,10 +8,12 @@ import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -25,6 +27,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 /** Vanilla slime replacement and the four corrosive R196 gelatinous cubes. */
 public final class R196Slime extends Slime implements R196Mob {
@@ -120,9 +123,31 @@ public final class R196Slime extends Slime implements R196Mob {
         return isEffectiveAi();
     }
 
+    /** MITE cubes never climb ladders; only the ooze creeps up walls it presses against. */
     @Override
     public boolean onClimbable() {
-        return super.onClimbable() || (variant() == Variant.OOZE && horizontalCollision);
+        return variant() == Variant.OOZE && horizontalCollision;
+    }
+
+    /** MITE jump cadence: 40-120 ticks at rest, an effective 10 while chasing (30 / 3). */
+    @Override
+    protected int getJumpDelay() {
+        return getTarget() != null ? 30 : random.nextInt(81) + 40;
+    }
+
+    /** MITE spawn sizes are uniform 1/2/4 with no difficulty bias. */
+    @Override
+    protected void setSpawnSize(ServerLevelAccessor level, DifficultyInstance difficulty) {
+        setSize(1 << level.getRandom().nextInt(3), true);
+    }
+
+    /** MITE cubes damage the animals and villagers they collide with, not only players. */
+    @Override
+    public void push(Entity entity) {
+        super.push(entity);
+        if ((entity instanceof Animal || entity instanceof Villager) && isDealsDamage()) {
+            dealDamage((LivingEntity) entity);
+        }
     }
 
     @Override
@@ -188,12 +213,18 @@ public final class R196Slime extends Slime implements R196Mob {
         if (variant != Variant.OOZE && variant != Variant.PUDDING) {
             return true;
         }
-        if (source.is(DamageTypes.LAVA)
+        if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                || source.is(DamageTypes.LAVA)
                 || source.is(DamageTypeTags.WITCH_RESISTANT_TO)
                 || source.getDirectEntity() instanceof Snowball) {
             return true;
         }
+        // MITE counts every enchanted weapon (melee or bow) as magic, the main way to kill these.
+        if (R196MobDamageRules.hasMagicAspect(source)) {
+            return true;
+        }
         return variant == Variant.PUDDING
-                && R196MobDamageRules.hasFireEnchantment(level, R196MobDamageRules.resolveWeapon(source));
+                && (source.is(DamageTypeTags.IS_FIRE)
+                        || R196MobDamageRules.hasFireEnchantment(level, R196MobDamageRules.resolveWeapon(source)));
     }
 }

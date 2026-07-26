@@ -8,8 +8,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,7 +18,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -43,10 +40,17 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
     }
 
     private int summonedTroops;
+    private int inspiredUntil;
+    private @Nullable RangedBowAttackGoal<R196Skeleton> bowGoal;
 
     public R196Skeleton(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
         setCanPickUpLoot(true);
+        xpReward = switch (variant()) {
+            case SKELETON -> xpReward;
+            case LONGDEAD, BONE_LORD -> 15;
+            case ANCIENT_BONE_LORD -> 30;
+        };
     }
 
     public Variant variant() {
@@ -92,24 +96,46 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
             EntitySpawnReason spawnReason,
             @Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
+        // MITE skeletons always pick up loot; the vanilla finalizeSpawn re-rolls it at 55%.
+        setCanPickUpLoot(true);
         switch (variant()) {
             case SKELETON -> {
                 if (random.nextFloat() < 0.25F) {
                     setItemSlot(EquipmentSlot.MAINHAND, equipment(R196Material.WOOD, R196EquipmentType.CLUB));
                 }
             }
-            case LONGDEAD -> equip(R196Material.ANCIENT_METAL, false);
-            case BONE_LORD -> equip(R196Material.RUSTED_IRON, true);
-            case ANCIENT_BONE_LORD -> equip(R196Material.ANCIENT_METAL, true);
+            // MITE longdead carry an ancient-metal bow or sword at even odds.
+            case LONGDEAD -> equip(
+                    R196Material.ANCIENT_METAL,
+                    false,
+                    random.nextBoolean() ? R196EquipmentType.BOW : R196EquipmentType.SWORD);
+            case BONE_LORD -> equip(R196Material.RUSTED_IRON, true, lordWeapon(level.getLevel()));
+            case ANCIENT_BONE_LORD -> equip(R196Material.ANCIENT_METAL, true, lordWeapon(level.getLevel()));
+        }
+        if (variant() == Variant.LONGDEAD) {
+            // MITE longdead drop their armor pieces at a quarter of the usual chance.
+            for (EquipmentSlot slot : new EquipmentSlot[] {
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
+            }) {
+                setDropChance(slot, 0.021F);
+            }
         }
         reassessWeaponGoal();
         return result;
     }
 
-    private void equip(R196Material material, boolean plateArmor) {
-        R196EquipmentType weapon = random.nextBoolean()
-                ? R196EquipmentType.SWORD
-                : R196EquipmentType.WAR_HAMMER;
+    /** MITE bone lords weight rusted swords 2, battle axes 1 from day 10, war hammers 1 from day 20. */
+    private R196EquipmentType lordWeapon(ServerLevel level) {
+        long day = R196MonsterTactics.survivalDay(level);
+        int bound = 2 + (day >= 10L ? 1 : 0) + (day >= 20L ? 1 : 0);
+        int roll = random.nextInt(bound);
+        if (roll <= 1) {
+            return R196EquipmentType.SWORD;
+        }
+        return roll == 2 && day >= 10L ? R196EquipmentType.BATTLE_AXE : R196EquipmentType.WAR_HAMMER;
+    }
+
+    private void equip(R196Material material, boolean plateArmor, R196EquipmentType weapon) {
         setItemSlot(EquipmentSlot.MAINHAND, equipment(material, weapon));
         setItemSlot(
                 EquipmentSlot.HEAD,
@@ -134,14 +160,19 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
         super.reassessWeaponGoal();
         if (level() != null && !level().isClientSide() && isHolding(stack -> stack.getItem() instanceof BowItem)) {
             goalSelector.removeAllGoals(goal -> goal instanceof RangedBowAttackGoal<?>);
-            goalSelector.addGoal(4, new RangedBowAttackGoal<>(this, 1.0, 20, 100.0F));
+            // MITE skeletons fire once every 60 ticks (40 while inspired) out to 30 blocks.
+            bowGoal = new RangedBowAttackGoal<>(this, 1.0, 60, 30.0F);
+            goalSelector.addGoal(4, bowGoal);
         }
     }
 
     @Override
     public void performRangedAttack(LivingEntity target, float power) {
         ItemStack bow = getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof BowItem));
-        ItemStack ammunition = getProjectile(bow);
+        // MITE skeletons loose rusted-iron arrows; longdead loose ancient-metal arrows.
+        ItemStack ammunition = equipment(
+                variant() == Variant.LONGDEAD ? R196Material.ANCIENT_METAL : R196Material.RUSTED_IRON,
+                R196EquipmentType.ARROW);
         AbstractArrow arrow = getArrow(ammunition, power, bow);
         if (bow.getItem() instanceof ProjectileWeaponItem weapon) {
             arrow = weapon.customArrow(arrow, ammunition, bow);
@@ -175,9 +206,8 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
             if (source.getEntity() instanceof AbstractSkeleton) {
                 return false;
             }
-            if (source.getEntity() instanceof Player) {
-                damage *= 0.5F;
-            }
+            // MITE quarters arrow damage against skeletons regardless of the shooter.
+            damage *= 0.25F;
         }
         if (source.isDirect() && source.getEntity() instanceof LivingEntity attacker) {
             var equipment = ModItems.catalog().equipment(attacker.getMainHandItem());
@@ -185,16 +215,36 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
                     && (equipment.key().type() == R196EquipmentType.CUDGEL
                             || equipment.key().type() == R196EquipmentType.CLUB
                             || equipment.key().type() == R196EquipmentType.WAR_HAMMER)) {
-                damage *= 1.5F;
+                // MITE doubles blunt-weapon damage against the skeleton family.
+                damage *= 2.0F;
             }
         }
         return super.hurtServer(level, source, damage);
     }
 
+    /** MITE has no powder-snow conversion; longdead and bone lords must never become strays. */
+    @Override
+    public void startFreezeConversion(int time) {}
+
+    /** MITE lord inspiration: +50% base melee damage and faster shooting for a short window. */
+    public boolean isInspired() {
+        return tickCount < inspiredUntil;
+    }
+
+    void inspire() {
+        inspiredUntil = tickCount + 60;
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
-        if (!(level() instanceof ServerLevel level) || tickCount % 20 != 0 || !isBoneLord()) {
+        if (!(level() instanceof ServerLevel level) || tickCount % 20 != 0) {
+            return;
+        }
+        if (bowGoal != null) {
+            bowGoal.setMinAttackInterval(isInspired() ? 40 : 60);
+        }
+        if (!isBoneLord()) {
             return;
         }
 
@@ -205,7 +255,9 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
                 continue;
             }
             skeleton.heal(1.0F);
-            skeleton.addEffect(new MobEffectInstance(MobEffects.STRENGTH, 60, 0), this);
+            if (skeleton instanceof R196Skeleton troop) {
+                troop.inspire();
+            }
             if (target != null && skeleton.getTarget() == null) {
                 skeleton.setTarget(target);
             }

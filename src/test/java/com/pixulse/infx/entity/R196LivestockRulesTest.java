@@ -38,8 +38,9 @@ class R196LivestockRulesTest {
 
     @Test
     void lunarCalendarKeepsBloodAndBlueMoonReplacementRules() {
-        assertEquals(R196MoonPhase.FULL, R196MoonPhase.atDay(1));
-        assertEquals(R196MoonPhase.NEW, R196MoonPhase.atDay(5));
+        assertEquals(R196MoonPhase.FULL, R196MoonPhase.atDay(8));
+        assertEquals(R196MoonPhase.NEW, R196MoonPhase.atDay(4));
+        assertEquals(R196MoonPhase.NORMAL, R196MoonPhase.atDay(1));
         assertEquals(R196MoonPhase.BLOOD, R196MoonPhase.atDay(32));
         assertEquals(R196MoonPhase.BLUE, R196MoonPhase.atDay(128));
         assertEquals(R196MoonPhase.YELLOW, R196MoonPhase.atDay(24));
