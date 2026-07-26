@@ -43,7 +43,7 @@ class R196GeneratedResourceTest {
 
     @Test
     void enchantmentSourcesStrictlyReplaceVanillaWithR196() throws Exception {
-        Set<String> expected = ModEnchantments.R196.stream()
+        Set<String> expected = ModEnchantments.ALL.stream()
                 .map(key -> key.identifier().toString())
                 .collect(Collectors.toSet());
         for (String tag : List.of(
@@ -67,8 +67,50 @@ class R196GeneratedResourceTest {
                     tag,
                     () -> assertTrue(source.has("replace") && source.get("replace").getAsBoolean()),
                     () -> assertEquals(expected, values),
-                    () -> assertEquals(22, values.size()));
+                    () -> assertEquals(39, values.size()));
         }
+    }
+
+    /** The vanilla-id overrides must carry MITE weights, level caps and self-exclusivity. */
+    @Test
+    void vanillaEnchantmentOverridesUseMiteDefinitions() throws Exception {
+        Map<String, int[]> expected = Map.ofEntries(
+                Map.entry("fire_protection", new int[]{25, 4}),
+                Map.entry("feather_falling", new int[]{25, 4}),
+                Map.entry("blast_protection", new int[]{25, 4}),
+                Map.entry("projectile_protection", new int[]{25, 4}),
+                Map.entry("respiration", new int[]{5, 3}),
+                Map.entry("aqua_affinity", new int[]{5, 1}),
+                Map.entry("thorns", new int[]{5, 3}),
+                Map.entry("smite", new int[]{25, 5}),
+                Map.entry("bane_of_arthropods", new int[]{25, 5}),
+                Map.entry("knockback", new int[]{25, 2}),
+                Map.entry("fire_aspect", new int[]{5, 2}),
+                Map.entry("looting", new int[]{25, 3}),
+                Map.entry("efficiency", new int[]{100, 5}),
+                Map.entry("silk_touch", new int[]{5, 1}),
+                Map.entry("power", new int[]{100, 5}),
+                Map.entry("punch", new int[]{25, 2}),
+                Map.entry("flame", new int[]{5, 1}));
+        for (Map.Entry<String, int[]> entry : expected.entrySet()) {
+            JsonObject definition = json(GENERATED.resolve(
+                    "data/minecraft/enchantment/" + entry.getKey() + ".json"));
+            assertAll(
+                    entry.getKey(),
+                    () -> assertEquals(entry.getValue()[0], definition.get("weight").getAsInt()),
+                    () -> assertEquals(entry.getValue()[1], definition.get("max_level").getAsInt()),
+                    () -> assertEquals(8, definition.get("anvil_cost").getAsInt()));
+        }
+        JsonObject silkTouch = json(GENERATED.resolve("data/minecraft/enchantment/silk_touch.json"));
+        assertTrue(silkTouch.getAsJsonArray("exclusive_set").asList().stream()
+                        .map(JsonElement::getAsString)
+                        .anyMatch("infx:fortune"::equals),
+                "silk touch stays exclusive with MITE fortune");
+        JsonObject fortune = json(GENERATED.resolve("data/infx/enchantment/fortune.json"));
+        assertTrue(fortune.getAsJsonArray("exclusive_set").asList().stream()
+                        .map(JsonElement::getAsString)
+                        .anyMatch("minecraft:silk_touch"::equals),
+                "fortune stays exclusive with silk touch");
     }
 
     @Test

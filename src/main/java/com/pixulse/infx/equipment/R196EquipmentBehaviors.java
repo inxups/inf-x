@@ -155,20 +155,72 @@ public final class R196EquipmentBehaviors {
 
     static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)
-                || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) {
+                || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return;
         }
-        float armorPoints = (float) player.getAttributeValue(Attributes.ARMOR)
-                + protectionBonus(player)
-                - penetrationPoints(event);
-        if (armorPoints <= 0.0F) {
+        // MITE: fire and armor-bypassing damage skip mundane armor, but the typed protection
+        // enchantments (fire/blast/projectile protection, feather falling) still contribute.
+        boolean bypassesMundaneArmor = event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)
+                || event.getSource().is(DamageTypeTags.IS_FIRE);
+        float typed = typedProtectionPoints(player, event);
+        float base = bypassesMundaneArmor
+                ? 0.0F
+                : (float) player.getAttributeValue(Attributes.ARMOR)
+                        + protectionBonus(player)
+                        - penetrationPoints(event);
+        float armorPoints = Math.max(0.0F, base) + typed;
+        if (armorPoints <= 0.0F && !bypassesMundaneArmor) {
             return;
         }
-        boolean fire = event.getSource().is(DamageTypeTags.IS_FIRE);
         event.getContainer().addModifier(
                 DamageContainer.Reduction.ARMOR,
-                (container, vanillaReduction) -> r196ArmorReduction(
-                        container.getNewDamage(), armorPoints, fire));
+                (container, vanillaReduction) -> fixedArmorReduction(
+                        container.getNewDamage(), armorPoints));
+    }
+
+    /** Sums MITE's typed protection points from the four armor pieces for a matching source. */
+    private static float typedProtectionPoints(Player player, LivingIncomingDamageEvent event) {
+        boolean fire = event.getSource().is(DamageTypeTags.IS_FIRE);
+        boolean fall = event.getSource().is(DamageTypeTags.IS_FALL);
+        boolean explosion = event.getSource().is(DamageTypeTags.IS_EXPLOSION);
+        boolean projectile = event.getSource().is(DamageTypeTags.IS_PROJECTILE);
+        if (!fire && !fall && !explosion && !projectile) {
+            return 0.0F;
+        }
+        float total = 0.0F;
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            ItemStack stack = player.getItemBySlot(slot);
+            R196Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+            if (entry == null || entry.key().type().armorForm() == R196EquipmentType.ArmorForm.NONE) {
+                continue;
+            }
+            float durabilityFactor = armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
+            if (fall) {
+                total += R196EnchantmentRules.featherFallingPoints(
+                        R196Enchantments.level(
+                                player.level(), stack, ModEnchantments.VANILLA_FEATHER_FALLING),
+                        durabilityFactor);
+                continue;
+            }
+            float pieceProtection = entry.key().armorProtection() * durabilityFactor;
+            if (fire) {
+                total += R196EnchantmentRules.typedProtectionPoints(pieceProtection,
+                        R196Enchantments.level(
+                                player.level(), stack, ModEnchantments.VANILLA_FIRE_PROTECTION));
+            }
+            if (explosion) {
+                total += R196EnchantmentRules.typedProtectionPoints(pieceProtection,
+                        R196Enchantments.level(
+                                player.level(), stack, ModEnchantments.VANILLA_BLAST_PROTECTION));
+            }
+            if (projectile) {
+                total += R196EnchantmentRules.typedProtectionPoints(pieceProtection,
+                        R196Enchantments.level(
+                                player.level(), stack, ModEnchantments.VANILLA_PROJECTILE_PROTECTION));
+            }
+        }
+        return total;
     }
 
     private static float protectionBonus(Player player) {
@@ -199,10 +251,6 @@ public final class R196EquipmentBehaviors {
         int penetration = R196Enchantments.level(attacker.level(), weapon, ModEnchantments.PENETRATION);
         int cleaving = R196Enchantments.level(attacker.level(), weapon, ModEnchantments.CLEAVING);
         return R196EnchantmentRules.penetrationPoints(Math.max(penetration, cleaving));
-    }
-
-    static float r196ArmorReduction(float incomingDamage, float armorPoints, boolean fire) {
-        return fire ? 0.0F : fixedArmorReduction(incomingDamage, armorPoints);
     }
 
     public static float fixedArmorReduction(float incomingDamage, float armorPoints) {

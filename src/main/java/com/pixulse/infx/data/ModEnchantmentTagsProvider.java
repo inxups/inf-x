@@ -32,7 +32,7 @@ final class ModEnchantmentTagsProvider extends TagsProvider<Enchantment> {
                 EnchantmentTags.TRADES_SNOW_COMMON,
                 EnchantmentTags.TRADES_SWAMP_COMMON,
                 EnchantmentTags.TRADES_TAIGA_COMMON)) {
-            tag(source, true).add(ModEnchantments.R196.toArray(net.minecraft.resources.ResourceKey[]::new));
+            tag(source, true).add(ModEnchantments.ALL.toArray(net.minecraft.resources.ResourceKey[]::new));
         }
     }
 }

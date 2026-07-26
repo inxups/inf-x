@@ -88,7 +88,8 @@ public final class R196EnchantmentEvents {
     }
 
     private static void onDamagePost(LivingDamageEvent.Post event) {
-        if (event.getHealthDamage() <= 0.0F) return;
+        if (event.getHealthDamage() <= 0.0F
+                || event.getSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS)) return;
         if (event.getSource().getDirectEntity() instanceof AbstractArrow arrow) {
             applyArrowPoison(event.getEntity(), arrow);
         }
@@ -96,6 +97,41 @@ public final class R196EnchantmentEvents {
                 && event.getSource().getDirectEntity() == attacker) {
             applyMeleeEffects(attacker, event.getEntity(), event.getHealthDamage());
         }
+        applyThorns(event);
+    }
+
+    /** MITE thorns retaliates against melee attackers and arrow shooters, wearing the cuirass. */
+    private static void applyThorns(LivingDamageEvent.Post event) {
+        LivingEntity target = event.getEntity();
+        if (!(target.level() instanceof ServerLevel level)
+                || !(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
+        boolean directMelee = event.getSource().getDirectEntity() == attacker;
+        if (!directMelee && !(event.getSource().getDirectEntity() instanceof AbstractArrow)) return;
+
+        ItemStack thornsPiece = ItemStack.EMPTY;
+        EquipmentSlot thornsSlot = null;
+        int thorns = 0;
+        for (EquipmentSlot slot : new EquipmentSlot[]{
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+            ItemStack stack = target.getItemBySlot(slot);
+            int stackLevel = R196Enchantments.level(level, stack, ModEnchantments.VANILLA_THORNS);
+            if (stackLevel > thorns) {
+                thorns = stackLevel;
+                thornsPiece = stack;
+                thornsSlot = slot;
+            }
+        }
+        if (thorns <= 0) return;
+
+        boolean triggered = target.getRandom().nextFloat() < R196EnchantmentRules.thornsChance(thorns);
+        if (triggered) {
+            attacker.hurtServer(level, target.damageSources().thorns(target),
+                    R196EnchantmentRules.thornsDamage(thorns, target.getRandom()));
+        }
+        EquipmentSlot wornSlot = thornsSlot;
+        thornsPiece.hurtAndBreak(
+                R196EnchantmentRules.thornsArmorWear(triggered), level, target,
+                item -> target.onEquippedItemBroken(item, wornSlot));
     }
 
     private static void applyArrowPoison(LivingEntity target, AbstractArrow arrow) {

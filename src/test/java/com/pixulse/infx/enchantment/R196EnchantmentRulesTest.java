@@ -129,9 +129,34 @@ class R196EnchantmentRulesTest {
 
     @Test
     void selectorUsesOnlyTheFixedR196CandidatePool() {
-        assertSame(ModEnchantments.R196, R196EnchantmentSelector.candidateKeys());
-        assertEquals(22, R196EnchantmentSelector.candidateKeys().size());
+        assertSame(ModEnchantments.ALL, R196EnchantmentSelector.candidateKeys());
+        assertEquals(39, R196EnchantmentSelector.candidateKeys().size());
+        assertTrue(R196EnchantmentSelector.candidateKeys().containsAll(ModEnchantments.R196));
+        assertTrue(R196EnchantmentSelector.candidateKeys().containsAll(ModEnchantments.VANILLA_R196));
         assertFalse(R196EnchantmentSelector.candidateKeys().contains(ModEnchantments.CLUMSINESS));
+    }
+
+    @Test
+    void vanillaMiteRulesFollowTheOriginalFormulas() {
+        assertEquals(0.15F, R196EnchantmentRules.FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL, .0001F);
+        assertEquals(2.0F, R196EnchantmentRules.SMITE_DAMAGE_PER_LEVEL, .0001F);
+        assertEquals(2.0F, R196EnchantmentRules.typedProtectionPoints(8.0F, 1), .0001F);
+        assertEquals(8.0F, R196EnchantmentRules.typedProtectionPoints(8.0F, 4), .0001F);
+        assertEquals(0.0F, R196EnchantmentRules.typedProtectionPoints(8.0F, 0), .0001F);
+        assertEquals(15.0F, R196EnchantmentRules.featherFallingPoints(4, 1.0F), .0001F);
+        assertEquals(3.75F, R196EnchantmentRules.featherFallingPoints(1, 1.0F), .0001F);
+        assertEquals(7.5F, R196EnchantmentRules.featherFallingPoints(4, 0.5F), .0001F);
+        assertEquals(0.15F, R196EnchantmentRules.thornsChance(1), .0001F);
+        assertEquals(0.45F, R196EnchantmentRules.thornsChance(3), .0001F);
+        assertEquals(0.45F, R196EnchantmentRules.thornsChance(9), .0001F);
+        RandomSource random = RandomSource.create(1L);
+        for (int roll = 0; roll < 20; roll++) {
+            int damage = R196EnchantmentRules.thornsDamage(3, random);
+            assertTrue(damage >= 1 && damage <= 4, "thorns damage " + damage);
+        }
+        assertEquals(11, R196EnchantmentRules.thornsDamage(21, random));
+        assertEquals(3, R196EnchantmentRules.thornsArmorWear(true));
+        assertEquals(1, R196EnchantmentRules.thornsArmorWear(false));
     }
 
     @Test

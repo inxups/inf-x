@@ -82,7 +82,7 @@ public final class R196EnchantmentSelector {
     }
 
     static List<ResourceKey<Enchantment>> candidateKeys() {
-        return ModEnchantments.R196;
+        return ModEnchantments.ALL;
     }
 
     private static void shuffle(RandomSource random, List<EnchantmentInstance> enchantments) {

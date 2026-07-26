@@ -69,6 +69,14 @@ public final class ModTags {
         public static final TagKey<Item> R196_FORTUNE_ENCHANTABLE = enchantable("r196_fortune");
         public static final TagKey<Item> R196_FREE_MOVEMENT_ENCHANTABLE = enchantable("r196_free_movement");
         public static final TagKey<Item> R196_CHEST_ARMOR_ENCHANTABLE = enchantable("r196_chest_armor");
+        public static final TagKey<Item> R196_SWORD_FAMILY_ENCHANTABLE = enchantable("r196_sword_family");
+        public static final TagKey<Item> R196_SMITE_ENCHANTABLE = enchantable("r196_smite");
+        public static final TagKey<Item> R196_KNOCKBACK_ENCHANTABLE = enchantable("r196_knockback");
+        public static final TagKey<Item> R196_LOOTING_ENCHANTABLE = enchantable("r196_looting");
+        public static final TagKey<Item> R196_EFFICIENCY_ENCHANTABLE = enchantable("r196_efficiency");
+        public static final TagKey<Item> R196_SILK_TOUCH_ENCHANTABLE = enchantable("r196_silk_touch");
+        public static final TagKey<Item> R196_THORNS_ENCHANTABLE = enchantable("r196_thorns");
+        public static final TagKey<Item> R196_SOLID_METAL_TORSO_ENCHANTABLE = enchantable("r196_solid_metal_torso");
         public static final TagKey<Item> GELATINOUS_SPHERES = create("gelatinous_spheres");
 
         private Items() {}
