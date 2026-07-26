@@ -1299,7 +1299,7 @@ public final class ModR196CompletionGameTests {
     private static void assertR196EnchantmentRegistry(GameTestHelper helper) {
         var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         Set<Holder<Enchantment>> expected = Set.copyOf(
-                ModEnchantments.R196.stream().map(enchantments::getOrThrow).toList());
+                ModEnchantments.ALL.stream().map(enchantments::getOrThrow).toList());
         for (var source : List.of(
                 EnchantmentTags.IN_ENCHANTING_TABLE,
                 EnchantmentTags.ON_MOB_SPAWN_EQUIPMENT,
@@ -1314,10 +1314,12 @@ public final class ModR196CompletionGameTests {
                 EnchantmentTags.TRADES_SWAMP_COMMON,
                 EnchantmentTags.TRADES_TAIGA_COMMON)) {
             var actual = enchantments.getOrThrow(source);
-            helper.assertTrue(actual.size() == expected.size(), source.location() + " has exactly 22 R196 entries");
+            helper.assertTrue(
+                    actual.size() == expected.size(),
+                    source.location() + " has exactly 39 R196 and vanilla MITE entries");
             helper.assertTrue(actual.stream().allMatch(expected::contains), source.location() + " excludes modern entries");
         }
-        for (ResourceKey<Enchantment> key : ModEnchantments.R196) {
+        for (ResourceKey<Enchantment> key : ModEnchantments.ALL) {
             Holder<Enchantment> enchantment = enchantments.getOrThrow(key);
             helper.assertTrue(
                     enchantment.value().exclusiveSet().contains(enchantment),
@@ -1326,6 +1328,15 @@ public final class ModR196CompletionGameTests {
                     Enchantment.areCompatible(enchantment, enchantment),
                     key.identifier() + " cannot be selected twice");
         }
+        Holder<Enchantment> silkTouch = enchantments.getOrThrow(ModEnchantments.VANILLA_SILK_TOUCH);
+        Holder<Enchantment> fortune = enchantments.getOrThrow(ModEnchantments.FORTUNE);
+        Holder<Enchantment> efficiency = enchantments.getOrThrow(ModEnchantments.VANILLA_EFFICIENCY);
+        helper.assertFalse(
+                Enchantment.areCompatible(silkTouch, fortune),
+                "silk touch and fortune stay mutually exclusive");
+        helper.assertTrue(
+                Enchantment.areCompatible(silkTouch, efficiency),
+                "silk touch combines with any other enchantment");
     }
 
     private static void assertConversionOptions(

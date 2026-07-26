@@ -21,6 +21,16 @@ public final class R196EnchantmentRules {
     public static final int PROTECTION_MAX_LEVEL = 4;
     /** Per-level slice of durability's 75% negation chance, shared with the registered item effect. */
     public static final float DURABILITY_NEGATION_PER_LEVEL = 0.75F / STANDARD_MAX_LEVEL;
+    public static final int RESPIRATION_MAX_LEVEL = 3;
+    public static final int THORNS_MAX_LEVEL = 3;
+    public static final int LOOTING_MAX_LEVEL = 3;
+    public static final int KNOCKBACK_MAX_LEVEL = 2;
+    /** MITE reduces burn time and explosion knockback by this per protection level, up to 60%. */
+    public static final float FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL = 0.15F;
+    public static final float BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL = 0.15F;
+    /** MITE smite and bane of arthropods both add two damage per level against their targets. */
+    public static final float SMITE_DAMAGE_PER_LEVEL = 2.0F;
+    private static final float FEATHER_FALLING_FULL_PROTECTION = 15.0F;
 
     private R196EnchantmentRules() {}
 
@@ -218,6 +228,34 @@ public final class R196EnchantmentRules {
         return Math.max(0.0F, armorProtection)
                 * levelFraction(level, PROTECTION_MAX_LEVEL)
                 * 0.5F;
+    }
+
+    /**
+     * MITE's typed protections (fire, blast, projectile) add the enchanted piece's own
+     * damage-factored protection again, scaled by the level fraction, when the damage matches.
+     */
+    public static float typedProtectionPoints(float pieceProtection, int level) {
+        return Math.max(0.0F, pieceProtection) * levelFraction(level, PROTECTION_MAX_LEVEL);
+    }
+
+    /** Feather falling grants up to 15 armor points against falls, scaled by piece condition. */
+    public static float featherFallingPoints(int level, float durabilityFactor) {
+        return FEATHER_FALLING_FULL_PROTECTION
+                * levelFraction(level, PROTECTION_MAX_LEVEL)
+                * Math.clamp(durabilityFactor, 0.0F, 1.0F);
+    }
+
+    public static float thornsChance(int level) {
+        return Math.clamp(level, 0, THORNS_MAX_LEVEL) * 0.15F;
+    }
+
+    /** MITE thorns damage: levels at or below ten roll one to four points. */
+    public static int thornsDamage(int level, RandomSource random) {
+        return level > 10 ? level - 10 : 1 + random.nextInt(4);
+    }
+
+    public static int thornsArmorWear(boolean triggered) {
+        return triggered ? 3 : 1;
     }
 
     public static float freeMovementResistance(int level) {

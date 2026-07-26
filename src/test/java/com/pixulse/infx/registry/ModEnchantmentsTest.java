@@ -37,6 +37,7 @@ class ModEnchantmentsTest {
 
         assertEquals(22, ModEnchantments.R196.size());
         assertEquals(22, expected.size());
+        assertEquals(39, ModEnchantments.ALL.size());
         for (ResourceKey<Enchantment> key : ModEnchantments.R196) {
             ModEnchantments.R196EnchantmentProfile actual = ModEnchantments.profile(key);
             ExpectedProfile profile = expected.get(key);
@@ -58,6 +59,39 @@ class ModEnchantmentsTest {
                 assertEquals(profile.difficulty(), profile.maximumCost(level) - profile.minimumCost(level) + 1,
                         key.identifier() + " level " + level);
             }
+        }
+    }
+
+    /** The 17 vanilla-derived enchantments keep MITE's rarity and difficulty exactly. */
+    @Test
+    void vanillaProfilesPreserveEveryMiteRarityAndDifficulty() {
+        Map<ResourceKey<Enchantment>, ExpectedProfile> expected = Map.ofEntries(
+                Map.entry(ModEnchantments.VANILLA_FIRE_PROTECTION, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_FEATHER_FALLING, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_BLAST_PROTECTION, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_PROJECTILE_PROTECTION, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_RESPIRATION, expected(ModEnchantments.R196Rarity.RARE, 10)),
+                Map.entry(ModEnchantments.VANILLA_AQUA_AFFINITY, expected(ModEnchantments.R196Rarity.RARE, 10)),
+                Map.entry(ModEnchantments.VANILLA_THORNS, expected(ModEnchantments.R196Rarity.RARE, 20)),
+                Map.entry(ModEnchantments.VANILLA_SMITE, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_BANE_OF_ARTHROPODS, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_KNOCKBACK, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_FIRE_ASPECT, expected(ModEnchantments.R196Rarity.RARE, 20)),
+                Map.entry(ModEnchantments.VANILLA_LOOTING, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_EFFICIENCY, expected(ModEnchantments.R196Rarity.COMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_SILK_TOUCH, expected(ModEnchantments.R196Rarity.RARE, 10)),
+                Map.entry(ModEnchantments.VANILLA_POWER, expected(ModEnchantments.R196Rarity.COMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_PUNCH, expected(ModEnchantments.R196Rarity.UNCOMMON, 10)),
+                Map.entry(ModEnchantments.VANILLA_FLAME, expected(ModEnchantments.R196Rarity.RARE, 20)));
+
+        assertEquals(17, ModEnchantments.VANILLA_R196.size());
+        assertEquals(17, expected.size());
+        for (ResourceKey<Enchantment> key : ModEnchantments.VANILLA_R196) {
+            assertEquals("minecraft", key.identifier().getNamespace(), key.identifier().toString());
+            ModEnchantments.R196EnchantmentProfile actual = ModEnchantments.profile(key);
+            ExpectedProfile profile = expected.get(key);
+            assertEquals(profile.rarity(), actual.rarity(), key.identifier().toString());
+            assertEquals(profile.difficulty(), actual.difficulty(), key.identifier().toString());
         }
     }
 

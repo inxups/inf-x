@@ -30,6 +30,7 @@ final class ModItemTagsProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
         tag(ModTags.Items.BINDINGS).add(itemKey(Items.STRING)).add(ModItems.SINEW.getKey());
+        tag(ModTags.Items.R196_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
         tag(ModTags.Items.FURNACE_FUELS_HEAT_2)
                 .add(itemKey(Items.COAL))
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));
@@ -204,6 +205,54 @@ final class ModItemTagsProvider extends ItemTagsProvider {
         }
         if (type == R196EquipmentType.CHESTPLATE || type == R196EquipmentType.CHAINMAIL_CHESTPLATE) {
             add(ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, entry);
+        }
+        addVanillaMiteEnchantmentTags(entry, type, material);
+    }
+
+    /** Item targets for the vanilla-derived MITE enchantments, following MITE's class checks. */
+    private void addVanillaMiteEnchantmentTags(
+            R196Catalog.EquipmentEntry entry, R196EquipmentType type, R196Material material) {
+        // MITE ItemKnife extends ItemDagger extends ItemSword, so "instanceof ItemSword"
+        // checks (bane of arthropods, fire aspect, looting) cover all three.
+        boolean swordFamily = type == R196EquipmentType.SWORD
+                || type == R196EquipmentType.DAGGER
+                || type == R196EquipmentType.KNIFE;
+        if (swordFamily) {
+            add(ModTags.Items.R196_SWORD_FAMILY_ENCHANTABLE, entry);
+        }
+        if (swordFamily || type == R196EquipmentType.CUDGEL) {
+            add(ModTags.Items.R196_LOOTING_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.WAR_HAMMER) {
+            add(ModTags.Items.R196_SMITE_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.CUDGEL || type == R196EquipmentType.WAR_HAMMER) {
+            add(ModTags.Items.R196_KNOCKBACK_ENCHANTABLE, entry);
+        }
+        // MITE efficiency: pickaxe class (war hammers excluded), the axe family, shovels
+        // (mattock extends ItemShovel) and hoes.
+        if (type == R196EquipmentType.PICKAXE
+                || type == R196EquipmentType.HATCHET
+                || type == R196EquipmentType.AXE
+                || type == R196EquipmentType.BATTLE_AXE
+                || type == R196EquipmentType.SHOVEL
+                || type == R196EquipmentType.MATTOCK
+                || type == R196EquipmentType.HOE) {
+            add(ModTags.Items.R196_EFFICIENCY_ENCHANTABLE, entry);
+        }
+        // MITE silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
+        if (type == R196EquipmentType.PICKAXE
+                || type == R196EquipmentType.SHOVEL
+                || type == R196EquipmentType.KNIFE
+                || type == R196EquipmentType.DAGGER) {
+            add(ModTags.Items.R196_SILK_TOUCH_ENCHANTABLE, entry);
+        }
+        if (type == R196EquipmentType.CHESTPLATE) {
+            add(ModTags.Items.R196_THORNS_ENCHANTABLE, entry);
+        }
+        if ((type == R196EquipmentType.CHESTPLATE || type == R196EquipmentType.LEGGINGS)
+                && material.has(R196Material.Flag.METAL)) {
+            add(ModTags.Items.R196_SOLID_METAL_TORSO_ENCHANTABLE, entry);
         }
     }
 
