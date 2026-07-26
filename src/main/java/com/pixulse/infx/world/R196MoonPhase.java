@@ -25,7 +25,8 @@ public enum R196MoonPhase {
         if ((day + 8L) % 128L == 0L) return PHANTOM;
         if (day % 32L == 0L) return BLOOD;
         if ((day + 8L) % 32L == 0L) return YELLOW;
-        int vanillaPhase = (int) Math.floorMod(day - 1L, 8L);
+        // MITE: getMoonPhase() == (day % 8) with 0 = full moon, so day 8 is full, day 12 new.
+        int vanillaPhase = (int) Math.floorMod(day, 8L);
         if (vanillaPhase == 0) return FULL;
         if (vanillaPhase == 4) return NEW;
         return NORMAL;

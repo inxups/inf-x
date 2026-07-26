@@ -15,6 +15,10 @@ public final class R196Creeper extends Creeper implements R196Mob {
 
     public R196Creeper(EntityType<? extends Creeper> type, Level level) {
         super(type, level);
+        if (variant() == Variant.INFERNAL) {
+            // MITE infernal creepers are worth triple the base experience.
+            xpReward = 15;
+        }
     }
 
     private boolean amplifyingExplosion;

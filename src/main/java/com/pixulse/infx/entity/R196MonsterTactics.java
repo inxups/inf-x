@@ -64,6 +64,7 @@ public final class R196MonsterTactics {
     }
 
     public static void equipForWorldAge(ServerLevel level, Mob mob) {
+        if (!wearsWorldAgeGear(mob)) return;
         long day = survivalDay(level);
         if (mob.getRandom().nextFloat() >= equipmentChance(day)) return;
         int maximum = GEAR_MATERIALS.indexOf(maximumGearMaterial(day));
@@ -95,7 +96,8 @@ public final class R196MonsterTactics {
         }
     }
 
-    private static void equip(
+    /** MITE mobs drop naturally carried equipment at the default 8.5% chance. */
+    public static void equip(
             ServerLevel level,
             Mob mob,
             EquipmentSlot slot,
@@ -108,7 +110,28 @@ public final class R196MonsterTactics {
             stack = EnchantmentHelper.enchantItem(mob.getRandom(), stack, cost, level.registryAccess(), Optional.empty());
         }
         mob.setItemSlot(slot, stack);
-        mob.setDropChance(slot, 0.05F);
+        mob.setDropChance(slot, 0.085F);
+    }
+
+    /**
+     * MITE carve-outs from world-age gear: arachnids, blazes, fire elementals and pig zombies
+     * never carry scaled equipment, and the zombie/skeleton variants either spawn bare or bring
+     * their own fixed MITE kit which must not be overwritten.
+     */
+    static boolean wearsWorldAgeGear(Mob mob) {
+        if (mob instanceof R196Spider
+                || mob instanceof R196ZombifiedPiglin
+                || mob instanceof R196Blaze
+                || mob instanceof R196FireElemental) {
+            return false;
+        }
+        if (mob instanceof R196Zombie zombie) {
+            return zombie.variant() == R196Zombie.Variant.ZOMBIE;
+        }
+        if (mob instanceof R196Skeleton skeleton) {
+            return skeleton.variant() == R196Skeleton.Variant.SKELETON;
+        }
+        return true;
     }
 
     public static void cooperate(ServerLevel level, Mob mob) {
@@ -143,7 +166,8 @@ public final class R196MonsterTactics {
 
         ItemStack tool = mob.getMainHandItem();
         float speed = Math.max(1.0F, tool.getDestroySpeed(state));
-        float maximumHardness = speed > 1.0F ? 12.0F : 2.0F;
+        // MITE bare-handed diggers only clear soft blocks; stone (hardness 1.5) requires a tool.
+        float maximumHardness = speed > 1.0F ? 12.0F : 1.4F;
         if (hardness > maximumHardness) return false;
         int required = Math.clamp(Mth.ceil(40.0F * Math.max(0.25F, hardness) / speed), 10, 240);
         var data = mob.getPersistentData();

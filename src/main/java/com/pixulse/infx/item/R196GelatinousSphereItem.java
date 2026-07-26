@@ -81,8 +81,9 @@ public final class R196GelatinousSphereItem extends Item implements ProjectileIt
                 0.5F,
                 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
         if (level instanceof ServerLevel serverLevel) {
+            // MITE launches gelatinous spheres at 1.2, slower than a snowball's 1.5.
             Projectile.spawnProjectileFromRotation(
-                    R196GelatinousSphere::new, serverLevel, stack, player, 0.0F, 1.5F, 1.0F);
+                    R196GelatinousSphere::new, serverLevel, stack, player, 0.0F, 1.2F, 1.0F);
         }
         player.awardStat(Stats.ITEM_USED.get(this));
         stack.consume(1, player);

@@ -18,7 +18,6 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Blaze;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
@@ -57,9 +56,9 @@ public final class R196FireElemental extends Blaze implements R196Mob {
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        // MITE fire elementals only retaliate and hunt players; villagers are not sought out.
         targetSelector.addGoal(1, new HurtByTargetGoal(this));
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
-        targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
     }
 
     @Override
@@ -150,7 +149,9 @@ public final class R196FireElemental extends Blaze implements R196Mob {
 
     @Override
     public boolean isSensitiveToWater() {
-        return true;
+        // MITE water attrition is fully modelled in tickMiteEffects; the modern per-tick
+        // water damage would roughly double the drain in rain.
+        return false;
     }
 
     @Override

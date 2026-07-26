@@ -40,7 +40,12 @@ public final class R196RustedIronSources {
         if (event.loadedFromDisk() || !(event.getLevel() instanceof ServerLevel)) {
             return;
         }
-        if (event.getEntity() instanceof Zombie zombie) {
+        // MITE only arms plain zombies this way: the zombie variants spawn bare (the revenant
+        // brings its fixed kit) and pig zombies carry their golden weapon instead.
+        if (event.getEntity() instanceof Zombie zombie
+                && !(zombie instanceof com.pixulse.infx.entity.R196ZombifiedPiglin)
+                && !(zombie instanceof com.pixulse.infx.entity.R196Zombie r196
+                        && r196.variant() != com.pixulse.infx.entity.R196Zombie.Variant.ZOMBIE)) {
             equipZombie(zombie);
         }
     }
@@ -63,11 +68,25 @@ public final class R196RustedIronSources {
     private static void onLivingDrops(LivingDropsEvent event) {
         if (!(event.getEntity() instanceof AbstractSkeleton skeleton)
                 || skeleton instanceof WitherSkeleton
-                || !event.isRecentlyHit()
-                || skeleton.getRandom().nextInt(3) != 0) {
+                || !event.isRecentlyHit()) {
             return;
         }
-        ItemStack arrow = equipment(R196EquipmentType.ARROW);
+        // MITE: skeletons shed nextInt(2) rusted arrows; longdead shed an ancient-metal arrow
+        // one time in six.
+        R196Material material = R196Material.RUSTED_IRON;
+        int count;
+        if (skeleton instanceof com.pixulse.infx.entity.R196Skeleton r196
+                && r196.variant() == com.pixulse.infx.entity.R196Skeleton.Variant.LONGDEAD) {
+            material = R196Material.ANCIENT_METAL;
+            count = skeleton.getRandom().nextInt(6) == 0 ? 1 : 0;
+        } else {
+            count = skeleton.getRandom().nextInt(2);
+        }
+        if (count <= 0) {
+            return;
+        }
+        ItemStack arrow = ModItems.catalog().equipment(material, R196EquipmentType.ARROW).holder().toStack();
+        arrow.setCount(count);
         event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(
                 skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(), arrow));
     }

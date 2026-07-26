@@ -30,14 +30,30 @@ public final class R196Enderman extends EnderMan implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        // MITE: a pearl or ender eye in hand angers instantly; pearls buried in the inventory
+        // only draw attention at about one roll in 2000 per pearl per tick. The goal re-checks
+        // every ~10 ticks, so 200 here keeps the per-tick odds.
         targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
                 this,
                 Player.class,
                 10,
                 true,
                 false,
-                (target, level) -> target instanceof Player player && player.getInventory().contains(
-                        stack -> stack.is(Items.ENDER_PEARL) || stack.is(Items.ENDER_EYE))));
+                (target, level) -> {
+                    if (!(target instanceof Player player)) {
+                        return false;
+                    }
+                    if (isPearlLike(player.getMainHandItem()) || isPearlLike(player.getOffhandItem())) {
+                        return true;
+                    }
+                    int pearls = player.getInventory().countItem(Items.ENDER_PEARL)
+                            + player.getInventory().countItem(Items.ENDER_EYE);
+                    return pearls > 0 && random.nextInt(200) < pearls;
+                }));
+    }
+
+    private static boolean isPearlLike(net.minecraft.world.item.ItemStack stack) {
+        return stack.is(Items.ENDER_PEARL) || stack.is(Items.ENDER_EYE);
     }
 
     @Override
@@ -46,7 +62,13 @@ public final class R196Enderman extends EnderMan implements R196Mob {
             DamageSource direct = attacker instanceof Player player
                     ? level.damageSources().playerAttack(player)
                     : level.damageSources().mobAttack(attacker);
-            return super.hurtServer(level, direct, damage);
+            boolean hurt = super.hurtServer(level, direct, damage);
+            if (hurt) {
+                // MITE endermen take the projectile hit, then drop aggression and blink away.
+                setTarget(null);
+                for (int attempt = 0; attempt < 64 && !teleport(); attempt++) {}
+            }
+            return hurt;
         }
         return super.hurtServer(level, source, damage);
     }

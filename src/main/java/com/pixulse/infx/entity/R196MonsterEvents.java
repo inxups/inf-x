@@ -47,7 +47,6 @@ import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
-import net.neoforged.neoforge.event.entity.living.EnderManAngerEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -69,7 +68,6 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::finalizeSpawn);
         gameBus.addListener(R196MonsterEvents::leadRangedProjectile);
         gameBus.addListener(R196MonsterEvents::replaceVanillaSpawn);
-        gameBus.addListener(R196MonsterEvents::suppressSneakingEndermanAnger);
         gameBus.addListener(R196MonsterEvents::shareTarget);
         gameBus.addListener(R196MonsterEvents::amplifyInfernalCreeperExplosion);
         gameBus.addListener(R196MonsterEvents::limitCreeperTerrainDamage);
@@ -78,6 +76,85 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::applyWitchMagicDefense);
         gameBus.addListener(R196MonsterEvents::limitSpawnerPopulation);
         gameBus.addListener(R196MonsterEvents::preventObservedDespawn);
+        gameBus.addListener(R196MonsterEvents::applyFrenzyDamage);
+        gameBus.addListener(R196MonsterEvents::applyMiteProjectileDamage);
+        gameBus.addListener(R196MonsterEvents::retaliateAgainstBareHands);
+    }
+
+    /**
+     * MITE frenzy: during blood-moon nights (and under bone-lord inspiration) monster melee
+     * gains half its base attack again. Endermen are explicitly exempt in MITE.
+     */
+    private static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof Mob attacker)
+                || !(attacker instanceof Enemy)
+                || attacker instanceof R196Enderman
+                || !event.getSource().isDirect()
+                || !(attacker.level() instanceof ServerLevel level)) {
+            return;
+        }
+        boolean frenzied = level.dimension() == Level.OVERWORLD
+                && R196MoonPhase.at(level) == R196MoonPhase.BLOOD
+                && !isDay(level);
+        if (!frenzied && attacker instanceof R196Skeleton skeleton && skeleton.isInspired()) {
+            frenzied = true;
+        }
+        if (!frenzied) {
+            return;
+        }
+        var attack = attacker.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+        if (attack != null) {
+            event.setAmount(event.getAmount() + 0.5F * (float) attack.getBaseValue());
+        }
+    }
+
+    /**
+     * MITE projectile numbers: blaze small fireballs hit for a flat 2; skeleton arrows carry a
+     * per-variant floor (rusted 5, longdead's ancient 9) and stay at the floor unless the bow
+     * is enchanted.
+     */
+    private static void applyMiteProjectileDamage(LivingIncomingDamageEvent event) {
+        if (event.getSource().getDirectEntity()
+                        instanceof net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball fireball
+                && fireball.getOwner() instanceof R196Blaze) {
+            event.setAmount(2.0F);
+            return;
+        }
+        if (event.getSource().getDirectEntity()
+                        instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow
+                && arrow.getOwner() instanceof R196Skeleton skeleton) {
+            float floor = skeleton.variant() == R196Skeleton.Variant.LONGDEAD ? 9.0F : 5.0F;
+            var bow = skeleton.getMainHandItem();
+            boolean enchantedBow = !bow.isEmpty() && bow.isEnchanted();
+            event.setAmount(enchantedBow ? Math.max(event.getAmount(), floor) : floor);
+        }
+    }
+
+    /**
+     * MITE melee retaliation: punching a blaze or fire elemental without a tool always burns the
+     * hand for one point; any other monster currently fighting back has a 1-in-8 chance.
+     */
+    private static void retaliateAgainstBareHands(net.neoforged.neoforge.event.entity.living.LivingDamageEvent.Post event) {
+        if (!(event.getEntity() instanceof Mob victim)
+                || !(victim instanceof Enemy)
+                || !(victim.level() instanceof ServerLevel level)) {
+            return;
+        }
+        var source = event.getSource();
+        if (!source.isDirect() || !(source.getEntity() instanceof Player attacker)) {
+            return;
+        }
+        var weapon = attacker.getMainHandItem();
+        boolean toolLike = weapon.has(net.minecraft.core.component.DataComponents.TOOL)
+                || weapon.is(net.minecraft.world.item.Items.STICK)
+                || weapon.is(net.minecraft.world.item.Items.BONE);
+        if (toolLike) {
+            return;
+        }
+        boolean alwaysRetaliates = victim instanceof R196Blaze || victim instanceof R196FireElemental;
+        if (alwaysRetaliates || (victim.getTarget() == attacker && victim.getRandom().nextFloat() < 0.125F)) {
+            attacker.hurtServer(level, level.damageSources().mobAttack(victim), 1.0F);
+        }
     }
 
     private static void createAttributes(EntityAttributeCreationEvent event) {
@@ -408,7 +485,12 @@ public final class R196MonsterEvents {
         for (Mob mob : level.getEntitiesOfClass(
                 Mob.class,
                 new AABB(event.getEventPosition(), event.getEventPosition()).inflate(radius),
-                candidate -> candidate instanceof Enemy && candidate.isAlive())) {
+                candidate -> candidate instanceof Enemy
+                        && candidate.isAlive()
+                        // MITE base spiders are peaceful in daylight; noise must not override that.
+                        && !(candidate instanceof R196Spider spider
+                                && spider.variant() == R196Spider.Variant.SPIDER
+                                && spider.getLightLevelDependentMagicValue() >= 0.5F))) {
             mob.setTarget(player);
             if (!mob.hasLineOfSight(player)) {
                 mob.getNavigation().moveTo(event.getEventPosition().x, event.getEventPosition().y, event.getEventPosition().z, 1.05);
@@ -421,6 +503,14 @@ public final class R196MonsterEvents {
                 || !(mob instanceof Enemy)
                 || !(mob.level() instanceof ServerLevel level)) {
             return;
+        }
+        // MITE idle regeneration: non-undead monsters recover 10% of max health every 1000
+        // ticks; fire elementals are the explicit exception.
+        if (mob.tickCount % 1000 == 999
+                && !(mob instanceof R196FireElemental)
+                && !BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(mob.getType()).is(net.minecraft.tags.EntityTypeTags.UNDEAD)
+                && mob.getHealth() < mob.getMaxHealth()) {
+            mob.heal(mob.getMaxHealth() * 0.1F);
         }
         if (mob.getTarget() != null) {
             if (mob.tickCount % 20 == 0) R196MonsterTactics.cooperate(level, mob);
@@ -536,7 +626,8 @@ public final class R196MonsterEvents {
         if (isWorldSpawn(original.getSpawnType())) {
             if (original.getType() == EntityTypes.CREEPER) {
                 int y = original.blockPosition().getY();
-                if (y < 40 && original.getRandom().nextFloat() < Math.max(0, 40 - y) / 80.0F) {
+                // MITE caps the infernal replacement odds at 50% even far below y=0.
+                if (y < 40 && original.getRandom().nextFloat() < Math.min(0.5F, Math.max(0, 40 - y) / 80.0F)) {
                     return ModEntityTypes.INFERNAL_CREEPER.get();
                 }
             }
@@ -712,12 +803,6 @@ public final class R196MonsterEvents {
                 || reason == EntitySpawnReason.TRIAL_SPAWNER;
     }
 
-    private static void suppressSneakingEndermanAnger(EnderManAngerEvent event) {
-        if (event.getEntity() instanceof R196Enderman && event.getPlayer().isShiftKeyDown()) {
-            event.setCanceled(true);
-        }
-    }
-
     private static void applyWitchMagicDefense(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof R196Witch witch)
                 || event.getSource().getEntity() == witch
@@ -766,21 +851,28 @@ public final class R196MonsterEvents {
         creeper.setAmplifyingExplosion(true);
         try {
             float radius = creeper.isPowered() ? 12.0F : 6.0F;
+            // MITE infernal creeper explosions are always flaming.
             event.getLevel().explode(
-                    creeper, creeper.getX(), creeper.getY(), creeper.getZ(), radius, net.minecraft.world.level.Level.ExplosionInteraction.MOB);
+                    creeper,
+                    creeper.getX(),
+                    creeper.getY(),
+                    creeper.getZ(),
+                    radius,
+                    true,
+                    net.minecraft.world.level.Level.ExplosionInteraction.MOB);
         } finally {
             creeper.setAmplifyingExplosion(false);
         }
     }
 
+    /** MITE creeper blasts cannot crack stone (hardness 1.5); both variants share the cap. */
     private static void limitCreeperTerrainDamage(ExplosionEvent.Detonate event) {
-        if (!(event.getExplosion().getDirectSourceEntity() instanceof R196Creeper creeper)
-                || creeper.variant() != R196Creeper.Variant.CREEPER) {
+        if (!(event.getExplosion().getDirectSourceEntity() instanceof R196Creeper)) {
             return;
         }
         event.getAffectedBlocks().removeIf(pos -> {
             float hardness = event.getLevel().getBlockState(pos).getDestroySpeed(event.getLevel(), pos);
-            return hardness < 0.0F || hardness > 1.5F;
+            return hardness < 0.0F || hardness >= 1.5F;
         });
     }
 }

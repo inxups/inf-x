@@ -11,6 +11,8 @@ import net.minecraft.world.level.Level;
 public final class R196Ghast extends Ghast implements R196Mob {
     public R196Ghast(EntityType<? extends Ghast> type, Level level) {
         super(type, level);
+        // MITE ghasts are worth double the base experience.
+        xpReward = 10;
     }
 
     public static AttributeSupplier.Builder attributes() {
@@ -21,5 +23,11 @@ public final class R196Ghast extends Ghast implements R196Mob {
     protected void registerGoals() {
         super.registerGoals();
         targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, Player.class, true));
+    }
+
+    /** MITE ghast cries carry at twice the modern volume. */
+    @Override
+    protected float getSoundVolume() {
+        return 10.0F;
     }
 }
