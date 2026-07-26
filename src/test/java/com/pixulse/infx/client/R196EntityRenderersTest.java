@@ -184,4 +184,60 @@ class R196EntityRenderersTest {
                 R196EntityRenderers.WolfTexture.textureFor(R196Wolf.Variant.DIRE_WOLF, false, true)
                         .toString());
     }
+
+    /**
+     * Pixel audit vs minecraft_26.2_client.jar: the MITE pack's zombie, skeleton, creeper(+armor),
+     * enderman(+eyes), witch, and spider-eyes sheets are identical to vanilla 26.2, so those stay
+     * on vanilla ids. Only the audited divergences bind infx sheets.
+     */
+    @Test
+    void baseMonstersBindOnlyTheAuditedMiteDivergences() {
+        assertEquals(
+                "infx:textures/entity/spider/spider.png",
+                R196EntityRenderers.SpiderTexture.textureFor(R196Spider.Variant.SPIDER).toString());
+        assertEquals(
+                "infx:textures/entity/blaze.png", R196EntityRenderers.BlazeTexture.texture().toString());
+        assertEquals(
+                "infx:textures/entity/ghast/ghast.png",
+                R196EntityRenderers.GhastTexture.texture(false).toString());
+        assertEquals(
+                "infx:textures/entity/ghast/ghast_shooting.png",
+                R196EntityRenderers.GhastTexture.texture(true).toString());
+        assertEquals(
+                "infx:textures/entity/zombie_pigman.png",
+                R196EntityRenderers.ZombiePigmanTexture.texture().toString());
+        assertEquals(
+                "infx:textures/entity/zombie_pigman_baby.png",
+                R196EntityRenderers.ZombiePigmanTexture.babyTexture().toString());
+        assertEquals(
+                "minecraft:textures/entity/zombie/zombie.png",
+                R196EntityRenderers.ZombieTexture.textureFor(R196Zombie.Variant.ZOMBIE).toString());
+        assertEquals(
+                "minecraft:textures/entity/creeper/creeper.png",
+                R196EntityRenderers.CreeperTexture.textureFor(R196Creeper.Variant.CREEPER).toString());
+    }
+
+    /** 26.2 renders babies with BabyZombieModel's chibi UV sheet, never the adult layout. */
+    @Test
+    void zombieLineBabiesUseDerivedBabyUvSheets() {
+        assertEquals(
+                "infx:textures/entity/ghoul_baby.png",
+                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.GHOUL).toString());
+        assertEquals(
+                "infx:textures/entity/shadow_baby.png",
+                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.SHADOW).toString());
+        assertEquals(
+                "infx:textures/entity/wight_baby.png",
+                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.WIGHT).toString());
+        assertEquals(
+                "infx:textures/entity/zombie/revenant_baby.png",
+                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.REVENANT).toString());
+        assertEquals(
+                "minecraft:textures/entity/zombie/zombie_baby.png",
+                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.ZOMBIE).toString());
+        assertEquals(
+                "minecraft:textures/entity/zombie/zombie_baby.png",
+                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.INVISIBLE_STALKER)
+                        .toString());
+    }
 }
