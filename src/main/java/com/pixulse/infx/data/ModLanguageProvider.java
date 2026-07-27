@@ -63,6 +63,68 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("speed", names("Speed", "速度")),
             Map.entry("endurance", names("Endurance", "耐力")),
             Map.entry("protection", names("Protection", "保护")));
+    private static final Map<String, String[]> CURSE_NAMES = Map.ofEntries(
+            Map.entry("equipment_decay", names("Corrosive Skin", "腐蚀性皮肤")),
+            Map.entry("cannot_hold_breath", names("Cannot Hold Breath", "不能屏住呼吸")),
+            Map.entry("cannot_run", names("Cannot Run", "不能疾跑")),
+            Map.entry("cannot_eat_animals", names("Cannot Eat Animal Products", "不能食肉")),
+            Map.entry("cannot_eat_plants", names("Cannot Eat Plant Products", "不能食素")),
+            Map.entry("cannot_drink", names("Cannot Drink", "不能饮用")),
+            Map.entry("endermen_aggro", names("Endermen's Enemy", "末影仇恨")),
+            Map.entry("clumsiness", names("Clumsiness", "智力下降")),
+            Map.entry("entanglement", names("Entanglement", "植物恐惧")),
+            Map.entry("cannot_wear_armor", names("Armor Rejection", "盔甲排斥")),
+            Map.entry("cannot_open_chests", names("Fear of Chests", "箱子恐惧")),
+            Map.entry("cannot_sleep", names("Insomnia", "失眠症")),
+            Map.entry("fear_of_spiders", names("Fear of Spiders", "蜘蛛恐惧")),
+            Map.entry("fear_of_wolves", names("Fear of Wolves", "恶狼恐惧")),
+            Map.entry("fear_of_creepers", names("Fear of Creepers", "苦力怕恐惧")),
+            Map.entry("fear_of_undead", names("Fear of Undead", "亡灵生物恐惧")));
+    private static final Map<String, String[]> CURSE_DESCRIPTIONS = Map.ofEntries(
+            Map.entry("equipment_decay", names(
+                    "Your equipment, weapons, and tools lose durability twice as fast",
+                    "你的装备、武器与工具的耐久度下降得更快")),
+            Map.entry("cannot_hold_breath", names(
+                    "You cannot hold your breath for very long",
+                    "你不能长时间屏住呼吸")),
+            Map.entry("cannot_run", names("You cannot sprint", "你不能疾跑")),
+            Map.entry("cannot_eat_animals", names(
+                    "You cannot eat any animal products",
+                    "你不能食用任何动物制品")),
+            Map.entry("cannot_eat_plants", names(
+                    "You cannot eat any plant products",
+                    "你不能食用任何植物制品")),
+            Map.entry("cannot_drink", names(
+                    "You cannot drink potions, milk, water, or soups",
+                    "你不能饮用药水、牛奶、水或汤类食物")),
+            Map.entry("endermen_aggro", names(
+                    "Endermen may attack you without provocation",
+                    "末影人会无缘无故地对你发起攻击")),
+            Map.entry("clumsiness", names(
+                    "Crafting takes longer, costs more experience, and may produce worse equipment",
+                    "制作物品耗时更久、经验消耗更多，并可能产出更差的装备")),
+            Map.entry("entanglement", names(
+                    "Vines and plants greatly impede your movement",
+                    "藤蔓和植物会严重阻碍你的移动")),
+            Map.entry("cannot_wear_armor", names(
+                    "You cannot keep armor equipped",
+                    "你不能穿着盔甲")),
+            Map.entry("cannot_open_chests", names(
+                    "You cannot open chests or safes",
+                    "你不能使用箱子或保险箱")),
+            Map.entry("cannot_sleep", names("You cannot sleep", "你无法入睡")),
+            Map.entry("fear_of_spiders", names(
+                    "Three out of four attacks against spiders fail",
+                    "你对蜘蛛发起的四次攻击中通常只有一次有效")),
+            Map.entry("fear_of_wolves", names(
+                    "Three out of four attacks against wolves fail",
+                    "你对狼发起的四次攻击中通常只有一次有效")),
+            Map.entry("fear_of_creepers", names(
+                    "Three out of four attacks against creepers fail",
+                    "你对苦力怕发起的四次攻击中通常只有一次有效")),
+            Map.entry("fear_of_undead", names(
+                    "Three out of four attacks against undead creatures fail",
+                    "你对亡灵生物发起的四次攻击中通常只有一次有效")));
     private static final Map<String, String[]> REMAINING_ADVANCEMENTS = Map.ofEntries(
             Map.entry("kill_cow", names("Cow Tipper", "斗牛士")),
             Map.entry("kill_enemy", names("Monster Hunter", "怪物猎人")),
@@ -342,6 +404,10 @@ final class ModLanguageProvider extends LanguageProvider {
         FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         GELATINOUS_SPHERE_NAMES.forEach(
                 (path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
+        CURSE_NAMES.forEach((path, names) ->
+                add("curse.infx." + path + ".name", names[locale == Locale.EN_US ? 0 : 1]));
+        CURSE_DESCRIPTIONS.forEach((path, descriptions) ->
+                add("curse.infx." + path + ".desc", descriptions[locale == Locale.EN_US ? 0 : 1]));
         for (var material : ModItems.BUCKET_MATERIALS) {
             for (var contents : com.pixulse.infx.item.R196BucketItem.Contents.values()) {
                 String englishContents = switch (contents) {
@@ -499,6 +565,14 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.disconnect_penalty", locale == Locale.EN_US ? "Combat disconnect penalty applied" : "已应用战斗断线惩罚");
         add("effect.infx.malnutrition", locale == Locale.EN_US ? "Malnutrition" : "营养不良");
         add("effect.infx.witch_curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
+        add("curse.infx.unknown", locale == Locale.EN_US ? "Unknown Effect" : "未知效果");
+        add("hud.infx.curse", locale == Locale.EN_US ? "Witch's Curse: %s" : "女巫的诅咒：%s");
+        add("message.infx.curse.realized", locale == Locale.EN_US ? "You have been cursed!" : "你已经被诅咒了！");
+        add("message.infx.curse.learned", locale == Locale.EN_US ? "Curse revealed: %s" : "诅咒效果已揭示：%s");
+        add("message.infx.curse.lifted", locale == Locale.EN_US ? "Your curse has been lifted!" : "你的诅咒解除了！");
+        add("message.infx.curse.cannot_sleep", locale == Locale.EN_US
+                ? "Your curse prevents you from sleeping"
+                : "诅咒使你无法入睡");
         add("effect.infx.insulin_resistance", locale == Locale.EN_US ? "Insulin Resistance" : "胰岛素抵抗");
         add("effect.infx.paralysis", locale == Locale.EN_US ? "Paralysis" : "麻痹");
         String[] creationTitles = {"Boat", "Crypt", "Crystal", "Dragon", "Globe", "Serpent", "Sphinx", "Star", "Temple"};

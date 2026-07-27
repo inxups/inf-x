@@ -25,6 +25,8 @@ public final class ModTags {
         public static final TagKey<Block> PEPSIN_DISSOLVABLE = create("dissolves/pepsin");
         public static final TagKey<Block> ACID_DISSOLVES_INSTANTLY = create("dissolves/acid_instantly");
         public static final TagKey<Block> ACID_DISSOLVES_GRADUALLY = create("dissolves/acid_gradually");
+        public static final TagKey<Block> CURSE_VINES = create("curse/vines");
+        public static final TagKey<Block> CURSE_PLANTS = create("curse/plants");
 
         private Blocks() {}
 
@@ -78,6 +80,9 @@ public final class ModTags {
         public static final TagKey<Item> R196_THORNS_ENCHANTABLE = enchantable("r196_thorns");
         public static final TagKey<Item> R196_SOLID_METAL_TORSO_ENCHANTABLE = enchantable("r196_solid_metal_torso");
         public static final TagKey<Item> GELATINOUS_SPHERES = create("gelatinous_spheres");
+        public static final TagKey<Item> CURSE_ANIMAL_PRODUCTS = create("curse/animal_products");
+        public static final TagKey<Item> CURSE_PLANT_PRODUCTS = create("curse/plant_products");
+        public static final TagKey<Item> CURSE_DRINKS = create("curse/drinks");
 
         private Items() {}
 

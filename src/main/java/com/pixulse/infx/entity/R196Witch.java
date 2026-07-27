@@ -1,21 +1,25 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.curse.R196CurseManager;
+import com.pixulse.infx.curse.R196CurseType;
 import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModMobEffects;
 import com.pixulse.infx.registry.ModSounds;
-import java.util.UUID;
+import java.util.Comparator;
+import java.util.Random;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,12 +33,15 @@ public final class R196Witch extends Witch implements R196Mob {
 
     private boolean summonedWolves;
     private int summonWolvesAt = -1;
-    private @Nullable UUID cursedPlayer;
+    private int curseRandomSeed;
 
     public R196Witch(EntityType<? extends Witch> type, Level level) {
         super(type, level);
         // MITE witches are worth four times the base experience.
         xpReward = 20;
+        if (!level.isClientSide()) {
+            curseRandomSeed = new Random().nextInt();
+        }
     }
 
     public static AttributeSupplier.Builder attributes() {
@@ -83,21 +90,17 @@ public final class R196Witch extends Witch implements R196Mob {
         super.registerGoals();
         goalSelector.removeAllGoals(goal -> goal instanceof RangedAttackGoal);
         goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 60, 10.0F));
+        targetSelector.removeAllGoals(goal -> true);
+        targetSelector.addGoal(1, new CurseHurtByTargetGoal(this));
+        targetSelector.addGoal(2, new CurseNearestPlayerGoal(this));
     }
 
-    /** MITE witches curse a newly targeted player one time in four, lifted when the witch dies. */
-    @Override
-    public void setTarget(@Nullable LivingEntity target) {
-        super.setTarget(target);
-        if (target instanceof Player player
-                && cursedPlayer == null
-                && !player.hasEffect(ModMobEffects.WITCH_CURSE)
-                && random.nextInt(4) == 0) {
-            player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS, 6000, 0), this);
-            player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 160, 0), this);
-            player.addEffect(new MobEffectInstance(ModMobEffects.WITCH_CURSE, 6000, 0), this);
-            cursedPlayer = player.getUUID();
-        }
+    /** The target goal makes the one-in-four roll before calling this method. */
+    private void cursePlayer(ServerPlayer player) {
+        R196CurseManager.addPending(
+                player,
+                this,
+                R196CurseType.forWitch(curseRandomSeed, player.getScoreboardName()));
     }
 
     @Override
@@ -112,12 +115,10 @@ public final class R196Witch extends Witch implements R196Mob {
 
     @Override
     public void die(DamageSource source) {
-        super.die(source);
-        if (cursedPlayer != null
-                && level() instanceof ServerLevel level
-                && level.getPlayerByUUID(cursedPlayer) instanceof Player player) {
-            player.removeEffect(ModMobEffects.WITCH_CURSE);
+        if (level() instanceof ServerLevel level) {
+            R196CurseManager.removeForWitch(level.getServer(), getUUID());
         }
+        super.die(source);
     }
 
     @Override
@@ -162,11 +163,80 @@ public final class R196Witch extends Witch implements R196Mob {
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putBoolean("R196SummonedWolves", summonedWolves);
+        output.putInt("R196CurseRandomSeed", curseRandomSeed);
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
         summonedWolves = input.getBooleanOr("R196SummonedWolves", false);
+        curseRandomSeed = input.getIntOr("R196CurseRandomSeed", curseRandomSeed);
+    }
+
+    private static final class CurseHurtByTargetGoal extends HurtByTargetGoal {
+        private final R196Witch witch;
+
+        private CurseHurtByTargetGoal(R196Witch witch) {
+            super(witch);
+            this.witch = witch;
+        }
+
+        @Override
+        public boolean canUse() {
+            boolean suitable = super.canUse();
+            if (suitable
+                    && witch.getLastHurtByMob() instanceof ServerPlayer player
+                    && witch.getRandom().nextInt(4) == 0) {
+                witch.cursePlayer(player);
+            }
+            return suitable;
+        }
+    }
+
+    private static final class CurseNearestPlayerGoal extends NearestAttackableTargetGoal<Player> {
+        private static final double VERTICAL_SEARCH_RANGE = 6.0D;
+        private final R196Witch witch;
+        private final TargetingConditions conditions = TargetingConditions.forCombat();
+
+        private CurseNearestPlayerGoal(R196Witch witch) {
+            super(witch, Player.class, 0, true, false, null);
+            this.witch = witch;
+        }
+
+        @Override
+        protected void findTarget() {
+            target = scanForNearestTarget();
+        }
+
+        private @Nullable Player scanForNearestTarget() {
+            ServerLevel level = getServerLevel(witch);
+            double range = getFollowDistance();
+            var candidates = level.getEntitiesOfClass(
+                    Player.class,
+                    witch.getBoundingBox().inflate(range, VERTICAL_SEARCH_RANGE, range),
+                    player -> conditions.range(range).test(level, witch, player));
+            for (Player candidate : candidates) {
+                if (candidate instanceof ServerPlayer player && witch.getRandom().nextInt(4) == 0) {
+                    witch.cursePlayer(player);
+                }
+            }
+            return candidates.stream()
+                    .min(Comparator.comparingDouble(witch::distanceToSqr))
+                    .orElse(null);
+        }
+
+        @Override
+        public void tick() {
+            if (witch.getRandom().nextInt(40) == 0) {
+                Player nearest = scanForNearestTarget();
+                if (nearest != null
+                        && nearest != witch.getTarget()
+                        && witch.getSensing().hasLineOfSight(nearest)) {
+                    target = nearest;
+                    start();
+                }
+            }
+            super.tick();
+        }
     }
 }

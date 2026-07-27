@@ -33,6 +33,42 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         addHarvestLevels();
         addWorldgenTags();
         addGelatinousCubeTags();
+        addCurseTags();
+    }
+
+    private void addCurseTags() {
+        tag(ModTags.Blocks.CURSE_VINES)
+                .addTag(BlockTags.CAVE_VINES)
+                .add(
+                        blockKey(Blocks.VINE),
+                        blockKey(Blocks.WEEPING_VINES),
+                        blockKey(Blocks.WEEPING_VINES_PLANT),
+                        blockKey(Blocks.TWISTING_VINES),
+                        blockKey(Blocks.TWISTING_VINES_PLANT));
+
+        tag(ModTags.Blocks.CURSE_PLANTS)
+                .addTag(BlockTags.CROPS)
+                .addTag(BlockTags.FLOWERS)
+                .addTag(vanillaTag("saplings"))
+                .add(
+                        blockKey(Blocks.SHORT_GRASS),
+                        blockKey(Blocks.TALL_GRASS),
+                        blockKey(Blocks.FERN),
+                        blockKey(Blocks.LARGE_FERN),
+                        blockKey(Blocks.DEAD_BUSH),
+                        blockKey(Blocks.BROWN_MUSHROOM),
+                        blockKey(Blocks.RED_MUSHROOM),
+                        blockKey(Blocks.SUGAR_CANE),
+                        blockKey(Blocks.BAMBOO_SAPLING),
+                        blockKey(Blocks.NETHER_SPROUTS),
+                        blockKey(Blocks.CRIMSON_ROOTS),
+                        blockKey(Blocks.WARPED_ROOTS),
+                        blockKey(Blocks.CRIMSON_FUNGUS),
+                        blockKey(Blocks.WARPED_FUNGUS),
+                        blockKey(Blocks.SWEET_BERRY_BUSH),
+                        blockKey(Blocks.LILY_PAD),
+                        blockKey(Blocks.SEAGRASS),
+                        blockKey(Blocks.TALL_SEAGRASS));
     }
 
     private void addWorldgenTags() {

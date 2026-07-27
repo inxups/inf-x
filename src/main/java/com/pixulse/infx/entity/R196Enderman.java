@@ -1,5 +1,7 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.curse.R196CurseManager;
+import com.pixulse.infx.curse.R196CurseType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.resources.Identifier;
@@ -66,25 +68,29 @@ public final class R196Enderman extends EnderMan implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE: a pearl or ender eye in hand angers instantly; pearls buried in the inventory
-        // only draw attention at about one roll in 2000 per pearl per tick. The goal re-checks
-        // every ~10 ticks, so 200 here keeps the per-tick odds.
+        // MITE checks the nearest player every tick: held pearls anger immediately, while
+        // inventory pearls draw attention at one roll in 2000 per pearl per tick.
         targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
                 this,
                 Player.class,
-                10,
+                0,
                 true,
                 false,
                 (target, level) -> {
                     if (!(target instanceof Player player)) {
                         return false;
                     }
+                    if (random.nextInt(3) == 0
+                            && R196CurseManager.hasCurse(player, R196CurseType.ENDERMEN_AGGRO)) {
+                        R196CurseManager.reveal(player, R196CurseType.ENDERMEN_AGGRO);
+                        return true;
+                    }
                     if (isPearlLike(player.getMainHandItem()) || isPearlLike(player.getOffhandItem())) {
                         return true;
                     }
                     int pearls = player.getInventory().countItem(Items.ENDER_PEARL)
                             + player.getInventory().countItem(Items.ENDER_EYE);
-                    return pearls > 0 && random.nextInt(200) < pearls;
+                    return pearls > 0 && random.nextInt(2000) < pearls;
                 }));
     }
 

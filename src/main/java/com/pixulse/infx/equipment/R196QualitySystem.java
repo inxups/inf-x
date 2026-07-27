@@ -100,15 +100,28 @@ public final class R196QualitySystem {
             int requestedCode,
             boolean clumsy) {
         R196EquipmentKey key = key(output);
-        R196Quality requested = fromCode(requestedCode);
-        if (key == null || requested == null) {
+        if (key == null) {
             return AVERAGE_CODE;
         }
+        int fallback = clumsyFallbackCode(player.experienceLevel, clumsy);
+        R196Quality requested = fromCode(requestedCode);
+        if (requested == null) return fallback;
         if (!requested.isAtMost(key.material().maximumQuality())
                 || player.totalExperience < experienceCost(difficulty, requested, clumsy)) {
-            return AVERAGE_CODE;
+            return fallback;
         }
         return requestedCode;
+    }
+
+    static int clumsyFallbackCode(int experienceLevel, boolean clumsy) {
+        if (!clumsy) return AVERAGE_CODE;
+        // MITE uses average.ordinal() + (level - 20) / 10; Java truncates negative division toward zero.
+        int originalOrdinal = Math.max(0, Math.min(2, 2 + (experienceLevel - 20) / 10));
+        return switch (originalOrdinal) {
+            case 0 -> toCode(R196Quality.WRETCHED);
+            case 1 -> toCode(R196Quality.POOR);
+            default -> AVERAGE_CODE;
+        };
     }
 
     public static float adjustedDifficulty(float difficulty, int qualityCode) {
