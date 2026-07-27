@@ -211,8 +211,8 @@ public final class ModMonsterGameTests {
         // invoked by the real entity tick rather than by the client-side aiStep hook.
         piglin.tick();
         helper.assertTrue(
-                Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.437D) < DAMAGE_EPSILON,
-                "R196 zombified piglins must retain MITE's 1.9x chase-speed ratio");
+                Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.28D) < DAMAGE_EPSILON,
+                "R196 zombified piglins must use the normalized +0.05 chase-speed bonus");
         var enderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(7, 2, 1));
         helper.assertTrue(
                 enderman.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.30D,
