@@ -71,6 +71,7 @@ final class ModItemTagsProvider extends ItemTagsProvider {
                 ModItems.CRIMSON_GELATINOUS_SPHERE.getKey(),
                 ModItems.GRAY_GELATINOUS_SPHERE.getKey(),
                 ModItems.BLACK_GELATINOUS_SPHERE.getKey());
+        addCurseTags();
 
         for (R196Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(ModTags.Items.material(material), entry));
@@ -84,6 +85,109 @@ final class ModItemTagsProvider extends ItemTagsProvider {
             addEnchantmentTags(entry);
             addR196EnchantmentTags(entry);
             addHarvestTierTag(entry);
+        }
+    }
+
+    private void addCurseTags() {
+        var animalProducts = tag(ModTags.Items.CURSE_ANIMAL_PRODUCTS)
+                .addTag(ItemTags.MEAT)
+                .addTag(ItemTags.EGGS)
+                .add(
+                        itemKey(Items.SPIDER_EYE),
+                        itemKey(Items.COD),
+                        itemKey(Items.COOKED_COD),
+                        itemKey(Items.SALMON),
+                        itemKey(Items.COOKED_SALMON),
+                        itemKey(Items.TROPICAL_FISH),
+                        itemKey(Items.PUFFERFISH),
+                        itemKey(Items.MILK_BUCKET),
+                        itemKey(Items.HONEY_BOTTLE),
+                        itemKey(Items.CAKE),
+                        itemKey(Items.PUMPKIN_PIE),
+                        itemKey(Items.RABBIT_STEW),
+                        ModItems.MILK_BOWL.getKey(),
+                        ModItems.CEREAL_PORRIDGE.getKey(),
+                        ModItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
+                        ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
+                        ModItems.CHICKEN_SOUP.getKey(),
+                        ModItems.BEEF_STEW.getKey(),
+                        ModItems.CHEESE.getKey(),
+                        ModItems.MASHED_POTATO.getKey(),
+                        ModItems.ICE_CREAM.getKey(),
+                        ModItems.WORM.getKey(),
+                        ModItems.COOKED_WORM.getKey());
+        for (R196Material material : ModItems.BUCKET_MATERIALS) {
+            animalProducts.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.MILK)
+                    .getKey());
+        }
+
+        tag(ModTags.Items.CURSE_PLANT_PRODUCTS)
+                .add(
+                        itemKey(Items.APPLE),
+                        itemKey(Items.GOLDEN_APPLE),
+                        itemKey(Items.ENCHANTED_GOLDEN_APPLE),
+                        itemKey(Items.MUSHROOM_STEW),
+                        itemKey(Items.SUSPICIOUS_STEW),
+                        itemKey(Items.BREAD),
+                        itemKey(Items.SUGAR),
+                        itemKey(Items.COOKIE),
+                        itemKey(Items.MELON_SLICE),
+                        itemKey(Items.WHEAT_SEEDS),
+                        itemKey(Items.PUMPKIN_SEEDS),
+                        itemKey(Items.MELON_SEEDS),
+                        itemKey(Items.BEETROOT_SEEDS),
+                        itemKey(Items.NETHER_WART),
+                        itemKey(Items.CARROT),
+                        itemKey(Items.POTATO),
+                        itemKey(Items.BAKED_POTATO),
+                        itemKey(Items.POISONOUS_POTATO),
+                        itemKey(Items.GOLDEN_CARROT),
+                        itemKey(Items.BEETROOT),
+                        itemKey(Items.BEETROOT_SOUP),
+                        itemKey(Items.SWEET_BERRIES),
+                        itemKey(Items.GLOW_BERRIES),
+                        itemKey(Items.CHORUS_FRUIT),
+                        itemKey(Items.DRIED_KELP),
+                        itemKey(Items.CAKE),
+                        itemKey(Items.PUMPKIN_PIE),
+                        itemKey(Items.RABBIT_STEW),
+                        itemKey(Items.BROWN_MUSHROOM),
+                        itemKey(Items.RED_MUSHROOM),
+                        ModItems.DOUGH.getKey(),
+                        ModItems.SALAD.getKey(),
+                        ModItems.BLUEBERRIES.getKey(),
+                        ModItems.BLUEBERRY_PORRIDGE.getKey(),
+                        ModItems.CEREAL_PORRIDGE.getKey(),
+                        ModItems.CHOCOLATE.getKey(),
+                        ModItems.PUMPKIN_SOUP.getKey(),
+                        ModItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
+                        ModItems.ONION.getKey(),
+                        ModItems.VEGETABLE_SOUP.getKey(),
+                        ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
+                        ModItems.CHICKEN_SOUP.getKey(),
+                        ModItems.BEEF_STEW.getKey(),
+                        ModItems.ORANGE.getKey(),
+                        ModItems.FRUIT_ICE.getKey(),
+                        ModItems.MASHED_POTATO.getKey(),
+                        ModItems.ICE_CREAM.getKey(),
+                        ModItems.BANANA.getKey());
+
+        var drinks = tag(ModTags.Items.CURSE_DRINKS).add(
+                itemKey(Items.POTION),
+                itemKey(Items.MILK_BUCKET),
+                itemKey(Items.HONEY_BOTTLE),
+                itemKey(Items.OMINOUS_BOTTLE),
+                itemKey(Items.BEETROOT_SOUP),
+                ModItems.WATER_BOWL.getKey(),
+                ModItems.MILK_BOWL.getKey(),
+                ModItems.PUMPKIN_SOUP.getKey(),
+                ModItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
+                ModItems.VEGETABLE_SOUP.getKey(),
+                ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
+                ModItems.CHICKEN_SOUP.getKey());
+        for (R196Material material : ModItems.BUCKET_MATERIALS) {
+            drinks.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.MILK)
+                    .getKey());
         }
     }
 

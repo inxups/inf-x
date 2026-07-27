@@ -1,5 +1,7 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.curse.R196CurseManager;
+import com.pixulse.infx.curse.R196CurseType;
 import java.util.EnumSet;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -88,6 +90,33 @@ public final class R196Enderman extends EnderMan implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
+        // MITE checks the nearest player every tick: held pearls anger immediately, while
+        // inventory pearls draw attention at one roll in 2000 per pearl per tick.
+        targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
+                this,
+                Player.class,
+                0,
+                true,
+                false,
+                (target, level) -> {
+                    if (!(target instanceof Player player)) {
+                        return false;
+                    }
+                    if (random.nextInt(3) == 0
+                            && R196CurseManager.hasCurse(player, R196CurseType.ENDERMEN_AGGRO)) {
+                        R196CurseManager.reveal(player, R196CurseType.ENDERMEN_AGGRO);
+                        return true;
+                    }
+                    if (isPearlLike(player.getMainHandItem()) || isPearlLike(player.getOffhandItem())) {
+                        return true;
+                    }
+                    int pearls = player.getInventory().countItem(Items.ENDER_PEARL)
+                            + player.getInventory().countItem(Items.ENDER_EYE);
+                    return pearls > 0 && random.nextInt(2000) < pearls;
+                }));
+    }
+
+    private static boolean isPearlLike(net.minecraft.world.item.ItemStack stack) {
         // MITE evaluates this every tick: held valuables anger immediately and each stored
         // pearl or eye contributes one 1-in-2000 roll. Priority zero prevents the delayed
         // vanilla stare goal from masking an immediately held pearl.

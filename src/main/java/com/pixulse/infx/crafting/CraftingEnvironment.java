@@ -1,5 +1,7 @@
 package com.pixulse.infx.crafting;
 
+import com.pixulse.infx.curse.R196CurseManager;
+import com.pixulse.infx.curse.R196CurseType;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
 import com.pixulse.infx.registry.ModEnchantments;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +17,10 @@ public final class CraftingEnvironment {
     }
 
     public static boolean hasClumsiness(Player player) {
+        if (R196CurseManager.hasCurse(player, R196CurseType.CLUMSINESS)) {
+            R196CurseManager.reveal(player, R196CurseType.CLUMSINESS);
+            return true;
+        }
         var enchantments = player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         return enchantments.get(ModEnchantments.CLUMSINESS)
                 .map(enchantment -> {

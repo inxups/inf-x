@@ -2,6 +2,7 @@ package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.agriculture.R196GrassTrampling;
+import com.pixulse.infx.curse.R196CurseStatus;
 import com.pixulse.infx.survival.R196SurvivalData;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,12 @@ public final class ModAttachments {
                     .serialize(R196SurvivalData.CODEC.fieldOf("survival"))
                     .copyOnDeath()
                     .sync((holder, player) -> holder == player, R196SurvivalData.STREAM_CODEC)
+                    .build());
+
+    /** Realized curse state is projected from world SavedData and synchronized only to its player. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<R196CurseStatus>> CURSE_STATUS =
+            ATTACHMENTS.register("curse_status", () -> AttachmentType.builder(() -> R196CurseStatus.NONE)
+                    .sync((holder, player) -> holder == player, R196CurseStatus.STREAM_CODEC)
                     .build());
 
     private static final StreamCodec<RegistryFriendlyByteBuf, Map<String, Integer>> GRASS_TRAMPLING_STREAM =

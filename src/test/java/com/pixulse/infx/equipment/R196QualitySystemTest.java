@@ -48,4 +48,20 @@ class R196QualitySystemTest {
                 R196QualitySystem.nextSelectableQuality(
                         null, R196Quality.FINE, 40, 100.0F, true));
     }
+
+    @Test
+    void clumsinessUsesMitesOriginalNegativeIntegerDivisionForMinimumQuality() {
+        assertEquals(
+                R196QualitySystem.toCode(R196Quality.WRETCHED),
+                R196QualitySystem.clumsyFallbackCode(0, true));
+        assertEquals(
+                R196QualitySystem.toCode(R196Quality.POOR),
+                R196QualitySystem.clumsyFallbackCode(1, true));
+        assertEquals(
+                R196QualitySystem.toCode(R196Quality.POOR),
+                R196QualitySystem.clumsyFallbackCode(10, true));
+        assertEquals(R196QualitySystem.AVERAGE_CODE, R196QualitySystem.clumsyFallbackCode(11, true));
+        assertEquals(R196QualitySystem.AVERAGE_CODE, R196QualitySystem.clumsyFallbackCode(20, true));
+        assertEquals(R196QualitySystem.AVERAGE_CODE, R196QualitySystem.clumsyFallbackCode(0, false));
+    }
 }

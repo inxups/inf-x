@@ -34,7 +34,6 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
-import net.neoforged.neoforge.event.entity.player.CanContinueSleepingEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -71,7 +70,6 @@ public final class R196SurvivalEvents {
                 R196SurvivalEvents::onBlockPlaced);
         gameBus.addListener(EventPriority.LOWEST, R196SurvivalEvents::onToolModified);
         gameBus.addListener(R196SurvivalEvents::onDamaged);
-        gameBus.addListener(R196SurvivalEvents::onContinueSleeping);
     }
 
     private static void modifyVanillaFoodComponents(ModifyDefaultComponentsEvent event) {
@@ -374,15 +372,6 @@ public final class R196SurvivalEvents {
     private static void consumeEnduranceAction(ServerPlayer player, double amount) {
         int endurance = R196Enchantments.maxArmorLevel(player, ModEnchantments.ENDURANCE);
         consumeAction(player, amount * R196SurvivalRules.enduranceModifier(endurance));
-    }
-
-    private static void onContinueSleeping(CanContinueSleepingEvent event) {
-        if (event.getEntity() instanceof Player player
-                && hasActiveMetabolism(player)
-                && (player.getData(ModAttachments.SURVIVAL).isStarving()
-                        || player.hasEffect(ModMobEffects.WITCH_CURSE))) {
-            event.setContinueSleeping(false);
-        }
     }
 
     public static void recalculatePlayerLimits(Player player) {
