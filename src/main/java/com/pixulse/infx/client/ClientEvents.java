@@ -81,7 +81,9 @@ public final class ClientEvents {
     private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         // World geometry only — chunk mesh is particle-only (see ModModelProvider).
         event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_ZOMBIE.get(), ZombieRenderer::new);
+        event.registerEntityRenderer(
+                ModEntityTypes.R196_ZOMBIE.get(),
+                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.ZOMBIE));
         event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), R196InvisibleStalkerRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.GHOUL.get(),

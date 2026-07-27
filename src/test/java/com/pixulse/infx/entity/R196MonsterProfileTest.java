@@ -191,6 +191,24 @@ class R196MonsterProfileTest {
     }
 
     @Test
+    void fireElementalWaterAttritionAndVampireBatFeedingUseMiteCadences() {
+        assertFalse(R196FireElemental.shouldApplyWaterAttrition(40, false));
+        assertFalse(R196FireElemental.shouldApplyWaterAttrition(39, true));
+        assertTrue(R196FireElemental.shouldApplyWaterAttrition(40, true));
+        assertEquals(20, R196Bat.attackCooldownTicks());
+        assertEquals(1_200, R196Bat.feedCooldownTicks());
+    }
+
+    @Test
+    void villagerZombieRareDropsUseTheMiteVillagerRate() {
+        assertEquals(0.025F, R196Zombie.rareDropChance(R196Zombie.Variant.ZOMBIE, false, 0), EPSILON);
+        assertEquals(0.035F, R196Zombie.rareDropChance(R196Zombie.Variant.ZOMBIE, false, 1), EPSILON);
+        assertEquals(0.10F, R196Zombie.rareDropChance(R196Zombie.Variant.ZOMBIE, true, 0), EPSILON);
+        assertEquals(0.14F, R196Zombie.rareDropChance(R196Zombie.Variant.ZOMBIE, true, 1), EPSILON);
+        assertEquals(0.14F, R196Zombie.rareDropChance(R196Zombie.Variant.REVENANT, false, 1), EPSILON);
+    }
+
+    @Test
     void grayOozeUsesCrawlGoalsAndCannotJumpFromGround() throws NoSuchMethodException {
         assertEquals(R196Slime.class, R196Slime.class.getDeclaredMethod("registerGoals").getDeclaringClass());
         assertEquals(R196Slime.class, R196Slime.class.getDeclaredMethod("jumpFromGround").getDeclaringClass());

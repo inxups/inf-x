@@ -69,6 +69,8 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 final class R196EntityRenderers {
     private static final ContextKey<Boolean> LIVESTOCK_WELL =
             new ContextKey<>(InfiniteX.id("livestock_well"));
+    private static final ContextKey<Boolean> VILLAGER_ZOMBIE =
+            new ContextKey<>(InfiniteX.id("villager_zombie"));
 
     private R196EntityRenderers() {}
 
@@ -91,6 +93,12 @@ final class R196EntityRenderers {
                 PigTexture.class, (Pig entity, PigRenderState state) -> extractWell(entity, state));
         event.registerEntityModifier(
                 SheepTexture.class, (Sheep entity, SheepRenderState state) -> extractWell(entity, state));
+        event.registerEntityModifier(
+                ZombieTexture.class,
+                (net.minecraft.world.entity.monster.zombie.Zombie entity, ZombieRenderState state) ->
+                        state.setRenderData(
+                                VILLAGER_ZOMBIE,
+                                entity instanceof R196Zombie zombie && zombie.isVillagerZombie()));
     }
 
     private static void extractWell(Animal animal, LivingEntityRenderState state) {
@@ -199,17 +207,22 @@ final class R196EntityRenderers {
     }
 
     static final class ZombieTexture extends ZombieRenderer {
+        private final R196Zombie.Variant variant;
         private final Identifier texture;
         private final Identifier babyTexture;
 
         ZombieTexture(EntityRendererProvider.Context context, R196Zombie.Variant variant) {
             super(context);
+            this.variant = variant;
             this.texture = textureFor(variant);
             this.babyTexture = babyTextureFor(variant);
         }
 
         @Override
         public Identifier getTextureLocation(ZombieRenderState state) {
+            if (variant == R196Zombie.Variant.ZOMBIE && Boolean.TRUE.equals(state.getRenderData(VILLAGER_ZOMBIE))) {
+                return villagerTexture();
+            }
             return state.isBaby ? babyTexture : texture;
         }
 
@@ -233,6 +246,10 @@ final class R196EntityRenderers {
                 case INVISIBLE_STALKER, ZOMBIE ->
                         Identifier.withDefaultNamespace("textures/entity/zombie/zombie_baby.png");
             };
+        }
+
+        static Identifier villagerTexture() {
+            return mite("textures/entity/zombie/zombie_villager.png");
         }
     }
 

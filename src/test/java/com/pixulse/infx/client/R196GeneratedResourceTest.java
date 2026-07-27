@@ -1956,7 +1956,7 @@ class R196GeneratedResourceTest {
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/entity/(ghoul|shadow|wight)(_baby)?\\.png"
                         + "|textures/entity/(fire_elemental|blaze)\\.png"
-                        + "|textures/entity/zombie/revenant(_baby)?\\.png"
+                        + "|textures/entity/zombie/(revenant(_baby)?|zombie_villager)\\.png"
                         + "|textures/entity/zombie_pigman(_baby)?\\.png"
                         + "|textures/entity/ghast/(ghast|ghast_shooting)\\.png"
                         + "|textures/entity/skeleton/(longdead|longdead_guardian|bone_lord)\\.png"

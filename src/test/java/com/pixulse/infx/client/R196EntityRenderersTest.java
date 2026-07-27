@@ -135,6 +135,9 @@ class R196EntityRenderersTest {
                 "infx:textures/entity/zombie/revenant.png",
                 R196EntityRenderers.ZombieTexture.textureFor(R196Zombie.Variant.REVENANT).toString());
         assertEquals(
+                "infx:textures/entity/zombie/zombie_villager.png",
+                R196EntityRenderers.ZombieTexture.villagerTexture().toString());
+        assertEquals(
                 "infx:textures/entity/skeleton/longdead.png",
                 R196EntityRenderers.SkeletonTexture.textureFor(R196Skeleton.Variant.LONGDEAD).toString());
         assertEquals(

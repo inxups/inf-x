@@ -2,9 +2,13 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
@@ -17,6 +21,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ConversionParams;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -32,6 +37,9 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -43,6 +51,7 @@ import org.jspecify.annotations.Nullable;
 
 /** Zombie-shaped R196 mobs, including the replacement zombie and five new variants. */
 public final class R196Zombie extends Zombie implements R196Mob {
+    private static final String VILLAGER_ZOMBIE_KEY = "R196VillagerZombie";
     public enum Variant {
         ZOMBIE,
         INVISIBLE_STALKER,
@@ -51,6 +60,8 @@ public final class R196Zombie extends Zombie implements R196Mob {
         WIGHT,
         REVENANT
     }
+
+    private boolean villagerZombie;
 
     public R196Zombie(EntityType<? extends Zombie> type, Level level) {
         super(type, level);
@@ -89,6 +100,15 @@ public final class R196Zombie extends Zombie implements R196Mob {
 
     static boolean targetsAnimals(Variant variant) {
         return variant != Variant.INVISIBLE_STALKER;
+    }
+
+    /** MITE stores villager zombies as a flagged normal zombie, not a separate modern entity type. */
+    public boolean isVillagerZombie() {
+        return villagerZombie;
+    }
+
+    private void setVillagerZombie(boolean villagerZombie) {
+        this.villagerZombie = villagerZombie;
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
@@ -184,7 +204,25 @@ public final class R196Zombie extends Zombie implements R196Mob {
 
     @Override
     public boolean convertVillagerToZombieVillager(ServerLevel level, Villager villager) {
-        return zombifiesVillagers(variant()) && super.convertVillagerToZombieVillager(level, villager);
+        if (!zombifiesVillagers(variant()) || getMainHandItem().has(DataComponents.TOOL)) {
+            return false;
+        }
+        R196Zombie converted = villager.convertTo(
+                ModEntityTypes.R196_ZOMBIE.get(),
+                ConversionParams.single(villager, true, true),
+                zombie -> {
+                    zombie.setVillagerZombie(true);
+                    zombie.finalizeSpawn(
+                            level,
+                            level.getCurrentDifficultyAt(zombie.blockPosition()),
+                            EntitySpawnReason.CONVERSION,
+                            new ZombieGroupData(false, false));
+                    net.neoforged.neoforge.event.EventHooks.onLivingConvert(villager, zombie);
+                    if (!isSilent()) {
+                        level.levelEvent(null, 1016, blockPosition(), 0);
+                    }
+                });
+        return converted != null;
     }
 
     @Override
@@ -299,6 +337,39 @@ public final class R196Zombie extends Zombie implements R196Mob {
     }
 
     @Override
+    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+        super.dropCustomDeathLoot(level, source, killedByPlayer);
+        if (!killedByPlayer || (variant() != Variant.ZOMBIE && variant() != Variant.WIGHT && variant() != Variant.REVENANT)) {
+            return;
+        }
+        int looting = lootingLevel(level, source);
+        if (random.nextFloat() < rareDropChance(variant(), villagerZombie, looting)) {
+            spawnAtLocation(level, rareDrop());
+        }
+    }
+
+    static float rareDropChance(Variant variant, boolean villagerZombie, int lootingLevel) {
+        float base = variant == Variant.REVENANT || villagerZombie ? 0.10F : 0.025F;
+        float bonus = variant == Variant.REVENANT || villagerZombie ? 0.04F : 0.01F;
+        return base + Math.max(0, lootingLevel) * bonus;
+    }
+
+    private ItemStack rareDrop() {
+        Item[] drops = villagerZombie
+                ? new Item[] {Items.WHEAT_SEEDS, Items.PUMPKIN_SEEDS, Items.MELON_SEEDS, Items.CARROT, Items.POTATO, ModItems.ONION.get()}
+                : new Item[] {Items.COPPER_NUGGET, ModItems.SILVER_NUGGET.get(), Items.GOLD_NUGGET, Items.IRON_NUGGET};
+        return drops[random.nextInt(drops.length)].getDefaultInstance();
+    }
+
+    private static int lootingLevel(ServerLevel level, DamageSource source) {
+        if (!(source.getEntity() instanceof LivingEntity killer)) {
+            return 0;
+        }
+        var enchantments = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        return EnchantmentHelper.getEnchantmentLevel(enchantments.getOrThrow(Enchantments.LOOTING), killer);
+    }
+
+    @Override
     public void aiStep() {
         super.aiStep();
         if (variant() == Variant.INVISIBLE_STALKER && isInvisible()) {
@@ -327,6 +398,18 @@ public final class R196Zombie extends Zombie implements R196Mob {
         if (variant() != Variant.INVISIBLE_STALKER && tickCount % 20 == 0 && isOnFire() && random.nextFloat() < 0.15F) {
             igniteNearbyBlock(level);
         }
+    }
+
+    @Override
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.putBoolean(VILLAGER_ZOMBIE_KEY, villagerZombie);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+        super.readAdditionalSaveData(input);
+        villagerZombie = input.getBooleanOr(VILLAGER_ZOMBIE_KEY, false);
     }
 
     private void disableNearbyLight(ServerLevel level) {

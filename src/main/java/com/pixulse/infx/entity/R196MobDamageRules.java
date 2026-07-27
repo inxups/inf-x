@@ -108,14 +108,11 @@ public final class R196MobDamageRules {
     }
 
     /**
-     * MITE blaze vulnerability: snowball/water/bypass always hurt; fire damage and fire-aspect /
-     * flame weapons never do; other enchanted weapons do. Attacker ignition is ignored.
+     * MITE blaze vulnerability: only snowball and water damage always hurt; fire damage and
+     * fire-aspect / flame weapons never do; other enchanted weapons do. Attacker ignition is ignored.
      */
     public static boolean blazeAccepts(ServerLevel level, DamageSource source) {
-        if (source.getDirectEntity() instanceof Snowball
-                || source.getEntity() == null
-                || source.is(DamageTypeTags.BYPASSES_ARMOR)
-                || source.is(DamageTypeTags.IS_DROWNING)) {
+        if (source.getDirectEntity() instanceof Snowball || source.is(DamageTypeTags.IS_DROWNING)) {
             return true;
         }
         if (source.is(DamageTypeTags.IS_FIRE)) {
