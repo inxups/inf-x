@@ -939,15 +939,19 @@ public final class R196MonsterEvents {
         }
     }
 
-    /** MITE creeper blasts cannot crack stone (hardness 1.5); both variants share the cap. */
+    /** Ordinary R196 creepers cannot crack stone; infernal creepers retain normal blast terrain damage. */
     private static void limitCreeperTerrainDamage(ExplosionEvent.Detonate event) {
-        if (!(event.getExplosion().getDirectSourceEntity() instanceof R196Creeper)) {
+        if (!(event.getExplosion().getDirectSourceEntity() instanceof R196Creeper creeper)) {
             return;
         }
         event.getAffectedBlocks().removeIf(pos -> {
             float hardness = event.getLevel().getBlockState(pos).getDestroySpeed(event.getLevel(), pos);
-            return hardness < 0.0F || hardness >= 1.5F;
+            return isCreeperTerrainProtected(creeper.variant(), hardness);
         });
+    }
+
+    static boolean isCreeperTerrainProtected(R196Creeper.Variant variant, float hardness) {
+        return hardness < 0.0F || (variant != R196Creeper.Variant.INFERNAL && hardness >= 1.5F);
     }
 
     /** MITE netherspawn blasts leave their native netherrack and gold/quartz ore veins intact. */

@@ -775,6 +775,8 @@ public final class ModMonsterGameTests {
                 preyBoat.isRemoved(),
                 "R196 squid must destroy a boat on its sixth collision while pursuing its passenger");
 
+        BlockPos infernalStone = new BlockPos(1, 2, 3);
+        helper.setBlock(infernalStone, Blocks.STONE);
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 2, 4));
         var infernalTarget = ModR196CompletionGameTests.createPlayer(helper);
@@ -803,6 +805,9 @@ public final class ModMonsterGameTests {
                     helper.assertTrue(
                             cow.getHealth() < cowHealthBefore,
                             "infernal creeper explosions must use the amplified six-block radius");
+                    helper.assertTrue(
+                            helper.getBlockState(infernalStone).isAir(),
+                            "infernal creeper explosions must break stone");
                 })
                 .thenExecute(() -> ModR196CompletionGameTests.removePlayer(infernalTarget))
                 .thenSucceed();
