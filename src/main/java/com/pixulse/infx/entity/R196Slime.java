@@ -22,6 +22,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.Monster;
@@ -38,6 +44,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 public final class R196Slime extends Slime implements R196Mob {
     private static final double MODERN_BASE_MOVEMENT_SPEED = 0.20;
     private static final double MODERN_MOVEMENT_SPEED_PER_SIZE = 0.10;
+    private static final double OOZE_CRAWL_SPEED = 0.10;
 
     public enum Variant {
         SLIME(1, R196CorrosionType.PEPSIN, 16.0, R196GelatinousSphereItem.Color.GREEN),
@@ -83,6 +90,11 @@ public final class R196Slime extends Slime implements R196Mob {
 
     public R196Slime(EntityType<? extends Slime> type, Level level) {
         super(type, level);
+        if (usesCrawlAi(variant())) {
+            // CubeMobMoveControl only advances by jumping. Oozes use the normal ground
+            // controller so they can creep across terrain without inheriting that hop.
+            this.moveControl = new MoveControl<>(this);
+        }
     }
 
     public Variant variant() {
@@ -102,7 +114,7 @@ public final class R196Slime extends Slime implements R196Mob {
     public static AttributeSupplier.Builder attributes(Variant variant) {
         return Monster.createMonsterAttributes()
                 .add(Attributes.FOLLOW_RANGE, variant.followRange())
-                .add(Attributes.MOVEMENT_SPEED, movementSpeedForSize(1));
+                .add(Attributes.MOVEMENT_SPEED, movementSpeedFor(variant, 1));
     }
 
     static double attackDamageForSize(Variant variant, int size) {
@@ -119,6 +131,14 @@ public final class R196Slime extends Slime implements R196Mob {
         return MODERN_BASE_MOVEMENT_SPEED + MODERN_MOVEMENT_SPEED_PER_SIZE * Math.max(1, size);
     }
 
+    static double movementSpeedFor(Variant variant, int size) {
+        return usesCrawlAi(variant) ? OOZE_CRAWL_SPEED : movementSpeedForSize(size);
+    }
+
+    static boolean usesCrawlAi(Variant variant) {
+        return variant == Variant.OOZE;
+    }
+
     @Override
     public void setSize(int size, boolean updateHealth) {
         if (variant() == Variant.OOZE) {
@@ -127,7 +147,7 @@ public final class R196Slime extends Slime implements R196Mob {
         super.setSize(size, updateHealth);
         var movementSpeed = getAttribute(Attributes.MOVEMENT_SPEED);
         if (movementSpeed != null) {
-            movementSpeed.setBaseValue(movementSpeedForSize(getSize()));
+            movementSpeed.setBaseValue(movementSpeedFor(variant(), getSize()));
         }
         var attackDamage = getAttribute(Attributes.ATTACK_DAMAGE);
         if (attackDamage != null) {
@@ -139,6 +159,30 @@ public final class R196Slime extends Slime implements R196Mob {
     @Override
     protected boolean isDealsDamage() {
         return isEffectiveAi();
+    }
+
+    /** The acid ooze crawls with ground navigation instead of the bouncing cube goals. */
+    @Override
+    protected void registerGoals() {
+        if (!usesCrawlAi(variant())) {
+            super.registerGoals();
+            return;
+        }
+
+        goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
+        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
+        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        addTargetingGoals();
+    }
+
+    /** Suppress any fallback jump request from ground navigation while the ooze crawls. */
+    @Override
+    public void jumpFromGround() {
+        if (!usesCrawlAi(variant())) {
+            super.jumpFromGround();
+        }
     }
 
     /** MITE cubes never climb ladders; only the ooze creeps up walls it presses against. */
