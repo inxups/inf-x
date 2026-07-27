@@ -57,7 +57,7 @@ public final class ModSounds {
                     "entity.fire_elemental.sizzle",
                     () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.fire_elemental.sizzle")));
 
-    /** MITE 1.6's vanilla fizz played when an acid gelatinous cube scorches living ground. */
+    /** MITE 1.6's vanilla fizz played for acid gelatinous-cube and sphere corrosion. */
     public static final DeferredHolder<SoundEvent, SoundEvent> GELATINOUS_CUBE_CORROSION =
             SOUNDS.register(
                     "entity.gelatinous_cube.corrosion",

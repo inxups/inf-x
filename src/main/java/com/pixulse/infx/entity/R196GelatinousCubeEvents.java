@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
@@ -52,13 +53,7 @@ public final class R196GelatinousCubeEvents {
                 if (!playedGrassCorrosionSound
                         && dissolved
                         && R196GelatinousCubeRules.isAcidScorchableGround(state, type)) {
-                    level.playSound(
-                            null,
-                            pos,
-                            ModSounds.GELATINOUS_CUBE_CORROSION.get(),
-                            SoundSource.HOSTILE,
-                            0.5F,
-                            2.6F + (slime.getRandom().nextFloat() - slime.getRandom().nextFloat()) * 0.8F);
+                    playAcidCorrosionFizz(level, pos, slime.getRandom());
                     playedGrassCorrosionSound = true;
                 }
                 slime.clearDissolvingBlock(pos);
@@ -70,6 +65,16 @@ public final class R196GelatinousCubeEvents {
                 slime.clearDissolvingBlock(pos);
             }
         }
+    }
+
+    static void playAcidCorrosionFizz(ServerLevel level, BlockPos pos, RandomSource random) {
+        level.playSound(
+                null,
+                pos,
+                ModSounds.GELATINOUS_CUBE_CORROSION.get(),
+                SoundSource.HOSTILE,
+                0.5F,
+                2.6F + (random.nextFloat() - random.nextFloat()) * 0.8F);
     }
 
     private static void dissolveTouchedItems(ServerLevel level, R196Slime slime) {
