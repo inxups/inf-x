@@ -33,6 +33,15 @@ import org.jspecify.annotations.Nullable;
 
 /** Skeleton replacement plus Longdead and both Bone Lord variants. */
 public final class R196Skeleton extends Skeleton implements R196Mob {
+    private static final float ARROW_SPEED = 1.8F;
+    private static final double ARROW_AIR_DRAG = 0.99F;
+    private static final double VANILLA_ARROW_GRAVITY = 0.05D;
+    private static final double ARROW_GRAVITY = 0.04D;
+    private static final double MIN_INTERCEPT_TICKS = 0.05D;
+    private static final double MAX_INTERCEPT_TICKS = 60.0D;
+    private static final int INTERCEPT_SEARCH_STEPS = 240;
+    private static final int INTERCEPT_REFINEMENT_STEPS = 24;
+
     public enum Variant {
         SKELETON,
         LONGDEAD,
@@ -179,36 +188,154 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
             arrow = weapon.customArrow(arrow, ammunition, bow);
         }
 
+        Vec3 knownMovement = target.getKnownMovement();
+        Vec3 physicalMovement = target.getDeltaMovement();
+        double targetMotionX = predictionMotion(knownMovement.x, physicalMovement.x);
+        double targetMotionZ = predictionMotion(knownMovement.z, physicalMovement.z);
+        BallisticAim ballisticAim = calculateBallisticIntercept(
+                target.getX() - getX(),
+                target.getY(1.0 / 3.0) - arrow.getY(),
+                target.getZ() - getZ(),
+                targetMotionX,
+                targetMotionZ);
+        if (level() instanceof ServerLevel level) {
+            AbstractArrow launchedArrow = arrow;
+            float uncertainty = miteArrowInaccuracy(level.getDifficulty().getId());
+            if (ballisticAim != null) {
+                Projectile.spawnProjectile(
+                        launchedArrow,
+                        level,
+                        ammunition,
+                        projectile -> projectile.shoot(
+                                ballisticAim.x(), ballisticAim.y(), ballisticAim.z(), ARROW_SPEED, uncertainty));
+            } else {
+                spawnMiteFallbackArrow(
+                        launchedArrow,
+                        level,
+                        ammunition,
+                        target,
+                        knownMovement,
+                        physicalMovement,
+                        uncertainty);
+            }
+        }
+        playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 0.8F));
+    }
+
+    private void spawnMiteFallbackArrow(
+            AbstractArrow arrow,
+            ServerLevel level,
+            ItemStack ammunition,
+            LivingEntity target,
+            Vec3 knownMovement,
+            Vec3 physicalMovement,
+            float uncertainty) {
         MiteRangedAim aim = calculateMiteRangedAim(
                 getX(),
                 getZ(),
                 target.getX(),
                 target.getZ(),
-                target.getKnownMovement(),
-                target.getDeltaMovement(),
+                knownMovement,
+                physicalMovement,
                 arrow.getRandom().nextFloat());
         double predictedDistance = Math.sqrt(aim.horizontalDistanceSqr());
-        // MITE predicts only horizontal movement and continues to target one-third of the current height.
         double yd = target.getY(1.0 / 3.0) - arrow.getY();
         double verticalCorrection = miteVerticalCorrection(aim.horizontalDistanceSqr(), target.getY() - getY());
-        if (level() instanceof ServerLevel level) {
-            AbstractArrow launchedArrow = arrow;
-            Projectile.spawnProjectile(
-                    launchedArrow,
-                    level,
-                    ammunition,
-                    projectile -> {
-                        projectile.shoot(
-                                aim.x(),
-                                yd + predictedDistance * 0.2F,
-                                aim.z(),
-                                1.6F,
-                                miteArrowInaccuracy(level.getDifficulty().getId()));
-                        // EntityArrow applies this after setting its heading; preserve that ordering.
-                        projectile.setDeltaMovement(projectile.getDeltaMovement().add(0.0, verticalCorrection, 0.0));
-                    });
+        Projectile.spawnProjectile(
+                arrow,
+                level,
+                ammunition,
+                projectile -> {
+                    projectile.shoot(aim.x(), yd + predictedDistance * 0.2F, aim.z(), ARROW_SPEED, uncertainty);
+                    // EntityArrow applies this after setting its heading; preserve that ordering on fallback.
+                    projectile.setDeltaMovement(projectile.getDeltaMovement().add(0.0, verticalCorrection, 0.0));
+                });
+    }
+
+    /**
+     * Finds the low-arc intercept that follows the modern arrow's exact per-tick drag and gravity model.
+     * Vertical target motion is deliberately not projected: player input is horizontal and entity vertical
+     * movement depends on collision and gravity during flight.
+     */
+    static @Nullable BallisticAim calculateBallisticIntercept(
+            double targetX, double targetY, double targetZ, double targetMotionX, double targetMotionZ) {
+        if (!Double.isFinite(targetX)
+                || !Double.isFinite(targetY)
+                || !Double.isFinite(targetZ)
+                || !Double.isFinite(targetMotionX)
+                || !Double.isFinite(targetMotionZ)) {
+            return null;
         }
-        playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 0.8F));
+
+        double previousTime = MIN_INTERCEPT_TICKS;
+        double previousError = interceptSpeedSqr(
+                previousTime, targetX, targetY, targetZ, targetMotionX, targetMotionZ)
+                - ARROW_SPEED * ARROW_SPEED;
+        for (int step = 1; step <= INTERCEPT_SEARCH_STEPS; step++) {
+            double time = MAX_INTERCEPT_TICKS * step / INTERCEPT_SEARCH_STEPS;
+            double error = interceptSpeedSqr(time, targetX, targetY, targetZ, targetMotionX, targetMotionZ)
+                    - ARROW_SPEED * ARROW_SPEED;
+            if (Double.isFinite(error) && previousError > 0.0D && error <= 0.0D) {
+                double interceptTime = refineInterceptTime(
+                        previousTime, time, targetX, targetY, targetZ, targetMotionX, targetMotionZ);
+                return ballisticAimAt(
+                        interceptTime, targetX, targetY, targetZ, targetMotionX, targetMotionZ);
+            }
+            previousTime = time;
+            previousError = error;
+        }
+        return null;
+    }
+
+    private static double refineInterceptTime(
+            double lower,
+            double upper,
+            double targetX,
+            double targetY,
+            double targetZ,
+            double targetMotionX,
+            double targetMotionZ) {
+        for (int step = 0; step < INTERCEPT_REFINEMENT_STEPS; step++) {
+            double middle = (lower + upper) * 0.5D;
+            double error = interceptSpeedSqr(middle, targetX, targetY, targetZ, targetMotionX, targetMotionZ)
+                    - ARROW_SPEED * ARROW_SPEED;
+            if (error > 0.0D) {
+                lower = middle;
+            } else {
+                upper = middle;
+            }
+        }
+        return (lower + upper) * 0.5D;
+    }
+
+    private static BallisticAim ballisticAimAt(
+            double time,
+            double targetX,
+            double targetY,
+            double targetZ,
+            double targetMotionX,
+            double targetMotionZ) {
+        double travelScale = arrowTravelScale(time);
+        double verticalDrop = arrowVerticalDrop(time, travelScale);
+        return new BallisticAim(
+                (targetX + targetMotionX * time) / travelScale,
+                (targetY + verticalDrop) / travelScale,
+                (targetZ + targetMotionZ * time) / travelScale,
+                time);
+    }
+
+    private static double interceptSpeedSqr(
+            double time, double targetX, double targetY, double targetZ, double targetMotionX, double targetMotionZ) {
+        BallisticAim aim = ballisticAimAt(time, targetX, targetY, targetZ, targetMotionX, targetMotionZ);
+        return aim.x() * aim.x() + aim.y() * aim.y() + aim.z() * aim.z();
+    }
+
+    private static double arrowTravelScale(double time) {
+        return (1.0D - Math.pow(ARROW_AIR_DRAG, time)) / (1.0D - ARROW_AIR_DRAG);
+    }
+
+    private static double arrowVerticalDrop(double time, double travelScale) {
+        return ARROW_GRAVITY / (1.0D - ARROW_AIR_DRAG) * (time - travelScale);
     }
 
     /** MITE's random horizontal lead, using the player input vector when the server has one. */
@@ -237,6 +364,18 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
         return (14 - difficultyId * 4) * 1.5F;
     }
 
+    static float skeletonArrowSpeed() {
+        return ARROW_SPEED;
+    }
+
+    static double skeletonArrowGravity() {
+        return ARROW_GRAVITY;
+    }
+
+    static double skeletonArrowGravityCompensation() {
+        return VANILLA_ARROW_GRAVITY - ARROW_GRAVITY;
+    }
+
     static double miteVerticalCorrection(double horizontalDistanceSqr, double targetHeightDifference) {
         double correction = horizontalDistanceSqr * 0.0005D * horizontalDistanceSqr * 0.0005D - 0.05D;
         if (horizontalDistanceSqr > 576.0D) {
@@ -254,6 +393,8 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
     }
 
     record MiteRangedAim(double x, double z, double horizontalDistanceSqr, float leadTicks) {}
+
+    record BallisticAim(double x, double y, double z, double flightTicks) {}
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
