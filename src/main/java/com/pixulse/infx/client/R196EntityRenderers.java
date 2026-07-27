@@ -1,5 +1,6 @@
 package com.pixulse.infx.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Creeper;
@@ -10,6 +11,11 @@ import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.entity.R196Spider;
 import com.pixulse.infx.entity.R196Wolf;
 import com.pixulse.infx.entity.R196Zombie;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.monster.slime.SlimeModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.AbstractCubeMobRenderer;
 import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
 import net.minecraft.client.renderer.entity.ChickenRenderer;
@@ -17,15 +23,17 @@ import net.minecraft.client.renderer.entity.CowRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.GhastRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
 import net.minecraft.client.renderer.entity.PigRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.SheepRenderer;
 import net.minecraft.client.renderer.entity.SilverfishRenderer;
 import net.minecraft.client.renderer.entity.SkeletonRenderer;
-import net.minecraft.client.renderer.entity.SlimeRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
 import net.minecraft.client.renderer.entity.state.ChickenRenderState;
 import net.minecraft.client.renderer.entity.state.CowRenderState;
@@ -38,6 +46,7 @@ import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.client.renderer.entity.state.SlimeRenderState;
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.context.ContextKey;
@@ -341,17 +350,34 @@ final class R196EntityRenderers {
         }
     }
 
-    static final class SlimeTexture extends SlimeRenderer {
+    /**
+     * SlimeRenderer's built-in outer layer always uses the vanilla slime texture, even when this
+     * renderer overrides {@link #getTextureLocation(SlimeRenderState)}. Rebuild the small renderer
+     * with a texture-aware outer layer so both shells use the authorized MITE sheet.
+     */
+    static final class SlimeTexture extends AbstractCubeMobRenderer<R196Slime, SlimeRenderState, SlimeModel> {
         private final Identifier texture;
 
         SlimeTexture(EntityRendererProvider.Context context, R196Slime.Variant variant) {
-            super(context);
+            super(context, new SlimeModel(context.bakeLayer(ModelLayers.SLIME)));
             this.texture = textureFor(variant);
+            addLayer(new MiteSlimeOuterLayer(this, context.getModelSet(), texture));
+        }
+
+        @Override
+        protected void scale(SlimeRenderState state, PoseStack poseStack) {
+            downscaleSlightly(poseStack);
+            super.scale(state, poseStack);
         }
 
         @Override
         public Identifier getTextureLocation(SlimeRenderState state) {
             return texture;
+        }
+
+        @Override
+        public SlimeRenderState createRenderState() {
+            return new SlimeRenderState();
         }
 
         static Identifier textureFor(R196Slime.Variant variant) {
@@ -362,6 +388,56 @@ final class R196EntityRenderers {
                 case OOZE -> mite("textures/entity/slime/ooze.png");
                 case PUDDING -> mite("textures/entity/slime/pudding.png");
             };
+        }
+    }
+
+    /** Texture-aware replacement for the outer shell hard-coded by the vanilla SlimeRenderer. */
+    private static final class MiteSlimeOuterLayer extends RenderLayer<SlimeRenderState, SlimeModel> {
+        private final SlimeModel model;
+        private final Identifier texture;
+
+        private MiteSlimeOuterLayer(
+                RenderLayerParent<SlimeRenderState, SlimeModel> renderer,
+                EntityModelSet modelSet,
+                Identifier texture) {
+            super(renderer);
+            this.model = new SlimeModel(modelSet.bakeLayer(ModelLayers.SLIME_OUTER));
+            this.texture = texture;
+        }
+
+        @Override
+        public void submit(
+                PoseStack poseStack,
+                SubmitNodeCollector submitNodeCollector,
+                int lightCoords,
+                SlimeRenderState state,
+                float yRot,
+                float xRot) {
+            boolean appearsGlowingWithInvisibility = state.appearsGlowing() && state.isInvisible;
+            if (!state.isInvisible || appearsGlowingWithInvisibility) {
+                int overlayCoords = LivingEntityRenderer.getOverlayCoords(state, 0.0F);
+                if (appearsGlowingWithInvisibility) {
+                    submitNodeCollector.order(1).submitModel(
+                            model,
+                            state,
+                            poseStack,
+                            RenderTypes.outline(texture),
+                            lightCoords,
+                            overlayCoords,
+                            state.outlineColor,
+                            null);
+                } else {
+                    submitNodeCollector.order(1).submitModel(
+                            model,
+                            state,
+                            poseStack,
+                            RenderTypes.entityTranslucent(texture),
+                            lightCoords,
+                            overlayCoords,
+                            state.outlineColor,
+                            null);
+                }
+            }
         }
     }
 
