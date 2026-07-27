@@ -2,10 +2,14 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.equipment.R196CorrosionRules;
 import com.pixulse.infx.equipment.R196CorrosionType;
+import com.pixulse.infx.item.R196GelatinousSphereItem;
 import com.pixulse.infx.registry.ModItems;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.DifficultyInstance;
@@ -26,6 +30,7 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
@@ -35,20 +40,26 @@ public final class R196Slime extends Slime implements R196Mob {
     private static final double MODERN_MOVEMENT_SPEED_PER_SIZE = 0.10;
 
     public enum Variant {
-        SLIME(1, R196CorrosionType.PEPSIN, 16.0),
-        JELLY(2, R196CorrosionType.PEPSIN, 16.0),
-        BLOB(3, R196CorrosionType.PEPSIN, 16.0),
-        OOZE(3, R196CorrosionType.ACID, 32.0),
-        PUDDING(4, R196CorrosionType.ACID, 16.0);
+        SLIME(1, R196CorrosionType.PEPSIN, 16.0, R196GelatinousSphereItem.Color.GREEN),
+        JELLY(2, R196CorrosionType.PEPSIN, 16.0, R196GelatinousSphereItem.Color.OCHRE),
+        BLOB(3, R196CorrosionType.PEPSIN, 16.0, R196GelatinousSphereItem.Color.CRIMSON),
+        OOZE(3, R196CorrosionType.ACID, 32.0, R196GelatinousSphereItem.Color.GRAY),
+        PUDDING(4, R196CorrosionType.ACID, 16.0, R196GelatinousSphereItem.Color.BLACK);
 
         private final int damageMultiplier;
         private final R196CorrosionType corrosionType;
         private final double followRange;
+        private final R196GelatinousSphereItem.Color landingParticleColor;
 
-        Variant(int damageMultiplier, R196CorrosionType corrosionType, double followRange) {
+        Variant(
+                int damageMultiplier,
+                R196CorrosionType corrosionType,
+                double followRange,
+                R196GelatinousSphereItem.Color landingParticleColor) {
             this.damageMultiplier = damageMultiplier;
             this.corrosionType = corrosionType;
             this.followRange = followRange;
+            this.landingParticleColor = landingParticleColor;
         }
 
         public int damageMultiplier() {
@@ -61,6 +72,10 @@ public final class R196Slime extends Slime implements R196Mob {
 
         public double followRange() {
             return followRange;
+        }
+
+        public R196GelatinousSphereItem.Color landingParticleColor() {
+            return landingParticleColor;
         }
     }
 
@@ -189,12 +204,23 @@ public final class R196Slime extends Slime implements R196Mob {
     }
 
     public Item gelatinousSphere() {
-        return switch (variant()) {
-            case SLIME -> ModItems.GREEN_GELATINOUS_SPHERE.get();
-            case JELLY -> ModItems.OCHRE_GELATINOUS_SPHERE.get();
-            case BLOB -> ModItems.CRIMSON_GELATINOUS_SPHERE.get();
-            case OOZE -> ModItems.GRAY_GELATINOUS_SPHERE.get();
-            case PUDDING -> ModItems.BLACK_GELATINOUS_SPHERE.get();
+        return gelatinousSphere(variant().landingParticleColor());
+    }
+
+    /** Modern equivalent of MITE's five colored slime-ball squish particles. */
+    @Override
+    protected ParticleOptions getParticleType() {
+        return new ItemParticleOption(
+                ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(gelatinousSphere().getDefaultInstance()));
+    }
+
+    private static Item gelatinousSphere(R196GelatinousSphereItem.Color color) {
+        return switch (color) {
+            case GREEN -> ModItems.GREEN_GELATINOUS_SPHERE.get();
+            case OCHRE -> ModItems.OCHRE_GELATINOUS_SPHERE.get();
+            case CRIMSON -> ModItems.CRIMSON_GELATINOUS_SPHERE.get();
+            case GRAY -> ModItems.GRAY_GELATINOUS_SPHERE.get();
+            case BLACK -> ModItems.BLACK_GELATINOUS_SPHERE.get();
         };
     }
 
