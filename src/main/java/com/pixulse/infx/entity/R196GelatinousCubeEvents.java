@@ -57,8 +57,8 @@ public final class R196GelatinousCubeEvents {
                             pos,
                             ModSounds.GELATINOUS_CUBE_CORROSION.get(),
                             SoundSource.HOSTILE,
-                            0.7F,
-                            1.0F);
+                            0.5F,
+                            2.6F + (slime.getRandom().nextFloat() - slime.getRandom().nextFloat()) * 0.8F);
                     playedGrassCorrosionSound = true;
                 }
                 slime.clearDissolvingBlock(pos);
