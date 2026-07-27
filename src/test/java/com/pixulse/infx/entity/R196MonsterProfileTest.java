@@ -100,14 +100,14 @@ class R196MonsterProfileTest {
 
         assertEquals(16.0, slime.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         for (R196Slime.Variant variant : R196Slime.Variant.values()) {
-            double expectedSpeed = variant == R196Slime.Variant.OOZE ? 0.10 : 0.30;
+            double expectedSpeed = variant == R196Slime.Variant.OOZE ? 0.05 : 0.30;
             assertEquals(expectedSpeed, stats(R196Slime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         }
         assertEquals(0.30, R196Slime.movementSpeedForSize(1), EPSILON);
         assertEquals(0.40, R196Slime.movementSpeedForSize(2), EPSILON);
         assertEquals(0.60, R196Slime.movementSpeedForSize(4), EPSILON);
-        assertEquals(0.10, R196Slime.movementSpeedFor(R196Slime.Variant.OOZE, 1), EPSILON);
-        assertEquals(0.10, R196Slime.movementSpeedFor(R196Slime.Variant.OOZE, 2), EPSILON);
+        assertEquals(0.05, R196Slime.movementSpeedFor(R196Slime.Variant.OOZE, 1), EPSILON);
+        assertEquals(0.05, R196Slime.movementSpeedFor(R196Slime.Variant.OOZE, 2), EPSILON);
         assertTrue(R196Slime.usesCrawlAi(R196Slime.Variant.OOZE));
         assertFalse(R196Slime.usesCrawlAi(R196Slime.Variant.SLIME));
         assertEquals(1.0, R196Slime.attackDamageForSize(R196Slime.Variant.SLIME, 1), EPSILON);

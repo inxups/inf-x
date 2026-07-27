@@ -91,5 +91,8 @@
   },
   "entity.fire_elemental.sizzle": {
     "sounds": [ "infx:random/sizzle" ]
+  },
+  "entity.gelatinous_cube.corrosion": {
+    "sounds": [ "infx:random/sizzle" ]
   }
 }

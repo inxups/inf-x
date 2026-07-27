@@ -57,6 +57,12 @@ public final class ModSounds {
                     "entity.fire_elemental.sizzle",
                     () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.fire_elemental.sizzle")));
 
+    /** MITE imported sizzle played when an acid gelatinous cube scorches living ground. */
+    public static final DeferredHolder<SoundEvent, SoundEvent> GELATINOUS_CUBE_CORROSION =
+            SOUNDS.register(
+                    "entity.gelatinous_cube.corrosion",
+                    () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.gelatinous_cube.corrosion")));
+
     private ModSounds() {}
 
     private static DeferredHolder<SoundEvent, SoundEvent> record(String name) {

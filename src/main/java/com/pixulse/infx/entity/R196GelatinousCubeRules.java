@@ -27,7 +27,7 @@ public final class R196GelatinousCubeRules {
         }
         // Acid oozes scorch living ground into dirt on contact. Check this before the
         // solid-block fallback so grass does not incorrectly remain immune.
-        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MYCELIUM)) {
+        if (isAcidScorchableGround(state, type)) {
             return INSTANT;
         }
         if (state.is(ModTags.Blocks.ACID_DISSOLVES_GRADUALLY)) {
@@ -49,11 +49,14 @@ public final class R196GelatinousCubeRules {
         return dissolvePeriod(level.getBlockState(pos), type);
     }
 
+    static boolean isAcidScorchableGround(BlockState state, R196CorrosionType type) {
+        return type == R196CorrosionType.ACID && (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MYCELIUM));
+    }
+
     public static boolean dissolveOnContact(
             ServerLevel level, BlockPos pos, R196CorrosionType type, Direction contactedFace) {
         BlockState state = level.getBlockState(pos);
-        if (type == R196CorrosionType.ACID
-                && (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MYCELIUM))
+        if (isAcidScorchableGround(state, type)
                 && (contactedFace == null || contactedFace == Direction.UP)) {
             return level.setBlock(pos, Blocks.DIRT.defaultBlockState(), 3);
         }
