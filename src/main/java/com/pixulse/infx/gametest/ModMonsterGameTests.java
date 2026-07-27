@@ -777,6 +777,9 @@ public final class ModMonsterGameTests {
 
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 2, 4));
+        var infernalTarget = ModR196CompletionGameTests.createPlayer(helper);
+        var infernalSwell = helper.spawn(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(6, 2, 1));
+        infernalSwell.setTarget(infernalTarget);
         helper.startSequence()
                 // Explosions query the level's entity index. Waiting for both
                 // entities prevents a tick-zero explosion from observing an
@@ -785,6 +788,9 @@ public final class ModMonsterGameTests {
                     helper.assertEntityPresent(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4), 2.0D);
                     helper.assertEntityPresent(EntityTypes.COW, new BlockPos(9, 2, 4), 2.0D);
                 })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        infernalSwell.getSwellDir() > 0,
+                        "infernal creepers must begin swelling from MITE's expanded no-path range"))
                 .thenExecute(() -> {
                     float cowHealthBefore = cow.getHealth();
                     level.explode(
@@ -798,6 +804,7 @@ public final class ModMonsterGameTests {
                             cow.getHealth() < cowHealthBefore,
                             "infernal creeper explosions must use the amplified six-block radius");
                 })
+                .thenExecute(() -> ModR196CompletionGameTests.removePlayer(infernalTarget))
                 .thenSucceed();
     }
 

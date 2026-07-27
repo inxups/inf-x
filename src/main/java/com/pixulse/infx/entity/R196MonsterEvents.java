@@ -31,6 +31,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.Level;
@@ -50,6 +51,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
@@ -82,6 +84,7 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::applyFrenzyDamage);
         gameBus.addListener(R196MonsterEvents::applyMiteProjectileDamage);
         gameBus.addListener(R196MonsterEvents::retaliateAgainstBareHands);
+        gameBus.addListener(R196MonsterEvents::armInfernalCreeperFromCactus);
     }
 
     /**
@@ -158,6 +161,19 @@ public final class R196MonsterEvents {
         if (alwaysRetaliates || (victim.getTarget() == attacker && victim.getRandom().nextFloat() < 0.125F)) {
             attacker.hurtServer(level, level.damageSources().mobAttack(victim), 1.0F);
         }
+    }
+
+    /** MITE's conspicuous-cactus trigger, mapped to a real cactus hit in the modern damage pipeline. */
+    private static void armInfernalCreeperFromCactus(LivingDamageEvent.Post event) {
+        if (!(event.getEntity() instanceof R196Creeper creeper)
+                || creeper.variant() != R196Creeper.Variant.INFERNAL
+                || creeper.level().isClientSide()
+                || event.getHealthDamage() <= 0.0F
+                || !event.getSource().is(DamageTypes.CACTUS)
+                || !creeper.getRandom().nextBoolean()) {
+            return;
+        }
+        creeper.armCactusFuse();
     }
 
     private static void createAttributes(EntityAttributeCreationEvent event) {

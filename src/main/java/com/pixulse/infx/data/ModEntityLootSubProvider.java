@@ -88,15 +88,13 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 ModEntityTypes.R196_CREEPER.get(),
                 LootTable.lootTable()
                         .withPool(killedByPlayerPool(Items.GUNPOWDER, 0.0F, 2.0F))
-                        .withPool(LootPool.lootPool()
-                                .add(TagEntry.expandTag(ItemTags.CREEPER_DROP_MUSIC_DISCS))
-                                .when(LootItemEntityPropertyCondition.hasProperties(
-                                        LootContext.EntityTarget.ATTACKER,
-                                        EntityPredicate.Builder.entity()
-                                                .of(lookup.lookupOrThrow(Registries.ENTITY_TYPE), EntityTypeTags.SKELETONS)))));
+                        .withPool(creeperMusicDiscPool()));
+        // EntityInfernalCreeper's nested count, Looting and non-player reduction rolls are
+        // procedural, so R196Creeper performs the powder rolls at death. Its inherited skeleton
+        // disc drop remains data-driven here.
         add(
                 ModEntityTypes.INFERNAL_CREEPER.get(),
-                LootTable.lootTable().withPool(killedByPlayerPool(Items.GUNPOWDER, 0.0F, 3.0F)));
+                LootTable.lootTable().withPool(creeperMusicDiscPool()));
 
         emptyDrops(ModEntityTypes.R196_SLIME.get());
         for (var type : java.util.List.of(
@@ -346,6 +344,15 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 .when(LootItemKilledByPlayerCondition.killedByPlayer())
                 .add(LootItem.lootTableItem(item).apply(
                         SetItemCountFunction.setCount(UniformGenerator.between(minimum, maximum))));
+    }
+
+    private LootPool.Builder creeperMusicDiscPool() {
+        return LootPool.lootPool()
+                .add(TagEntry.expandTag(ItemTags.CREEPER_DROP_MUSIC_DISCS))
+                .when(LootItemEntityPropertyCondition.hasProperties(
+                        LootContext.EntityTarget.ATTACKER,
+                        EntityPredicate.Builder.entity()
+                                .of(lookup.lookupOrThrow(Registries.ENTITY_TYPE), EntityTypeTags.SKELETONS)));
     }
 
     private static LootPool.Builder itemPool(Item item, float minimum, float maximum) {

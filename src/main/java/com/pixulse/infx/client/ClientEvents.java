@@ -129,7 +129,7 @@ public final class ClientEvents {
         event.registerEntityRenderer(ModEntityTypes.R196_CREEPER.get(), CreeperRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.INFERNAL_CREEPER.get(),
-                context -> new R196EntityRenderers.CreeperTexture(context, R196Creeper.Variant.INFERNAL, 1.5F));
+                context -> new R196EntityRenderers.CreeperTexture(context, R196Creeper.Variant.INFERNAL));
 
         event.registerEntityRenderer(
                 ModEntityTypes.R196_SLIME.get(),

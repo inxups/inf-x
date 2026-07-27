@@ -170,6 +170,17 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void infernalCreeperKeepsItsInheritedSkeletonDiscLoot() throws Exception {
+        JsonObject table = json(GENERATED.resolve("data/infx/loot_table/entities/infernal_creeper.json"));
+        JsonObject pool = table.getAsJsonArray("pools").get(0).getAsJsonObject();
+        JsonObject entry = pool.getAsJsonArray("entries").get(0).getAsJsonObject();
+        assertAll(
+                () -> assertEquals("minecraft:tag", entry.get("type").getAsString()),
+                () -> assertEquals("minecraft:creeper_drop_music_discs", entry.get("name").getAsString()),
+                () -> assertTrue(pool.toString().contains("minecraft:skeletons")));
+    }
+
+    @Test
     void netherPortalModelsUseRedTintTemplates() throws Exception {
         for (String orientation : List.of("ns", "ew")) {
             JsonObject model = json(GENERATED.resolve("assets/infx/models/block/nether_portal_" + orientation + ".json"));

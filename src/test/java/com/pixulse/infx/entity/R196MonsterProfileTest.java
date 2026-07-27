@@ -86,6 +86,21 @@ class R196MonsterProfileTest {
     }
 
     @Test
+    void infernalCreeperSwellAndPowderRollsMatchR196() {
+        assertEquals(9.0, R196Creeper.infernalSwellStartDistanceSqr(false, 1.0F), EPSILON);
+        assertEquals(18.0, R196Creeper.infernalSwellStartDistanceSqr(false, 0.99F), EPSILON);
+        assertEquals(32.0, R196Creeper.infernalSwellStartDistanceSqr(true, 1.0F), EPSILON);
+        assertEquals(36.0, R196Creeper.infernalSwellContinueDistanceSqr(1.0F), EPSILON);
+        assertEquals(90.0, R196Creeper.infernalSwellContinueDistanceSqr(0.4F), EPSILON);
+        assertEquals(90.0, R196Creeper.infernalSwellContinueDistanceSqr(0.0F), EPSILON);
+
+        assertEquals(0, R196Creeper.infernalPowderDropCount(0, 0, 0, true, 0));
+        assertEquals(2, R196Creeper.infernalPowderDropCount(0, 2, 0, true, 0));
+        assertEquals(4, R196Creeper.infernalPowderDropCount(3, 0, 1, true, 0));
+        assertEquals(1, R196Creeper.infernalPowderDropCount(3, 0, 0, false, 2));
+        assertTrue(R196Creeper.shouldDropInfernalPowder(true, 2));
+        assertTrue(R196Creeper.shouldDropInfernalPowder(false, 0));
+        assertFalse(R196Creeper.shouldDropInfernalPowder(false, 1));
     void invisibleStalkerDoesNotInheritZombieOnlyRules() {
         assertTrue(R196Zombie.breaksDoors(R196Zombie.Variant.INVISIBLE_STALKER));
         assertFalse(R196Zombie.burnsInSunlight(R196Zombie.Variant.INVISIBLE_STALKER));
