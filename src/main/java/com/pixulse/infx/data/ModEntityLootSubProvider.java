@@ -54,11 +54,11 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
     @Override
     public void generate() {
-        // MITE zombie flesh: one piece at 50% for player kills, 25% otherwise; rare-drop pool
-        // only for player kills at 2.5% + 1% per looting level (revenants 10% + 4%).
-        zombieDrops(ModEntityTypes.R196_ZOMBIE.get(), 0.025F, 0.01F);
-        zombieDrops(ModEntityTypes.WIGHT.get(), 0.025F, 0.01F);
-        zombieDrops(ModEntityTypes.REVENANT.get(), 0.10F, 0.04F);
+        // MITE zombie flesh: one piece at 50% for player kills, 25% otherwise. Rare drops
+        // are procedural because a villager zombie uses a different MITE item pool.
+        zombieDrops(ModEntityTypes.R196_ZOMBIE.get());
+        zombieDrops(ModEntityTypes.WIGHT.get());
+        zombieDrops(ModEntityTypes.REVENANT.get());
         // MITE ghouls, stalkers and shadows drop nothing at all.
         emptyDrops(ModEntityTypes.INVISIBLE_STALKER.get());
         emptyDrops(ModEntityTypes.GHOUL.get());
@@ -293,20 +293,8 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         add(custom, LootTable.lootTable());
     }
 
-    private void zombieDrops(EntityType<?> custom, float rareChance, float rareLootingBonus) {
-        add(
-                custom,
-                LootTable.lootTable()
-                        .withPool(fleshPool())
-                        .withPool(LootPool.lootPool()
-                                .setRolls(ConstantValue.exactly(1.0F))
-                                .when(LootItemKilledByPlayerCondition.killedByPlayer())
-                                .when(LootItemRandomChanceWithEnchantedBonusCondition.randomChanceAndLootingBoost(
-                                        lookup, rareChance, rareLootingBonus))
-                                .add(LootItem.lootTableItem(Items.COPPER_NUGGET))
-                                .add(LootItem.lootTableItem(ModItems.SILVER_NUGGET.get()))
-                                .add(LootItem.lootTableItem(Items.GOLD_NUGGET))
-                                .add(LootItem.lootTableItem(Items.IRON_NUGGET))));
+    private void zombieDrops(EntityType<?> custom) {
+        add(custom, LootTable.lootTable().withPool(fleshPool()));
     }
 
     /** One rotten flesh at 50% for player kills, 25% for everything else. */

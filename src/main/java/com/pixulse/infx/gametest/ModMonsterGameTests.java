@@ -338,6 +338,7 @@ public final class ModMonsterGameTests {
         BlockPos naturalPos = new BlockPos(2, 2, 2);
         BlockPos explicitPos = new BlockPos(5, 2, 2);
         BlockPos explicitWitchPos = new BlockPos(5, 2, 5);
+        BlockPos convertedVillagerPos = new BlockPos(8, 2, 5);
         helper.spawn(EntityTypes.ZOMBIE, naturalPos, EntitySpawnReason.NATURAL);
         BlockPos triggeredPos = new BlockPos(8, 2, 2);
         helper.setBlock(triggeredPos.east(), Blocks.COPPER_ORE);
@@ -351,6 +352,11 @@ public final class ModMonsterGameTests {
         explicitWitch.snapTo(
                 explicitWitchLocation.x, explicitWitchLocation.y, explicitWitchLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicitWitch);
+        var converter = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos.south());
+        var villager = helper.spawn(EntityTypes.VILLAGER, convertedVillagerPos);
+        helper.assertTrue(
+                converter.convertVillagerToZombieVillager(helper.getLevel(), villager),
+                "R196 zombies must convert villagers into the R196 zombie type");
         helper.startSequence()
                 // Replacement insertion is deliberately scheduled after the
                 // vanilla join event, so the test must not inspect tick-zero's
@@ -360,11 +366,13 @@ public final class ModMonsterGameTests {
                     helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
                     helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
                     helper.assertEntityPresent(ModEntityTypes.R196_WITCH.get(), explicitWitchPos, 2.0D);
+                    helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos, 2.0D);
                 })
                 .thenExecute(() -> {
                     helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
                     helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
                     helper.assertEntityNotPresent(EntityTypes.WITCH, explicitWitchPos);
+                    helper.assertEntityNotPresent(EntityTypes.ZOMBIE_VILLAGER, convertedVillagerPos);
                     Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
                     var replacement = helper.getLevel()
                             .getEntitiesOfClass(
@@ -379,6 +387,16 @@ public final class ModMonsterGameTests {
                             replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
                             "replacement initialization must retain the R196 attack damage; actual="
                                     + replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE));
+                    Vec3 convertedVillagerPosition = helper.absoluteVec(Vec3.atBottomCenterOf(convertedVillagerPos));
+                    helper.assertTrue(
+                            helper.getLevel()
+                                    .getEntitiesOfClass(
+                                            com.pixulse.infx.entity.R196Zombie.class,
+                                            new AABB(convertedVillagerPosition, convertedVillagerPosition).inflate(2.0D),
+                                            com.pixulse.infx.entity.R196Zombie::isVillagerZombie)
+                                    .size()
+                                    == 1,
+                            "villager conversions must retain the R196 villager-zombie marker");
                 })
                 .thenSucceed();
     }
@@ -690,6 +708,13 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 fire.getHealth() == before - 3.0F, "snowballs must deal three damage to the fire elemental");
         fire.invulnerableTime = 0;
+        before = fire.getHealth();
+        helper.assertFalse(
+                fire.hurtServer(level, level.damageSources().generic(), 2.0F),
+                "unowned generic damage must not bypass the fire-elemental vulnerability gate");
+        helper.assertTrue(
+                fire.getHealth() == before,
+                "rejected unowned generic damage must not change fire-elemental health");
         before = fire.getHealth();
         player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, enchantedSword);
         helper.assertTrue(

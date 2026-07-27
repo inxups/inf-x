@@ -76,10 +76,10 @@ public final class R196FireElemental extends Blaze implements R196Mob {
     }
 
     private void tickMiteEffects(ServerLevel serverLevel) {
-        if (tickCount % WATER_TICK_INTERVAL == 0) {
-            hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
-        }
         if (isInWaterOrRain()) {
+            if (shouldApplyWaterAttrition(tickCount, true)) {
+                hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
+            }
             if (--ticksUntilNextFizzSound <= 0) {
                 playMiteSound(
                         SoundEvents.FIRE_EXTINGUISH,
@@ -103,6 +103,11 @@ public final class R196FireElemental extends Blaze implements R196Mob {
                 heal(LAVA_HEAL_AMOUNT);
             }
         }
+    }
+
+    /** The fixed-interval water drain must never run while a fire elemental is dry. */
+    static boolean shouldApplyWaterAttrition(int tickCount, boolean inWaterOrRain) {
+        return inWaterOrRain && tickCount % WATER_TICK_INTERVAL == 0;
     }
 
     private void playMiteSound(SoundEvent sound, float volume, float pitch) {

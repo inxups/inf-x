@@ -14,11 +14,15 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /** Hostile cave bats. Vampire variants heal on contact; Nightwings blind their prey. */
 public final class R196Bat extends Bat implements Enemy, R196Mob {
+    private static final int ATTACK_COOLDOWN_TICKS = 20;
+    private static final int FEED_COOLDOWN_TICKS = 1_200;
     public enum Variant {
         VAMPIRE,
         NIGHTWING,
@@ -26,6 +30,7 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
     }
 
     private int attackCooldown;
+    private int feedCooldown;
     private @Nullable LivingEntity prey;
 
     public R196Bat(EntityType<? extends Bat> type, Level level) {
@@ -65,6 +70,13 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
         if (attackCooldown > 0) {
             attackCooldown--;
         }
+        if (variant() == Variant.VAMPIRE && feedCooldown > 0) {
+            if (getHealth() < getMaxHealth()) {
+                feedCooldown = 0;
+            } else {
+                feedCooldown--;
+            }
+        }
 
         if (tickCount % 20 == 0 || prey == null || !prey.isAlive() || prey.isRemoved()) {
             prey = findPrey(level);
@@ -87,9 +99,12 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
                         target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 120, 0), this);
                     } else {
                         heal(dealt);
+                        if (variant() == Variant.VAMPIRE && getHealth() >= getMaxHealth()) {
+                            feedCooldown = feedCooldownTicks();
+                        }
                     }
                 }
-                attackCooldown = 20;
+                attackCooldown = attackCooldownTicks();
             }
         }
 
@@ -121,10 +136,37 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
         return best;
     }
 
-    private static boolean isPrey(LivingEntity entity) {
+    private boolean isPrey(LivingEntity entity) {
         if (entity instanceof Player player) {
             return !player.isCreative() && !player.isSpectator();
         }
-        return entity instanceof Animal || entity instanceof Villager;
+        return !restrictsPreyToPlayers() && (entity instanceof Animal || entity instanceof Villager);
+    }
+
+    private boolean restrictsPreyToPlayers() {
+        return variant() == Variant.VAMPIRE && feedCooldown > 0;
+    }
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        if (feedCooldown > 0) {
+            output.putInt("R196VampireBatFeedCooldown", feedCooldown);
+        }
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        feedCooldown = Math.max(0, input.getIntOr("R196VampireBatFeedCooldown", 0));
+    }
+
+    static int attackCooldownTicks() {
+        return ATTACK_COOLDOWN_TICKS;
+    }
+
+    /** MITE vampire bats need a full minute of full health before resuming animal feeding. */
+    static int feedCooldownTicks() {
+        return FEED_COOLDOWN_TICKS;
     }
 }

@@ -231,6 +231,7 @@ COPIES = [
     ("entity/ghast/ghast.png", "textures/entity/ghast/ghast.png"),
     ("entity/ghast/ghast_shooting.png", "textures/entity/ghast/ghast_shooting.png"),
     ("entity/zombie_pigman.png", "textures/entity/zombie_pigman.png"),
+    ("entity/zombie/zombie_villager.png", "textures/entity/zombie/zombie_villager.png"),
 ]
 
 EXPAND = [
