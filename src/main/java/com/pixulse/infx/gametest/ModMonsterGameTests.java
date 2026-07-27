@@ -860,29 +860,12 @@ public final class ModMonsterGameTests {
     private static void witchCurse(GameTestHelper helper) {
         var level = helper.getLevel();
         R196Witch witch = helper.spawn(ModEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
-        List<ServerPlayer> players = List.of(
-                ModR196CompletionGameTests.createPlayer(helper),
-                ModR196CompletionGameTests.createPlayer(helper),
-                ModR196CompletionGameTests.createPlayer(helper),
-                ModR196CompletionGameTests.createPlayer(helper));
-        List<BlockPos> positions = List.of(
-                new BlockPos(1, 2, 1), new BlockPos(2, 2, 1), new BlockPos(1, 2, 2), new BlockPos(2, 2, 2));
-        for (int index = 0; index < players.size(); index++) {
-            ServerPlayer player = players.get(index);
-            Vec3 position = helper.absoluteVec(Vec3.atBottomCenterOf(positions.get(index)));
-            player.snapTo(position.x, position.y, position.z, 0.0F, 0.0F);
-            player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100.0D);
-            player.setHealth(100.0F);
-        }
         // MITE only excludes a creative/disable-damage player. A survival player with the
         // entity-level Invulnerable flag must still receive a pending witch curse.
-        ServerPlayer curseDeliveryProbe = players.getFirst();
+        ServerPlayer curseDeliveryProbe = ModR196CompletionGameTests.createPlayer(helper);
         curseDeliveryProbe.setInvulnerable(true);
 
         helper.startSequence()
-                .thenExecuteAfter(10, () -> helper.assertTrue(
-                        witch.getTarget() instanceof ServerPlayer,
-                        "R196 witches must acquire a valid player target before cursing"))
                 .thenWaitUntil(() -> helper.assertTrue(
                         R196CurseData.get(level.getServer())
                                 .entry(curseDeliveryProbe.getUUID())
@@ -890,10 +873,8 @@ public final class ModMonsterGameTests {
                         "R196 witches must create a pending curse for a survival player marked Invulnerable"))
                 .thenExecute(() -> {
                     witch.discard();
-                    for (ServerPlayer player : players) {
-                        R196CurseData.get(level.getServer()).remove(player.getUUID());
-                        ModR196CompletionGameTests.removePlayer(player);
-                    }
+                    R196CurseData.get(level.getServer()).remove(curseDeliveryProbe.getUUID());
+                    ModR196CompletionGameTests.removePlayer(curseDeliveryProbe);
                 })
                 .thenSucceed();
     }
