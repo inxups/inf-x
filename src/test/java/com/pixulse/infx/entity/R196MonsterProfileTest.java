@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +58,6 @@ class R196MonsterProfileTest {
         AttributeSupplier clayGolem = stats(R196ClayGolem.attributes());
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
-        assertStats(R196Enderman.attributes(), 40.0, 32.0, 0.30, 10.0);
         assertStats(R196Enderman.attributes(), 40.0, 64.0, 0.30, 10.0);
         assertEquals(6.5, R196Enderman.chasingMovementSpeed(0.30), EPSILON);
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
@@ -83,6 +83,13 @@ class R196MonsterProfileTest {
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(0.23, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(6.0, blaze.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
+    }
+
+    @Test
+    void endermanValuablesMatchR196PearlAwareness() {
+        assertTrue(R196Enderman.isPearlLike(Items.ENDER_PEARL));
+        assertTrue(R196Enderman.isPearlLike(Items.ENDER_EYE));
+        assertFalse(R196Enderman.isPearlLike(Items.DIAMOND));
     }
 
     @Test

@@ -90,44 +90,26 @@ public final class R196Enderman extends EnderMan implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE checks the nearest player every tick: held pearls anger immediately, while
-        // inventory pearls draw attention at one roll in 2000 per pearl per tick.
-        targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
-                this,
-                Player.class,
-                0,
-                true,
-                false,
-                (target, level) -> {
-                    if (!(target instanceof Player player)) {
-                        return false;
-                    }
-                    if (random.nextInt(3) == 0
-                            && R196CurseManager.hasCurse(player, R196CurseType.ENDERMEN_AGGRO)) {
-                        R196CurseManager.reveal(player, R196CurseType.ENDERMEN_AGGRO);
-                        return true;
-                    }
-                    if (isPearlLike(player.getMainHandItem()) || isPearlLike(player.getOffhandItem())) {
-                        return true;
-                    }
-                    int pearls = player.getInventory().countItem(Items.ENDER_PEARL)
-                            + player.getInventory().countItem(Items.ENDER_EYE);
-                    return pearls > 0 && random.nextInt(2000) < pearls;
-                }));
-    }
-
-    private static boolean isPearlLike(net.minecraft.world.item.ItemStack stack) {
-        // MITE evaluates this every tick: held valuables anger immediately and each stored
-        // pearl or eye contributes one 1-in-2000 roll. Priority zero prevents the delayed
-        // vanilla stare goal from masking an immediately held pearl.
+        // MITE evaluates the nearest player every tick: the curse rolls first, held
+        // valuables anger immediately, and inventory valuables each get a 1-in-2000 roll.
+        // Priority zero prevents the delayed vanilla stare goal from masking these checks.
         targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(
                 this,
                 Player.class,
                 1,
                 true,
                 false,
-                (target, level) -> target instanceof Player player && isAngeredByPearls(player)));
+                (target, level) -> target instanceof Player player && isAngeredByCurseOrPearls(player)));
         goalSelector.addGoal(6, new MiteValuableItemGoal(this));
+    }
+
+    private boolean isAngeredByCurseOrPearls(Player player) {
+        if (random.nextInt(3) == 0
+                && R196CurseManager.hasCurse(player, R196CurseType.ENDERMEN_AGGRO)) {
+            R196CurseManager.reveal(player, R196CurseType.ENDERMEN_AGGRO);
+            return true;
+        }
+        return isAngeredByPearls(player);
     }
 
     private boolean isAngeredByPearls(Player player) {
@@ -140,7 +122,11 @@ public final class R196Enderman extends EnderMan implements R196Mob {
     }
 
     static boolean isPearlLike(ItemStack stack) {
-        return stack.is(Items.ENDER_PEARL) || stack.is(Items.ENDER_EYE);
+        return isPearlLike(stack.getItem());
+    }
+
+    static boolean isPearlLike(Item item) {
+        return item == Items.ENDER_PEARL || item == Items.ENDER_EYE;
     }
 
     @Override
