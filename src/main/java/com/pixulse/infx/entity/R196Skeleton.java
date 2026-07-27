@@ -33,9 +33,10 @@ import org.jspecify.annotations.Nullable;
 
 /** Skeleton replacement plus Longdead and both Bone Lord variants. */
 public final class R196Skeleton extends Skeleton implements R196Mob {
-    private static final float ARROW_SPEED = 1.6F;
+    private static final float ARROW_SPEED = 1.8F;
     private static final double ARROW_AIR_DRAG = 0.99F;
-    private static final double ARROW_GRAVITY = 0.05D;
+    private static final double VANILLA_ARROW_GRAVITY = 0.05D;
+    private static final double ARROW_GRAVITY = 0.04D;
     private static final double MIN_INTERCEPT_TICKS = 0.05D;
     private static final double MAX_INTERCEPT_TICKS = 60.0D;
     private static final int INTERCEPT_SEARCH_STEPS = 240;
@@ -361,6 +362,18 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
 
     static float miteArrowInaccuracy(int difficultyId) {
         return (14 - difficultyId * 4) * 1.5F;
+    }
+
+    static float skeletonArrowSpeed() {
+        return ARROW_SPEED;
+    }
+
+    static double skeletonArrowGravity() {
+        return ARROW_GRAVITY;
+    }
+
+    static double skeletonArrowGravityCompensation() {
+        return VANILLA_ARROW_GRAVITY - ARROW_GRAVITY;
     }
 
     static double miteVerticalCorrection(double horizontalDistanceSqr, double targetHeightDifference) {
