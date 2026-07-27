@@ -57,7 +57,6 @@ import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
-import net.minecraft.world.entity.monster.Creeper;
 
 /**
  * Vanilla-model renderers that bind authorized MITE entity textures for R196 variants.
@@ -319,27 +318,15 @@ final class R196EntityRenderers {
 
     static final class CreeperTexture extends CreeperRenderer {
         private final Identifier texture;
-        private final float renderScale;
 
         CreeperTexture(EntityRendererProvider.Context context, R196Creeper.Variant variant) {
-            this(context, variant, 1.0F);
-        }
-
-        CreeperTexture(EntityRendererProvider.Context context, R196Creeper.Variant variant, float renderScale) {
             super(context);
             this.texture = textureFor(variant);
-            this.renderScale = renderScale;
         }
 
         @Override
         public Identifier getTextureLocation(CreeperRenderState state) {
             return texture;
-        }
-
-        @Override
-        public void extractRenderState(Creeper entity, CreeperRenderState state, float partialTicks) {
-            super.extractRenderState(entity, state, partialTicks);
-            state.scale *= renderScale;
         }
 
         static Identifier textureFor(R196Creeper.Variant variant) {
