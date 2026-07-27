@@ -103,6 +103,11 @@ public final class R196Witch extends Witch implements R196Mob {
                 R196CurseType.forWitch(curseRandomSeed, player.getScoreboardName()));
     }
 
+    /** MITE excludes only players whose game-mode abilities disable damage. */
+    public static boolean canReceiveCurse(Player player) {
+        return !player.getAbilities().invulnerable;
+    }
+
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
         boolean hurt = super.hurtServer(level, source, damage);
@@ -205,8 +210,7 @@ public final class R196Witch extends Witch implements R196Mob {
          * only when choosing the witch's actual attack target.
          */
         private final TargetingConditions curseConditions = TargetingConditions.forNonCombat()
-                .selector((target, level) -> target instanceof Player player
-                        && !player.getAbilities().invulnerable);
+                .selector((target, level) -> target instanceof Player player && canReceiveCurse(player));
 
         private CurseNearestPlayerGoal(R196Witch witch) {
             super(witch, Player.class, 0, true, false, null);

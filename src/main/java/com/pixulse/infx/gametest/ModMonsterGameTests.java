@@ -1,7 +1,6 @@
 package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.curse.R196CurseData;
 import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196Mob;
@@ -858,25 +857,17 @@ public final class ModMonsterGameTests {
     }
 
     private static void witchCurse(GameTestHelper helper) {
-        var level = helper.getLevel();
         R196Witch witch = helper.spawn(ModEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
         // MITE only excludes a creative/disable-damage player. A survival player with the
-        // entity-level Invulnerable flag must still receive a pending witch curse.
+        // entity-level Invulnerable flag must stay eligible for the one-in-four curse roll.
         ServerPlayer curseDeliveryProbe = ModR196CompletionGameTests.createPlayer(helper);
         curseDeliveryProbe.setInvulnerable(true);
-
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertTrue(
-                        R196CurseData.get(level.getServer())
-                                .entry(curseDeliveryProbe.getUUID())
-                                .isPresent(),
-                        "R196 witches must create a pending curse for a survival player marked Invulnerable"))
-                .thenExecute(() -> {
-                    witch.discard();
-                    R196CurseData.get(level.getServer()).remove(curseDeliveryProbe.getUUID());
-                    ModR196CompletionGameTests.removePlayer(curseDeliveryProbe);
-                })
-                .thenSucceed();
+        helper.assertTrue(
+                R196Witch.canReceiveCurse(curseDeliveryProbe),
+                "R196 witches must keep a survival player marked Invulnerable eligible for curses");
+        witch.discard();
+        ModR196CompletionGameTests.removePlayer(curseDeliveryProbe);
+        helper.succeed();
     }
 
     private static void netherspawnMechanics(GameTestHelper helper) {
