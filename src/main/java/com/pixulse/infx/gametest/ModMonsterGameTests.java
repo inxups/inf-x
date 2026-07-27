@@ -56,6 +56,7 @@ public final class ModMonsterGameTests {
     private static final String ATTRIBUTES = "r196_monster_attributes";
     private static final String REPLACEMENT = "r196_monster_replacement";
     private static final String BEHAVIORS = "r196_monster_behaviors";
+    private static final String NETHERSPAWN = "r196_netherspawn_mechanics";
     private static final String TACTICS = "r196_monster_tactics";
     private static final String SPAWNS = "r196_spawn_tables";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
@@ -66,6 +67,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ATTRIBUTES, () -> ModMonsterGameTests::attributes);
         FUNCTIONS.register(REPLACEMENT, () -> ModMonsterGameTests::replacement);
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
+        FUNCTIONS.register(NETHERSPAWN, () -> ModMonsterGameTests::netherspawnMechanics);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
     }
@@ -80,7 +82,7 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, TACTICS, SPAWNS)) {
+        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, TACTICS, SPAWNS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -658,6 +660,67 @@ public final class ModMonsterGameTests {
                     helper.assertTrue(
                             cow.getHealth() < cowHealthBefore,
                             "infernal creeper explosions must use the amplified six-block radius");
+                })
+                .thenSucceed();
+    }
+
+    private static void netherspawnMechanics(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var player = ModR196CompletionGameTests.createPlayer(helper);
+        var snowballTarget = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2));
+        var waterTarget = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2));
+        var terrainSource = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2));
+        BlockPos waterSafetyProbe = new BlockPos(6, 2, 2);
+        BlockPos netherrack = new BlockPos(9, 2, 2);
+        BlockPos quartz = new BlockPos(7, 2, 2);
+        BlockPos netherGold = new BlockPos(8, 2, 3);
+        BlockPos gold = new BlockPos(8, 2, 1);
+        BlockPos deepslateGold = new BlockPos(8, 3, 2);
+        helper.setBlock(netherrack, Blocks.NETHERRACK);
+        helper.setBlock(waterSafetyProbe, Blocks.TORCH);
+        helper.setBlock(quartz, Blocks.NETHER_QUARTZ_ORE);
+        helper.setBlock(netherGold, Blocks.NETHER_GOLD_ORE);
+        helper.setBlock(gold, Blocks.GOLD_ORE);
+        helper.setBlock(deepslateGold, Blocks.DEEPSLATE_GOLD_ORE);
+        Snowball snowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    helper.assertEntityPresent(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2), 2.0D);
+                    helper.assertEntityPresent(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2), 2.0D);
+                    helper.assertEntityPresent(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2), 2.0D);
+                })
+                .thenExecute(() -> {
+                    float healthBefore = snowballTarget.getHealth();
+                    helper.assertTrue(
+                            snowballTarget.hurtServer(level, level.damageSources().thrown(snowball, player), 0.0F),
+                            "Netherspawn must accept snowball damage");
+                    helper.assertTrue(
+                            Math.abs(snowballTarget.getHealth() - (healthBefore - 2.0F)) < DAMAGE_EPSILON,
+                            "MITE snowballs must deal two damage to netherspawn");
+                    waterTarget.hurtServer(level, level.damageSources().drown(), 8.0F);
+                    helper.assertFalse(waterTarget.isAlive(), "drowning-source water damage must kill netherspawn safely");
+                    level.explode(
+                            terrainSource,
+                            terrainSource.getX(),
+                            terrainSource.getY(),
+                            terrainSource.getZ(),
+                            4.0F,
+                            true,
+                            Level.ExplosionInteraction.MOB);
+                })
+                .thenExecuteAfter(1, () -> {
+                    helper.assertTrue(
+                            helper.getBlockState(waterSafetyProbe).is(Blocks.TORCH),
+                            "drowning-source water kills must not trigger a netherspawn explosion");
+                    helper.assertTrue(helper.getBlockState(netherrack).is(Blocks.NETHERRACK), "netherspawn must preserve netherrack");
+                    helper.assertTrue(helper.getBlockState(quartz).is(Blocks.NETHER_QUARTZ_ORE), "netherspawn must preserve quartz ore");
+                    helper.assertTrue(helper.getBlockState(netherGold).is(Blocks.NETHER_GOLD_ORE), "netherspawn must preserve nether gold ore");
+                    helper.assertTrue(helper.getBlockState(gold).is(Blocks.GOLD_ORE), "netherspawn must preserve gold ore");
+                    helper.assertTrue(
+                            helper.getBlockState(deepslateGold).is(Blocks.DEEPSLATE_GOLD_ORE),
+                            "netherspawn must preserve the modern gold-ore variant");
+                    ModR196CompletionGameTests.removePlayer(player);
                 })
                 .thenSucceed();
     }

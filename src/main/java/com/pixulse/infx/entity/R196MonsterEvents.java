@@ -71,6 +71,7 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::shareTarget);
         gameBus.addListener(R196MonsterEvents::amplifyInfernalCreeperExplosion);
         gameBus.addListener(R196MonsterEvents::limitCreeperTerrainDamage);
+        gameBus.addListener(R196MonsterEvents::protectNetherspawnTerrain);
         gameBus.addListener(R196MonsterEvents::attractToPlayerActivity);
         gameBus.addListener(R196MonsterEvents::coordinateAndSeekLight);
         gameBus.addListener(R196MonsterEvents::applyWitchMagicDefense);
@@ -875,5 +876,15 @@ public final class R196MonsterEvents {
             float hardness = event.getLevel().getBlockState(pos).getDestroySpeed(event.getLevel(), pos);
             return hardness < 0.0F || hardness >= 1.5F;
         });
+    }
+
+    /** MITE netherspawn blasts leave their native netherrack and gold/quartz ore veins intact. */
+    private static void protectNetherspawnTerrain(ExplosionEvent.Detonate event) {
+        if (!(event.getExplosion().getDirectSourceEntity() instanceof R196Silverfish silverfish)
+                || silverfish.variant() != R196Silverfish.Variant.NETHERSPAWN) {
+            return;
+        }
+        event.getAffectedBlocks().removeIf(
+                pos -> R196Silverfish.isNetherspawnExplosionProtected(event.getLevel().getBlockState(pos)));
     }
 }
