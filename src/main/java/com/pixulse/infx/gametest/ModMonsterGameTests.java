@@ -826,16 +826,20 @@ public final class ModMonsterGameTests {
             player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100.0D);
             player.setHealth(100.0F);
         }
+        // MITE only excludes a creative/disable-damage player. A survival player with the
+        // entity-level Invulnerable flag must still receive a pending witch curse.
+        ServerPlayer curseDeliveryProbe = players.getFirst();
+        curseDeliveryProbe.setInvulnerable(true);
 
         helper.startSequence()
                 .thenExecuteAfter(10, () -> helper.assertTrue(
                         witch.getTarget() instanceof ServerPlayer,
                         "R196 witches must acquire a valid player target before cursing"))
                 .thenWaitUntil(() -> helper.assertTrue(
-                        players.stream().anyMatch(player -> R196CurseData.get(level.getServer())
-                                .entry(player.getUUID())
-                                .isPresent()),
-                        "R196 witches must create a pending curse for a valid player target"))
+                        R196CurseData.get(level.getServer())
+                                .entry(curseDeliveryProbe.getUUID())
+                                .isPresent(),
+                        "R196 witches must create a pending curse for a survival player marked Invulnerable"))
                 .thenExecute(() -> {
                     witch.discard();
                     for (ServerPlayer player : players) {

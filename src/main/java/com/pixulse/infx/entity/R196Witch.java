@@ -196,7 +196,17 @@ public final class R196Witch extends Witch implements R196Mob {
     private static final class CurseNearestPlayerGoal extends NearestAttackableTargetGoal<Player> {
         private static final double VERTICAL_SEARCH_RANGE = 6.0D;
         private final R196Witch witch;
-        private final TargetingConditions conditions = TargetingConditions.forCombat();
+        /*
+         * MITE's EntityAITarget rejects a player only when that player's game-mode
+         * capabilities disable damage.  TargetingConditions.forCombat() is stricter
+         * in 26.2: it also rejects an entity whose root Invulnerable flag is set.
+         * That flag can be present on an otherwise-survival player, so use a
+         * non-combat query for curse delivery and retain the normal combat check
+         * only when choosing the witch's actual attack target.
+         */
+        private final TargetingConditions curseConditions = TargetingConditions.forNonCombat()
+                .selector((target, level) -> target instanceof Player player
+                        && !player.getAbilities().invulnerable);
 
         private CurseNearestPlayerGoal(R196Witch witch) {
             super(witch, Player.class, 0, true, false, null);
@@ -211,16 +221,21 @@ public final class R196Witch extends Witch implements R196Mob {
         private @Nullable Player scanForNearestTarget() {
             ServerLevel level = getServerLevel(witch);
             double range = getFollowDistance();
-            var candidates = level.getEntitiesOfClass(
-                    Player.class,
-                    witch.getBoundingBox().inflate(range, VERTICAL_SEARCH_RANGE, range),
-                    player -> conditions.range(range).test(level, witch, player));
+            // Player targeting in 26.2 uses ServerLevel's player collection rather than the
+            // section-entity query. Mirror that path so every connected player is considered.
+            var candidates = level.getNearbyPlayers(
+                    curseConditions.range(range),
+                    witch,
+                    witch.getBoundingBox().inflate(range, VERTICAL_SEARCH_RANGE, range));
             for (Player candidate : candidates) {
                 if (candidate instanceof ServerPlayer player && witch.getRandom().nextInt(4) == 0) {
                     witch.cursePlayer(player);
                 }
             }
             return candidates.stream()
+                    // Mob#setTarget still rejects non-attackable modern targets. Do not let one
+                    // such player prevent the witch from choosing another valid combat target.
+                    .filter(witch::canAttack)
                     .min(Comparator.comparingDouble(witch::distanceToSqr))
                     .orElse(null);
         }
