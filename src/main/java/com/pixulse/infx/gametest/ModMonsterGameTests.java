@@ -5,8 +5,9 @@ import com.pixulse.infx.curse.R196CurseData;
 import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196Mob;
-import com.pixulse.infx.entity.R196MonsterTactics;
 import com.pixulse.infx.entity.R196MonsterEvents;
+import com.pixulse.infx.entity.R196MonsterTactics;
+import com.pixulse.infx.entity.R196Slime;
 import com.pixulse.infx.entity.R196Witch;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.item.R196EquipmentType;
@@ -272,9 +273,12 @@ public final class ModMonsterGameTests {
             var slime = helper.spawnWithNoFreeWill(type.get(), new BlockPos(slimeX++, 2, 4));
             for (int size : List.of(1, 2, 4)) {
                 slime.setSize(size, true);
+                double expectedSpeed = slime.variant() == R196Slime.Variant.OOZE
+                        ? 0.10D
+                        : 0.20D + 0.10D * slime.getSize();
                 helper.assertTrue(
-                        slime.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.20D + 0.10D * slime.getSize(),
-                        type.getId() + " must retain modern movement speed after size " + slime.getSize());
+                        slime.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == expectedSpeed,
+                        type.getId() + " must retain its expected movement speed after size " + slime.getSize());
             }
         }
         var magmaCube = helper.spawnWithNoFreeWill(ModEntityTypes.MAGMA_CUBE.get(), new BlockPos(7, 2, 4));

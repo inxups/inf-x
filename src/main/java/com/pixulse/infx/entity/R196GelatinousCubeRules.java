@@ -25,6 +25,11 @@ public final class R196GelatinousCubeRules {
         if (type == R196CorrosionType.PEPSIN) {
             return state.is(ModTags.Blocks.PEPSIN_DISSOLVABLE) ? GRADUAL_TICKS : IMMUNE;
         }
+        // Acid oozes scorch living ground into dirt on contact. Check this before the
+        // solid-block fallback so grass does not incorrectly remain immune.
+        if (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MYCELIUM)) {
+            return INSTANT;
+        }
         if (state.is(ModTags.Blocks.ACID_DISSOLVES_GRADUALLY)) {
             return GRADUAL_TICKS;
         }

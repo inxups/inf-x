@@ -100,11 +100,16 @@ class R196MonsterProfileTest {
 
         assertEquals(16.0, slime.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         for (R196Slime.Variant variant : R196Slime.Variant.values()) {
-            assertEquals(0.30, stats(R196Slime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
+            double expectedSpeed = variant == R196Slime.Variant.OOZE ? 0.10 : 0.30;
+            assertEquals(expectedSpeed, stats(R196Slime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         }
         assertEquals(0.30, R196Slime.movementSpeedForSize(1), EPSILON);
         assertEquals(0.40, R196Slime.movementSpeedForSize(2), EPSILON);
         assertEquals(0.60, R196Slime.movementSpeedForSize(4), EPSILON);
+        assertEquals(0.10, R196Slime.movementSpeedFor(R196Slime.Variant.OOZE, 1), EPSILON);
+        assertEquals(0.10, R196Slime.movementSpeedFor(R196Slime.Variant.OOZE, 2), EPSILON);
+        assertTrue(R196Slime.usesCrawlAi(R196Slime.Variant.OOZE));
+        assertFalse(R196Slime.usesCrawlAi(R196Slime.Variant.SLIME));
         assertEquals(1.0, R196Slime.attackDamageForSize(R196Slime.Variant.SLIME, 1), EPSILON);
         assertEquals(4.0, R196Slime.attackDamageForSize(R196Slime.Variant.JELLY, 2), EPSILON);
         assertEquals(6.0, R196Slime.attackDamageForSize(R196Slime.Variant.BLOB, 2), EPSILON);
@@ -147,6 +152,12 @@ class R196MonsterProfileTest {
         AttributeSupplier ghast = stats(R196Ghast.attributes());
         assertEquals(10.0, ghast.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(100.0, ghast.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
+    }
+
+    @Test
+    void grayOozeUsesCrawlGoalsAndCannotJumpFromGround() throws NoSuchMethodException {
+        assertEquals(R196Slime.class, R196Slime.class.getDeclaredMethod("registerGoals").getDeclaringClass());
+        assertEquals(R196Slime.class, R196Slime.class.getDeclaredMethod("jumpFromGround").getDeclaringClass());
     }
 
     @Test
