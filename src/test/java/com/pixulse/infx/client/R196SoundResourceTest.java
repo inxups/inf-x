@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
 
 class R196SoundResourceTest {
     @Test
-    void gelatinousCubeCorrosionUsesTheImportedMiteSizzle() throws Exception {
+    void gelatinousCubeCorrosionUsesTheMiteVanillaFizz() throws Exception {
         Path sounds = findProjectRoot().resolve("src/main/resources/assets/infx/sounds.json");
         try (Reader reader = Files.newBufferedReader(sounds, UTF_8)) {
             JsonObject event = JsonParser.parseReader(reader)
                     .getAsJsonObject()
                     .getAsJsonObject("entity.gelatinous_cube.corrosion");
-            assertEquals("infx:random/sizzle", event.getAsJsonArray("sounds").get(0).getAsString());
+            assertEquals("infx:random/fizz", event.getAsJsonArray("sounds").get(0).getAsString());
         }
     }
 

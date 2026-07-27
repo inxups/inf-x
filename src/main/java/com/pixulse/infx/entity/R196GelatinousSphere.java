@@ -62,8 +62,12 @@ public final class R196GelatinousSphere extends ThrowableItemProjectile {
             BlockPos target = hitResult.getBlockPos();
             Direction face = hitResult.getDirection();
             R196CorrosionType type = sphere().corrosionType();
-            R196GelatinousCubeRules.dissolveOnContact(level, target.relative(face), type, face.getOpposite());
-            R196GelatinousCubeRules.dissolveOnContact(level, target, type, face);
+            boolean reacted = R196GelatinousCubeRules.dissolveOnContact(
+                    level, target.relative(face), type, face.getOpposite());
+            reacted |= R196GelatinousCubeRules.dissolveOnContact(level, target, type, face);
+            if (type == R196CorrosionType.ACID && reacted) {
+                R196GelatinousCubeEvents.playAcidCorrosionFizz(level, target, getRandom());
+            }
         }
         super.onHitBlock(hitResult);
     }

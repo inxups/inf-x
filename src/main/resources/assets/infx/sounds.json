@@ -93,6 +93,6 @@
     "sounds": [ "infx:random/sizzle" ]
   },
   "entity.gelatinous_cube.corrosion": {
-    "sounds": [ "infx:random/sizzle" ]
+    "sounds": [ "infx:random/fizz" ]
   }
 }
