@@ -121,6 +121,7 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
         add(spawns, ModEntityTypes.SHADOW.get(), 10, 1, 1);
         add(spawns, ModEntityTypes.REVENANT.get(), 10, 1, 1);
         add(spawns, ModEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
+        add(spawns, ModEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
         add(spawns, ModEntityTypes.JELLY.get(), 30, 1, 4);
         add(spawns, ModEntityTypes.BLOB.get(), 30, 1, 4);
         add(spawns, ModEntityTypes.OOZE.get(), 20, 1, 4);

@@ -17,6 +17,7 @@ import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 
 /** Shared R196/MITE combat vulnerability helpers for special mobs. */
 public final class R196MobDamageRules {
@@ -47,21 +48,22 @@ public final class R196MobDamageRules {
      * (pickaxes and war hammers), not only the vanilla pickaxe item tag.
      */
     public static boolean isStoneMiningTool(ItemStack stack) {
+        return isEffectiveMiningTool(stack, Blocks.STONE.defaultBlockState());
+    }
+
+    /** Returns whether a held tool is effective against a specific MITE earth-elemental body. */
+    public static boolean isEffectiveMiningTool(ItemStack stack, BlockState state) {
         if (stack.isEmpty()) {
             return false;
         }
-        if (stack.is(ItemTags.PICKAXES)) {
-            return true;
-        }
         var equipment = ModItems.catalog().equipment(stack);
         if (equipment != null) {
-            R196EquipmentType type = equipment.key().type();
-            if (type == R196EquipmentType.PICKAXE || type == R196EquipmentType.WAR_HAMMER) {
-                return true;
-            }
-            return MiteMiningRules.isEffective(equipment.key(), Blocks.STONE.defaultBlockState());
+            return MiteMiningRules.isEffective(equipment.key(), state);
         }
-        return stack.isCorrectToolForDrops(Blocks.STONE.defaultBlockState());
+        return stack.is(ItemTags.PICKAXES)
+                && stack.getDestroySpeed(state) > 1.0F
+                || stack.getDestroySpeed(state) > 1.0F
+                || stack.isCorrectToolForDrops(state);
     }
 
     /**
@@ -85,7 +87,10 @@ public final class R196MobDamageRules {
      * Earth-elemental gate: explosions and falls always land; iron-golem melee is exempt; every
      * other attacker needs a stone-mining tool. MITE grants no free pass to mob melee or hazards.
      */
-    public static boolean earthElementalAccepts(DamageSource source) {
+    public static boolean earthElementalAccepts(R196EarthElemental elemental, DamageSource source) {
+        if (elemental.isNormalClay()) {
+            return true;
+        }
         if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 || source.is(DamageTypeTags.IS_EXPLOSION)
                 || source.is(DamageTypeTags.IS_FALL)) {
@@ -95,7 +100,9 @@ public final class R196MobDamageRules {
             return true;
         }
         if (source.getEntity() instanceof LivingEntity attacker) {
-            return isStoneMiningTool(attacker.getMainHandItem());
+            ItemStack weapon = resolveWeapon(source);
+            return isEffectiveMiningTool(weapon.isEmpty() ? attacker.getMainHandItem() : weapon,
+                    elemental.materialBlock().defaultBlockState());
         }
         return false;
     }

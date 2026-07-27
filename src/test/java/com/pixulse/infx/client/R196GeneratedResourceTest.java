@@ -1547,9 +1547,10 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Four replacement fish spawn eggs add one item definition and model each.
-        assertEquals(439, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(514, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // Four replacement fish spawn eggs plus the clay-golem egg add one item definition and
+        // model each.
+        assertEquals(440, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(515, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -1950,7 +1951,12 @@ class R196GeneratedResourceTest {
                         + "|textures/entity/skeleton/(longdead|longdead_guardian|bone_lord)\\.png"
                         + "|textures/entity/spider/(spider|black_widow|cave_spider|demon_spider|wood_spider|phase_spider)\\.png"
                         + "|textures/entity/creeper/infernal_creeper\\.png"
-                        + "|textures/entity/earth_elemental/stone\\.png"
+                        + "|textures/entity/earth_elemental/(earth_elemental(_magma)?_glow"
+                        + "|clay/earth_elemental_clay(_hardened)?"
+                        + "|end_stone/earth_elemental_end_stone(_magma)?"
+                        + "|netherrack/earth_elemental_netherrack(_magma)?"
+                        + "|obsidian/earth_elemental_obsidian(_magma)?"
+                        + "|stone/earth_elemental_stone(_magma)?)\\.png"
                         + "|textures/entity/silverfish/(netherspawn|copperspine|hoary)\\.png"
                         + "|textures/entity/bat/(vampire|nightwing)\\.png"
                         + "|textures/entity/hellhound/hellhound\\.png"

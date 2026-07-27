@@ -75,7 +75,9 @@ final class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
                 ModEntityTypes.R196_COD.getKey(),
                 ModEntityTypes.R196_SALMON.getKey(),
                 ModEntityTypes.R196_PUFFERFISH.getKey(),
-                ModEntityTypes.R196_TROPICAL_FISH.getKey());
+                ModEntityTypes.R196_TROPICAL_FISH.getKey(),
+                ModEntityTypes.EARTH_ELEMENTAL.getKey(),
+                ModEntityTypes.CLAY_GOLEM.getKey());
         tag(EntityTypeTags.AXOLOTL_HUNT_TARGETS).add(
                 ModEntityTypes.R196_COD.getKey(),
                 ModEntityTypes.R196_SALMON.getKey(),

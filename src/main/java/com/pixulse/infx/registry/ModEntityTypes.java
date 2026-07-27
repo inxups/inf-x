@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Blaze;
 import com.pixulse.infx.entity.R196Chicken;
+import com.pixulse.infx.entity.R196ClayGolem;
 import com.pixulse.infx.entity.R196Cow;
 import com.pixulse.infx.entity.R196Cod;
 import com.pixulse.infx.entity.R196Creeper;
@@ -39,7 +40,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Entity type registry for original-mob replacements and the 28-item R196 roster. */
+/** Entity type registry for original-mob replacements and the 29-item R196 roster. */
 public final class ModEntityTypes {
     public static final DeferredRegister.Entities ENTITIES = DeferredRegister.createEntities(InfiniteX.MOD_ID);
     private static final List<EntityName> NAMES = new ArrayList<>();
@@ -125,6 +126,8 @@ public final class ModEntityTypes {
             "fire_elemental", "Fire Elemental", "火元素", R196FireElemental::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<R196EarthElemental>> EARTH_ELEMENTAL = register(
             "earth_elemental", "Earth Elemental", "土元素", R196EarthElemental::new, 0.6F, 1.8F, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<R196ClayGolem>> CLAY_GOLEM = register(
+            "clay_golem", "Clay Golem", "黏土元素", R196ClayGolem::new, 0.6F, 1.8F, true);
 
     public static final DeferredHolder<EntityType<?>, EntityType<R196Slime>> JELLY = register(
             "jelly", "Jelly", "褐色史莱姆", R196Slime::new, 0.5F, 0.5F, false);
@@ -162,7 +165,7 @@ public final class ModEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<R196Wolf>> DIRE_WOLF = register(
             "dire_wolf", "Dire Wolf", "惧狼", R196Wolf::new, MobCategory.CREATURE, 0.6F, 0.8F, false, true);
 
-    /** The exact 28 entries listed by the R196 overview; replacement-only types are excluded. */
+    /** R196's additional monster roster, including the separate clay-golem branch of earth elementals. */
     public static final List<DeferredHolder<EntityType<?>, ? extends EntityType<?>>> NEW_MONSTERS = List.of(
             INVISIBLE_STALKER,
             GHOUL,
@@ -179,6 +182,7 @@ public final class ModEntityTypes {
             INFERNAL_CREEPER,
             FIRE_ELEMENTAL,
             EARTH_ELEMENTAL,
+            CLAY_GOLEM,
             JELLY,
             BLOB,
             OOZE,

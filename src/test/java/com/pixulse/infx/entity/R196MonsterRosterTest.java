@@ -10,19 +10,19 @@ import org.junit.jupiter.api.Test;
 
 class R196MonsterRosterTest {
     @Test
-    void overviewRosterContainsExactlyTwentyEightUniqueMonsters() {
+    void overviewRosterContainsExactlyTwentyNineUniqueMonsters() {
         Set<String> paths = ModEntityTypes.NEW_MONSTERS.stream()
                 .map(holder -> holder.getId().getPath())
                 .collect(Collectors.toSet());
 
-        assertEquals(28, ModEntityTypes.NEW_MONSTERS.size());
-        assertEquals(28, paths.size());
+        assertEquals(29, ModEntityTypes.NEW_MONSTERS.size());
+        assertEquals(29, paths.size());
         assertEquals(
                 Set.of(
                         "invisible_stalker", "ghoul", "shadow", "wight", "revenant",
                         "longdead", "bone_lord", "ancient_bone_lord",
                         "black_widow_spider", "demon_spider", "wood_spider", "phase_spider",
-                        "infernal_creeper", "fire_elemental", "earth_elemental",
+                        "infernal_creeper", "fire_elemental", "earth_elemental", "clay_golem",
                         "jelly", "blob", "ooze", "pudding", "magma_cube",
                         "netherspawn", "copperspine", "hoary_silverfish",
                         "vampire_bat", "nightwing", "giant_vampire_bat",
@@ -41,8 +41,8 @@ class R196MonsterRosterTest {
 
         assertEquals(24, replacements.size());
         assertEquals(Set.of("magma_cube"), replacements.stream().filter(newMonsters::contains).collect(Collectors.toSet()));
-        assertEquals(51, ModEntityTypes.ALL.size());
-        assertEquals(51, ModEntityTypes.names().size());
+        assertEquals(52, ModEntityTypes.ALL.size());
+        assertEquals(52, ModEntityTypes.names().size());
         assertTrue(replacements.containsAll(Set.of(
                 "r196_cow", "r196_chicken", "r196_sheep", "r196_pig", "r196_horse", "r196_ocelot", "r196_wolf",
                 "r196_cod", "r196_salmon", "r196_pufferfish", "r196_tropical_fish")));

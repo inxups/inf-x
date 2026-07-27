@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACK_TEXTURES="${1:-$ROOT/codex/reference/mite- resource-pack/assets/minecraft/textures}"
+PACK_TEXTURES="${1:-$ROOT/codex/reference/mite-resource-pack/assets/minecraft/textures}"
 SOURCE_TEXTURES="${2:-$ROOT/codex/reference/mite-src/assets/minecraft/textures}"
 ASSET_ROOT="$ROOT/src/main/resources/assets/infx"
 DEST_TEXTURES="$ASSET_ROOT/textures"
@@ -309,7 +309,38 @@ sync resource-pack entity/creeper/infernal_creeper.png entity/creeper/infernal_c
 sync resource-pack entity/fire_elemental.png entity/fire_elemental.png
 sync resource-pack \
   entity/earth_elemental/stone/earth_elemental_stone.png \
-  entity/earth_elemental/stone.png
+  entity/earth_elemental/stone/earth_elemental_stone.png
+sync resource-pack \
+  entity/earth_elemental/stone/earth_elemental_stone_magma.png \
+  entity/earth_elemental/stone/earth_elemental_stone_magma.png
+sync resource-pack \
+  entity/earth_elemental/obsidian/earth_elemental_obsidian.png \
+  entity/earth_elemental/obsidian/earth_elemental_obsidian.png
+sync resource-pack \
+  entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png \
+  entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png
+sync resource-pack \
+  entity/earth_elemental/netherrack/earth_elemental_netherrack.png \
+  entity/earth_elemental/netherrack/earth_elemental_netherrack.png
+sync resource-pack \
+  entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png \
+  entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png
+sync resource-pack \
+  entity/earth_elemental/end_stone/earth_elemental_end_stone.png \
+  entity/earth_elemental/end_stone/earth_elemental_end_stone.png
+sync resource-pack \
+  entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png \
+  entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png
+sync resource-pack \
+  entity/earth_elemental/clay/earth_elemental_clay.png \
+  entity/earth_elemental/clay/earth_elemental_clay.png
+sync resource-pack \
+  entity/earth_elemental/clay/earth_elemental_clay_hardened.png \
+  entity/earth_elemental/clay/earth_elemental_clay_hardened.png
+sync resource-pack entity/earth_elemental/earth_elemental_glow.png entity/earth_elemental/earth_elemental_glow.png
+sync resource-pack \
+  entity/earth_elemental/earth_elemental_magma_glow.png \
+  entity/earth_elemental/earth_elemental_magma_glow.png
 sync resource-pack entity/silverfish/netherspawn.png entity/silverfish/netherspawn.png
 sync resource-pack entity/silverfish/copperspine.png entity/silverfish/copperspine.png
 sync resource-pack entity/silverfish/hoary.png entity/silverfish/hoary.png
@@ -321,7 +352,7 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 562 ]] || { echo "Expected 562 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 573 ]] || { echo "Expected 573 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

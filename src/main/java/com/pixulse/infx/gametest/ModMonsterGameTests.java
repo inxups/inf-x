@@ -1,6 +1,7 @@
 package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196Mob;
 import com.pixulse.infx.entity.R196MonsterTactics;
@@ -486,6 +487,9 @@ public final class ModMonsterGameTests {
                 spawnTypes(underworld, MobCategory.WATER_CREATURE).equals(List.of(EntityTypes.SQUID))
                         && spawnTypes(underworld, MobCategory.CREATURE).isEmpty(),
                 "Underworld must retain aquatic spawning without blue-moon livestock");
+        helper.assertTrue(
+                spawnTypes(underworld, MobCategory.MONSTER).contains(ModEntityTypes.CLAY_GOLEM.get()),
+                "Underworld must retain MITE's clay-golem spawn entry");
         helper.succeed();
     }
 
@@ -494,6 +498,18 @@ public final class ModMonsterGameTests {
         return settings.getMobs(category).unwrap().stream()
                 .<net.minecraft.world.entity.EntityType<?>>map(entry -> entry.value().type())
                 .toList();
+    }
+
+    private static void assertEarthForm(
+            GameTestHelper helper,
+            R196EarthElemental elemental,
+            net.minecraft.world.level.block.state.BlockState ground,
+            boolean heated,
+            R196EarthElemental.Form expected) {
+        elemental.initializeMiteForm(ground, heated);
+        helper.assertTrue(
+                elemental.form() == expected && elemental.isMagma() == expected.isMagmaForm(),
+                "earth elemental form must match " + expected);
     }
 
     private static void behaviors(GameTestHelper helper) {
@@ -572,6 +588,11 @@ public final class ModMonsterGameTests {
         helper.assertTrue(magma.getHealth() == before - 4.0F, "war hammer hits must deal magma cube damage");
 
         var earth = helper.spawnWithNoFreeWill(ModEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(5, 2, 1));
+        helper.assertTrue(
+                earth.fireImmune()
+                        && earth.getMaxSpawnClusterSize() == 1
+                        && earth.getNavigation().getNodeEvaluator().canOpenDoors(),
+                "earth elementals must be fire/lava immune, spawn singly and path to break doors");
         before = earth.getHealth();
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
@@ -585,6 +606,49 @@ public final class ModMonsterGameTests {
                 earth.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
                 "pickaxes must hurt the earth elemental");
         helper.assertTrue(earth.getHealth() < before, "pickaxe hits must deal earth elemental damage");
+
+        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), false, R196EarthElemental.Form.STONE_NORMAL);
+        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), true, R196EarthElemental.Form.STONE_MAGMA);
+        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), false, R196EarthElemental.Form.OBSIDIAN_NORMAL);
+        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), true, R196EarthElemental.Form.OBSIDIAN_MAGMA);
+        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), false, R196EarthElemental.Form.NETHERRACK_NORMAL);
+        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), true, R196EarthElemental.Form.NETHERRACK_MAGMA);
+        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), false, R196EarthElemental.Form.END_STONE_NORMAL);
+        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), true, R196EarthElemental.Form.END_STONE_MAGMA);
+        helper.assertTrue(earth.quench(level), "water-bucket quenching must cool molten mineral bodies");
+        helper.assertTrue(
+                earth.form() == R196EarthElemental.Form.END_STONE_NORMAL && earth.heat() == 0,
+                "quenching must restore the matching normal mineral form");
+
+        earth.initializeMiteForm(Blocks.NETHERRACK.defaultBlockState(), true);
+        float earthHealth = earth.getHealth();
+        Snowball earthSnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                !earth.hurtServer(level, level.damageSources().thrown(earthSnowball, player), 1.0F)
+                        && earth.form() == R196EarthElemental.Form.NETHERRACK_NORMAL
+                        && earth.getHealth() == earthHealth,
+                "snowballs must quench mineral bodies without dealing damage");
+
+        var clay = helper.spawnWithNoFreeWill(ModEntityTypes.CLAY_GOLEM.get(), new BlockPos(8, 2, 1));
+        clay.initializeMiteForm(Blocks.CLAY.defaultBlockState(), false);
+        helper.assertTrue(
+                clay.form() == R196EarthElemental.Form.CLAY_NORMAL && !clay.isMagma()
+                        && clay.doorBreakTicks(true) == 480 && clay.fireImmune()
+                        && clay.getMaxSpawnClusterSize() == 1,
+                "normal clay golems must retain their non-magma body and fourfold door-break speed");
+        float clayHealth = clay.getHealth();
+        Snowball claySnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                clay.hurtServer(level, level.damageSources().thrown(claySnowball, player), 1.0F)
+                        && clay.form() == R196EarthElemental.Form.CLAY_NORMAL
+                        && clay.getHealth() < clayHealth,
+                "normal clay must take ordinary snowball damage instead of quenching");
+        clay.invulnerableTime = 0;
+        clay.convertToMagma();
+        helper.assertTrue(
+                clay.form() == R196EarthElemental.Form.CLAY_HARDENED && !clay.isMagma()
+                        && clay.doorBreakTicks(true) == 320 && !clay.quench(level),
+                "heated clay must harden permanently without entering a magma state");
 
         var fire = helper.spawnWithNoFreeWill(ModEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 1));
         before = fire.getHealth();

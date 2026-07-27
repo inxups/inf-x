@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.pixulse.infx.entity.R196Bat;
 import com.pixulse.infx.entity.R196Creeper;
+import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.entity.R196Skeleton;
 import com.pixulse.infx.entity.R196Slime;
@@ -148,9 +149,6 @@ class R196EntityRenderersTest {
                 "infx:textures/entity/fire_elemental.png",
                 R196EntityRenderers.FireElementalTexture.texture().toString());
         assertEquals(
-                "infx:textures/entity/earth_elemental/stone.png",
-                R196EntityRenderers.EarthElementalTexture.texture().toString());
-        assertEquals(
                 "infx:textures/entity/silverfish/netherspawn.png",
                 R196EntityRenderers.SilverfishTexture.textureFor(R196Silverfish.Variant.NETHERSPAWN)
                         .toString());
@@ -183,6 +181,56 @@ class R196EntityRenderersTest {
                 "infx:textures/entity/dire_wolf/angry.png",
                 R196EntityRenderers.WolfTexture.textureFor(R196Wolf.Variant.DIRE_WOLF, false, true)
                         .toString());
+    }
+
+    @Test
+    void earthElementalFormsUseTheirMatchingMaterialAndGlowTextures() {
+        assertEarthTexture(
+                R196EarthElemental.Form.STONE_NORMAL,
+                "infx:textures/entity/earth_elemental/stone/earth_elemental_stone.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.STONE_MAGMA,
+                "infx:textures/entity/earth_elemental/stone/earth_elemental_stone_magma.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_magma_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.OBSIDIAN_NORMAL,
+                "infx:textures/entity/earth_elemental/obsidian/earth_elemental_obsidian.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.OBSIDIAN_MAGMA,
+                "infx:textures/entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_magma_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.NETHERRACK_NORMAL,
+                "infx:textures/entity/earth_elemental/netherrack/earth_elemental_netherrack.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.NETHERRACK_MAGMA,
+                "infx:textures/entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_magma_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.END_STONE_NORMAL,
+                "infx:textures/entity/earth_elemental/end_stone/earth_elemental_end_stone.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.END_STONE_MAGMA,
+                "infx:textures/entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_magma_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.CLAY_NORMAL,
+                "infx:textures/entity/earth_elemental/clay/earth_elemental_clay.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_glow.png");
+        assertEarthTexture(
+                R196EarthElemental.Form.CLAY_HARDENED,
+                "infx:textures/entity/earth_elemental/clay/earth_elemental_clay_hardened.png",
+                "infx:textures/entity/earth_elemental/earth_elemental_glow.png");
+    }
+
+    private static void assertEarthTexture(
+            R196EarthElemental.Form form, String expectedTexture, String expectedGlowTexture) {
+        assertEquals(expectedTexture, R196EarthElementalRenderer.textureFor(form).toString(), form.name());
+        assertEquals(expectedGlowTexture, R196EarthElementalRenderer.glowTextureFor(form).toString(), form.name());
     }
 
     /**
