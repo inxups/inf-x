@@ -201,6 +201,9 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 piglin.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.23D,
                 "R196 zombified piglins must use the normalized modern base movement speed");
+        helper.assertTrue(
+                !piglin.canBreakDoors() && !piglin.canPickUpLoot(),
+                "R196 zombified piglins must not inherit modern zombie door breaking or item pickup");
         var piglinTarget = ModR196CompletionGameTests.createPlayer(helper);
         piglin.setTarget(piglinTarget);
         // The replacement adjusts its modifier from customServerAiStep, which is
@@ -921,14 +924,22 @@ public final class ModMonsterGameTests {
                 ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 2));
         var ally = helper.spawn(
                 ModEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 2));
+        var piglin = helper.spawnWithNoFreeWill(
+                ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(4, 2, 2));
         leader.setTarget(player);
         R196MonsterEvents.propagateTarget(level, leader, player);
         helper.assertTrue(ally.getTarget() == player, "R196 monsters must share a newly acquired player target");
+        helper.assertTrue(
+                piglin.getTarget() == null,
+                "R196 zombified piglins must retain their own close-range target rules");
         leader.setTarget(null);
         ally.setTarget(null);
         level.gameEvent(GameEvent.BLOCK_DESTROY, player.position(), GameEvent.Context.of(player));
         helper.assertTrue(leader.getTarget() == player, "player block noise must attract nearby monsters");
         helper.assertTrue(ally.getTarget() == player, "activity attraction applies across hostile families");
+        helper.assertTrue(
+                piglin.getTarget() == null,
+                "player activity must not bypass R196 zombified-piglin awareness range");
 
         var digger = helper.spawnWithNoFreeWill(
                 ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 7));

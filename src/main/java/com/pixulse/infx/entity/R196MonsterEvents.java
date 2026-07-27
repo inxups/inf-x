@@ -894,7 +894,9 @@ public final class R196MonsterEvents {
     }
 
     static boolean participatesInGenericTargeting(Mob mob) {
-        return mob instanceof Enemy && !(mob instanceof R196Enderman);
+        // Pig zombies own their MITE 6/24-block player awareness and must not receive the
+        // broad player-noise, illuminated-player, or cross-family target propagation rules.
+        return mob instanceof Enemy && !(mob instanceof R196Enderman || mob instanceof R196ZombifiedPiglin);
     }
 
     private static void amplifyInfernalCreeperExplosion(ExplosionEvent.Start event) {

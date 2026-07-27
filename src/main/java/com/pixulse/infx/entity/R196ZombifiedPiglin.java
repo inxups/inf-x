@@ -21,6 +21,7 @@ import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.storage.ValueInput;
 import org.jspecify.annotations.Nullable;
 
 /** Zombified piglin replacement that is hostile at close range without provocation. */
@@ -39,6 +40,7 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
         super(type, level);
         // MITE pig zombies are worth triple the base experience.
         xpReward = 15;
+        disableVanillaZombieAbilities();
     }
 
     public static AttributeSupplier.Builder attributes() {
@@ -48,6 +50,12 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
                 .add(Attributes.MOVEMENT_SPEED, MODERN_BASE_MOVEMENT_SPEED)
                 .add(Attributes.ATTACK_DAMAGE, 8.0)
                 .add(Attributes.ARMOR, 0.0);
+    }
+
+    /** Pig zombies use their fixed golden kit rather than modern zombie door-breaking or item pickup. */
+    private void disableVanillaZombieAbilities() {
+        setCanBreakDoors(false);
+        setCanPickUpLoot(false);
     }
 
     @Override
@@ -80,7 +88,16 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
             reinforcements.removeModifiers();
             reinforcements.setBaseValue(0.0);
         }
+        // Zombie#finalizeSpawn re-rolls both flags, so restore MITE's pig-zombie restrictions.
+        disableVanillaZombieAbilities();
         return data;
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        // Preserve the restriction for pig zombies loaded from worlds saved before this fix.
+        disableVanillaZombieAbilities();
     }
 
     @Override
