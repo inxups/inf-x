@@ -73,7 +73,6 @@ public final class R196Chicken extends Chicken {
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         boolean hurt = super.hurtServer(level, source, amount);
         if (hurt) {
-            R196Livestock.onHurt(this, amount);
             long accelerated = level.getGameTime() + 1_200L;
             long current = getPersistentData().getLong(NEXT_FEATHER).orElse(Long.MAX_VALUE);
             getPersistentData().putLong(NEXT_FEATHER, Math.min(current, accelerated));

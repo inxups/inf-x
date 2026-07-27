@@ -233,12 +233,24 @@ public final class ModEquipmentGameTests {
         sheep.discard();
 
         var shearTarget = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(6, 1, 2));
+        // A newly constructed GameTest player has no accumulated melee cooldown yet. Advance it
+        // before testing the item action so this verifies the shears attack rather than setup timing.
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
         float shearTargetHealth = shearTarget.getHealth();
+        double shearAttackDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
+        float shearAttackStrength = player.getAttackStrengthScale(0.5F);
         helper.assertTrue(
                 shears.interactLivingEntity(player, shearTarget, InteractionHand.MAIN_HAND).consumesAction(),
                 "material shears must right-click attack non-shearable targets");
         helper.assertTrue(
-                shearTarget.getHealth() < shearTargetHealth, "shears right-click must deal melee damage");
+                shearTarget.getHealth() < shearTargetHealth,
+                "shears right-click must deal melee damage (damage="
+                        + shearAttackDamage
+                        + ", strength="
+                        + shearAttackStrength
+                        + ")");
         helper.assertTrue(
                 player.getCooldowns().isOnCooldown(shears),
                 "shears right-click attack must apply a short cooldown");
