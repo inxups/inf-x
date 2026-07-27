@@ -103,6 +103,18 @@ class R196EntityRenderersTest {
                 R196EntityRenderers.MagmaCubeTexture.texture().toString());
     }
 
+    /**
+     * Vanilla SlimeRenderer owns an outer layer that unconditionally binds
+     * minecraft:textures/entity/slime/slime.png. The R196 renderer must own both layers so the
+     * supplied MITE sheet is applied consistently.
+     */
+    @Test
+    void gelatinousRenderersDoNotInheritVanillaOuterLayer() {
+        assertEquals(
+                net.minecraft.client.renderer.entity.AbstractCubeMobRenderer.class,
+                R196EntityRenderers.SlimeTexture.class.getSuperclass());
+    }
+
     @Test
     void newMonsterVariantsUseAuthorizedMiteEntityTextures() {
         assertEquals(
