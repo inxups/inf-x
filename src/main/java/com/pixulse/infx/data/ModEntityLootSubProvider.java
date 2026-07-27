@@ -170,12 +170,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 LootTable.lootTable()
                         .withPool(itemPool(Items.GHAST_TEAR, 0.0F, 1.0F))
                         .withPool(itemPool(Items.GUNPOWDER, 0.0F, 2.0F)));
-        add(
-                ModEntityTypes.EARTH_ELEMENTAL.get(),
-                LootTable.lootTable().withPool(
-                        LootPool.lootPool()
-                                .setRolls(ConstantValue.exactly(1.0F))
-                                .add(LootItem.lootTableItem(Items.COBBLESTONE))));
+        // Earth-elemental drops follow its synced material body, so the entities emit their one
+        // block directly rather than a static JSON table.
+        emptyDrops(ModEntityTypes.EARTH_ELEMENTAL.get());
+        emptyDrops(ModEntityTypes.CLAY_GOLEM.get());
 
         for (var type : java.util.List.of(
                 ModEntityTypes.NETHERSPAWN,

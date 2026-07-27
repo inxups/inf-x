@@ -2,8 +2,8 @@
 
 ## 范围与结论
 
-本文只覆盖 InfiniteX 当前会替换或新增的 **40 个** R196 生物：
-`ModEntityTypes.ALL` 中的 12 个原版替换体、28 个 R196 新增体，以及其中同时承担替换体和新增体入口的岩浆怪。
+本文只覆盖 InfiniteX 当前会替换或新增的 **52 个** R196 生物：
+`ModEntityTypes.ALL` 中的 24 个原版替换体、29 个 R196 新增体，以及其中同时承担替换体和新增体入口的岩浆怪。
 `gelatinous_sphere` 是投掷物，不属于生物属性名录。牛、猪、羊、鸡、马、村民、铁傀儡、末影龙和凋灵等并不在当前怪物注册表中；它们应由独立的动物/Boss 审计处理，不能在本文件中假定已完成 R196 属性适配。
 
 基线为：
@@ -91,9 +91,10 @@ MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`
 | `infernal_creeper` 地狱爬行者 | `20/32/0.25/2/2/0` | 已映射 | `EntityInfernalCreeper#getNaturalDefense` 的 2 点非绕过防御映射为 `Ar=2`。 |
 | `fire_elemental` 火元素 | `20/40/0.25/5/0/0` | 已对齐 | 属性已对齐；近战 AI、水/雪球/附魔门控、周期水伤与岩浆回血已按 MITE `EntityFireElemental` 还原。 |
 | `earth_elemental` 土元素 | `30/20/0.20/12/4/0` | 已映射 | 覆盖铁傀儡的生命、攻击、击退抗性，4 点自然防御映射为 `Ar=4`。 |
+| `clay_golem` 黏土元素 | 普通 `30/20/0.20/6/0/0`；硬化 `30/20/0.20/6/2/0` | 已映射 | 独立生成于黏土；火和岩浆永久硬化，始终不是岩浆形态。 |
 | `r196_blaze` 烈焰人 | `20/32/0.23/6/0/0` | 已对齐 | 使用现代烈焰人移速基线。 |
 
-MITE `EntityBlaze` 只覆盖攻击为 6；它走旧 AI 的固定节流，而不是可直接复制的 `0.7` 现代属性。火元素不是烈焰人的属性副本，它在 MITE `EntityFireElemental` 中明确写入 `0.25` 且使用新 AI；不要对两者做同一速度修复。
+MITE `EntityBlaze` 只覆盖攻击为 6；它走旧 AI 的固定节流，而不是可直接复制的 `0.7` 现代属性。火元素不是烈焰人的属性副本，它在 MITE `EntityFireElemental` 中明确写入 `0.25` 且使用新 AI；不要对两者做同一速度修复。土元素与独立的 `EntityClayGolem` 共享材质、热量和挖掘框架：前者按石头、黑曜石、下界岩、末地石生成并可熔化，后者只在黏土上生成且以硬化黏土收束其受热状态。
 
 ### 胶质方块与岩浆怪
 
@@ -149,7 +150,7 @@ MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`En
 | 三种特殊蠹虫 | `0.3 x 0.7` | `0.4 x 0.3` | `0.3 x 0.7` | 已对齐 |
 | 吸血巨蝠 | `1.0 x 1.8` | `0.5 x 0.9` | `1.0 x 1.8` | 已对齐 |
 | 地狱犬、惧狼 | `0.6 x 0.8` | `0.6 x 0.85` | `0.6 x 0.8` | 已对齐 |
-| 土元素 | `0.6 x 1.8` | 铁傀儡 `1.4 x 2.7` | `0.6 x 1.8` | 已对齐 |
+| 土元素、黏土元素 | `0.6 x 1.8` | 铁傀儡 `1.4 x 2.7` | `0.6 x 1.8` | 已对齐 |
 
 当前尺寸的单一事实来源是 `ModEntityTypes`，并由 `R196MonsterProfileTest#allRegisteredMobNamesAndDimensionsMatchTheR196Roster` 覆盖；不要因为渲染器缩放而再放大物理碰撞箱。
 
@@ -166,4 +167,4 @@ MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`En
 2. `bash gradlew build`：运行完整构建与资源校验。
 3. 增加或更新 GameTest：验证僵尸/僵尸猪人无裸装护甲、史莱姆不同尺寸的速度、烈焰人移速，以及女巫条件性防御的三条伤害边界。
 
-现有 `R196MonsterProfileTest` 已覆盖 40 个生物的名称、尺寸和多数核心数值；本文件列出的护甲与动态移速缺口正是应补入该回归面的内容。
+现有 `R196MonsterProfileTest` 已覆盖 52 个生物的名称、尺寸和多数核心数值；本文件列出的护甲与动态移速缺口正是应补入该回归面的内容。

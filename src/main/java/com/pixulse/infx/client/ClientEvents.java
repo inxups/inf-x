@@ -68,6 +68,7 @@ public final class ClientEvents {
     @SubscribeEvent
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(R196SafeModel.LAYER, R196SafeModel::createBodyLayer);
+        event.registerLayerDefinition(R196EarthElementalModel.LAYER, R196EarthElementalModel::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -174,7 +175,8 @@ public final class ClientEvents {
                 ModEntityTypes.DIRE_WOLF.get(),
                 context -> new R196EntityRenderers.WolfTexture(context, R196Wolf.Variant.DIRE_WOLF));
         event.registerEntityRenderer(ModEntityTypes.FIRE_ELEMENTAL.get(), R196EntityRenderers.FireElementalTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.EARTH_ELEMENTAL.get(), R196EntityRenderers.EarthElementalTexture::new);
+        event.registerEntityRenderer(ModEntityTypes.EARTH_ELEMENTAL.get(), R196EarthElementalRenderer::new);
+        event.registerEntityRenderer(ModEntityTypes.CLAY_GOLEM.get(), R196EarthElementalRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ENDERMAN.get(), EndermanRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.R196_SQUID.get(),

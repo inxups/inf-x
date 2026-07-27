@@ -17,7 +17,6 @@ import net.minecraft.client.renderer.entity.CowRenderer;
 import net.minecraft.client.renderer.entity.CreeperRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.GhastRenderer;
-import net.minecraft.client.renderer.entity.IronGolemRenderer;
 import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
 import net.minecraft.client.renderer.entity.PigRenderer;
 import net.minecraft.client.renderer.entity.SheepRenderer;
@@ -32,7 +31,6 @@ import net.minecraft.client.renderer.entity.state.ChickenRenderState;
 import net.minecraft.client.renderer.entity.state.CowRenderState;
 import net.minecraft.client.renderer.entity.state.CreeperRenderState;
 import net.minecraft.client.renderer.entity.state.GhastRenderState;
-import net.minecraft.client.renderer.entity.state.IronGolemRenderState;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.entity.state.PigRenderState;
 import net.minecraft.client.renderer.entity.state.SheepRenderState;
@@ -528,21 +526,6 @@ final class R196EntityRenderers {
             return charging
                     ? mite("textures/entity/ghast/ghast_shooting.png")
                     : mite("textures/entity/ghast/ghast.png");
-        }
-    }
-
-    static final class EarthElementalTexture extends IronGolemRenderer {
-        EarthElementalTexture(EntityRendererProvider.Context context) {
-            super(context);
-        }
-
-        @Override
-        public Identifier getTextureLocation(IronGolemRenderState state) {
-            return texture();
-        }
-
-        static Identifier texture() {
-            return mite("textures/entity/earth_elemental/stone.png");
         }
     }
 

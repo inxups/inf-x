@@ -1,6 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.entity.R196FireElemental;
+import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Livestock;
 import com.pixulse.infx.entity.R196Silverfish;
 import com.pixulse.infx.material.R196Material;
@@ -700,6 +701,9 @@ public final class R196BucketItem extends BucketItem {
             R196Livestock.markWatered(animal, serverLevel.getGameTime());
             serverLevel.playSound(
                     null, target.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.NEUTRAL, 1.0F, 1.0F);
+            return spendOnEntity(player, hand);
+        }
+        if (target instanceof R196EarthElemental elemental && elemental.quench(serverLevel)) {
             return spendOnEntity(player, hand);
         }
         float damage = quenchDamage(target);

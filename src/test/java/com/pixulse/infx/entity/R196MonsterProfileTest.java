@@ -53,6 +53,10 @@ class R196MonsterProfileTest {
         AttributeSupplier earthElemental = stats(R196EarthElemental.attributes());
         assertEquals(4.0, earthElemental.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, earthElemental.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
+        assertStats(R196ClayGolem.attributes(), 30.0, 20.0, 0.20, 6.0);
+        AttributeSupplier clayGolem = stats(R196ClayGolem.attributes());
+        assertEquals(0.0, clayGolem.getBaseValue(Attributes.ARMOR), EPSILON);
+        assertEquals(0.0, clayGolem.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
         assertStats(R196Enderman.attributes(), 40.0, 32.0, 0.30, 10.0);
         assertEquals(6.5, R196Enderman.chasingMovementSpeed(0.30), EPSILON);
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
@@ -159,7 +163,8 @@ class R196MonsterProfileTest {
         assertDimensions(entities, checked, 0.6F, 1.8F,
                 "r196_zombie", "r196_skeleton", "r196_creeper", "r196_witch", "r196_zombified_piglin",
                 "r196_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
-                "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental");
+                "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
+                "clay_golem");
         assertDimensions(entities, checked, 1.4F, 0.9F, "r196_spider", "demon_spider");
         assertDimensions(entities, checked, 0.98F, 0.63F, "r196_cave_spider");
         assertDimensions(entities, checked, 0.84F, 0.54F, "black_widow_spider", "wood_spider", "phase_spider");
@@ -253,6 +258,7 @@ class R196MonsterProfileTest {
         add(names, "infernal_creeper", "Infernal Creeper", "地狱爬行者");
         add(names, "fire_elemental", "Fire Elemental", "火元素");
         add(names, "earth_elemental", "Earth Elemental", "土元素");
+        add(names, "clay_golem", "Clay Golem", "黏土元素");
         add(names, "jelly", "Jelly", "褐色史莱姆");
         add(names, "blob", "Blob", "红色史莱姆");
         add(names, "ooze", "Ooze", "灰色史莱姆");

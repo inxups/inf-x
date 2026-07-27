@@ -147,7 +147,9 @@ public final class R196MonsterTactics {
                 mob.getNavigation().moveTo(destination.getX() + .5, destination.getY(), destination.getZ() + .5, 1.1);
             }
         }
-        tryDig(level, mob);
+        if (!(mob instanceof R196EarthElemental)) {
+            tryDig(level, mob);
+        }
     }
 
     public static boolean tryDig(ServerLevel level, Mob mob) {
@@ -191,9 +193,11 @@ public final class R196MonsterTactics {
         return true;
     }
 
-    /** True only while a zombie is actively progressing through this module's block-dig task. */
+    /** True while a MITE monster is actively progressing through this module's block-dig task. */
     public static boolean isDigging(Mob mob) {
-        return mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
+        return mob instanceof R196EarthElemental elemental
+                ? elemental.isMiteDigging()
+                : mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
     }
 
     private static boolean stopDigging(ServerLevel level, Mob mob) {
