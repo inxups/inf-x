@@ -58,7 +58,7 @@ public final class R196Livestock {
     static final int VERY_NEEDY_SEARCH_RANGE = 32;
     static final int DESPERATE_SEARCH_RANGE = 48;
     static final int PANIC_ESCAPE_HORIZONTAL_RANGE = 4;
-    static final int PANIC_ESCAPE_VERTICAL_RANGE = 3;
+    static final int PANIC_ESCAPE_VERTICAL_RANGE = 0;
     static final int PANIC_ESCAPE_ATTEMPTS = 8;
     static final double PANIC_ESCAPE_SPEED = 1.4;
     static final String HORSE_RETRY = "infx_horse_tame_retry";
@@ -480,11 +480,18 @@ public final class R196Livestock {
 
         @Override
         public void stop() {
+            animal.getNavigation().stop();
             path = null;
         }
 
         private @Nullable Path findEscapePath() {
             Vec3 origin = panicOrigin(animal);
+            if (origin != null) {
+                Path directed = findDirectedEscapePath(origin);
+                if (directed != null) {
+                    return directed;
+                }
+            }
             for (int attempt = 0; attempt < PANIC_ESCAPE_ATTEMPTS; attempt++) {
                 Vec3 destination = origin == null
                         ? DefaultRandomPos.getPos(
@@ -496,11 +503,48 @@ public final class R196Livestock {
                                 origin);
                 if (destination == null) continue;
                 Path candidate = animal.getNavigation().createPath(BlockPos.containing(destination), 0);
-                if (NeedsGoal.isUsefulPath(candidate, animal.blockPosition())) {
+                if (isUsefulEscapePath(candidate, origin)) {
                     return candidate;
                 }
             }
             return null;
+        }
+
+        private @Nullable Path findDirectedEscapePath(Vec3 origin) {
+            double awayX = animal.getX() - origin.x;
+            double awayZ = animal.getZ() - origin.z;
+            if (awayX * awayX + awayZ * awayZ < 1.0E-4) {
+                return null;
+            }
+            int forwardX = (int) Math.signum(awayX);
+            int forwardZ = (int) Math.signum(awayZ);
+            BlockPos start = animal.blockPosition();
+            for (int distance = PANIC_ESCAPE_HORIZONTAL_RANGE; distance >= 1; distance--) {
+                BlockPos destination = start.offset(forwardX * distance, 0, forwardZ * distance);
+                Path candidate = animal.getNavigation().createPath(destination, 0);
+                if (isUsefulEscapePath(candidate, origin)) {
+                    return candidate;
+                }
+            }
+            return null;
+        }
+
+        private boolean isUsefulEscapePath(@Nullable Path candidate, @Nullable Vec3 origin) {
+            if (!NeedsGoal.isUsefulPath(candidate, animal.blockPosition())) {
+                return false;
+            }
+            if (origin == null) {
+                return true;
+            }
+            BlockPos endpoint = candidate.getEndNode().asBlockPos();
+            double currentDistance = horizontalDistanceToSqr(animal.position(), origin);
+            return horizontalDistanceToSqr(Vec3.atCenterOf(endpoint), origin) > currentDistance;
+        }
+
+        private static double horizontalDistanceToSqr(Vec3 first, Vec3 second) {
+            double x = first.x - second.x;
+            double z = first.z - second.z;
+            return x * x + z * z;
         }
     }
 

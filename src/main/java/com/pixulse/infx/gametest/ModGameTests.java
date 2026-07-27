@@ -702,12 +702,13 @@ public final class ModGameTests {
         int qualityCost = R196QualitySystem.experienceCost(150.0F, R196Quality.FINE);
         int[] experienceBeforeQualityCraft = new int[1];
         helper.setBlock(WORK_POS, Blocks.CRAFTING_TABLE);
-        CraftingMenu vanilla = new CraftingMenu(
-                31,
-                player.getInventory(),
-                ContainerLevelAccess.create(helper.getLevel(), helper.absolutePos(WORK_POS)));
+        player.openMenu(helper.getBlockState(WORK_POS)
+                .getMenuProvider(helper.getLevel(), helper.absolutePos(WORK_POS)));
+        helper.assertTrue(
+                player.containerMenu instanceof CraftingMenu,
+                "opening a vanilla crafting table must create its standard crafting menu");
+        CraftingMenu vanilla = (CraftingMenu) player.containerMenu;
         helper.assertTrue(vanilla instanceof TimedCraftingMenu, "the vanilla crafting menu must receive the timed mixin");
-        player.containerMenu = vanilla;
         TimedCraftingMenu timed = (TimedCraftingMenu) vanilla;
         CraftingContainer grid = timed.infx$craftingContainer();
 
@@ -723,6 +724,20 @@ public final class ModGameTests {
         helper.assertTrue(timed.infx$craftingState().isRunning(), "crafting-table result must start a timer");
 
         helper.startSequence()
+                .thenExecuteAfter(5, () -> {
+                    helper.assertTrue(
+                            player.containerMenu == vanilla,
+                            "the vanilla crafting-table menu must remain open while its timer runs");
+                    helper.assertTrue(
+                            vanilla.stillValid(player),
+                            "the crafting-table context must remain valid while its timer runs");
+                    helper.assertTrue(
+                            timed.infx$craftingState().isRunning(),
+                            "the vanilla crafting-table timer must remain active before completion");
+                    helper.assertTrue(
+                            timed.infx$craftingState().progressTicks() > 0,
+                            "the vanilla crafting-table timer must receive player ticks");
+                })
                 .thenWaitUntil(() -> helper.assertTrue(
                         countItem(player.getInventory(), Items.OAK_PLANKS) == 4,
                         "the vanilla crafting-table timer must complete"))
