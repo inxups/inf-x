@@ -30,6 +30,7 @@ import net.minecraft.world.entity.monster.cubemob.MagmaCube;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.Level;
@@ -74,6 +75,7 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::protectNetherspawnTerrain);
         gameBus.addListener(R196MonsterEvents::attractToPlayerActivity);
         gameBus.addListener(R196MonsterEvents::coordinateAndSeekLight);
+        gameBus.addListener(R196MonsterEvents::reduceSkeletonArrowGravity);
         gameBus.addListener(R196MonsterEvents::applyWitchMagicDefense);
         gameBus.addListener(R196MonsterEvents::limitSpawnerPopulation);
         gameBus.addListener(R196MonsterEvents::preventObservedDespawn);
@@ -561,6 +563,24 @@ public final class R196MonsterEvents {
                 }
             }
             if (brightest != null) mob.getNavigation().moveTo(brightest.getX() + .5, brightest.getY(), brightest.getZ() + .5, 1.0);
+        }
+    }
+
+    /**
+     * Vanilla applies arrow gravity after movement. Restoring this amount after the tick gives
+     * R196 skeleton arrows their tuned effective air gravity without altering any other arrow.
+     */
+    private static void reduceSkeletonArrowGravity(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof AbstractArrow arrow)
+                || !(arrow.getOwner() instanceof R196Skeleton)
+                || !(arrow.level() instanceof ServerLevel)
+                || arrow.isNoPhysics()
+                || arrow.isInWater()) {
+            return;
+        }
+        Vec3 velocity = arrow.getDeltaMovement();
+        if (velocity.lengthSqr() > 0.0D) {
+            arrow.setDeltaMovement(velocity.add(0.0D, R196Skeleton.skeletonArrowGravityCompensation(), 0.0D));
         }
     }
 
