@@ -3,11 +3,17 @@ set -euo pipefail
 
 project_root="$(cd "$(dirname "$0")/.." && pwd)"
 reference_root="${MITE_REFERENCE_ROOT:-/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite-resource-pack/assets/minecraft}"
+mite_client_assets_root="${MITE_CLIENT_ASSETS_ROOT:-/Users/inxups/mc/mite/MITE-R196-FMLv3.4.2/.minecraft/assets/virtual/legacy}"
 asset_root="$project_root/src/main/resources/assets/infx"
 manifest="$asset_root/mite_fulltext_manifest.tsv"
 
 if [[ ! -d "$reference_root" ]]; then
   echo "Missing authorized MITE resource pack: $reference_root" >&2
+  exit 1
+fi
+
+if [[ ! -d "$mite_client_assets_root" ]]; then
+  echo "Missing authorized MITE 1.6.4 client assets: $mite_client_assets_root" >&2
   exit 1
 fi
 
@@ -28,6 +34,22 @@ copy_asset() {
   local digest
   digest="$(shasum -a 256 "$destination" | awk '{print $1}')"
   printf 'resource-pack\t%s\t%s\t%s\n' "$source_rel" "$destination_rel" "$digest" >> "$manifest"
+}
+
+copy_client_asset() {
+  local source_rel="$1"
+  local destination_rel="$2"
+  local source="$mite_client_assets_root/$source_rel"
+  local destination="$asset_root/$destination_rel"
+  if [[ ! -f "$source" ]]; then
+    echo "Missing authorized MITE 1.6.4 client asset: $source" >&2
+    exit 1
+  fi
+  mkdir -p "$(dirname "$destination")"
+  cp "$source" "$destination"
+  local digest
+  digest="$(shasum -a 256 "$destination" | awk '{print $1}')"
+  printf 'mite-client-assets\t%s\t%s\t%s\n' "$source_rel" "$destination_rel" "$digest" >> "$manifest"
 }
 
 materials=(copper silver gold iron ancient_metal mithril adamantium)
@@ -99,5 +121,6 @@ copy_asset "sound/imported/mob/witch/cackle3.ogg" "sounds/mob/witch/cackle3.ogg"
 copy_asset "sound/imported/mob/witch/hurt.ogg" "sounds/mob/witch/hurt.ogg"
 copy_asset "sound/imported/mob/witch/death.ogg" "sounds/mob/witch/death.ogg"
 copy_asset "sound/imported/random/sizzle.ogg" "sounds/random/sizzle.ogg"
+copy_client_asset "sound/random/fizz.ogg" "sounds/random/fizz.ogg"
 
 echo "Synced $(($(wc -l < "$manifest") - 1)) authorized R196 full-text assets."
