@@ -148,6 +148,11 @@ public final class R196Zombie extends Zombie implements R196Mob {
     }
 
     @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinNewAiReach(this, target);
+    }
+
+    @Override
     protected void addBehaviourGoals() {
         if (variant() == Variant.INVISIBLE_STALKER) {
             // The original stalker is an EntityMob, not a zombie: it pursues only players and villagers.

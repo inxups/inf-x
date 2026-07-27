@@ -170,7 +170,14 @@ public final class R196Slime extends Slime implements R196Mob {
         }
 
         goalSelector.addGoal(0, new FloatGoal(this));
-        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false));
+        // Keep the crawl goal for pursuit only. MITE ooze damage is dispatched by the
+        // slime collision callback, never by a hitbox-expanded melee-goal check.
+        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false) {
+            @Override
+            protected boolean canPerformAttack(LivingEntity target) {
+                return false;
+            }
+        });
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));

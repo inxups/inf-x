@@ -33,6 +33,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -40,7 +41,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
@@ -67,6 +71,9 @@ public final class ModMonsterGameTests {
     private static final String WITCH_CURSE = "r196_witch_curse";
     private static final String TACTICS = "r196_monster_tactics";
     private static final String SPAWNS = "r196_spawn_tables";
+    private static final String ATTACK_RANGES = "r196_attack_ranges";
+    private static final String RANGED_ATTACK_RANGES = "r196_ranged_attack_ranges";
+    private static final String EXPLOSION_RANGES = "r196_explosion_ranges";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -80,6 +87,9 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(WITCH_CURSE, () -> ModMonsterGameTests::witchCurse);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
+        FUNCTIONS.register(ATTACK_RANGES, () -> ModMonsterGameTests::attackRanges);
+        FUNCTIONS.register(RANGED_ATTACK_RANGES, () -> ModMonsterGameTests::rangedAttackRanges);
+        FUNCTIONS.register(EXPLOSION_RANGES, () -> ModMonsterGameTests::explosionRanges);
     }
 
     private ModMonsterGameTests() {}
@@ -92,8 +102,21 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
+        Holder<TestEnvironmentDefinition<?>> rangedEnvironment = event.registerEnvironment(
+                InfiniteX.id("r196_ranged_combat"), new TestEnvironmentDefinition.AllOf());
         for (String name : List.of(
-                ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, ENDERMAN, WITCH_CURSE, TACTICS, SPAWNS)) {
+                ROSTER,
+                ATTRIBUTES,
+                REPLACEMENT,
+                BEHAVIORS,
+                NETHERSPAWN,
+                ENDERMAN,
+                WITCH_CURSE,
+                TACTICS,
+                SPAWNS,
+                ATTACK_RANGES,
+                RANGED_ATTACK_RANGES,
+                EXPLOSION_RANGES)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -101,9 +124,9 @@ public final class ModMonsterGameTests {
                     new FunctionGameTestInstance(
                             function,
                             new TestData<>(
-                                    environment,
+                                    name.equals(RANGED_ATTACK_RANGES) ? rangedEnvironment : environment,
                                     Identifier.withDefaultNamespace("empty"),
-                                    name.equals(WITCH_CURSE) ? 400 : 200,
+                                    name.equals(RANGED_ATTACK_RANGES) ? 500 : name.equals(WITCH_CURSE) ? 400 : 200,
                                     0,
                                     true,
                                     Rotation.NONE)));
@@ -775,12 +798,21 @@ public final class ModMonsterGameTests {
 
         BlockPos squidPos = new BlockPos(3, 2, 7);
         helper.setBlock(squidPos, Blocks.WATER);
+        helper.setBlock(squidPos.east(2), Blocks.WATER);
         var squid = helper.spawnWithNoFreeWill(ModEntityTypes.R196_SQUID.get(), squidPos);
-        var squidPrey = helper.spawnWithNoFreeWill(ModEntityTypes.R196_COW.get(), squidPos);
+        var squidPrey = helper.spawnWithNoFreeWill(ModEntityTypes.R196_COW.get(), squidPos.east(2));
         squid.aiStep();
+        helper.assertFalse(
+                squidPrey.hasEffect(MobEffects.SLOWNESS),
+                "R196 squid must not slow an animal before their hitboxes collide");
+        squidPrey.snapTo(squid.getX(), squid.getY(), squid.getZ(), 0.0F, 0.0F);
+        for (int tick = 0; tick < 3 && !squidPrey.hasEffect(MobEffects.SLOWNESS); tick++) {
+            squid.tick();
+            squidPrey.snapTo(squid.getX(), squid.getY(), squid.getZ(), 0.0F, 0.0F);
+        }
         helper.assertTrue(
                 squidPrey.hasEffect(MobEffects.SLOWNESS),
-                "R196 squid must hunt and slow nearby land animals in water");
+                "R196 squid must slow land animals on a real collision");
         var preyBoat = helper.spawn(EntityTypes.OAK_BOAT, squidPos);
         squidPrey.startRiding(preyBoat, true, false);
         for (int hit = 0; hit < 5; hit++) {
@@ -836,6 +868,334 @@ public final class ModMonsterGameTests {
                 })
                 .thenExecute(() -> ModR196CompletionGameTests.removePlayer(infernalTarget))
                 .thenSucceed();
+    }
+
+    private static void attackRanges(GameTestHelper helper) {
+        var skeleton = helper.spawnWithNoFreeWill(ModEntityTypes.R196_SKELETON.get(), new BlockPos(2, 80, 2));
+        var skeletonTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 2));
+        skeleton.setItemSlot(
+                net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                ModItems.catalog()
+                        .equipment(R196Material.IRON, R196EquipmentType.SWORD)
+                        .holder()
+                        .toStack());
+        assertMeleeBoundary(helper, skeleton, skeletonTarget, 1.949, 1.951, "tool-equipped skeleton");
+
+        var revenant = helper.spawnWithNoFreeWill(ModEntityTypes.REVENANT.get(), new BlockPos(2, 80, 4));
+        var revenantTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 4));
+        revenant.setItemSlot(
+                net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                ModItems.catalog()
+                        .equipment(R196Material.IRON, R196EquipmentType.SWORD)
+                        .holder()
+                        .toStack());
+        assertMeleeBoundary(helper, revenant, revenantTarget, 1.949, 1.951, "tool-equipped revenant");
+
+        var earth = helper.spawnWithNoFreeWill(ModEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(2, 80, 6));
+        var earthTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 6));
+        assertMeleeBoundary(helper, earth, earthTarget, 2.0, 2.001, "earth elemental");
+
+        var spider = helper.spawnWithNoFreeWill(ModEntityTypes.R196_SPIDER.get(), new BlockPos(2, 80, 8));
+        var spiderTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 8));
+        assertMeleeBoundary(helper, spider, spiderTarget, 1.749, 1.75, "spider");
+
+        var pigman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(2, 80, 10));
+        var pigmanTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 10));
+        pigman.setItemSlot(
+                net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                ModItems.catalog()
+                        .equipment(R196Material.GOLD, R196EquipmentType.SWORD)
+                        .holder()
+                        .toStack());
+        assertMeleeBoundary(helper, pigman, pigmanTarget, 1.749, 1.75, "tool-equipped zombie pigman");
+
+        var silverfish = helper.spawnWithNoFreeWill(ModEntityTypes.COPPERSPINE.get(), new BlockPos(2, 80, 12));
+        var silverfishTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 12));
+        assertMeleeBoundary(helper, silverfish, silverfishTarget, 1.199, 1.201, "silverfish");
+
+        var wolf = helper.spawnWithNoFreeWill(ModEntityTypes.R196_WOLF.get(), new BlockPos(2, 80, 14));
+        var wolfTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 14));
+        double wolfReach = Math.sqrt(
+                Math.pow(wolf.getBbWidth() * 1.75, 2.0) + wolfTarget.getBbWidth());
+        assertMeleeBoundary(helper, wolf, wolfTarget, wolfReach - 0.001, wolfReach + 0.001, "ordinary wolf");
+
+        List.of(
+                        skeleton,
+                        skeletonTarget,
+                        revenant,
+                        revenantTarget,
+                        earth,
+                        earthTarget,
+                        spider,
+                        spiderTarget,
+                        pigman,
+                        pigmanTarget,
+                        silverfish,
+                        silverfishTarget,
+                        wolf,
+                        wolfTarget)
+                .forEach(net.minecraft.world.entity.Entity::discard);
+
+        // Ooze pursuit uses a melee goal, but only the collision callback may dispatch damage.
+        var ooze = helper.spawn(ModEntityTypes.OOZE.get(), new BlockPos(2, 80, 2));
+        ooze.setSize(2, true);
+        ooze.setNoGravity(true);
+        ooze.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
+        var oozeTarget = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 80, 2));
+        oozeTarget.setNoGravity(true);
+        placeAtDistance(helper, ooze, oozeTarget, new BlockPos(2, 80, 2), 1.6);
+        ooze.setTarget(oozeTarget);
+        float oozeTargetHealth = oozeTarget.getHealth();
+        for (int tick = 0; tick < 25; tick++) {
+            ooze.tick();
+        }
+        helper.assertTrue(
+                oozeTarget.getHealth() == oozeTargetHealth,
+                "gray ooze melee pursuit must not deal damage before collision");
+        oozeTarget.snapTo(ooze.getX(), ooze.getY(), ooze.getZ(), 0.0F, 0.0F);
+        oozeTarget.tick();
+        helper.assertTrue(
+                oozeTarget.getHealth() < oozeTargetHealth,
+                "gray ooze collision callback must still deal damage");
+        ooze.discard();
+        oozeTarget.discard();
+
+        for (var batType : List.of(
+                ModEntityTypes.VAMPIRE_BAT, ModEntityTypes.NIGHTWING, ModEntityTypes.GIANT_VAMPIRE_BAT)) {
+            helper.setBlock(new BlockPos(2, 86, 2), Blocks.STONE);
+            var bat = helper.spawn(batType.get(), new BlockPos(2, 84, 2));
+            bat.setNoGravity(true);
+            var prey = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(4, 84, 2));
+            prey.setNoGravity(true);
+            float health = prey.getHealth();
+            helper.assertFalse(bat.hasMiteAttackContact(prey), batType.getId() + " must reject ranged contact");
+            bat.tick();
+            helper.assertTrue(prey.getHealth() == health, batType.getId() + " must not attack before contact");
+            prey.snapTo(bat.getX(), bat.getY(), bat.getZ(), 0.0F, 0.0F);
+            helper.assertTrue(bat.hasMiteAttackContact(prey), batType.getId() + " must accept half-box contact");
+            bat.tick();
+            if (batType != ModEntityTypes.NIGHTWING) {
+                helper.assertTrue(prey.getHealth() < health, batType.getId() + " must attack after half-box contact");
+            }
+            bat.discard();
+            prey.discard();
+        }
+
+        BlockPos squidPos = new BlockPos(2, 84, 2);
+        helper.setBlock(squidPos, Blocks.WATER);
+        helper.setBlock(squidPos.east(2), Blocks.WATER);
+        var squid = helper.spawnWithNoFreeWill(ModEntityTypes.R196_SQUID.get(), squidPos);
+        var squidPrey = helper.spawnWithNoFreeWill(ModEntityTypes.R196_COW.get(), squidPos.east(2));
+        squid.aiStep();
+        helper.assertFalse(squidPrey.hasEffect(MobEffects.SLOWNESS), "squid must not slow animals at range");
+        squidPrey.snapTo(squid.getX(), squid.getY(), squid.getZ(), 0.0F, 0.0F);
+        squid.tick();
+        helper.assertTrue(squidPrey.hasEffect(MobEffects.SLOWNESS), "squid must slow animals on collision");
+        helper.succeed();
+    }
+
+    private static void assertMeleeBoundary(
+            GameTestHelper helper,
+            Mob attacker,
+            LivingEntity target,
+            double insideDistance,
+            double outsideDistance,
+            String description) {
+        BlockPos origin = helper.relativePos(attacker.blockPosition());
+        placeAtDistance(helper, attacker, target, origin, insideDistance);
+        helper.assertTrue(
+                attacker.isWithinMeleeAttackRange(target), description + " must hit on the R196 inner boundary");
+        placeAtDistance(helper, attacker, target, origin, outsideDistance);
+        helper.assertFalse(
+                attacker.isWithinMeleeAttackRange(target), description + " must not hit beyond the R196 boundary");
+    }
+
+    private static void placeAtDistance(
+            GameTestHelper helper, Mob attacker, LivingEntity target, BlockPos origin, double distance) {
+        Vec3 absolute = helper.absoluteVec(Vec3.atBottomCenterOf(origin));
+        attacker.snapTo(absolute.x, absolute.y, absolute.z, 0.0F, 0.0F);
+        target.snapTo(absolute.x + distance, absolute.y, absolute.z, 0.0F, 0.0F);
+    }
+
+    private static void rangedAttackRanges(GameTestHelper helper) {
+        var level = helper.getLevel();
+        ServerPlayer player = ModR196CompletionGameTests.createPlayer(helper);
+        player.setNoGravity(true);
+        boolean[] skeletonCompletedDraw = {false};
+        boolean[] skeletonWasUsing = {false};
+        int[] skeletonMaxUseTicks = {0};
+        boolean[] witchThrew = {false};
+        R196Witch[] witchRef = {null};
+
+        var skeleton = helper.spawn(ModEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 3));
+        skeleton.setNoGravity(true);
+        skeleton.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
+        skeleton.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, Items.BOW.getDefaultInstance());
+        skeleton.reassessWeaponGoal();
+        placePlayerAtDistance(helper, skeleton, player, new BlockPos(3, 2, 3), 30.5);
+        skeleton.setTarget(player);
+
+        helper.startSequence()
+                .thenExecuteFor(80, () -> {
+                    skeleton.setTarget(player);
+                    helper.assertFalse(
+                            skeleton.isUsingItem(), "skeletons must not begin drawing beyond 30 blocks");
+                    helper.assertTrue(
+                            level.getEntitiesOfClass(
+                                            AbstractArrow.class,
+                                            skeleton.getBoundingBox().inflate(40.0),
+                                            arrow -> arrow.getOwner() == skeleton)
+                                    .isEmpty(),
+                            "skeletons must not begin or release a shot beyond 30 blocks");
+                })
+                .thenExecute(() -> placePlayerAtDistance(helper, skeleton, player, new BlockPos(3, 2, 3), 29.0))
+                .thenExecuteFor(90, () -> {
+                    skeleton.setTarget(player);
+                    boolean using = skeleton.isUsingItem();
+                    skeletonMaxUseTicks[0] = Math.max(skeletonMaxUseTicks[0], skeleton.getTicksUsingItem());
+                    if (skeletonWasUsing[0] && !using) {
+                        skeletonCompletedDraw[0] = true;
+                    }
+                    if (!using && skeletonMaxUseTicks[0] >= 15) {
+                        skeletonCompletedDraw[0] = true;
+                    }
+                    skeletonWasUsing[0] = using;
+                })
+                .thenExecute(() -> helper.assertTrue(
+                        skeletonCompletedDraw[0],
+                        "skeletons must resume firing after entering 30 blocks"
+                                + "; target=" + (skeleton.getTarget() == player)
+                                + ", noAi=" + skeleton.isNoAi()
+                                + ", using=" + skeleton.isUsingItem()
+                                + ", bow=" + skeleton.getMainHandItem().is(Items.BOW)
+                                + ", visible=" + skeleton.getSensing().hasLineOfSight(player)
+                                + ", distance=" + Math.sqrt(skeleton.distanceToSqr(player))))
+                .thenExecute(() -> {
+                    level.getEntitiesOfClass(AbstractArrow.class, skeleton.getBoundingBox().inflate(40.0))
+                            .forEach(AbstractArrow::discard);
+                    skeleton.discard();
+                })
+                .thenExecute(() -> {
+                    var witch = helper.spawn(ModEntityTypes.R196_WITCH.get(), new BlockPos(3, 2, 3));
+                    witch.setNoGravity(true);
+                    witch.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
+                    placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 20.5);
+                    witch.setTarget(player);
+                    witchRef[0] = witch;
+                })
+                .thenExecuteFor(80, () -> {
+                    var witch = witchRef[0];
+                    witch.setTarget(player);
+                    helper.assertTrue(
+                            level.getEntitiesOfClass(
+                                            ThrownSplashPotion.class,
+                                            witch.getBoundingBox().inflate(32.0),
+                                            potion -> potion.getOwner() == witch)
+                                    .isEmpty(),
+                            "witches must not begin or release a potion beyond 20 blocks");
+                })
+                .thenExecute(() -> {
+                    var witch = witchRef[0];
+                    placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 19.0);
+                })
+                .thenExecuteFor(140, () -> {
+                    var witch = witchRef[0];
+                    witch.setTarget(player);
+                    if (!level.getEntitiesOfClass(ThrownSplashPotion.class, witch.getBoundingBox().inflate(32.0))
+                                    .isEmpty()) {
+                        witchThrew[0] = true;
+                    }
+                })
+                .thenExecute(() -> helper.assertTrue(
+                        witchThrew[0], "witches must resume throwing after entering 20 blocks"))
+                .thenExecute(() -> {
+                    witchRef[0].discard();
+                    ModR196CompletionGameTests.removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void placePlayerAtDistance(
+            GameTestHelper helper, Mob attacker, ServerPlayer player, BlockPos origin, double distance) {
+        Vec3 absolute = helper.absoluteVec(Vec3.atBottomCenterOf(origin));
+        attacker.snapTo(absolute.x, absolute.y, absolute.z, 0.0F, 0.0F);
+        player.snapTo(absolute.x + distance, absolute.y, absolute.z, 0.0F, 0.0F);
+    }
+
+    private static void explosionRanges(GameTestHelper helper) {
+        var level = helper.getLevel();
+
+        var ordinary = helper.spawnWithNoFreeWill(ModEntityTypes.R196_CREEPER.get(), new BlockPos(4, 10, 4));
+        var ordinaryInside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(8, 10, 4));
+        var ordinaryOutside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 10, 4));
+        placeExplosionTargets(helper, ordinary, ordinaryInside, ordinaryOutside, new BlockPos(4, 10, 4), 4.3, 4.5);
+
+        var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(25, 10, 4));
+        var infernalInside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(33, 10, 4));
+        var infernalOutside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(34, 10, 4));
+        placeExplosionTargets(helper, infernal, infernalInside, infernalOutside, new BlockPos(25, 10, 4), 8.7, 8.9);
+
+        var netherspawn = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(4, 10, 25));
+        var netherspawnInside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(8, 10, 25));
+        var netherspawnOutside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 10, 25));
+        placeExplosionTargets(
+                helper, netherspawn, netherspawnInside, netherspawnOutside, new BlockPos(4, 10, 25), 3.9, 4.1);
+
+        var ghast = helper.spawnWithNoFreeWill(ModEntityTypes.R196_GHAST.get(), new BlockPos(25, 10, 25));
+        var fireball = new LargeFireball(level, ghast, Vec3.ZERO, 1);
+        var fireballInside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(29, 10, 25));
+        var fireballOutside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(30, 10, 25));
+        Vec3 fireballCenter = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(25, 10, 25)));
+        fireball.snapTo(fireballCenter.x, fireballCenter.y, fireballCenter.z, 0.0F, 0.0F);
+        fireballInside.snapTo(fireballCenter.x + 3.9, fireballCenter.y, fireballCenter.z, 0.0F, 0.0F);
+        fireballOutside.snapTo(fireballCenter.x - 4.1, fireballCenter.y, fireballCenter.z, 0.0F, 0.0F);
+
+        var vanilla = helper.spawnWithNoFreeWill(EntityTypes.CREEPER, new BlockPos(15, 10, 15));
+        var vanillaInside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(21, 10, 15));
+        var vanillaOutside = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(22, 10, 15));
+        placeExplosionTargets(helper, vanilla, vanillaInside, vanillaOutside, new BlockPos(15, 10, 15), 5.9, 6.1);
+
+        helper.startSequence()
+                .thenExecuteAfter(1, () -> {
+                    assertExplosionBoundary(helper, ordinary, ordinaryInside, ordinaryOutside, 3.0F, "ordinary R196 creeper");
+                    assertExplosionBoundary(helper, infernal, infernalInside, infernalOutside, 6.0F, "infernal creeper");
+                    assertExplosionBoundary(helper, netherspawn, netherspawnInside, netherspawnOutside, 1.0F, "netherspawn");
+                    assertExplosionBoundary(helper, fireball, fireballInside, fireballOutside, 1.0F, "R196 ghast fireball");
+                    assertExplosionBoundary(helper, vanilla, vanillaInside, vanillaOutside, 3.0F, "non-R196 explosion");
+                })
+                .thenSucceed();
+    }
+
+    private static void placeExplosionTargets(
+            GameTestHelper helper,
+            Mob source,
+            LivingEntity inside,
+            LivingEntity outside,
+            BlockPos origin,
+            double insideDistance,
+            double outsideDistance) {
+        Vec3 absolute = helper.absoluteVec(Vec3.atBottomCenterOf(origin));
+        source.snapTo(absolute.x, absolute.y, absolute.z, 0.0F, 0.0F);
+        source.setNoGravity(true);
+        inside.snapTo(absolute.x + insideDistance, absolute.y, absolute.z, 0.0F, 0.0F);
+        inside.setNoGravity(true);
+        outside.snapTo(absolute.x - outsideDistance, absolute.y, absolute.z, 0.0F, 0.0F);
+        outside.setNoGravity(true);
+    }
+
+    private static void assertExplosionBoundary(
+            GameTestHelper helper,
+            net.minecraft.world.entity.Entity source,
+            LivingEntity inside,
+            LivingEntity outside,
+            float blockRadius,
+            String description) {
+        float insideHealth = inside.getHealth();
+        float outsideHealth = outside.getHealth();
+        helper.getLevel().explode(
+                source, source.getX(), source.getY(), source.getZ(), blockRadius, Level.ExplosionInteraction.MOB);
+        helper.assertTrue(inside.getHealth() < insideHealth, description + " must damage inside its entity radius");
+        helper.assertTrue(outside.getHealth() == outsideHealth, description + " must not damage outside its entity radius");
     }
 
     private static void enderman(GameTestHelper helper) {

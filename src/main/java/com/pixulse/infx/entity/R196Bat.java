@@ -91,7 +91,7 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
                 setDeltaMovement(getDeltaMovement().scale(0.65).add(direction.normalize().scale(speed)));
             }
 
-            if (distance <= getBbWidth() + target.getBbWidth() + 0.35 && attackCooldown == 0) {
+            if (hasMiteAttackContact(target) && attackCooldown == 0) {
                 float before = target.getHealth();
                 if (doHurtTarget(level, target)) {
                     float dealt = Math.max(0.0F, before - target.getHealth());
@@ -119,6 +119,11 @@ public final class R196Bat extends Bat implements Enemy, R196Mob {
                 }
             }
         }
+    }
+
+    /** Shared R196 half-width contact predicate for all three hostile bat variants. */
+    public boolean hasMiteAttackContact(LivingEntity target) {
+        return R196AttackRanges.scaledHorizontalContact(this, target, 0.5);
     }
 
     /** MITE bats hunt the closest non-creative player, animal or villager within 32 blocks. */

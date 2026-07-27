@@ -16,7 +16,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.RangedAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -88,8 +87,9 @@ public final class R196Witch extends Witch implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        goalSelector.removeAllGoals(goal -> goal instanceof RangedAttackGoal);
-        goalSelector.addGoal(2, new RangedAttackGoal(this, 1.0, 60, 10.0F));
+        goalSelector.removeAllGoals(goal -> goal instanceof net.minecraft.world.entity.ai.goal.RangedAttackGoal);
+        goalSelector.addGoal(2, new MiteHardLimitedRangedAttackGoal(
+                this, 1.0, 60, (float) R196AttackRanges.WITCH_RANGED_REACH));
         targetSelector.removeAllGoals(goal -> true);
         targetSelector.addGoal(1, new CurseHurtByTargetGoal(this));
         targetSelector.addGoal(2, new CurseNearestPlayerGoal(this));

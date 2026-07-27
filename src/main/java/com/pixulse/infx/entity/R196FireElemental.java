@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -47,6 +48,11 @@ public final class R196FireElemental extends Blaze implements R196Mob {
                 .add(Attributes.FOLLOW_RANGE, 40.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.ATTACK_DAMAGE, 5.0);
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinNewAiReach(this, target);
     }
 
     @Override

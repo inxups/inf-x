@@ -6,6 +6,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -50,6 +51,11 @@ public final class R196Wolf extends Wolf implements Enemy, R196Mob {
                 .add(Attributes.MOVEMENT_SPEED, 0.40)
                 .add(Attributes.ATTACK_DAMAGE, variant == Variant.HELLHOUND ? 4.0 : 5.0)
                 .add(Attributes.FOLLOW_RANGE, followRange(variant, false));
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinWolfReach(this, target);
     }
 
     @Override

@@ -21,6 +21,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.LeapAtTargetGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.chicken.Chicken;
@@ -154,8 +155,15 @@ public final class R196Spider extends Spider implements R196Mob {
     }
 
     @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinOldAiReach(this, target, R196AttackRanges.OLD_AI_REACH);
+    }
+
+    @Override
     protected void registerGoals() {
         super.registerGoals();
+        goalSelector.removeAllGoals(goal -> goal instanceof LeapAtTargetGoal);
+        goalSelector.addGoal(3, new MiteArachnidLeapGoal(this));
         if (variant() != Variant.SPIDER) {
             // MITE: only the base spider turns peaceful in daylight; the variants ignore light
             // both when acquiring targets and when continuing an attack.

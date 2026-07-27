@@ -6,6 +6,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -29,6 +30,11 @@ public final class R196VanillaWolf extends Wolf {
                 .add(Attributes.MOVEMENT_SPEED, 0.40)
                 .add(Attributes.ATTACK_DAMAGE, 3.0)
                 .add(Attributes.FOLLOW_RANGE, 16.0);
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinWolfReach(this, target);
     }
 
     /** MITE tamed wolves cap at 12 health and 32 follow range, not the modern 40 health. */

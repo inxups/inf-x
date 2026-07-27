@@ -10,6 +10,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -50,6 +51,11 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
                 .add(Attributes.MOVEMENT_SPEED, MODERN_BASE_MOVEMENT_SPEED)
                 .add(Attributes.ATTACK_DAMAGE, 8.0)
                 .add(Attributes.ARMOR, 0.0);
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinOldAiReach(this, target, R196AttackRanges.OLD_AI_REACH);
     }
 
     /** Pig zombies use their fixed golden kit rather than modern zombie door-breaking or item pickup. */

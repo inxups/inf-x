@@ -64,7 +64,7 @@ public final class R196ItemProperties {
 
     static AttackRange attackRange(R196EquipmentType type) {
         float maximum = 1.5F + type.reachBonus();
-        return new AttackRange(0.0F, maximum, 0.0F, 5.0F + type.reachBonus(), 0.0F, 1.0F);
+        return new AttackRange(0.0F, maximum, 0.0F, 5.0F + type.reachBonus(), 0.0F, 0.6F);
     }
 
     private static BlocksAttacks toolBlocking() {
