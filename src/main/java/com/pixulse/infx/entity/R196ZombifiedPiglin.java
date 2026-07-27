@@ -26,15 +26,15 @@ import org.jspecify.annotations.Nullable;
 
 /** Zombified piglin replacement that is hostile at close range without provocation. */
 public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mob {
-    private static final Identifier MITE_CHASE_SPEED_ID = Identifier.fromNamespaceAndPath("infx", "mite_chase_speed");
+    private static final Identifier CHASE_SPEED_ID = Identifier.fromNamespaceAndPath("infx", "pigman_chase_speed");
     private static final Identifier VANILLA_CHASE_SPEED_ID = Identifier.withDefaultNamespace("attacking");
     private static final double MODERN_BASE_MOVEMENT_SPEED = 0.23;
-    private static final double MITE_CHASE_SPEED_MULTIPLIER = 0.95 / 0.50;
-    private static final AttributeModifier MITE_CHASE_SPEED =
+    private static final double CHASE_SPEED_BONUS = 0.05;
+    private static final AttributeModifier CHASE_SPEED =
             new AttributeModifier(
-                    MITE_CHASE_SPEED_ID,
-                    MITE_CHASE_SPEED_MULTIPLIER - 1.0,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+                    CHASE_SPEED_ID,
+                    CHASE_SPEED_BONUS,
+                    AttributeModifier.Operation.ADD_VALUE);
 
     public R196ZombifiedPiglin(EntityType<? extends ZombifiedPiglin> type, Level level) {
         super(type, level);
@@ -125,24 +125,22 @@ public final class R196ZombifiedPiglin extends ZombifiedPiglin implements R196Mo
     @Override
     protected void customServerAiStep(ServerLevel level) {
         super.customServerAiStep(level);
-        // MITE's legacy 0.50 -> 0.95 path-input values mean a 1.9x chase multiplier,
-        // not a +0.45 value on the modern movement scale.  Replace vanilla's smaller
-        // anger modifier before MoveControl reads it, so the MITE ratio is the sole
-        // chase-speed adjustment for this movement tick.
+        // Keep the target-specific lifecycle, but use the modern +0.05 fighting bonus.
+        // The legacy 1.9x conversion made the 0.23 base speed visibly too fast in 26.2.
         AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
         }
         speed.removeModifier(VANILLA_CHASE_SPEED_ID);
         boolean chasing = getTarget() != null;
-        if (chasing && !speed.hasModifier(MITE_CHASE_SPEED_ID)) {
-            speed.addTransientModifier(MITE_CHASE_SPEED);
-        } else if (!chasing && speed.hasModifier(MITE_CHASE_SPEED_ID)) {
-            speed.removeModifier(MITE_CHASE_SPEED_ID);
+        if (chasing && !speed.hasModifier(CHASE_SPEED_ID)) {
+            speed.addTransientModifier(CHASE_SPEED);
+        } else if (!chasing && speed.hasModifier(CHASE_SPEED_ID)) {
+            speed.removeModifier(CHASE_SPEED_ID);
         }
     }
 
     static double chasingMovementSpeed(double baseMovementSpeed) {
-        return baseMovementSpeed * MITE_CHASE_SPEED_MULTIPLIER;
+        return baseMovementSpeed + CHASE_SPEED_BONUS;
     }
 }

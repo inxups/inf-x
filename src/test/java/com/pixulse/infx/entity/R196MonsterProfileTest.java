@@ -63,7 +63,7 @@ class R196MonsterProfileTest {
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
         assertStats(R196ZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
         assertEquals(0.0, stats(R196ZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
-        assertEquals(0.437, R196ZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
+        assertEquals(0.28, R196ZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
 
         assertEquals(0, R196Spider.initialWebCount(R196Spider.Variant.SPIDER, 0));
         assertEquals(2, R196Spider.initialWebCount(R196Spider.Variant.SPIDER, 3));
