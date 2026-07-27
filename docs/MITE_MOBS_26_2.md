@@ -10,12 +10,12 @@
 
 - MITE R196 参考源码中的 `SharedMonsterAttributes` 与各 `Entity*.java`；它只定义生命、追踪范围、击退抗性、移速、攻击五项共享属性。对于旧 AI（`isAIEnabled=false`）实体，移速字段还是固定 `0.1` 节流下的路径前进输入，不能直接作为 26.2 的移动属性复制。
 - Minecraft `26.2` 的 `createAttributes()` 和 `EntityTypes` 默认尺寸，读取的是本项目 NeoForm 下载的 `minecraft_26.2_client.jar`，且在 `finalizeSpawn` 前读取基础值，不包含装备、难度或随机出生修饰符。
-- 当前实现为本仓库 `master` 的 `f38dabf` 基线，属性注册入口是 `R196MonsterEvents#createAttributes`。
+- 当前实现为本仓库 `master` 的 `cafa6e6` 基线，属性注册入口是 `R196MonsterEvents#createAttributes`。
 
 审计结果是：生命、追踪、攻击、尺寸和新 AI 实体的移速可直接逐项对照；旧 AI 实体的移速必须改按 26.2 父类基线及 MITE 的相对倍率迁移。下列规则是这一迁移中最容易误用的边界：
 
 1. `R196Zombie` 的六个实体和 `R196ZombifiedPiglin` 继承了 26.2 僵尸系的基础 `Armor=2`；MITE 没有这项基础自然防御，应为 `0`。
-2. `R196Spider`、`R196Silverfish`、`R196Blaze`、`R196Slime` 和 `R196ZombifiedPiglin` 均来自旧 AI 路径；旧版的原始移速不能直接写入 26.2。蜘蛛仅保留相对 25% 加速，僵尸猪人仅保留 1.9 倍追击比例，其余回到对应现代家族基线。
+2. `R196Spider`、`R196Silverfish`、`R196Blaze`、`R196Slime`、`R196Enderman` 和 `R196ZombifiedPiglin` 均来自旧 AI 路径；旧版的原始移速不能直接写入 26.2。蜘蛛仅保留相对 25% 加速，僵尸猪人与末影人分别保留 1.9 倍和 `6.5/0.3` 的追击比例，其余回到对应现代家族基线。
 3. MITE 女巫只对“间接且带魔法属性”的伤害提供 `10` 点自然防御；这不能用通用 `Armor=10` 代替，需要按伤害来源做条件性处理。
 
 本文是当前怪物的修改清单，不会仅凭文档把 26.2 的额外属性照搬为 MITE 数值。
@@ -79,7 +79,7 @@ MITE 来源：`EntitySkeleton`、`EntityLongdead`、`EntityBoneLord`、`EntityAn
 | `wood_spider` 木蜘蛛 | `6/28/0.30/1/0/0` | 已对齐 | 使用现代蜘蛛基线。 |
 | `phase_spider` 相位蜘蛛 | `6/28/0.30/3/0/0` | 已对齐 | 使用现代蜘蛛基线。 |
 
-MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`EntityDemonSpider`、`EntityWoodSpider`、`EntityPhaseSpider`。旧版原版蜘蛛的 `0.80` 已迁移为 26.2 的 `0.30`；MITE 基础/洞穴/恶魔蜘蛛的 `1.00` 因而映射为 `0.30×(1.00/0.80)=0.375`，而木、黑寡妇和相位蜘蛛保留现代 `0.30`。
+MITE 来源：`EntitySpider`、`EntityCaveSpider`、`EntityBlackWidowSpider`、`EntityDemonSpider`、`EntityWoodSpider`、`EntityPhaseSpider`。旧版原版蜘蛛的 `0.80` 已迁移为 26.2 的 `0.30`；MITE 基础/洞穴/恶魔蜘蛛的 `1.00` 因而映射为 `0.30×(1.00/0.80)=0.375`，而木、黑寡妇和相位蜘蛛保留现代 `0.30`。非相位蜘蛛的网库存为随机 `0-3`，普通/木/黑寡妇在大于零时先减一；洞穴/恶魔每 200 tick、其余每 500 tick 尝试投网，当前方块网近似实现会按该库存消耗并在玩家击杀时掉出实际余量。
 
 ### 苦力怕与元素
 
@@ -114,8 +114,8 @@ MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`En
 
 | 当前实体 | 26.2 对照基线 | MITE R196 目标 | 当前状态 | 修改结论 |
 |---|---|---|---|---|
-| `r196_enderman` 末影人 | EnderMan `40/64/0.30/7/0/0` | `40/32/0.30/10/0/0` | 已对齐 | 无基础属性改动。 |
-| `r196_squid` 鱿鱼 | Squid `10/16/0.70/-/0/0` | `10/16/0.70/-/0/0` | 已对齐 | 无基础属性改动；攻击是接触缓慢，不添加近战属性。 |
+| `r196_enderman` 末影人 | EnderMan `40/64/0.30/7/0/0` | 常态 `40/32/0.30/10/0/0`；追击 `S=6.50` | 已对齐 | 基础值不变；移除现代 `+0.15`，保留 MITE 的 `0.3+6.2` 追击总速。 |
+| `r196_squid` 鱿鱼 | Squid `10/16/0.70/-/0/0` | `10/16/0.70/-/0/0` | 已对齐 | 无基础属性改动；攻击是接触缓慢，不添加近战属性，并恢复深水玩家、陆生动物和追击船只目标的 6 次碰撞毁船计数。 |
 | `r196_witch` 女巫 | Witch `26/16/0.25/2/0/0` | `26/32/0.25/2/0/0` | 基础值对齐 | 另行实现“间接魔法”10 点自然防御，不能提升通用护甲。 |
 | `r196_zombified_piglin` 僵尸猪人 | ZombifiedPiglin `20/35/0.23/5/2/0` | 常态 `20/40/0.23/8/0/0`；追击 `S=0.437` | 已对齐 | 归零基础护甲，并保留 MITE 的 1.9 倍追击比例。 |
 | `r196_ghast` 恶魂 | Ghast `10/100/0.70/-/0/0` | `10/100/0.70/-/0/0` | 已对齐 | 无基础属性改动。 |
@@ -155,8 +155,8 @@ MITE 来源：`EntityCubic`、`EntitySlime`、`EntityJelly`、`EntityBlob`、`En
 
 ## 移动速度迁移回归面
 
-- `R196MonsterProfileTest` 锁定蜘蛛六种变体、烈焰人、三种蠹虫、僵尸猪人和胶质方块的迁移后数值；僵尸猪人的追击倍率固定为 `1.9`。
-- `r196_monster_attributes` GameTest 在实际注册后的实体上复查这些基础值与胶质方块的尺寸速度曲线；岩浆怪继续维持 `0.20` 和 `2s` 防御。
+- `R196MonsterProfileTest` 锁定蜘蛛六种变体、网库存/投网间隔、烈焰人、三种蠹虫、僵尸猪人、末影人和胶质方块的迁移后数值；僵尸猪人与末影人的追击倍率固定为 `1.9` 和 `6.5/0.3`。
+- `r196_monster_attributes` GameTest 在实际注册后的实体上复查这些基础值、两种追击速度与胶质方块的尺寸速度曲线；`r196_monster_behaviors` 复查鱿鱼对动物与目标船只的接触行为，岩浆怪继续维持 `0.20` 和 `2s` 防御。
 
 ## 验证要求
 

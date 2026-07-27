@@ -2,6 +2,7 @@ package com.pixulse.infx.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.registry.ModEntityTypes;
 import java.util.HashMap;
@@ -52,10 +53,25 @@ class R196MonsterProfileTest {
         assertEquals(4.0, earthElemental.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, earthElemental.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
         assertStats(R196Enderman.attributes(), 40.0, 32.0, 0.30, 10.0);
+        assertEquals(6.5, R196Enderman.chasingMovementSpeed(0.30), EPSILON);
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
         assertStats(R196ZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
         assertEquals(0.0, stats(R196ZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.437, R196ZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
+
+        assertEquals(0, R196Spider.initialWebCount(R196Spider.Variant.SPIDER, 0));
+        assertEquals(2, R196Spider.initialWebCount(R196Spider.Variant.SPIDER, 3));
+        assertEquals(3, R196Spider.initialWebCount(R196Spider.Variant.CAVE_SPIDER, 3));
+        assertEquals(3, R196Spider.initialWebCount(R196Spider.Variant.DEMON, 3));
+        assertEquals(2, R196Spider.initialWebCount(R196Spider.Variant.BLACK_WIDOW, 3));
+        assertEquals(0, R196Spider.initialWebCount(R196Spider.Variant.PHASE, 3));
+        assertEquals(500, R196Spider.webThrowInterval(R196Spider.Variant.SPIDER));
+        assertEquals(500, R196Spider.webThrowInterval(R196Spider.Variant.WOOD));
+        assertEquals(200, R196Spider.webThrowInterval(R196Spider.Variant.CAVE_SPIDER));
+        assertEquals(200, R196Spider.webThrowInterval(R196Spider.Variant.DEMON));
+        assertTrue(R196Spider.shouldThrowWebAtTick(R196Spider.Variant.SPIDER, 0, 0));
+        assertFalse(R196Spider.shouldThrowWebAtTick(R196Spider.Variant.SPIDER, 0, 1));
+        assertTrue(R196Spider.shouldThrowWebAtTick(R196Spider.Variant.CAVE_SPIDER, 153, 1));
 
         AttributeSupplier blaze = stats(R196Blaze.attributes());
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);

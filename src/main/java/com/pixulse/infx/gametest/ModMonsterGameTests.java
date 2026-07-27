@@ -31,6 +31,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -196,6 +197,18 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.437D) < DAMAGE_EPSILON,
                 "R196 zombified piglins must retain MITE's 1.9x chase-speed ratio");
+        var enderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(7, 2, 1));
+        helper.assertTrue(
+                enderman.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.30D,
+                "R196 endermen must retain their 0.30 standing movement speed");
+        enderman.setTarget(piglinTarget);
+        helper.assertTrue(
+                Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 6.50D) < DAMAGE_EPSILON,
+                "R196 endermen must retain MITE's 6.50 chase-speed total");
+        enderman.setTarget(null);
+        helper.assertTrue(
+                Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.30D) < DAMAGE_EPSILON,
+                "R196 endermen must remove the chase-speed modifier without a target");
         piglin.setTarget(null);
         ModR196CompletionGameTests.removePlayer(piglinTarget);
         piglin.tick();
@@ -595,6 +608,33 @@ public final class ModMonsterGameTests {
                 !fire.isSensitiveToWater(),
                 "fire elementals must not stack the modern per-tick water damage on MITE's own drain");
         ModR196CompletionGameTests.removePlayer(player);
+
+        BlockPos squidPos = new BlockPos(3, 2, 7);
+        helper.setBlock(squidPos, Blocks.WATER);
+        var squid = helper.spawnWithNoFreeWill(ModEntityTypes.R196_SQUID.get(), squidPos);
+        var squidPrey = helper.spawnWithNoFreeWill(ModEntityTypes.R196_COW.get(), squidPos);
+        squid.aiStep();
+        helper.assertTrue(
+                squidPrey.hasEffect(MobEffects.SLOWNESS),
+                "R196 squid must hunt and slow nearby land animals in water");
+        var preyBoat = helper.spawn(EntityTypes.OAK_BOAT, squidPos);
+        squidPrey.startRiding(preyBoat, true, false);
+        for (int hit = 0; hit < 5; hit++) {
+            // A natural collision pushes the squid away from the boat. Reposition it for the
+            // next independent collision while still exercising LivingEntity#doPush.
+            squid.setDeltaMovement(Vec3.ZERO);
+            squid.snapTo(preyBoat.getX(), preyBoat.getY(), preyBoat.getZ(), 0.0F, 0.0F);
+            squid.tick();
+        }
+        helper.assertFalse(
+                preyBoat.isRemoved(),
+                "R196 squid must not destroy a pursued boat before six collisions");
+        squid.setDeltaMovement(Vec3.ZERO);
+        squid.snapTo(preyBoat.getX(), preyBoat.getY(), preyBoat.getZ(), 0.0F, 0.0F);
+        squid.tick();
+        helper.assertTrue(
+                preyBoat.isRemoved(),
+                "R196 squid must destroy a boat on its sixth collision while pursuing its passenger");
 
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(9, 2, 4));

@@ -2,9 +2,12 @@ package com.pixulse.infx.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -12,9 +15,18 @@ import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 /** Enderman replacement with pearl awareness and projectile damage support. */
 public final class R196Enderman extends EnderMan implements R196Mob {
+    private static final Identifier MITE_CHASE_SPEED_ID = Identifier.fromNamespaceAndPath("infx", "mite_chase_speed");
+    private static final Identifier VANILLA_CHASE_SPEED_ID = Identifier.withDefaultNamespace("attacking");
+    private static final double MITE_CHASE_SPEED_MULTIPLIER = 6.5 / 0.3;
+    private static final AttributeModifier MITE_CHASE_SPEED = new AttributeModifier(
+            MITE_CHASE_SPEED_ID,
+            MITE_CHASE_SPEED_MULTIPLIER - 1.0,
+            AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+
     public R196Enderman(EntityType<? extends EnderMan> type, Level level) {
         super(type, level);
     }
@@ -25,6 +37,30 @@ public final class R196Enderman extends EnderMan implements R196Mob {
                 .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.30)
                 .add(Attributes.ATTACK_DAMAGE, 10.0);
+    }
+
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        super.setTarget(target);
+        AttributeInstance movementSpeed = getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed == null) {
+            return;
+        }
+
+        // The old modifier was an additive +6.2 on MITE's 0.3 base (6.5 total).
+        // Express that as a multiplier so it remains tied to the registered modern base
+        // and replaces 26.2's unrelated +0.15 attacking modifier.
+        movementSpeed.removeModifier(VANILLA_CHASE_SPEED_ID);
+        boolean chasing = getTarget() != null;
+        if (chasing && !movementSpeed.hasModifier(MITE_CHASE_SPEED_ID)) {
+            movementSpeed.addTransientModifier(MITE_CHASE_SPEED);
+        } else if (!chasing && movementSpeed.hasModifier(MITE_CHASE_SPEED_ID)) {
+            movementSpeed.removeModifier(MITE_CHASE_SPEED_ID);
+        }
+    }
+
+    static double chasingMovementSpeed(double baseMovementSpeed) {
+        return baseMovementSpeed * MITE_CHASE_SPEED_MULTIPLIER;
     }
 
     @Override
