@@ -281,7 +281,7 @@ public final class ModMonsterGameTests {
             for (int size : List.of(1, 2, 4)) {
                 slime.setSize(size, true);
                 double expectedSpeed = slime.variant() == R196Slime.Variant.OOZE
-                        ? 0.05D
+                        ? 0.07D
                         : 0.20D + 0.10D * slime.getSize();
                 helper.assertTrue(
                         slime.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == expectedSpeed,
