@@ -2,12 +2,16 @@ package com.pixulse.infx.entity;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
@@ -17,6 +21,10 @@ import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.InfestedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gamerules.GameRules;
 
 /** Explosive, venomous and paralyzing R196 silverfish variants. */
 public final class R196Silverfish extends Silverfish implements R196Mob {
@@ -28,6 +36,7 @@ public final class R196Silverfish extends Silverfish implements R196Mob {
 
     private boolean exploded;
     private int nextFizzTick;
+    private MiteWakeUpFriendsGoal miteWakeUpFriendsGoal;
 
     public R196Silverfish(EntityType<? extends Silverfish> type, Level level) {
         super(type, level);
@@ -55,9 +64,13 @@ public final class R196Silverfish extends Silverfish implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE silverfish never burrow into blocks; they notice players only within 8 blocks
-        // but actively hunt animals and villagers.
-        goalSelector.removeAllGoals(goal -> goal.getClass().getSimpleName().equals("SilverfishMergeWithStoneGoal"));
+        // MITE silverfish neither burrow into blocks nor use the modern 50% ally-release roll.
+        goalSelector.removeAllGoals(goal -> {
+            String name = goal.getClass().getSimpleName();
+            return name.equals("SilverfishMergeWithStoneGoal") || name.equals("SilverfishWakeUpFriendsGoal");
+        });
+        miteWakeUpFriendsGoal = new MiteWakeUpFriendsGoal(this);
+        goalSelector.addGoal(3, miteWakeUpFriendsGoal);
         targetSelector.removeAllGoals(goal -> goal instanceof NearestAttackableTargetGoal<?>);
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this, Player.class, 10, true, false, (target, level) -> distanceToSqr(target) <= 64.0));
@@ -78,15 +91,19 @@ public final class R196Silverfish extends Silverfish implements R196Mob {
         return hurt;
     }
 
-    /** MITE netherspawn can be safely killed with snowballs, which modern snowballs cannot do. */
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
-        if (variant() == Variant.NETHERSPAWN
-                && source.getDirectEntity() instanceof Snowball
-                && source.getEntity() instanceof Player) {
-            damage = Math.max(damage, 1.0F);
+        if (variant() == Variant.NETHERSPAWN && source.getDirectEntity() instanceof Snowball) {
+            damage = Math.max(damage, 2.0F);
         }
-        return super.hurtServer(level, source, damage);
+        boolean hurt = super.hurtServer(level, source, damage);
+        if (hurt
+                && isAlive()
+                && miteWakeUpFriendsGoal != null
+                && (source.getEntity() != null || source.is(DamageTypes.MAGIC))) {
+            miteWakeUpFriendsGoal.notifyHurt();
+        }
+        return hurt;
     }
 
     @Override
@@ -107,10 +124,76 @@ public final class R196Silverfish extends Silverfish implements R196Mob {
     @Override
     public void die(DamageSource source) {
         if (!exploded && variant() == Variant.NETHERSPAWN && level() instanceof ServerLevel level
-                && !isInWaterOrRain() && !(source.getDirectEntity() instanceof Snowball)) {
+                && !isInWaterOrRain()
+                && !isInLava()
+                && !source.is(DamageTypeTags.IS_DROWNING)
+                && !(source.getDirectEntity() instanceof Snowball)) {
             exploded = true;
-            level.explode(this, getX(), getY() + getBbHeight() * 0.25, getZ(), 1.0F, Level.ExplosionInteraction.MOB);
+            level.explode(
+                    this,
+                    getX(),
+                    getY() + getBbHeight() * 0.25,
+                    getZ(),
+                    1.0F,
+                    true,
+                    Level.ExplosionInteraction.MOB);
         }
         super.die(source);
+    }
+
+    static boolean isNetherspawnExplosionProtected(BlockState state) {
+        return state.is(Blocks.NETHERRACK)
+                || state.is(Blocks.NETHER_QUARTZ_ORE)
+                || state.is(Blocks.NETHER_GOLD_ORE)
+                || state.is(Blocks.GOLD_ORE)
+                || state.is(Blocks.DEEPSLATE_GOLD_ORE);
+    }
+
+    private static final class MiteWakeUpFriendsGoal extends Goal {
+        private final R196Silverfish silverfish;
+        private int ticksUntilWake;
+
+        private MiteWakeUpFriendsGoal(R196Silverfish silverfish) {
+            this.silverfish = silverfish;
+        }
+
+        private void notifyHurt() {
+            if (ticksUntilWake == 0) {
+                ticksUntilWake = adjustedTickDelay(20);
+            }
+        }
+
+        @Override
+        public boolean canUse() {
+            return ticksUntilWake > 0;
+        }
+
+        @Override
+        public void tick() {
+            if (--ticksUntilWake > 0 || !(silverfish.level() instanceof ServerLevel level)) {
+                return;
+            }
+
+            BlockPos origin = silverfish.blockPosition();
+            for (int yOffset = 0; yOffset <= 5 && yOffset >= -5; yOffset = (yOffset <= 0 ? 1 : 0) - yOffset) {
+                for (int xOffset = 0; xOffset <= 10 && xOffset >= -10; xOffset = (xOffset <= 0 ? 1 : 0) - xOffset) {
+                    for (int zOffset = 0; zOffset <= 10 && zOffset >= -10; zOffset = (zOffset <= 0 ? 1 : 0) - zOffset) {
+                        BlockPos pos = origin.offset(xOffset, yOffset, zOffset);
+                        BlockState state = level.getBlockState(pos);
+                        if (!(state.getBlock() instanceof InfestedBlock infestedBlock)) {
+                            continue;
+                        }
+                        if (level.getGameRules().get(GameRules.MOB_GRIEFING)) {
+                            level.destroyBlock(pos, true, silverfish);
+                        } else {
+                            level.setBlock(pos, infestedBlock.hostStateByInfested(state), 3);
+                        }
+                        if (silverfish.getRandom().nextInt(4) == 0) {
+                            return;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
