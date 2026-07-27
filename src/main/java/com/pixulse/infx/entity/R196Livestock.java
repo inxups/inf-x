@@ -65,7 +65,7 @@ public final class R196Livestock {
     static final int PANIC_ESCAPE_HORIZONTAL_RANGE = 4;
     static final int PANIC_ESCAPE_VERTICAL_RANGE = 0;
     static final int PANIC_ESCAPE_ATTEMPTS = 8;
-    static final double PANIC_ESCAPE_SPEED = 1.4;
+    static final double PANIC_ESCAPE_SPEED = 1.0;
     static final double PANIC_MOVEMENT_SPEED_MULTIPLIER = 1.5;
     private static final Identifier PANIC_MOVEMENT_SPEED_ID =
             Identifier.fromNamespaceAndPath("infx", "livestock_panic_speed");
