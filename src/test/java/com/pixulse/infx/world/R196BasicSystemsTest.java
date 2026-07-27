@@ -32,6 +32,13 @@ class R196BasicSystemsTest {
     }
 
     @Test
+    void grassBlockIsNotLooseTerrain() {
+        assertFalse(R196PhysicsRules.isLoose(Blocks.GRASS_BLOCK.defaultBlockState()));
+        assertTrue(R196PhysicsRules.isLoose(Blocks.DIRT.defaultBlockState()));
+        assertTrue(R196PhysicsRules.isLoose(Blocks.GRAVEL.defaultBlockState()));
+    }
+
+    @Test
     void safeOwnershipUsesMitePortabilityAndNumericHarvestLevels() {
         assertTrue(R196SafeEvents.mayBreak(R196Material.COPPER, true, null));
         assertFalse(R196SafeEvents.mayBreak(R196Material.COPPER, false, R196Material.COPPER));
