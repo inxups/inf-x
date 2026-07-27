@@ -10,7 +10,6 @@ public final class R196PhysicsRules {
 
     public static boolean isLoose(BlockState state) {
         return state.is(Blocks.DIRT)
-                || state.is(Blocks.GRASS_BLOCK)
                 || state.is(Blocks.COARSE_DIRT)
                 || state.is(Blocks.ROOTED_DIRT)
                 || state.is(Blocks.PODZOL)
