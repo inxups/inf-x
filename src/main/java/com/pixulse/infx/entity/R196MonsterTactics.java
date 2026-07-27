@@ -12,6 +12,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
@@ -150,25 +151,29 @@ public final class R196MonsterTactics {
     }
 
     public static boolean tryDig(ServerLevel level, Mob mob) {
-        if (!level.getGameRules().get(GameRules.MOB_GRIEFING) || mob.getTarget() == null) return false;
+        if (!level.getGameRules().get(GameRules.MOB_GRIEFING) || mob.getTarget() == null) {
+            return stopDigging(level, mob);
+        }
         var hit = level.clip(new ClipContext(
                 mob.getEyePosition(),
                 mob.getTarget().getEyePosition(),
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
                 mob));
-        if (hit.getType() != HitResult.Type.BLOCK) return false;
+        if (hit.getType() != HitResult.Type.BLOCK) return stopDigging(level, mob);
         BlockPos pos = hit.getBlockPos();
-        if (Vec3.atCenterOf(pos).distanceToSqr(mob.position()) > 9.0) return false;
+        if (Vec3.atCenterOf(pos).distanceToSqr(mob.position()) > 9.0) return stopDigging(level, mob);
         var state = level.getBlockState(pos);
         float hardness = state.getDestroySpeed(level, pos);
-        if (hardness < 0.0F || state.isAir() || state.is(Blocks.BEDROCK) || level.getBlockEntity(pos) != null) return false;
+        if (hardness < 0.0F || state.isAir() || state.is(Blocks.BEDROCK) || level.getBlockEntity(pos) != null) {
+            return stopDigging(level, mob);
+        }
 
         ItemStack tool = mob.getMainHandItem();
         float speed = Math.max(1.0F, tool.getDestroySpeed(state));
         // MITE bare-handed diggers only clear soft blocks; stone (hardness 1.5) requires a tool.
         float maximumHardness = speed > 1.0F ? 12.0F : 1.4F;
-        if (hardness > maximumHardness) return false;
+        if (hardness > maximumHardness) return stopDigging(level, mob);
         int required = Math.clamp(Mth.ceil(40.0F * Math.max(0.25F, hardness) / speed), 10, 240);
         var data = mob.getPersistentData();
         long encoded = pos.asLong();
@@ -184,5 +189,19 @@ public final class R196MonsterTactics {
         data.remove(DIG_POS);
         data.remove(DIG_PROGRESS);
         return true;
+    }
+
+    /** True only while a zombie is actively progressing through this module's block-dig task. */
+    public static boolean isDigging(Mob mob) {
+        return mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
+    }
+
+    private static boolean stopDigging(ServerLevel level, Mob mob) {
+        var data = mob.getPersistentData();
+        long encoded = data.getLong(DIG_POS).orElse(Long.MIN_VALUE);
+        if (encoded != Long.MIN_VALUE) level.destroyBlockProgress(mob.getId(), BlockPos.of(encoded), -1);
+        data.remove(DIG_POS);
+        data.remove(DIG_PROGRESS);
+        return false;
     }
 }

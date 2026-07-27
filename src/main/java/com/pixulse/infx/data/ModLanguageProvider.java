@@ -443,6 +443,27 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.underworld_bed_unsafe", locale == Locale.EN_US
                 ? "It is not safe to sleep in the Underworld"
                 : "地下世界不适合睡眠");
+        add("message.infx.bed.not_sheltered", locale == Locale.EN_US
+                ? "A bed needs shelter from the sky"
+                : "床需要遮蔽天空");
+        add("message.infx.bed.too_hungry", locale == Locale.EN_US
+                ? "You are too hungry to sleep"
+                : "你太饥饿，无法入睡");
+        add("message.infx.bed.poisoned", locale == Locale.EN_US
+                ? "You cannot sleep while poisoned"
+                : "中毒时无法入睡");
+        add("message.infx.bed.mobs_digging", locale == Locale.EN_US
+                ? "Nearby zombies are digging"
+                : "附近的僵尸正在挖掘");
+        add("message.infx.bed.wake_hungry", locale == Locale.EN_US
+                ? "You wake up too hungry to continue sleeping"
+                : "你因过于饥饿而醒来");
+        add("message.infx.bed.wake_mobs", locale == Locale.EN_US
+                ? "You wake up to nearby monsters"
+                : "附近的怪物惊醒了你");
+        add("message.infx.bed.unsafe_dimension", locale == Locale.EN_US
+                ? "Beds can only be used in the Overworld"
+                : "床只能在主世界使用");
         add("message.infx.creative_disabled", locale == Locale.EN_US
                 ? "Creative mode is disabled in R196 survival worlds"
                 : "R196 生存世界禁止创造模式");
