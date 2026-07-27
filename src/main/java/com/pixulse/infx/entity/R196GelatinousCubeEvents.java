@@ -2,11 +2,14 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.equipment.R196CorrosionRules;
 import com.pixulse.infx.equipment.R196CorrosionType;
+import com.pixulse.infx.registry.ModSounds;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -40,10 +43,24 @@ public final class R196GelatinousCubeEvents {
 
     private static void dissolveTouchedBlocks(ServerLevel level, R196Slime slime) {
         R196CorrosionType type = slime.variant().corrosionType();
+        boolean playedGrassCorrosionSound = false;
         for (BlockPos pos : BlockPos.betweenClosed(slime.getBoundingBox().inflate(0.01))) {
-            int period = R196GelatinousCubeRules.dissolvePeriod(level, pos, type);
+            BlockState state = level.getBlockState(pos);
+            int period = R196GelatinousCubeRules.dissolvePeriod(state, type);
             if (period == R196GelatinousCubeRules.INSTANT) {
-                R196GelatinousCubeRules.dissolveOnContact(level, pos, type, null);
+                boolean dissolved = R196GelatinousCubeRules.dissolveOnContact(level, pos, type, null);
+                if (!playedGrassCorrosionSound
+                        && dissolved
+                        && R196GelatinousCubeRules.isAcidScorchableGround(state, type)) {
+                    level.playSound(
+                            null,
+                            pos,
+                            ModSounds.GELATINOUS_CUBE_CORROSION.get(),
+                            SoundSource.HOSTILE,
+                            0.7F,
+                            1.0F);
+                    playedGrassCorrosionSound = true;
+                }
                 slime.clearDissolvingBlock(pos);
             } else if (period > 0) {
                 if (slime.advanceDissolvingBlock(pos, period)) {

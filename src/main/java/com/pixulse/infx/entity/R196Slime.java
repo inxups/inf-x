@@ -44,7 +44,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 public final class R196Slime extends Slime implements R196Mob {
     private static final double MODERN_BASE_MOVEMENT_SPEED = 0.20;
     private static final double MODERN_MOVEMENT_SPEED_PER_SIZE = 0.10;
-    private static final double OOZE_CRAWL_SPEED = 0.10;
+    private static final double OOZE_CRAWL_SPEED = 0.05;
 
     public enum Variant {
         SLIME(1, R196CorrosionType.PEPSIN, 16.0, R196GelatinousSphereItem.Color.GREEN),
