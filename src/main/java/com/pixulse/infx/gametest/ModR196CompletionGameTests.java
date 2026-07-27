@@ -711,7 +711,15 @@ public final class ModR196CompletionGameTests {
                 "a successful feeding interaction must consume food and restore the food meter");
         feedingPig.discard();
 
-        Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(6, 2, 8));
+        // The empty template has no ground. Build the common livestock floor before spawning the
+        // production chicken so its scheduled feather remains near its deterministic test site.
+        for (int x = 4; x <= 14; x++) {
+            for (int z = 4; z <= 14; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+            }
+        }
+        BlockPos chickenPos = new BlockPos(6, 2, 8);
+        Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), chickenPos);
         chicken.setAge(0);
         setLivestockWellness(chicken, 1.0F, 1.0F, 1.0F);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
@@ -724,13 +732,7 @@ public final class ModR196CompletionGameTests {
                 "a nearby filled water cauldron must improve the MITE water meter");
         helper.setBlock(cauldron, Blocks.STONE);
 
-        // Keep the panic assertion on settled animals with a deterministic open floor. The empty
-        // GameTest template has no terrain around the earlier production chicken.
-        for (int x = 4; x <= 14; x++) {
-            for (int z = 4; z <= 14; z++) {
-                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
-            }
-        }
+        // Keep the panic assertion on settled animals with a deterministic open floor.
         BlockPos panicSourcePos = new BlockPos(8, 2, 9);
         BlockPos panickedChickenPos = new BlockPos(9, 2, 9);
         Cow panicSource = helper.spawn(ModEntityTypes.R196_COW.get(), panicSourcePos);
@@ -836,7 +838,7 @@ public final class ModR196CompletionGameTests {
                 .thenWaitUntil(() -> helper.assertTrue(
                         !level.getEntitiesOfClass(
                                         ItemEntity.class,
-                                        chicken.getBoundingBox().inflate(3.0),
+                                        new AABB(helper.absolutePos(chickenPos)).inflate(3.0),
                                         item -> item.getItem().is(Items.FEATHER))
                                 .isEmpty(),
                         "healthy chickens must naturally shed feathers"))
