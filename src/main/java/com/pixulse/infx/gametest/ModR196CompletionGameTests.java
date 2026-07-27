@@ -711,7 +711,15 @@ public final class ModR196CompletionGameTests {
                 "a successful feeding interaction must consume food and restore the food meter");
         feedingPig.discard();
 
-        Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), new BlockPos(6, 2, 8));
+        // The empty template has no ground. Build the common livestock floor before spawning the
+        // production chicken so its scheduled feather remains near its deterministic test site.
+        for (int x = 4; x <= 14; x++) {
+            for (int z = 4; z <= 14; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+            }
+        }
+        BlockPos chickenPos = new BlockPos(6, 2, 8);
+        Chicken chicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), chickenPos);
         chicken.setAge(0);
         setLivestockWellness(chicken, 1.0F, 1.0F, 1.0F);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
@@ -723,6 +731,20 @@ public final class ModR196CompletionGameTests {
                 R196Livestock.update(level, chicken).water() >= 0.5F,
                 "a nearby filled water cauldron must improve the MITE water meter");
         helper.setBlock(cauldron, Blocks.STONE);
+
+        // Keep the panic assertion on settled animals with a deterministic open floor.
+        BlockPos panicSourcePos = new BlockPos(8, 2, 9);
+        BlockPos panickedChickenPos = new BlockPos(9, 2, 9);
+        Cow panicSource = helper.spawn(ModEntityTypes.R196_COW.get(), panicSourcePos);
+        Chicken panickedChicken = helper.spawn(ModEntityTypes.R196_CHICKEN.get(), panickedChickenPos);
+        panicSource.goalSelector.removeAllGoals(goal -> true);
+        panicSource.setDeltaMovement(Vec3.ZERO);
+        panicSource.setOnGround(true);
+        panickedChicken.goalSelector.removeAllGoals(goal -> true);
+        panickedChicken.setDeltaMovement(Vec3.ZERO);
+        panickedChicken.setOnGround(true);
+        R196Livestock.LivestockPanicGoal panicGoal =
+                new R196Livestock.LivestockPanicGoal(panickedChicken);
 
         // Build the dry approach before spawning the seeker so its first AI
         // tick cannot run while it is falling through uninitialized ground.
@@ -749,8 +771,10 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 foodTarget != null && foodTarget.distManhattan(helper.absolutePos(grass)) <= 2,
                 "hungry livestock must target a standable position beside edible grass");
-        foodGoal.stop();
-        foodSeeker.goalSelector.addGoal(0, foodGoal);
+        foodGoal.start();
+        helper.assertFalse(
+                foodSeeker.getNavigation().isDone(),
+                "grass-seeking livestock navigation must start");
 
         Cow seeker = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
         // Keep the manually exercised goal in sole control. The production goal
@@ -773,11 +797,39 @@ public final class ModR196CompletionGameTests {
                     helper.assertTrue(
                             needs.food() >= 0.5F && (wheat.getItem().isEmpty() || !wheat.isAlive()),
                             "livestock must consume suitable dropped food");
-                    boolean wellBeforePanic = R196Livestock.isWell(chicken);
-                    R196Livestock.panic(level, cow);
                     helper.assertTrue(
-                            R196Livestock.isWell(chicken) == wellBeforePanic,
+                            chicken.goalSelector.getAvailableGoals().stream().anyMatch(
+                                    goal -> goal.getGoal() instanceof R196Livestock.LivestockPanicGoal),
+                            "R196 livestock must install a goal that consumes the panic signal");
+                    boolean wellBeforePanic = R196Livestock.isWell(panickedChicken);
+                    R196Livestock.panic(level, panicSource);
+                    helper.assertTrue(
+                            R196Livestock.isWell(panickedChicken) == wellBeforePanic,
                             "panic must not alter MITE food, water, or freedom");
+                    helper.assertTrue(
+                            R196Livestock.isPanicked(panickedChicken, level.getGameTime()),
+                            "nearby settled livestock must receive the panic signal");
+                    Vec3 settledPanicPosition = helper.absoluteVec(Vec3.atBottomCenterOf(panickedChickenPos));
+                    panickedChicken.snapTo(
+                            settledPanicPosition.x,
+                            settledPanicPosition.y,
+                            settledPanicPosition.z,
+                            0.0F,
+                            0.0F);
+                    panickedChicken.setDeltaMovement(Vec3.ZERO);
+                    panickedChicken.setOnGround(true);
+                    helper.assertTrue(
+                            panicGoal.canUse(),
+                            "panicked livestock must choose a reachable route away from the scare");
+                    panicGoal.start();
+                    helper.assertFalse(
+                            panickedChicken.getNavigation().isDone(),
+                            "the livestock panic goal must start escape navigation");
+                    panicGoal.stop();
+                    // The production chicken is outside this focused pathfinding assertion; clear
+                    // the broad herd signal before its later feather-production check.
+                    chicken.getPersistentData().remove("infx_livestock_panic_until");
+                    chicken.getPersistentData().remove("infx_livestock_panic_origin");
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
                         R196Livestock.update(level, foodSeeker).food() >= 0.5F,
@@ -786,7 +838,7 @@ public final class ModR196CompletionGameTests {
                 .thenWaitUntil(() -> helper.assertTrue(
                         !level.getEntitiesOfClass(
                                         ItemEntity.class,
-                                        chicken.getBoundingBox().inflate(3.0),
+                                        new AABB(helper.absolutePos(chickenPos)).inflate(3.0),
                                         item -> item.getItem().is(Items.FEATHER))
                                 .isEmpty(),
                         "healthy chickens must naturally shed feathers"))
@@ -815,6 +867,8 @@ public final class ModR196CompletionGameTests {
                 .thenExecute(() -> {
                     removePlayer(player);
                     seeker.discard();
+                    panicSource.discard();
+                    panickedChicken.discard();
                 })
                 .thenSucceed();
     }
