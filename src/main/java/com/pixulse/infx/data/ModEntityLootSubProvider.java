@@ -72,13 +72,13 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
             drops(type.get(), Items.BONE, 0.0F, 2.0F);
         }
 
-        // MITE spiders drop their remaining webs as string plus a spider eye one time in three,
-        // and only for player kills; phase spiders carry no webs at all.
-        spiderDrops(ModEntityTypes.R196_SPIDER.get(), 2.0F);
-        spiderDrops(ModEntityTypes.R196_CAVE_SPIDER.get(), 3.0F);
-        spiderDrops(ModEntityTypes.BLACK_WIDOW_SPIDER.get(), 2.0F);
-        spiderDrops(ModEntityTypes.DEMON_SPIDER.get(), 3.0F);
-        spiderDrops(ModEntityTypes.WOOD_SPIDER.get(), 2.0F);
+        // R196Spider emits its actual remaining web stock on player death. The data table
+        // retains the independent one-in-three spider eye roll; phase spiders have no webs.
+        spiderDrops(ModEntityTypes.R196_SPIDER.get());
+        spiderDrops(ModEntityTypes.R196_CAVE_SPIDER.get());
+        spiderDrops(ModEntityTypes.BLACK_WIDOW_SPIDER.get());
+        spiderDrops(ModEntityTypes.DEMON_SPIDER.get());
+        spiderDrops(ModEntityTypes.WOOD_SPIDER.get());
         add(
                 ModEntityTypes.PHASE_SPIDER.get(),
                 LootTable.lootTable().withPool(spiderEyePool()));
@@ -317,11 +317,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                 .when(LootItemRandomChanceCondition.randomChance(0.25F))));
     }
 
-    private void spiderDrops(EntityType<?> custom, float maximumString) {
+    private void spiderDrops(EntityType<?> custom) {
         add(
                 custom,
                 LootTable.lootTable()
-                        .withPool(killedByPlayerPool(Items.STRING, 0.0F, maximumString))
                         .withPool(spiderEyePool()));
     }
 

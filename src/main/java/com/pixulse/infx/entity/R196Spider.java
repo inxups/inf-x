@@ -12,6 +12,7 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -26,6 +27,7 @@ import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
@@ -50,9 +52,11 @@ public final class R196Spider extends Spider implements R196Mob {
 
     private int phaseEvasions;
     private int maxPhaseEvasions;
+    private int websRemaining;
 
     public R196Spider(EntityType<? extends Spider> type, Level level) {
         super(type, level);
+        websRemaining = variant() == Variant.PHASE ? 0 : initialWebCount(variant(), random.nextInt(4));
         if (variant() == Variant.PHASE) {
             maxPhaseEvasions = random.nextInt(3) + 2;
             phaseEvasions = maxPhaseEvasions;
@@ -130,6 +134,23 @@ public final class R196Spider extends Spider implements R196Mob {
             case SPIDER, CAVE_SPIDER, DEMON -> MODERN_SPIDER_MOVEMENT_SPEED * MITE_ARACHNID_SPEED_MULTIPLIER;
             case BLACK_WIDOW, WOOD, PHASE -> MODERN_SPIDER_MOVEMENT_SPEED;
         };
+    }
+
+    /** MITE arachnids have a finite 0-3 web stock; phase spiders do not carry webs. */
+    static int initialWebCount(Variant variant, int randomRoll) {
+        if (variant == Variant.PHASE) {
+            return 0;
+        }
+        int webs = Mth.clamp(randomRoll, 0, 3);
+        return webs > 0 && variant != Variant.CAVE_SPIDER && variant != Variant.DEMON ? webs - 1 : webs;
+    }
+
+    static int webThrowInterval(Variant variant) {
+        return variant == Variant.CAVE_SPIDER || variant == Variant.DEMON ? 200 : 500;
+    }
+
+    static boolean shouldThrowWebAtTick(Variant variant, int tickCount, int entityId) {
+        return Math.floorMod(tickCount + entityId * 47, webThrowInterval(variant)) == 0;
     }
 
     @Override
@@ -237,26 +258,32 @@ public final class R196Spider extends Spider implements R196Mob {
             teleportToward(target);
         }
 
-        if ((variant() == Variant.SPIDER || variant() == Variant.CAVE_SPIDER || variant() == Variant.DEMON)
-                && tickCount % 80 == 0
-                && distanceToSqr(target) >= 9.0
-                && distanceToSqr(target) <= 144.0
-                && hasLineOfSight(target)) {
-            snareTarget(level, target);
+        if (websRemaining > 0
+                && shouldThrowWebAtTick(variant(), tickCount, getId())
+                && distanceToSqr(target) <= 64.0
+                && hasLineOfSight(target)
+                && snareTarget(level, target)) {
+            websRemaining--;
         }
     }
 
-    private void snareTarget(ServerLevel level, LivingEntity target) {
+    /**
+     * The complete EntityWeb projectile is not yet available in 26.2.  Keep the existing block-web
+     * approximation, but consume the same finite stock and use the source targeting cadence.
+     */
+    private boolean snareTarget(ServerLevel level, LivingEntity target) {
         if (!level.getGameRules().get(GameRules.MOB_GRIEFING)) {
-            return;
+            return false;
         }
         BlockPos pos = target.blockPosition();
-        if (level.isEmptyBlock(pos)) {
-            level.setBlockAndUpdate(pos, Blocks.COBWEB.defaultBlockState());
-            if (variant() == Variant.DEMON) {
-                target.igniteForSeconds(6.0F);
-            }
+        if (!level.isEmptyBlock(pos)) {
+            return false;
         }
+        level.setBlockAndUpdate(pos, Blocks.COBWEB.defaultBlockState());
+        if (variant() == Variant.DEMON) {
+            target.igniteForSeconds(6.0F);
+        }
+        return true;
     }
 
     private boolean teleportToward(LivingEntity target) {
@@ -306,10 +333,21 @@ public final class R196Spider extends Spider implements R196Mob {
     }
 
     @Override
+    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+        super.dropCustomDeathLoot(level, source, killedByPlayer);
+        if (killedByPlayer) {
+            for (int webs = websRemaining; webs > 0; webs--) {
+                spawnAtLocation(level, Items.STRING.getDefaultInstance());
+            }
+        }
+    }
+
+    @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt("R196PhaseEvasions", phaseEvasions);
         output.putInt("R196PhaseMaxEvasions", maxPhaseEvasions);
+        output.putInt("R196WebsRemaining", websRemaining);
     }
 
     @Override
@@ -317,5 +355,8 @@ public final class R196Spider extends Spider implements R196Mob {
         super.readAdditionalSaveData(input);
         phaseEvasions = input.getIntOr("R196PhaseEvasions", phaseEvasions);
         maxPhaseEvasions = input.getIntOr("R196PhaseMaxEvasions", maxPhaseEvasions);
+        websRemaining = variant() == Variant.PHASE
+                ? 0
+                : Mth.clamp(input.getIntOr("R196WebsRemaining", websRemaining), 0, 3);
     }
 }
