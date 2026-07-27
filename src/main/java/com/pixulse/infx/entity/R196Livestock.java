@@ -11,13 +11,18 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -61,6 +66,14 @@ public final class R196Livestock {
     static final int PANIC_ESCAPE_VERTICAL_RANGE = 0;
     static final int PANIC_ESCAPE_ATTEMPTS = 8;
     static final double PANIC_ESCAPE_SPEED = 1.4;
+    static final double PANIC_MOVEMENT_SPEED_MULTIPLIER = 1.5;
+    private static final Identifier PANIC_MOVEMENT_SPEED_ID =
+            Identifier.fromNamespaceAndPath("infx", "livestock_panic_speed");
+    private static final AttributeModifier PANIC_MOVEMENT_SPEED =
+            new AttributeModifier(
+                    PANIC_MOVEMENT_SPEED_ID,
+                    PANIC_MOVEMENT_SPEED_MULTIPLIER - 1.0,
+                    AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     static final String HORSE_RETRY = "infx_horse_tame_retry";
     static final long HORSE_RETRY_TICKS = 4_000L;
 
@@ -158,15 +171,27 @@ public final class R196Livestock {
     public static void serverTick(Animal animal) {
         if (!(animal.level() instanceof ServerLevel level)) return;
         ensureWellness(animal);
+        syncPanicMovementSpeed(animal, level.getGameTime());
         if (animal.tickCount % NEEDS_TICK_INTERVAL == 0 && animal.getRandom().nextInt(10) > 0) {
             update(level, animal);
         }
     }
 
-    /** Keep the R196 livestock panic signal without making it a fourth wellness requirement. */
-    public static void onHurt(Animal animal, float inflictedDamage) {
-        if (inflictedDamage <= 0.0F || !(animal.level() instanceof ServerLevel level)) return;
-        panic(level, animal);
+    /**
+     * Start the MITE panic response only after a livestock hit has completed. The victim flees
+     * the attacker while nearby livestock flee the wounded herd member.
+     */
+    public static void onHurt(Animal animal, DamageSource source, float inflictedDamage) {
+        if (inflictedDamage <= 0.0F
+                || !hasSickSkin(animal)
+                || !(animal.level() instanceof ServerLevel level)) {
+            return;
+        }
+        Entity attacker = source.getEntity();
+        if (attacker == null) {
+            attacker = source.getDirectEntity();
+        }
+        panic(level, animal, attacker == null ? animal.blockPosition() : attacker.blockPosition());
     }
 
     /** MITE food interactions add 0.5 food only after vanilla accepts the item. */
@@ -253,14 +278,20 @@ public final class R196Livestock {
                 Math.min(freedom(firstParent), freedom(secondParent)));
     }
 
-    /** Panic spreads to nearby R196 livestock but does not alter food, water, or freedom. */
+    /** Panic starts on the affected R196 livestock and spreads without altering wellness values. */
     public static void panic(ServerLevel level, Animal source) {
+        panic(level, source, source.blockPosition());
+    }
+
+    private static void panic(ServerLevel level, Animal source, BlockPos threatOrigin) {
+        long now = level.getGameTime();
         long until = level.getGameTime() + 400L + source.getRandom().nextInt(400);
+        markPanicked(source, until, threatOrigin, now);
         for (Animal nearby : level.getEntitiesOfClass(
                 Animal.class,
                 source.getBoundingBox().inflate(8.0, 4.0, 8.0),
                 other -> other != source && other.isAlive() && hasSickSkin(other))) {
-            markPanicked(nearby, until, source.blockPosition());
+            markPanicked(nearby, until, source.blockPosition(), now);
         }
     }
 
@@ -273,15 +304,40 @@ public final class R196Livestock {
         return until > now;
     }
 
-    private static void markPanicked(Animal animal, long until, BlockPos origin) {
+    private static void markPanicked(Animal animal, long until, BlockPos origin, long now) {
         var data = animal.getPersistentData();
         data.putLong(PANIC_UNTIL, extendPanicUntil(data.getLong(PANIC_UNTIL).orElse(0L), until));
         // The newest scare gives the herd an escape direction even when an older panic lasts longer.
         data.putLong(PANIC_ORIGIN, origin.asLong());
+        syncPanicMovementSpeed(animal, now);
     }
 
     static long extendPanicUntil(long currentUntil, long proposedUntil) {
         return Math.max(currentUntil, proposedUntil);
+    }
+
+    static double panicMovementSpeed(double normalMovementSpeed) {
+        return normalMovementSpeed * PANIC_MOVEMENT_SPEED_MULTIPLIER;
+    }
+
+    /** Whether the temporary panic movement-speed modifier is currently active. */
+    public static boolean hasPanicMovementSpeedBoost(Animal animal) {
+        AttributeInstance movementSpeed = animal.getAttribute(Attributes.MOVEMENT_SPEED);
+        return movementSpeed != null && movementSpeed.hasModifier(PANIC_MOVEMENT_SPEED_ID);
+    }
+
+    private static void syncPanicMovementSpeed(Animal animal, long now) {
+        AttributeInstance movementSpeed = animal.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (movementSpeed == null) {
+            return;
+        }
+        if (isPanicked(animal, now)) {
+            if (!hasPanicMovementSpeedBoost(animal)) {
+                movementSpeed.addTransientModifier(PANIC_MOVEMENT_SPEED);
+            }
+        } else {
+            movementSpeed.removeModifier(PANIC_MOVEMENT_SPEED_ID);
+        }
     }
 
     private static @Nullable Vec3 panicOrigin(Animal animal) {

@@ -11,7 +11,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -28,7 +27,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
-/** R196 cow: livestock needs, milk quota, and panic live on the entity. */
+/** R196 cow: livestock needs and milk quota; panic is handled by the common livestock event. */
 public final class R196Cow extends Cow {
     /**
      * Per-class isWell id. It must be registered while this class initializes, before Entity builds
@@ -72,13 +71,6 @@ public final class R196Cow extends Cow {
         if (!level().isClientSide()) {
             R196Livestock.serverTick(this);
         }
-    }
-
-    @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        boolean hurt = super.hurtServer(level, source, amount);
-        if (hurt) R196Livestock.onHurt(this, amount);
-        return hurt;
     }
 
     @Override

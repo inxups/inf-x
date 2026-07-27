@@ -91,6 +91,11 @@ class R196LivestockRulesTest {
     }
 
     @Test
+    void panicIncreasesMovementSpeedByFiftyPercent() {
+        assertEquals(0.30D, R196Livestock.panicMovementSpeed(0.20D), 1.0E-9D);
+    }
+
+    @Test
     void waterGoalPrefersReachablePathsAndRejectsStationaryPartials() {
         BlockPos target = new BlockPos(4, 0, 0);
         Path empty = new Path(List.of(), target, false);

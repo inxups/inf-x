@@ -8,17 +8,25 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
 /**
  * Residual global animal hooks that are not owned by R196 replacement entity classes
- * (e.g. iron golem drop rewrite). Livestock behavior lives on {@code R196Cow} etc.
+ * (e.g. iron golem drop rewrite and livestock panic after a completed hit).
  */
 public final class R196AnimalEvents {
     private R196AnimalEvents() {}
 
     public static void register(IEventBus gameBus) {
+        gameBus.addListener(R196AnimalEvents::onDamaged);
         gameBus.addListener(R196AnimalEvents::onDrops);
+    }
+
+    private static void onDamaged(LivingDamageEvent.Post event) {
+        if (event.getEntity() instanceof Animal animal) {
+            R196Livestock.onHurt(animal, event.getSource(), event.getOriginalDamage());
+        }
     }
 
     private static void onDrops(LivingDropsEvent event) {

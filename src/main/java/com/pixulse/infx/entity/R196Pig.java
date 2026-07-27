@@ -7,7 +7,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -59,13 +58,6 @@ public final class R196Pig extends Pig {
         if (!level().isClientSide()) {
             R196Livestock.serverTick(this);
         }
-    }
-
-    @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-        boolean hurt = super.hurtServer(level, source, amount);
-        if (hurt) R196Livestock.onHurt(this, amount);
-        return hurt;
     }
 
     @Override

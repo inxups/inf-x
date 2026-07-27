@@ -69,7 +69,6 @@ public final class R196Sheep extends Sheep {
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
         boolean hurt = super.hurtServer(level, source, amount);
         if (hurt) {
-            R196Livestock.onHurt(this, amount);
             if (source.is(DamageTypeTags.IS_FIRE)
                     || source.typeHolder().unwrapKey()
                             .map(key -> key.identifier().getPath().contains("acid"))

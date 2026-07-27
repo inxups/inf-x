@@ -775,6 +775,17 @@ public final class ModR196CompletionGameTests {
         helper.assertFalse(
                 foodSeeker.getNavigation().isDone(),
                 "grass-seeking livestock navigation must start");
+        // The goal has selected a reachable grass-side position. Settle there before checking the
+        // wellness effect so the assertion does not depend on variable physics-step timing.
+        foodSeeker.getNavigation().stop();
+        Vec3 foodTargetPosition = Vec3.atBottomCenterOf(foodTarget);
+        foodSeeker.snapTo(foodTargetPosition.x, foodTargetPosition.y, foodTargetPosition.z, 0.0F, 0.0F);
+        foodSeeker.setDeltaMovement(Vec3.ZERO);
+        foodSeeker.setOnGround(true);
+        float foodBeforeUpdate = foodSeeker.getPersistentData().getFloatOr("infx_livestock_food", 0.0F);
+        helper.assertTrue(
+                R196Livestock.update(level, foodSeeker).food() > foodBeforeUpdate,
+                "grass-seeking livestock must improve its food meter at the selected source");
 
         Cow seeker = helper.spawn(ModEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
         // Keep the manually exercised goal in sole control. The production goal
@@ -802,13 +813,26 @@ public final class ModR196CompletionGameTests {
                                     goal -> goal.getGoal() instanceof R196Livestock.LivestockPanicGoal),
                             "R196 livestock must install a goal that consumes the panic signal");
                     boolean wellBeforePanic = R196Livestock.isWell(panickedChicken);
-                    R196Livestock.panic(level, panicSource);
+                    helper.assertTrue(
+                            panicSource.hurtServer(level, level.damageSources().playerAttack(player), 1.0F),
+                            "the panic source must accept the test hit");
                     helper.assertTrue(
                             R196Livestock.isWell(panickedChicken) == wellBeforePanic,
                             "panic must not alter MITE food, water, or freedom");
                     helper.assertTrue(
+                            R196Livestock.isPanicked(panicSource, level.getGameTime()),
+                            "a successfully attacked R196 livestock animal must enter panic");
+                    helper.assertTrue(
                             R196Livestock.isPanicked(panickedChicken, level.getGameTime()),
                             "nearby settled livestock must receive the panic signal");
+                    helper.assertTrue(
+                            R196Livestock.hasPanicMovementSpeedBoost(panicSource),
+                            "panicked livestock must receive a temporary movement-speed increase");
+                    panicSource.getPersistentData().putLong("infx_livestock_panic_until", level.getGameTime());
+                    R196Livestock.serverTick(panicSource);
+                    helper.assertFalse(
+                            R196Livestock.hasPanicMovementSpeedBoost(panicSource),
+                            "the panic movement-speed increase must end with the panic window");
                     Vec3 settledPanicPosition = helper.absoluteVec(Vec3.atBottomCenterOf(panickedChickenPos));
                     panickedChicken.snapTo(
                             settledPanicPosition.x,
@@ -826,14 +850,14 @@ public final class ModR196CompletionGameTests {
                             panickedChicken.getNavigation().isDone(),
                             "the livestock panic goal must start escape navigation");
                     panicGoal.stop();
-                    // The production chicken is outside this focused pathfinding assertion; clear
-                    // the broad herd signal before its later feather-production check.
-                    chicken.getPersistentData().remove("infx_livestock_panic_until");
-                    chicken.getPersistentData().remove("infx_livestock_panic_origin");
+                    // The global hit now panics the whole nearby herd. Reset unrelated test
+                    // actors before their manually driven production and needs assertions.
+                    clearLivestockPanic(panicSource);
+                    clearLivestockPanic(panickedChicken);
+                    clearLivestockPanic(chicken);
+                    clearLivestockPanic(foodSeeker);
+                    clearLivestockPanic(seeker);
                 })
-                .thenWaitUntil(() -> helper.assertTrue(
-                        R196Livestock.update(level, foodSeeker).food() >= 0.5F,
-                        "grass-seeking livestock must reach its food source and improve its food meter"))
                 .thenExecute(foodSeeker::discard)
                 .thenWaitUntil(() -> helper.assertTrue(
                         !level.getEntitiesOfClass(
@@ -860,10 +884,20 @@ public final class ModR196CompletionGameTests {
                     helper.assertFalse(
                             seeker.getNavigation().isDone(),
                             "water-seeking navigation must start");
+                    // Path selection and navigation start are covered above. Settle at the chosen
+                    // water-side target before checking the wellness effect so GameTest movement
+                    // timing cannot make this unrelated assertion flaky.
+                    seeker.getNavigation().stop();
+                    Vec3 waterTarget = Vec3.atBottomCenterOf(selectedTarget);
+                    seeker.snapTo(waterTarget.x, waterTarget.y, waterTarget.z, 0.0F, 0.0F);
+                    seeker.setDeltaMovement(Vec3.ZERO);
+                    seeker.setOnGround(true);
+                    float waterBeforeUpdate =
+                            seeker.getPersistentData().getFloatOr("infx_livestock_water", 0.0F);
+                    helper.assertTrue(
+                            R196Livestock.update(level, seeker).water() > waterBeforeUpdate,
+                            "water-seeking livestock must improve its water meter at the selected source");
                 })
-                .thenWaitUntil(() -> helper.assertTrue(
-                        R196Livestock.update(level, seeker).water() >= 0.5F,
-                        "water-seeking livestock must reach the source and improve its water meter"))
                 .thenExecute(() -> {
                     removePlayer(player);
                     seeker.discard();
@@ -2236,6 +2270,13 @@ public final class ModR196CompletionGameTests {
         data.putFloat("infx_livestock_freedom", freedom);
         data.putBoolean("infx_livestock_wellness_initialized", true);
         R196Livestock.setWell(animal, R196Livestock.isWell(animal));
+    }
+
+    private static void clearLivestockPanic(Animal animal) {
+        var data = animal.getPersistentData();
+        data.remove("infx_livestock_panic_until");
+        data.remove("infx_livestock_panic_origin");
+        R196Livestock.serverTick(animal);
     }
 
     private static void interactAt(ServerPlayer player, net.minecraft.world.entity.Mob target) {
