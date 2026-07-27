@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
 class R196MonsterProfileTest {
@@ -134,6 +135,16 @@ class R196MonsterProfileTest {
         AttributeSupplier ghast = stats(R196Ghast.attributes());
         assertEquals(10.0, ghast.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(100.0, ghast.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
+    }
+
+    @Test
+    void netherspawnExplosionKeepsTheMiteProtectedTerrain() {
+        assertTrue(R196Silverfish.isNetherspawnExplosionProtected(Blocks.NETHERRACK.defaultBlockState()));
+        assertTrue(R196Silverfish.isNetherspawnExplosionProtected(Blocks.NETHER_QUARTZ_ORE.defaultBlockState()));
+        assertTrue(R196Silverfish.isNetherspawnExplosionProtected(Blocks.NETHER_GOLD_ORE.defaultBlockState()));
+        assertTrue(R196Silverfish.isNetherspawnExplosionProtected(Blocks.GOLD_ORE.defaultBlockState()));
+        assertTrue(R196Silverfish.isNetherspawnExplosionProtected(Blocks.DEEPSLATE_GOLD_ORE.defaultBlockState()));
+        assertFalse(R196Silverfish.isNetherspawnExplosionProtected(Blocks.DIRT.defaultBlockState()));
     }
 
     @Test
