@@ -28,6 +28,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /** Skeleton replacement plus Longdead and both Bone Lord variants. */
@@ -178,27 +179,81 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
             arrow = weapon.customArrow(arrow, ammunition, bow);
         }
 
-        double currentX = target.getX() - getX();
-        double currentZ = target.getZ() - getZ();
-        double horizontalDistance = Math.sqrt(currentX * currentX + currentZ * currentZ);
-        double flightTicks = Math.min(60.0, horizontalDistance / 1.6);
-        double xd = target.getX() + target.getDeltaMovement().x * flightTicks - getX();
-        double zd = target.getZ() + target.getDeltaMovement().z * flightTicks - getZ();
-        double predictedDistance = Math.sqrt(xd * xd + zd * zd);
-        double yd = target.getY(1.0 / 3.0) + target.getDeltaMovement().y * Math.min(10.0, flightTicks) - arrow.getY();
+        MiteRangedAim aim = calculateMiteRangedAim(
+                getX(),
+                getZ(),
+                target.getX(),
+                target.getZ(),
+                target.getKnownMovement(),
+                target.getDeltaMovement(),
+                arrow.getRandom().nextFloat());
+        double predictedDistance = Math.sqrt(aim.horizontalDistanceSqr());
+        // MITE predicts only horizontal movement and continues to target one-third of the current height.
+        double yd = target.getY(1.0 / 3.0) - arrow.getY();
+        double verticalCorrection = miteVerticalCorrection(aim.horizontalDistanceSqr(), target.getY() - getY());
         if (level() instanceof ServerLevel level) {
-            Projectile.spawnProjectileUsingShoot(
-                    arrow,
+            AbstractArrow launchedArrow = arrow;
+            Projectile.spawnProjectile(
+                    launchedArrow,
                     level,
                     ammunition,
-                    xd,
-                    yd + predictedDistance * 0.2F,
-                    zd,
-                    1.6F,
-                    14 - level.getDifficulty().getId() * 4);
+                    projectile -> {
+                        projectile.shoot(
+                                aim.x(),
+                                yd + predictedDistance * 0.2F,
+                                aim.z(),
+                                1.6F,
+                                miteArrowInaccuracy(level.getDifficulty().getId()));
+                        // EntityArrow applies this after setting its heading; preserve that ordering.
+                        projectile.setDeltaMovement(projectile.getDeltaMovement().add(0.0, verticalCorrection, 0.0));
+                    });
         }
         playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 0.8F));
     }
+
+    /** MITE's random horizontal lead, using the player input vector when the server has one. */
+    static MiteRangedAim calculateMiteRangedAim(
+            double shooterX,
+            double shooterZ,
+            double targetX,
+            double targetZ,
+            Vec3 knownMovement,
+            Vec3 physicalMovement,
+            float randomSample) {
+        double currentX = targetX - shooterX;
+        double currentZ = targetZ - shooterZ;
+        double currentDistanceSqr = currentX * currentX + currentZ * currentZ;
+        float leadTicks = miteLeadTicks(currentDistanceSqr, randomSample);
+        double xd = targetX + predictionMotion(knownMovement.x, physicalMovement.x) * leadTicks - shooterX;
+        double zd = targetZ + predictionMotion(knownMovement.z, physicalMovement.z) * leadTicks - shooterZ;
+        return new MiteRangedAim(xd, zd, xd * xd + zd * zd, leadTicks);
+    }
+
+    static float miteLeadTicks(double horizontalDistanceSqr, float randomSample) {
+        return (float) Math.pow(horizontalDistanceSqr, 0.44D) * (0.5F + randomSample);
+    }
+
+    static float miteArrowInaccuracy(int difficultyId) {
+        return (14 - difficultyId * 4) * 1.5F;
+    }
+
+    static double miteVerticalCorrection(double horizontalDistanceSqr, double targetHeightDifference) {
+        double correction = horizontalDistanceSqr * 0.0005D * horizontalDistanceSqr * 0.0005D - 0.05D;
+        if (horizontalDistanceSqr > 576.0D) {
+            correction += 0.06D;
+        }
+        if (targetHeightDifference > 5.0D) {
+            correction += (targetHeightDifference - 5.0D) * 0.025D * (1.2D - horizontalDistanceSqr * 0.0005D);
+        }
+        return correction;
+    }
+
+    private static double predictionMotion(double knownMovement, double physicalMovement) {
+        // Entity#getKnownMovement is the modern public equivalent of MITE's last received player motion.
+        return Math.abs(knownMovement) <= 1.0D ? knownMovement : physicalMovement;
+    }
+
+    record MiteRangedAim(double x, double z, double horizontalDistanceSqr, float leadTicks) {}
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
