@@ -645,6 +645,13 @@ public final class R196MonsterEvents {
     }
 
     private static EntityType<? extends Mob> replacementForSpawn(ServerLevel level, Mob original) {
+        // MITE has a single witch implementation. Unlike the other replacements, a manually
+        // summoned or spawn-egg witch must not retain the modern vanilla class, because that
+        // class has no R196 curse lifecycle. Leave loaded entities alone to avoid silently
+        // replacing persisted vanilla-witch state in existing worlds.
+        if (original.getType() == EntityTypes.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
+            return ModEntityTypes.R196_WITCH.get();
+        }
         if (isWorldSpawn(original.getSpawnType())) {
             if (original.getType() == EntityTypes.CREEPER) {
                 int y = original.blockPosition().getY();

@@ -1,11 +1,13 @@
 package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.curse.R196CurseData;
 import com.pixulse.infx.entity.R196EarthElemental;
 import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196Mob;
 import com.pixulse.infx.entity.R196MonsterTactics;
 import com.pixulse.infx.entity.R196MonsterEvents;
+import com.pixulse.infx.entity.R196Witch;
 import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.registry.ModItems;
@@ -22,6 +24,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -60,6 +63,7 @@ public final class ModMonsterGameTests {
     private static final String BEHAVIORS = "r196_monster_behaviors";
     private static final String NETHERSPAWN = "r196_netherspawn_mechanics";
     private static final String ENDERMAN = "r196_enderman";
+    private static final String WITCH_CURSE = "r196_witch_curse";
     private static final String TACTICS = "r196_monster_tactics";
     private static final String SPAWNS = "r196_spawn_tables";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
@@ -72,6 +76,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
         FUNCTIONS.register(NETHERSPAWN, () -> ModMonsterGameTests::netherspawnMechanics);
         FUNCTIONS.register(ENDERMAN, () -> ModMonsterGameTests::enderman);
+        FUNCTIONS.register(WITCH_CURSE, () -> ModMonsterGameTests::witchCurse);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
     }
@@ -86,7 +91,8 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, ENDERMAN, TACTICS, SPAWNS)) {
+        for (String name : List.of(
+                ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, ENDERMAN, WITCH_CURSE, TACTICS, SPAWNS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -96,7 +102,7 @@ public final class ModMonsterGameTests {
                             new TestData<>(
                                     environment,
                                     Identifier.withDefaultNamespace("empty"),
-                                    200,
+                                    name.equals(WITCH_CURSE) ? 400 : 200,
                                     0,
                                     true,
                                     Rotation.NONE)));
@@ -320,6 +326,7 @@ public final class ModMonsterGameTests {
     private static void replacement(GameTestHelper helper) {
         BlockPos naturalPos = new BlockPos(2, 2, 2);
         BlockPos explicitPos = new BlockPos(5, 2, 2);
+        BlockPos explicitWitchPos = new BlockPos(5, 2, 5);
         helper.spawn(EntityTypes.ZOMBIE, naturalPos, EntitySpawnReason.NATURAL);
         BlockPos triggeredPos = new BlockPos(8, 2, 2);
         helper.setBlock(triggeredPos.east(), Blocks.COPPER_ORE);
@@ -328,6 +335,11 @@ public final class ModMonsterGameTests {
         Vec3 explicitLocation = helper.absoluteVec(Vec3.atBottomCenterOf(explicitPos));
         explicit.snapTo(explicitLocation.x, explicitLocation.y, explicitLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicit);
+        var explicitWitch = EntityTypes.WITCH.create(helper.getLevel(), EntitySpawnReason.COMMAND);
+        Vec3 explicitWitchLocation = helper.absoluteVec(Vec3.atBottomCenterOf(explicitWitchPos));
+        explicitWitch.snapTo(
+                explicitWitchLocation.x, explicitWitchLocation.y, explicitWitchLocation.z, 0.0F, 0.0F);
+        helper.getLevel().addFreshEntity(explicitWitch);
         helper.startSequence()
                 // Replacement insertion is deliberately scheduled after the
                 // vanilla join event, so the test must not inspect tick-zero's
@@ -336,10 +348,12 @@ public final class ModMonsterGameTests {
                     helper.assertEntityPresent(ModEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0D);
                     helper.assertEntityPresent(EntityTypes.ZOMBIE, explicitPos);
                     helper.assertEntityPresent(ModEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
+                    helper.assertEntityPresent(ModEntityTypes.R196_WITCH.get(), explicitWitchPos, 2.0D);
                 })
                 .thenExecute(() -> {
                     helper.assertEntityNotPresent(EntityTypes.ZOMBIE, naturalPos);
                     helper.assertEntityNotPresent(EntityTypes.SILVERFISH, triggeredPos);
+                    helper.assertEntityNotPresent(EntityTypes.WITCH, explicitWitchPos);
                     Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
                     var replacement = helper.getLevel()
                             .getEntitiesOfClass(
@@ -792,6 +806,43 @@ public final class ModMonsterGameTests {
                 .thenExecute(() -> helper.assertTrue(
                         enderman.requiresCustomPersistence(),
                         "R196 endermen carrying valuables must not despawn"))
+                .thenSucceed();
+    }
+
+    private static void witchCurse(GameTestHelper helper) {
+        var level = helper.getLevel();
+        R196Witch witch = helper.spawn(ModEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
+        List<ServerPlayer> players = List.of(
+                ModR196CompletionGameTests.createPlayer(helper),
+                ModR196CompletionGameTests.createPlayer(helper),
+                ModR196CompletionGameTests.createPlayer(helper),
+                ModR196CompletionGameTests.createPlayer(helper));
+        List<BlockPos> positions = List.of(
+                new BlockPos(1, 2, 1), new BlockPos(2, 2, 1), new BlockPos(1, 2, 2), new BlockPos(2, 2, 2));
+        for (int index = 0; index < players.size(); index++) {
+            ServerPlayer player = players.get(index);
+            Vec3 position = helper.absoluteVec(Vec3.atBottomCenterOf(positions.get(index)));
+            player.snapTo(position.x, position.y, position.z, 0.0F, 0.0F);
+            player.getAttribute(Attributes.MAX_HEALTH).setBaseValue(100.0D);
+            player.setHealth(100.0F);
+        }
+
+        helper.startSequence()
+                .thenExecuteAfter(10, () -> helper.assertTrue(
+                        witch.getTarget() instanceof ServerPlayer,
+                        "R196 witches must acquire a valid player target before cursing"))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        players.stream().anyMatch(player -> R196CurseData.get(level.getServer())
+                                .entry(player.getUUID())
+                                .isPresent()),
+                        "R196 witches must create a pending curse for a valid player target"))
+                .thenExecute(() -> {
+                    witch.discard();
+                    for (ServerPlayer player : players) {
+                        R196CurseData.get(level.getServer()).remove(player.getUUID());
+                        ModR196CompletionGameTests.removePlayer(player);
+                    }
+                })
                 .thenSucceed();
     }
 
