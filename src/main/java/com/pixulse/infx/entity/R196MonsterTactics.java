@@ -136,6 +136,9 @@ public final class R196MonsterTactics {
     }
 
     public static void cooperate(ServerLevel level, Mob mob) {
+        if (mob instanceof R196Enderman) {
+            return;
+        }
         var target = mob.getTarget();
         if (target == null || !target.isAlive()) return;
         if (!mob.hasLineOfSight(target) || mob.getNavigation().isDone()) {
@@ -153,7 +156,9 @@ public final class R196MonsterTactics {
     }
 
     public static boolean tryDig(ServerLevel level, Mob mob) {
-        if (!level.getGameRules().get(GameRules.MOB_GRIEFING) || mob.getTarget() == null) {
+        if (mob instanceof R196Enderman
+                || !level.getGameRules().get(GameRules.MOB_GRIEFING)
+                || mob.getTarget() == null) {
             return stopDigging(level, mob);
         }
         var hit = level.clip(new ClipContext(

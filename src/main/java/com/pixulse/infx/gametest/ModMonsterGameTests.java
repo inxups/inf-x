@@ -2,6 +2,7 @@ package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.R196EarthElemental;
+import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196Mob;
 import com.pixulse.infx.entity.R196MonsterTactics;
 import com.pixulse.infx.entity.R196MonsterEvents;
@@ -58,6 +59,7 @@ public final class ModMonsterGameTests {
     private static final String REPLACEMENT = "r196_monster_replacement";
     private static final String BEHAVIORS = "r196_monster_behaviors";
     private static final String NETHERSPAWN = "r196_netherspawn_mechanics";
+    private static final String ENDERMAN = "r196_enderman";
     private static final String TACTICS = "r196_monster_tactics";
     private static final String SPAWNS = "r196_spawn_tables";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
@@ -69,6 +71,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(REPLACEMENT, () -> ModMonsterGameTests::replacement);
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
         FUNCTIONS.register(NETHERSPAWN, () -> ModMonsterGameTests::netherspawnMechanics);
+        FUNCTIONS.register(ENDERMAN, () -> ModMonsterGameTests::enderman);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
     }
@@ -83,7 +86,7 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, TACTICS, SPAWNS)) {
+        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, ENDERMAN, TACTICS, SPAWNS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -673,6 +676,51 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 !fire.isSensitiveToWater(),
                 "fire elementals must not stack the modern per-tick water damage on MITE's own drain");
+
+        var enderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(8, 2, 1));
+        Arrow endermanArrow = EntityTypes.ARROW.create(level, EntitySpawnReason.COMMAND);
+        before = enderman.getHealth();
+        helper.assertTrue(
+                enderman.hurtServer(level, level.damageSources().arrow(endermanArrow, player), 4.0F),
+                "R196 endermen must take projectile damage");
+        helper.assertTrue(
+                enderman.getHealth() < before,
+                "R196 projectile hits must reduce enderman health");
+        helper.assertTrue(
+                enderman.getTarget() == player,
+                "R196 projectile hits must keep the living shooter as the enderman target");
+        enderman.invulnerableTime = 0;
+        Arrow dispenserArrow = EntityTypes.ARROW.create(level, EntitySpawnReason.COMMAND);
+        before = enderman.getHealth();
+        helper.assertTrue(
+                enderman.hurtServer(level, level.damageSources().arrow(dispenserArrow, null), 3.0F),
+                "unowned projectile damage must not fall back to vanilla enderman immunity");
+        helper.assertTrue(
+                enderman.getHealth() < before,
+                "unowned projectiles must still damage R196 endermen");
+        enderman.invulnerableTime = 0;
+        enderman.setTarget(player);
+        Snowball indirectMagic = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                enderman.hurtServer(level, level.damageSources().indirectMagic(indirectMagic, player), 2.0F),
+                "R196 endermen must take non-projectile indirect damage");
+        helper.assertTrue(
+                enderman.getTarget() == null && enderman.getLastHurtByMob() == null,
+                "non-projectile indirect damage must make R196 endermen blink and drop aggression");
+
+        var sharingSource = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(14, 2, 12));
+        var neutralEnderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(12, 2, 12));
+        R196MonsterEvents.propagateTarget(level, sharingSource, player);
+        helper.assertTrue(
+                neutralEnderman.getTarget() == null,
+                "shared monster targets must not override R196 enderman neutrality");
+        helper.assertTrue(
+                R196MonsterEvents.propagateTarget(level, neutralEnderman, player) == 0,
+                "R196 endermen must not propagate their own targets to nearby monsters");
+        neutralEnderman.setTarget(player);
+        helper.assertFalse(
+                R196MonsterTactics.tryDig(level, neutralEnderman),
+                "R196 endermen must never receive generic pursuit block digging");
         ModR196CompletionGameTests.removePlayer(player);
 
         BlockPos squidPos = new BlockPos(3, 2, 7);
@@ -725,6 +773,25 @@ public final class ModMonsterGameTests {
                             cow.getHealth() < cowHealthBefore,
                             "infernal creeper explosions must use the amplified six-block radius");
                 })
+                .thenSucceed();
+    }
+
+    private static void enderman(GameTestHelper helper) {
+        var level = helper.getLevel();
+        R196Enderman enderman = helper.spawn(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
+        ItemEntity pearl = new ItemEntity(
+                level, enderman.getX() + 1.0, enderman.getY(), enderman.getZ(), Items.ENDER_PEARL.getDefaultInstance());
+        pearl.setNoPickUpDelay();
+        level.addFreshEntity(pearl);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertEntityPresent(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3), 2.0D))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        pearl.isRemoved(),
+                        "R196 endermen must collect nearby dropped ender pearls"))
+                .thenExecute(() -> helper.assertTrue(
+                        enderman.requiresCustomPersistence(),
+                        "R196 endermen carrying valuables must not despawn"))
                 .thenSucceed();
     }
 
