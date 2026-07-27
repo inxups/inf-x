@@ -153,6 +153,23 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void r196EndermanPearlLootUsesLooting() throws Exception {
+        JsonObject table = json(GENERATED.resolve("data/infx/loot_table/entities/r196_enderman.json"));
+        JsonObject entry = table.getAsJsonArray("pools")
+                .get(0)
+                .getAsJsonObject()
+                .getAsJsonArray("entries")
+                .get(0)
+                .getAsJsonObject();
+        assertTrue(
+                entry.getAsJsonArray("functions").asList().stream()
+                        .map(JsonElement::getAsJsonObject)
+                        .anyMatch(function -> function.get("function").getAsString().equals("minecraft:enchanted_count_increase")
+                                && function.get("enchantment").getAsString().equals("minecraft:looting")),
+                "R196 ender pearl drops must retain MITE's Looting count increase");
+    }
+
+    @Test
     void netherPortalModelsUseRedTintTemplates() throws Exception {
         for (String orientation : List.of("ns", "ew")) {
             JsonObject model = json(GENERATED.resolve("assets/infx/models/block/nether_portal_" + orientation + ".json"));

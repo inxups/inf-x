@@ -53,7 +53,7 @@ class R196MonsterProfileTest {
         AttributeSupplier earthElemental = stats(R196EarthElemental.attributes());
         assertEquals(4.0, earthElemental.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, earthElemental.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
-        assertStats(R196Enderman.attributes(), 40.0, 32.0, 0.30, 10.0);
+        assertStats(R196Enderman.attributes(), 40.0, 64.0, 0.30, 10.0);
         assertEquals(6.5, R196Enderman.chasingMovementSpeed(0.30), EPSILON);
         assertStats(R196Witch.attributes(), 26.0, 32.0, 0.25, 2.0);
         assertStats(R196ZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
