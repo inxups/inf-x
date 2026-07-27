@@ -43,6 +43,7 @@ import com.pixulse.infx.world.UnderworldPortalEvents;
 import com.pixulse.infx.world.RunegateTeleportation;
 import com.pixulse.infx.world.R196VillageProgression;
 import com.pixulse.infx.world.R196MoonEvents;
+import com.pixulse.infx.world.R196BedEvents;
 import com.pixulse.infx.world.R196PhysicsEvents;
 import com.pixulse.infx.world.R196EndEvents;
 import com.pixulse.infx.world.R196SafeEvents;
@@ -107,6 +108,7 @@ public final class InfiniteX {
         RunegateTeleportation.register(NeoForge.EVENT_BUS);
         R196VillageProgression.register(NeoForge.EVENT_BUS);
         R196MoonEvents.register(NeoForge.EVENT_BUS);
+        R196BedEvents.register(NeoForge.EVENT_BUS);
         R196PhysicsEvents.register(NeoForge.EVENT_BUS);
         R196EndEvents.register(NeoForge.EVENT_BUS);
         R196SafeEvents.register(NeoForge.EVENT_BUS);

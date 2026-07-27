@@ -34,6 +34,7 @@
     "PlayerWaterfallSwimMixin",
     "LevelAccessorMixin",
     "RaidMixin",
+    "ServerLevelSleepMixin",
     "ServerLevelFluidTickMixin",
     "SpreadingSnowyBlockMixin"
   ],

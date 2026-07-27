@@ -13,7 +13,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.AnimalTameEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
-import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -25,7 +24,6 @@ public final class R196MoonEvents {
     public static void register(IEventBus gameBus) {
         gameBus.addListener(R196MoonEvents::limitHostileSpawn);
         gameBus.addListener(R196MoonEvents::tickLevel);
-        gameBus.addListener(R196MoonEvents::preventBloodMoonSleep);
         gameBus.addListener(R196MoonEvents::modifyFishing);
         gameBus.addListener(R196MoonEvents::modifyTaming);
         gameBus.addListener(R196MoonEvents::makeBloodMoonWolvesHostile);
@@ -76,11 +74,6 @@ public final class R196MoonEvents {
         } else if (phase == R196MoonPhase.BLOOD && isDay(level)) {
             setWeather(level, true, true);
         }
-    }
-
-    private static void preventBloodMoonSleep(CanPlayerSleepEvent event) {
-        if (R196MoonPhase.at(event.getEntity().level()).allowsSleep()) return;
-        event.setProblem(Player.BedSleepingProblem.NOT_SAFE);
     }
 
     private static void modifyFishing(ItemFishedEvent event) {

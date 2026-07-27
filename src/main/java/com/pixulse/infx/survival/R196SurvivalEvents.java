@@ -184,9 +184,27 @@ public final class R196SurvivalEvents {
         }
         if (player.tickCount % 10 != 0) return;
 
+        tickMetabolism(player, 10, player.isSleeping());
+        applyLethalPoison(player);
+    }
+
+    /**
+     * Advances the player-only part of one R196 sleep tick without advancing the surrounding
+     * world. Bed fast-forward calls this once per skipped clock tick so hunger, nutrient decay,
+     * starvation and the fourfold bed recovery rate retain their normal ordering.
+     *
+     * @return whether the player still has either R196 food-energy layer available
+     */
+    public static boolean tickSleepingMetabolism(ServerPlayer player) {
+        if (!hasActiveMetabolism(player)) return true;
+        tickMetabolism(player, 1, true);
+        return player.getData(ModAttachments.SURVIVAL).hasFoodEnergy();
+    }
+
+    private static void tickMetabolism(ServerPlayer player, int elapsedTicks, boolean sleeping) {
         R196SurvivalData current = player.getData(ModAttachments.SURVIVAL)
                 .clamp(R196SurvivalRules.foodCap(player.experienceLevel));
-        if (!activeMetabolism) {
+        if (!hasActiveMetabolism(player)) {
             player.setData(ModAttachments.SURVIVAL, current);
             mirrorFoodData(player, current);
             return;
@@ -197,22 +215,21 @@ public final class R196SurvivalEvents {
         int hungerEffectLevel = player.hasEffect(MobEffects.HUNGER)
                 ? player.getEffect(MobEffects.HUNGER).getAmplifier() + 1
                 : 0;
-        double cost = 10.0D
-                * (baselineCost + R196SurvivalRules.hungerEffectMetabolism(hungerEffectLevel));
+        double cost = elapsedTicks * (baselineCost + R196SurvivalRules.hungerEffectMetabolism(hungerEffectLevel));
         R196SurvivalData updated = current.metabolize(
                 cost,
-                10.0D * R196SurvivalRules.NUTRITION_METABOLISM_PER_TICK,
-                10,
+                elapsedTicks * R196SurvivalRules.NUTRITION_METABOLISM_PER_TICK,
+                elapsedTicks,
                 R196SurvivalRules.foodCap(player.experienceLevel));
-        updated = applyStarvation(player, updated);
-        updated = applyRecovery(player, updated);
+        updated = applyStarvation(player, updated, elapsedTicks);
+        updated = applyRecovery(player, updated, elapsedTicks, sleeping);
         player.setData(ModAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
         updateStatusEffects(player, updated);
-        applyLethalPoison(player);
     }
 
-    private static R196SurvivalData applyRecovery(ServerPlayer player, R196SurvivalData data) {
+    private static R196SurvivalData applyRecovery(
+            ServerPlayer player, R196SurvivalData data, int elapsedTicks, boolean sleeping) {
         boolean naturalRegeneration = player.level()
                 .getGameRules()
                 .get(GameRules.NATURAL_HEALTH_REGENERATION);
@@ -220,9 +237,9 @@ public final class R196SurvivalEvents {
             return data.withRecoveryProgress(0.0D);
         }
         double progress = data.recoveryProgress()
-                + 10.0D * R196SurvivalRules.recoveryPerTick(
+                + elapsedTicks * R196SurvivalRules.recoveryPerTick(
                         data.nutrition(),
-                        player.isSleeping(),
+                        sleeping,
                         data.isMalnourished(),
                         regenerationLevel(player));
         if (progress < 1.0D) return data.withRecoveryProgress(progress);
@@ -235,9 +252,9 @@ public final class R196SurvivalEvents {
                         R196SurvivalRules.foodCap(player.experienceLevel));
     }
 
-    private static R196SurvivalData applyStarvation(ServerPlayer player, R196SurvivalData data) {
+    private static R196SurvivalData applyStarvation(ServerPlayer player, R196SurvivalData data, int elapsedTicks) {
         if (!data.isStarving()) return data.withStarvationProgress(0.0D);
-        double progress = data.starvationProgress() + 10.0D * STARVATION_PROGRESS_PER_TICK;
+        double progress = data.starvationProgress() + elapsedTicks * STARVATION_PROGRESS_PER_TICK;
         if (progress < 1.0D) return data.withStarvationProgress(progress);
         int difficulty = player.level().getDifficulty().getId();
         if (player.getHealth() > 10.0F
@@ -362,7 +379,7 @@ public final class R196SurvivalEvents {
     private static void onContinueSleeping(CanContinueSleepingEvent event) {
         if (event.getEntity() instanceof Player player
                 && hasActiveMetabolism(player)
-                && (player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()
+                && (player.getData(ModAttachments.SURVIVAL).isStarving()
                         || player.hasEffect(ModMobEffects.WITCH_CURSE))) {
             event.setContinueSleeping(false);
         }
