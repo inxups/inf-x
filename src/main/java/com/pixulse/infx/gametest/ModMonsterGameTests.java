@@ -195,6 +195,10 @@ public final class ModMonsterGameTests {
                     zombie.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
                     type.getId() + " must not inherit modern zombie armor");
         }
+        var stalker = helper.spawnWithNoFreeWill(ModEntityTypes.INVISIBLE_STALKER.get(), new BlockPos(10, 2, 1));
+        helper.assertTrue(
+                stalker.canBreakDoors() && !stalker.isInvisible() && !stalker.canPickUpLoot(),
+                "invisible stalkers must break doors without inheriting vanilla invisibility or zombie loot pickup");
         var piglin = helper.spawn(ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(8, 2, 1));
         helper.assertTrue(
                 piglin.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,

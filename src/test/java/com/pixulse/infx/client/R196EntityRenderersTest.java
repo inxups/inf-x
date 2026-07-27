@@ -118,6 +118,11 @@ class R196EntityRenderersTest {
     @Test
     void newMonsterVariantsUseAuthorizedMiteEntityTextures() {
         assertEquals(
+                "infx:textures/entity/wight.png", R196InvisibleStalkerRenderer.texture().toString());
+        assertEquals(
+                net.minecraft.util.ARGB.white(R196InvisibleStalkerRenderer.OPACITY),
+                R196InvisibleStalkerRenderer.modelTint());
+        assertEquals(
                 "infx:textures/entity/ghoul.png",
                 R196EntityRenderers.ZombieTexture.textureFor(R196Zombie.Variant.GHOUL).toString());
         assertEquals(
@@ -295,9 +300,5 @@ class R196EntityRenderersTest {
         assertEquals(
                 "minecraft:textures/entity/zombie/zombie_baby.png",
                 R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.ZOMBIE).toString());
-        assertEquals(
-                "minecraft:textures/entity/zombie/zombie_baby.png",
-                R196EntityRenderers.ZombieTexture.babyTextureFor(R196Zombie.Variant.INVISIBLE_STALKER)
-                        .toString());
     }
 }

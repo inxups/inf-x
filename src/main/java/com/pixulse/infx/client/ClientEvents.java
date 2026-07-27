@@ -69,6 +69,7 @@ public final class ClientEvents {
     private static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(R196SafeModel.LAYER, R196SafeModel::createBodyLayer);
         event.registerLayerDefinition(R196EarthElementalModel.LAYER, R196EarthElementalModel::createBodyLayer);
+        event.registerLayerDefinition(R196InvisibleStalkerModel.LAYER, R196InvisibleStalkerModel::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -81,9 +82,7 @@ public final class ClientEvents {
         // World geometry only — chunk mesh is particle-only (see ModModelProvider).
         event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), R196SafeRenderer::new);
         event.registerEntityRenderer(ModEntityTypes.R196_ZOMBIE.get(), ZombieRenderer::new);
-        event.registerEntityRenderer(
-                ModEntityTypes.INVISIBLE_STALKER.get(),
-                context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.INVISIBLE_STALKER));
+        event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), R196InvisibleStalkerRenderer::new);
         event.registerEntityRenderer(
                 ModEntityTypes.GHOUL.get(),
                 context -> new R196EntityRenderers.ZombieTexture(context, R196Zombie.Variant.GHOUL));

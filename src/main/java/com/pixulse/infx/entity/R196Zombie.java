@@ -21,9 +21,14 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.MoveTowardsRestrictionGoal;
+import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.ZombieAttackGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -49,11 +54,8 @@ public final class R196Zombie extends Zombie implements R196Mob {
 
     public R196Zombie(EntityType<? extends Zombie> type, Level level) {
         super(type, level);
-        setCanBreakDoors(breaksDoors());
+        setCanBreakDoors(breaksDoors(variant()));
         setCanPickUpLoot(variant() == Variant.ZOMBIE);
-        if (variant() == Variant.INVISIBLE_STALKER) {
-            setInvisible(true);
-        }
         xpReward = switch (variant()) {
             case ZOMBIE -> xpReward;
             case INVISIBLE_STALKER, GHOUL, SHADOW, WIGHT -> 10;
@@ -72,9 +74,21 @@ public final class R196Zombie extends Zombie implements R196Mob {
         };
     }
 
-    /** MITE only gives the break-door task to zombies and ghouls. */
-    private boolean breaksDoors() {
-        return variant() == Variant.ZOMBIE || variant() == Variant.GHOUL;
+    /** MITE stalkers, zombies, and ghouls can force a path through closed doors. */
+    static boolean breaksDoors(Variant variant) {
+        return variant == Variant.ZOMBIE || variant == Variant.INVISIBLE_STALKER || variant == Variant.GHOUL;
+    }
+
+    static boolean burnsInSunlight(Variant variant) {
+        return variant != Variant.INVISIBLE_STALKER;
+    }
+
+    static boolean zombifiesVillagers(Variant variant) {
+        return variant != Variant.INVISIBLE_STALKER;
+    }
+
+    static boolean targetsAnimals(Variant variant) {
+        return variant != Variant.INVISIBLE_STALKER;
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
@@ -115,8 +129,20 @@ public final class R196Zombie extends Zombie implements R196Mob {
 
     @Override
     protected void addBehaviourGoals() {
+        if (variant() == Variant.INVISIBLE_STALKER) {
+            // The original stalker is an EntityMob, not a zombie: it pursues only players and villagers.
+            goalSelector.addGoal(3, new ZombieAttackGoal(this, 1.0, false));
+            goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0));
+            goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0));
+            targetSelector.addGoal(1, new HurtByTargetGoal(this));
+            targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+            targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Villager.class, true));
+            return;
+        }
         super.addBehaviourGoals();
-        targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Animal.class, true));
+        if (targetsAnimals(variant())) {
+            targetSelector.addGoal(4, new NearestAttackableTargetGoal<>(this, Animal.class, true));
+        }
     }
 
     @Override
@@ -133,7 +159,7 @@ public final class R196Zombie extends Zombie implements R196Mob {
             reinforcements.removeModifiers();
             reinforcements.setBaseValue(0.0);
         }
-        setCanBreakDoors(breaksDoors());
+        setCanBreakDoors(breaksDoors(variant()));
         setCanPickUpLoot(variant() == Variant.ZOMBIE);
         if (variant() == Variant.REVENANT) {
             equipRevenantKit(level.getLevel());
@@ -149,6 +175,16 @@ public final class R196Zombie extends Zombie implements R196Mob {
     @Override
     protected boolean convertsInWater() {
         return false;
+    }
+
+    @Override
+    protected boolean isSunSensitive() {
+        return burnsInSunlight(variant()) && super.isSunSensitive();
+    }
+
+    @Override
+    public boolean convertVillagerToZombieVillager(ServerLevel level, Villager villager) {
+        return zombifiesVillagers(variant()) && super.convertVillagerToZombieVillager(level, villager);
     }
 
     @Override
@@ -265,8 +301,9 @@ public final class R196Zombie extends Zombie implements R196Mob {
     @Override
     public void aiStep() {
         super.aiStep();
-        if (variant() == Variant.INVISIBLE_STALKER && !isInvisible()) {
-            setInvisible(true);
+        if (variant() == Variant.INVISIBLE_STALKER && isInvisible()) {
+            // Older saves used vanilla invisibility. MITE instead renders a visible 5% silhouette.
+            setInvisible(false);
         }
         if (!(level() instanceof ServerLevel level)) {
             return;
@@ -287,7 +324,7 @@ public final class R196Zombie extends Zombie implements R196Mob {
                 && level.getNearestPlayer(this, 4.0) == null) {
             disableNearbyLight(level);
         }
-        if (tickCount % 20 == 0 && isOnFire() && random.nextFloat() < 0.15F) {
+        if (variant() != Variant.INVISIBLE_STALKER && tickCount % 20 == 0 && isOnFire() && random.nextFloat() < 0.15F) {
             igniteNearbyBlock(level);
         }
     }

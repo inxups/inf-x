@@ -101,6 +101,12 @@ class R196MonsterProfileTest {
         assertTrue(R196Creeper.shouldDropInfernalPowder(true, 2));
         assertTrue(R196Creeper.shouldDropInfernalPowder(false, 0));
         assertFalse(R196Creeper.shouldDropInfernalPowder(false, 1));
+    void invisibleStalkerDoesNotInheritZombieOnlyRules() {
+        assertTrue(R196Zombie.breaksDoors(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertFalse(R196Zombie.burnsInSunlight(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertFalse(R196Zombie.zombifiesVillagers(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertFalse(R196Zombie.targetsAnimals(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertTrue(R196Zombie.targetsAnimals(R196Zombie.Variant.ZOMBIE));
     }
 
     @Test
