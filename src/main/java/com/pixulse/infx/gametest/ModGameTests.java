@@ -12,7 +12,7 @@ import com.pixulse.infx.crafting.TimedCraftingMenu;
 import com.pixulse.infx.equipment.R196QualitySystem;
 import com.pixulse.infx.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.harvest.HarvestEvents;
-import com.pixulse.infx.harvest.R196GrassHardness;
+import com.pixulse.infx.harvest.R196PlantHardness;
 import com.pixulse.infx.item.R196EquipmentKey;
 import com.pixulse.infx.item.R196EquipmentType;
 import com.pixulse.infx.material.R196Material;
@@ -364,10 +364,15 @@ public final class ModGameTests {
 
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        assertMiteTallGrassHardness(helper, player, Blocks.SHORT_GRASS, "short grass");
-        assertMiteTallGrassHardness(helper, player, Blocks.TALL_GRASS, "tall grass");
-        assertMiteTallGrassHardness(helper, player, Blocks.FERN, "fern");
-        assertMiteTallGrassHardness(helper, player, Blocks.LARGE_FERN, "large fern");
+        assertMitePlantHardness(
+                helper, player, Blocks.SHORT_GRASS, R196PlantHardness.TALL_GRASS_HARDNESS, "short grass");
+        assertMitePlantHardness(
+                helper, player, Blocks.TALL_GRASS, R196PlantHardness.TALL_GRASS_HARDNESS, "tall grass");
+        assertMitePlantHardness(helper, player, Blocks.FERN, R196PlantHardness.TALL_GRASS_HARDNESS, "fern");
+        assertMitePlantHardness(
+                helper, player, Blocks.LARGE_FERN, R196PlantHardness.TALL_GRASS_HARDNESS, "large fern");
+        assertMitePlantHardness(
+                helper, player, Blocks.SUGAR_CANE, R196PlantHardness.SUGAR_CANE_HARDNESS, "sugar cane");
         helper.setBlock(WORK_POS, Blocks.OAK_LOG);
         helper.assertFalse(
                 HarvestEvents.hasDestroyProgress(player, helper.getBlockState(WORK_POS), absolutePos),
@@ -1956,17 +1961,17 @@ public final class ModGameTests {
         player.level().getServer().getPlayerList().remove(player);
     }
 
-    private static void assertMiteTallGrassHardness(
-            GameTestHelper helper, ServerPlayer player, Block block, String description) {
+    private static void assertMitePlantHardness(
+            GameTestHelper helper, ServerPlayer player, Block block, float expectedHardness, String description) {
         BlockState state = block.defaultBlockState();
         BlockPos pos = helper.absolutePos(WORK_POS);
         float hardness = state.getDestroySpeed(helper.getLevel(), pos);
         helper.assertTrue(
-                Math.abs(hardness - R196GrassHardness.TALL_GRASS_HARDNESS) < 1.0E-6F,
-                description + " must use MITE tall-grass hardness: " + hardness);
+                Math.abs(hardness - expectedHardness) < 1.0E-6F,
+                description + " must use the mapped MITE plant hardness: " + hardness);
         helper.assertTrue(
-                Math.abs(block.defaultDestroyTime() - R196GrassHardness.TALL_GRASS_HARDNESS) < 1.0E-6F,
-                description + " default destroy time must retain the MITE hardness");
+                Math.abs(block.defaultDestroyTime() - expectedHardness) < 1.0E-6F,
+                description + " default destroy time must retain the mapped MITE hardness");
         float progress = state.getDestroyProgress(player, helper.getLevel(), pos);
         helper.assertTrue(
                 progress > 0.0F && progress < 1.0F,

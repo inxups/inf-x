@@ -81,11 +81,13 @@ R196 在材料默认值上还有以下关键覆盖：
 
 ## 挖掘时间与无效点击
 
-### 草植被硬度
+### 草植被与甘蔗硬度
 
 MITE R196 的 `Block.tallGrass` 在方块表中显式使用 `0.02F` 硬度；其 metadata `1=Grass`、`2=Fern` 共用这一个数值。MITE 的草方块是另一项：`BlockHardness.grass = Material.dirt.getFullBlockHardness()`，为 `0.5F`，并不会瞬间破坏。
 
 26.2 将短草、高草、蕨和大型蕨拆成四个方块，且默认均调用 `.instabreak()`（硬度 `0`）。InfiniteX 在原版注册期间、状态缓存创建前将这四个直接对应项的 `destroyTime` 改为 `0.02F`；因此 `getDestroySpeed`、`defaultDestroyTime` 和实际破坏进度一致，徒手不再瞬间破坏。草方块不属于这次修正。
+
+26.2 的甘蔗同样默认调用 `.instabreak()`。为使其不再瞬间破坏，InfiniteX 在相同注册期入口将其 `destroyTime` 设为 `0.02F`，并让其与其他植物一样进入正常的 MITE `512` 单位破坏进度计算。
 
 R196 的 `EntityPlayer.getDamageVsBlock` 将每 tick 破坏进度计算为：
 
