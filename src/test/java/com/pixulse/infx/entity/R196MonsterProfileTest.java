@@ -86,6 +86,15 @@ class R196MonsterProfileTest {
     }
 
     @Test
+    void invisibleStalkerDoesNotInheritZombieOnlyRules() {
+        assertTrue(R196Zombie.breaksDoors(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertFalse(R196Zombie.burnsInSunlight(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertFalse(R196Zombie.zombifiesVillagers(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertFalse(R196Zombie.targetsAnimals(R196Zombie.Variant.INVISIBLE_STALKER));
+        assertTrue(R196Zombie.targetsAnimals(R196Zombie.Variant.ZOMBIE));
+    }
+
+    @Test
     void endermanValuablesMatchR196PearlAwareness() {
         assertTrue(R196Enderman.isPearlLike(Items.ENDER_PEARL));
         assertTrue(R196Enderman.isPearlLike(Items.ENDER_EYE));
