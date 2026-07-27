@@ -136,6 +136,9 @@ public final class R196MonsterTactics {
     }
 
     public static void cooperate(ServerLevel level, Mob mob) {
+        if (mob instanceof R196Enderman) {
+            return;
+        }
         var target = mob.getTarget();
         if (target == null || !target.isAlive()) return;
         if (!mob.hasLineOfSight(target) || mob.getNavigation().isDone()) {
@@ -147,11 +150,15 @@ public final class R196MonsterTactics {
                 mob.getNavigation().moveTo(destination.getX() + .5, destination.getY(), destination.getZ() + .5, 1.1);
             }
         }
-        tryDig(level, mob);
+        if (!(mob instanceof R196EarthElemental)) {
+            tryDig(level, mob);
+        }
     }
 
     public static boolean tryDig(ServerLevel level, Mob mob) {
-        if (!level.getGameRules().get(GameRules.MOB_GRIEFING) || mob.getTarget() == null) {
+        if (mob instanceof R196Enderman
+                || !level.getGameRules().get(GameRules.MOB_GRIEFING)
+                || mob.getTarget() == null) {
             return stopDigging(level, mob);
         }
         var hit = level.clip(new ClipContext(
@@ -191,9 +198,11 @@ public final class R196MonsterTactics {
         return true;
     }
 
-    /** True only while a zombie is actively progressing through this module's block-dig task. */
+    /** True while a MITE monster is actively progressing through this module's block-dig task. */
     public static boolean isDigging(Mob mob) {
-        return mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
+        return mob instanceof R196EarthElemental elemental
+                ? elemental.isMiteDigging()
+                : mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
     }
 
     private static boolean stopDigging(ServerLevel level, Mob mob) {

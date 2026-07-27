@@ -40,7 +40,7 @@ class R196TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(693, lines.size(), "header plus 692 selected destinations");
+        assertEquals(705, lines.size(), "header plus 704 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -144,8 +144,47 @@ class R196TextureProvenanceTest {
                         "entity/creeper/infernal_creeper.png"),
                 Map.entry("textures/entity/fire_elemental.png", "entity/fire_elemental.png"),
                 Map.entry(
-                        "textures/entity/earth_elemental/stone.png",
+                        "textures/entity/earth_elemental/clay/earth_elemental_clay.png",
+                        "entity/earth_elemental/clay/earth_elemental_clay.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/clay/earth_elemental_clay_hardened.png",
+                        "entity/earth_elemental/clay/earth_elemental_clay_hardened.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/earth_elemental_glow.png",
+                        "entity/earth_elemental/earth_elemental_glow.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/earth_elemental_magma_glow.png",
+                        "entity/earth_elemental/earth_elemental_magma_glow.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/end_stone/earth_elemental_end_stone.png",
+                        "entity/earth_elemental/end_stone/earth_elemental_end_stone.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png",
+                        "entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/netherrack/earth_elemental_netherrack.png",
+                        "entity/earth_elemental/netherrack/earth_elemental_netherrack.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png",
+                        "entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/obsidian/earth_elemental_obsidian.png",
+                        "entity/earth_elemental/obsidian/earth_elemental_obsidian.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png",
+                        "entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/stone/earth_elemental_stone.png",
                         "entity/earth_elemental/stone/earth_elemental_stone.png"),
+                Map.entry(
+                        "textures/entity/earth_elemental/stone/earth_elemental_stone_magma.png",
+                        "entity/earth_elemental/stone/earth_elemental_stone_magma.png"),
+                Map.entry(
+                        "textures/item/earth_elemental_spawn_egg.png",
+                        "item/spawn_egg/spawn_egg_earth_element_clay.png"),
+                Map.entry(
+                        "textures/item/clay_golem_spawn_egg.png",
+                        "item/spawn_egg/spawn_egg_earth_element_clay.png"),
                 Map.entry("textures/entity/silverfish/netherspawn.png", "entity/silverfish/netherspawn.png"),
                 Map.entry("textures/entity/silverfish/copperspine.png", "entity/silverfish/copperspine.png"),
                 Map.entry("textures/entity/silverfish/hoary.png", "entity/silverfish/hoary.png"),
@@ -188,7 +227,7 @@ class R196TextureProvenanceTest {
                 continue;
             }
             Path sourceRoot = switch (fields[0]) {
-                case "resource-pack" -> reference.resolve("mite- resource-pack/assets/minecraft/textures");
+                case "resource-pack" -> reference.resolve("mite-resource-pack/assets/minecraft/textures");
                 case "mite-src" -> reference.resolve("mite-src/assets/minecraft/textures");
                 default -> throw new AssertionError("unknown source root " + fields[0]);
             };

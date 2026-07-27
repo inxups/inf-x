@@ -121,7 +121,17 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                                 EntityPredicate.Builder.entity()
                                                         .cubeMob(CubeMobPredicate.sized(MinMaxBounds.Ints.atLeast(2))))))));
 
-        drops(ModEntityTypes.R196_ENDERMAN.get(), Items.ENDER_PEARL, 0.0F, 1.0F);
+        // MITE endermen roll nextInt(2 + looting), so the normal 0-1 pearl roll
+        // receives the same per-level random count increase as blaze rods.
+        add(
+                ModEntityTypes.R196_ENDERMAN.get(),
+                LootTable.lootTable().withPool(
+                        LootPool.lootPool()
+                                .setRolls(ConstantValue.exactly(1.0F))
+                                .add(LootItem.lootTableItem(Items.ENDER_PEARL)
+                                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
+                                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
+                                                lookup, UniformGenerator.between(0.0F, 1.0F))))));
         // MITE squid surrender exactly one ink sac, and only to player kills.
         add(
                 ModEntityTypes.R196_SQUID.get(),
@@ -170,12 +180,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 LootTable.lootTable()
                         .withPool(itemPool(Items.GHAST_TEAR, 0.0F, 1.0F))
                         .withPool(itemPool(Items.GUNPOWDER, 0.0F, 2.0F)));
-        add(
-                ModEntityTypes.EARTH_ELEMENTAL.get(),
-                LootTable.lootTable().withPool(
-                        LootPool.lootPool()
-                                .setRolls(ConstantValue.exactly(1.0F))
-                                .add(LootItem.lootTableItem(Items.COBBLESTONE))));
+        // Earth-elemental drops follow its synced material body, so the entities emit their one
+        // block directly rather than a static JSON table.
+        emptyDrops(ModEntityTypes.EARTH_ELEMENTAL.get());
+        emptyDrops(ModEntityTypes.CLAY_GOLEM.get());
 
         for (var type : java.util.List.of(
                 ModEntityTypes.NETHERSPAWN,

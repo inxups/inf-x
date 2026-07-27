@@ -1,6 +1,8 @@
 package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.R196EarthElemental;
+import com.pixulse.infx.entity.R196Enderman;
 import com.pixulse.infx.entity.R196Mob;
 import com.pixulse.infx.entity.R196MonsterTactics;
 import com.pixulse.infx.entity.R196MonsterEvents;
@@ -57,6 +59,7 @@ public final class ModMonsterGameTests {
     private static final String REPLACEMENT = "r196_monster_replacement";
     private static final String BEHAVIORS = "r196_monster_behaviors";
     private static final String NETHERSPAWN = "r196_netherspawn_mechanics";
+    private static final String ENDERMAN = "r196_enderman";
     private static final String TACTICS = "r196_monster_tactics";
     private static final String SPAWNS = "r196_spawn_tables";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
@@ -68,6 +71,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(REPLACEMENT, () -> ModMonsterGameTests::replacement);
         FUNCTIONS.register(BEHAVIORS, () -> ModMonsterGameTests::behaviors);
         FUNCTIONS.register(NETHERSPAWN, () -> ModMonsterGameTests::netherspawnMechanics);
+        FUNCTIONS.register(ENDERMAN, () -> ModMonsterGameTests::enderman);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
     }
@@ -82,7 +86,7 @@ public final class ModMonsterGameTests {
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
-        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, TACTICS, SPAWNS)) {
+        for (String name : List.of(ROSTER, ATTRIBUTES, REPLACEMENT, BEHAVIORS, NETHERSPAWN, ENDERMAN, TACTICS, SPAWNS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -483,6 +487,9 @@ public final class ModMonsterGameTests {
                 spawnTypes(underworld, MobCategory.WATER_CREATURE).equals(List.of(EntityTypes.SQUID))
                         && spawnTypes(underworld, MobCategory.CREATURE).isEmpty(),
                 "Underworld must retain aquatic spawning without blue-moon livestock");
+        helper.assertTrue(
+                spawnTypes(underworld, MobCategory.MONSTER).contains(ModEntityTypes.CLAY_GOLEM.get()),
+                "Underworld must retain MITE's clay-golem spawn entry");
         helper.succeed();
     }
 
@@ -491,6 +498,18 @@ public final class ModMonsterGameTests {
         return settings.getMobs(category).unwrap().stream()
                 .<net.minecraft.world.entity.EntityType<?>>map(entry -> entry.value().type())
                 .toList();
+    }
+
+    private static void assertEarthForm(
+            GameTestHelper helper,
+            R196EarthElemental elemental,
+            net.minecraft.world.level.block.state.BlockState ground,
+            boolean heated,
+            R196EarthElemental.Form expected) {
+        elemental.initializeMiteForm(ground, heated);
+        helper.assertTrue(
+                elemental.form() == expected && elemental.isMagma() == expected.isMagmaForm(),
+                "earth elemental form must match " + expected);
     }
 
     private static void behaviors(GameTestHelper helper) {
@@ -569,6 +588,11 @@ public final class ModMonsterGameTests {
         helper.assertTrue(magma.getHealth() == before - 4.0F, "war hammer hits must deal magma cube damage");
 
         var earth = helper.spawnWithNoFreeWill(ModEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(5, 2, 1));
+        helper.assertTrue(
+                earth.fireImmune()
+                        && earth.getMaxSpawnClusterSize() == 1
+                        && earth.getNavigation().getNodeEvaluator().canOpenDoors(),
+                "earth elementals must be fire/lava immune, spawn singly and path to break doors");
         before = earth.getHealth();
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
@@ -582,6 +606,49 @@ public final class ModMonsterGameTests {
                 earth.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
                 "pickaxes must hurt the earth elemental");
         helper.assertTrue(earth.getHealth() < before, "pickaxe hits must deal earth elemental damage");
+
+        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), false, R196EarthElemental.Form.STONE_NORMAL);
+        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), true, R196EarthElemental.Form.STONE_MAGMA);
+        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), false, R196EarthElemental.Form.OBSIDIAN_NORMAL);
+        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), true, R196EarthElemental.Form.OBSIDIAN_MAGMA);
+        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), false, R196EarthElemental.Form.NETHERRACK_NORMAL);
+        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), true, R196EarthElemental.Form.NETHERRACK_MAGMA);
+        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), false, R196EarthElemental.Form.END_STONE_NORMAL);
+        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), true, R196EarthElemental.Form.END_STONE_MAGMA);
+        helper.assertTrue(earth.quench(level), "water-bucket quenching must cool molten mineral bodies");
+        helper.assertTrue(
+                earth.form() == R196EarthElemental.Form.END_STONE_NORMAL && earth.heat() == 0,
+                "quenching must restore the matching normal mineral form");
+
+        earth.initializeMiteForm(Blocks.NETHERRACK.defaultBlockState(), true);
+        float earthHealth = earth.getHealth();
+        Snowball earthSnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                !earth.hurtServer(level, level.damageSources().thrown(earthSnowball, player), 1.0F)
+                        && earth.form() == R196EarthElemental.Form.NETHERRACK_NORMAL
+                        && earth.getHealth() == earthHealth,
+                "snowballs must quench mineral bodies without dealing damage");
+
+        var clay = helper.spawnWithNoFreeWill(ModEntityTypes.CLAY_GOLEM.get(), new BlockPos(8, 2, 1));
+        clay.initializeMiteForm(Blocks.CLAY.defaultBlockState(), false);
+        helper.assertTrue(
+                clay.form() == R196EarthElemental.Form.CLAY_NORMAL && !clay.isMagma()
+                        && clay.doorBreakTicks(true) == 480 && clay.fireImmune()
+                        && clay.getMaxSpawnClusterSize() == 1,
+                "normal clay golems must retain their non-magma body and fourfold door-break speed");
+        float clayHealth = clay.getHealth();
+        Snowball claySnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                clay.hurtServer(level, level.damageSources().thrown(claySnowball, player), 1.0F)
+                        && clay.form() == R196EarthElemental.Form.CLAY_NORMAL
+                        && clay.getHealth() < clayHealth,
+                "normal clay must take ordinary snowball damage instead of quenching");
+        clay.invulnerableTime = 0;
+        clay.convertToMagma();
+        helper.assertTrue(
+                clay.form() == R196EarthElemental.Form.CLAY_HARDENED && !clay.isMagma()
+                        && clay.doorBreakTicks(true) == 320 && !clay.quench(level),
+                "heated clay must harden permanently without entering a magma state");
 
         var fire = helper.spawnWithNoFreeWill(ModEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 1));
         before = fire.getHealth();
@@ -609,6 +676,51 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 !fire.isSensitiveToWater(),
                 "fire elementals must not stack the modern per-tick water damage on MITE's own drain");
+
+        var enderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(8, 2, 1));
+        Arrow endermanArrow = EntityTypes.ARROW.create(level, EntitySpawnReason.COMMAND);
+        before = enderman.getHealth();
+        helper.assertTrue(
+                enderman.hurtServer(level, level.damageSources().arrow(endermanArrow, player), 4.0F),
+                "R196 endermen must take projectile damage");
+        helper.assertTrue(
+                enderman.getHealth() < before,
+                "R196 projectile hits must reduce enderman health");
+        helper.assertTrue(
+                enderman.getTarget() == player,
+                "R196 projectile hits must keep the living shooter as the enderman target");
+        enderman.invulnerableTime = 0;
+        Arrow dispenserArrow = EntityTypes.ARROW.create(level, EntitySpawnReason.COMMAND);
+        before = enderman.getHealth();
+        helper.assertTrue(
+                enderman.hurtServer(level, level.damageSources().arrow(dispenserArrow, null), 3.0F),
+                "unowned projectile damage must not fall back to vanilla enderman immunity");
+        helper.assertTrue(
+                enderman.getHealth() < before,
+                "unowned projectiles must still damage R196 endermen");
+        enderman.invulnerableTime = 0;
+        enderman.setTarget(player);
+        Snowball indirectMagic = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                enderman.hurtServer(level, level.damageSources().indirectMagic(indirectMagic, player), 2.0F),
+                "R196 endermen must take non-projectile indirect damage");
+        helper.assertTrue(
+                enderman.getTarget() == null && enderman.getLastHurtByMob() == null,
+                "non-projectile indirect damage must make R196 endermen blink and drop aggression");
+
+        var sharingSource = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(14, 2, 12));
+        var neutralEnderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(12, 2, 12));
+        R196MonsterEvents.propagateTarget(level, sharingSource, player);
+        helper.assertTrue(
+                neutralEnderman.getTarget() == null,
+                "shared monster targets must not override R196 enderman neutrality");
+        helper.assertTrue(
+                R196MonsterEvents.propagateTarget(level, neutralEnderman, player) == 0,
+                "R196 endermen must not propagate their own targets to nearby monsters");
+        neutralEnderman.setTarget(player);
+        helper.assertFalse(
+                R196MonsterTactics.tryDig(level, neutralEnderman),
+                "R196 endermen must never receive generic pursuit block digging");
         ModR196CompletionGameTests.removePlayer(player);
 
         BlockPos squidPos = new BlockPos(3, 2, 7);
@@ -661,6 +773,25 @@ public final class ModMonsterGameTests {
                             cow.getHealth() < cowHealthBefore,
                             "infernal creeper explosions must use the amplified six-block radius");
                 })
+                .thenSucceed();
+    }
+
+    private static void enderman(GameTestHelper helper) {
+        var level = helper.getLevel();
+        R196Enderman enderman = helper.spawn(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
+        ItemEntity pearl = new ItemEntity(
+                level, enderman.getX() + 1.0, enderman.getY(), enderman.getZ(), Items.ENDER_PEARL.getDefaultInstance());
+        pearl.setNoPickUpDelay();
+        level.addFreshEntity(pearl);
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertEntityPresent(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3), 2.0D))
+                .thenWaitUntil(() -> helper.assertTrue(
+                        pearl.isRemoved(),
+                        "R196 endermen must collect nearby dropped ender pearls"))
+                .thenExecute(() -> helper.assertTrue(
+                        enderman.requiresCustomPersistence(),
+                        "R196 endermen carrying valuables must not despawn"))
                 .thenSucceed();
     }
 

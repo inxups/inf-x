@@ -911,6 +911,7 @@ final class ModWorldGen {
         addSpawn(mobs, ModEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
         addSpawn(mobs, ModEntityTypes.SHADOW.get(), 10, 1, 1);
         addSpawn(mobs, ModEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
+        addSpawn(mobs, ModEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
         addSpawn(mobs, ModEntityTypes.JELLY.get(), 30, 1, 4);
         addSpawn(mobs, ModEntityTypes.BLOB.get(), 30, 1, 4);
         addSpawn(mobs, ModEntityTypes.OOZE.get(), 20, 1, 4);

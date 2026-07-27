@@ -199,6 +199,7 @@ public final class R196MonsterEvents {
         event.put(ModEntityTypes.DIRE_WOLF.get(), R196Wolf.attributes(R196Wolf.Variant.DIRE_WOLF).build());
         event.put(ModEntityTypes.FIRE_ELEMENTAL.get(), R196FireElemental.attributes().build());
         event.put(ModEntityTypes.EARTH_ELEMENTAL.get(), R196EarthElemental.attributes().build());
+        event.put(ModEntityTypes.CLAY_GOLEM.get(), R196ClayGolem.attributes().build());
 
         event.put(ModEntityTypes.R196_ENDERMAN.get(), R196Enderman.attributes().build());
         event.put(ModEntityTypes.R196_SQUID.get(), R196Squid.attributes().build());
@@ -311,6 +312,10 @@ public final class R196MonsterEvents {
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 R196MonsterEvents::checkR196MonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(ModEntityTypes.CLAY_GOLEM.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                R196MonsterEvents::checkR196MonsterSpawnRules,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         registerAnimalSpawnPlacement(event, ModEntityTypes.R196_COW.get());
         registerAnimalSpawnPlacement(event, ModEntityTypes.R196_CHICKEN.get());
@@ -358,10 +363,16 @@ public final class R196MonsterEvents {
             EntitySpawnReason reason,
             BlockPos pos,
             RandomSource random) {
-        if (!Monster.checkMonsterSpawnRules(type, level, reason, pos, random)) return false;
         ServerLevel serverLevel = level.getLevel();
         String path = BuiltInRegistries.ENTITY_TYPE.getKey(type).getPath();
+        boolean bypassNetherLight = path.equals("earth_elemental") && serverLevel.dimension() == Level.NETHER;
+        if (!(bypassNetherLight
+                ? Mob.checkMobSpawnRules(type, level, reason, pos, random)
+                : Monster.checkMonsterSpawnRules(type, level, reason, pos, random))) {
+            return false;
+        }
         if (path.equals("earth_elemental") && !earthElementalGround(serverLevel, pos)) return false;
+        if (path.equals("clay_golem") && !clayGolemGround(serverLevel, pos)) return false;
         if (serverLevel.dimension() != Level.OVERWORLD) return true;
 
         int y = pos.getY();
@@ -401,11 +412,11 @@ public final class R196MonsterEvents {
     }
 
     private static boolean earthElementalGround(ServerLevel level, BlockPos pos) {
-        var ground = level.getBlockState(pos.below());
-        return ground.is(Blocks.STONE)
-                || ground.is(Blocks.OBSIDIAN)
-                || ground.is(Blocks.NETHERRACK)
-                || ground.is(Blocks.END_STONE);
+        return R196EarthElemental.isValidGround(level.getBlockState(pos.below()));
+    }
+
+    private static boolean clayGolemGround(ServerLevel level, BlockPos pos) {
+        return level.getBlockState(pos.below()).is(Blocks.CLAY);
     }
 
     private static boolean stoneAbove(ServerLevel level, BlockPos pos) {
@@ -466,6 +477,10 @@ public final class R196MonsterEvents {
     }
 
     private static void finalizeSpawn(FinalizeSpawnEvent event) {
+        if (event.getEntity() instanceof R196EarthElemental elemental
+                && event.getSpawnType() != EntitySpawnReason.LOAD) {
+            elemental.initializeMiteForm();
+        }
         if (event.getEntity() instanceof Monster monster
                 && monster.level() instanceof ServerLevel level
                 && isWorldSpawn(event.getSpawnType())) {
@@ -487,7 +502,7 @@ public final class R196MonsterEvents {
         for (Mob mob : level.getEntitiesOfClass(
                 Mob.class,
                 new AABB(event.getEventPosition(), event.getEventPosition()).inflate(radius),
-                candidate -> candidate instanceof Enemy
+                candidate -> participatesInGenericTargeting(candidate)
                         && candidate.isAlive()
                         // MITE base spiders are peaceful in daylight; noise must not override that.
                         && !(candidate instanceof R196Spider spider
@@ -513,6 +528,11 @@ public final class R196MonsterEvents {
                 && !BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(mob.getType()).is(net.minecraft.tags.EntityTypeTags.UNDEAD)
                 && mob.getHealth() < mob.getMaxHealth()) {
             mob.heal(mob.getMaxHealth() * 0.1F);
+        }
+        // Endermen remain neutral until their own stare, pearl, or damage rules choose a target.
+        // They also must not inherit the generic flanking and block-digging behavior below.
+        if (!participatesInGenericTargeting(mob)) {
+            return;
         }
         if (mob.getTarget() != null) {
             if (mob.tickCount % 20 == 0) R196MonsterTactics.cooperate(level, mob);
@@ -832,15 +852,22 @@ public final class R196MonsterEvents {
     }
 
     public static int propagateTarget(ServerLevel level, LivingEntity source, Player player) {
+        if (!(source instanceof Mob sourceMob) || !participatesInGenericTargeting(sourceMob)) {
+            return 0;
+        }
         int shared = 0;
         for (Mob nearby : level.getEntitiesOfClass(
                 Mob.class,
                 source.getBoundingBox().inflate(16.0),
-                mob -> mob != source && mob instanceof Enemy && mob.getTarget() == null)) {
+                mob -> mob != source && participatesInGenericTargeting(mob) && mob.getTarget() == null)) {
             nearby.setTarget(player);
             if (nearby.getTarget() == player) shared++;
         }
         return shared;
+    }
+
+    static boolean participatesInGenericTargeting(Mob mob) {
+        return mob instanceof Enemy && !(mob instanceof R196Enderman);
     }
 
     private static void amplifyInfernalCreeperExplosion(ExplosionEvent.Start event) {

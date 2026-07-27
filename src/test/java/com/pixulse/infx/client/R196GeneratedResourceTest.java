@@ -153,6 +153,23 @@ class R196GeneratedResourceTest {
     }
 
     @Test
+    void r196EndermanPearlLootUsesLooting() throws Exception {
+        JsonObject table = json(GENERATED.resolve("data/infx/loot_table/entities/r196_enderman.json"));
+        JsonObject entry = table.getAsJsonArray("pools")
+                .get(0)
+                .getAsJsonObject()
+                .getAsJsonArray("entries")
+                .get(0)
+                .getAsJsonObject();
+        assertTrue(
+                entry.getAsJsonArray("functions").asList().stream()
+                        .map(JsonElement::getAsJsonObject)
+                        .anyMatch(function -> function.get("function").getAsString().equals("minecraft:enchanted_count_increase")
+                                && function.get("enchantment").getAsString().equals("minecraft:looting")),
+                "R196 ender pearl drops must retain MITE's Looting count increase");
+    }
+
+    @Test
     void netherPortalModelsUseRedTintTemplates() throws Exception {
         for (String orientation : List.of("ns", "ew")) {
             JsonObject model = json(GENERATED.resolve("assets/infx/models/block/nether_portal_" + orientation + ".json"));
@@ -1530,9 +1547,10 @@ class R196GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Four replacement fish spawn eggs add one item definition and model each.
-        assertEquals(439, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(514, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // Four replacement fish spawn eggs plus the clay-golem egg add one item definition and
+        // model each.
+        assertEquals(440, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(515, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -1933,7 +1951,12 @@ class R196GeneratedResourceTest {
                         + "|textures/entity/skeleton/(longdead|longdead_guardian|bone_lord)\\.png"
                         + "|textures/entity/spider/(spider|black_widow|cave_spider|demon_spider|wood_spider|phase_spider)\\.png"
                         + "|textures/entity/creeper/infernal_creeper\\.png"
-                        + "|textures/entity/earth_elemental/stone\\.png"
+                        + "|textures/entity/earth_elemental/(earth_elemental(_magma)?_glow"
+                        + "|clay/earth_elemental_clay(_hardened)?"
+                        + "|end_stone/earth_elemental_end_stone(_magma)?"
+                        + "|netherrack/earth_elemental_netherrack(_magma)?"
+                        + "|obsidian/earth_elemental_obsidian(_magma)?"
+                        + "|stone/earth_elemental_stone(_magma)?)\\.png"
                         + "|textures/entity/silverfish/(netherspawn|copperspine|hoary)\\.png"
                         + "|textures/entity/bat/(vampire|nightwing)\\.png"
                         + "|textures/entity/hellhound/hellhound\\.png"

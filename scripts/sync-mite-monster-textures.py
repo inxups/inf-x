@@ -31,8 +31,9 @@ ROOT = Path(__file__).resolve().parents[1]
 MITE = Path(
     "/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite-resource-pack/assets/minecraft/textures/entity"
 )
-OUT = ROOT / "src/main/resources/assets/infx/textures/entity"
-MANIFEST = ROOT / "src/main/resources/assets/infx/mite_texture_manifest.tsv"
+ASSETS = ROOT / "src/main/resources/assets/infx"
+OUT = ASSETS / "textures/entity"
+MANIFEST = ASSETS / "mite_texture_manifest.tsv"
 
 
 def decode_rgba(path: Path):
@@ -247,6 +248,13 @@ BABIES = [
     ("entity/zombie_pigman.png", None, "textures/entity/zombie_pigman_baby.png"),
 ]
 
+# Both MITE earth-elemental entries use the approved clay egg art. Keeping this in the sync
+# script means the newly registered clay golem cannot lose its item icon after an asset refresh.
+SPAWN_EGGS = [
+    ("item/spawn_egg/spawn_egg_earth_element_clay.png", "textures/item/earth_elemental_spawn_egg.png"),
+    ("item/spawn_egg/spawn_egg_earth_element_clay.png", "textures/item/clay_golem_spawn_egg.png"),
+]
+
 
 def main() -> None:
     entries = []
@@ -255,7 +263,7 @@ def main() -> None:
         src = MITE.parent / source_rel
         if not src.is_file():
             raise SystemExit(f"missing authorized asset {src}")
-        dest = ROOT / "src/main/resources/assets/infx" / dest_rel
+        dest = ASSETS / dest_rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(src.read_bytes())
         entries.append(("resource-pack", source_rel, dest_rel, sha256(dest)))
@@ -264,7 +272,7 @@ def main() -> None:
     for source_rel, dest_rel in EXPAND:
         src = MITE.parent / source_rel
         px = expand_to_64x64(src)
-        dest = ROOT / "src/main/resources/assets/infx" / dest_rel
+        dest = ASSETS / dest_rel
         write_png_rgba(dest, 64, 64, px)
         entries.append(("derived", f"mite/{source_rel}+expand64x64", dest_rel, sha256(dest)))
         print("expanded", dest_rel)
@@ -275,12 +283,22 @@ def main() -> None:
             if (w, h) != (64, 64):
                 raise SystemExit(f"{source_rel} expected 64x64 adult sheet, got {w}x{h}")
         else:
-            w, h, adult_px = decode_rgba(ROOT / "src/main/resources/assets/infx" / adult_dest)
+            w, h, adult_px = decode_rgba(ASSETS / adult_dest)
             assert (w, h) == (64, 64), adult_dest
-        dest = ROOT / "src/main/resources/assets/infx" / baby_dest
+        dest = ASSETS / baby_dest
         write_png_rgba(dest, 64, 64, derive_baby(adult_px))
         entries.append(("derived", f"mite/{source_rel}+baby_uv", baby_dest, sha256(dest)))
         print("derived baby", baby_dest)
+
+    for source_rel, dest_rel in SPAWN_EGGS:
+        source = ASSETS / "textures" / source_rel
+        if not source.is_file():
+            raise SystemExit(f"missing approved source {source}")
+        dest = ASSETS / dest_rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(source.read_bytes())
+        entries.append(("derived", source_rel, dest_rel, sha256(dest)))
+        print("copied spawn egg", dest_rel)
 
     lines = MANIFEST.read_text().splitlines()
     header, body = lines[0], lines[1:]
