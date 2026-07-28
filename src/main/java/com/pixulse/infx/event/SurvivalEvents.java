@@ -75,8 +75,8 @@ public final class SurvivalEvents {
                         Consumables.defaultFood()
                                 .onConsume(new ApplyStatusEffectsConsumeEffect(
                                         java.util.List.of(
-                                                new MobEffectInstance(MobEffects.POISON, 240, 1),
-                                                new MobEffectInstance(MobEffects.NAUSEA, 240, 0))))
+                                                new MobEffectInstance(MobEffects.POISON, 200, 0),
+                                                new MobEffectInstance(MobEffects.NAUSEA, 1_200, 4))))
                                 .build()));
         event.modify(Items.EGG, (components, context, item) -> components
                 .set(DataComponents.FOOD, egg)
