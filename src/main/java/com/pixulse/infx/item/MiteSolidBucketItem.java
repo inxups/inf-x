@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.function.Supplier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;

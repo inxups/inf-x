@@ -2,7 +2,7 @@ package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModItems;
 import java.util.List;
 import java.util.function.BiConsumer;

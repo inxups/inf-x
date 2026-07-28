@@ -1,9 +1,9 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.crafting.TimedCraftingRecipe;
-import com.pixulse.infx.crafting.TimedShapedRecipe;
-import com.pixulse.infx.crafting.TimedShapelessRecipe;
+import com.pixulse.infx.recipe.TimedCraftingRecipe;
+import com.pixulse.infx.recipe.TimedShapedRecipe;
+import com.pixulse.infx.recipe.TimedShapelessRecipe;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.RecipeSerializer;

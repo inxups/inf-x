@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.material.MiteMaterial;
-import com.pixulse.infx.material.RawItem;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.RawItem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

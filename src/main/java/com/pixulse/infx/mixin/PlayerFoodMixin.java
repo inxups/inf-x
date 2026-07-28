@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
 import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.survival.SurvivalRules;
+import com.pixulse.infx.food.SurvivalRules;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

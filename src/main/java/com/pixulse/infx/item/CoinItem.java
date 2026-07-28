@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.material.RawItem;
+import com.pixulse.infx.item.material.RawItem;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;

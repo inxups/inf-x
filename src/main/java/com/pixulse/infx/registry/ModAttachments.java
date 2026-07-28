@@ -1,9 +1,9 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.agriculture.GrassTrampling;
-import com.pixulse.infx.curse.CurseStatus;
-import com.pixulse.infx.survival.SurvivalData;
+import com.pixulse.infx.world.agriculture.GrassTrampling;
+import com.pixulse.infx.effect.curse.CurseStatus;
+import com.pixulse.infx.food.SurvivalData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.network.RegistryFriendlyByteBuf;

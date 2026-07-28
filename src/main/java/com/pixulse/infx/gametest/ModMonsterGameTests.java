@@ -1,9 +1,9 @@
 package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.curse.CurseData;
+import com.pixulse.infx.effect.curse.CurseData;
 import com.pixulse.infx.entity.*;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModEntityTypes;

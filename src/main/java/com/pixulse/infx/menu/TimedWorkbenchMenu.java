@@ -3,11 +3,11 @@ package com.pixulse.infx.menu;
 import java.util.List;
 
 import com.pixulse.infx.block.TieredWorkbenchBlock;
-import com.pixulse.infx.crafting.BenchTier;
-import com.pixulse.infx.crafting.TimedCraftingEngine;
-import com.pixulse.infx.crafting.TimedCraftingMenu;
-import com.pixulse.infx.crafting.TimedCraftingState;
-import com.pixulse.infx.crafting.CraftingEnvironment;
+import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.TimedCraftingEngine;
+import com.pixulse.infx.recipe.TimedCraftingMenu;
+import com.pixulse.infx.recipe.TimedCraftingState;
+import com.pixulse.infx.recipe.CraftingEnvironment;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModMenus;
 

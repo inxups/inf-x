@@ -3,7 +3,7 @@ package com.pixulse.infx.entity;
 import com.pixulse.infx.harvest.MiteMiningRules;
 import com.pixulse.infx.item.MiteArrowItem;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;

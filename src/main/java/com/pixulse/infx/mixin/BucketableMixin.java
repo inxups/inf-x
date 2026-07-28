@@ -3,7 +3,7 @@ package com.pixulse.infx.mixin;
 import com.pixulse.infx.util.BucketHelper;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;

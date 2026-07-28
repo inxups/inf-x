@@ -2,7 +2,7 @@ package com.pixulse.infx.item;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModEntityTypes;
 import java.util.Map;
 import net.minecraft.world.entity.EntityType;

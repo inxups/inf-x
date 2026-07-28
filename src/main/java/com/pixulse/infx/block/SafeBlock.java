@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

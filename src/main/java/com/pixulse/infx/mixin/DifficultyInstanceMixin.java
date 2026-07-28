@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.server.ExtremeDifficulty;
+import com.pixulse.infx.event.server.ExtremeDifficulty;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import org.spongepowered.asm.mixin.Mixin;

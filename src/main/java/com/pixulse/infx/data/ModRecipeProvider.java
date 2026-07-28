@@ -1,15 +1,15 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.crafting.BenchTier;
-import com.pixulse.infx.crafting.TimedShapedRecipe;
-import com.pixulse.infx.crafting.TimedShapelessRecipe;
+import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.TimedShapedRecipe;
+import com.pixulse.infx.recipe.TimedShapelessRecipe;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.MiteBucketItem;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

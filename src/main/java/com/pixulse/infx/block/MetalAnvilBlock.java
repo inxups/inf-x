@@ -2,7 +2,7 @@ package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.menu.MetalAnvilMenu;
 import java.util.List;
 import net.minecraft.core.BlockPos;

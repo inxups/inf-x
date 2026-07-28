@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.menu.MetalAnvilMenu;
 import com.pixulse.infx.menu.MiteEnchantmentMenu;

@@ -1,8 +1,10 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.crafting.InferredTimedCraftingRecipe;
-import com.pixulse.infx.crafting.TimedCraftingRecipe;
+import com.pixulse.infx.screen.MetalAnvilScreen;
+import com.pixulse.infx.screen.TimedWorkbenchScreen;
+import com.pixulse.infx.recipe.InferredTimedCraftingRecipe;
+import com.pixulse.infx.recipe.TimedCraftingRecipe;
 import com.pixulse.infx.entity.MiteBat;
 import com.pixulse.infx.entity.MiteCreeper;
 import com.pixulse.infx.entity.MiteSilverfish;

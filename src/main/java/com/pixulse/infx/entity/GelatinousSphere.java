@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.equipment.CorrosionType;
+import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.item.GelatinousSphereItem;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;

@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.material.MiteMaterial;
-import com.pixulse.infx.progression.ProgressionEvents;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.world.UnderworldPortalEvents;
 import com.pixulse.infx.world.RunegateTeleportation;

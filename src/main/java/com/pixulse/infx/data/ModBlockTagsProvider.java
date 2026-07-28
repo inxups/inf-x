@@ -3,7 +3,7 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.MiningFamily;
 import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import net.minecraft.core.HolderLookup;

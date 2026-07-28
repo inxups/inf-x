@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.server.ExtremeDifficulty;
+import com.pixulse.infx.event.server.ExtremeDifficulty;
 import java.util.Arrays;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

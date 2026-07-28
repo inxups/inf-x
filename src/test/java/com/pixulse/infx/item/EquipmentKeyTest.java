@@ -3,7 +3,7 @@ package com.pixulse.infx.item;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 

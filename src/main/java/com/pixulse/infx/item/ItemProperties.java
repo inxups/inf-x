@@ -1,8 +1,8 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.material.MiteMaterial;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.registry.tag.ModTags;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,7 +22,7 @@ import net.minecraft.world.item.component.BlocksAttacks;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.world.item.equipment.Equippable;
-import com.pixulse.infx.material.Quality;
+import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.ModDataComponents;
 
 public final class ItemProperties {

@@ -2,7 +2,7 @@ package com.pixulse.infx.item;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.pixulse.infx.equipment.CorrosionType;
+import com.pixulse.infx.item.equipment.CorrosionType;
 import org.junit.jupiter.api.Test;
 
 class GelatinousSphereItemTest {

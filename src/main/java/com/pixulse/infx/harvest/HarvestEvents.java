@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;

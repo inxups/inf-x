@@ -2,7 +2,7 @@ package com.pixulse.infx.item;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.junit.jupiter.api.Test;

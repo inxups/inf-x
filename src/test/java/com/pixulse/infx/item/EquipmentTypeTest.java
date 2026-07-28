@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.material.MiteMaterial;
-import com.pixulse.infx.material.RawItem;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.RawItem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;

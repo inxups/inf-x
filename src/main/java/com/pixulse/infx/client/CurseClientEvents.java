@@ -1,9 +1,9 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.curse.CurseManager;
-import com.pixulse.infx.curse.CurseStatus;
-import com.pixulse.infx.curse.CurseType;
+import com.pixulse.infx.effect.curse.CurseManager;
+import com.pixulse.infx.effect.curse.CurseStatus;
+import com.pixulse.infx.effect.curse.CurseType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;

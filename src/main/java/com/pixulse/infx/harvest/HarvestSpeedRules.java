@@ -1,8 +1,8 @@
 package com.pixulse.infx.harvest;
 
-import com.pixulse.infx.enchantment.EnchantmentRules;
-import com.pixulse.infx.enchantment.Enchantments;
-import com.pixulse.infx.progression.Experience;
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
+import com.pixulse.infx.item.enchantment.Enchantments;
+import com.pixulse.infx.player.Experience;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModMobEffects;

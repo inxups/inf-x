@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.agriculture.GrassTrampling;
+import com.pixulse.infx.world.agriculture.GrassTrampling;
 import java.util.List;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.BiomeColors;

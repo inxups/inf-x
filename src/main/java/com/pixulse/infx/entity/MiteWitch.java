@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.curse.CurseManager;
-import com.pixulse.infx.curse.CurseType;
+import com.pixulse.infx.effect.curse.CurseManager;
+import com.pixulse.infx.effect.curse.CurseType;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModSounds;
 import java.util.Comparator;

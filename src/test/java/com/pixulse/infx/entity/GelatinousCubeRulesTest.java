@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.equipment.CorrosionType;
+import com.pixulse.infx.item.equipment.CorrosionType;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 

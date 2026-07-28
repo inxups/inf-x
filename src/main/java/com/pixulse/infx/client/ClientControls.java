@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.survival.SurvivalRules;
+import com.pixulse.infx.food.SurvivalRules;
 
 /** R196 debug-profile, sleep and scaled-food interfaces (all custom hotkeys removed). */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)

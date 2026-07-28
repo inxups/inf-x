@@ -26,8 +26,8 @@ import com.pixulse.infx.block.MiteEnchantingTableBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.WitherwoodBlock;
 import com.pixulse.infx.menu.MiteEnchantmentMenu;
-import com.pixulse.infx.crafting.BenchTier;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.List;
 import java.util.Map;
 

@@ -1,8 +1,8 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.enchantment.EnchantmentRules;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
+import com.pixulse.infx.registry.tag.ModTags;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;

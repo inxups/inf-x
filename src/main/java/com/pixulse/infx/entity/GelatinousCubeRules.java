@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.equipment.CorrosionType;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.item.equipment.CorrosionType;
+import com.pixulse.infx.registry.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

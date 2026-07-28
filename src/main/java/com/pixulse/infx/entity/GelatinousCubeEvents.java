@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.equipment.CorrosionRules;
-import com.pixulse.infx.equipment.CorrosionType;
+import com.pixulse.infx.item.equipment.CorrosionRules;
+import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.registry.ModSounds;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;

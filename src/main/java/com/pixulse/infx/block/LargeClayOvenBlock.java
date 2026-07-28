@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
-import com.pixulse.infx.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 /** The distinct heat-one oven body that accepts full blocks and other large inputs. */

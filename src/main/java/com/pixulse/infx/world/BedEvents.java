@@ -1,9 +1,9 @@
 package com.pixulse.infx.world;
 
 import com.pixulse.infx.entity.MonsterTactics;
-import com.pixulse.infx.progression.ProgressionEvents;
+import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.survival.SurvivalEvents;
+import com.pixulse.infx.food.SurvivalEvents;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;

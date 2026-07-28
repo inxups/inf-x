@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.curse.CurseManager;
-import com.pixulse.infx.curse.CurseType;
+import com.pixulse.infx.effect.curse.CurseManager;
+import com.pixulse.infx.effect.curse.CurseType;
 import java.util.EnumSet;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;

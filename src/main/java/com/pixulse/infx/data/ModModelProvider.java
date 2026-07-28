@@ -6,7 +6,7 @@ import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;

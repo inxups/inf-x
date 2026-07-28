@@ -1,7 +1,7 @@
 package com.pixulse.infx.menu;
 
-import com.pixulse.infx.enchantment.EnchantmentRules;
-import com.pixulse.infx.enchantment.EnchantmentSelector;
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
+import com.pixulse.infx.item.enchantment.EnchantmentSelector;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;

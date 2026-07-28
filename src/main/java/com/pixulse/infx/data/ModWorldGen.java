@@ -6,7 +6,7 @@ import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModJukeboxSongs;
 import com.pixulse.infx.registry.ModWorldCarvers;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;

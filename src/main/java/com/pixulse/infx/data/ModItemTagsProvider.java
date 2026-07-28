@@ -2,9 +2,9 @@ package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.*;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;

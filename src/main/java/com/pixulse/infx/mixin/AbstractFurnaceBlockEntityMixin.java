@@ -1,8 +1,8 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.furnace.FurnaceHeatAccess;
-import com.pixulse.infx.furnace.FurnaceHeatPolicy;
-import com.pixulse.infx.furnace.FurnaceItemPolicy;
+import com.pixulse.infx.block.furnace.FurnaceHeatAccess;
+import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.block.furnace.FurnaceItemPolicy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;

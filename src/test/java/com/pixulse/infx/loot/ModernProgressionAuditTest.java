@@ -3,7 +3,7 @@ package com.pixulse.infx.loot;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.progression.ModernContentAuditEvents;
+import com.pixulse.infx.player.ModernContentAuditEvents;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 

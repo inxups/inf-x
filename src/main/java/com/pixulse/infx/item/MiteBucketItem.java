@@ -4,7 +4,7 @@ import com.pixulse.infx.entity.FireElemental;
 import com.pixulse.infx.entity.EarthElemental;
 import com.pixulse.infx.entity.Livestock;
 import com.pixulse.infx.entity.MiteSilverfish;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.network.Network;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.world.FluidDecayData;

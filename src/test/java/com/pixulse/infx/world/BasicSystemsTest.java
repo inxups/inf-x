@@ -2,7 +2,7 @@ package com.pixulse.infx.world;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModEnchantments;
 import java.util.HashSet;
 import net.minecraft.util.RandomSource;

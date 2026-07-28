@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.pixulse.infx.curse.CurseType;
+import com.pixulse.infx.effect.curse.CurseType;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;

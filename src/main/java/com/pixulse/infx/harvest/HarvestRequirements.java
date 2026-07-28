@@ -1,6 +1,6 @@
 package com.pixulse.infx.harvest;
 
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 import java.util.OptionalInt;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;

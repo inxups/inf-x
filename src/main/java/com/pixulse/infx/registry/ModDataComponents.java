@@ -2,7 +2,7 @@ package com.pixulse.infx.registry;
 
 import com.mojang.serialization.Codec;
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.material.Quality;
+import com.pixulse.infx.item.material.Quality;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;

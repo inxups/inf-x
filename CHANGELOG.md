@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### 重组源码包结构
+
+- 参照 IAFCE 的领域分层，将农业、食物、生存、玩家进度、诅咒、装备、附魔、熔炉、材料、配方、兼容层、标签和服务端逻辑归入 `world`、`food`、`player`、`effect`、`item`、`block`、`recipe`、`compat`、`registry` 和 `event` 的对应子包。
+- 将公开菜单界面归入 `screen`，保留包级可见渲染协作类在 `client`，避免为目录迁移扩大客户端内部 API。
+- 同步迁移测试源码和全部 Java package/import 引用，根包收敛为 IAFCE 风格的主领域目录。
+
 ### 重构 R196 类型命名
 
 - 使用 IDEA 的 Rename Refactoring 移除项目类型名中的 `R196` 前缀，并同步更新生产代码、测试代码与 GameTest 的全部代码引用。

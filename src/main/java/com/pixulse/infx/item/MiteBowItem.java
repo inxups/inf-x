@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.ModDataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -11,8 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.projectile.Projectile;
 import org.jspecify.annotations.Nullable;
-import com.pixulse.infx.enchantment.Enchantments;
-import com.pixulse.infx.enchantment.EnchantmentRules;
+import com.pixulse.infx.item.enchantment.Enchantments;
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.registry.ModEnchantments;
 
 public final class MiteBowItem extends BowItem {

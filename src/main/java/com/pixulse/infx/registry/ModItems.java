@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.EquipmentType;
@@ -12,7 +12,7 @@ import com.pixulse.infx.item.MiteSolidBucketItem;
 import com.pixulse.infx.item.ToolItem;
 import com.pixulse.infx.item.RuneStoneItem;
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;

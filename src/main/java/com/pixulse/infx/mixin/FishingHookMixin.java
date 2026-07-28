@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.enchantment.EnchantmentRules;
-import com.pixulse.infx.enchantment.Enchantments;
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
+import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.registry.ModEnchantments;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;

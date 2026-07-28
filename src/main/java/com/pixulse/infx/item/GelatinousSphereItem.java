@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.equipment.CorrosionType;
+import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.entity.GelatinousSphere;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;

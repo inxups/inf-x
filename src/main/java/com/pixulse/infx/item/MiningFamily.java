@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.tag.ModTags;
 import java.util.List;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
