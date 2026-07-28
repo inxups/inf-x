@@ -5,7 +5,6 @@ import java.util.function.Supplier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.food.Foods;
@@ -15,14 +14,14 @@ import org.jspecify.annotations.Nullable;
 
 /** Bucketable water-mob contents that keep the R196 bucket material. */
 public enum R196MobBucketKind {
-    COD("cod", "Cod", "鳕鱼", () -> ModEntityTypes.R196_COD.get(), EntityTypes.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
-    SALMON("salmon", "Salmon", "鲑鱼", () -> ModEntityTypes.R196_SALMON.get(), EntityTypes.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
+    COD("cod", "Cod", "鳕鱼", () -> ModEntityTypes.R196_COD.get(), EntityType.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
+    SALMON("salmon", "Salmon", "鲑鱼", () -> ModEntityTypes.R196_SALMON.get(), EntityType.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
     PUFFERFISH(
             "pufferfish",
             "Pufferfish",
             "河豚",
             () -> ModEntityTypes.R196_PUFFERFISH.get(),
-            EntityTypes.PUFFERFISH,
+            EntityType.PUFFERFISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.PUFFERFISH),
     TROPICAL(
@@ -30,11 +29,11 @@ public enum R196MobBucketKind {
             "Tropical Fish",
             "热带鱼",
             () -> ModEntityTypes.R196_TROPICAL_FISH.get(),
-            EntityTypes.TROPICAL_FISH,
+            EntityType.TROPICAL_FISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.TROPICAL_FISH),
-    AXOLOTL("axolotl", "Axolotl", "美西螈", () -> EntityTypes.AXOLOTL, EntityTypes.AXOLOTL, SoundEvents.BUCKET_EMPTY_AXOLOTL, null),
-    TADPOLE("tadpole", "Tadpole", "蝌蚪", () -> EntityTypes.TADPOLE, EntityTypes.TADPOLE, SoundEvents.BUCKET_EMPTY_TADPOLE, null);
+    AXOLOTL("axolotl", "Axolotl", "美西螈", () -> EntityType.AXOLOTL, EntityType.AXOLOTL, SoundEvents.BUCKET_EMPTY_AXOLOTL, null),
+    TADPOLE("tadpole", "Tadpole", "蝌蚪", () -> EntityType.TADPOLE, EntityType.TADPOLE, SoundEvents.BUCKET_EMPTY_TADPOLE, null);
 
     private final String pathPrefix;
     private final String englishName;

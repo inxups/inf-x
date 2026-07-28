@@ -111,7 +111,7 @@ class R196EntityRenderersTest {
     @Test
     void gelatinousRenderersDoNotInheritVanillaOuterLayer() {
         assertEquals(
-                net.minecraft.client.renderer.entity.AbstractCubeMobRenderer.class,
+                net.minecraft.client.renderer.entity.MobRenderer.class,
                 R196EntityRenderers.SlimeTexture.class.getSuperclass());
     }
 

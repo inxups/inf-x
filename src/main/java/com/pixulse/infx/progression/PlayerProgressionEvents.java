@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -47,8 +47,8 @@ public final class PlayerProgressionEvents {
 
     private static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
         boolean testMode = InfiniteXTestMode.isEnabled();
-        event.add(EntityTypes.PLAYER, Attributes.BLOCK_INTERACTION_RANGE, blockInteractionRange(testMode));
-        event.add(EntityTypes.PLAYER, Attributes.ENTITY_INTERACTION_RANGE, entityInteractionRange(testMode));
+        event.add(EntityType.PLAYER, Attributes.BLOCK_INTERACTION_RANGE, blockInteractionRange(testMode));
+        event.add(EntityType.PLAYER, Attributes.ENTITY_INTERACTION_RANGE, entityInteractionRange(testMode));
     }
 
     static double blockInteractionRange(boolean testMode) {

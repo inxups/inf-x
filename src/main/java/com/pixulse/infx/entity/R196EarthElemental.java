@@ -363,9 +363,9 @@ public class R196EarthElemental extends IronGolem implements Enemy, R196Mob {
     }
 
     @Override
-    public void knockback(double power, double xd, double zd, DamageSource source, float damage, boolean comesFromEffect) {
+    public void knockback(double power, double xd, double zd) {
         // MITE applies a separate 0.4 velocity multiplier after normal mob knockback handling.
-        super.knockback(power * 0.4, xd, zd, source, damage, comesFromEffect);
+        super.knockback(power * 0.4, xd, zd);
     }
 
     @Override

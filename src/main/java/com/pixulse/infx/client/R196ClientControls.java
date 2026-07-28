@@ -84,7 +84,7 @@ public final class R196ClientControls {
         int slots = (int) Math.ceil(R196SurvivalRules.foodCap(minecraft.player.experienceLevel) / 2.0D);
         int rows = Math.max(1, (slots + 9) / 10);
         int xRight = graphics.guiWidth() / 2 + 91;
-        int yBase = graphics.guiHeight() - minecraft.gui.hud.rightHeight;
+        int yBase = graphics.guiHeight() - minecraft.gui.rightHeight;
         var empty = net.minecraft.resources.Identifier.withDefaultNamespace("hud/food_empty");
         var half = net.minecraft.resources.Identifier.withDefaultNamespace("hud/food_half");
         var full = net.minecraft.resources.Identifier.withDefaultNamespace("hud/food_full");
@@ -97,7 +97,7 @@ public final class R196ClientControls {
             if (index * 2 + 1 < food) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, full, x, y, 9, 9);
             else if (index * 2 + 1 == food) graphics.blitSprite(RenderPipelines.GUI_TEXTURED, half, x, y, 9, 9);
         }
-        minecraft.gui.hud.rightHeight += rows * 10;
+        minecraft.gui.rightHeight += rows * 10;
     }
 
     static int registeredKeyCount() {

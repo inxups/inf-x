@@ -37,7 +37,7 @@ import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.alchemy.PotionIds;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
@@ -330,7 +330,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of(
                         DataComponentIngredient.of(
                                 DataComponents.POTION_CONTENTS,
-                                new PotionContents(registries.lookupOrThrow(Registries.POTION).getOrThrow(PotionIds.WATER)),
+                                new PotionContents(Potions.WATER),
                                 Items.POTION),
                         Ingredient.of(Items.NETHER_WART),
                         Ingredient.of(Items.CHARCOAL)));
@@ -1575,7 +1575,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 R196Material.COPPER,
                 BenchTier.COPPER,
                 Items.COPPER_INGOT,
-                Blocks.COPPER_BLOCK.weathering().unaffected(),
+                Blocks.COPPER_BLOCK,
                 12_400.0F);
         addMetalAnvil(R196Material.SILVER, BenchTier.SILVER, ModItems.SILVER_INGOT, ModBlocks.SILVER_BLOCK, 12_400.0F);
         addMetalAnvil(R196Material.GOLD, BenchTier.GOLD, Items.GOLD_INGOT, Blocks.GOLD_BLOCK, 12_400.0F);

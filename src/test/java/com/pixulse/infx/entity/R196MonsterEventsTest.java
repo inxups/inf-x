@@ -3,7 +3,7 @@ package com.pixulse.infx.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.pixulse.infx.registry.ModEntityTypes;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import org.junit.jupiter.api.Test;
 
 class R196MonsterEventsTest {
@@ -31,11 +31,11 @@ class R196MonsterEventsTest {
 
     @Test
     void worldSpawnReplacementMapsEveryVanillaFishToItsR196Entity() {
-        assertEquals(ModEntityTypes.R196_COD.get(), R196MonsterEvents.replacementFor(EntityTypes.COD));
-        assertEquals(ModEntityTypes.R196_SALMON.get(), R196MonsterEvents.replacementFor(EntityTypes.SALMON));
-        assertEquals(ModEntityTypes.R196_PUFFERFISH.get(), R196MonsterEvents.replacementFor(EntityTypes.PUFFERFISH));
+        assertEquals(ModEntityTypes.R196_COD.get(), R196MonsterEvents.replacementFor(EntityType.COD));
+        assertEquals(ModEntityTypes.R196_SALMON.get(), R196MonsterEvents.replacementFor(EntityType.SALMON));
+        assertEquals(ModEntityTypes.R196_PUFFERFISH.get(), R196MonsterEvents.replacementFor(EntityType.PUFFERFISH));
         assertEquals(
                 ModEntityTypes.R196_TROPICAL_FISH.get(),
-                R196MonsterEvents.replacementFor(EntityTypes.TROPICAL_FISH));
+                R196MonsterEvents.replacementFor(EntityType.TROPICAL_FISH));
     }
 }

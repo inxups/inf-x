@@ -4,6 +4,7 @@ import com.pixulse.infx.equipment.R196CorrosionRules;
 import com.pixulse.infx.equipment.R196CorrosionType;
 import com.pixulse.infx.item.R196GelatinousSphereItem;
 import com.pixulse.infx.registry.ModItems;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
@@ -19,19 +20,21 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.cubemob.Slime;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -93,7 +96,7 @@ public final class R196Slime extends Slime implements R196Mob {
         if (usesCrawlAi(variant())) {
             // CubeMobMoveControl only advances by jumping. Oozes use the normal ground
             // controller so they can creep across terrain without inheriting that hop.
-            this.moveControl = new MoveControl<>(this);
+            this.moveControl = new MoveControl(this);
         }
     }
 
@@ -166,22 +169,18 @@ public final class R196Slime extends Slime implements R196Mob {
     protected void registerGoals() {
         if (!usesCrawlAi(variant())) {
             super.registerGoals();
+            addR196TargetingGoals();
             return;
         }
 
         goalSelector.addGoal(0, new FloatGoal(this));
         // Keep the crawl goal for pursuit only. MITE ooze damage is dispatched by the
         // slime collision callback, never by a hitbox-expanded melee-goal check.
-        goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, false) {
-            @Override
-            protected boolean canPerformAttack(LivingEntity target) {
-                return false;
-            }
-        });
-        goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
+        goalSelector.addGoal(2, new OozePursuitGoal(this));
+        goalSelector.addGoal(5, new OozeRandomMovementGoal(this));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-        addTargetingGoals();
+        addR196TargetingGoals();
     }
 
     /** Suppress any fallback jump request from ground navigation while the ooze crawls. */
@@ -206,8 +205,15 @@ public final class R196Slime extends Slime implements R196Mob {
 
     /** MITE spawn sizes are uniform 1/2/4 with no difficulty bias. */
     @Override
-    protected void setSpawnSize(ServerLevelAccessor level, DifficultyInstance difficulty) {
+    public @org.jspecify.annotations.Nullable SpawnGroupData finalizeSpawn(
+            ServerLevelAccessor level,
+            DifficultyInstance difficulty,
+            EntitySpawnReason spawnReason,
+            @org.jspecify.annotations.Nullable SpawnGroupData groupData) {
+        SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
+        // Unlike vanilla's difficulty-biased size roll, MITE uses a uniform 1/2/4 choice.
         setSize(1 << level.getRandom().nextInt(3), true);
+        return result;
     }
 
     /** MITE cubes damage the animals and villagers they collide with, not only players. */
@@ -219,11 +225,110 @@ public final class R196Slime extends Slime implements R196Mob {
         }
     }
 
-    @Override
-    protected void addTargetingGoals() {
-        super.addTargetingGoals();
+    private void addR196TargetingGoals() {
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Animal.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Villager.class, true));
+        if (usesCrawlAi(variant())) {
+            // Recreate the vanilla Slime targets because the ooze uses its own ground goals.
+            this.targetSelector.addGoal(
+                    1,
+                    new NearestAttackableTargetGoal<>(
+                            this,
+                            Player.class,
+                            10,
+                            true,
+                            false,
+                            (target, level) -> Math.abs(target.getY() - this.getY()) <= 4.0));
+            this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, IronGolem.class, true));
+        }
+    }
+
+    /** Ground pursuit used by the acid ooze in 26.1.2, where MeleeAttackGoal requires PathfinderMob. */
+    private static final class OozePursuitGoal extends Goal {
+        private final R196Slime slime;
+
+        private OozePursuitGoal(R196Slime slime) {
+            this.slime = slime;
+            setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            LivingEntity target = slime.getTarget();
+            return target != null && target.isAlive() && slime.canAttack(target);
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            LivingEntity target = slime.getTarget();
+            return target != null && target.isAlive() && slime.canAttack(target);
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void tick() {
+            LivingEntity target = slime.getTarget();
+            if (target != null) {
+                slime.lookAt(target, 10.0F, 10.0F);
+                slime.getMoveControl().setWantedPosition(target.getX(), target.getY(), target.getZ(), 1.0D);
+            }
+        }
+
+        @Override
+        public void stop() {
+            slime.getMoveControl().setWait();
+        }
+    }
+
+    /** Lightweight replacement for WaterAvoidingRandomStrollGoal, which also requires PathfinderMob. */
+    private static final class OozeRandomMovementGoal extends Goal {
+        private final R196Slime slime;
+        private double wantedX;
+        private double wantedZ;
+        private int time;
+
+        private OozeRandomMovementGoal(R196Slime slime) {
+            this.slime = slime;
+            setFlags(EnumSet.of(Goal.Flag.MOVE));
+        }
+
+        @Override
+        public boolean canUse() {
+            return slime.getTarget() == null
+                    && !slime.isPassenger()
+                    && (slime.onGround() || slime.isInWater() || slime.isInLava())
+                    && slime.getRandom().nextInt(40) == 0;
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return slime.getTarget() == null && time > 0
+                    && slime.distanceToSqr(wantedX, slime.getY(), wantedZ) > 1.0D;
+        }
+
+        @Override
+        public void start() {
+            double angle = slime.getRandom().nextDouble() * (Math.PI * 2.0D);
+            double distance = 4.0D + slime.getRandom().nextDouble() * 4.0D;
+            wantedX = slime.getX() + Math.cos(angle) * distance;
+            wantedZ = slime.getZ() + Math.sin(angle) * distance;
+            time = 40 + slime.getRandom().nextInt(40);
+        }
+
+        @Override
+        public void tick() {
+            slime.getMoveControl().setWantedPosition(wantedX, slime.getY(), wantedZ, 1.0D);
+            time--;
+        }
+
+        @Override
+        public void stop() {
+            slime.getMoveControl().setWait();
+        }
     }
 
     @Override

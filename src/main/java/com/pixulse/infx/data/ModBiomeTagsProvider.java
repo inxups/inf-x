@@ -7,12 +7,11 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
 
 /** Moves the shallow Overworld's subterranean structures into the Underworld biome. */
-final class ModBiomeTagsProvider extends TagsProvider<Biome> {
+final class ModBiomeTagsProvider extends KeyTagsProvider<Biome> {
     ModBiomeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(output, Registries.BIOME, lookupProvider, InfiniteX.MOD_ID);
     }

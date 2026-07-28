@@ -46,7 +46,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -216,7 +216,7 @@ public final class ModEquipmentGameTests {
                         > scythe.getDestroySpeed(Blocks.STONE.defaultBlockState()),
                 "scythe must be efficient against crops");
 
-        var sheep = helper.spawn(EntityTypes.SHEEP, new BlockPos(6, 1, 1));
+        var sheep = helper.spawn(EntityType.SHEEP, new BlockPos(6, 1, 1));
         ItemStack shears = ModItems.catalog()
                 .equipment(R196Material.COPPER, R196EquipmentType.SHEARS)
                 .holder()
@@ -232,7 +232,7 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(sheep.isSheared(), "material shears must shear sheep");
         sheep.discard();
 
-        var shearTarget = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(6, 1, 2));
+        var shearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 2));
         // A newly constructed GameTest player has no accumulated melee cooldown yet. Advance it
         // before testing the item action so this verifies the shears attack rather than setup timing.
         for (int tick = 0; tick < 20; tick++) {
@@ -259,7 +259,7 @@ public final class ModEquipmentGameTests {
                 "shears must refuse another right-click attack during cooldown");
         shearTarget.discard();
 
-        var zombie = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(7, 1, 1));
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 1));
         ItemStack sword = ModItems.catalog()
                 .equipment(R196Material.COPPER, R196EquipmentType.SWORD)
                 .holder()
@@ -348,7 +348,7 @@ public final class ModEquipmentGameTests {
         assertHarvestLevel(helper, Blocks.PETRIFIED_OAK_SLAB, 2);
         assertHarvestLevel(helper, Blocks.SANDSTONE_STAIRS, 2);
         assertHarvestLevel(helper, Blocks.SANDSTONE_WALL, 2);
-        assertHarvestLevel(helper, Blocks.COPPER_BLOCK.weathering().unaffected(), 3);
+        assertHarvestLevel(helper, Blocks.COPPER_BLOCK, 3);
         assertHarvestLevel(helper, Blocks.IRON_BARS, 3);
         assertHarvestLevel(helper, Blocks.REDSTONE_BLOCK, 3);
         assertHarvestLevel(helper, com.pixulse.infx.registry.ModBlocks.MITHRIL_RUNE_STONE.get(), 3);
@@ -517,13 +517,13 @@ public final class ModEquipmentGameTests {
             recoveringSeed++;
         }
         entityArrow.getRandom().setSeed(recoveringSeed);
-        var target = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(2, 2, 2));
+        var target = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 2, 2));
         int itemsBefore = helper.getLevel()
-                .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
+                .getEntities(EntityType.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
                 .size();
         R196EquipmentBehaviors.resolveArrowRecovery(entityArrow, new EntityHitResult(target));
         int itemsAfter = helper.getLevel()
-                .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
+                .getEntities(EntityType.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
                 .size();
         helper.assertTrue(itemsAfter == itemsBefore + 1, "recovered entity hit drops exactly one material arrow");
         helper.assertTrue(
@@ -532,7 +532,7 @@ public final class ModEquipmentGameTests {
         entityArrow.getRandom().setSeed(recoveringSeed + 1L);
         R196EquipmentBehaviors.resolveArrowRecovery(entityArrow, new EntityHitResult(target));
         int repeatedItems = helper.getLevel()
-                .getEntities(EntityTypes.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
+                .getEntities(EntityType.ITEM, target.getBoundingBox().inflate(8.0), entity -> true)
                 .size();
         helper.assertTrue(repeatedItems == itemsAfter, "an entity hit receives only one recovery roll");
         target.discard();
@@ -556,7 +556,7 @@ public final class ModEquipmentGameTests {
             player.setItemInHand(InteractionHand.MAIN_HAND, bow);
             player.getInventory().add(silverArrow.getDefaultInstance());
             int before = helper.getLevel()
-                    .getEntities(EntityTypes.ARROW, player.getBoundingBox().inflate(32.0), arrow -> true)
+                    .getEntities(EntityType.ARROW, player.getBoundingBox().inflate(32.0), arrow -> true)
                     .size();
             helper.assertTrue(
                     bowItem.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).consumesAction(),
@@ -569,7 +569,7 @@ public final class ModEquipmentGameTests {
             }
             player.releaseUsingItem();
             int after = helper.getLevel()
-                    .getEntities(EntityTypes.ARROW, player.getBoundingBox().inflate(32.0), arrow -> true)
+                    .getEntities(EntityType.ARROW, player.getBoundingBox().inflate(32.0), arrow -> true)
                     .size();
             helper.assertTrue(after == before + 1, material.path() + " bow must spawn one arrow");
             helper.assertTrue(
@@ -617,7 +617,7 @@ public final class ModEquipmentGameTests {
                 Math.abs(chainArmor - 7.0) < 1.0E-6,
                 "mithril chain must sum to 7, got " + chainArmor);
 
-        var horse = helper.spawn(EntityTypes.HORSE, new BlockPos(6, 1, 1));
+        var horse = helper.spawn(EntityType.HORSE, new BlockPos(6, 1, 1));
         R196EquipmentKey horseKey =
                 new R196EquipmentKey(R196Material.ADAMANTIUM, R196EquipmentType.HORSE_ARMOR);
         ItemStack horseArmor = ModItems.catalog()

@@ -7,7 +7,7 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.tabs.GridLayoutTab;
-import net.minecraft.client.gui.components.tabs.MenuTabBar;
+import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.components.tabs.TabManager;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.network.chat.Component;
@@ -38,7 +38,7 @@ class WorldCreationLockClientEventsTest {
         Button experiments = button("experiments");
         Button dataPacks = button("data packs");
         TestTab more = new TestTab("createWorld.tab.more.title", gameRules, experiments, dataPacks);
-        MenuTabBar tabBar = MenuTabBar.builder(new TabManager(widget -> {}, widget -> {}), 320)
+        TabNavigationBar tabBar = TabNavigationBar.builder(new TabManager(widget -> {}, widget -> {}), 320)
                 .addTabs(game, world, more)
                 .build();
 

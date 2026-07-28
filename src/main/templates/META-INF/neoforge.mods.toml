@@ -29,6 +29,6 @@ side="BOTH"
 [[dependencies.${mod_id}]]
 modId="jei"
 type="optional"
-versionRange="[30.12,)"
+versionRange="[29.6,30)"
 ordering="AFTER"
 side="CLIENT"

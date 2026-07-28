@@ -55,7 +55,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -423,12 +423,12 @@ public final class ModGameTests {
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE coal storage remains level zero");
         helper.assertTrue(
                 helper.getLevel()
-                        .getEntities(EntityTypes.ITEM, player.getBoundingBox().inflate(8.0),
+                        .getEntities(EntityType.ITEM, player.getBoundingBox().inflate(8.0),
                                 entity -> entity.getItem().is(Items.COAL_BLOCK))
                         .size() == 1,
                 "a level-zero coal block must still drop when harvested by hand");
         helper.getLevel()
-                .getEntities(EntityTypes.ITEM, player.getBoundingBox().inflate(8.0),
+                .getEntities(EntityType.ITEM, player.getBoundingBox().inflate(8.0),
                         entity -> entity.getItem().is(Items.COAL_BLOCK))
                 .forEach(net.minecraft.world.entity.Entity::discard);
         helper.setBlock(WORK_POS, Blocks.RAIL);
@@ -442,7 +442,7 @@ public final class ModGameTests {
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE containers must be portable by hand");
         helper.assertTrue(
                 helper.getLevel()
-                        .getEntities(EntityTypes.ITEM, player.getBoundingBox().inflate(8.0),
+                        .getEntities(EntityType.ITEM, player.getBoundingBox().inflate(8.0),
                                 entity -> entity.getItem().is(Items.FURNACE))
                         .size() == 1,
                 "a portable furnace must drop when carried by hand");
@@ -542,7 +542,7 @@ public final class ModGameTests {
                 .getRoot()
                 .getChild("difficulty");
         ServerPlayer player = createPlayer(helper);
-        var attacker = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(3, 2, 3));
+        var attacker = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 3));
         float scaledMobDamage = IScalingFunction.DEFAULT.scaleDamage(
                 helper.getLevel().damageSources().mobAttack(attacker), player, 4.0F, extreme);
         float scaledExplosionDamage = IScalingFunction.DEFAULT.scaleDamage(
@@ -859,7 +859,7 @@ public final class ModGameTests {
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     var nearbyItems = helper.getLevel().getEntities(
-                            EntityTypes.ITEM, player.getBoundingBox().inflate(4.0), entity -> entity.isAlive());
+                            EntityType.ITEM, player.getBoundingBox().inflate(4.0), entity -> entity.isAlive());
                     helper.assertTrue(
                             nearbyItems.stream().anyMatch(entity -> entity.getItem().is(ModItems.SINEW.get())),
                             "a full inventory must drop the crafted result at the player; progress="

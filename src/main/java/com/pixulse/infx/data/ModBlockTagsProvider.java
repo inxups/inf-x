@@ -18,11 +18,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
 
-final class ModBlockTagsProvider extends BlockTagsProvider {
+final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
     ModBlockTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider, InfiniteX.MOD_ID);
+        super(output, Registries.BLOCK, lookupProvider, InfiniteX.MOD_ID);
     }
 
     @Override
@@ -148,7 +147,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
     }
 
     private void addEffectiveToolTags() {
-        TagAppender<Block> pickaxe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.PICKAXE))
+        TagAppender<ResourceKey<Block>, Block> pickaxe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.PICKAXE))
                 .addTag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .addTag(BlockTags.FLOWER_POTS)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
@@ -181,12 +180,11 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                         ModBlocks.LARGE_CLAY_OVEN.getKey());
         addMatching(pickaxe, ModBlockTagsProvider::isInfested);
 
-        TagAppender<Block> axe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.AXE))
+        TagAppender<ResourceKey<Block>, Block> axe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.AXE))
                 .addTag(BlockTags.MINEABLE_WITH_AXE)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
                 .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.TERRACOTTA)
-                .addTag(BlockTags.GLAZED_TERRACOTTA)
                 .addTag(BlockTags.ICE)
                 .addTag(Tags.Blocks.SANDSTONE_BLOCKS)
                 .addTag(Tags.Blocks.SANDSTONE_SLABS)
@@ -205,11 +203,11 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                         ModBlocks.LARGE_CLAY_OVEN.getKey(),
                         ModBlocks.HARDENED_CLAY_FURNACE.getKey(),
                         ModBlocks.INFESTED_NETHERRACK.getKey());
-        addMatching(axe, id -> isInfested(id) || isMudBrick(id));
+        addMatching(axe, id -> isInfested(id) || isMudBrick(id) || isGlazedTerracotta(id));
 
         tag(ModTags.Blocks.AXE_HALF_SPEED).addTag(Tags.Blocks.SANDSTONE_BLOCKS);
 
-        TagAppender<Block> shovel = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHOVEL))
+        TagAppender<ResourceKey<Block>, Block> shovel = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHOVEL))
                 .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
                 .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.CANDLE_CAKES)
@@ -269,10 +267,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .addTag(Tags.Blocks.PUMPKINS)
                 .add(blockKey(Blocks.MELON));
         addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHEARS)))
-                .addTag(BlockTags.SHEARS_EXTREME_BREAKING_SPEED)
-                .addTag(BlockTags.SHEARS_MAJOR_BREAKING_SPEED)
-                .addTag(BlockTags.SHEARS_MINOR_BREAKING_SPEED)
-                .add(blockKey(Blocks.TRIPWIRE));
+                .add(blockKey(Blocks.GLOW_LICHEN), blockKey(Blocks.TRIPWIRE));
 
         tag(ModTags.Blocks.WAR_HAMMER_EFFECTIVE)
                 .addTag(BlockTags.CANDLE_CAKES)
@@ -288,7 +283,8 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         ModBlocks.METAL_ANVILS.forEach(anvil -> tag(ModTags.Blocks.NO_EFFECTIVE_TOOL).add(anvil.getKey()));
     }
 
-    private TagAppender<Block> addPlantCuttingTags(TagAppender<Block> appender) {
+    private TagAppender<ResourceKey<Block>, Block> addPlantCuttingTags(
+            TagAppender<ResourceKey<Block>, Block> appender) {
         return appender
                 .addTag(BlockTags.BEDS)
                 .addTag(BlockTags.BANNERS)
@@ -344,7 +340,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
     }
 
     private void addPortableBlocks() {
-        TagAppender<Block> portable = tag(ModTags.Blocks.PORTABLE_HAND_HARVEST)
+        TagAppender<ResourceKey<Block>, Block> portable = tag(ModTags.Blocks.PORTABLE_HAND_HARVEST)
                 .addTag(BlockTags.ANVIL)
                 .addTag(BlockTags.BEDS)
                 .addTag(BlockTags.CAULDRONS)
@@ -399,7 +395,7 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
     }
 
     private void addHarvestLevels() {
-        TagAppender<Block> level0 = tag(ModTags.Blocks.requiredLevel(0))
+        TagAppender<ResourceKey<Block>, Block> level0 = tag(ModTags.Blocks.requiredLevel(0))
                 .addTag(BlockTags.RAILS)
                 .addTag(BlockTags.STONE_BUTTONS)
                 .addTag(BlockTags.CORAL_BLOCKS)
@@ -420,11 +416,10 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
         addMatching(level0, id -> isCoral(id) || isInfested(id));
         ModBlocks.METAL_ANVILS.forEach(block -> level0.add(block.getKey()));
 
-        TagAppender<Block> level1 = tag(ModTags.Blocks.requiredLevel(1))
+        TagAppender<ResourceKey<Block>, Block> level1 = tag(ModTags.Blocks.requiredLevel(1))
                 .addTag(BlockTags.LOGS)
                 .addTag(BlockTags.BAMBOO_BLOCKS)
                 .addTag(BlockTags.TERRACOTTA)
-                .addTag(BlockTags.GLAZED_TERRACOTTA)
                 .addTag(BlockTags.ICE)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
                 .addTag(Tags.Blocks.SANDSTONE_BLOCKS)
@@ -434,14 +429,14 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                         blockKey(Blocks.MUDDY_MANGROVE_ROOTS),
                         blockKey(Blocks.PACKED_MUD),
                         ModBlocks.HARDENED_CLAY_FURNACE.getKey());
-        addMatching(level1, ModBlockTagsProvider::isMudBrick);
+        addMatching(level1, id -> isMudBrick(id) || isGlazedTerracotta(id));
 
         tag(ModTags.Blocks.requiredLevel(2))
                 .add(
                         ModBlocks.SILVER_ORE.getKey(),
                         ModBlocks.NETHERRACK_FURNACE.getKey());
 
-        TagAppender<Block> level3 = tag(ModTags.Blocks.requiredLevel(3))
+        TagAppender<ResourceKey<Block>, Block> level3 = tag(ModTags.Blocks.requiredLevel(3))
                 .addTag(Tags.Blocks.ORES_EMERALD)
                 .addTag(BlockTags.COPPER_CHESTS)
                 .addTag(BlockTags.COPPER_GOLEM_STATUES)
@@ -498,7 +493,8 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
                 .add(ModBlocks.ADAMANTIUM_BLOCK.getKey(), ModBlocks.ADAMANTIUM_SAFE.getKey());
     }
 
-    private void addMatching(TagAppender<Block> appender, Predicate<Identifier> predicate) {
+    private void addMatching(
+            TagAppender<ResourceKey<Block>, Block> appender, Predicate<Identifier> predicate) {
         BuiltInRegistries.BLOCK.keySet().stream()
                 .filter(predicate)
                 .map(id -> ResourceKey.create(Registries.BLOCK, id))
@@ -511,6 +507,10 @@ final class ModBlockTagsProvider extends BlockTagsProvider {
 
     private static boolean isMudBrick(Identifier id) {
         return isMinecraft(id) && id.getPath().startsWith("mud_brick");
+    }
+
+    private static boolean isGlazedTerracotta(Identifier id) {
+        return isMinecraft(id) && id.getPath().endsWith("_glazed_terracotta");
     }
 
     private static boolean isInfested(Identifier id) {

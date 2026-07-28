@@ -19,7 +19,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
@@ -143,7 +143,7 @@ public final class ProgressionEvents {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (event.getEntity() instanceof Enemy) award(player, "kill_enemy", "killed_enemy");
         if (event.getSource().getDirectEntity() instanceof AbstractArrow
-                && (event.getEntity().getType() == EntityTypes.SKELETON
+                && (event.getEntity().getType() == EntityType.SKELETON
                         || event.getEntity().getType() == ModEntityTypes.R196_SKELETON.get())) {
             double dx = player.getX() - event.getEntity().getX();
             double dz = player.getZ() - event.getEntity().getZ();
@@ -151,7 +151,7 @@ public final class ProgressionEvents {
                 award(player, "snipe_skeleton", "long_range_skeleton_kill");
             }
         }
-        if ((event.getEntity().getType() == EntityTypes.GHAST
+        if ((event.getEntity().getType() == EntityType.GHAST
                         || event.getEntity().getType() == ModEntityTypes.R196_GHAST.get())
                 && event.getSource().getDirectEntity() instanceof LargeFireball fireball
                 && fireball.getOwner() == player) {
