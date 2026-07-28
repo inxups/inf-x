@@ -32,6 +32,25 @@ class SurvivalRulesTest {
     }
 
     @Test
+    void deathResetsFoodAndSatiationButKeepsLongTermNutrition() {
+        SurvivalData beforeDeath =
+                new SurvivalData(1.5D, 0.5D, 100, 200, 300, 400, 0.6D, 0.7D, 0.8D, 0.9D);
+
+        SurvivalData afterDeath = beforeDeath.resetFoodAfterDeath();
+
+        assertEquals(SurvivalRules.INITIAL_CAP, afterDeath.satiation());
+        assertEquals(SurvivalRules.INITIAL_CAP, afterDeath.nutrition());
+        assertEquals(100, afterDeath.protein());
+        assertEquals(200, afterDeath.phytonutrients());
+        assertEquals(300, afterDeath.essentialFats());
+        assertEquals(400, afterDeath.insulinResponse());
+        assertEquals(0.0D, afterDeath.recoveryProgress());
+        assertEquals(0.0D, afterDeath.hungerProgress());
+        assertEquals(0.0D, afterDeath.nutritionHungerProgress());
+        assertEquals(0.0D, afterDeath.starvationProgress());
+    }
+
+    @Test
     void capsStartAtThreeIconsAndGrowEveryFiveLevels() {
         assertEquals(6.0D, SurvivalRules.healthCap(0));
         assertEquals(6.0D, SurvivalRules.foodCap(4));
