@@ -1,6 +1,6 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.server.ExtremeDifficulty;
+import com.pixulse.infx.event.server.ExtremeDifficulty;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameType;

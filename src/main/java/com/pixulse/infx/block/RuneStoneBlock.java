@@ -1,6 +1,6 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.world.UnderworldPortalEvents;
+import com.pixulse.infx.event.UnderworldPortalEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;

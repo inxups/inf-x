@@ -1,8 +1,8 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 import net.minecraft.client.data.models.EquipmentAssetProvider;
@@ -20,11 +20,11 @@ final class ModEquipmentAssetProvider extends EquipmentAssetProvider {
     @Override
     protected void registerModels(
             BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output) {
-        Arrays.stream(R196Material.values())
-                .filter(R196EquipmentType.HELMET::allows)
+        Arrays.stream(MiteMaterial.values())
+                .filter(EquipmentType.HELMET::allows)
                 .forEach(material -> registerPlate(output, material));
-        Arrays.stream(R196Material.values())
-                .filter(R196EquipmentType.CHAINMAIL_HELMET::allows)
+        Arrays.stream(MiteMaterial.values())
+                .filter(EquipmentType.CHAINMAIL_HELMET::allows)
                 .forEach(material -> output.accept(
                         chainAssetKey(material),
                         EquipmentClientInfo.builder()
@@ -34,13 +34,13 @@ final class ModEquipmentAssetProvider extends EquipmentAssetProvider {
 
     private static void registerPlate(
             BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output,
-            R196Material material) {
+            MiteMaterial material) {
         EquipmentClientInfo.Builder builder = EquipmentClientInfo.builder()
-                .addHumanoidLayers(InfiniteX.id(material.path()), material == R196Material.LEATHER);
-        if (material == R196Material.LEATHER) {
+                .addHumanoidLayers(InfiniteX.id(material.path()), material == MiteMaterial.LEATHER);
+        if (material == MiteMaterial.LEATHER) {
             builder.addHumanoidLayers(InfiniteX.id("leather_overlay"), false);
         }
-        if (R196EquipmentType.HORSE_ARMOR.allows(material)) {
+        if (EquipmentType.HORSE_ARMOR.allows(material)) {
             builder.addLayers(
                     EquipmentClientInfo.LayerType.HORSE_BODY,
                     new EquipmentClientInfo.Layer(InfiniteX.id(material.path())));
@@ -48,11 +48,11 @@ final class ModEquipmentAssetProvider extends EquipmentAssetProvider {
         output.accept(plateAssetKey(material), builder.build());
     }
 
-    private static ResourceKey<EquipmentAsset> plateAssetKey(R196Material material) {
+    private static ResourceKey<EquipmentAsset> plateAssetKey(MiteMaterial material) {
         return ResourceKey.create(EquipmentAssets.ROOT_ID, InfiniteX.id(material.path()));
     }
 
-    private static ResourceKey<EquipmentAsset> chainAssetKey(R196Material material) {
+    private static ResourceKey<EquipmentAsset> chainAssetKey(MiteMaterial material) {
         return ResourceKey.create(
                 EquipmentAssets.ROOT_ID, InfiniteX.id(material.path() + "_chainmail"));
     }

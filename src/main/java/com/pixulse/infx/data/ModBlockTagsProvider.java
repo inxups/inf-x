@@ -1,9 +1,10 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196MiningFamily;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.item.MiningFamily;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import net.minecraft.core.HolderLookup;
@@ -36,7 +37,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
     }
 
     private void addCurseTags() {
-        tag(ModTags.Blocks.CURSE_VINES)
+        tag(InfXBlockTags.CURSE_VINES)
                 .addTag(BlockTags.CAVE_VINES)
                 .add(
                         blockKey(Blocks.VINE),
@@ -45,7 +46,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.TWISTING_VINES),
                         blockKey(Blocks.TWISTING_VINES_PLANT));
 
-        tag(ModTags.Blocks.CURSE_PLANTS)
+        tag(InfXBlockTags.CURSE_PLANTS)
                 .addTag(BlockTags.CROPS)
                 .addTag(BlockTags.FLOWERS)
                 .addTag(vanillaTag("saplings"))
@@ -71,26 +72,26 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
     }
 
     private void addWorldgenTags() {
-        tag(ModTags.Blocks.UNDERWORLD_CARVER_REPLACEABLES)
+        tag(InfXBlockTags.UNDERWORLD_CARVER_REPLACEABLES)
                 .addTag(BlockTags.OVERWORLD_CARVER_REPLACEABLES)
                 .add(blockKey(Blocks.BEDROCK));
     }
 
     private void addGelatinousCubeTags() {
-        tag(ModTags.Blocks.PEPSIN_DISSOLVABLE)
+        tag(InfXBlockTags.PEPSIN_DISSOLVABLE)
                 .addTag(BlockTags.WOOL)
                 .addTag(BlockTags.WOOL_CARPETS)
                 .addTag(BlockTags.CANDLE_CAKES)
                 .add(blockKey(Blocks.CAKE), blockKey(Blocks.TRIPWIRE));
 
-        tag(ModTags.Blocks.ACID_DISSOLVES_INSTANTLY)
+        tag(InfXBlockTags.ACID_DISSOLVES_INSTANTLY)
                 .addTag(BlockTags.LEAVES)
                 .addTag(BlockTags.WOOL)
                 .addTag(BlockTags.WOOL_CARPETS)
                 .addTag(BlockTags.CANDLE_CAKES)
                 .add(blockKey(Blocks.CAKE));
 
-        tag(ModTags.Blocks.ACID_DISSOLVES_GRADUALLY)
+        tag(InfXBlockTags.ACID_DISSOLVES_GRADUALLY)
                 .addTag(BlockTags.DOORS)
                 .addTag(BlockTags.PRESSURE_PLATES)
                 .addTag(BlockTags.RAILS)
@@ -126,28 +127,28 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
 
     private void addVanillaMiningTags() {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(ModBlocks.HARDENED_CLAY_FURNACE.getKey())
-                .add(ModBlocks.OBSIDIAN_FURNACE.getKey())
-                .add(ModBlocks.NETHERRACK_FURNACE.getKey())
-                .add(ModBlocks.SILVER_ORE.getKey())
-                .add(ModBlocks.MITHRIL_ORE.getKey())
-                .add(ModBlocks.ADAMANTIUM_ORE.getKey())
-                .add(ModBlocks.SILVER_BLOCK.getKey())
-                .add(ModBlocks.ANCIENT_METAL_BLOCK.getKey())
-                .add(ModBlocks.MITHRIL_BLOCK.getKey())
-                .add(ModBlocks.ADAMANTIUM_BLOCK.getKey())
-                .add(ModBlocks.MITHRIL_RUNE_STONE.getKey())
-                .add(ModBlocks.ADAMANTIUM_RUNE_STONE.getKey())
-                .add(ModBlocks.INFESTED_NETHERRACK.getKey());
-        ModBlocks.METAL_ANVILS.forEach(anvil -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(anvil.getKey()));
-        ModBlocks.ENCHANTING_TABLES.forEach(table -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(table.getKey()));
-        ModBlocks.METAL_SAFES.forEach(safe -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(safe.getKey()));
-        ModBlocks.WORKBENCHES.forEach(workbench -> tag(BlockTags.MINEABLE_WITH_AXE).add(workbench.getKey()));
-        tag(BlockTags.MINEABLE_WITH_SHOVEL).add(ModBlocks.NETHER_GRAVEL.getKey());
+                .add(InfXBlocks.HARDENED_CLAY_FURNACE.getKey())
+                .add(InfXBlocks.OBSIDIAN_FURNACE.getKey())
+                .add(InfXBlocks.NETHERRACK_FURNACE.getKey())
+                .add(InfXBlocks.SILVER_ORE.getKey())
+                .add(InfXBlocks.MITHRIL_ORE.getKey())
+                .add(InfXBlocks.ADAMANTIUM_ORE.getKey())
+                .add(InfXBlocks.SILVER_BLOCK.getKey())
+                .add(InfXBlocks.ANCIENT_METAL_BLOCK.getKey())
+                .add(InfXBlocks.MITHRIL_BLOCK.getKey())
+                .add(InfXBlocks.ADAMANTIUM_BLOCK.getKey())
+                .add(InfXBlocks.MITHRIL_RUNE_STONE.getKey())
+                .add(InfXBlocks.ADAMANTIUM_RUNE_STONE.getKey())
+                .add(InfXBlocks.INFESTED_NETHERRACK.getKey());
+        InfXBlocks.METAL_ANVILS.forEach(anvil -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(anvil.getKey()));
+        InfXBlocks.ENCHANTING_TABLES.forEach(table -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(table.getKey()));
+        InfXBlocks.METAL_SAFES.forEach(safe -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(safe.getKey()));
+        InfXBlocks.WORKBENCHES.forEach(workbench -> tag(BlockTags.MINEABLE_WITH_AXE).add(workbench.getKey()));
+        tag(BlockTags.MINEABLE_WITH_SHOVEL).add(InfXBlocks.NETHER_GRAVEL.getKey());
     }
 
     private void addEffectiveToolTags() {
-        TagAppender<ResourceKey<Block>, Block> pickaxe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.PICKAXE))
+        TagAppender<ResourceKey<Block>, Block> pickaxe = tag(InfXBlockTags.effectiveWith(MiningFamily.PICKAXE))
                 .addTag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .addTag(BlockTags.FLOWER_POTS)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
@@ -176,11 +177,11 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.COMPARATOR),
                         blockKey(Blocks.TRIPWIRE),
                         blockKey(Blocks.TRIPWIRE_HOOK),
-                        ModBlocks.CLAY_FURNACE.getKey(),
-                        ModBlocks.LARGE_CLAY_OVEN.getKey());
+                        InfXBlocks.CLAY_FURNACE.getKey(),
+                        InfXBlocks.LARGE_CLAY_OVEN.getKey());
         addMatching(pickaxe, ModBlockTagsProvider::isInfested);
 
-        TagAppender<ResourceKey<Block>, Block> axe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.AXE))
+        TagAppender<ResourceKey<Block>, Block> axe = tag(InfXBlockTags.effectiveWith(MiningFamily.AXE))
                 .addTag(BlockTags.MINEABLE_WITH_AXE)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
                 .addTag(Tags.Blocks.GLASS_PANES)
@@ -199,15 +200,15 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.LADDER),
                         blockKey(Blocks.PACKED_MUD),
                         blockKey(Blocks.SUGAR_CANE),
-                        ModBlocks.CLAY_FURNACE.getKey(),
-                        ModBlocks.LARGE_CLAY_OVEN.getKey(),
-                        ModBlocks.HARDENED_CLAY_FURNACE.getKey(),
-                        ModBlocks.INFESTED_NETHERRACK.getKey());
+                        InfXBlocks.CLAY_FURNACE.getKey(),
+                        InfXBlocks.LARGE_CLAY_OVEN.getKey(),
+                        InfXBlocks.HARDENED_CLAY_FURNACE.getKey(),
+                        InfXBlocks.INFESTED_NETHERRACK.getKey());
         addMatching(axe, id -> isInfested(id) || isMudBrick(id) || isGlazedTerracotta(id));
 
-        tag(ModTags.Blocks.AXE_HALF_SPEED).addTag(Tags.Blocks.SANDSTONE_BLOCKS);
+        tag(InfXBlockTags.AXE_HALF_SPEED).addTag(Tags.Blocks.SANDSTONE_BLOCKS);
 
-        TagAppender<ResourceKey<Block>, Block> shovel = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHOVEL))
+        TagAppender<ResourceKey<Block>, Block> shovel = tag(InfXBlockTags.effectiveWith(MiningFamily.SHOVEL))
                 .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
                 .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.CANDLE_CAKES)
@@ -216,14 +217,14 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.CARROTS),
                         blockKey(Blocks.POTATOES),
                         blockKey(Blocks.BEETROOTS),
-                        ModBlocks.CLAY_FURNACE.getKey(),
-                        ModBlocks.LARGE_CLAY_OVEN.getKey(),
-                        ModBlocks.SANDSTONE_FURNACE.getKey(),
-                        ModBlocks.INFESTED_NETHERRACK.getKey());
+                        InfXBlocks.CLAY_FURNACE.getKey(),
+                        InfXBlocks.LARGE_CLAY_OVEN.getKey(),
+                        InfXBlocks.SANDSTONE_FURNACE.getKey(),
+                        InfXBlocks.INFESTED_NETHERRACK.getKey());
         addMatching(shovel, ModBlockTagsProvider::isInfested);
-        tag(ModTags.Blocks.METAL_SHOVEL_EFFECTIVE).addTag(Tags.Blocks.GLASS_BLOCKS);
+        tag(InfXBlockTags.METAL_SHOVEL_EFFECTIVE).addTag(Tags.Blocks.GLASS_BLOCKS);
 
-        tag(ModTags.Blocks.effectiveWith(R196MiningFamily.HOE))
+        tag(InfXBlockTags.effectiveWith(MiningFamily.HOE))
                 .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
                 .addTag(BlockTags.CANDLE_CAKES)
                 .add(
@@ -231,9 +232,9 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.CARROTS),
                         blockKey(Blocks.POTATOES),
                         blockKey(Blocks.BEETROOTS),
-                        ModBlocks.SANDSTONE_FURNACE.getKey());
+                        InfXBlocks.SANDSTONE_FURNACE.getKey());
 
-        tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SCYTHE))
+        tag(InfXBlockTags.effectiveWith(MiningFamily.SCYTHE))
                 .addTag(BlockTags.CROPS)
                 .add(
                         blockKey(Blocks.SHORT_GRASS),
@@ -245,7 +246,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.SHORT_DRY_GRASS),
                         blockKey(Blocks.TALL_DRY_GRASS));
 
-        tag(ModTags.Blocks.effectiveWith(R196MiningFamily.CUDGEL))
+        tag(InfXBlockTags.effectiveWith(MiningFamily.CUDGEL))
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
                 .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.ICE)
@@ -260,27 +261,27 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.GLOWSTONE),
                         blockKey(Blocks.MELON));
 
-        addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SWORD)))
+        addPlantCuttingTags(tag(InfXBlockTags.effectiveWith(MiningFamily.SWORD)))
                 .addTag(BlockTags.SWORD_EFFICIENT)
                 .addTag(BlockTags.SWORD_INSTANTLY_MINES)
                 .addTag(BlockTags.WOOL_CARPETS)
                 .addTag(Tags.Blocks.PUMPKINS)
                 .add(blockKey(Blocks.MELON));
-        addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHEARS)))
+        addPlantCuttingTags(tag(InfXBlockTags.effectiveWith(MiningFamily.SHEARS)))
                 .add(blockKey(Blocks.GLOW_LICHEN), blockKey(Blocks.TRIPWIRE));
 
-        tag(ModTags.Blocks.WAR_HAMMER_EFFECTIVE)
+        tag(InfXBlockTags.WAR_HAMMER_EFFECTIVE)
                 .addTag(BlockTags.CANDLE_CAKES)
                 .addTag(Tags.Blocks.PUMPKINS)
                 .add(blockKey(Blocks.CAKE), blockKey(Blocks.MELON));
-        tag(ModTags.Blocks.NO_EFFECTIVE_TOOL)
+        tag(InfXBlockTags.NO_EFFECTIVE_TOOL)
                 .addTag(BlockTags.ANVIL)
                 .add(
                         blockKey(Blocks.PISTON),
                         blockKey(Blocks.STICKY_PISTON),
                         blockKey(Blocks.PISTON_HEAD),
                         blockKey(Blocks.MOVING_PISTON));
-        ModBlocks.METAL_ANVILS.forEach(anvil -> tag(ModTags.Blocks.NO_EFFECTIVE_TOOL).add(anvil.getKey()));
+        InfXBlocks.METAL_ANVILS.forEach(anvil -> tag(InfXBlockTags.NO_EFFECTIVE_TOOL).add(anvil.getKey()));
     }
 
     private TagAppender<ResourceKey<Block>, Block> addPlantCuttingTags(
@@ -340,7 +341,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
     }
 
     private void addPortableBlocks() {
-        TagAppender<ResourceKey<Block>, Block> portable = tag(ModTags.Blocks.PORTABLE_HAND_HARVEST)
+        TagAppender<ResourceKey<Block>, Block> portable = tag(InfXBlockTags.PORTABLE_HAND_HARVEST)
                 .addTag(BlockTags.ANVIL)
                 .addTag(BlockTags.BEDS)
                 .addTag(BlockTags.CAULDRONS)
@@ -387,15 +388,15 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.DECORATED_POT),
                         blockKey(Blocks.CHISELED_BOOKSHELF),
                         blockKey(Blocks.CONDUIT));
-        ModBlocks.WORKBENCHES.forEach(block -> portable.add(block.getKey()));
-        ModBlocks.FURNACES.forEach(block -> portable.add(block.getKey()));
-        ModBlocks.METAL_ANVILS.forEach(block -> portable.add(block.getKey()));
-        ModBlocks.METAL_SAFES.forEach(block -> portable.add(block.getKey()));
-        ModBlocks.ENCHANTING_TABLES.forEach(block -> portable.add(block.getKey()));
+        InfXBlocks.WORKBENCHES.forEach(block -> portable.add(block.getKey()));
+        InfXBlocks.FURNACES.forEach(block -> portable.add(block.getKey()));
+        InfXBlocks.METAL_ANVILS.forEach(block -> portable.add(block.getKey()));
+        InfXBlocks.METAL_SAFES.forEach(block -> portable.add(block.getKey()));
+        InfXBlocks.ENCHANTING_TABLES.forEach(block -> portable.add(block.getKey()));
     }
 
     private void addHarvestLevels() {
-        TagAppender<ResourceKey<Block>, Block> level0 = tag(ModTags.Blocks.requiredLevel(0))
+        TagAppender<ResourceKey<Block>, Block> level0 = tag(InfXBlockTags.requiredLevel(0))
                 .addTag(BlockTags.RAILS)
                 .addTag(BlockTags.STONE_BUTTONS)
                 .addTag(BlockTags.CORAL_BLOCKS)
@@ -409,14 +410,14 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.STICKY_PISTON),
                         blockKey(Blocks.PISTON_HEAD),
                         blockKey(Blocks.MOVING_PISTON),
-                        ModBlocks.CLAY_FURNACE.getKey(),
-                        ModBlocks.LARGE_CLAY_OVEN.getKey(),
-                        ModBlocks.SANDSTONE_FURNACE.getKey(),
-                        ModBlocks.INFESTED_NETHERRACK.getKey());
+                        InfXBlocks.CLAY_FURNACE.getKey(),
+                        InfXBlocks.LARGE_CLAY_OVEN.getKey(),
+                        InfXBlocks.SANDSTONE_FURNACE.getKey(),
+                        InfXBlocks.INFESTED_NETHERRACK.getKey());
         addMatching(level0, id -> isCoral(id) || isInfested(id));
-        ModBlocks.METAL_ANVILS.forEach(block -> level0.add(block.getKey()));
+        InfXBlocks.METAL_ANVILS.forEach(block -> level0.add(block.getKey()));
 
-        TagAppender<ResourceKey<Block>, Block> level1 = tag(ModTags.Blocks.requiredLevel(1))
+        TagAppender<ResourceKey<Block>, Block> level1 = tag(InfXBlockTags.requiredLevel(1))
                 .addTag(BlockTags.LOGS)
                 .addTag(BlockTags.BAMBOO_BLOCKS)
                 .addTag(BlockTags.TERRACOTTA)
@@ -428,15 +429,15 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.MANGROVE_ROOTS),
                         blockKey(Blocks.MUDDY_MANGROVE_ROOTS),
                         blockKey(Blocks.PACKED_MUD),
-                        ModBlocks.HARDENED_CLAY_FURNACE.getKey());
+                        InfXBlocks.HARDENED_CLAY_FURNACE.getKey());
         addMatching(level1, id -> isMudBrick(id) || isGlazedTerracotta(id));
 
-        tag(ModTags.Blocks.requiredLevel(2))
+        tag(InfXBlockTags.requiredLevel(2))
                 .add(
-                        ModBlocks.SILVER_ORE.getKey(),
-                        ModBlocks.NETHERRACK_FURNACE.getKey());
+                        InfXBlocks.SILVER_ORE.getKey(),
+                        InfXBlocks.NETHERRACK_FURNACE.getKey());
 
-        TagAppender<ResourceKey<Block>, Block> level3 = tag(ModTags.Blocks.requiredLevel(3))
+        TagAppender<ResourceKey<Block>, Block> level3 = tag(InfXBlockTags.requiredLevel(3))
                 .addTag(Tags.Blocks.ORES_EMERALD)
                 .addTag(BlockTags.COPPER_CHESTS)
                 .addTag(BlockTags.COPPER_GOLEM_STATUES)
@@ -460,17 +461,17 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.BREWING_STAND),
                         blockKey(Blocks.HOPPER),
                         blockKey(Blocks.HEAVY_CORE),
-                        ModBlocks.MITHRIL_ORE.getKey(),
-                        ModBlocks.SILVER_BLOCK.getKey(),
-                        ModBlocks.MITHRIL_RUNE_STONE.getKey(),
-                        ModBlocks.ADAMANTIUM_RUNE_STONE.getKey(),
-                        ModBlocks.OBSIDIAN_FURNACE.getKey(),
-                        ModBlocks.COPPER_SAFE.getKey(),
-                        ModBlocks.SILVER_SAFE.getKey(),
-                        ModBlocks.GOLD_SAFE.getKey());
+                        InfXBlocks.MITHRIL_ORE.getKey(),
+                        InfXBlocks.SILVER_BLOCK.getKey(),
+                        InfXBlocks.MITHRIL_RUNE_STONE.getKey(),
+                        InfXBlocks.ADAMANTIUM_RUNE_STONE.getKey(),
+                        InfXBlocks.OBSIDIAN_FURNACE.getKey(),
+                        InfXBlocks.COPPER_SAFE.getKey(),
+                        InfXBlocks.SILVER_SAFE.getKey(),
+                        InfXBlocks.GOLD_SAFE.getKey());
         addMatching(level3, ModBlockTagsProvider::isDenseCopper);
 
-        tag(ModTags.Blocks.requiredLevel(4))
+        tag(InfXBlockTags.requiredLevel(4))
                 .addTag(Tags.Blocks.ORES_DIAMOND)
                 .add(
                         blockKey(Blocks.EMERALD_BLOCK),
@@ -478,19 +479,19 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.RAW_IRON_BLOCK),
                         blockKey(Blocks.ANCIENT_DEBRIS),
                         blockKey(Blocks.LODESTONE),
-                        ModBlocks.ADAMANTIUM_ORE.getKey(),
-                        ModBlocks.ANCIENT_METAL_BLOCK.getKey(),
-                        ModBlocks.IRON_SAFE.getKey(),
-                        ModBlocks.ANCIENT_METAL_SAFE.getKey());
+                        InfXBlocks.ADAMANTIUM_ORE.getKey(),
+                        InfXBlocks.ANCIENT_METAL_BLOCK.getKey(),
+                        InfXBlocks.IRON_SAFE.getKey(),
+                        InfXBlocks.ANCIENT_METAL_SAFE.getKey());
 
-        tag(ModTags.Blocks.requiredLevel(5))
+        tag(InfXBlockTags.requiredLevel(5))
                 .add(
                         blockKey(Blocks.DIAMOND_BLOCK),
                         blockKey(Blocks.NETHERITE_BLOCK),
-                        ModBlocks.MITHRIL_BLOCK.getKey(),
-                        ModBlocks.MITHRIL_SAFE.getKey());
-        tag(ModTags.Blocks.requiredLevel(6))
-                .add(ModBlocks.ADAMANTIUM_BLOCK.getKey(), ModBlocks.ADAMANTIUM_SAFE.getKey());
+                        InfXBlocks.MITHRIL_BLOCK.getKey(),
+                        InfXBlocks.MITHRIL_SAFE.getKey());
+        tag(InfXBlockTags.requiredLevel(6))
+                .add(InfXBlocks.ADAMANTIUM_BLOCK.getKey(), InfXBlocks.ADAMANTIUM_SAFE.getKey());
     }
 
     private void addMatching(

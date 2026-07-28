@@ -2,7 +2,7 @@ package com.pixulse.infx.client;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import com.pixulse.infx.server.ExtremeDifficulty;
+import com.pixulse.infx.event.server.ExtremeDifficulty;
 import net.minecraft.world.Difficulty;
 import org.junit.jupiter.api.Test;
 

@@ -2,9 +2,9 @@ package com.pixulse.infx.menu;
 
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
-import com.pixulse.infx.material.R196Material;
-import com.pixulse.infx.registry.ModMenus;
-import com.pixulse.infx.repair.R196RepairPlan;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.registry.InfXMenus;
+import com.pixulse.infx.item.repair.RepairPlan;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
@@ -21,21 +21,21 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public final class MetalAnvilMenu extends ItemCombinerMenu {
     private static final ItemCombinerMenuSlotDefinition SLOTS = ItemCombinerMenuSlotDefinition.create()
-            .withSlot(0, 27, 47, stack -> R196RepairPlan.supportsType(stack))
-            .withSlot(1, 76, 47, stack -> R196RepairPlan.isRepairMaterial(stack.getItem()))
+            .withSlot(0, 27, 47, stack -> RepairPlan.supportsType(stack))
+            .withSlot(1, 76, 47, stack -> RepairPlan.isRepairMaterial(stack.getItem()))
             .withResultSlot(2, 134, 47)
             .build();
 
-    private final R196Material anvilMaterial;
+    private final MiteMaterial anvilMaterial;
     private final Block expectedBlock;
 
     private MetalAnvilMenu(
             int containerId,
             Inventory inventory,
-            R196Material anvilMaterial,
+            MiteMaterial anvilMaterial,
             ContainerLevelAccess access,
             Block expectedBlock) {
-        super(ModMenus.METAL_ANVIL.get(), containerId, inventory, access, SLOTS);
+        super(InfXMenus.METAL_ANVIL.get(), containerId, inventory, access, SLOTS);
         this.anvilMaterial = anvilMaterial;
         this.expectedBlock = expectedBlock;
     }
@@ -43,7 +43,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
     public static MetalAnvilMenu server(
             int containerId,
             Inventory inventory,
-            R196Material material,
+            MiteMaterial material,
             ContainerLevelAccess access,
             Block expectedBlock) {
         return new MetalAnvilMenu(containerId, inventory, material, access, expectedBlock);
@@ -52,8 +52,8 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
     public static MetalAnvilMenu client(
             int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
-        int materialId = Math.clamp(buffer.readVarInt(), 0, R196Material.values().length - 1);
-        R196Material material = R196Material.values()[materialId];
+        int materialId = Math.clamp(buffer.readVarInt(), 0, MiteMaterial.values().length - 1);
+        MiteMaterial material = MiteMaterial.values()[materialId];
         Block block = inventory.player.level().getBlockState(pos).getBlock();
         return new MetalAnvilMenu(
                 containerId,
@@ -63,13 +63,13 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
                 block);
     }
 
-    public R196Material anvilMaterial() {
+    public MiteMaterial anvilMaterial() {
         return anvilMaterial;
     }
 
     @Override
     public void createResult() {
-        R196RepairPlan plan = currentPlan();
+        RepairPlan plan = currentPlan();
         resultSlots.setItem(0, plan.valid() ? plan.output() : ItemStack.EMPTY);
         broadcastChanges();
     }
@@ -81,7 +81,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
 
     @Override
     protected void onTake(Player player, ItemStack carried) {
-        R196RepairPlan plan = currentPlan();
+        RepairPlan plan = currentPlan();
         if (!plan.valid()) {
             return;
         }
@@ -102,7 +102,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
         return state.is(expectedBlock) && state.getBlock() instanceof MetalAnvilBlock;
     }
 
-    private R196RepairPlan currentPlan() {
-        return R196RepairPlan.create(anvilMaterial, inputSlots.getItem(0), inputSlots.getItem(1));
+    private RepairPlan currentPlan() {
+        return RepairPlan.create(anvilMaterial, inputSlots.getItem(0), inputSlots.getItem(1));
     }
 }

@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.curse.R196CurseManager;
+import com.pixulse.infx.effect.curse.CurseManager;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -14,7 +14,7 @@ abstract class LivingEntityCurseMixin {
     @ModifyVariable(method = "travel", at = @At("HEAD"), argsOnly = true)
     private Vec3 infx$applyEntanglement(Vec3 input) {
         return (Object) this instanceof Player player
-                ? R196CurseManager.entangledInput(player, input)
+                ? CurseManager.entangledInput(player, input)
                 : input;
     }
 }

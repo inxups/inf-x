@@ -7,9 +7,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
 
 /** MITE earth elementals sink normally and only buoy themselves when blocked or hunting in deep lava. */
 final class MiteEarthFloatGoal extends Goal {
-    private final R196EarthElemental elemental;
+    private final EarthElemental elemental;
 
-    MiteEarthFloatGoal(R196EarthElemental elemental) {
+    MiteEarthFloatGoal(EarthElemental elemental) {
         this.elemental = elemental;
         setFlags(EnumSet.of(Flag.JUMP));
         elemental.getNavigation().setCanFloat(true);

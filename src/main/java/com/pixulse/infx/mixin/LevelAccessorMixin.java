@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import com.pixulse.infx.server.ExtremeDifficulty;
+import com.pixulse.infx.event.server.ExtremeDifficulty;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.LevelAccessor;
 import org.spongepowered.asm.mixin.Mixin;

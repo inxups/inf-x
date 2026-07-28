@@ -2,17 +2,17 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModLootModifiers;
-import com.pixulse.infx.registry.ModEnchantments;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXLootModifiers;
+import com.pixulse.infx.registry.InfXEnchantments;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.server.level.ServerPlayer;
-import com.pixulse.infx.progression.ProgressionEvents;
+import com.pixulse.infx.player.ProgressionEvents;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -50,7 +50,7 @@ public final class GravelLootModifier extends LootModifier {
 
         BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
         if (state == null
-                || (netherGravel ? !state.is(ModBlocks.NETHER_GRAVEL.get()) : !state.is(Blocks.GRAVEL))) {
+                || (netherGravel ? !state.is(InfXBlocks.NETHER_GRAVEL.get()) : !state.is(Blocks.GRAVEL))) {
             return generatedLoot;
         }
         if (!(context.getOptionalParameter(LootContextParams.THIS_ENTITY) instanceof Player player)) {
@@ -79,7 +79,7 @@ public final class GravelLootModifier extends LootModifier {
         ItemStack replacement = createStack(selected, netherGravel);
         FirstLootUnitReplacer.replace(
                 generatedLoot,
-                stack -> stack.is(Items.GRAVEL) || stack.is(Items.FLINT) || stack.is(ModItems.NETHER_GRAVEL),
+                stack -> stack.is(Items.GRAVEL) || stack.is(Items.FLINT) || stack.is(InfXItems.NETHER_GRAVEL),
                 ItemStack::getCount,
                 ItemStack::setCount,
                 replacement);
@@ -102,7 +102,7 @@ public final class GravelLootModifier extends LootModifier {
             return 0;
         }
         var enchantments = context.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        return tool.getEnchantmentLevel(enchantments.getOrThrow(ModEnchantments.FORTUNE));
+        return tool.getEnchantmentLevel(enchantments.getOrThrow(InfXEnchantments.FORTUNE));
     }
 
     static GravelDrop netherDrop(GravelDrop drop) {
@@ -115,23 +115,23 @@ public final class GravelLootModifier extends LootModifier {
 
     private static ItemStack createStack(GravelDrop drop, boolean netherGravel) {
         return switch (drop) {
-            case GRAVEL -> netherGravel ? ModItems.NETHER_GRAVEL.toStack() : new ItemStack(Items.GRAVEL);
-            case FLINT_CHIP -> ModItems.FLINT_CHIP.toStack();
+            case GRAVEL -> netherGravel ? InfXItems.NETHER_GRAVEL.toStack() : new ItemStack(Items.GRAVEL);
+            case FLINT_CHIP -> InfXItems.FLINT_CHIP.toStack();
             case FLINT -> new ItemStack(Items.FLINT);
             case COPPER_NUGGET -> new ItemStack(Items.COPPER_NUGGET);
-            case SILVER_NUGGET -> ModItems.SILVER_NUGGET.toStack();
+            case SILVER_NUGGET -> InfXItems.SILVER_NUGGET.toStack();
             case GOLD_NUGGET -> new ItemStack(Items.GOLD_NUGGET);
-            case OBSIDIAN_SHARD -> ModItems.OBSIDIAN_SHARD.toStack();
-            case EMERALD_SHARD -> ModItems.EMERALD_SHARD.toStack();
-            case DIAMOND_SHARD -> ModItems.catalog().raw("diamond_shard").holder().toStack();
-            case NETHER_QUARTZ_SHARD -> ModItems.catalog().raw("nether_quartz_shard").holder().toStack();
-            case MITHRIL_NUGGET -> ModItems.MITHRIL_NUGGET.toStack();
-            case ADAMANTIUM_NUGGET -> ModItems.ADAMANTIUM_NUGGET.toStack();
+            case OBSIDIAN_SHARD -> InfXItems.OBSIDIAN_SHARD.toStack();
+            case EMERALD_SHARD -> InfXItems.EMERALD_SHARD.toStack();
+            case DIAMOND_SHARD -> InfXItems.catalog().raw("diamond_shard").holder().toStack();
+            case NETHER_QUARTZ_SHARD -> InfXItems.catalog().raw("nether_quartz_shard").holder().toStack();
+            case MITHRIL_NUGGET -> InfXItems.MITHRIL_NUGGET.toStack();
+            case ADAMANTIUM_NUGGET -> InfXItems.ADAMANTIUM_NUGGET.toStack();
         };
     }
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return ModLootModifiers.GRAVEL.get();
+        return InfXLootModifiers.GRAVEL.get();
     }
 }

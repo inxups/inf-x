@@ -1,10 +1,10 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.crafting.BenchTier;
-import com.pixulse.infx.crafting.CraftingEnvironment;
-import com.pixulse.infx.crafting.TimedCraftingEngine;
-import com.pixulse.infx.crafting.TimedCraftingMenu;
-import com.pixulse.infx.crafting.TimedCraftingState;
+import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.CraftingEnvironment;
+import com.pixulse.infx.recipe.TimedCraftingEngine;
+import com.pixulse.infx.recipe.TimedCraftingMenu;
+import com.pixulse.infx.recipe.TimedCraftingState;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;

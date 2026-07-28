@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.InfXBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -33,7 +33,7 @@ public final class WitherwoodBlock extends VegetationBlock {
 
     @Override
     protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
-        return state.is(ModBlocks.NETHER_GRAVEL.get());
+        return state.is(InfXBlocks.NETHER_GRAVEL.get());
     }
 
     @Override

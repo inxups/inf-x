@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+### Event subscription refactor
+
+- Replaced the entry-point's manual event-bus listener registration with NeoForge `@EventBusSubscriber` and `@SubscribeEvent` handlers while preserving listener priority.
+- Kept only registry and GameTest `DeferredRegister` bindings in the mod entry point.
+
+### 统一注册表命名
+
+- 将 `registry` 包及其标签子包中的 `Mod*` 注册类型统一重命名为 `InfinityX*`，包括方块、物品、实体、菜单、数据组件、配方、标签和测试类型；所有代码引用已同步更新。
+
+### 重组源码包结构
+
+- 参照 IAFCE 的领域分层，将农业、食物、生存、玩家进度、诅咒、装备、附魔、熔炉、材料、配方、兼容层、标签和服务端逻辑归入 `world`、`food`、`player`、`effect`、`item`、`block`、`recipe`、`compat`、`registry` 和 `event` 的对应子包。
+- 将公开菜单界面归入 `screen`，保留包级可见渲染协作类在 `client`，避免为目录迁移扩大客户端内部 API。
+- 同步迁移测试源码和全部 Java package/import 引用，根包收敛为 IAFCE 风格的主领域目录。
+
+### 重构 R196 类型命名
+
+- 使用 IDEA 的 Rename Refactoring 移除项目类型名中的 `R196` 前缀，并同步更新生产代码、测试代码与 GameTest 的全部代码引用。
+- 与 Minecraft 原版同名的实体、物品、方块和 API 类型改为 `Mite*` 命名，例如 `MiteCow`、`MiteBowItem` 与 `MiteFurnaceBlock`，避免与原版类型冲突。
+- 将通用的 `BucketHelper` 归入 `com.pixulse.infx.util`；领域事件、规则和实体继续保留在各自的功能包。
+
 ### 迁移至 Minecraft/NeoForge 26.1.2
 
 - 将构建目标、版本范围和 NeoForge 依赖切换到 Minecraft 26.1.2 / NeoForge 26.1.2.87，并同步 JEI 29.6 客户端兼容范围。

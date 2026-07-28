@@ -1,9 +1,14 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196Catalog;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.Catalog;
+import com.pixulse.infx.item.MobBucketKind;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.Quality;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -276,7 +281,7 @@ final class ModLanguageProvider extends LanguageProvider {
                         "advancements.infx.build_better_pickaxe.description",
                         "Craft an iron-or-better pickaxe or war hammer"))) {
             @Override
-            String name(R196Catalog.Entry entry) {
+            String name(Catalog.Entry entry) {
                 return entry.englishName();
             }
         },
@@ -375,7 +380,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("advancements.infx.build_better_pickaxe.title", "获得升级"),
                 Map.entry("advancements.infx.build_better_pickaxe.description", "制作铁级或更高级的镐或战锤"))) {
             @Override
-            String name(R196Catalog.Entry entry) {
+            String name(Catalog.Entry entry) {
                 return entry.chineseName();
             }
         };
@@ -388,7 +393,7 @@ final class ModLanguageProvider extends LanguageProvider {
             this.baseTranslations = baseTranslations;
         }
 
-        abstract String name(R196Catalog.Entry entry);
+        abstract String name(Catalog.Entry entry);
     }
 
     private final Locale locale;
@@ -400,7 +405,7 @@ final class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        ModItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
+        InfXItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
         FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         GELATINOUS_SPHERE_NAMES.forEach(
                 (path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
@@ -408,8 +413,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 add("curse.infx." + path + ".name", names[locale == Locale.EN_US ? 0 : 1]));
         CURSE_DESCRIPTIONS.forEach((path, descriptions) ->
                 add("curse.infx." + path + ".desc", descriptions[locale == Locale.EN_US ? 0 : 1]));
-        for (var material : ModItems.BUCKET_MATERIALS) {
-            for (var contents : com.pixulse.infx.item.R196BucketItem.Contents.values()) {
+        for (var material : InfXItems.BUCKET_MATERIALS) {
+            for (var contents : MiteBucketItem.Contents.values()) {
                 String englishContents = switch (contents) {
                     case EMPTY -> "";
                     case WATER -> " Water";
@@ -430,7 +435,7 @@ final class ModLanguageProvider extends LanguageProvider {
                                 ? material.englishNoun() + englishContents + " Bucket"
                                 : material.chinesePrefix() + chineseContents + "桶");
             }
-            for (var kind : com.pixulse.infx.item.R196MobBucketKind.values()) {
+            for (var kind : MobBucketKind.values()) {
                 add(
                         "item.infx." + kind.path(material),
                         locale == Locale.EN_US
@@ -460,7 +465,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
                 : "重连受限：请等待次日调整时刻 %s 左右（至少 %s 秒）");
         ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
-        ModEntityTypes.names().forEach(entity -> {
+        InfXEntityTypes.names().forEach(entity -> {
             add(
                     "entity.infx." + entity.path(),
                     locale == Locale.EN_US ? entity.english() : entity.chinese());
@@ -480,7 +485,7 @@ final class ModLanguageProvider extends LanguageProvider {
                             ? "Complete the R196 requirement: " + name
                             : "完成 R196 条件：" + name);
         });
-        for (var anvil : com.pixulse.infx.registry.ModBlocks.METAL_ANVILS) {
+        for (var anvil : InfXBlocks.METAL_ANVILS) {
             String material = anvil.get().material().path();
             String name = locale == Locale.EN_US
                     ? anvil.get().material().englishNoun() + " Anvil"
@@ -497,7 +502,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.adamantium_rune_stone", locale == Locale.EN_US ? "Adamantium Rune Stone" : "艾德曼符文石");
         add("block.infx.emerald_enchanting_table", locale == Locale.EN_US ? "Emerald Enchanting Table" : "绿宝石附魔台");
         add("block.infx.diamond_enchanting_table", locale == Locale.EN_US ? "Diamond Enchanting Table" : "钻石附魔台");
-        for (var safe : com.pixulse.infx.registry.ModBlocks.METAL_SAFES) {
+        for (var safe : InfXBlocks.METAL_SAFES) {
             String material = safe.get().material().path();
             String name = locale == Locale.EN_US
                     ? safe.get().material().englishNoun() + " Safe"
@@ -581,7 +586,7 @@ final class ModLanguageProvider extends LanguageProvider {
                     ? "A fragment of Father Phoonzang's account: " + title
                     : "Father Phoonzang 的创世记载：《" + title + "》");
         }
-        for (com.pixulse.infx.material.R196Quality quality : com.pixulse.infx.material.R196Quality.values()) {
+        for (Quality quality : Quality.values()) {
             String english = switch (quality) {
                 case WRETCHED -> "Wretched Quality";
                 case POOR -> "Poor Quality";
@@ -602,7 +607,7 @@ final class ModLanguageProvider extends LanguageProvider {
             };
             add("quality.infx." + quality.getSerializedName(), locale == Locale.EN_US ? english : chinese);
         }
-        for (com.pixulse.infx.material.R196Material material : com.pixulse.infx.material.R196Material.values()) {
+        for (MiteMaterial material : MiteMaterial.values()) {
             add(
                     "material.infx." + material.path(),
                     locale == Locale.EN_US ? material.englishNoun() : material.chinesePrefix());

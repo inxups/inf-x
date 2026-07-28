@@ -1,15 +1,15 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModEnchantments;
-import com.pixulse.infx.registry.ModJukeboxSongs;
-import com.pixulse.infx.registry.ModWorldCarvers;
-import com.pixulse.infx.tag.ModTags;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXJukeboxSongs;
+import com.pixulse.infx.registry.InfXWorldCarvers;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
 import com.pixulse.infx.world.Underworld;
-import com.pixulse.infx.world.R196RiverBiomes;
-import com.pixulse.infx.world.R196SpawnsBiomeModifier;
+import com.pixulse.infx.world.RiverBiomes;
+import com.pixulse.infx.world.SpawnsBiomeModifier;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderGetter;
@@ -33,7 +33,6 @@ import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.util.valueproviders.TrapezoidFloat;
 import net.minecraft.util.valueproviders.UniformFloat;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.util.random.Weighted;
 import net.minecraft.world.attribute.AmbientSounds;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.BedRule;
@@ -167,8 +166,8 @@ final class ModWorldGen {
 
     static RegistrySetBuilder builder() {
         return new RegistrySetBuilder()
-                .add(Registries.ENCHANTMENT, ModEnchantments::bootstrap)
-                .add(Registries.JUKEBOX_SONG, ModJukeboxSongs::bootstrap)
+                .add(Registries.ENCHANTMENT, InfXEnchantments::bootstrap)
+                .add(Registries.JUKEBOX_SONG, InfXJukeboxSongs::bootstrap)
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
                 .add(Registries.CONFIGURED_CARVER, ModWorldGen::bootstrapConfiguredCarvers)
@@ -200,10 +199,10 @@ final class ModWorldGen {
     private static void bootstrapConfiguredCarvers(BootstrapContext<ConfiguredWorldCarver<?>> context) {
         HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
         HolderSet<Block> underworldReplaceables =
-                blocks.getOrThrow(ModTags.Blocks.UNDERWORLD_CARVER_REPLACEABLES);
+                blocks.getOrThrow(InfXBlockTags.UNDERWORLD_CARVER_REPLACEABLES);
         context.register(
                 LARGE_CAVE_CONFIGURED,
-                ModWorldCarvers.LARGE_CAVE.get().configured(new CarverConfiguration(
+                InfXWorldCarvers.LARGE_CAVE.get().configured(new CarverConfiguration(
                         1.0F,
                         UniformHeight.of(VerticalAnchor.absolute(8), VerticalAnchor.absolute(55)),
                         ConstantFloat.of(1.0F),
@@ -261,10 +260,10 @@ final class ModWorldGen {
                         Feature.ORE,
                         new OreConfiguration(
                                 new BlockMatchTest(Blocks.NETHERRACK),
-                                ModBlocks.NETHER_GRAVEL.get().defaultBlockState(),
+                                InfXBlocks.NETHER_GRAVEL.get().defaultBlockState(),
                                 33)));
-        registerConfiguredOre(context, SILVER_ORE_CONFIGURED, ModBlocks.SILVER_ORE.get().defaultBlockState(), 6);
-        registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, ModBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
+        registerConfiguredOre(context, SILVER_ORE_CONFIGURED, InfXBlocks.SILVER_ORE.get().defaultBlockState(), 6);
+        registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, InfXBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
         context.register(
                 R196_INFESTED_STONE_CONFIGURED,
                 new ConfiguredFeature<>(
@@ -279,14 +278,14 @@ final class ModWorldGen {
                         Feature.ORE,
                         new OreConfiguration(
                                 new BlockMatchTest(Blocks.NETHERRACK),
-                                ModBlocks.INFESTED_NETHERRACK.get().defaultBlockState(),
+                                InfXBlocks.INFESTED_NETHERRACK.get().defaultBlockState(),
                                 8)));
         context.register(
                 WITHERWOOD_CONFIGURED,
                 new ConfiguredFeature<>(
                         Feature.SIMPLE_BLOCK,
-                        new SimpleBlockConfiguration(BlockStateProvider.simple(ModBlocks.WITHERWOOD.get()))));
-        registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, ModBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
+                        new SimpleBlockConfiguration(BlockStateProvider.simple(InfXBlocks.WITHERWOOD.get()))));
+        registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, InfXBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
     }
 
     private static void registerConfiguredOre(
@@ -344,7 +343,7 @@ final class ModWorldGen {
                                         BlockPredicate.ONLY_IN_AIR_PREDICATE,
                                         BlockPredicate.matchesBlocks(
                                                 net.minecraft.core.Direction.DOWN.getUnitVec3i(),
-                                                ModBlocks.NETHER_GRAVEL.get()))))));
+                                                InfXBlocks.NETHER_GRAVEL.get()))))));
         context.register(
                 ADAMANTIUM_ORE_PLACED,
                 new PlacedFeature(
@@ -361,13 +360,13 @@ final class ModWorldGen {
         HolderGetter<PlacedFeature> placed = context.lookup(Registries.PLACED_FEATURE);
         var carvers = context.lookup(Registries.CONFIGURED_CARVER);
         context.register(
-                R196RiverBiomes.DESERT_RIVER,
+                RiverBiomes.DESERT_RIVER,
                 r196River(placed, carvers, 1.4F, 0.0F, false, false));
         context.register(
-                R196RiverBiomes.JUNGLE_RIVER,
+                RiverBiomes.JUNGLE_RIVER,
                 r196River(placed, carvers, 1.0F, 0.9F, true, false));
         context.register(
-                R196RiverBiomes.SWAMP_RIVER,
+                RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
         MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
         addSpawn(mobs, EntityType.SPIDER, 80, 1, 2);
@@ -822,7 +821,7 @@ final class ModWorldGen {
                 new LevelStem(
                         context.lookup(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
                         new NoiseBasedChunkGenerator(
-                                R196RiverBiomes.createSource(context.lookup(Registries.BIOME)),
+                                RiverBiomes.createSource(context.lookup(Registries.BIOME)),
                                 context.lookup(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD))));
         context.register(
                 Underworld.STEM,
@@ -898,27 +897,27 @@ final class ModWorldGen {
     }
 
     private static void registerR196SpawnModifiers(BootstrapContext<BiomeModifier> context) {
-        context.register(R196_SPAWNS, new R196SpawnsBiomeModifier());
+        context.register(R196_SPAWNS, new SpawnsBiomeModifier());
     }
 
     private static void addUnderworldR196Spawns(MobSpawnSettings.Builder mobs) {
-        addSpawn(mobs, ModEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
-        addSpawn(mobs, ModEntityTypes.NIGHTWING.get(), 4, 1, 4);
-        addSpawn(mobs, ModEntityTypes.WIGHT.get(), 10, 1, 1);
-        addSpawn(mobs, ModEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
-        addSpawn(mobs, ModEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
-        addSpawn(mobs, ModEntityTypes.HELLHOUND.get(), 10, 1, 2);
-        addSpawn(mobs, ModEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
-        addSpawn(mobs, ModEntityTypes.SHADOW.get(), 10, 1, 1);
-        addSpawn(mobs, ModEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
-        addSpawn(mobs, ModEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
-        addSpawn(mobs, ModEntityTypes.JELLY.get(), 30, 1, 4);
-        addSpawn(mobs, ModEntityTypes.BLOB.get(), 30, 1, 4);
-        addSpawn(mobs, ModEntityTypes.OOZE.get(), 20, 1, 4);
-        addSpawn(mobs, ModEntityTypes.PUDDING.get(), 30, 1, 4);
-        addSpawn(mobs, ModEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
-        addSpawn(mobs, ModEntityTypes.LONGDEAD.get(), 40, 1, 2);
-        addSpawn(mobs, ModEntityTypes.ANCIENT_BONE_LORD.get(), 5, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
+        addSpawn(mobs, InfXEntityTypes.NIGHTWING.get(), 4, 1, 4);
+        addSpawn(mobs, InfXEntityTypes.WIGHT.get(), 10, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.HELLHOUND.get(), 10, 1, 2);
+        addSpawn(mobs, InfXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.SHADOW.get(), 10, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
+        addSpawn(mobs, InfXEntityTypes.JELLY.get(), 30, 1, 4);
+        addSpawn(mobs, InfXEntityTypes.BLOB.get(), 30, 1, 4);
+        addSpawn(mobs, InfXEntityTypes.OOZE.get(), 20, 1, 4);
+        addSpawn(mobs, InfXEntityTypes.PUDDING.get(), 30, 1, 4);
+        addSpawn(mobs, InfXEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
+        addSpawn(mobs, InfXEntityTypes.LONGDEAD.get(), 40, 1, 2);
+        addSpawn(mobs, InfXEntityTypes.ANCIENT_BONE_LORD.get(), 5, 1, 1);
     }
 
     private static void addSpawn(

@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.world.R196SwimPhysics;
+import com.pixulse.infx.world.SwimPhysics;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,6 +20,6 @@ abstract class PlayerWaterfallSwimMixin {
                             target = "Lnet/minecraft/world/entity/player/Player;isSwimming()Z"))
     private boolean infx$disableSprintSwimLiftInWaterfalls(Player player) {
         return player.isSwimming()
-                && !(player.isSprinting() && R196SwimPhysics.isFallingWaterColumn(player));
+                && !(player.isSprinting() && SwimPhysics.isFallingWaterColumn(player));
     }
 }

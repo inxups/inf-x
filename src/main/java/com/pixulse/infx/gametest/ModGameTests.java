@@ -1,31 +1,34 @@
 package com.pixulse.infx.gametest;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
-import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
-import com.pixulse.infx.crafting.BenchTier;
-import com.pixulse.infx.crafting.CraftingProfile;
-import com.pixulse.infx.crafting.MiteCraftingRules;
-import com.pixulse.infx.crafting.TimedCraftingEngine;
-import com.pixulse.infx.crafting.TimedCraftingMenu;
-import com.pixulse.infx.equipment.R196QualitySystem;
-import com.pixulse.infx.furnace.FurnaceHeatAccess;
+import com.pixulse.infx.block.entity.MiteFurnaceBlockEntity;
+import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.CraftingProfile;
+import com.pixulse.infx.recipe.MiteCraftingRules;
+import com.pixulse.infx.recipe.TimedCraftingEngine;
+import com.pixulse.infx.recipe.TimedCraftingMenu;
+import com.pixulse.infx.item.equipment.QualitySystem;
+import com.pixulse.infx.block.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.harvest.HarvestEvents;
-import com.pixulse.infx.harvest.R196PlantHardness;
-import com.pixulse.infx.item.R196EquipmentKey;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
-import com.pixulse.infx.material.R196Quality;
+import com.pixulse.infx.harvest.PlantHardness;
+import com.pixulse.infx.item.EquipmentKey;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
-import com.pixulse.infx.progression.R196Experience;
-import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModDataComponents;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.ModRecipes;
-import com.pixulse.infx.server.ExtremeDifficulty;
-import com.pixulse.infx.survival.R196SurvivalData;
+import com.pixulse.infx.player.Experience;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXRecipes;
+import com.pixulse.infx.event.server.ExtremeDifficulty;
+import com.pixulse.infx.food.SurvivalData;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -83,6 +86,7 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ModGameTests {
     private static final BlockPos WORK_POS = new BlockPos(1, 1, 1);
     private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
@@ -315,8 +319,9 @@ public final class ModGameTests {
 
     public static void register(IEventBus modBus) {
         TEST_FUNCTIONS.register(modBus);
-        modBus.addListener(ModGameTests::registerTests);
     }
+
+    @SubscribeEvent
 
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
@@ -365,14 +370,14 @@ public final class ModGameTests {
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         assertMitePlantHardness(
-                helper, player, Blocks.SHORT_GRASS, R196PlantHardness.TALL_GRASS_HARDNESS, "short grass");
+                helper, player, Blocks.SHORT_GRASS, PlantHardness.TALL_GRASS_HARDNESS, "short grass");
         assertMitePlantHardness(
-                helper, player, Blocks.TALL_GRASS, R196PlantHardness.TALL_GRASS_HARDNESS, "tall grass");
-        assertMitePlantHardness(helper, player, Blocks.FERN, R196PlantHardness.TALL_GRASS_HARDNESS, "fern");
+                helper, player, Blocks.TALL_GRASS, PlantHardness.TALL_GRASS_HARDNESS, "tall grass");
+        assertMitePlantHardness(helper, player, Blocks.FERN, PlantHardness.TALL_GRASS_HARDNESS, "fern");
         assertMitePlantHardness(
-                helper, player, Blocks.LARGE_FERN, R196PlantHardness.TALL_GRASS_HARDNESS, "large fern");
+                helper, player, Blocks.LARGE_FERN, PlantHardness.TALL_GRASS_HARDNESS, "large fern");
         assertMitePlantHardness(
-                helper, player, Blocks.SUGAR_CANE, R196PlantHardness.SUGAR_CANE_HARDNESS, "sugar cane");
+                helper, player, Blocks.SUGAR_CANE, PlantHardness.SUGAR_CANE_HARDNESS, "sugar cane");
         helper.setBlock(WORK_POS, Blocks.OAK_LOG);
         helper.assertFalse(
                 HarvestEvents.hasDestroyProgress(player, helper.getBlockState(WORK_POS), absolutePos),
@@ -388,7 +393,7 @@ public final class ModGameTests {
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "empty hand must not break logs");
         helper.assertTrue(helper.getBlockState(WORK_POS).is(Blocks.OAK_LOG), "cancelled log break must keep the block");
 
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.FLINT_HATCHET.get().getDefaultInstance());
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.FLINT_HATCHET.get().getDefaultInstance());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "flint hatchet must break logs");
         helper.assertTrue(helper.getBlockState(WORK_POS).isAir(), "allowed log break must remove the block");
 
@@ -396,12 +401,12 @@ public final class ModGameTests {
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "flint tier must not break pickaxe blocks");
         helper.assertTrue(helper.getBlockState(WORK_POS).is(Blocks.STONE), "cancelled stone break must keep the block");
 
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.COPPER_PICKAXE.get().getDefaultInstance());
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.COPPER_PICKAXE.get().getDefaultInstance());
         player.setOnGround(true);
         player.getFoodData().setFoodLevel(20);
         player.experienceLevel = 0;
         float stoneHardness = helper.getBlockState(WORK_POS).getDestroySpeed(helper.getLevel(), absolutePos);
-        float expectedStoneProgress = new R196EquipmentKey(R196Material.COPPER, R196EquipmentType.PICKAXE)
+        float expectedStoneProgress = new EquipmentKey(MiteMaterial.COPPER, EquipmentType.PICKAXE)
                         .miningSpeed()
                 / stoneHardness
                 / 512.0F;
@@ -412,7 +417,7 @@ public final class ModGameTests {
                 "ordinary mining must use MITE's 512-unit progress: " + actualStoneProgress);
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break stone");
 
-        helper.setBlock(WORK_POS, ModBlocks.SILVER_ORE.get());
+        helper.setBlock(WORK_POS, InfXBlocks.SILVER_ORE.get());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break silver ore");
         helper.assertTrue(
                 helper.getBlockState(WORK_POS).isAir(),
@@ -456,37 +461,37 @@ public final class ModGameTests {
 
         helper.setBlock(WORK_POS, Blocks.TERRACOTTA);
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "hardened clay must enforce MITE level one");
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.FLINT_AXE.get().getDefaultInstance());
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.FLINT_AXE.get().getDefaultInstance());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against hardened clay");
         helper.setBlock(WORK_POS, Blocks.SANDSTONE);
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against sandstone");
         helper.setBlock(WORK_POS, Blocks.GLASS);
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against glass");
 
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.COPPER_PICKAXE.get().getDefaultInstance());
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.COPPER_PICKAXE.get().getDefaultInstance());
         helper.setBlock(WORK_POS, Blocks.IRON_BARS);
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "copper must not harvest MITE level-three iron");
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.IRON_PICKAXE.get().getDefaultInstance());
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.IRON_PICKAXE.get().getDefaultInstance());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "iron must harvest MITE level-three iron");
 
         helper.setBlock(WORK_POS, Blocks.DIAMOND_ORE);
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "iron must not harvest level-four diamond ore");
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
-                .equipment(R196Material.MITHRIL, R196EquipmentType.PICKAXE)
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
+                .equipment(MiteMaterial.MITHRIL, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "mithril must harvest level-four diamond ore");
 
-        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_BLOCK.get());
+        helper.setBlock(WORK_POS, InfXBlocks.MITHRIL_BLOCK.get());
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "mithril must not harvest its level-five storage block");
-        player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
-                .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE)
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
+                .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "adamantium must harvest a level-five mithril block");
-        helper.setBlock(WORK_POS, ModBlocks.ADAMANTIUM_BLOCK.get());
+        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_BLOCK.get());
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "MITE level-six adamantium storage is not tool-harvestable");
-        helper.assertTrue(helper.getBlockState(WORK_POS).is(ModBlocks.ADAMANTIUM_BLOCK.get()),
+        helper.assertTrue(helper.getBlockState(WORK_POS).is(InfXBlocks.ADAMANTIUM_BLOCK.get()),
                 "failed level-six harvest must keep the block");
 
         player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
@@ -511,7 +516,7 @@ public final class ModGameTests {
         helper.assertTrue(helper.getBlockState(WORK_POS).isAir(), "creative bedrock break must remove the block");
 
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "workbenches must be recoverable with an empty hand");
 
         removePlayer(player);
@@ -592,10 +597,10 @@ public final class ModGameTests {
         player.containerMenu = player.inventoryMenu;
         hand.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
         helper.assertTrue(TimedCraftingEngine.refreshResult(hand, player, true), "hand recipe must resolve in the 2x2 grid");
-        assertResult(helper, hand, ModItems.SINEW.get(), "hand recipe result");
+        assertResult(helper, hand, InfXItems.SINEW.get(), "hand recipe result");
 
         clearGrid(hand.infx$craftingContainer());
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
         helper.setBlock(WORK_POS.above(), Blocks.STONE);
         helper.assertTrue(
                 TieredWorkbenchBlock.isObstructed(helper.getLevel(), helper.absolutePos(WORK_POS)),
@@ -604,7 +609,7 @@ public final class ModGameTests {
         helper.assertFalse(
                 TieredWorkbenchBlock.isObstructed(helper.getLevel(), helper.absolutePos(WORK_POS)),
                 "clearing the block above must clear the obstruction");
-        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 1);
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 1);
         player.containerMenu = flint;
         fillCopperPickaxe(flint.infx$craftingContainer());
         helper.assertFalse(TimedCraftingEngine.refreshResult(flint, player, true), "flint bench must reject copper-tier recipes");
@@ -612,11 +617,11 @@ public final class ModGameTests {
         clearGrid(flint.infx$craftingContainer());
         flint.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
         helper.assertTrue(TimedCraftingEngine.refreshResult(flint, player, true), "flint bench must accept hand recipes");
-        assertResult(helper, flint, ModItems.SINEW.get(), "flint bench lower-tier result");
+        assertResult(helper, flint, InfXItems.SINEW.get(), "flint bench lower-tier result");
 
         flint.removed(player);
-        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
-        TimedWorkbenchMenu copper = workbenchMenu(player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 2);
+        helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
+        TimedWorkbenchMenu copper = workbenchMenu(player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 2);
         player.containerMenu = copper;
         copper.infx$craftingContainer().setItem(0, Items.LEATHER.getDefaultInstance());
         helper.assertTrue(TimedCraftingEngine.refreshResult(copper, player, true), "copper bench must accept hand recipes");
@@ -624,7 +629,7 @@ public final class ModGameTests {
         clearGrid(copper.infx$craftingContainer());
         fillCopperPickaxe(copper.infx$craftingContainer());
         helper.assertTrue(TimedCraftingEngine.refreshResult(copper, player, true), "copper bench must accept copper recipes");
-        assertResult(helper, copper, ModItems.COPPER_PICKAXE.get(), "copper bench result");
+        assertResult(helper, copper, InfXItems.COPPER_PICKAXE.get(), "copper bench result");
 
         removePlayer(player);
         helper.succeed();
@@ -632,7 +637,7 @@ public final class ModGameTests {
 
     private static void timedCrafting(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        R196SurvivalData initialSurvival = player.getData(ModAttachments.SURVIVAL);
+        SurvivalData initialSurvival = player.getData(InfXAttachments.SURVIVAL);
         helper.onEachTick(player::doTick);
         TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
@@ -646,16 +651,16 @@ public final class ModGameTests {
 
         player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
         helper.assertTrue(menu.infx$craftingState().isRunning(), "left click must start timed crafting");
-        helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "result click must not craft immediately");
+        helper.assertTrue(countItem(player.getInventory(), InfXItems.SINEW.get()) == 0, "result click must not craft immediately");
         helper.assertTrue(menu.infx$craftingContainer().getItem(0).getCount() == 1, "input must remain until completion");
 
         int[] pausedProgress = new int[1];
         helper.startSequence()
                 .thenExecuteAfter(10, () -> {
-                    helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "result must still be delayed");
+                    helper.assertTrue(countItem(player.getInventory(), InfXItems.SINEW.get()) == 0, "result must still be delayed");
                     player.setData(
-                            ModAttachments.SURVIVAL,
-                            new R196SurvivalData(
+                            InfXAttachments.SURVIVAL,
+                            new SurvivalData(
                                     0.0D,
                                     0.0D,
                                     initialSurvival.protein(),
@@ -672,10 +677,10 @@ public final class ModGameTests {
                     helper.assertTrue(
                             menu.infx$craftingState().progressTicks() == pausedProgress[0],
                             "zero hunger must pause without losing progress");
-                    player.setData(ModAttachments.SURVIVAL, initialSurvival);
+                    player.setData(InfXAttachments.SURVIVAL, initialSurvival);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.SINEW.get()) == 4,
+                        countItem(player.getInventory(), InfXItems.SINEW.get()) == 4,
                         "completion must place four sinew in the inventory"))
                 .thenExecute(() -> {
                     helper.assertTrue(menu.infx$craftingContainer().getItem(0).isEmpty(), "completion must consume leather");
@@ -704,7 +709,7 @@ public final class ModGameTests {
     private static void vanillaCraftingMenu(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        int qualityCost = R196QualitySystem.experienceCost(150.0F, R196Quality.FINE);
+        int qualityCost = QualitySystem.experienceCost(150.0F, Quality.FINE);
         int[] experienceBeforeQualityCraft = new int[1];
         helper.setBlock(WORK_POS, Blocks.CRAFTING_TABLE);
         player.openMenu(helper.getBlockState(WORK_POS)
@@ -758,10 +763,10 @@ public final class ModGameTests {
                     vanilla.clicked(0, 1, ContainerInput.PICKUP, player);
                     ItemStack qualityPreview = timed.infx$resultContainer().getItem(0);
                     helper.assertTrue(
-                            qualityPreview.is(equipment(R196Material.FLINT, R196EquipmentType.KNIFE)),
+                            qualityPreview.is(equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)),
                             "right-click must keep the tool crafting result");
                     helper.assertTrue(
-                            qualityPreview.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
+                            qualityPreview.get(InfXDataComponents.QUALITY.get()) == Quality.FINE,
                             "enough experience must select Fine Quality on a crafting table");
                     helper.assertTrue(vanilla.getCarried().isEmpty(), "right-click must not take the quality preview");
                     experienceBeforeQualityCraft[0] = player.totalExperience;
@@ -770,11 +775,11 @@ public final class ModGameTests {
                 })
                 .thenWaitUntil(() -> {
                     ItemStack craftedKnife = player.getInventory().getNonEquipmentItems().stream()
-                            .filter(stack -> stack.is(equipment(R196Material.FLINT, R196EquipmentType.KNIFE)))
+                            .filter(stack -> stack.is(equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)))
                             .findFirst()
                             .orElse(ItemStack.EMPTY);
                     helper.assertTrue(
-                            craftedKnife.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
+                            craftedKnife.get(InfXDataComponents.QUALITY.get()) == Quality.FINE,
                             "the completed tool must retain the selected quality");
                     helper.assertTrue(
                             player.totalExperience == experienceBeforeQualityCraft[0] - qualityCost,
@@ -804,7 +809,7 @@ public final class ModGameTests {
         assertDifficulty(helper, Items.AMETHYST_SHARD, 25.0F);
         assertDifficulty(
                 helper,
-                ModItems.catalog().raw("rusted_iron_chain").holder().get(),
+                InfXItems.catalog().raw("rusted_iron_chain").holder().get(),
                 400.0F * 4.0F / 9.0F);
 
         var recipeMap = helper.getLevel().recipeAccess().recipeMap();
@@ -827,7 +832,7 @@ public final class ModGameTests {
             }
         }
 
-        var explicitRecipes = recipeMap.byType(ModRecipes.CRAFTING.get());
+        var explicitRecipes = recipeMap.byType(InfXRecipes.CRAFTING.get());
         helper.assertTrue(!explicitRecipes.isEmpty(), "InfiniteX explicit R196 crafting recipes must be loaded");
         for (var holder : explicitRecipes) {
             CraftingProfile profile = CraftingProfile.explicit(
@@ -861,7 +866,7 @@ public final class ModGameTests {
                     var nearbyItems = helper.getLevel().getEntities(
                             EntityType.ITEM, player.getBoundingBox().inflate(4.0), entity -> entity.isAlive());
                     helper.assertTrue(
-                            nearbyItems.stream().anyMatch(entity -> entity.getItem().is(ModItems.SINEW.get())),
+                            nearbyItems.stream().anyMatch(entity -> entity.getItem().is(InfXItems.SINEW.get())),
                             "a full inventory must drop the crafted result at the player; progress="
                                     + menu.infx$craftingState().progressTicks()
                                     + "/"
@@ -869,12 +874,12 @@ public final class ModGameTests {
                                     + ", running="
                                     + menu.infx$craftingState().isRunning()
                                     + ", inventorySinew="
-                                    + countItem(player.getInventory(), ModItems.SINEW.get())
+                                    + countItem(player.getInventory(), InfXItems.SINEW.get())
                                     + ", nearby="
                                     + nearbyItems.stream().map(entity -> entity.getItem().toString()).toList());
                 })
                 .thenExecute(() -> {
-                    helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "full inventory must not retain the result");
+                    helper.assertTrue(countItem(player.getInventory(), InfXItems.SINEW.get()) == 0, "full inventory must not retain the result");
                     helper.assertTrue(menu.infx$craftingContainer().getItem(0).isEmpty(), "dropped crafting must still consume its input");
                     removePlayer(player);
                 })
@@ -896,7 +901,7 @@ public final class ModGameTests {
                     TimedCraftingEngine.refreshResult(menu, player, true);
                     helper.assertFalse(menu.infx$craftingState().isRunning(), "changing recipe must reset crafting");
                     helper.assertTrue(menu.infx$craftingState().progressTicks() == 0, "recipe change must clear progress");
-                    assertResult(helper, menu, ModItems.FLINT_CHIP.get(), "changed recipe preview");
+                    assertResult(helper, menu, InfXItems.FLINT_CHIP.get(), "changed recipe preview");
                     player.inventoryMenu.clicked(0, 0, ContainerInput.QUICK_MOVE, player);
                     helper.assertTrue(menu.infx$craftingState().isRunning(), "shift-click must restart the changed recipe");
                 })
@@ -1005,9 +1010,9 @@ public final class ModGameTests {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
 
-        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 1);
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 1);
         player.containerMenu = flint;
         CraftingContainer grid = flint.infx$craftingContainer();
         for (int slot = 0; slot < grid.getContainerSize(); slot++) {
@@ -1038,15 +1043,15 @@ public final class ModGameTests {
                     flint.clicked(0, 0, ContainerInput.PICKUP, player);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.COPPER_WORKBENCH.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.COPPER_WORKBENCH.get()) == 1,
                         "one ingot must craft the copper workbench"))
                 .thenExecute(() -> {
-                    takeItem(helper, player.getInventory(), ModItems.COPPER_WORKBENCH.get(), 1);
+                    takeItem(helper, player.getInventory(), InfXItems.COPPER_WORKBENCH.get(), 1);
                     player.closeContainer();
-                    helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+                    helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
 
                     TimedWorkbenchMenu copper = workbenchMenu(
-                            player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 2);
+                            player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 2);
                     copperMenu[0] = copper;
                     player.containerMenu = copper;
                     ItemStack ingots = takeItem(helper, player.getInventory(), Items.COPPER_INGOT, 3);
@@ -1059,7 +1064,7 @@ public final class ModGameTests {
                     copper.clicked(0, 0, ContainerInput.PICKUP, player);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.COPPER_PICKAXE.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.COPPER_PICKAXE.get()) == 1,
                         "copper workbench must finish the InfiniteX copper pickaxe"))
                 .thenExecute(() -> {
                     helper.assertTrue(countItem(player.getInventory(), Items.COPPER_INGOT) == 0, "the loop must use exactly four ingots");
@@ -1073,10 +1078,10 @@ public final class ModGameTests {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
-        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
 
         TimedWorkbenchMenu copper = workbenchMenu(
-                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 3);
+                player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 3);
         player.containerMenu = copper;
         CraftingContainer grid = copper.infx$craftingContainer();
         fillFurnace(grid);
@@ -1128,15 +1133,15 @@ public final class ModGameTests {
                     copper.clicked(0, 0, ContainerInput.PICKUP, player);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.IRON_WORKBENCH.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.IRON_WORKBENCH.get()) == 1,
                         "copper workbench must finish the iron workbench"))
                 .thenExecute(() -> {
-                    takeItem(helper, player.getInventory(), ModItems.IRON_WORKBENCH.get(), 1);
+                    takeItem(helper, player.getInventory(), InfXItems.IRON_WORKBENCH.get(), 1);
                     player.closeContainer();
-                    helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+                    helper.setBlock(WORK_POS, InfXBlocks.IRON_WORKBENCH.get());
 
                     TimedWorkbenchMenu iron = workbenchMenu(
-                            player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 4);
+                            player, helper, BenchTier.IRON, InfXBlocks.IRON_WORKBENCH.get(), 4);
                     ironMenu[0] = iron;
                     player.containerMenu = iron;
                     CraftingContainer ironGrid = iron.infx$craftingContainer();
@@ -1152,7 +1157,7 @@ public final class ModGameTests {
                     iron.clicked(0, 0, ContainerInput.PICKUP, player);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.IRON_PICKAXE.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.IRON_PICKAXE.get()) == 1,
                         "iron workbench must finish the InfiniteX iron pickaxe"))
                 .thenExecute(() -> {
                     helper.assertTrue(
@@ -1167,59 +1172,59 @@ public final class ModGameTests {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
 
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 5);
+                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 5);
         player.containerMenu = flint;
         fillFlintAxe(flint.infx$craftingContainer());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(flint, player, true),
                 "three flint, two sticks, and binding must match the flint axe recipe");
-        assertResult(helper, flint, ModItems.FLINT_AXE.get(), "flint axe preview");
+        assertResult(helper, flint, InfXItems.FLINT_AXE.get(), "flint axe preview");
         flint.clicked(0, 0, ContainerInput.PICKUP, player);
 
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.FLINT_AXE.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.FLINT_AXE.get()) == 1,
                         "flint workbench must finish the flint axe"))
                 .thenExecute(() -> {
                     assertAdvancementDone(helper, player, "build_axe", "crafting a full axe must grant Lumberjack");
-                    takeItem(helper, player.getInventory(), ModItems.FLINT_AXE.get(), 1);
+                    takeItem(helper, player.getInventory(), InfXItems.FLINT_AXE.get(), 1);
                     player.closeContainer();
-                    helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+                    helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
 
                     TimedWorkbenchMenu copper = workbenchMenu(
-                            player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 6);
+                            player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 6);
                     player.containerMenu = copper;
                     fillMetalHoe(copper.infx$craftingContainer(), Items.COPPER_INGOT);
                     helper.assertTrue(
                             TimedCraftingEngine.refreshResult(copper, player, true),
                             "two copper ingots and two sticks must match the copper hoe recipe");
-                    assertResult(helper, copper, ModItems.COPPER_HOE.get(), "copper hoe preview");
+                    assertResult(helper, copper, InfXItems.COPPER_HOE.get(), "copper hoe preview");
                     copper.clicked(0, 0, ContainerInput.PICKUP, player);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.COPPER_HOE.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.COPPER_HOE.get()) == 1,
                         "copper workbench must finish the copper hoe"))
                 .thenExecute(() -> {
                     assertAdvancementDone(helper, player, "build_hoe", "crafting a hoe must grant Time to Farm");
-                    takeItem(helper, player.getInventory(), ModItems.COPPER_HOE.get(), 1);
+                    takeItem(helper, player.getInventory(), InfXItems.COPPER_HOE.get(), 1);
                     player.closeContainer();
-                    helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+                    helper.setBlock(WORK_POS, InfXBlocks.IRON_WORKBENCH.get());
 
                     TimedWorkbenchMenu iron = workbenchMenu(
-                            player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 7);
+                            player, helper, BenchTier.IRON, InfXBlocks.IRON_WORKBENCH.get(), 7);
                     player.containerMenu = iron;
                     fillMetalSword(iron.infx$craftingContainer(), Items.IRON_INGOT);
                     helper.assertTrue(
                             TimedCraftingEngine.refreshResult(iron, player, true),
                             "two iron ingots and one stick must match the iron sword recipe");
-                    assertResult(helper, iron, ModItems.IRON_SWORD.get(), "iron sword preview");
+                    assertResult(helper, iron, InfXItems.IRON_SWORD.get(), "iron sword preview");
                     iron.clicked(0, 0, ContainerInput.PICKUP, player);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), ModItems.IRON_SWORD.get()) == 1,
+                        countItem(player.getInventory(), InfXItems.IRON_SWORD.get()) == 1,
                         "iron workbench must finish the InfiniteX iron sword"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
@@ -1231,25 +1236,25 @@ public final class ModGameTests {
 
         TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
-        hand.infx$craftingContainer().setItem(0, ModItems.ADAMANTIUM_INGOT.toStack());
+        hand.infx$craftingContainer().setItem(0, InfXItems.ADAMANTIUM_INGOT.toStack());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(hand, player, true),
                 "metal ingots must split into nuggets in the hand crafting grid");
-        assertResult(helper, hand, ModItems.ADAMANTIUM_NUGGET.get(), "adamantium nugget preview");
+        assertResult(helper, hand, InfXItems.ADAMANTIUM_NUGGET.get(), "adamantium nugget preview");
         clearGrid(hand.infx$craftingContainer());
 
-        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
         TimedWorkbenchMenu copper = workbenchMenu(
-                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 8);
+                player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 8);
         player.containerMenu = copper;
-        fillMetalSword(copper.infx$craftingContainer(), ModItems.SILVER_INGOT.get());
+        fillMetalSword(copper.infx$craftingContainer(), InfXItems.SILVER_INGOT.get());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(copper, player, true),
                 "copper-tier workbenches must accept silver core tools");
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.SILVER, R196EquipmentType.SWORD),
+                equipment(MiteMaterial.SILVER, EquipmentType.SWORD),
                 "silver sword preview");
         clearGrid(copper.infx$craftingContainer());
         fillMetalHoe(copper.infx$craftingContainer(), Items.GOLD_INGOT);
@@ -1259,52 +1264,52 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.GOLD, R196EquipmentType.HOE),
+                equipment(MiteMaterial.GOLD, EquipmentType.HOE),
                 "gold hoe preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.ANCIENT_METAL_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.ANCIENT_METAL_WORKBENCH.get());
         TimedWorkbenchMenu ancientMetal = workbenchMenu(
-                player, helper, BenchTier.ANCIENT_METAL, ModBlocks.ANCIENT_METAL_WORKBENCH.get(), 9);
+                player, helper, BenchTier.ANCIENT_METAL, InfXBlocks.ANCIENT_METAL_WORKBENCH.get(), 9);
         player.containerMenu = ancientMetal;
-        fillMetalSword(ancientMetal.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        fillMetalSword(ancientMetal.infx$craftingContainer(), InfXItems.MITHRIL_INGOT.get());
         helper.assertFalse(
                 TimedCraftingEngine.refreshResult(ancientMetal, player, true),
                 "ancient metal workbenches must reject mithril core tools");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.MITHRIL_WORKBENCH.get());
         TimedWorkbenchMenu mithril = workbenchMenu(
-                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 10);
+                player, helper, BenchTier.MITHRIL, InfXBlocks.MITHRIL_WORKBENCH.get(), 10);
         player.containerMenu = mithril;
-        fillMetalSword(mithril.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        fillMetalSword(mithril.infx$craftingContainer(), InfXItems.MITHRIL_INGOT.get());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(mithril, player, true),
                 "mithril workbenches must accept mithril core tools");
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.SWORD),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.SWORD),
                 "mithril sword preview");
         clearGrid(mithril.infx$craftingContainer());
-        fillMetalSword(mithril.infx$craftingContainer(), ModItems.ADAMANTIUM_INGOT.get());
+        fillMetalSword(mithril.infx$craftingContainer(), InfXItems.ADAMANTIUM_INGOT.get());
         helper.assertFalse(
                 TimedCraftingEngine.refreshResult(mithril, player, true),
                 "mithril workbenches must reject adamantium core tools");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.ADAMANTIUM_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_WORKBENCH.get());
         TimedWorkbenchMenu adamantium = workbenchMenu(
-                player, helper, BenchTier.ADAMANTIUM, ModBlocks.ADAMANTIUM_WORKBENCH.get(), 11);
+                player, helper, BenchTier.ADAMANTIUM, InfXBlocks.ADAMANTIUM_WORKBENCH.get(), 11);
         player.containerMenu = adamantium;
-        fillMetalSword(adamantium.infx$craftingContainer(), ModItems.ADAMANTIUM_INGOT.get());
+        fillMetalSword(adamantium.infx$craftingContainer(), InfXItems.ADAMANTIUM_INGOT.get());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(adamantium, player, true),
                 "adamantium workbenches must accept adamantium core tools");
         assertResult(
                 helper,
                 adamantium,
-                equipment(R196Material.ADAMANTIUM, R196EquipmentType.SWORD),
+                equipment(MiteMaterial.ADAMANTIUM, EquipmentType.SWORD),
                 "adamantium sword preview");
 
         removePlayer(player);
@@ -1319,7 +1324,7 @@ public final class ModGameTests {
         player.containerMenu = player.inventoryMenu;
         hand.infx$craftingContainer().setItem(0, Items.OBSIDIAN.getDefaultInstance());
         hand.infx$craftingContainer().setItem(1, Items.STICK.getDefaultInstance());
-        hand.infx$craftingContainer().setItem(2, ModItems.SINEW.toStack());
+        hand.infx$craftingContainer().setItem(2, InfXItems.SINEW.toStack());
         hand.infx$craftingContainer().setItem(3, Items.STICK.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(hand, player, true),
@@ -1327,20 +1332,20 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 hand,
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.HATCHET),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.HATCHET),
                 "obsidian hatchet preview");
         clearGrid(hand.infx$craftingContainer());
 
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 12);
+                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 12);
         player.containerMenu = flint;
         CraftingContainer flintGrid = flint.infx$craftingContainer();
         flintGrid.setItem(0, Items.OBSIDIAN.getDefaultInstance());
         flintGrid.setItem(1, Items.OBSIDIAN.getDefaultInstance());
         flintGrid.setItem(3, Items.OBSIDIAN.getDefaultInstance());
         flintGrid.setItem(4, Items.STICK.getDefaultInstance());
-        flintGrid.setItem(6, ModItems.SINEW.toStack());
+        flintGrid.setItem(6, InfXItems.SINEW.toStack());
         flintGrid.setItem(7, Items.STICK.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(flint, player, true),
@@ -1348,61 +1353,61 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.AXE),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.AXE),
                 "obsidian axe preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
         TimedWorkbenchMenu copper = workbenchMenu(
-                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 13);
+                player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 13);
         player.containerMenu = copper;
         CraftingContainer copperGrid = copper.infx$craftingContainer();
-        copperGrid.setItem(1, ModItems.SILVER_INGOT.toStack());
-        copperGrid.setItem(3, ModItems.SILVER_INGOT.toStack());
+        copperGrid.setItem(1, InfXItems.SILVER_INGOT.toStack());
+        copperGrid.setItem(3, InfXItems.SILVER_INGOT.toStack());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(copper, player, true),
                 "copper-tier workbenches must accept silver shears");
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.SILVER, R196EquipmentType.SHEARS),
+                equipment(MiteMaterial.SILVER, EquipmentType.SHEARS),
                 "silver shears preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.IRON_WORKBENCH.get());
         TimedWorkbenchMenu iron = workbenchMenu(
-                player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 14);
+                player, helper, BenchTier.IRON, InfXBlocks.IRON_WORKBENCH.get(), 14);
         player.containerMenu = iron;
-        fillWarHammer(iron.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        fillWarHammer(iron.infx$craftingContainer(), InfXItems.MITHRIL_INGOT.get());
         helper.assertFalse(
                 TimedCraftingEngine.refreshResult(iron, player, true),
                 "iron workbenches must reject mithril war hammers");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.MITHRIL_WORKBENCH.get());
         TimedWorkbenchMenu mithril = workbenchMenu(
-                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 15);
+                player, helper, BenchTier.MITHRIL, InfXBlocks.MITHRIL_WORKBENCH.get(), 15);
         player.containerMenu = mithril;
-        fillWarHammer(mithril.infx$craftingContainer(), ModItems.MITHRIL_INGOT.get());
+        fillWarHammer(mithril.infx$craftingContainer(), InfXItems.MITHRIL_INGOT.get());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(mithril, player, true),
                 "mithril workbenches must accept mithril war hammers");
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.WAR_HAMMER),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.WAR_HAMMER),
                 "mithril war hammer preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.ADAMANTIUM_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_WORKBENCH.get());
         TimedWorkbenchMenu adamantium = workbenchMenu(
-                player, helper, BenchTier.ADAMANTIUM, ModBlocks.ADAMANTIUM_WORKBENCH.get(), 16);
+                player, helper, BenchTier.ADAMANTIUM, InfXBlocks.ADAMANTIUM_WORKBENCH.get(), 16);
         player.containerMenu = adamantium;
         CraftingContainer adamantiumGrid = adamantium.infx$craftingContainer();
         adamantiumGrid.setItem(0, Items.STICK.getDefaultInstance());
-        adamantiumGrid.setItem(1, ModItems.ADAMANTIUM_INGOT.toStack());
+        adamantiumGrid.setItem(1, InfXItems.ADAMANTIUM_INGOT.toStack());
         adamantiumGrid.setItem(3, Items.STICK.getDefaultInstance());
-        adamantiumGrid.setItem(5, ModItems.ADAMANTIUM_INGOT.toStack());
+        adamantiumGrid.setItem(5, InfXItems.ADAMANTIUM_INGOT.toStack());
         adamantiumGrid.setItem(6, Items.STICK.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(adamantium, player, true),
@@ -1410,7 +1415,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 adamantium,
-                equipment(R196Material.ADAMANTIUM, R196EquipmentType.SCYTHE),
+                equipment(MiteMaterial.ADAMANTIUM, EquipmentType.SCYTHE),
                 "adamantium scythe preview");
 
         removePlayer(player);
@@ -1425,7 +1430,7 @@ public final class ModGameTests {
         player.containerMenu = player.inventoryMenu;
         CraftingContainer handGrid = hand.infx$craftingContainer();
         handGrid.setItem(0, Items.FLINT.getDefaultInstance());
-        handGrid.setItem(1, ModItems.SINEW.toStack());
+        handGrid.setItem(1, InfXItems.SINEW.toStack());
         handGrid.setItem(2, Items.STICK.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(hand, player, true),
@@ -1433,20 +1438,20 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 hand,
-                equipment(R196Material.FLINT, R196EquipmentType.KNIFE),
+                equipment(MiteMaterial.FLINT, EquipmentType.KNIFE),
                 "flint knife preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 17);
+                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 17);
         player.containerMenu = flint;
         CraftingContainer flintGrid = flint.infx$craftingContainer();
         for (int slot : List.of(1, 3, 7)) {
             flintGrid.setItem(slot, Items.STICK.getDefaultInstance());
         }
         for (int slot : List.of(2, 5, 8)) {
-            flintGrid.setItem(slot, ModItems.SINEW.toStack());
+            flintGrid.setItem(slot, InfXItems.SINEW.toStack());
         }
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(flint, player, true),
@@ -1454,13 +1459,13 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(R196Material.WOOD, R196EquipmentType.BOW),
+                equipment(MiteMaterial.WOOD, EquipmentType.BOW),
                 "wood bow preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
         TimedWorkbenchMenu copper = workbenchMenu(
-                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 18);
+                player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 18);
         player.containerMenu = copper;
         CraftingContainer copperGrid = copper.infx$craftingContainer();
         copperGrid.setItem(0, Items.GOLD_INGOT.getDefaultInstance());
@@ -1471,16 +1476,16 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.GOLD, R196EquipmentType.DAGGER),
+                equipment(MiteMaterial.GOLD, EquipmentType.DAGGER),
                 "gold dagger preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.IRON_WORKBENCH.get());
         TimedWorkbenchMenu iron = workbenchMenu(
-                player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 19);
+                player, helper, BenchTier.IRON, InfXBlocks.IRON_WORKBENCH.get(), 19);
         player.containerMenu = iron;
         CraftingContainer ironGrid = iron.infx$craftingContainer();
-        ironGrid.setItem(0, ModItems.MITHRIL_NUGGET.toStack());
+        ironGrid.setItem(0, InfXItems.MITHRIL_NUGGET.toStack());
         ironGrid.setItem(3, Items.STICK.getDefaultInstance());
         ironGrid.setItem(6, Items.FEATHER.getDefaultInstance());
         helper.assertFalse(
@@ -1488,12 +1493,12 @@ public final class ModGameTests {
                 "iron workbenches must reject mithril arrows");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.MITHRIL_WORKBENCH.get());
         TimedWorkbenchMenu mithril = workbenchMenu(
-                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 20);
+                player, helper, BenchTier.MITHRIL, InfXBlocks.MITHRIL_WORKBENCH.get(), 20);
         player.containerMenu = mithril;
         CraftingContainer mithrilGrid = mithril.infx$craftingContainer();
-        mithrilGrid.setItem(0, ModItems.MITHRIL_NUGGET.toStack());
+        mithrilGrid.setItem(0, InfXItems.MITHRIL_NUGGET.toStack());
         mithrilGrid.setItem(3, Items.STICK.getDefaultInstance());
         mithrilGrid.setItem(6, Items.FEATHER.getDefaultInstance());
         helper.assertTrue(
@@ -1502,7 +1507,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.ARROW),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.ARROW),
                 "mithril arrow preview");
 
         removePlayer(player);
@@ -1514,9 +1519,9 @@ public final class ModGameTests {
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
 
-        helper.setBlock(WORK_POS, ModBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, ModBlocks.FLINT_WORKBENCH.get(), 21);
+                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 21);
         player.containerMenu = flint;
         CraftingContainer flintGrid = flint.infx$craftingContainer();
         for (int slot : List.of(0, 1, 2, 3, 5)) {
@@ -1528,7 +1533,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(R196Material.LEATHER, R196EquipmentType.HELMET),
+                equipment(MiteMaterial.LEATHER, EquipmentType.HELMET),
                 "leather helmet preview");
         clearGrid(flintGrid);
         for (int slot : List.of(1, 3, 5, 7)) {
@@ -1539,9 +1544,9 @@ public final class ModGameTests {
                 "flint workbenches must reject copper chain crafting");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.COPPER_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
         TimedWorkbenchMenu copper = workbenchMenu(
-                player, helper, BenchTier.COPPER, ModBlocks.COPPER_WORKBENCH.get(), 22);
+                player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 22);
         player.containerMenu = copper;
         CraftingContainer copperGrid = copper.infx$craftingContainer();
         for (int slot : List.of(1, 3, 5, 7)) {
@@ -1553,11 +1558,11 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                ModItems.catalog().raw("copper_chain").holder().get(),
+                InfXItems.catalog().raw("copper_chain").holder().get(),
                 "copper chain preview");
         clearGrid(copperGrid);
         for (int slot : List.of(0, 2, 3, 5)) {
-            copperGrid.setItem(slot, ModItems.catalog().raw("copper_chain").holder().get().getDefaultInstance());
+            copperGrid.setItem(slot, InfXItems.catalog().raw("copper_chain").holder().get().getDefaultInstance());
         }
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(copper, player, true),
@@ -1565,30 +1570,30 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.COPPER, R196EquipmentType.CHAINMAIL_BOOTS),
+                equipment(MiteMaterial.COPPER, EquipmentType.CHAINMAIL_BOOTS),
                 "copper chainmail boots preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.IRON_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.IRON_WORKBENCH.get());
         TimedWorkbenchMenu iron = workbenchMenu(
-                player, helper, BenchTier.IRON, ModBlocks.IRON_WORKBENCH.get(), 23);
+                player, helper, BenchTier.IRON, InfXBlocks.IRON_WORKBENCH.get(), 23);
         player.containerMenu = iron;
         CraftingContainer ironGrid = iron.infx$craftingContainer();
         for (int slot : List.of(0, 1, 2, 3, 5)) {
-            ironGrid.setItem(slot, ModItems.MITHRIL_INGOT.toStack());
+            ironGrid.setItem(slot, InfXItems.MITHRIL_INGOT.toStack());
         }
         helper.assertFalse(
                 TimedCraftingEngine.refreshResult(iron, player, true),
                 "iron workbenches must reject mithril plate armor");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, ModBlocks.MITHRIL_WORKBENCH.get());
+        helper.setBlock(WORK_POS, InfXBlocks.MITHRIL_WORKBENCH.get());
         TimedWorkbenchMenu mithril = workbenchMenu(
-                player, helper, BenchTier.MITHRIL, ModBlocks.MITHRIL_WORKBENCH.get(), 24);
+                player, helper, BenchTier.MITHRIL, InfXBlocks.MITHRIL_WORKBENCH.get(), 24);
         player.containerMenu = mithril;
         CraftingContainer mithrilGrid = mithril.infx$craftingContainer();
         for (int slot : List.of(0, 1, 2, 3, 5)) {
-            mithrilGrid.setItem(slot, ModItems.MITHRIL_INGOT.toStack());
+            mithrilGrid.setItem(slot, InfXItems.MITHRIL_INGOT.toStack());
         }
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(mithril, player, true),
@@ -1596,29 +1601,29 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.HELMET),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.HELMET),
                 "mithril helmet preview");
         player.closeContainer();
 
         player.setItemSlot(
                 EquipmentSlot.CHEST,
-                equipment(R196Material.LEATHER, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                equipment(MiteMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper, player, "wear_leather", "wearing leather armor must grant Suiting Up"))
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
-                            equipment(R196Material.COPPER, R196EquipmentType.HELMET).getDefaultInstance());
+                            equipment(MiteMaterial.COPPER, EquipmentType.HELMET).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.CHEST,
-                            equipment(R196Material.GOLD, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                            equipment(MiteMaterial.GOLD, EquipmentType.CHESTPLATE).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.LEGS,
-                            equipment(R196Material.IRON, R196EquipmentType.LEGGINGS).getDefaultInstance());
+                            equipment(MiteMaterial.IRON, EquipmentType.LEGGINGS).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.FEET,
-                            equipment(R196Material.MITHRIL, R196EquipmentType.BOOTS).getDefaultInstance());
+                            equipment(MiteMaterial.MITHRIL, EquipmentType.BOOTS).getDefaultInstance());
                 })
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
@@ -1628,16 +1633,16 @@ public final class ModGameTests {
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.HELMET).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.HELMET).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.CHEST,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.CHESTPLATE).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.LEGS,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.LEGGINGS).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.LEGGINGS).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.FEET,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.BOOTS).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.BOOTS).getDefaultInstance());
                 })
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
@@ -1687,10 +1692,10 @@ public final class ModGameTests {
                         "heat-2 coal must smelt raw iron"))
                 .thenExecute(() -> {
                     furnace[0].setItem(2, ItemStack.EMPTY);
-                    furnace[0].setItem(0, ModItems.SILVER_ORE.toStack());
+                    furnace[0].setItem(0, InfXItems.SILVER_ORE.toStack());
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        furnace[0].getItem(2).is(ModItems.SILVER_INGOT),
+                        furnace[0].getItem(2).is(InfXItems.SILVER_INGOT),
                         "heat-2 coal must smelt silver ore"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
@@ -1734,12 +1739,12 @@ public final class ModGameTests {
     private static void furnaceTierRules(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        var clayState = ModBlocks.CLAY_FURNACE.get()
+        var clayState = InfXBlocks.CLAY_FURNACE.get()
                 .defaultBlockState()
                 .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
         helper.setBlock(FURNACE_POS, clayState);
-        R196FurnaceBlockEntity[] furnace = {
-            helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class)
+        MiteFurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class)
         };
         ItemStack sandBatch = new ItemStack(Items.SAND, 4);
         helper.assertFalse(
@@ -1775,11 +1780,11 @@ public final class ModGameTests {
                         "the clay oven must cook small food with heat 1"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
-                    var sandstoneState = ModBlocks.SANDSTONE_FURNACE.get()
+                    var sandstoneState = InfXBlocks.SANDSTONE_FURNACE.get()
                             .defaultBlockState()
                             .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
                     helper.setBlock(FURNACE_POS, sandstoneState);
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
 
                     player.openMenu(furnace[0]);
                     helper.assertTrue(
@@ -1856,11 +1861,11 @@ public final class ModGameTests {
         helper.onEachTick(player::doTick);
         helper.setBlock(
                 FURNACE_POS,
-                ModBlocks.LARGE_CLAY_OVEN.get()
+                InfXBlocks.LARGE_CLAY_OVEN.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        R196FurnaceBlockEntity[] furnace = {
-            helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class)
+        MiteFurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class)
         };
 
         helper.assertTrue(
@@ -1885,17 +1890,17 @@ public final class ModGameTests {
         helper.setBlock(FURNACE_POS, Blocks.AIR);
         helper.setBlock(
                 FURNACE_POS,
-                ModBlocks.OBSIDIAN_FURNACE.get()
+                InfXBlocks.OBSIDIAN_FURNACE.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+        furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
         helper.assertTrue(
                 furnace[0].canPlaceItem(1, Items.LAVA_BUCKET.getDefaultInstance()),
                 "the obsidian furnace must accept heat-3 lava");
         helper.assertFalse(
                 furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                 "the obsidian furnace must reject heat-4 blaze rods");
-        furnace[0].setItem(0, ModItems.MITHRIL_ORE.toStack());
+        furnace[0].setItem(0, InfXItems.MITHRIL_ORE.toStack());
         furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
 
         helper.startSequence()
@@ -1903,25 +1908,25 @@ public final class ModGameTests {
                         ((FurnaceHeatAccess) (Object) furnace[0]).infx$currentHeat() == 3,
                         "the obsidian furnace must burn lava at heat 3"))
                 .thenWaitUntil(() -> helper.assertTrue(
-                        furnace[0].getItem(2).is(ModItems.MITHRIL_INGOT),
+                        furnace[0].getItem(2).is(InfXItems.MITHRIL_INGOT),
                         "heat-3 lava must smelt mithril ore in the obsidian furnace"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
                     helper.setBlock(
                             FURNACE_POS,
-                            ModBlocks.NETHERRACK_FURNACE.get()
+                            InfXBlocks.NETHERRACK_FURNACE.get()
                                     .defaultBlockState()
                                     .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
                     helper.assertTrue(
                             furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                             "the netherrack furnace must accept heat-4 blaze rods");
-                    furnace[0].setItem(0, ModItems.ADAMANTIUM_ORE.toStack());
+                    furnace[0].setItem(0, InfXItems.ADAMANTIUM_ORE.toStack());
                     furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
                 })
                 .thenExecuteAfter(40, () -> {
                     helper.assertTrue(
-                            furnace[0].getItem(0).is(ModItems.ADAMANTIUM_ORE),
+                            furnace[0].getItem(0).is(InfXItems.ADAMANTIUM_ORE),
                             "heat-3 lava must not start heat-4 adamantium ore");
                     helper.assertTrue(
                             furnace[0].getItem(1).is(Items.LAVA_BUCKET),
@@ -1932,7 +1937,7 @@ public final class ModGameTests {
                         ((FurnaceHeatAccess) (Object) furnace[0]).infx$currentHeat() == 4,
                         "the netherrack furnace must burn blaze rods at heat 4"))
                 .thenWaitUntil(() -> helper.assertTrue(
-                        furnace[0].getItem(2).is(ModItems.ADAMANTIUM_INGOT),
+                        furnace[0].getItem(2).is(InfXItems.ADAMANTIUM_INGOT),
                         "heat-4 blaze fuel must smelt adamantium ore in the netherrack furnace"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
@@ -1979,7 +1984,7 @@ public final class ModGameTests {
     }
 
     private static void grantMaximumExperience(ServerPlayer player) {
-        R196Experience.setTotal(player, R196Experience.XP_AT_DISPLAY_CAP);
+        Experience.setTotal(player, Experience.XP_AT_DISPLAY_CAP);
     }
 
     private static TimedWorkbenchMenu workbenchMenu(
@@ -2032,7 +2037,7 @@ public final class ModGameTests {
         grid.setItem(1, Items.FLINT.getDefaultInstance());
         grid.setItem(3, Items.FLINT.getDefaultInstance());
         grid.setItem(4, Items.STICK.getDefaultInstance());
-        grid.setItem(6, ModItems.SINEW.get().getDefaultInstance());
+        grid.setItem(6, InfXItems.SINEW.get().getDefaultInstance());
         grid.setItem(7, Items.STICK.getDefaultInstance());
     }
 
@@ -2069,8 +2074,8 @@ public final class ModGameTests {
         }
     }
 
-    private static Item equipment(R196Material material, R196EquipmentType type) {
-        return ModItems.catalog().equipment(material, type).holder().get();
+    private static Item equipment(MiteMaterial material, EquipmentType type) {
+        return InfXItems.catalog().equipment(material, type).holder().get();
     }
 
     private static int countItem(Inventory inventory, Item item) {

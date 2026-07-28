@@ -8,7 +8,7 @@ import net.minecraft.world.item.EggItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
-import com.pixulse.infx.network.R196Network;
+import com.pixulse.infx.network.Network;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +23,7 @@ abstract class EggItemMixin {
             Player player,
             InteractionHand hand,
             CallbackInfoReturnable<InteractionResult> callback) {
-        if (player.getPersistentData().getBooleanOr(R196Network.FORCE_EGG_THROW, false)
+        if (player.getPersistentData().getBooleanOr(Network.FORCE_EGG_THROW, false)
                 || !player.canEat(false)) return;
         ItemStack egg = player.getItemInHand(hand);
         Consumable consumable = egg.get(DataComponents.CONSUMABLE);

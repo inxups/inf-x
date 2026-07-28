@@ -1,31 +1,29 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.network.R196Network;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
+import com.pixulse.infx.network.Network;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.portal.TeleportTransition;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /** Coordinates MITE's client-led rune-gate fade before committing the teleport. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class RunegateTeleportation {
     public static final int LOADING_TICKS = 20;
 
     private static final Map<UUID, PendingTeleport> PENDING = new HashMap<>();
 
     private RunegateTeleportation() {}
-
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(RunegateTeleportation::onLogout);
-        gameBus.addListener(RunegateTeleportation::onClone);
-        gameBus.addListener(RunegateTeleportation::onDimensionChanged);
-        gameBus.addListener(RunegateTeleportation::onServerStopping);
-    }
 
     /** Starts one client animation for a player unless that player is riding or carrying another entity. */
     public static boolean start(ServerPlayer player, TeleportTransition transition) {
@@ -41,7 +39,7 @@ public final class RunegateTeleportation {
         PENDING.put(
                 playerId,
                 new PendingTeleport(player.level(), transition));
-        PacketDistributor.sendToPlayer(player, R196Network.RunegateStartPayload.INSTANCE);
+        PacketDistributor.sendToPlayer(player, Network.RunegateStartPayload.INSTANCE);
         return true;
     }
 
@@ -63,11 +61,15 @@ public final class RunegateTeleportation {
         }
     }
 
+    @SubscribeEvent
+
     private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             PENDING.remove(player.getUUID());
         }
     }
+
+    @SubscribeEvent
 
     private static void onClone(PlayerEvent.Clone event) {
         if (!(event.getOriginal() instanceof ServerPlayer original)
@@ -78,18 +80,22 @@ public final class RunegateTeleportation {
         finish(player);
     }
 
+    @SubscribeEvent
+
     private static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && PENDING.remove(player.getUUID()) != null) {
             finish(player);
         }
     }
 
+    @SubscribeEvent
+
     private static void onServerStopping(ServerStoppingEvent event) {
         PENDING.clear();
     }
 
     private static void finish(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, R196Network.RunegateFinishedPayload.INSTANCE);
+        PacketDistributor.sendToPlayer(player, Network.RunegateFinishedPayload.INSTANCE);
     }
 
     private record PendingTeleport(ServerLevel sourceLevel, TeleportTransition transition) {}

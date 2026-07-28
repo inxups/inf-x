@@ -1,7 +1,7 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -18,111 +18,111 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
         tag(EntityTypeTags.ZOMBIES).add(
-                ModEntityTypes.R196_ZOMBIE.getKey(),
-                ModEntityTypes.SHADOW.getKey(),
-                ModEntityTypes.WIGHT.getKey(),
-                ModEntityTypes.REVENANT.getKey(),
-                ModEntityTypes.R196_ZOMBIFIED_PIGLIN.getKey());
+                InfXEntityTypes.R196_ZOMBIE.getKey(),
+                InfXEntityTypes.SHADOW.getKey(),
+                InfXEntityTypes.WIGHT.getKey(),
+                InfXEntityTypes.REVENANT.getKey(),
+                InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.getKey());
         tag(EntityTypeTags.SKELETONS).add(
-                ModEntityTypes.R196_SKELETON.getKey(),
-                ModEntityTypes.LONGDEAD.getKey(),
-                ModEntityTypes.BONE_LORD.getKey(),
-                ModEntityTypes.ANCIENT_BONE_LORD.getKey());
+                InfXEntityTypes.R196_SKELETON.getKey(),
+                InfXEntityTypes.LONGDEAD.getKey(),
+                InfXEntityTypes.BONE_LORD.getKey(),
+                InfXEntityTypes.ANCIENT_BONE_LORD.getKey());
         // MITE nightwings are undead bats; the zombie/skeleton families join UNDEAD through their family tags.
-        tag(EntityTypeTags.UNDEAD).add(ModEntityTypes.NIGHTWING.getKey());
+        tag(EntityTypeTags.UNDEAD).add(InfXEntityTypes.NIGHTWING.getKey());
         tag(EntityTypeTags.BURN_IN_DAYLIGHT).add(
-                ModEntityTypes.R196_ZOMBIE.getKey(),
-                ModEntityTypes.WIGHT.getKey(),
-                ModEntityTypes.REVENANT.getKey(),
-                ModEntityTypes.R196_SKELETON.getKey(),
-                ModEntityTypes.LONGDEAD.getKey(),
-                ModEntityTypes.BONE_LORD.getKey(),
-                ModEntityTypes.ANCIENT_BONE_LORD.getKey());
+                InfXEntityTypes.R196_ZOMBIE.getKey(),
+                InfXEntityTypes.WIGHT.getKey(),
+                InfXEntityTypes.REVENANT.getKey(),
+                InfXEntityTypes.R196_SKELETON.getKey(),
+                InfXEntityTypes.LONGDEAD.getKey(),
+                InfXEntityTypes.BONE_LORD.getKey(),
+                InfXEntityTypes.ANCIENT_BONE_LORD.getKey());
 
         tag(EntityTypeTags.ARTHROPOD).add(
-                ModEntityTypes.R196_SPIDER.getKey(),
-                ModEntityTypes.R196_CAVE_SPIDER.getKey(),
-                ModEntityTypes.BLACK_WIDOW_SPIDER.getKey(),
-                ModEntityTypes.DEMON_SPIDER.getKey(),
-                ModEntityTypes.WOOD_SPIDER.getKey(),
-                ModEntityTypes.PHASE_SPIDER.getKey(),
-                ModEntityTypes.NETHERSPAWN.getKey(),
-                ModEntityTypes.COPPERSPINE.getKey(),
-                ModEntityTypes.HOARY_SILVERFISH.getKey());
+                InfXEntityTypes.R196_SPIDER.getKey(),
+                InfXEntityTypes.R196_CAVE_SPIDER.getKey(),
+                InfXEntityTypes.BLACK_WIDOW_SPIDER.getKey(),
+                InfXEntityTypes.DEMON_SPIDER.getKey(),
+                InfXEntityTypes.WOOD_SPIDER.getKey(),
+                InfXEntityTypes.PHASE_SPIDER.getKey(),
+                InfXEntityTypes.NETHERSPAWN.getKey(),
+                InfXEntityTypes.COPPERSPINE.getKey(),
+                InfXEntityTypes.HOARY_SILVERFISH.getKey());
         tag(EntityTypeTags.POWDER_SNOW_WALKABLE_MOBS).add(
-                ModEntityTypes.NETHERSPAWN.getKey(),
-                ModEntityTypes.COPPERSPINE.getKey(),
-                ModEntityTypes.HOARY_SILVERFISH.getKey());
+                InfXEntityTypes.NETHERSPAWN.getKey(),
+                InfXEntityTypes.COPPERSPINE.getKey(),
+                InfXEntityTypes.HOARY_SILVERFISH.getKey());
         tag(EntityTypeTags.IMMUNE_TO_INFESTED).add(
-                ModEntityTypes.NETHERSPAWN.getKey(),
-                ModEntityTypes.COPPERSPINE.getKey(),
-                ModEntityTypes.HOARY_SILVERFISH.getKey());
+                InfXEntityTypes.NETHERSPAWN.getKey(),
+                InfXEntityTypes.COPPERSPINE.getKey(),
+                InfXEntityTypes.HOARY_SILVERFISH.getKey());
         tag(EntityTypeTags.DISMOUNTS_UNDERWATER).add(
-                ModEntityTypes.R196_SPIDER.getKey(),
-                ModEntityTypes.R196_CAVE_SPIDER.getKey(),
-                ModEntityTypes.BLACK_WIDOW_SPIDER.getKey(),
-                ModEntityTypes.DEMON_SPIDER.getKey(),
-                ModEntityTypes.WOOD_SPIDER.getKey(),
-                ModEntityTypes.PHASE_SPIDER.getKey());
+                InfXEntityTypes.R196_SPIDER.getKey(),
+                InfXEntityTypes.R196_CAVE_SPIDER.getKey(),
+                InfXEntityTypes.BLACK_WIDOW_SPIDER.getKey(),
+                InfXEntityTypes.DEMON_SPIDER.getKey(),
+                InfXEntityTypes.WOOD_SPIDER.getKey(),
+                InfXEntityTypes.PHASE_SPIDER.getKey());
 
         tag(EntityTypeTags.AQUATIC).add(
-                ModEntityTypes.R196_SQUID.getKey(),
-                ModEntityTypes.R196_COD.getKey(),
-                ModEntityTypes.R196_SALMON.getKey(),
-                ModEntityTypes.R196_PUFFERFISH.getKey(),
-                ModEntityTypes.R196_TROPICAL_FISH.getKey());
+                InfXEntityTypes.R196_SQUID.getKey(),
+                InfXEntityTypes.R196_COD.getKey(),
+                InfXEntityTypes.R196_SALMON.getKey(),
+                InfXEntityTypes.R196_PUFFERFISH.getKey(),
+                InfXEntityTypes.R196_TROPICAL_FISH.getKey());
         tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER).add(
-                ModEntityTypes.R196_SQUID.getKey(),
-                ModEntityTypes.R196_COD.getKey(),
-                ModEntityTypes.R196_SALMON.getKey(),
-                ModEntityTypes.R196_PUFFERFISH.getKey(),
-                ModEntityTypes.R196_TROPICAL_FISH.getKey(),
-                ModEntityTypes.EARTH_ELEMENTAL.getKey(),
-                ModEntityTypes.CLAY_GOLEM.getKey());
+                InfXEntityTypes.R196_SQUID.getKey(),
+                InfXEntityTypes.R196_COD.getKey(),
+                InfXEntityTypes.R196_SALMON.getKey(),
+                InfXEntityTypes.R196_PUFFERFISH.getKey(),
+                InfXEntityTypes.R196_TROPICAL_FISH.getKey(),
+                InfXEntityTypes.EARTH_ELEMENTAL.getKey(),
+                InfXEntityTypes.CLAY_GOLEM.getKey());
         tag(EntityTypeTags.AXOLOTL_HUNT_TARGETS).add(
-                ModEntityTypes.R196_COD.getKey(),
-                ModEntityTypes.R196_SALMON.getKey(),
-                ModEntityTypes.R196_PUFFERFISH.getKey(),
-                ModEntityTypes.R196_TROPICAL_FISH.getKey());
+                InfXEntityTypes.R196_COD.getKey(),
+                InfXEntityTypes.R196_SALMON.getKey(),
+                InfXEntityTypes.R196_PUFFERFISH.getKey(),
+                InfXEntityTypes.R196_TROPICAL_FISH.getKey());
         tag(EntityTypeTags.NOT_SCARY_FOR_PUFFERFISH).add(
-                ModEntityTypes.R196_COD.getKey(),
-                ModEntityTypes.R196_SALMON.getKey(),
-                ModEntityTypes.R196_PUFFERFISH.getKey(),
-                ModEntityTypes.R196_TROPICAL_FISH.getKey());
-        tag(EntityTypeTags.RAIDERS).add(ModEntityTypes.R196_WITCH.getKey());
+                InfXEntityTypes.R196_COD.getKey(),
+                InfXEntityTypes.R196_SALMON.getKey(),
+                InfXEntityTypes.R196_PUFFERFISH.getKey(),
+                InfXEntityTypes.R196_TROPICAL_FISH.getKey());
+        tag(EntityTypeTags.RAIDERS).add(InfXEntityTypes.R196_WITCH.getKey());
 
         tag(EntityTypeTags.FREEZE_HURTS_EXTRA_TYPES).add(
-                ModEntityTypes.R196_BLAZE.getKey(),
-                ModEntityTypes.FIRE_ELEMENTAL.getKey(),
-                ModEntityTypes.MAGMA_CUBE.getKey());
+                InfXEntityTypes.R196_BLAZE.getKey(),
+                InfXEntityTypes.FIRE_ELEMENTAL.getKey(),
+                InfXEntityTypes.MAGMA_CUBE.getKey());
         tag(EntityTypeTags.FALL_DAMAGE_IMMUNE).add(
-                ModEntityTypes.R196_BLAZE.getKey(),
-                ModEntityTypes.FIRE_ELEMENTAL.getKey(),
-                ModEntityTypes.R196_GHAST.getKey(),
-                ModEntityTypes.MAGMA_CUBE.getKey(),
-                ModEntityTypes.VAMPIRE_BAT.getKey(),
-                ModEntityTypes.NIGHTWING.getKey(),
-                ModEntityTypes.GIANT_VAMPIRE_BAT.getKey());
+                InfXEntityTypes.R196_BLAZE.getKey(),
+                InfXEntityTypes.FIRE_ELEMENTAL.getKey(),
+                InfXEntityTypes.R196_GHAST.getKey(),
+                InfXEntityTypes.MAGMA_CUBE.getKey(),
+                InfXEntityTypes.VAMPIRE_BAT.getKey(),
+                InfXEntityTypes.NIGHTWING.getKey(),
+                InfXEntityTypes.GIANT_VAMPIRE_BAT.getKey());
 
         tag(EntityTypeTags.FROG_FOOD).add(
-                ModEntityTypes.R196_SLIME.getKey(),
-                ModEntityTypes.JELLY.getKey(),
-                ModEntityTypes.BLOB.getKey(),
-                ModEntityTypes.OOZE.getKey(),
-                ModEntityTypes.PUDDING.getKey(),
-                ModEntityTypes.MAGMA_CUBE.getKey());
+                InfXEntityTypes.R196_SLIME.getKey(),
+                InfXEntityTypes.JELLY.getKey(),
+                InfXEntityTypes.BLOB.getKey(),
+                InfXEntityTypes.OOZE.getKey(),
+                InfXEntityTypes.PUDDING.getKey(),
+                InfXEntityTypes.MAGMA_CUBE.getKey());
         tag(EntityTypeTags.NON_CONTROLLING_RIDER).add(
-                ModEntityTypes.R196_SLIME.getKey(),
-                ModEntityTypes.JELLY.getKey(),
-                ModEntityTypes.BLOB.getKey(),
-                ModEntityTypes.OOZE.getKey(),
-                ModEntityTypes.PUDDING.getKey(),
-                ModEntityTypes.MAGMA_CUBE.getKey());
+                InfXEntityTypes.R196_SLIME.getKey(),
+                InfXEntityTypes.JELLY.getKey(),
+                InfXEntityTypes.BLOB.getKey(),
+                InfXEntityTypes.OOZE.getKey(),
+                InfXEntityTypes.PUDDING.getKey(),
+                InfXEntityTypes.MAGMA_CUBE.getKey());
         tag(EntityTypeTags.IMMUNE_TO_OOZING).add(
-                ModEntityTypes.R196_SLIME.getKey(),
-                ModEntityTypes.JELLY.getKey(),
-                ModEntityTypes.BLOB.getKey(),
-                ModEntityTypes.OOZE.getKey(),
-                ModEntityTypes.PUDDING.getKey());
+                InfXEntityTypes.R196_SLIME.getKey(),
+                InfXEntityTypes.JELLY.getKey(),
+                InfXEntityTypes.BLOB.getKey(),
+                InfXEntityTypes.OOZE.getKey(),
+                InfXEntityTypes.PUDDING.getKey());
     }
 }

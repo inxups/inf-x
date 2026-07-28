@@ -1,11 +1,11 @@
 package com.pixulse.infx.harvest;
 
-import com.pixulse.infx.enchantment.R196EnchantmentRules;
-import com.pixulse.infx.enchantment.R196Enchantments;
-import com.pixulse.infx.progression.R196Experience;
-import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.registry.ModEnchantments;
-import com.pixulse.infx.registry.ModMobEffects;
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
+import com.pixulse.infx.item.enchantment.Enchantments;
+import com.pixulse.infx.player.Experience;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXMobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectUtil;
@@ -48,7 +48,7 @@ public final class HarvestSpeedRules {
                             player.experienceLevel,
                             false,
                             false,
-                            !player.getData(ModAttachments.SURVIVAL).hasFoodEnergy(),
+                            !player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy(),
                             paralyzed,
                             inCobweb);
             strength = applyFreeMovementResistance(player, strength, paralyzed, inCobweb);
@@ -72,7 +72,7 @@ public final class HarvestSpeedRules {
             boolean hungry,
             boolean paralyzed,
             boolean inCobweb) {
-        float result = R196Experience.harvestOrCraftMultiplier(level);
+        float result = Experience.harvestOrCraftMultiplier(level);
         if (submerged) result *= 0.2F;
         if (airborne) result *= 0.2F;
         if (hungry) result *= 0.2F;
@@ -116,18 +116,18 @@ public final class HarvestSpeedRules {
             result *= (float) player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
         }
         if (!player.onGround()) result *= 0.2F;
-        if (!player.getData(ModAttachments.SURVIVAL).hasFoodEnergy()) result *= 0.2F;
+        if (!player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy()) result *= 0.2F;
         boolean paralyzed = isParalyzed(player);
         boolean inCobweb = isInCobweb(player);
         if (paralyzed) result *= 0.1F;
         if (inCobweb) result *= 0.1F;
         result = applyFreeMovementResistance(player, result, paralyzed, inCobweb);
-        result *= R196Experience.harvestOrCraftMultiplier(player.experienceLevel);
+        result *= Experience.harvestOrCraftMultiplier(player.experienceLevel);
         return result;
     }
 
     public static boolean isParalyzed(Player player) {
-        if (player.hasEffect(ModMobEffects.PARALYSIS)) return true;
+        if (player.hasEffect(InfXMobEffects.PARALYSIS)) return true;
         var slowness = player.getEffect(MobEffects.SLOWNESS);
         return slowness != null && slowness.getAmplifier() >= 4;
     }
@@ -141,9 +141,9 @@ public final class HarvestSpeedRules {
 
     private static float applyFreeMovementResistance(
             Player player, float strength, boolean paralyzed, boolean inCobweb) {
-        int freeMovement = R196Enchantments.maxArmorLevel(player, ModEnchantments.FREE_MOVEMENT);
+        int freeMovement = Enchantments.maxArmorLevel(player, InfXEnchantments.FREE_MOVEMENT);
         if (freeMovement <= 0) return strength;
-        float correction = R196EnchantmentRules.reducedImpairmentMultiplier(0.1F, freeMovement) / 0.1F;
+        float correction = EnchantmentRules.reducedImpairmentMultiplier(0.1F, freeMovement) / 0.1F;
         if (paralyzed) strength *= correction;
         if (inCobweb) strength *= correction;
         return strength;

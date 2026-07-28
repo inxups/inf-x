@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.world.R196SwimPhysics;
+import com.pixulse.infx.world.SwimPhysics;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -29,7 +29,7 @@ abstract class EntitySwimMixin {
     private void infx$applyMiteWaterCurrent(
             EntityFluidInteraction interaction, TagKey<Fluid> fluid, Entity entity, double scale) {
         if (entity instanceof Player && FluidTags.WATER.equals(fluid)) {
-            R196SwimPhysics.applyNormalizedCurrent(entity, scale);
+            SwimPhysics.applyNormalizedCurrent(entity, scale);
         } else {
             interaction.applyCurrentTo(fluid, entity, scale);
         }

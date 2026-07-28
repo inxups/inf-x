@@ -67,7 +67,7 @@ final class MiteHardLimitedRangedAttackGoal extends Goal {
             return;
         }
         double distanceSqr = mob.distanceToSqr(target.getX(), target.getY(), target.getZ());
-        boolean inRange = R196AttackRanges.withinHardRangedReach(distanceSqr, attackRadius);
+        boolean inRange = AttackRanges.withinHardRangedReach(distanceSqr, attackRadius);
         boolean visible = mob.getSensing().hasLineOfSight(target);
         seeTime = visible ? seeTime + 1 : 0;
 

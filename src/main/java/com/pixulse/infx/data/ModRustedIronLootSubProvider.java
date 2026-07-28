@@ -1,9 +1,9 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
@@ -29,14 +29,14 @@ final class ModRustedIronLootSubProvider implements LootTableSubProvider {
                         8,
                         130,
                         List.of(
-                                R196EquipmentType.SHEARS,
-                                R196EquipmentType.SHOVEL,
-                                R196EquipmentType.HOE,
-                                R196EquipmentType.MATTOCK,
-                                R196EquipmentType.DAGGER,
-                                R196EquipmentType.SWORD,
-                                R196EquipmentType.BATTLE_AXE,
-                                R196EquipmentType.WAR_HAMMER)));
+                                EquipmentType.SHEARS,
+                                EquipmentType.SHOVEL,
+                                EquipmentType.HOE,
+                                EquipmentType.MATTOCK,
+                                EquipmentType.DAGGER,
+                                EquipmentType.SWORD,
+                                EquipmentType.BATTLE_AXE,
+                                EquipmentType.WAR_HAMMER)));
         output.accept(
                 tableKey("abandoned_mineshaft"),
                 mineshaftPool());
@@ -48,11 +48,11 @@ final class ModRustedIronLootSubProvider implements LootTableSubProvider {
                 InfiniteX.id("chests/rusted_iron/" + structure));
     }
 
-    private static LootTable.Builder equipmentPool(int rolls, int emptyWeight, List<R196EquipmentType> types) {
+    private static LootTable.Builder equipmentPool(int rolls, int emptyWeight, List<EquipmentType> types) {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(rolls))
                 .add(EmptyLootItem.emptyItem().setWeight(emptyWeight));
-        types.forEach(type -> pool.add(LootItem.lootTableItem(equipment(type)).setWeight(type == R196EquipmentType.SHEARS ? 3 : 2)));
+        types.forEach(type -> pool.add(LootItem.lootTableItem(equipment(type)).setWeight(type == EquipmentType.SHEARS ? 3 : 2)));
         return LootTable.lootTable().withPool(pool);
     }
 
@@ -60,20 +60,20 @@ final class ModRustedIronLootSubProvider implements LootTableSubProvider {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(3.0F))
                 .add(EmptyLootItem.emptyItem().setWeight(150))
-                .add(LootItem.lootTableItem(ModItems.catalog().raw("rusted_iron_chain").holder())
+                .add(LootItem.lootTableItem(InfXItems.catalog().raw("rusted_iron_chain").holder())
                         .setWeight(5));
         List.of(
-                        R196EquipmentType.SHOVEL,
-                        R196EquipmentType.HATCHET,
-                        R196EquipmentType.AXE,
-                        R196EquipmentType.MATTOCK,
-                        R196EquipmentType.PICKAXE,
-                        R196EquipmentType.WAR_HAMMER)
+                        EquipmentType.SHOVEL,
+                        EquipmentType.HATCHET,
+                        EquipmentType.AXE,
+                        EquipmentType.MATTOCK,
+                        EquipmentType.PICKAXE,
+                        EquipmentType.WAR_HAMMER)
                 .forEach(type -> pool.add(LootItem.lootTableItem(equipment(type)).setWeight(2)));
         return LootTable.lootTable().withPool(pool);
     }
 
-    private static ItemLike equipment(R196EquipmentType type) {
-        return ModItems.catalog().equipment(R196Material.RUSTED_IRON, type).holder();
+    private static ItemLike equipment(EquipmentType type) {
+        return InfXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder();
     }
 }

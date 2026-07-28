@@ -1,9 +1,9 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.item.R196BucketHelper;
-import com.pixulse.infx.item.R196BucketItem;
-import com.pixulse.infx.item.R196MobBucketKind;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.util.BucketHelper;
+import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.MobBucketKind;
+import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
@@ -34,18 +34,18 @@ interface BucketableMixin {
             T pickupEntity,
             CallbackInfoReturnable<Optional<InteractionResult>> callback) {
         ItemStack held = player.getItemInHand(hand);
-        if (!(held.getItem() instanceof R196BucketItem bucket)
-                || bucket.contents() != R196BucketItem.Contents.WATER
+        if (!(held.getItem() instanceof MiteBucketItem bucket)
+                || bucket.contents() != MiteBucketItem.Contents.WATER
                 || !pickupEntity.isAlive()) {
             return;
         }
-        R196MobBucketKind kind = R196MobBucketKind.of(pickupEntity.getType());
+        MobBucketKind kind = MobBucketKind.of(pickupEntity.getType());
         if (kind == null) {
             return;
         }
-        R196Material material = bucket.material();
+        MiteMaterial material = bucket.material();
         pickupEntity.playSound(pickupEntity.getPickupSound(), 1.0F, 1.0F);
-        ItemStack filled = R196BucketHelper.mobBucket(material, kind);
+        ItemStack filled = BucketHelper.mobBucket(material, kind);
         pickupEntity.saveToBucketTag(filled);
         ItemStack result = ItemUtils.createFilledResult(held, player, filled, false);
         player.setItemInHand(hand, result);

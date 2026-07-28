@@ -1,6 +1,6 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.crafting.BenchTier;
+import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 
 import net.minecraft.core.BlockPos;

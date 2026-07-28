@@ -1,7 +1,7 @@
 package com.pixulse.infx.block.entity;
 
 import com.pixulse.infx.block.MetalAnvilBlock;
-import com.pixulse.infx.registry.ModBlockEntityTypes;
+import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -13,7 +13,7 @@ public final class MetalAnvilBlockEntity extends BlockEntity {
     private int damage;
 
     public MetalAnvilBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntityTypes.METAL_ANVIL.get(), pos, state);
+        super(InfXBlockEntityTypes.METAL_ANVIL.get(), pos, state);
     }
 
     public int damage() {

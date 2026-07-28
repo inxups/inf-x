@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.item.R196BucketItem;
+import com.pixulse.infx.item.MiteBucketItem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +15,7 @@ public abstract class ItemEntityPickupMixin {
     // public extension point and must be checked at the vanilla player-touch boundary.
     @Inject(method = "playerTouch", at = @At("HEAD"), cancellable = true)
     private void infx$blockPickupAfterBucketMelt(Player player, CallbackInfo callback) {
-        if (!player.level().isClientSide() && R196BucketItem.isMeltPickupBlocked(player)) {
+        if (!player.level().isClientSide() && MiteBucketItem.isMeltPickupBlocked(player)) {
             callback.cancel();
         }
     }

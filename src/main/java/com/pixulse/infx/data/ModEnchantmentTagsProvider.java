@@ -1,7 +1,7 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.ModEnchantments;
+import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -31,7 +31,7 @@ final class ModEnchantmentTagsProvider extends KeyTagsProvider<Enchantment> {
                 EnchantmentTags.TRADES_SNOW_COMMON,
                 EnchantmentTags.TRADES_SWAMP_COMMON,
                 EnchantmentTags.TRADES_TAIGA_COMMON)) {
-            tag(source, true).add(ModEnchantments.ALL.toArray(net.minecraft.resources.ResourceKey[]::new));
+            tag(source, true).add(InfXEnchantments.ALL.toArray(net.minecraft.resources.ResourceKey[]::new));
         }
     }
 }

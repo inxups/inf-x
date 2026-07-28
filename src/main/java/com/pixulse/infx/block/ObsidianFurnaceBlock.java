@@ -1,10 +1,10 @@
 package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
-import com.pixulse.infx.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-public final class ObsidianFurnaceBlock extends R196FurnaceBlock {
+public final class ObsidianFurnaceBlock extends MiteFurnaceBlock {
     public static final MapCodec<ObsidianFurnaceBlock> CODEC = simpleCodec(ObsidianFurnaceBlock::new);
 
     public ObsidianFurnaceBlock(BlockBehaviour.Properties properties) {

@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.survival.R196SurvivalEvents;
+import com.pixulse.infx.food.SurvivalEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
@@ -39,6 +39,6 @@ abstract class CakeBlockMixin {
                 || serverPlayer.isSpectator()) {
             return;
         }
-        R196SurvivalEvents.applyFood(serverPlayer, Items.CAKE.getDefaultInstance());
+        SurvivalEvents.applyFood(serverPlayer, Items.CAKE.getDefaultInstance());
     }
 }

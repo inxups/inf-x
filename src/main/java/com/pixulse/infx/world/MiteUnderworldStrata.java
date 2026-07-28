@@ -1,6 +1,6 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.InfXBlocks;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
@@ -53,7 +53,7 @@ public final class MiteUnderworldStrata {
                     chunk.setBlockState(
                             blockPos.set(blockX, minY + relativeY, blockZ),
                             replacement == MANTLE
-                                    ? ModBlocks.MANTLE.get().defaultBlockState()
+                                    ? InfXBlocks.MANTLE.get().defaultBlockState()
                                     : Blocks.BEDROCK.defaultBlockState());
                 }
 
