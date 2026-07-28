@@ -26,6 +26,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.food.FoodProperties;
@@ -151,12 +152,12 @@ public final class InfXItems {
             NETHERRACK_FURNACE);
 
     public static final DeferredItem<Item> FLOUR = simple("flour");
-    public static final DeferredItem<Item> WATER_BOWL = container("water_bowl");
+    public static final DeferredItem<Item> WATER_BOWL = drinkContainer("water_bowl");
     public static final DeferredItem<Item> DOUGH = food("dough", 1, 0.1F);
     public static final DeferredItem<Item> SALAD = bowlFood("salad", 5, 0.6F);
     public static final DeferredItem<Item> BLUEBERRIES = food("blueberries", 2, 0.2F);
     public static final DeferredItem<Item> BLUEBERRY_PORRIDGE = bowlFood("blueberry_porridge", 6, 0.7F);
-    public static final DeferredItem<Item> MILK_BOWL = bowlFood("milk_bowl", 4, 0.5F);
+    public static final DeferredItem<Item> MILK_BOWL = bowlFood("milk_bowl", 4, 0.5F, Consumables.MILK_BUCKET);
     public static final DeferredItem<Item> CEREAL_PORRIDGE = bowlFood("cereal_porridge", 6, 0.7F);
     public static final DeferredItem<Item> CHOCOLATE = food("chocolate", 5, 0.6F);
     public static final DeferredItem<Item> PUMPKIN_SOUP = bowlFood("pumpkin_soup", 6, 0.6F);
@@ -302,8 +303,14 @@ public final class InfXItems {
         return ITEMS.registerItem(path, Item::new);
     }
 
-    private static DeferredItem<Item> container(String path) {
-        return ITEMS.registerItem(path, Item::new, properties -> properties.stacksTo(8));
+    private static DeferredItem<Item> drinkContainer(String path) {
+        return ITEMS.registerItem(
+                path,
+                Item::new,
+                properties -> properties
+                        .stacksTo(8)
+                        .usingConvertsTo(Items.BOWL)
+                        .component(DataComponents.CONSUMABLE, Consumables.DEFAULT_DRINK));
     }
 
     private static DeferredItem<Item> food(String path, int nutrition, float saturation) {
@@ -317,6 +324,11 @@ public final class InfXItems {
     }
 
     private static DeferredItem<Item> bowlFood(String path, int nutrition, float saturation) {
+        return bowlFood(path, nutrition, saturation, Consumables.DEFAULT_FOOD);
+    }
+
+    private static DeferredItem<Item> bowlFood(
+            String path, int nutrition, float saturation, Consumable consumable) {
         return ITEMS.registerItem(
                 path,
                 Item::new,
@@ -326,7 +338,7 @@ public final class InfXItems {
                         .food(new FoodProperties.Builder()
                                 .nutrition(nutrition)
                                 .saturationModifier(saturation)
-                                .build()));
+                                .build(), consumable));
     }
 
     private static List<DeferredItem<MiteBucketItem>> registerBuckets() {

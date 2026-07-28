@@ -109,6 +109,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -1044,6 +1045,30 @@ public final class ModCompletionGameTests {
                 Items.SUGAR.getDefaultInstance().has(DataComponents.FOOD)
                         && Items.SUGAR.getDefaultInstance().has(DataComponents.CONSUMABLE),
                 "small R196 foods are directly edible");
+
+        ItemStack waterBowl = InfXItems.WATER_BOWL.toStack();
+        var waterBowlConsumable = waterBowl.get(DataComponents.CONSUMABLE);
+        helper.assertTrue(
+                waterBowlConsumable != null
+                        && waterBowlConsumable.animation() == ItemUseAnimation.DRINK
+                        && waterBowlConsumable.sound() == SoundEvents.GENERIC_DRINK
+                        && waterBowlConsumable.canConsume(player, waterBowl),
+                "water bowl must be drinkable with the generic drinking sound");
+        helper.assertTrue(
+                waterBowl.finishUsingItem(helper.getLevel(), player).is(Items.BOWL),
+                "drinking a water bowl must return an empty bowl");
+
+        ItemStack milkBowl = InfXItems.MILK_BOWL.toStack();
+        var milkBowlConsumable = milkBowl.get(DataComponents.CONSUMABLE);
+        helper.assertTrue(
+                milkBowlConsumable != null
+                        && milkBowlConsumable.animation() == ItemUseAnimation.DRINK
+                        && milkBowlConsumable.sound() == SoundEvents.GENERIC_DRINK
+                        && milkBowlConsumable.canConsume(player, milkBowl),
+                "milk bowl must use the drinking animation and sound");
+        helper.assertTrue(
+                milkBowl.finishUsingItem(helper.getLevel(), player).is(Items.BOWL),
+                "drinking a milk bowl must return an empty bowl");
 
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 2, 1, 1, 1, 0, 0));
         SurvivalEvents.recalculatePlayerLimits(player);
