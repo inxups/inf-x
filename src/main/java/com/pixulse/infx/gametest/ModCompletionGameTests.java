@@ -39,6 +39,8 @@ import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.player.Experience;
 import com.pixulse.infx.data.food.FoodProfile;
+import com.pixulse.infx.data.food.FoodIngestion;
+import com.pixulse.infx.data.food.FoodProfiles;
 import com.pixulse.infx.data.food.SurvivalData;
 import com.pixulse.infx.event.SurvivalEvents;
 import com.pixulse.infx.data.food.SurvivalRules;
@@ -958,10 +960,43 @@ public final class ModCompletionGameTests {
 
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 2, 1, 1, 1, 0, 0));
         SurvivalData egg = player.getData(InfXAttachments.SURVIVAL)
-                .eat(new FoodProfile(1, 3, 12_000, 0, 2_000, 0), 8);
+                .eat(FoodProfile.mite(1, 3, 0, true, false, false), 8);
         helper.assertTrue(egg.satiation() == 1.0D && egg.nutrition() == 5.0D,
                 "egg fills both energy layers");
         helper.assertTrue(egg.phytonutrients() == 1, "egg cannot cure phytonutrient malnutrition");
+
+        FoodProfile bread = FoodProfiles.forStack(Items.BREAD.getDefaultInstance());
+        helper.assertTrue(
+                bread.satiation() == 8.0D && bread.nutrition() == 2.0D && bread.protein() == 0,
+                "bread must keep the R196 8/2 energy value without animal nutrients");
+        FoodProfile wheatSeeds = FoodProfiles.forStack(Items.WHEAT_SEEDS.getDefaultInstance());
+        helper.assertTrue(
+                wheatSeeds.essentialFats() == 2_000 && wheatSeeds.nutrition() == 0.0D,
+                "wheat seeds retain R196's independent essential-fat bonus");
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 0, 1, 1, 0, 0));
+        helper.assertTrue(
+                FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.EGG.getDefaultInstance())),
+                "protein deficiency must permit a protein food even when energy is full");
+        helper.assertFalse(
+                FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.APPLE.getDefaultInstance())),
+                "a full player cannot consume unrelated food while only protein is deficient");
+        var eggConsumable = Items.EGG.getDefaultInstance().get(DataComponents.CONSUMABLE);
+        var appleConsumable = Items.APPLE.getDefaultInstance().get(DataComponents.CONSUMABLE);
+        helper.assertTrue(
+                eggConsumable != null && eggConsumable.canConsume(player, Items.EGG.getDefaultInstance()),
+                "Consumable gate must permit a curative R196 food at full energy");
+        helper.assertFalse(
+                appleConsumable != null && appleConsumable.canConsume(player, Items.APPLE.getDefaultInstance()),
+                "Consumable gate must reject a non-curative R196 food at full energy");
+
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 0, 1, 1, 1, 96_000, 0));
+        SurvivalEvents.applyFood(player, Items.APPLE.getDefaultInstance());
+        SurvivalData diabeticApple = player.getData(InfXAttachments.SURVIVAL);
+        helper.assertTrue(
+                diabeticApple.satiation() == 1.0D && diabeticApple.insulinResponse() == 100_800,
+                "moderate insulin resistance must reduce sugary satiation while retaining its response");
+        helper.assertTrue(player.hasEffect(MobEffects.NAUSEA), "sugary food must apply R196 insulin nausea");
+        player.removeEffect(MobEffects.NAUSEA);
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 8, 1, 1, 1, 0, 0));
         helper.assertTrue(player.canEat(false), "depleted satiation permits eating even when nutrition is full");
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 1, 1, 1, 0, 0));

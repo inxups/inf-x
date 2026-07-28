@@ -1,5 +1,6 @@
 package com.pixulse.infx.mixin;
 
+import com.pixulse.infx.data.food.FoodIngestion;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -23,9 +24,9 @@ abstract class EggItemMixin {
             Player player,
             InteractionHand hand,
             CallbackInfoReturnable<InteractionResult> callback) {
-        if (player.getPersistentData().getBooleanOr(Network.FORCE_EGG_THROW, false)
-                || !player.canEat(false)) return;
         ItemStack egg = player.getItemInHand(hand);
+        if (player.getPersistentData().getBooleanOr(Network.FORCE_EGG_THROW, false)
+                || !FoodIngestion.canIngest(player, egg)) return;
         Consumable consumable = egg.get(DataComponents.CONSUMABLE);
         if (consumable != null) callback.setReturnValue(consumable.startConsuming(player, egg, hand));
     }

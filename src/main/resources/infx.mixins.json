@@ -10,6 +10,7 @@
     "BucketableMixin",
     "CakeBlockMixin",
     "ChunkGeneratorMixin",
+    "ConsumableMixin",
     "NoiseBasedChunkGeneratorMixin",
     "CraftingMenuMixin",
     "DifficultyInstanceMixin",
