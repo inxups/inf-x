@@ -9,7 +9,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
@@ -89,29 +88,29 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
             addOverworldSpawns(biome, spawns);
         } else if (biome.is(BiomeTags.IS_NETHER)) {
             clearNaturalSpawns(spawns);
-            add(spawns, EntityTypes.GHAST, 50, 1, 2);
-            add(spawns, EntityTypes.ZOMBIFIED_PIGLIN, 100, 1, 4);
-            add(spawns, EntityTypes.MAGMA_CUBE, 10, 4, 4);
+            add(spawns, EntityType.GHAST, 50, 1, 2);
+            add(spawns, EntityType.ZOMBIFIED_PIGLIN, 100, 1, 4);
+            add(spawns, EntityType.MAGMA_CUBE, 10, 4, 4);
             add(spawns, ModEntityTypes.EARTH_ELEMENTAL.get(), 40, 1, 1);
         } else if (biome.is(BiomeTags.IS_END)) {
             clearNaturalSpawns(spawns);
-            add(spawns, EntityTypes.ENDERMAN, 100, 4, 4);
+            add(spawns, EntityType.ENDERMAN, 100, 4, 4);
             add(spawns, ModEntityTypes.EARTH_ELEMENTAL.get(), 20, 1, 4);
         }
     }
 
     private static void addOverworldSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
-        add(spawns, EntityTypes.BAT, 100, 8, 8);
+        add(spawns, EntityType.BAT, 100, 8, 8);
         add(spawns, ModEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
         add(spawns, ModEntityTypes.NIGHTWING.get(), 4, 1, 4);
         if (biome.is(Biomes.MUSHROOM_FIELDS)) return;
 
-        add(spawns, EntityTypes.SPIDER, 80, 1, 2);
-        add(spawns, EntityTypes.ZOMBIE, 100, 1, 4);
-        add(spawns, EntityTypes.SKELETON, 100, 1, 4);
-        add(spawns, EntityTypes.CREEPER, 100, 1, 2);
-        add(spawns, EntityTypes.SLIME, 100, 1, 4);
-        add(spawns, EntityTypes.ENDERMAN, 10, 1, 4);
+        add(spawns, EntityType.SPIDER, 80, 1, 2);
+        add(spawns, EntityType.ZOMBIE, 100, 1, 4);
+        add(spawns, EntityType.SKELETON, 100, 1, 4);
+        add(spawns, EntityType.CREEPER, 100, 1, 2);
+        add(spawns, EntityType.SLIME, 100, 1, 4);
+        add(spawns, EntityType.ENDERMAN, 10, 1, 4);
         add(spawns, ModEntityTypes.GHOUL.get(), 10, 1, 1);
         add(spawns, ModEntityTypes.WIGHT.get(), 10, 1, 1);
         add(spawns, ModEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
@@ -130,9 +129,9 @@ public final class R196SpawnsBiomeModifier implements BiomeModifier {
         add(spawns, ModEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
         if (isAny(biome, JUNGLES)) add(spawns, ModEntityTypes.BLACK_WIDOW_SPIDER.get(), 10, 1, 1);
         if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP)) {
-            add(spawns, EntityTypes.SLIME, 10, 1, 1);
+            add(spawns, EntityType.SLIME, 10, 1, 1);
         }
-        add(spawns, EntityTypes.SQUID, 10, 4, 4);
+        add(spawns, EntityType.SQUID, 10, 4, 4);
         addFishSpawns(biome, spawns);
 
         if (!isAny(biome, ANIMAL_BIOMES)) return;

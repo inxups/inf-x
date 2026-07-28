@@ -5,12 +5,13 @@ import com.pixulse.infx.material.R196Material;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
 import java.util.stream.Stream;
-import net.minecraft.advancements.predicates.MinMaxBounds;
-import net.minecraft.advancements.predicates.entity.CubeMobPredicate;
-import net.minecraft.advancements.predicates.entity.EntityPredicate;
-import net.minecraft.advancements.predicates.entity.SheepPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds;
+import net.minecraft.advancements.criterion.SlimePredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.SheepPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentExactPredicate;
+import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.EntityLootSubProvider;
@@ -117,7 +118,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                         .when(LootItemEntityPropertyCondition.hasProperties(
                                                 LootContext.EntityTarget.THIS,
                                                 EntityPredicate.Builder.entity()
-                                                        .cubeMob(CubeMobPredicate.sized(MinMaxBounds.Ints.atLeast(2))))))));
+                                                        .subPredicate(SlimePredicate.sized(MinMaxBounds.Ints.atLeast(2))))))));
 
         // MITE endermen roll nextInt(2 + looting), so the normal 0-1 pearl roll
         // receives the same per-level random count increase as blaze rods.
@@ -268,15 +269,38 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         AlternativesEntry.Builder variants = AlternativesEntry.alternatives();
         for (DyeColor color : DyeColor.VALUES) {
             variants = variants.otherwise(
-                    LootItem.lootTableItem(Blocks.WOOL.pick(color))
+                    LootItem.lootTableItem(woolBlock(color))
                             .when(LootItemEntityPropertyCondition.hasProperties(
                                     LootContext.EntityTarget.THIS,
                                     EntityPredicate.Builder.entity()
-                                            .components(DataComponentExactPredicate.expect(
-                                                    DataComponents.SHEEP_COLOR, color))
-                                            .sheep(SheepPredicate.hasWool()))));
+                                            .components(DataComponentMatchers.Builder.components()
+                                                    .exact(DataComponentExactPredicate.expect(
+                                                            DataComponents.SHEEP_COLOR, color))
+                                                    .build())
+                                            .subPredicate(SheepPredicate.hasWool()))));
         }
         return LootPool.lootPool().add(variants);
+    }
+
+    private static net.minecraft.world.level.block.Block woolBlock(DyeColor color) {
+        return switch (color) {
+            case WHITE -> Blocks.WHITE_WOOL;
+            case ORANGE -> Blocks.ORANGE_WOOL;
+            case MAGENTA -> Blocks.MAGENTA_WOOL;
+            case LIGHT_BLUE -> Blocks.LIGHT_BLUE_WOOL;
+            case YELLOW -> Blocks.YELLOW_WOOL;
+            case LIME -> Blocks.LIME_WOOL;
+            case PINK -> Blocks.PINK_WOOL;
+            case GRAY -> Blocks.GRAY_WOOL;
+            case LIGHT_GRAY -> Blocks.LIGHT_GRAY_WOOL;
+            case CYAN -> Blocks.CYAN_WOOL;
+            case PURPLE -> Blocks.PURPLE_WOOL;
+            case BLUE -> Blocks.BLUE_WOOL;
+            case BROWN -> Blocks.BROWN_WOOL;
+            case GREEN -> Blocks.GREEN_WOOL;
+            case RED -> Blocks.RED_WOOL;
+            case BLACK -> Blocks.BLACK_WOOL;
+        };
     }
 
     private void drops(EntityType<?> custom, Item item, float minimum, float maximum) {

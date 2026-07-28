@@ -9,7 +9,7 @@ import com.pixulse.infx.network.R196Network;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.world.R196FluidDecayData;
 import java.util.function.Supplier;
-import net.minecraft.advancements.triggers.CriteriaTriggers;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;

@@ -15,7 +15,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementTypes;
@@ -26,7 +25,7 @@ import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.entity.animal.fish.WaterAnimal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.monster.cubemob.MagmaCube;
+import net.minecraft.world.entity.monster.MagmaCube;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -240,7 +239,7 @@ public final class R196MonsterEvents {
 
     private static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
         event.register(
-                EntityTypes.CREEPER,
+                EntityType.CREEPER,
                 null,
                 null,
                 (type, level, reason, pos, random) -> {
@@ -252,7 +251,7 @@ public final class R196MonsterEvents {
                 },
                 RegisterSpawnPlacementsEvent.Operation.AND);
         event.register(
-                EntityTypes.SPIDER,
+                EntityType.SPIDER,
                 null,
                 null,
                 (type, level, reason, pos, random) -> level.getLevel().dimension() != Level.OVERWORLD
@@ -260,7 +259,7 @@ public final class R196MonsterEvents {
                         || !level.getLevel().canSeeSky(pos),
                 RegisterSpawnPlacementsEvent.Operation.AND);
         event.register(
-                EntityTypes.SLIME,
+                EntityType.SLIME,
                 null,
                 null,
                 (type, level, reason, pos, random) -> !stoneAbove(level.getLevel(), pos),
@@ -503,7 +502,7 @@ public final class R196MonsterEvents {
                 && isWorldSpawn(event.getSpawnType())) {
             R196MonsterTactics.equipForWorldAge(level, monster);
         }
-        if (event.getEntity().getType() == EntityTypes.WITCH
+        if (event.getEntity().getType() == EntityType.WITCH
                 && event.getSpawnType() != EntitySpawnReason.STRUCTURE
                 && event.getSpawnType() != EntitySpawnReason.COMMAND
                 && event.getSpawnType() != EntitySpawnReason.SPAWN_ITEM_USE
@@ -684,11 +683,11 @@ public final class R196MonsterEvents {
         // summoned or spawn-egg witch must not retain the modern vanilla class, because that
         // class has no R196 curse lifecycle. Leave loaded entities alone to avoid silently
         // replacing persisted vanilla-witch state in existing worlds.
-        if (original.getType() == EntityTypes.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
+        if (original.getType() == EntityType.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
             return ModEntityTypes.R196_WITCH.get();
         }
         if (isWorldSpawn(original.getSpawnType())) {
-            if (original.getType() == EntityTypes.CREEPER) {
+            if (original.getType() == EntityType.CREEPER) {
                 int y = original.blockPosition().getY();
                 // MITE caps the infernal replacement odds at 50% even far below y=0.
                 if (y < 40 && original.getRandom().nextFloat() < Math.min(0.5F, Math.max(0, 40 - y) / 80.0F)) {
@@ -703,7 +702,7 @@ public final class R196MonsterEvents {
                 return ModEntityTypes.GIANT_VAMPIRE_BAT.get();
             }
         }
-        if (original.getType() == EntityTypes.SILVERFISH
+        if (original.getType() == EntityType.SILVERFISH
                 && original.getSpawnType() == EntitySpawnReason.TRIGGERED) {
             if (level.dimension() == Level.NETHER) return ModEntityTypes.NETHERSPAWN.get();
             if (level.dimension() == Underworld.LEVEL) return ModEntityTypes.HOARY_SILVERFISH.get();
@@ -830,30 +829,30 @@ public final class R196MonsterEvents {
     }
 
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
-        if (original == EntityTypes.ZOMBIE) return ModEntityTypes.R196_ZOMBIE.get();
-        if (original == EntityTypes.SKELETON) return ModEntityTypes.R196_SKELETON.get();
-        if (original == EntityTypes.SPIDER) return ModEntityTypes.R196_SPIDER.get();
-        if (original == EntityTypes.CAVE_SPIDER) return ModEntityTypes.R196_CAVE_SPIDER.get();
-        if (original == EntityTypes.CREEPER) return ModEntityTypes.R196_CREEPER.get();
-        if (original == EntityTypes.SLIME) return ModEntityTypes.R196_SLIME.get();
-        if (original == EntityTypes.ENDERMAN) return ModEntityTypes.R196_ENDERMAN.get();
-        if (original == EntityTypes.SQUID) return ModEntityTypes.R196_SQUID.get();
-        if (original == EntityTypes.COD) return ModEntityTypes.R196_COD.get();
-        if (original == EntityTypes.SALMON) return ModEntityTypes.R196_SALMON.get();
-        if (original == EntityTypes.PUFFERFISH) return ModEntityTypes.R196_PUFFERFISH.get();
-        if (original == EntityTypes.TROPICAL_FISH) return ModEntityTypes.R196_TROPICAL_FISH.get();
-        if (original == EntityTypes.WITCH) return ModEntityTypes.R196_WITCH.get();
-        if (original == EntityTypes.ZOMBIFIED_PIGLIN) return ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get();
-        if (original == EntityTypes.BLAZE) return ModEntityTypes.R196_BLAZE.get();
-        if (original == EntityTypes.GHAST) return ModEntityTypes.R196_GHAST.get();
-        if (original == EntityTypes.MAGMA_CUBE) return ModEntityTypes.MAGMA_CUBE.get();
-        if (original == EntityTypes.COW) return ModEntityTypes.R196_COW.get();
-        if (original == EntityTypes.CHICKEN) return ModEntityTypes.R196_CHICKEN.get();
-        if (original == EntityTypes.SHEEP) return ModEntityTypes.R196_SHEEP.get();
-        if (original == EntityTypes.PIG) return ModEntityTypes.R196_PIG.get();
-        if (original == EntityTypes.HORSE) return ModEntityTypes.R196_HORSE.get();
-        if (original == EntityTypes.OCELOT) return ModEntityTypes.R196_OCELOT.get();
-        if (original == EntityTypes.WOLF) return ModEntityTypes.R196_WOLF.get();
+        if (original == EntityType.ZOMBIE) return ModEntityTypes.R196_ZOMBIE.get();
+        if (original == EntityType.SKELETON) return ModEntityTypes.R196_SKELETON.get();
+        if (original == EntityType.SPIDER) return ModEntityTypes.R196_SPIDER.get();
+        if (original == EntityType.CAVE_SPIDER) return ModEntityTypes.R196_CAVE_SPIDER.get();
+        if (original == EntityType.CREEPER) return ModEntityTypes.R196_CREEPER.get();
+        if (original == EntityType.SLIME) return ModEntityTypes.R196_SLIME.get();
+        if (original == EntityType.ENDERMAN) return ModEntityTypes.R196_ENDERMAN.get();
+        if (original == EntityType.SQUID) return ModEntityTypes.R196_SQUID.get();
+        if (original == EntityType.COD) return ModEntityTypes.R196_COD.get();
+        if (original == EntityType.SALMON) return ModEntityTypes.R196_SALMON.get();
+        if (original == EntityType.PUFFERFISH) return ModEntityTypes.R196_PUFFERFISH.get();
+        if (original == EntityType.TROPICAL_FISH) return ModEntityTypes.R196_TROPICAL_FISH.get();
+        if (original == EntityType.WITCH) return ModEntityTypes.R196_WITCH.get();
+        if (original == EntityType.ZOMBIFIED_PIGLIN) return ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get();
+        if (original == EntityType.BLAZE) return ModEntityTypes.R196_BLAZE.get();
+        if (original == EntityType.GHAST) return ModEntityTypes.R196_GHAST.get();
+        if (original == EntityType.MAGMA_CUBE) return ModEntityTypes.MAGMA_CUBE.get();
+        if (original == EntityType.COW) return ModEntityTypes.R196_COW.get();
+        if (original == EntityType.CHICKEN) return ModEntityTypes.R196_CHICKEN.get();
+        if (original == EntityType.SHEEP) return ModEntityTypes.R196_SHEEP.get();
+        if (original == EntityType.PIG) return ModEntityTypes.R196_PIG.get();
+        if (original == EntityType.HORSE) return ModEntityTypes.R196_HORSE.get();
+        if (original == EntityType.OCELOT) return ModEntityTypes.R196_OCELOT.get();
+        if (original == EntityType.WOLF) return ModEntityTypes.R196_WOLF.get();
         return null;
     }
 

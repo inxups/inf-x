@@ -4,14 +4,15 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.ModEntityTypes;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.EntityType;
 
 /** Restores the vanilla semantic tags that custom replacement entity types do not inherit from their Java class. */
-final class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
+final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
     ModEntityTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider, InfiniteX.MOD_ID);
+        super(output, Registries.ENTITY_TYPE, lookupProvider, InfiniteX.MOD_ID);
     }
 
     @Override

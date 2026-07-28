@@ -15,7 +15,6 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.monster.slime.SlimeModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.entity.AbstractCubeMobRenderer;
 import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
 import net.minecraft.client.renderer.entity.ChickenRenderer;
@@ -25,6 +24,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.GhastRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.MagmaCubeRenderer;
+import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.PigRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.SheepRenderer;
@@ -49,6 +49,7 @@ import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Animal;
@@ -359,19 +360,28 @@ final class R196EntityRenderers {
      * renderer overrides {@link #getTextureLocation(SlimeRenderState)}. Rebuild the small renderer
      * with a texture-aware outer layer so both shells use the authorized MITE sheet.
      */
-    static final class SlimeTexture extends AbstractCubeMobRenderer<R196Slime, SlimeRenderState, SlimeModel> {
+    static final class SlimeTexture extends MobRenderer<R196Slime, SlimeRenderState, SlimeModel> {
         private final Identifier texture;
 
         SlimeTexture(EntityRendererProvider.Context context, R196Slime.Variant variant) {
-            super(context, new SlimeModel(context.bakeLayer(ModelLayers.SLIME)));
+            super(context, new SlimeModel(context.bakeLayer(ModelLayers.SLIME)), 0.25F);
             this.texture = textureFor(variant);
             addLayer(new MiteSlimeOuterLayer(this, context.getModelSet(), texture));
         }
 
         @Override
         protected void scale(SlimeRenderState state, PoseStack poseStack) {
-            downscaleSlightly(poseStack);
-            super.scale(state, poseStack);
+            poseStack.scale(0.999F, 0.999F, 0.999F);
+            poseStack.translate(0.0F, 0.001F, 0.0F);
+            float size = state.size;
+            float squish = state.squish / (size * 0.5F + 1.0F);
+            float width = 1.0F / (squish + 1.0F);
+            poseStack.scale(width * size, 1.0F / width * size, width * size);
+        }
+
+        @Override
+        protected float getShadowRadius(SlimeRenderState state) {
+            return state.size * 0.25F;
         }
 
         @Override
@@ -382,6 +392,13 @@ final class R196EntityRenderers {
         @Override
         public SlimeRenderState createRenderState() {
             return new SlimeRenderState();
+        }
+
+        @Override
+        public void extractRenderState(R196Slime entity, SlimeRenderState state, float partialTicks) {
+            super.extractRenderState(entity, state, partialTicks);
+            state.squish = Mth.lerp(partialTicks, entity.oSquish, entity.squish);
+            state.size = entity.getSize();
         }
 
         static Identifier textureFor(R196Slime.Variant variant) {

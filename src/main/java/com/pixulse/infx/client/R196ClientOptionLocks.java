@@ -2,6 +2,7 @@ package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.world.AllowCommandsAccess;
 import com.pixulse.infx.world.WorldCreationLockProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.OptionInstance;
@@ -59,11 +60,22 @@ public final class R196ClientOptionLocks {
     private static void enforceAllowCommands(Minecraft minecraft) {
         IntegratedServer server = minecraft.getSingleplayerServer();
         if (server == null) return;
+        boolean permissionsChanged = false;
         if (server.getWorldData().isAllowCommands() != WorldCreationLockProfile.ALLOW_COMMANDS) {
-            server.setWorldAllowCommands(WorldCreationLockProfile.ALLOW_COMMANDS);
+            // 26.1.2 stores this bit in an immutable LevelSettings record. The small
+            // PrimaryLevelData mixin supplies the same mutator exposed by later versions.
+            if (server.getWorldData() instanceof AllowCommandsAccess access) {
+                access.infx$setAllowCommands(WorldCreationLockProfile.ALLOW_COMMANDS);
+                permissionsChanged = true;
+            }
         }
-        if (server.commandsAllowedForOtherPlayers() != WorldCreationLockProfile.ALLOW_COMMANDS) {
-            server.setCommandsAllowedForOtherPlayers(WorldCreationLockProfile.ALLOW_COMMANDS);
+        if (server.getPlayerList().isAllowCommandsForAllPlayers()
+                != WorldCreationLockProfile.ALLOW_COMMANDS) {
+            server.getPlayerList().setAllowCommandsForAllPlayers(WorldCreationLockProfile.ALLOW_COMMANDS);
+            permissionsChanged = true;
+        }
+        if (permissionsChanged) {
+            server.getPlayerList().getPlayers().forEach(server.getPlayerList()::sendPlayerPermissionLevel);
         }
     }
 

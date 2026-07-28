@@ -16,13 +16,13 @@ import org.junit.jupiter.api.Test;
 class R196BlockStackLimitsTest {
     @Test
     void restoresEveryExplicitMiteStackTier() {
-        assertLimit(1, Items.FURNACE, Items.ANVIL, Items.OAK_DOOR, Items.BED.red());
+        assertLimit(1, Items.FURNACE, Items.ANVIL, Items.OAK_DOOR, Items.RED_BED);
         assertLimit(4, Items.STONE, Items.CHEST, Items.CRAFTING_TABLE, Items.DIAMOND_BLOCK);
         assertLimit(
                 8,
                 Items.OAK_PLANKS,
-                Items.WOOL.white(),
-                Items.CARPET.white(),
+                Items.WHITE_WOOL,
+                Items.WHITE_CARPET,
                 Items.STONE_PRESSURE_PLATE,
                 Items.OAK_FENCE,
                 Items.LADDER,
@@ -67,7 +67,7 @@ class R196BlockStackLimitsTest {
 
     @Test
     void keepsStricterModernSafetyLimits() {
-        assertLimitWithCurrent(1, 1, Items.SHULKER_BOX, Items.DYED_SHULKER_BOX.white());
+        assertLimitWithCurrent(1, 1, Items.SHULKER_BOX, Items.WHITE_SHULKER_BOX);
     }
 
     @Test

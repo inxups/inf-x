@@ -9,7 +9,7 @@ import java.util.Optional;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.tabs.MenuTabBar;
+import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
@@ -37,9 +37,9 @@ public final class WorldCreationLockClientEvents {
     private static void lockWorldCreation(ScreenEvent.Init.Post event) {
         if (InfiniteXTestMode.isEnabled()) return;
         if (!(event.getScreen() instanceof CreateWorldScreen screen)) return;
-        MenuTabBar tabBar = event.getListenersList().stream()
-                .filter(MenuTabBar.class::isInstance)
-                .map(MenuTabBar.class::cast)
+        TabNavigationBar tabBar = event.getListenersList().stream()
+                .filter(TabNavigationBar.class::isInstance)
+                .map(TabNavigationBar.class::cast)
                 .findFirst()
                 .orElse(null);
         if (tabBar == null) return;
@@ -79,7 +79,7 @@ public final class WorldCreationLockClientEvents {
         }
     }
 
-    static void lockWidgets(MenuTabBar tabBar) {
+    static void lockWidgets(TabNavigationBar tabBar) {
         findTab(tabBar, GAME_TAB).ifPresent(WorldCreationLockClientEvents::lockGameWidgets);
         findTab(tabBar, WORLD_TAB).ifPresent(WorldCreationLockClientEvents::lockWorldWidgets);
         if (!WorldCreationLockProfile.ALLOW_ADVANCED_CONFIGURATION) {
@@ -124,7 +124,7 @@ public final class WorldCreationLockClientEvents {
         }
     }
 
-    private static Optional<Tab> findTab(MenuTabBar tabBar, String titleKey) {
+    private static Optional<Tab> findTab(TabNavigationBar tabBar, String titleKey) {
         return tabBar.getTabs().stream()
                 .filter(tab -> hasTranslationKey(tab.getTabTitle(), titleKey))
                 .findFirst();

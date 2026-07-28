@@ -41,7 +41,7 @@ import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -370,13 +370,13 @@ final class ModWorldGen {
                 R196RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
         MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
-        addSpawn(mobs, EntityTypes.SPIDER, 80, 1, 2);
-        addSpawn(mobs, EntityTypes.CREEPER, 100, 1, 2);
-        addSpawn(mobs, EntityTypes.SLIME, 100, 1, 4);
-        addSpawn(mobs, EntityTypes.ENDERMAN, 10, 1, 4);
-        addSpawn(mobs, EntityTypes.CAVE_SPIDER, 40, 1, 2);
-        addSpawn(mobs, EntityTypes.BAT, 100, 8, 8);
-        addSpawn(mobs, EntityTypes.SQUID, 10, 4, 4);
+        addSpawn(mobs, EntityType.SPIDER, 80, 1, 2);
+        addSpawn(mobs, EntityType.CREEPER, 100, 1, 2);
+        addSpawn(mobs, EntityType.SLIME, 100, 1, 4);
+        addSpawn(mobs, EntityType.ENDERMAN, 10, 1, 4);
+        addSpawn(mobs, EntityType.CAVE_SPIDER, 40, 1, 2);
+        addSpawn(mobs, EntityType.BAT, 100, 8, 8);
+        addSpawn(mobs, EntityType.SQUID, 10, 4, 4);
         addUnderworldR196Spawns(mobs);
 
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
@@ -503,7 +503,7 @@ final class ModWorldGen {
                         OVERWORLD_MIN_Y,
                         OVERWORLD_HEIGHT,
                         OVERWORLD_HEIGHT,
-                        blocks.getOrThrow(BlockTags.INFINIBURN_OVERWORLD),
+                        BlockTags.INFINIBURN_OVERWORLD,
                         0.0F,
                         new DimensionType.MonsterSettings(UniformInt.of(0, 7), 0),
                         DimensionType.Skybox.OVERWORLD,
@@ -522,7 +522,7 @@ final class ModWorldGen {
                         UNDERWORLD_MIN_Y,
                         UNDERWORLD_HEIGHT,
                         UNDERWORLD_HEIGHT,
-                        blocks.getOrThrow(BlockTags.INFINIBURN_OVERWORLD),
+                        BlockTags.INFINIBURN_OVERWORLD,
                         0.05F,
                         new DimensionType.MonsterSettings(ConstantInt.of(7), 15),
                         DimensionType.Skybox.NONE,

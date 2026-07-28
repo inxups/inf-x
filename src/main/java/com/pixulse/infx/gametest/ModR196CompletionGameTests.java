@@ -80,7 +80,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
@@ -224,13 +224,13 @@ public final class ModR196CompletionGameTests {
                 .toStack();
         player.setItemInHand(InteractionHand.MAIN_HAND, silverSword);
 
-        var zombie = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(4, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 2, 2));
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         float before = zombie.getHealth();
         zombie.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
         helper.assertTrue(Math.abs((before - zombie.getHealth()) - 5.0F) < .001F, "silver melee must deal 125% to undead");
 
-        var cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(5, 2, 2));
+        var cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(5, 2, 2));
         before = cow.getHealth();
         cow.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
         helper.assertTrue(Math.abs((before - cow.getHealth()) - 4.0F) < .001F, "silver melee must not boost normal targets");
@@ -240,7 +240,7 @@ public final class ModR196CompletionGameTests {
                 .holder()
                 .get();
         AbstractArrow projectile = silverArrow.createArrow(level, silverArrow.getDefaultInstance(), player, null);
-        var secondZombie = helper.spawnWithNoFreeWill(EntityTypes.ZOMBIE, new BlockPos(6, 2, 2));
+        var secondZombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 2, 2));
         secondZombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         before = secondZombie.getHealth();
         secondZombie.hurtServer(level, level.damageSources().arrow(projectile, player), 4.0F);
@@ -428,7 +428,7 @@ public final class ModR196CompletionGameTests {
     }
 
     private static void underworld(GameTestHelper helper) {
-        var portalProbe = helper.spawn(EntityTypes.ARMOR_STAND, new BlockPos(1, 2, 1));
+        var portalProbe = helper.spawn(EntityType.ARMOR_STAND, new BlockPos(1, 2, 1));
         var registries = helper.getLevel().registryAccess();
         helper.assertTrue(helper.getLevel().getMinY() == -16, "Overworld bottom is Y=-16");
         var biomes = registries.lookupOrThrow(Registries.BIOME);
@@ -1057,7 +1057,7 @@ public final class ModR196CompletionGameTests {
         assertBehaviorHunger(helper, player, 0.2D, "a sprint jump uses the larger R196 cost");
         player.setSprinting(false);
 
-        Cow cow = helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(3, 2, 1));
+        Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 2, 1));
         resetBehaviorHunger(player);
         NeoForge.EVENT_BUS.post(new AttackEntityEvent(player, cow));
         assertBehaviorHunger(helper, player, 0.075D, "attacking uses the R196 endurance action cost");
@@ -1139,7 +1139,7 @@ public final class ModR196CompletionGameTests {
         assertBehaviorHunger(helper, player, 0.0025D, "drawing a bow charges every held tick");
         player.stopUsingItem();
 
-        var boat = helper.spawn(EntityTypes.OAK_BOAT, new BlockPos(1, 2, 2));
+        var boat = helper.spawn(EntityType.OAK_BOAT, new BlockPos(1, 2, 2));
         player.startRiding(boat, true, false);
         player.setLastClientInput(new Input(true, false, false, false, false, false, false));
         resetBehaviorHunger(player);
@@ -1196,7 +1196,7 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(owner.gameMode.destroyBlock(helper.absolutePos(safePos)),
                 "MITE strongbox owners can carry their safe by hand");
         List<ItemEntity> ownerSafeDrops = helper.getLevel().getEntities(
-                EntityTypes.ITEM,
+                EntityType.ITEM,
                 new AABB(helper.absolutePos(safePos)).inflate(2.0),
                 entity -> entity.getItem().is(ModBlocks.COPPER_SAFE.get().asItem()));
         helper.assertTrue(ownerSafeDrops.size() == 1,
@@ -1232,7 +1232,7 @@ public final class ModR196CompletionGameTests {
         helper.assertTrue(
                 helper.getLevel()
                         .getEntities(
-                                EntityTypes.ITEM,
+                                EntityType.ITEM,
                                 new AABB(helper.absolutePos(safePos)).inflate(2.0),
                                 entity -> entity.getItem().is(ModBlocks.COPPER_SAFE.get().asItem()))
                         .isEmpty(),
@@ -1461,31 +1461,31 @@ public final class ModR196CompletionGameTests {
         assertButcheringDrop(
                 helper,
                 player,
-                helper.spawnWithNoFreeWill(EntityTypes.COW, new BlockPos(2, 2, 2)),
+                helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 2, 2)),
                 Items.BEEF,
                 "cow");
         assertButcheringDrop(
                 helper,
                 player,
-                helper.spawnWithNoFreeWill(EntityTypes.PIG, new BlockPos(3, 2, 2)),
+                helper.spawnWithNoFreeWill(EntityType.PIG, new BlockPos(3, 2, 2)),
                 Items.PORKCHOP,
                 "pig");
         assertButcheringDrop(
                 helper,
                 player,
-                helper.spawnWithNoFreeWill(EntityTypes.SHEEP, new BlockPos(4, 2, 2)),
+                helper.spawnWithNoFreeWill(EntityType.SHEEP, new BlockPos(4, 2, 2)),
                 Items.MUTTON,
                 "sheep");
         assertButcheringDrop(
                 helper,
                 player,
-                helper.spawnWithNoFreeWill(EntityTypes.HORSE, new BlockPos(5, 2, 2)),
+                helper.spawnWithNoFreeWill(EntityType.HORSE, new BlockPos(5, 2, 2)),
                 Items.BEEF,
                 "horse");
         assertButcheringDrop(
                 helper,
                 player,
-                helper.spawnWithNoFreeWill(EntityTypes.SPIDER, new BlockPos(6, 2, 2)),
+                helper.spawnWithNoFreeWill(EntityType.SPIDER, new BlockPos(6, 2, 2)),
                 Items.SPIDER_EYE,
                 "spider");
 
@@ -1763,7 +1763,7 @@ public final class ModR196CompletionGameTests {
         assertStackLimit(helper, 1, Items.FURNACE);
         assertStackLimit(helper, 1, Items.ANVIL);
         assertStackLimit(helper, 1, Items.OAK_DOOR);
-        assertStackLimit(helper, 1, Items.BED.red());
+        assertStackLimit(helper, 1, Items.RED_BED);
         assertStackLimit(helper, 1, Items.BLAST_FURNACE);
         assertStackLimit(helper, 1, Items.SMOKER);
 
@@ -1774,8 +1774,8 @@ public final class ModR196CompletionGameTests {
         assertStackLimit(helper, 4, Items.CRAFTER);
 
         assertStackLimit(helper, 8, Items.OAK_PLANKS);
-        assertStackLimit(helper, 8, Items.WOOL.white());
-        assertStackLimit(helper, 8, Items.CARPET.white());
+        assertStackLimit(helper, 8, Items.WHITE_WOOL);
+        assertStackLimit(helper, 8, Items.WHITE_CARPET);
         assertStackLimit(helper, 8, Items.STONE_PRESSURE_PLATE);
         assertStackLimit(helper, 8, Items.OAK_FENCE);
         assertStackLimit(helper, 8, Items.LADDER);
@@ -1861,7 +1861,7 @@ public final class ModR196CompletionGameTests {
         helper.setBlock(bush.below(2), Blocks.STONE);
         helper.setBlock(bush.below(), ModBlocks.NETHER_GRAVEL.get());
         helper.setBlock(bush, ModBlocks.WITHERWOOD.get());
-        Cow cow = helper.spawnWithNoFreeWill(EntityTypes.COW, bush);
+        Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, bush);
         cow.applyEffectsFromBlocks(cow.position(), cow.position());
         helper.assertTrue(
                 cow.hasEffect(MobEffects.WITHER)

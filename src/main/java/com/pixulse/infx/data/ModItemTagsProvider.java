@@ -11,6 +11,7 @@ import com.pixulse.infx.tag.ModTags;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagAppender;
 import net.minecraft.resources.ResourceKey;
@@ -20,11 +21,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.data.ItemTagsProvider;
 
-final class ModItemTagsProvider extends ItemTagsProvider {
+final class ModItemTagsProvider extends KeyTagsProvider<Item> {
     ModItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider, InfiniteX.MOD_ID);
+        super(output, Registries.ITEM, lookupProvider, InfiniteX.MOD_ID);
     }
 
     @Override
@@ -193,7 +193,7 @@ final class ModItemTagsProvider extends ItemTagsProvider {
 
     private void addRepairTags() {
         for (R196Material material : R196Material.values()) {
-            TagAppender<Item> repairs = tag(ModTags.Items.repairMaterial(material));
+            TagAppender<ResourceKey<Item>, Item> repairs = tag(ModTags.Items.repairMaterial(material));
             switch (material) {
                 case LEATHER -> repairs.add(itemKey(Items.LEATHER));
                 case WOOD -> repairs.addTag(ItemTags.PLANKS);

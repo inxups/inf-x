@@ -5,7 +5,6 @@ import com.pixulse.infx.entity.R196Livestock;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.cow.AbstractCow;
@@ -61,13 +60,13 @@ public final class R196ManureEvents {
 
     /** Test helper matching vanilla entity types used by unit tests. */
     static int interval(EntityType<?> type) {
-        if (type == EntityTypes.COW || type == EntityTypes.MOOSHROOM) {
+        if (type == EntityType.COW || type == EntityType.MOOSHROOM) {
             return 24_000;
         }
-        if (type == EntityTypes.PIG || type == EntityTypes.SHEEP) {
+        if (type == EntityType.PIG || type == EntityType.SHEEP) {
             return 48_000;
         }
-        if (type == EntityTypes.CHICKEN) {
+        if (type == EntityType.CHICKEN) {
             return 384_000;
         }
         return 0;

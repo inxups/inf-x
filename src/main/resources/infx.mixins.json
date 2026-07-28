@@ -35,6 +35,7 @@
     "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
     "PlayerWaterfallSwimMixin",
+    "PrimaryLevelDataMixin",
     "LevelAccessorMixin",
     "RaidMixin",
     "ServerLevelSleepMixin",

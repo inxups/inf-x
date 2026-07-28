@@ -10,7 +10,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
-import net.minecraft.world.level.block.entity.BlockEntityTypes;
 
 public final class ModBlockEntityTypes {
     private static final DeferredRegister<BlockEntityType<?>> TYPES =
@@ -57,7 +56,7 @@ public final class ModBlockEntityTypes {
 
     private static void addVanillaBlockEntityBlocks(BlockEntityTypeAddBlocksEvent event) {
         event.modify(
-                BlockEntityTypes.ENCHANTING_TABLE,
+                BlockEntityType.ENCHANTING_TABLE,
                 ModBlocks.EMERALD_ENCHANTING_TABLE.get(),
                 ModBlocks.DIAMOND_ENCHANTING_TABLE.get());
     }
