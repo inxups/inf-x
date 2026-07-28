@@ -112,6 +112,12 @@ public final class SurvivalEvents {
     @SubscribeEvent
     public static void onClone(PlayerEvent.Clone event) {
         if (event.getOriginal() instanceof ServerPlayer original) ACTIVITIES.remove(original);
+        if (event.isWasDeath()) {
+            SurvivalData afterDeath = event.getOriginal()
+                    .getData(InfXAttachments.SURVIVAL)
+                    .resetFoodAfterDeath();
+            event.getEntity().setData(InfXAttachments.SURVIVAL, afterDeath);
+        }
         recalculatePlayerLimits(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer player) {
             ACTIVITIES.put(player, new PlayerActivity(MovementStats.capture(player)));

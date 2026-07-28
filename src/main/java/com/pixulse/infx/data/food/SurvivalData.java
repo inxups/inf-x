@@ -98,7 +98,31 @@ public record SurvivalData(
 
     public static SurvivalData initial() {
         return new SurvivalData(
-                6.0D, 6.0D, NUTRIENT_CAP, NUTRIENT_CAP, NUTRIENT_CAP, 0, 0.0D, 0.0D, 0.0D, 0.0D);
+                SurvivalRules.INITIAL_CAP,
+                SurvivalRules.INITIAL_CAP,
+                NUTRIENT_CAP,
+                NUTRIENT_CAP,
+                NUTRIENT_CAP,
+                0,
+                0.0D,
+                0.0D,
+                0.0D,
+                0.0D);
+    }
+
+    /** Preserves long-term nutrition while resetting transient food state after player death. */
+    public SurvivalData resetFoodAfterDeath() {
+        return new SurvivalData(
+                SurvivalRules.INITIAL_CAP,
+                SurvivalRules.INITIAL_CAP,
+                protein,
+                phytonutrients,
+                essentialFats,
+                insulinResponse,
+                0.0D,
+                0.0D,
+                0.0D,
+                0.0D);
     }
 
     public SurvivalData clamp(double foodCap) {

@@ -19,10 +19,13 @@ public final class InfXAttachments {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, InfiniteX.MOD_ID);
 
+    /**
+     * Player metabolism state. Death cloning is handled by {@code SurvivalEvents} so transient
+     * food state is reset while long-term nutrition remains.
+     */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<SurvivalData>> SURVIVAL =
             ATTACHMENTS.register("survival", () -> AttachmentType.builder(SurvivalData::initial)
                     .serialize(SurvivalData.CODEC.fieldOf("survival"))
-                    .copyOnDeath()
                     .sync((holder, player) -> holder == player, SurvivalData.STREAM_CODEC)
                     .build());
 
