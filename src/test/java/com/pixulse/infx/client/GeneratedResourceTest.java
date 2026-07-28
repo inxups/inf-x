@@ -206,6 +206,30 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void emeraldEnchantingTableModelUsesImportedMiteTextures() throws Exception {
+        JsonObject model = json(GENERATED.resolve("assets/infx/models/block/emerald_enchanting_table.json"));
+        JsonObject textures = model.getAsJsonObject("textures");
+        JsonObject blockState = json(GENERATED.resolve("assets/infx/blockstates/emerald_enchanting_table.json"));
+        assertAll(
+                () -> assertEquals("minecraft:block/enchanting_table", model.get("parent").getAsString()),
+                () -> assertEquals(
+                        "infx:block/emerald_enchanting_table_side",
+                        textures.get("particle").getAsString()),
+                () -> assertEquals(
+                        "infx:block/emerald_enchanting_table_side",
+                        textures.get("side").getAsString()),
+                () -> assertEquals(
+                        "infx:block/emerald_enchanting_table_top",
+                        textures.get("top").getAsString()),
+                () -> assertEquals(
+                        "infx:block/emerald_enchanting_table",
+                        blockState.getAsJsonObject("variants")
+                                .getAsJsonObject("")
+                                .get("model")
+                                .getAsString()));
+    }
+
+    @Test
     void everyCatalogItemHasDefinitionModelAndTwoTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -1946,6 +1970,8 @@ class GeneratedResourceTest {
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
         assertTrue(destinations.removeIf(path -> path.matches("textures/block/blueberry_bush(_picked)?\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/emerald_enchanting_table_(side|top)\\.png")));
         assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));

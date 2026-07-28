@@ -231,6 +231,8 @@ done
 sync resource-pack blocks/runegate.png block/runegate.png
 sync resource-pack blocks/runegate.png.mcmeta block/runegate.png.mcmeta
 
+sync resource-pack blocks/emerald_enchanting_table_side.png block/emerald_enchanting_table_side.png
+sync resource-pack blocks/emerald_enchanting_table_top.png block/emerald_enchanting_table_top.png
 sync resource-pack blocks/crafting_table/flint/top.png block/flint_workbench_top.png
 sync resource-pack blocks/crafting_table/obsidian/top.png block/obsidian_workbench_top.png
 for material in copper silver gold iron ancient_metal mithril adamantium; do
@@ -354,7 +356,7 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 575 ]] || { echo "Expected 575 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 577 ]] || { echo "Expected 577 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

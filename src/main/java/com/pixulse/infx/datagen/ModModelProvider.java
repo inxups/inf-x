@@ -81,6 +81,12 @@ final class ModModelProvider extends ModelProvider {
             Optional.empty(),
             TextureSlot.PARTICLE,
             PORTAL);
+    private static final ModelTemplate MITE_EMERALD_ENCHANTING_TABLE_MODEL = new ModelTemplate(
+            Optional.of(Identifier.withDefaultNamespace("block/enchanting_table")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            TextureSlot.TOP,
+            TextureSlot.SIDE);
     ModModelProvider(PackOutput output) {
         super(output, InfiniteX.MOD_ID);
     }
@@ -161,10 +167,21 @@ final class ModModelProvider extends ModelProvider {
         generateRuneStone(blockModels, itemModels, InfXBlocks.MITHRIL_RUNE_STONE.value(), "mithril");
         generateRuneStone(blockModels, itemModels, InfXBlocks.ADAMANTIUM_RUNE_STONE.value(), "adamantium");
         InfXBlocks.ENCHANTING_TABLES.forEach(table -> {
-            var model = BlockModelGenerators.plainVariant(
-                    ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
-            blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(table.value(), model));
-            blockModels.registerSimpleItemModel(table.value(), ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
+            Identifier model = table == InfXBlocks.EMERALD_ENCHANTING_TABLE
+                    ? MITE_EMERALD_ENCHANTING_TABLE_MODEL.create(
+                            ModelLocationUtils.getModelLocation(table.value()),
+                            new TextureMapping()
+                                    .put(TextureSlot.PARTICLE, new Material(
+                                            InfiniteX.id("block/emerald_enchanting_table_side")))
+                                    .put(TextureSlot.TOP, new Material(
+                                            InfiniteX.id("block/emerald_enchanting_table_top")))
+                                    .put(TextureSlot.SIDE, new Material(
+                                            InfiniteX.id("block/emerald_enchanting_table_side"))),
+                            blockModels.modelOutput)
+                    : ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE);
+            blockModels.blockStateOutput.accept(
+                    MultiVariantGenerator.dispatch(table.value(), BlockModelGenerators.plainVariant(model)));
+            blockModels.registerSimpleItemModel(table.value(), model);
         });
         InfXBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
         generateUnderworldPortal(blockModels);
