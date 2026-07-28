@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 新增结构战利品箱奖励统计
+
+- 新增 Minecraft 26.1.2 基线下的结构战利品箱审计文档，汇总保留/禁用的 56 张原版 `chests/` 表、R196 进度过滤、马铠与锈铁追加池、Underworld 远古金属池、创世之书条件，以及村庄铁保险箱的固定奖励。
+
 ### 迁移至 Minecraft/NeoForge 26.1.2
 
 - 将构建目标、版本范围和 NeoForge 依赖切换到 Minecraft 26.1.2 / NeoForge 26.1.2.87，并同步 JEI 29.6 客户端兼容范围。
