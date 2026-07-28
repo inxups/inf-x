@@ -572,7 +572,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("effect.infx.malnutrition", locale == Locale.EN_US ? "Malnutrition" : "营养不良");
         add("effect.infx.witch_curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
         add("curse.infx.unknown", locale == Locale.EN_US ? "Unknown Effect" : "未知效果");
-        add("hud.infx.curse", locale == Locale.EN_US ? "Witch's Curse: %s" : "女巫的诅咒：%s");
+        add("hud.infx.curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
         add("message.infx.curse.realized", locale == Locale.EN_US ? "You have been cursed!" : "你已经被诅咒了！");
         add("message.infx.curse.learned", locale == Locale.EN_US ? "Curse revealed: %s" : "诅咒效果已揭示：%s");
         add("message.infx.curse.lifted", locale == Locale.EN_US ? "Your curse has been lifted!" : "你的诅咒解除了！");
