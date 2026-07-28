@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-/** Persistent and synchronized R196 player metabolism state. */
+/** Persistent and synchronized R196 player metabolism state stored by {@code SURVIVAL}. */
 public record SurvivalData(
         double satiation,
         double nutrition,

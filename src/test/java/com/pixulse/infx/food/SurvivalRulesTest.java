@@ -2,6 +2,7 @@ package com.pixulse.infx.food;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.mojang.serialization.JsonOps;
 import com.pixulse.infx.data.food.FoodIngestion;
 import com.pixulse.infx.data.food.FoodProfile;
 import com.pixulse.infx.data.food.SurvivalData;
@@ -9,6 +10,27 @@ import com.pixulse.infx.data.food.SurvivalRules;
 import org.junit.jupiter.api.Test;
 
 class SurvivalRulesTest {
+    @Test
+    void attachmentDefaultStartsWithR196SurvivalState() {
+        SurvivalData data = SurvivalData.initial();
+
+        assertEquals(6.0D, data.satiation());
+        assertEquals(6.0D, data.nutrition());
+        assertEquals(SurvivalData.NUTRIENT_CAP, data.protein());
+        assertEquals(SurvivalData.NUTRIENT_CAP, data.phytonutrients());
+        assertEquals(SurvivalData.NUTRIENT_CAP, data.essentialFats());
+        assertEquals(0, data.insulinResponse());
+    }
+
+    @Test
+    void attachmentDataCodecPersistsAllMetabolicProgress() {
+        SurvivalData expected = new SurvivalData(3.5D, 2.25D, 1, 2, 3, 4, 0.5D, 0.6D, 0.7D, 0.8D);
+
+        var encoded = SurvivalData.CODEC.encodeStart(JsonOps.INSTANCE, expected).getOrThrow();
+
+        assertEquals(expected, SurvivalData.CODEC.parse(JsonOps.INSTANCE, encoded).getOrThrow());
+    }
+
     @Test
     void capsStartAtThreeIconsAndGrowEveryFiveLevels() {
         assertEquals(6.0D, SurvivalRules.healthCap(0));

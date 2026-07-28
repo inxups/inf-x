@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### 使用 Attachment 保存玩家生存状态
+
+- 移除旧的玩家 `PersistentData` 初始化标记；`SURVIVAL` Attachment 的默认值现在是生存数据唯一的初始化与持久化来源。
+- 登录与死亡克隆继续通过 Attachment 的序列化、仅持有者同步和 `copyOnDeath` 机制恢复状态，不再写入冗余 NBT 标记。
+
 ### 添加 MITE 蓝莓丛
 
 - 新增可采摘、可再生的蓝莓丛；成熟后右键固定产出 1 个蓝莓并回到未成熟阶段，骨粉每次推进 1–2 个生长阶段。

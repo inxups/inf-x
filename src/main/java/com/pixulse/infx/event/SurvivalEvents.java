@@ -48,7 +48,6 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 /** Applies player caps, metabolism, long-term nutrition and slow natural healing. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class SurvivalEvents {
-    private static final String INITIALIZED = "infx_r196_survival_initialized";
     private static final double STARVATION_PROGRESS_PER_TICK = 0.002D;
     private static final net.minecraft.resources.Identifier EMPTY_AIR_SPEED =
             InfiniteX.id("empty_air_speed");
@@ -101,14 +100,7 @@ public final class SurvivalEvents {
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        if (!player.getPersistentData().getBoolean(INITIALIZED).orElse(false)) {
-            player.setData(InfXAttachments.SURVIVAL, SurvivalData.initial());
-            player.getPersistentData().putBoolean(INITIALIZED, true);
-            player.getFoodData().setFoodLevel((int) SurvivalRules.INITIAL_CAP);
-            player.getFoodData().setSaturation((float) SurvivalRules.INITIAL_CAP);
-        }
         recalculatePlayerLimits(player);
-        mirrorFoodData(player, player.getData(InfXAttachments.SURVIVAL));
         ACTIVITIES.put(player, new PlayerActivity(MovementStats.capture(player)));
     }
 
@@ -120,7 +112,6 @@ public final class SurvivalEvents {
     @SubscribeEvent
     public static void onClone(PlayerEvent.Clone event) {
         if (event.getOriginal() instanceof ServerPlayer original) ACTIVITIES.remove(original);
-        event.getEntity().getPersistentData().putBoolean(INITIALIZED, true);
         recalculatePlayerLimits(event.getEntity());
         if (event.getEntity() instanceof ServerPlayer player) {
             ACTIVITIES.put(player, new PlayerActivity(MovementStats.capture(player)));
@@ -386,9 +377,10 @@ public final class SurvivalEvents {
 
     public static void recalculatePlayerLimits(Player player) {
         var maxHealth = player.getAttribute(Attributes.MAX_HEALTH);
-        if (maxHealth == null) return;
-        maxHealth.setBaseValue(SurvivalRules.healthCap(player.experienceLevel));
-        if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
+        if (maxHealth != null) {
+            maxHealth.setBaseValue(SurvivalRules.healthCap(player.experienceLevel));
+            if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
+        }
         double foodCap = SurvivalRules.foodCap(player.experienceLevel);
         SurvivalData clamped = player.getData(InfXAttachments.SURVIVAL).clamp(foodCap);
         player.setData(InfXAttachments.SURVIVAL, clamped);
