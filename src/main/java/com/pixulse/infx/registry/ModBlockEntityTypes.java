@@ -1,9 +1,9 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
+import com.pixulse.infx.block.entity.MiteFurnaceBlockEntity;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
-import com.pixulse.infx.block.entity.R196SafeBlockEntity;
+import com.pixulse.infx.block.entity.SafeBlockEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -15,9 +15,9 @@ public final class ModBlockEntityTypes {
     private static final DeferredRegister<BlockEntityType<?>> TYPES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, InfiniteX.MOD_ID);
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<R196FurnaceBlockEntity>> FURNACE =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MiteFurnaceBlockEntity>> FURNACE =
             TYPES.register("furnace", () -> new BlockEntityType<>(
-                    R196FurnaceBlockEntity::new,
+                    MiteFurnaceBlockEntity::new,
                     ModBlocks.CLAY_FURNACE.get(),
                     ModBlocks.LARGE_CLAY_OVEN.get(),
                     ModBlocks.SANDSTONE_FURNACE.get(),
@@ -36,9 +36,9 @@ public final class ModBlockEntityTypes {
                     ModBlocks.MITHRIL_ANVIL.get(),
                     ModBlocks.ADAMANTIUM_ANVIL.get()));
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<R196SafeBlockEntity>> SAFE =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SafeBlockEntity>> SAFE =
             TYPES.register("safe", () -> new BlockEntityType<>(
-                    R196SafeBlockEntity::new,
+                    SafeBlockEntity::new,
                     ModBlocks.COPPER_SAFE.get(),
                     ModBlocks.SILVER_SAFE.get(),
                     ModBlocks.GOLD_SAFE.get(),

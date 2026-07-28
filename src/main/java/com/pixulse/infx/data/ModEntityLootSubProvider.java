@@ -1,7 +1,7 @@
 package com.pixulse.infx.data;
 
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
 import java.util.stream.Stream;
@@ -73,7 +73,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
             drops(type.get(), Items.BONE, 0.0F, 2.0F);
         }
 
-        // R196Spider emits its actual remaining web stock on player death. The data table
+        // MiteSpider emits its actual remaining web stock on player death. The data table
         // retains the independent one-in-three spider eye roll; phase spiders have no webs.
         spiderDrops(ModEntityTypes.R196_SPIDER.get());
         spiderDrops(ModEntityTypes.R196_CAVE_SPIDER.get());
@@ -91,7 +91,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                         .withPool(killedByPlayerPool(Items.GUNPOWDER, 0.0F, 2.0F))
                         .withPool(creeperMusicDiscPool()));
         // EntityInfernalCreeper's nested count, Looting and non-player reduction rolls are
-        // procedural, so R196Creeper performs the powder rolls at death. Its inherited skeleton
+        // procedural, so MiteCreeper performs the powder rolls at death. Its inherited skeleton
         // disc drop remains data-driven here.
         add(
                 ModEntityTypes.INFERNAL_CREEPER.get(),
@@ -246,7 +246,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         }
         pool.add(LootItem.lootTableItem(ModItems.ONION.get()).setWeight(6));
         pool.add(LootItem.lootTableItem(
-                        ModItems.catalog().equipment(R196Material.FLINT, R196EquipmentType.KNIFE).holder())
+                        ModItems.catalog().equipment(MiteMaterial.FLINT, EquipmentType.KNIFE).holder())
                 .setWeight(6));
         pool.add(LootItem.lootTableItem(Items.STICK).setWeight(12));
         pool.add(potionEntry(Items.POTION, Potions.FIRE_RESISTANCE));

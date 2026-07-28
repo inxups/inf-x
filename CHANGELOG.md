@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### 重构 R196 类型命名
+
+- 使用 IDEA 的 Rename Refactoring 移除项目类型名中的 `R196` 前缀，并同步更新生产代码、测试代码与 GameTest 的全部代码引用。
+- 与 Minecraft 原版同名的实体、物品、方块和 API 类型改为 `Mite*` 命名，例如 `MiteCow`、`MiteBowItem` 与 `MiteFurnaceBlock`，避免与原版类型冲突。
+- 将通用的 `BucketHelper` 归入 `com.pixulse.infx.util`；领域事件、规则和实体继续保留在各自的功能包。
+
 ### 迁移至 Minecraft/NeoForge 26.1.2
 
 - 将构建目标、版本范围和 NeoForge 依赖切换到 Minecraft 26.1.2 / NeoForge 26.1.2.87，并同步 JEI 29.6 客户端兼容范围。

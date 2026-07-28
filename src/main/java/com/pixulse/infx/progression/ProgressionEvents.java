@@ -1,15 +1,13 @@
 package com.pixulse.infx.progression;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.entity.R196Mob;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModEntityTypes;
 import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.world.Underworld;
-import com.pixulse.infx.world.R196CreationBooks;
-import java.util.List;
+import com.pixulse.infx.world.CreationBooks;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -106,9 +104,9 @@ public final class ProgressionEvents {
         }
         var entry = ModItems.catalog().equipment(crafted);
         if (entry != null
-                && entry.key().material() == R196Material.ADAMANTIUM
-                && (entry.key().type() == R196EquipmentType.PICKAXE
-                        || entry.key().type() == R196EquipmentType.WAR_HAMMER)) {
+                && entry.key().material() == MiteMaterial.ADAMANTIUM
+                && (entry.key().type() == EquipmentType.PICKAXE
+                        || entry.key().type() == EquipmentType.WAR_HAMMER)) {
             award(player, "crystal_breaker", "crafted_crystal_tool");
         }
     }
@@ -206,11 +204,11 @@ public final class ProgressionEvents {
     }
 
     static int creationBookIndex(String author, String title) {
-        return R196CreationBooks.index(author, title);
+        return CreationBooks.index(author, title);
     }
 
     static boolean allCreationBooksRead(int mask) {
-        return R196CreationBooks.complete(mask);
+        return CreationBooks.complete(mask);
     }
 
     private static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {

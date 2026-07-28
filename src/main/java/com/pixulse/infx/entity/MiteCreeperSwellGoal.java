@@ -7,9 +7,9 @@ import net.minecraft.world.entity.player.Player;
 
 /** R196 ordinary and infernal creeper ignition/maintenance windows. */
 final class MiteCreeperSwellGoal extends Goal {
-    private final R196Creeper creeper;
+    private final MiteCreeper creeper;
 
-    MiteCreeperSwellGoal(R196Creeper creeper) {
+    MiteCreeperSwellGoal(MiteCreeper creeper) {
         this.creeper = creeper;
         setFlags(EnumSet.of(Flag.MOVE));
     }
@@ -22,7 +22,7 @@ final class MiteCreeperSwellGoal extends Goal {
         LivingEntity candidate = creeper.getTarget();
         return candidate != null
                 && candidate.isAlive()
-                && creeper.distanceToSqr(candidate) < R196Creeper.swellStartDistanceSqr(
+                && creeper.distanceToSqr(candidate) < MiteCreeper.swellStartDistanceSqr(
                         creeper.variant(), creeper.getNavigation().isDone(), creeper.healthFraction());
     }
 
@@ -42,7 +42,7 @@ final class MiteCreeperSwellGoal extends Goal {
     }
 
     private boolean hasVisiblePlayerInRange() {
-        double distanceSqr = R196Creeper.swellContinueDistanceSqr(creeper.variant(), creeper.healthFraction());
+        double distanceSqr = MiteCreeper.swellContinueDistanceSqr(creeper.variant(), creeper.healthFraction());
         for (Player player : creeper.level().players()) {
             if (player.isAlive()
                     && !player.isSpectator()

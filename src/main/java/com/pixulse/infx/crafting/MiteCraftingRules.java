@@ -1,6 +1,6 @@
 package com.pixulse.infx.crafting;
 
-import com.pixulse.infx.progression.R196Experience;
+import com.pixulse.infx.progression.Experience;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -137,7 +137,7 @@ public final class MiteCraftingRules {
 
     /** R196's per-level crafting reduction: +2% per displayed level (negative debt slows craft). */
     public static double levelModifier(int level) {
-        int capped = Math.clamp(level, -R196Experience.MAX_DEBT_LEVEL, R196Experience.MAX_DISPLAY_LEVEL);
+        int capped = Math.clamp(level, -Experience.MAX_DEBT_LEVEL, Experience.MAX_DISPLAY_LEVEL);
         return capped * 0.02D;
     }
 

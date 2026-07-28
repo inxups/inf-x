@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.harvest.R196PlantHardness;
+import com.pixulse.infx.harvest.PlantHardness;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -20,8 +20,8 @@ public abstract class BlockBehaviourPropertiesMixin {
     private void infx$applyMitePlantHardness(
             ResourceKey<Block> id,
             CallbackInfoReturnable<BlockBehaviour.Properties> callback) {
-        if (R196PlantHardness.appliesTo(id.identifier())) {
-            ((BlockBehaviour.Properties) (Object) this).destroyTime(R196PlantHardness.destroyTime(id.identifier()));
+        if (PlantHardness.appliesTo(id.identifier())) {
+            ((BlockBehaviour.Properties) (Object) this).destroyTime(PlantHardness.destroyTime(id.identifier()));
         }
     }
 }

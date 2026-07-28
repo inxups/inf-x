@@ -4,9 +4,9 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.TimedShapedRecipe;
 import com.pixulse.infx.crafting.TimedShapelessRecipe;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.item.R196BucketItem;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.tag.ModTags;
@@ -567,7 +567,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 315.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.HATCHET),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.HATCHET),
                 1,
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
@@ -580,7 +580,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 315.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.SHOVEL),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.SHOVEL),
                 1,
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
@@ -593,7 +593,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 795.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.AXE),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.AXE),
                 1,
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
@@ -606,7 +606,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 105.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.WOOD, R196EquipmentType.CUDGEL),
+                equipment(MiteMaterial.WOOD, EquipmentType.CUDGEL),
                 1,
                 Map.of(
                         'P', ingredient(ItemTags.PLANKS),
@@ -618,7 +618,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 185.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.WOOD, R196EquipmentType.CLUB),
+                equipment(MiteMaterial.WOOD, EquipmentType.CLUB),
                 1,
                 Map.of(
                         'P', ingredient(ItemTags.PLANKS),
@@ -630,7 +630,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 150.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.FLINT, R196EquipmentType.KNIFE),
+                equipment(MiteMaterial.FLINT, EquipmentType.KNIFE),
                 1,
                 Map.of(
                         'F', Ingredient.of(Items.FLINT),
@@ -643,7 +643,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 290.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.KNIFE),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.KNIFE),
                 1,
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
@@ -656,7 +656,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 150.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(R196Material.WOOD, R196EquipmentType.BOW),
+                equipment(MiteMaterial.WOOD, EquipmentType.BOW),
                 1,
                 Map.of(
                         'S', Ingredient.of(Items.STICK),
@@ -664,13 +664,13 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of(" SB", "S B", " SB"));
         addMetalBow(
                 "ancient_metal",
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1750.0F,
                 ModItems.ANCIENT_METAL_INGOT);
         addMetalBow(
                 "mithril",
-                R196Material.MITHRIL,
+                MiteMaterial.MITHRIL,
                 BenchTier.MITHRIL,
                 6550.0F,
                 ModItems.MITHRIL_INGOT);
@@ -830,125 +830,125 @@ final class ModRecipeProvider extends RecipeProvider {
                 ModItems.IRON_AXE,
                 ModItems.IRON_HOE,
                 ModItems.IRON_SWORD);
-        addCatalogCoreMetalTools("silver", R196Material.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
-        addCatalogCoreMetalTools("gold", R196Material.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+        addCatalogCoreMetalTools("silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
+        addCatalogCoreMetalTools("gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
         addCatalogCoreMetalTools(
                 "ancient_metal",
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
                 ModItems.ANCIENT_METAL_INGOT);
         addCatalogCoreMetalTools(
-                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
         addCatalogCoreMetalTools(
                 "adamantium",
-                R196Material.ADAMANTIUM,
+                MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F,
                 ModItems.ADAMANTIUM_INGOT);
         addCatalogSpecialMetalTools(
-                "copper", R196Material.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
+                "copper", MiteMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
         addCatalogSpecialMetalTools(
-                "silver", R196Material.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
+                "silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
         addCatalogSpecialMetalTools(
-                "gold", R196Material.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+                "gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
         addCatalogSpecialMetalTools(
-                "iron", R196Material.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
+                "iron", MiteMaterial.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
         addCatalogSpecialMetalTools(
                 "ancient_metal",
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
                 ModItems.ANCIENT_METAL_INGOT);
         addCatalogSpecialMetalTools(
-                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
         addCatalogSpecialMetalTools(
                 "adamantium",
-                R196Material.ADAMANTIUM,
+                MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F,
                 ModItems.ADAMANTIUM_INGOT);
-        addMetalDagger("copper", R196Material.COPPER, BenchTier.COPPER, 425.0F, Items.COPPER_INGOT);
-        addMetalDagger("silver", R196Material.SILVER, BenchTier.COPPER, 425.0F, ModItems.SILVER_INGOT);
-        addMetalDagger("gold", R196Material.GOLD, BenchTier.COPPER, 425.0F, Items.GOLD_INGOT);
-        addMetalDagger("iron", R196Material.IRON, BenchTier.IRON, 825.0F, Items.IRON_INGOT);
+        addMetalDagger("copper", MiteMaterial.COPPER, BenchTier.COPPER, 425.0F, Items.COPPER_INGOT);
+        addMetalDagger("silver", MiteMaterial.SILVER, BenchTier.COPPER, 425.0F, ModItems.SILVER_INGOT);
+        addMetalDagger("gold", MiteMaterial.GOLD, BenchTier.COPPER, 425.0F, Items.GOLD_INGOT);
+        addMetalDagger("iron", MiteMaterial.IRON, BenchTier.IRON, 825.0F, Items.IRON_INGOT);
         addMetalDagger(
                 "ancient_metal",
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1625.0F,
                 ModItems.ANCIENT_METAL_INGOT);
         addMetalDagger(
-                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6425.0F, ModItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6425.0F, ModItems.MITHRIL_INGOT);
         addMetalDagger(
                 "adamantium",
-                R196Material.ADAMANTIUM,
+                MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25625.0F,
                 ModItems.ADAMANTIUM_INGOT);
 
-        addArrow("flint", R196Material.FLINT, BenchTier.FLINT, 75.0F, ModItems.FLINT_CHIP);
+        addArrow("flint", MiteMaterial.FLINT, BenchTier.FLINT, 75.0F, ModItems.FLINT_CHIP);
         addArrow(
                 "obsidian",
-                R196Material.OBSIDIAN,
+                MiteMaterial.OBSIDIAN,
                 BenchTier.FLINT,
                 200.0F / 9.0F + 50.0F,
                 ModItems.OBSIDIAN_SHARD);
-        addArrow("copper", R196Material.COPPER, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.COPPER_NUGGET);
+        addArrow("copper", MiteMaterial.COPPER, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.COPPER_NUGGET);
         addArrow(
                 "silver",
-                R196Material.SILVER,
+                MiteMaterial.SILVER,
                 BenchTier.COPPER,
                 400.0F / 9.0F + 50.0F,
                 ModItems.SILVER_NUGGET);
-        addArrow("gold", R196Material.GOLD, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.GOLD_NUGGET);
-        addArrow("iron", R196Material.IRON, BenchTier.IRON, 800.0F / 9.0F + 50.0F, Items.IRON_NUGGET);
+        addArrow("gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.GOLD_NUGGET);
+        addArrow("iron", MiteMaterial.IRON, BenchTier.IRON, 800.0F / 9.0F + 50.0F, Items.IRON_NUGGET);
         addArrow(
                 "ancient_metal",
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F / 9.0F + 50.0F,
                 ModItems.catalog().raw("ancient_metal_nugget").holder());
         addArrow(
                 "mithril",
-                R196Material.MITHRIL,
+                MiteMaterial.MITHRIL,
                 BenchTier.MITHRIL,
                 6400.0F / 9.0F + 50.0F,
                 ModItems.MITHRIL_NUGGET);
         addArrow(
                 "adamantium",
-                R196Material.ADAMANTIUM,
+                MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F / 9.0F + 50.0F,
                 ModItems.ADAMANTIUM_NUGGET);
 
-        addArmorSet("leather", R196Material.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
+        addArmorSet("leather", MiteMaterial.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
         addMetalArmorSets(
-                "copper", R196Material.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
+                "copper", MiteMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
         addMetalArmorSets(
-                "silver", R196Material.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
+                "silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, ModItems.SILVER_INGOT);
         addMetalArmorSets(
-                "gold", R196Material.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+                "gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
         addArmorSet(
                 "rusted_iron",
-                R196Material.RUSTED_IRON,
+                MiteMaterial.RUSTED_IRON,
                 BenchTier.COPPER,
                 400.0F * 4.0F / 9.0F,
                 raw("rusted_iron_chain"),
                 true);
         addMetalArmorSets(
-                "iron", R196Material.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
+                "iron", MiteMaterial.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
         addMetalArmorSets(
                 "ancient_metal",
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
                 ModItems.ANCIENT_METAL_INGOT);
         addMetalArmorSets(
-                "mithril", R196Material.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, ModItems.MITHRIL_INGOT);
         addMetalArmorSets(
                 "adamantium",
-                R196Material.ADAMANTIUM,
+                MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F,
                 ModItems.ADAMANTIUM_INGOT);
@@ -981,14 +981,14 @@ final class ModRecipeProvider extends RecipeProvider {
     }
 
     private void addR196Buckets() {
-        for (R196Material material : ModItems.BUCKET_MATERIALS) {
+        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
             addShaped(
                     material.path() + "_bucket",
                     bucketBench(material),
                     bucketIngotDifficulty(material) * 3.0F,
                     CraftingBookCategory.MISC,
                     "",
-                    ModItems.bucket(material, R196BucketItem.Contents.EMPTY),
+                    ModItems.bucket(material, MiteBucketItem.Contents.EMPTY),
                     1,
                     Map.of('I', Ingredient.of(bucketIngot(material))),
                     List.of("I I", " I "));
@@ -998,13 +998,13 @@ final class ModRecipeProvider extends RecipeProvider {
                     100.0F,
                     CraftingBookCategory.MISC,
                     "",
-                    ModItems.bucket(material, R196BucketItem.Contents.EMPTY),
+                    ModItems.bucket(material, MiteBucketItem.Contents.EMPTY),
                     1,
-                    List.of(Ingredient.of(ModItems.bucket(material, R196BucketItem.Contents.STONE))));
+                    List.of(Ingredient.of(ModItems.bucket(material, MiteBucketItem.Contents.STONE))));
         }
     }
 
-    private static ItemLike bucketIngot(R196Material material) {
+    private static ItemLike bucketIngot(MiteMaterial material) {
         return switch (material) {
             case COPPER -> Items.COPPER_INGOT;
             case SILVER -> ModItems.SILVER_INGOT;
@@ -1017,7 +1017,7 @@ final class ModRecipeProvider extends RecipeProvider {
         };
     }
 
-    private static BenchTier bucketBench(R196Material material) {
+    private static BenchTier bucketBench(MiteMaterial material) {
         return switch (material) {
             case COPPER, SILVER, GOLD -> BenchTier.COPPER;
             case IRON -> BenchTier.IRON;
@@ -1028,7 +1028,7 @@ final class ModRecipeProvider extends RecipeProvider {
         };
     }
 
-    private static float bucketIngotDifficulty(R196Material material) {
+    private static float bucketIngotDifficulty(MiteMaterial material) {
         return switch (material) {
             case COPPER, SILVER, GOLD -> 400.0F;
             case IRON -> 800.0F;
@@ -1070,7 +1070,7 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addMetalArmorSets(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float ingotDifficulty,
             ItemLike ingot) {
@@ -1086,15 +1086,15 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addArmorSet(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float componentDifficulty,
             ItemLike component,
             boolean chainmail) {
-        List<R196EquipmentType> pieces = chainmail
-                ? R196EquipmentType.chainPieces()
-                : R196EquipmentType.platePieces();
-        for (R196EquipmentType piece : pieces) {
+        List<EquipmentType> pieces = chainmail
+                ? EquipmentType.chainPieces()
+                : EquipmentType.platePieces();
+        for (EquipmentType piece : pieces) {
             addShaped(
                     material + "_" + piece.path(),
                     requiredBench,
@@ -1108,7 +1108,7 @@ final class ModRecipeProvider extends RecipeProvider {
         }
     }
 
-    private static List<String> armorPattern(R196EquipmentType piece) {
+    private static List<String> armorPattern(EquipmentType piece) {
         return switch (piece) {
             case HELMET, CHAINMAIL_HELMET -> List.of("CCC", "C C");
             case CHESTPLATE, CHAINMAIL_CHESTPLATE -> List.of("C C", "CCC", "CCC");
@@ -1376,7 +1376,7 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addCatalogCoreMetalTools(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float ingotDifficulty,
             ItemLike ingot) {
@@ -1385,16 +1385,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 requiredBench,
                 ingotDifficulty,
                 ingot,
-                equipment(equipmentMaterial, R196EquipmentType.PICKAXE),
-                equipment(equipmentMaterial, R196EquipmentType.SHOVEL),
-                equipment(equipmentMaterial, R196EquipmentType.AXE),
-                equipment(equipmentMaterial, R196EquipmentType.HOE),
-                equipment(equipmentMaterial, R196EquipmentType.SWORD));
+                equipment(equipmentMaterial, EquipmentType.PICKAXE),
+                equipment(equipmentMaterial, EquipmentType.SHOVEL),
+                equipment(equipmentMaterial, EquipmentType.AXE),
+                equipment(equipmentMaterial, EquipmentType.HOE),
+                equipment(equipmentMaterial, EquipmentType.SWORD));
     }
 
     private void addCatalogSpecialMetalTools(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float ingotDifficulty,
             ItemLike ingot) {
@@ -1407,7 +1407,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 ingotDifficulty * 4.0F + STICK_DIFFICULTY * 2.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.MATTOCK),
+                equipment(equipmentMaterial, EquipmentType.MATTOCK),
                 1,
                 key,
                 List.of("III", " SI", " S "));
@@ -1417,7 +1417,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 ingotDifficulty * 4.0F + STICK_DIFFICULTY * 2.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.BATTLE_AXE),
+                equipment(equipmentMaterial, EquipmentType.BATTLE_AXE),
                 1,
                 key,
                 List.of("I I", "ISI", " S "));
@@ -1427,7 +1427,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 ingotDifficulty * 5.0F + STICK_DIFFICULTY * 2.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.WAR_HAMMER),
+                equipment(equipmentMaterial, EquipmentType.WAR_HAMMER),
                 1,
                 key,
                 List.of("III", "ISI", " S "));
@@ -1437,7 +1437,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 ingotDifficulty * 2.0F + STICK_DIFFICULTY * 3.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.SCYTHE),
+                equipment(equipmentMaterial, EquipmentType.SCYTHE),
                 1,
                 key,
                 List.of("SI ", "S I", "S  "));
@@ -1447,7 +1447,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 ingotDifficulty + STICK_DIFFICULTY * 2.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.HATCHET),
+                equipment(equipmentMaterial, EquipmentType.HATCHET),
                 1,
                 key,
                 List.of("SI", "S "));
@@ -1457,7 +1457,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 ingotDifficulty * 2.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.SHEARS),
+                equipment(equipmentMaterial, EquipmentType.SHEARS),
                 1,
                 Map.of('I', Ingredient.of(ingot)),
                 List.of(" I", "I "));
@@ -1465,7 +1465,7 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addMetalDagger(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float difficulty,
             ItemLike ingot) {
@@ -1475,7 +1475,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 difficulty,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.DAGGER),
+                equipment(equipmentMaterial, EquipmentType.DAGGER),
                 1,
                 Map.of(
                         'I', Ingredient.of(ingot),
@@ -1485,7 +1485,7 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addMetalBow(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float difficulty,
             ItemLike ingot) {
@@ -1495,7 +1495,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 difficulty,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.BOW),
+                equipment(equipmentMaterial, EquipmentType.BOW),
                 1,
                 Map.of(
                         'I', Ingredient.of(ingot),
@@ -1506,7 +1506,7 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addArrow(
             String material,
-            R196Material equipmentMaterial,
+            MiteMaterial equipmentMaterial,
             BenchTier requiredBench,
             float difficulty,
             ItemLike arrowhead) {
@@ -1516,7 +1516,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 difficulty,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                equipment(equipmentMaterial, R196EquipmentType.ARROW),
+                equipment(equipmentMaterial, EquipmentType.ARROW),
                 1,
                 Map.of(
                         'H', Ingredient.of(arrowhead),
@@ -1525,7 +1525,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of("H", "S", "F"));
     }
 
-    private static ItemLike equipment(R196Material material, R196EquipmentType type) {
+    private static ItemLike equipment(MiteMaterial material, EquipmentType type) {
         return ModItems.catalog().equipment(material, type).holder();
     }
 
@@ -1572,28 +1572,28 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addMetalAnvilRecipes() {
         addMetalAnvil(
-                R196Material.COPPER,
+                MiteMaterial.COPPER,
                 BenchTier.COPPER,
                 Items.COPPER_INGOT,
                 Blocks.COPPER_BLOCK,
                 12_400.0F);
-        addMetalAnvil(R196Material.SILVER, BenchTier.SILVER, ModItems.SILVER_INGOT, ModBlocks.SILVER_BLOCK, 12_400.0F);
-        addMetalAnvil(R196Material.GOLD, BenchTier.GOLD, Items.GOLD_INGOT, Blocks.GOLD_BLOCK, 12_400.0F);
-        addMetalAnvil(R196Material.IRON, BenchTier.IRON, Items.IRON_INGOT, Blocks.IRON_BLOCK, 24_800.0F);
+        addMetalAnvil(MiteMaterial.SILVER, BenchTier.SILVER, ModItems.SILVER_INGOT, ModBlocks.SILVER_BLOCK, 12_400.0F);
+        addMetalAnvil(MiteMaterial.GOLD, BenchTier.GOLD, Items.GOLD_INGOT, Blocks.GOLD_BLOCK, 12_400.0F);
+        addMetalAnvil(MiteMaterial.IRON, BenchTier.IRON, Items.IRON_INGOT, Blocks.IRON_BLOCK, 24_800.0F);
         addMetalAnvil(
-                R196Material.ANCIENT_METAL,
+                MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 ModItems.ANCIENT_METAL_INGOT,
                 ModBlocks.ANCIENT_METAL_BLOCK,
                 49_600.0F);
         addMetalAnvil(
-                R196Material.MITHRIL,
+                MiteMaterial.MITHRIL,
                 BenchTier.MITHRIL,
                 ModItems.MITHRIL_INGOT,
                 ModBlocks.MITHRIL_BLOCK,
                 198_400.0F);
         addMetalAnvil(
-                R196Material.ADAMANTIUM,
+                MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 ModItems.ADAMANTIUM_INGOT,
                 ModBlocks.ADAMANTIUM_BLOCK,
@@ -1601,7 +1601,7 @@ final class ModRecipeProvider extends RecipeProvider {
     }
 
     private void addMetalAnvil(
-            R196Material material,
+            MiteMaterial material,
             BenchTier bench,
             ItemLike ingot,
             ItemLike storageBlock,

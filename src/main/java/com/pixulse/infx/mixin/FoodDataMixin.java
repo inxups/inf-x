@@ -17,7 +17,7 @@ abstract class FoodDataMixin {
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void infx$useR196FoodTick(ServerPlayer player, CallbackInfo callback) {
-        // R196SurvivalEvents owns both energy layers, recovery and starvation.
+        // SurvivalEvents owns both energy layers, recovery and starvation.
         this.exhaustionLevel = 0.0F;
         this.tickTimer = 0;
         callback.cancel();

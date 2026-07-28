@@ -1,7 +1,7 @@
 package com.pixulse.infx.furnace;
 
-import com.pixulse.infx.block.R196FurnaceBlock;
-import com.pixulse.infx.item.R196BucketItem;
+import com.pixulse.infx.block.MiteFurnaceBlock;
+import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.tag.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +24,7 @@ public final class FurnaceHeatPolicy {
         if (state.is(Blocks.FURNACE)) {
             return HEAT_COAL;
         }
-        if (state.getBlock() instanceof R196FurnaceBlock furnace) {
+        if (state.getBlock() instanceof MiteFurnaceBlock furnace) {
             return furnace.maximumHeat();
         }
         return 0;
@@ -38,8 +38,8 @@ public final class FurnaceHeatPolicy {
             return HEAT_BLAZE;
         }
         if (fuel.is(Items.LAVA_BUCKET)
-                || fuel.getItem() instanceof R196BucketItem bucket
-                        && bucket.contents() == R196BucketItem.Contents.LAVA) {
+                || fuel.getItem() instanceof MiteBucketItem bucket
+                        && bucket.contents() == MiteBucketItem.Contents.LAVA) {
             return HEAT_LAVA;
         }
         if (fuel.is(ModTags.Items.FURNACE_FUELS_HEAT_2)) {

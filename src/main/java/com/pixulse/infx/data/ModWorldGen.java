@@ -8,8 +8,8 @@ import com.pixulse.infx.registry.ModJukeboxSongs;
 import com.pixulse.infx.registry.ModWorldCarvers;
 import com.pixulse.infx.tag.ModTags;
 import com.pixulse.infx.world.Underworld;
-import com.pixulse.infx.world.R196RiverBiomes;
-import com.pixulse.infx.world.R196SpawnsBiomeModifier;
+import com.pixulse.infx.world.RiverBiomes;
+import com.pixulse.infx.world.SpawnsBiomeModifier;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderGetter;
@@ -33,7 +33,6 @@ import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.util.valueproviders.TrapezoidFloat;
 import net.minecraft.util.valueproviders.UniformFloat;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.util.random.Weighted;
 import net.minecraft.world.attribute.AmbientSounds;
 import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.BedRule;
@@ -361,13 +360,13 @@ final class ModWorldGen {
         HolderGetter<PlacedFeature> placed = context.lookup(Registries.PLACED_FEATURE);
         var carvers = context.lookup(Registries.CONFIGURED_CARVER);
         context.register(
-                R196RiverBiomes.DESERT_RIVER,
+                RiverBiomes.DESERT_RIVER,
                 r196River(placed, carvers, 1.4F, 0.0F, false, false));
         context.register(
-                R196RiverBiomes.JUNGLE_RIVER,
+                RiverBiomes.JUNGLE_RIVER,
                 r196River(placed, carvers, 1.0F, 0.9F, true, false));
         context.register(
-                R196RiverBiomes.SWAMP_RIVER,
+                RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
         MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
         addSpawn(mobs, EntityType.SPIDER, 80, 1, 2);
@@ -822,7 +821,7 @@ final class ModWorldGen {
                 new LevelStem(
                         context.lookup(Registries.DIMENSION_TYPE).getOrThrow(BuiltinDimensionTypes.OVERWORLD),
                         new NoiseBasedChunkGenerator(
-                                R196RiverBiomes.createSource(context.lookup(Registries.BIOME)),
+                                RiverBiomes.createSource(context.lookup(Registries.BIOME)),
                                 context.lookup(Registries.NOISE_SETTINGS).getOrThrow(NoiseGeneratorSettings.OVERWORLD))));
         context.register(
                 Underworld.STEM,
@@ -898,7 +897,7 @@ final class ModWorldGen {
     }
 
     private static void registerR196SpawnModifiers(BootstrapContext<BiomeModifier> context) {
-        context.register(R196_SPAWNS, new R196SpawnsBiomeModifier());
+        context.register(R196_SPAWNS, new SpawnsBiomeModifier());
     }
 
     private static void addUnderworldR196Spawns(MobSpawnSettings.Builder mobs) {

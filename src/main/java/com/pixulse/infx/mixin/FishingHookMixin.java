@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.enchantment.R196EnchantmentRules;
-import com.pixulse.infx.enchantment.R196Enchantments;
+import com.pixulse.infx.enchantment.EnchantmentRules;
+import com.pixulse.infx.enchantment.Enchantments;
 import com.pixulse.infx.registry.ModEnchantments;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -28,10 +28,10 @@ abstract class FishingHookMixin {
         FishingHook hook = (FishingHook) (Object) this;
         Player player = hook.getPlayerOwner();
         if (player == null) return delay;
-        int baiting = R196Enchantments.level(player.level(), player.getMainHandItem(), ModEnchantments.BAITING);
+        int baiting = Enchantments.level(player.level(), player.getMainHandItem(), ModEnchantments.BAITING);
         if (baiting == 0) {
-            baiting = R196Enchantments.level(player.level(), player.getOffhandItem(), ModEnchantments.BAITING);
+            baiting = Enchantments.level(player.level(), player.getOffhandItem(), ModEnchantments.BAITING);
         }
-        return R196EnchantmentRules.baitingLureDelay(delay, baiting);
+        return EnchantmentRules.baitingLureDelay(delay, baiting);
     }
 }

@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.network.R196Network;
+import com.pixulse.infx.network.Network;
 import com.pixulse.infx.world.RunegateTeleportation;
 import com.pixulse.infx.world.Underworld;
 import net.minecraft.client.Minecraft;
@@ -32,8 +32,8 @@ public final class RunegateAnimation {
 
     @SubscribeEvent
     private static void registerPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
-        event.register(R196Network.RunegateStartPayload.TYPE, (payload, context) -> start());
-        event.register(R196Network.RunegateFinishedPayload.TYPE, (payload, context) -> finish());
+        event.register(Network.RunegateStartPayload.TYPE, (payload, context) -> start());
+        event.register(Network.RunegateFinishedPayload.TYPE, (payload, context) -> finish());
     }
 
     @SubscribeEvent
@@ -41,7 +41,7 @@ public final class RunegateAnimation {
         if (teleporting) {
             counter = nextCounter(true, counter);
             if (counter == RunegateTeleportation.LOADING_TICKS) {
-                ClientPacketDistributor.sendToServer(R196Network.RunegateExecutePayload.INSTANCE);
+                ClientPacketDistributor.sendToServer(Network.RunegateExecutePayload.INSTANCE);
             }
         } else if (counter > 0) {
             counter = nextCounter(false, counter);

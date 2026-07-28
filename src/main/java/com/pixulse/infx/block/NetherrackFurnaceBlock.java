@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-public final class NetherrackFurnaceBlock extends R196FurnaceBlock {
+public final class NetherrackFurnaceBlock extends MiteFurnaceBlock {
     public static final MapCodec<NetherrackFurnaceBlock> CODEC =
             simpleCodec(NetherrackFurnaceBlock::new);
 

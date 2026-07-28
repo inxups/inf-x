@@ -19,13 +19,13 @@ import net.minecraft.world.level.pathfinder.Path;
 
 /** R196's material-speed breaking for closed wooden portals, including doors, trapdoors and gates. */
 final class MiteEarthBreakDoorGoal extends Goal {
-    private final R196EarthElemental elemental;
+    private final EarthElemental elemental;
     private BlockPos doorPos = BlockPos.ZERO;
     private int breakTime;
     private int lastProgress = -1;
     private int requiredTime;
 
-    MiteEarthBreakDoorGoal(R196EarthElemental elemental) {
+    MiteEarthBreakDoorGoal(EarthElemental elemental) {
         this.elemental = elemental;
         setFlags(EnumSet.of(Flag.MOVE));
     }

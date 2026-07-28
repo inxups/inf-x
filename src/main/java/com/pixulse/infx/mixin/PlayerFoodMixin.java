@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
 import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.survival.R196SurvivalRules;
+import com.pixulse.infx.survival.SurvivalRules;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +15,7 @@ abstract class PlayerFoodMixin {
     private void infx$useNutritionCap(boolean ignoreHunger, CallbackInfoReturnable<Boolean> callback) {
         Player player = (Player) (Object) this;
         var survival = player.getData(ModAttachments.SURVIVAL);
-        double cap = R196SurvivalRules.foodCap(player.experienceLevel);
+        double cap = SurvivalRules.foodCap(player.experienceLevel);
         callback.setReturnValue(ignoreHunger || survival.satiation() < cap || survival.nutrition() < cap);
     }
 

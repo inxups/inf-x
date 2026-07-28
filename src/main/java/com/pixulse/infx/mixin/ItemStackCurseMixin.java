@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.curse.R196CurseManager;
+import com.pixulse.infx.curse.CurseManager;
 import java.util.function.Consumer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,7 +26,7 @@ abstract class ItemStackCurseMixin {
             ServerLevel level,
             @Nullable LivingEntity owner,
             Consumer<Item> onBreak) {
-        return owner == null ? amount : R196CurseManager.durabilityDamage(amount, owner);
+        return owner == null ? amount : CurseManager.durabilityDamage(amount, owner);
     }
 
     @ModifyVariable(
@@ -35,6 +35,6 @@ abstract class ItemStackCurseMixin {
             argsOnly = true,
             ordinal = 0)
     private int infx$doubleNonbreakingDurabilityDamage(int amount, int originalAmount, Player owner) {
-        return R196CurseManager.durabilityDamage(amount, owner);
+        return CurseManager.durabilityDamage(amount, owner);
     }
 }

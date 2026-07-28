@@ -4,7 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.menu.MetalAnvilMenu;
-import com.pixulse.infx.menu.R196EnchantmentMenu;
+import com.pixulse.infx.menu.MiteEnchantmentMenu;
 import java.util.List;
 
 import net.minecraft.core.registries.Registries;
@@ -23,25 +23,25 @@ public final class ModMenus {
             "metal_anvil",
             () -> IMenuTypeExtension.create(MetalAnvilMenu::client));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<R196EnchantmentMenu>> EMERALD_ENCHANTING =
+    public static final DeferredHolder<MenuType<?>, MenuType<MiteEnchantmentMenu>> EMERALD_ENCHANTING =
             MENUS.register(
                     "emerald_enchanting",
                     () -> IMenuTypeExtension.create((containerId, inventory, buffer) ->
-                            new R196EnchantmentMenu(
+                            new MiteEnchantmentMenu(
                                     containerId,
                                     inventory,
                                     ContainerLevelAccess.NULL,
-                                    R196EnchantmentMenu.Kind.EMERALD)));
+                                    MiteEnchantmentMenu.Kind.EMERALD)));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<R196EnchantmentMenu>> DIAMOND_ENCHANTING =
+    public static final DeferredHolder<MenuType<?>, MenuType<MiteEnchantmentMenu>> DIAMOND_ENCHANTING =
             MENUS.register(
                     "diamond_enchanting",
                     () -> IMenuTypeExtension.create((containerId, inventory, buffer) ->
-                            new R196EnchantmentMenu(
+                            new MiteEnchantmentMenu(
                                     containerId,
                                     inventory,
                                     ContainerLevelAccess.NULL,
-                                    R196EnchantmentMenu.Kind.DIAMOND)));
+                                    MiteEnchantmentMenu.Kind.DIAMOND)));
 
     public static final DeferredHolder<MenuType<?>, MenuType<TimedWorkbenchMenu>> FLINT_WORKBENCH = MENUS.register(
             "flint_workbench",

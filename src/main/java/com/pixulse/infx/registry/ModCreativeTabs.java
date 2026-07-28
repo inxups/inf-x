@@ -2,8 +2,8 @@ package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.item.R196Catalog;
-import com.pixulse.infx.item.R196EquipmentCategory;
+import com.pixulse.infx.item.Catalog;
+import com.pixulse.infx.item.EquipmentCategory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
@@ -146,7 +146,7 @@ public final class ModCreativeTabs {
         categories.put(
                 Category.TOOLS_AND_UTILITIES,
                 concatenate(
-                        equipmentItems(R196EquipmentCategory.TOOL),
+                        equipmentItems(EquipmentCategory.TOOL),
                         ModItems.R196_BUCKETS,
                         ModItems.R196_MOB_BUCKETS,
                         ModItems.R196_POWDER_SNOW_BUCKETS,
@@ -155,7 +155,7 @@ public final class ModCreativeTabs {
                 Category.COMBAT_AND_EQUIPMENT,
                 concatenate(
                         ModItems.catalog().equipmentEntries().stream()
-                                .filter(entry -> entry.key().type().category() != R196EquipmentCategory.TOOL)
+                                .filter(entry -> entry.key().type().category() != EquipmentCategory.TOOL)
                                 .map(ModCreativeTabs::holder)
                                 .toList(),
                         ModItems.GELATINOUS_SPHERES));
@@ -163,14 +163,14 @@ public final class ModCreativeTabs {
         return Collections.unmodifiableMap(categories);
     }
 
-    private static List<DeferredItem<? extends Item>> equipmentItems(R196EquipmentCategory category) {
+    private static List<DeferredItem<? extends Item>> equipmentItems(EquipmentCategory category) {
         return ModItems.catalog().equipmentEntries().stream()
                 .filter(entry -> entry.key().type().category() == category)
                 .map(ModCreativeTabs::holder)
                 .toList();
     }
 
-    private static DeferredItem<? extends Item> holder(R196Catalog.Entry entry) {
+    private static DeferredItem<? extends Item> holder(Catalog.Entry entry) {
         return entry.holder();
     }
 

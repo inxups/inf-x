@@ -2,8 +2,9 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModLootModifiers;
 import com.pixulse.infx.world.Underworld;
@@ -19,17 +20,17 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 /** Adds R196's eight-roll ancient-metal pool only to Underworld monster rooms. */
 public final class UnderworldDungeonLootModifier extends LootModifier {
     private static final Identifier SIMPLE_DUNGEON = Identifier.withDefaultNamespace("chests/simple_dungeon");
-    private static final List<R196EquipmentType> EQUIPMENT = List.of(
-            R196EquipmentType.PICKAXE,
-            R196EquipmentType.SHOVEL,
-            R196EquipmentType.AXE,
-            R196EquipmentType.SWORD,
-            R196EquipmentType.WAR_HAMMER,
-            R196EquipmentType.BOW,
-            R196EquipmentType.CHAINMAIL_HELMET,
-            R196EquipmentType.CHAINMAIL_CHESTPLATE,
-            R196EquipmentType.CHAINMAIL_LEGGINGS,
-            R196EquipmentType.CHAINMAIL_BOOTS);
+    private static final List<EquipmentType> EQUIPMENT = List.of(
+            EquipmentType.PICKAXE,
+            EquipmentType.SHOVEL,
+            EquipmentType.AXE,
+            EquipmentType.SWORD,
+            EquipmentType.WAR_HAMMER,
+            EquipmentType.BOW,
+            EquipmentType.CHAINMAIL_HELMET,
+            EquipmentType.CHAINMAIL_CHESTPLATE,
+            EquipmentType.CHAINMAIL_LEGGINGS,
+            EquipmentType.CHAINMAIL_BOOTS);
 
     public static final MapCodec<UnderworldDungeonLootModifier> CODEC = RecordCodecBuilder.mapCodec(instance ->
             codecStart(instance).apply(instance, UnderworldDungeonLootModifier::new));
@@ -66,15 +67,15 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
         }
         if (value < 27) {
             return ModItems.bucket(
-                            R196Material.ANCIENT_METAL,
-                            com.pixulse.infx.item.R196BucketItem.Contents.EMPTY)
+                            MiteMaterial.ANCIENT_METAL,
+                            MiteBucketItem.Contents.EMPTY)
                     .toStack();
         }
         if (value < 31) {
             return ModItems.R196_RECORDS.get(value - 27).toStack();
         }
         if (value < 36) {
-            return equipment(R196EquipmentType.HORSE_ARMOR);
+            return equipment(EquipmentType.HORSE_ARMOR);
         }
         if (value < 46) {
             return equipment(EQUIPMENT.get(value - 36));
@@ -82,8 +83,8 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
         return ItemStack.EMPTY;
     }
 
-    private static ItemStack equipment(R196EquipmentType type) {
-        return ModItems.catalog().equipment(R196Material.ANCIENT_METAL, type).holder().toStack();
+    private static ItemStack equipment(EquipmentType type) {
+        return ModItems.catalog().equipment(MiteMaterial.ANCIENT_METAL, type).holder().toStack();
     }
 
     @Override

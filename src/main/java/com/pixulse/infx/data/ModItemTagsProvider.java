@@ -1,11 +1,8 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196Catalog;
-import com.pixulse.infx.item.R196EquipmentCategory;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.item.R196MiningFamily;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.*;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.tag.ModTags;
 import java.util.concurrent.CompletableFuture;
@@ -36,10 +33,10 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));
         var waterBuckets = tag(ModTags.Items.WATER_BUCKETS).add(itemKey(Items.WATER_BUCKET));
         var milkBuckets = tag(ModTags.Items.MILK_BUCKETS).add(itemKey(Items.MILK_BUCKET));
-        for (R196Material material : ModItems.BUCKET_MATERIALS) {
-            waterBuckets.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.WATER)
+        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
+            waterBuckets.add(ModItems.bucket(material, MiteBucketItem.Contents.WATER)
                     .getKey());
-            milkBuckets.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.MILK)
+            milkBuckets.add(ModItems.bucket(material, MiteBucketItem.Contents.MILK)
                     .getKey());
         }
         tag(ModTags.Items.SMELTING_INPUTS_HEAT_2)
@@ -73,12 +70,12 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 ModItems.BLACK_GELATINOUS_SPHERE.getKey());
         addCurseTags();
 
-        for (R196Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
+        for (Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(ModTags.Items.material(material), entry));
         }
         addRepairTags();
 
-        for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
+        for (Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
             add(ModTags.Items.material(entry.key().material()), entry);
             add(ModTags.Items.equipmentType(entry.key().type()), entry);
             addFamilyTags(entry);
@@ -116,8 +113,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                         ModItems.ICE_CREAM.getKey(),
                         ModItems.WORM.getKey(),
                         ModItems.COOKED_WORM.getKey());
-        for (R196Material material : ModItems.BUCKET_MATERIALS) {
-            animalProducts.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.MILK)
+        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
+            animalProducts.add(ModItems.bucket(material, MiteBucketItem.Contents.MILK)
                     .getKey());
         }
 
@@ -185,14 +182,14 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 ModItems.VEGETABLE_SOUP.getKey(),
                 ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
                 ModItems.CHICKEN_SOUP.getKey());
-        for (R196Material material : ModItems.BUCKET_MATERIALS) {
-            drinks.add(ModItems.bucket(material, com.pixulse.infx.item.R196BucketItem.Contents.MILK)
+        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
+            drinks.add(ModItems.bucket(material, MiteBucketItem.Contents.MILK)
                     .getKey());
         }
     }
 
     private void addRepairTags() {
-        for (R196Material material : R196Material.values()) {
+        for (MiteMaterial material : MiteMaterial.values()) {
             TagAppender<ResourceKey<Item>, Item> repairs = tag(ModTags.Items.repairMaterial(material));
             switch (material) {
                 case LEATHER -> repairs.add(itemKey(Items.LEATHER));
@@ -212,8 +209,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         }
     }
 
-    private void addFamilyTags(R196Catalog.EquipmentEntry entry) {
-        R196EquipmentType type = entry.key().type();
+    private void addFamilyTags(Catalog.EquipmentEntry entry) {
+        EquipmentType type = entry.key().type();
         switch (type.miningFamily()) {
             case PICKAXE -> add(ItemTags.PICKAXES, entry);
             case SHOVEL -> add(ItemTags.SHOVELS, entry);
@@ -223,91 +220,91 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
             case NONE, SCYTHE, CUDGEL, SHEARS -> {
             }
         }
-        if (type == R196EquipmentType.ARROW) {
+        if (type == EquipmentType.ARROW) {
             add(ItemTags.ARROWS, entry);
         }
     }
 
-    private void addEnchantmentTags(R196Catalog.EquipmentEntry entry) {
-        R196EquipmentType type = entry.key().type();
+    private void addEnchantmentTags(Catalog.EquipmentEntry entry) {
+        EquipmentType type = entry.key().type();
         if (entry.key().durability() > 0) {
             add(ItemTags.DURABILITY_ENCHANTABLE, entry);
         }
-        if (type.category() == R196EquipmentCategory.TOOL
-                && type.miningFamily() != R196MiningFamily.NONE) {
+        if (type.category() == EquipmentCategory.TOOL
+                && type.miningFamily() != MiningFamily.NONE) {
             add(ItemTags.MINING_ENCHANTABLE, entry);
         }
-        boolean melee = (type.category() == R196EquipmentCategory.TOOL
-                        || type.category() == R196EquipmentCategory.WEAPON)
-                && type != R196EquipmentType.FISHING_ROD
-                && type != R196EquipmentType.BOW
-                && type != R196EquipmentType.ARROW;
+        boolean melee = (type.category() == EquipmentCategory.TOOL
+                        || type.category() == EquipmentCategory.WEAPON)
+                && type != EquipmentType.FISHING_ROD
+                && type != EquipmentType.BOW
+                && type != EquipmentType.ARROW;
         if (melee) {
             add(ItemTags.MELEE_WEAPON_ENCHANTABLE, entry);
             add(ItemTags.WEAPON_ENCHANTABLE, entry);
             add(ItemTags.SHARP_WEAPON_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.FISHING_ROD) {
+        if (type == EquipmentType.FISHING_ROD) {
             add(ItemTags.FISHING_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.BOW) {
+        if (type == EquipmentType.BOW) {
             add(ItemTags.BOW_ENCHANTABLE, entry);
         }
-        if (type.armorForm() == R196EquipmentType.ArmorForm.PLATE
-                || type.armorForm() == R196EquipmentType.ArmorForm.CHAIN) {
+        if (type.armorForm() == EquipmentType.ArmorForm.PLATE
+                || type.armorForm() == EquipmentType.ArmorForm.CHAIN) {
             add(ItemTags.ARMOR_ENCHANTABLE, entry);
             add(ItemTags.EQUIPPABLE_ENCHANTABLE, entry);
             addArmorSlotTags(entry, type.armorType().orElseThrow());
         }
     }
 
-    private void addR196EnchantmentTags(R196Catalog.EquipmentEntry entry) {
-        R196EquipmentType type = entry.key().type();
-        R196Material material = entry.key().material();
+    private void addR196EnchantmentTags(Catalog.EquipmentEntry entry) {
+        EquipmentType type = entry.key().type();
+        MiteMaterial material = entry.key().material();
         if (isDurabilityEnchantable(type, material)) {
             add(ModTags.Items.R196_DURABILITY_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.SWORD) {
+        if (type == EquipmentType.SWORD) {
             add(ModTags.Items.R196_DISARMING_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.KNIFE || type == R196EquipmentType.DAGGER) {
+        if (type == EquipmentType.KNIFE || type == EquipmentType.DAGGER) {
             add(ModTags.Items.R196_BUTCHERING_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.CUDGEL || type == R196EquipmentType.WAR_HAMMER) {
+        if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
             add(ModTags.Items.R196_STUNNING_ENCHANTABLE, entry);
         }
-        if ((type == R196EquipmentType.SWORD || type == R196EquipmentType.SCYTHE)
-                && material != R196Material.SILVER
-                && material != R196Material.MITHRIL) {
+        if ((type == EquipmentType.SWORD || type == EquipmentType.SCYTHE)
+                && material != MiteMaterial.SILVER
+                && material != MiteMaterial.MITHRIL) {
             add(ModTags.Items.R196_VAMPIRISM_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.SWORD
-                || type == R196EquipmentType.BATTLE_AXE
-                || type == R196EquipmentType.SCYTHE) {
+        if (type == EquipmentType.SWORD
+                || type == EquipmentType.BATTLE_AXE
+                || type == EquipmentType.SCYTHE) {
             add(ModTags.Items.R196_SLAUGHTER_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.BATTLE_AXE) {
+        if (type == EquipmentType.BATTLE_AXE) {
             add(ModTags.Items.R196_CLEAVING_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.HOE
-                || type == R196EquipmentType.MATTOCK
-                || type == R196EquipmentType.SCYTHE) {
+        if (type == EquipmentType.HOE
+                || type == EquipmentType.MATTOCK
+                || type == EquipmentType.SCYTHE) {
             add(ModTags.Items.R196_HARVESTING_ENCHANTABLE, entry);
             add(ModTags.Items.R196_FERTILITY_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.PICKAXE) {
+        if (type == EquipmentType.PICKAXE) {
             add(ModTags.Items.R196_PENETRATION_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.AXE || type == R196EquipmentType.BATTLE_AXE) {
+        if (type == EquipmentType.AXE || type == EquipmentType.BATTLE_AXE) {
             add(ModTags.Items.R196_TREE_FELLING_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.PICKAXE || type == R196EquipmentType.SHOVEL) {
+        if (type == EquipmentType.PICKAXE || type == EquipmentType.SHOVEL) {
             add(ModTags.Items.R196_FORTUNE_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.LEGGINGS || type == R196EquipmentType.CHAINMAIL_LEGGINGS) {
+        if (type == EquipmentType.LEGGINGS || type == EquipmentType.CHAINMAIL_LEGGINGS) {
             add(ModTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.CHESTPLATE || type == R196EquipmentType.CHAINMAIL_CHESTPLATE) {
+        if (type == EquipmentType.CHESTPLATE || type == EquipmentType.CHAINMAIL_CHESTPLATE) {
             add(ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, entry);
         }
         addVanillaMiteEnchantmentTags(entry, type, material);
@@ -315,54 +312,54 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
 
     /** Item targets for the vanilla-derived MITE enchantments, following MITE's class checks. */
     private void addVanillaMiteEnchantmentTags(
-            R196Catalog.EquipmentEntry entry, R196EquipmentType type, R196Material material) {
+            Catalog.EquipmentEntry entry, EquipmentType type, MiteMaterial material) {
         // MITE ItemKnife extends ItemDagger extends ItemSword, so "instanceof ItemSword"
         // checks (bane of arthropods, fire aspect, looting) cover all three.
-        boolean swordFamily = type == R196EquipmentType.SWORD
-                || type == R196EquipmentType.DAGGER
-                || type == R196EquipmentType.KNIFE;
+        boolean swordFamily = type == EquipmentType.SWORD
+                || type == EquipmentType.DAGGER
+                || type == EquipmentType.KNIFE;
         if (swordFamily) {
             add(ModTags.Items.R196_SWORD_FAMILY_ENCHANTABLE, entry);
         }
-        if (swordFamily || type == R196EquipmentType.CUDGEL) {
+        if (swordFamily || type == EquipmentType.CUDGEL) {
             add(ModTags.Items.R196_LOOTING_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.WAR_HAMMER) {
+        if (type == EquipmentType.WAR_HAMMER) {
             add(ModTags.Items.R196_SMITE_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.CUDGEL || type == R196EquipmentType.WAR_HAMMER) {
+        if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
             add(ModTags.Items.R196_KNOCKBACK_ENCHANTABLE, entry);
         }
         // MITE efficiency: pickaxe class (war hammers excluded), the axe family, shovels
         // (mattock extends ItemShovel) and hoes.
-        if (type == R196EquipmentType.PICKAXE
-                || type == R196EquipmentType.HATCHET
-                || type == R196EquipmentType.AXE
-                || type == R196EquipmentType.BATTLE_AXE
-                || type == R196EquipmentType.SHOVEL
-                || type == R196EquipmentType.MATTOCK
-                || type == R196EquipmentType.HOE) {
+        if (type == EquipmentType.PICKAXE
+                || type == EquipmentType.HATCHET
+                || type == EquipmentType.AXE
+                || type == EquipmentType.BATTLE_AXE
+                || type == EquipmentType.SHOVEL
+                || type == EquipmentType.MATTOCK
+                || type == EquipmentType.HOE) {
             add(ModTags.Items.R196_EFFICIENCY_ENCHANTABLE, entry);
         }
         // MITE silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
-        if (type == R196EquipmentType.PICKAXE
-                || type == R196EquipmentType.SHOVEL
-                || type == R196EquipmentType.KNIFE
-                || type == R196EquipmentType.DAGGER) {
+        if (type == EquipmentType.PICKAXE
+                || type == EquipmentType.SHOVEL
+                || type == EquipmentType.KNIFE
+                || type == EquipmentType.DAGGER) {
             add(ModTags.Items.R196_SILK_TOUCH_ENCHANTABLE, entry);
         }
-        if (type == R196EquipmentType.CHESTPLATE) {
+        if (type == EquipmentType.CHESTPLATE) {
             add(ModTags.Items.R196_THORNS_ENCHANTABLE, entry);
         }
-        if ((type == R196EquipmentType.CHESTPLATE || type == R196EquipmentType.LEGGINGS)
-                && material.has(R196Material.Flag.METAL)) {
+        if ((type == EquipmentType.CHESTPLATE || type == EquipmentType.LEGGINGS)
+                && material.has(MiteMaterial.Flag.METAL)) {
             add(ModTags.Items.R196_SOLID_METAL_TORSO_ENCHANTABLE, entry);
         }
     }
 
-    private static boolean isDurabilityEnchantable(R196EquipmentType type, R196Material material) {
-        if (type.armorForm() == R196EquipmentType.ArmorForm.PLATE
-                && material.has(R196Material.Flag.METAL)) {
+    private static boolean isDurabilityEnchantable(EquipmentType type, MiteMaterial material) {
+        if (type.armorForm() == EquipmentType.ArmorForm.PLATE
+                && material.has(MiteMaterial.Flag.METAL)) {
             return true;
         }
         return switch (type) {
@@ -371,7 +368,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         };
     }
 
-    private void addArmorSlotTags(R196Catalog.EquipmentEntry entry, ArmorType armorType) {
+    private void addArmorSlotTags(Catalog.EquipmentEntry entry, ArmorType armorType) {
         switch (armorType) {
             case HELMET -> {
                 add(ItemTags.HEAD_ARMOR, entry);
@@ -393,19 +390,19 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         }
     }
 
-    private void addHarvestTierTag(R196Catalog.EquipmentEntry entry) {
-        if (entry.key().type().miningFamily() == R196MiningFamily.NONE) {
+    private void addHarvestTierTag(Catalog.EquipmentEntry entry) {
+        if (entry.key().type().miningFamily() == MiningFamily.NONE) {
             return;
         }
         entry.key().material().harvestTier()
                 .ifPresent(tier -> add(ModTags.Items.toolTier(tier), entry));
     }
 
-    private void add(TagKey<Item> tag, R196Catalog.RawEntry entry) {
+    private void add(TagKey<Item> tag, Catalog.RawEntry entry) {
         tag(tag).add(entry.holder().getKey());
     }
 
-    private void add(TagKey<Item> tag, R196Catalog.EquipmentEntry entry) {
+    private void add(TagKey<Item> tag, Catalog.EquipmentEntry entry) {
         tag(tag).add(entry.holder().getKey());
     }
 

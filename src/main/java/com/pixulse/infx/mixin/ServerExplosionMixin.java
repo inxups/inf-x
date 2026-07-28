@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.entity.R196ExplosionRanges;
+import com.pixulse.infx.entity.ExplosionRanges;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ServerExplosion;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,7 +18,7 @@ public abstract class ServerExplosionMixin {
             at = @At(value = "STORE"),
             ordinal = 0)
     private float infx$r196EntityRadius(float vanillaDoubleRadius) {
-        return (float) R196ExplosionRanges.entityRadius((Explosion) (Object) this)
+        return (float) ExplosionRanges.entityRadius((Explosion) (Object) this)
                 .orElse(vanillaDoubleRadius);
     }
 }

@@ -1,8 +1,8 @@
 package com.pixulse.infx.harvest;
 
-import com.pixulse.infx.enchantment.R196EnchantmentRules;
-import com.pixulse.infx.enchantment.R196Enchantments;
-import com.pixulse.infx.progression.R196Experience;
+import com.pixulse.infx.enchantment.EnchantmentRules;
+import com.pixulse.infx.enchantment.Enchantments;
+import com.pixulse.infx.progression.Experience;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModEnchantments;
 import com.pixulse.infx.registry.ModMobEffects;
@@ -72,7 +72,7 @@ public final class HarvestSpeedRules {
             boolean hungry,
             boolean paralyzed,
             boolean inCobweb) {
-        float result = R196Experience.harvestOrCraftMultiplier(level);
+        float result = Experience.harvestOrCraftMultiplier(level);
         if (submerged) result *= 0.2F;
         if (airborne) result *= 0.2F;
         if (hungry) result *= 0.2F;
@@ -122,7 +122,7 @@ public final class HarvestSpeedRules {
         if (paralyzed) result *= 0.1F;
         if (inCobweb) result *= 0.1F;
         result = applyFreeMovementResistance(player, result, paralyzed, inCobweb);
-        result *= R196Experience.harvestOrCraftMultiplier(player.experienceLevel);
+        result *= Experience.harvestOrCraftMultiplier(player.experienceLevel);
         return result;
     }
 
@@ -141,9 +141,9 @@ public final class HarvestSpeedRules {
 
     private static float applyFreeMovementResistance(
             Player player, float strength, boolean paralyzed, boolean inCobweb) {
-        int freeMovement = R196Enchantments.maxArmorLevel(player, ModEnchantments.FREE_MOVEMENT);
+        int freeMovement = Enchantments.maxArmorLevel(player, ModEnchantments.FREE_MOVEMENT);
         if (freeMovement <= 0) return strength;
-        float correction = R196EnchantmentRules.reducedImpairmentMultiplier(0.1F, freeMovement) / 0.1F;
+        float correction = EnchantmentRules.reducedImpairmentMultiplier(0.1F, freeMovement) / 0.1F;
         if (paralyzed) strength *= correction;
         if (inCobweb) strength *= correction;
         return strength;

@@ -3,10 +3,10 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
-import com.pixulse.infx.block.R196SafeBlock;
-import com.pixulse.infx.item.R196Catalog;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.block.SafeBlock;
+import com.pixulse.infx.item.Catalog;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
@@ -34,7 +34,7 @@ import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
-import com.pixulse.infx.client.R196SafeSpecialRenderer;
+import com.pixulse.infx.client.SafeSpecialRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Direction;
@@ -180,9 +180,9 @@ final class ModModelProvider extends ModelProvider {
         ModItems.SPAWN_EGGS.forEach(egg -> itemModels.generateFlatItem(egg.value(), ModelTemplates.FLAT_ITEM));
         itemModels.generateFlatItem(ModItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateR196FoodModels(itemModels);
-        for (R196Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
-            if (entry.key().material() == R196Material.LEATHER
-                    && entry.key().type().armorForm() == R196EquipmentType.ArmorForm.PLATE) {
+        for (Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
+            if (entry.key().material() == MiteMaterial.LEATHER
+                    && entry.key().type().armorForm() == EquipmentType.ArmorForm.PLATE) {
                 itemModels.generateTwoLayerDyedItem(entry.holder().value());
                 continue;
             }
@@ -339,7 +339,7 @@ final class ModModelProvider extends ModelProvider {
      * Vanilla chest split: particle-only block model for chunk meshes, chest special
      * model for inventory, and {@code R196SafeRenderer} BER for the placed block.
      */
-    private static void generateMetalSafe(BlockModelGenerators models, R196SafeBlock safe) {
+    private static void generateMetalSafe(BlockModelGenerators models, SafeBlock safe) {
         Material particle = new Material(safeParticleTexture(safe.material()));
         Identifier blockModel = ModelTemplates.PARTICLE_ONLY.create(
                 safe, TextureMapping.particle(particle), models.modelOutput);
@@ -351,10 +351,10 @@ final class ModModelProvider extends ModelProvider {
                 safe.asItem(),
                 ItemModelUtils.specialModel(
                         itemModelBase,
-                        new R196SafeSpecialRenderer.Unbaked(InfiniteX.id(safe.material().path()))));
+                        new SafeSpecialRenderer.Unbaked(InfiniteX.id(safe.material().path()))));
     }
 
-    private static Identifier safeParticleTexture(R196Material material) {
+    private static Identifier safeParticleTexture(MiteMaterial material) {
         return switch (material) {
             case COPPER -> Identifier.withDefaultNamespace("block/copper_block");
             case GOLD -> Identifier.withDefaultNamespace("block/gold_block");
@@ -408,7 +408,7 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateFishingRod(
-            ItemModelGenerators itemModels, R196Catalog.EquipmentEntry entry) {
+            ItemModelGenerators itemModels, Catalog.EquipmentEntry entry) {
         Item item = entry.holder().value();
         Identifier normalId =
                 itemModels.createFlatItemModel(item, ModelTemplates.FLAT_HANDHELD_ROD_ITEM);
@@ -426,14 +426,14 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateMaterialBow(
-            ItemModelGenerators itemModels, R196Catalog.EquipmentEntry entry) {
+            ItemModelGenerators itemModels, Catalog.EquipmentEntry entry) {
         Item bow = entry.holder().value();
         ItemModel.Unbaked standby = ItemModelUtils.plainModel(bowModel(
                 itemModels,
                 ModelLocationUtils.getModelLocation(bow),
                 InfiniteX.id("item/" + entry.path())));
-        EnumMap<R196Material, ItemModel.Unbaked> pulls = new EnumMap<>(R196Material.class);
-        for (R196Material material : arrowMaterials()) {
+        EnumMap<MiteMaterial, ItemModel.Unbaked> pulls = new EnumMap<>(MiteMaterial.class);
+        for (MiteMaterial material : arrowMaterials()) {
             ItemModel.Unbaked[] frames = new ItemModel.Unbaked[3];
             for (int frame = 0; frame < frames.length; frame++) {
                 Identifier id = InfiniteX.id(
@@ -445,7 +445,7 @@ final class ModModelProvider extends ModelProvider {
 
         ItemModel.Unbaked nocked = ItemModelUtils.select(
                 new ComponentContents<>(ModDataComponents.NOCKED_ARROW_MATERIAL.get()),
-                pulls.get(R196Material.FLINT),
+                pulls.get(MiteMaterial.FLINT),
                 arrowMaterials().stream()
                         .map(material -> ItemModelUtils.when(material.path(), pulls.get(material)))
                         .toList());
@@ -472,9 +472,9 @@ final class ModModelProvider extends ModelProvider {
                 ItemModelUtils.override(frame2, .9F));
     }
 
-    private static List<R196Material> arrowMaterials() {
-        return Arrays.stream(R196Material.values())
-                .filter(R196EquipmentType.ARROW::allows)
+    private static List<MiteMaterial> arrowMaterials() {
+        return Arrays.stream(MiteMaterial.values())
+                .filter(EquipmentType.ARROW::allows)
                 .toList();
     }
 }

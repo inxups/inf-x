@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.block.R196PortalBlock.PortalType;
+import com.pixulse.infx.block.MitePortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import java.util.Set;
 import java.util.stream.Collectors;

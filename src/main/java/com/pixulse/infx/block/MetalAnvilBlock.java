@@ -2,7 +2,7 @@ package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.menu.MetalAnvilMenu;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -54,17 +54,17 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
             Block.box(3, 10, 0, 13, 16, 16));
     private static final VoxelShape SHAPE_Z = Shapes.rotateHorizontalAxis(SHAPE_X).get(Direction.Axis.Z);
 
-    private final R196Material material;
+    private final MiteMaterial material;
     private final MapCodec<MetalAnvilBlock> codec;
 
-    public MetalAnvilBlock(R196Material material, BlockBehaviour.Properties properties) {
+    public MetalAnvilBlock(MiteMaterial material, BlockBehaviour.Properties properties) {
         super(properties);
         this.material = material;
         this.codec = simpleCodec(p -> new MetalAnvilBlock(material, p));
         registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(DAMAGE_STAGE, 0));
     }
 
-    public R196Material material() {
+    public MiteMaterial material() {
         return material;
     }
 

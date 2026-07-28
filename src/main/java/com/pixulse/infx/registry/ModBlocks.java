@@ -14,20 +14,20 @@ import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.NetherrackFurnaceBlock;
 import com.pixulse.infx.block.ObsidianFurnaceBlock;
 import com.pixulse.infx.block.ObsidianWorkbenchBlock;
-import com.pixulse.infx.block.R196PortalBlock;
-import com.pixulse.infx.block.R196FurnaceBlock;
+import com.pixulse.infx.block.MitePortalBlock;
+import com.pixulse.infx.block.MiteFurnaceBlock;
 import com.pixulse.infx.block.SandstoneFurnaceBlock;
 import com.pixulse.infx.block.SilverWorkbenchBlock;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.block.R196EnchantingTableBlock;
-import com.pixulse.infx.block.R196SafeBlock;
+import com.pixulse.infx.block.MiteEnchantingTableBlock;
+import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.WitherwoodBlock;
-import com.pixulse.infx.menu.R196EnchantmentMenu;
+import com.pixulse.infx.menu.MiteEnchantmentMenu;
 import com.pixulse.infx.crafting.BenchTier;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.material.MiteMaterial;
 import java.util.List;
 import java.util.Map;
 
@@ -113,13 +113,13 @@ public final class ModBlocks {
             "underworld_portal",
             UnderworldPortalBlock::new,
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
-    public static final DeferredBlock<R196PortalBlock> NETHER_PORTAL = BLOCKS.registerBlock(
+    public static final DeferredBlock<MitePortalBlock> NETHER_PORTAL = BLOCKS.registerBlock(
             "nether_portal",
-            properties -> new R196PortalBlock(R196PortalBlock.PortalType.NETHER, properties),
+            properties -> new MitePortalBlock(MitePortalBlock.PortalType.NETHER, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
-    public static final DeferredBlock<R196PortalBlock> RETURN_SPAWN_PORTAL = BLOCKS.registerBlock(
+    public static final DeferredBlock<MitePortalBlock> RETURN_SPAWN_PORTAL = BLOCKS.registerBlock(
             "return_spawn_portal",
-            properties -> new R196PortalBlock(R196PortalBlock.PortalType.RETURN_SPAWN, properties),
+            properties -> new MitePortalBlock(MitePortalBlock.PortalType.RETURN_SPAWN, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
 
     public static final DeferredBlock<Block> MANTLE = BLOCKS.registerSimpleBlock(
@@ -148,25 +148,25 @@ public final class ModBlocks {
     public static final List<DeferredBlock<? extends Block>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
 
-    public static final DeferredBlock<R196EnchantingTableBlock> EMERALD_ENCHANTING_TABLE = BLOCKS.registerBlock(
+    public static final DeferredBlock<MiteEnchantingTableBlock> EMERALD_ENCHANTING_TABLE = BLOCKS.registerBlock(
             "emerald_enchanting_table",
-            properties -> new R196EnchantingTableBlock(R196EnchantmentMenu.Kind.EMERALD, properties),
+            properties -> new MiteEnchantingTableBlock(MiteEnchantmentMenu.Kind.EMERALD, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE));
-    public static final DeferredBlock<R196EnchantingTableBlock> DIAMOND_ENCHANTING_TABLE = BLOCKS.registerBlock(
+    public static final DeferredBlock<MiteEnchantingTableBlock> DIAMOND_ENCHANTING_TABLE = BLOCKS.registerBlock(
             "diamond_enchanting_table",
-            properties -> new R196EnchantingTableBlock(R196EnchantmentMenu.Kind.DIAMOND, properties),
+            properties -> new MiteEnchantingTableBlock(MiteEnchantmentMenu.Kind.DIAMOND, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE));
-    public static final List<DeferredBlock<R196EnchantingTableBlock>> ENCHANTING_TABLES =
+    public static final List<DeferredBlock<MiteEnchantingTableBlock>> ENCHANTING_TABLES =
             List.of(EMERALD_ENCHANTING_TABLE, DIAMOND_ENCHANTING_TABLE);
 
-    public static final DeferredBlock<R196SafeBlock> COPPER_SAFE = metalSafe(R196Material.COPPER, MapColor.COLOR_ORANGE, 4.0F);
-    public static final DeferredBlock<R196SafeBlock> SILVER_SAFE = metalSafe(R196Material.SILVER, MapColor.METAL, 5.0F);
-    public static final DeferredBlock<R196SafeBlock> GOLD_SAFE = metalSafe(R196Material.GOLD, MapColor.GOLD, 5.0F);
-    public static final DeferredBlock<R196SafeBlock> IRON_SAFE = metalSafe(R196Material.IRON, MapColor.METAL, 6.0F);
-    public static final DeferredBlock<R196SafeBlock> ANCIENT_METAL_SAFE = metalSafe(R196Material.ANCIENT_METAL, MapColor.COLOR_BROWN, 8.0F);
-    public static final DeferredBlock<R196SafeBlock> MITHRIL_SAFE = metalSafe(R196Material.MITHRIL, MapColor.DIAMOND, 12.0F);
-    public static final DeferredBlock<R196SafeBlock> ADAMANTIUM_SAFE = metalSafe(R196Material.ADAMANTIUM, MapColor.EMERALD, 50.0F);
-    public static final List<DeferredBlock<R196SafeBlock>> METAL_SAFES = List.of(
+    public static final DeferredBlock<SafeBlock> COPPER_SAFE = metalSafe(MiteMaterial.COPPER, MapColor.COLOR_ORANGE, 4.0F);
+    public static final DeferredBlock<SafeBlock> SILVER_SAFE = metalSafe(MiteMaterial.SILVER, MapColor.METAL, 5.0F);
+    public static final DeferredBlock<SafeBlock> GOLD_SAFE = metalSafe(MiteMaterial.GOLD, MapColor.GOLD, 5.0F);
+    public static final DeferredBlock<SafeBlock> IRON_SAFE = metalSafe(MiteMaterial.IRON, MapColor.METAL, 6.0F);
+    public static final DeferredBlock<SafeBlock> ANCIENT_METAL_SAFE = metalSafe(MiteMaterial.ANCIENT_METAL, MapColor.COLOR_BROWN, 8.0F);
+    public static final DeferredBlock<SafeBlock> MITHRIL_SAFE = metalSafe(MiteMaterial.MITHRIL, MapColor.DIAMOND, 12.0F);
+    public static final DeferredBlock<SafeBlock> ADAMANTIUM_SAFE = metalSafe(MiteMaterial.ADAMANTIUM, MapColor.EMERALD, 50.0F);
+    public static final List<DeferredBlock<SafeBlock>> METAL_SAFES = List.of(
             COPPER_SAFE, SILVER_SAFE, GOLD_SAFE, IRON_SAFE, ANCIENT_METAL_SAFE, MITHRIL_SAFE, ADAMANTIUM_SAFE);
 
     public static final DeferredBlock<Block> SILVER_BLOCK = metalStorageBlock("silver_block", MapColor.METAL, 4.0F);
@@ -179,15 +179,15 @@ public final class ModBlocks {
     public static final List<DeferredBlock<Block>> METAL_STORAGE_BLOCKS =
             List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
 
-    public static final DeferredBlock<MetalAnvilBlock> COPPER_ANVIL = metalAnvil(R196Material.COPPER, MapColor.COLOR_ORANGE);
-    public static final DeferredBlock<MetalAnvilBlock> SILVER_ANVIL = metalAnvil(R196Material.SILVER, MapColor.METAL);
-    public static final DeferredBlock<MetalAnvilBlock> GOLD_ANVIL = metalAnvil(R196Material.GOLD, MapColor.GOLD);
-    public static final DeferredBlock<MetalAnvilBlock> IRON_ANVIL = metalAnvil(R196Material.IRON, MapColor.METAL);
+    public static final DeferredBlock<MetalAnvilBlock> COPPER_ANVIL = metalAnvil(MiteMaterial.COPPER, MapColor.COLOR_ORANGE);
+    public static final DeferredBlock<MetalAnvilBlock> SILVER_ANVIL = metalAnvil(MiteMaterial.SILVER, MapColor.METAL);
+    public static final DeferredBlock<MetalAnvilBlock> GOLD_ANVIL = metalAnvil(MiteMaterial.GOLD, MapColor.GOLD);
+    public static final DeferredBlock<MetalAnvilBlock> IRON_ANVIL = metalAnvil(MiteMaterial.IRON, MapColor.METAL);
     public static final DeferredBlock<MetalAnvilBlock> ANCIENT_METAL_ANVIL =
-            metalAnvil(R196Material.ANCIENT_METAL, MapColor.COLOR_BROWN);
-    public static final DeferredBlock<MetalAnvilBlock> MITHRIL_ANVIL = metalAnvil(R196Material.MITHRIL, MapColor.DIAMOND);
+            metalAnvil(MiteMaterial.ANCIENT_METAL, MapColor.COLOR_BROWN);
+    public static final DeferredBlock<MetalAnvilBlock> MITHRIL_ANVIL = metalAnvil(MiteMaterial.MITHRIL, MapColor.DIAMOND);
     public static final DeferredBlock<MetalAnvilBlock> ADAMANTIUM_ANVIL =
-            metalAnvil(R196Material.ADAMANTIUM, MapColor.EMERALD);
+            metalAnvil(MiteMaterial.ADAMANTIUM, MapColor.EMERALD);
     public static final List<DeferredBlock<MetalAnvilBlock>> METAL_ANVILS = List.of(
             COPPER_ANVIL,
             SILVER_ANVIL,
@@ -196,7 +196,7 @@ public final class ModBlocks {
             ANCIENT_METAL_ANVIL,
             MITHRIL_ANVIL,
             ADAMANTIUM_ANVIL);
-    private static final Map<R196Material, DeferredBlock<MetalAnvilBlock>> METAL_ANVIL_BY_MATERIAL =
+    private static final Map<MiteMaterial, DeferredBlock<MetalAnvilBlock>> METAL_ANVIL_BY_MATERIAL =
             createMetalAnvilMap();
 
     public static final DeferredBlock<ClayFurnaceBlock> CLAY_FURNACE = BLOCKS.registerBlock(
@@ -257,7 +257,7 @@ public final class ModBlocks {
                     .requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
 
-    public static final List<DeferredBlock<? extends R196FurnaceBlock>> FURNACES =
+    public static final List<DeferredBlock<? extends MiteFurnaceBlock>> FURNACES =
             List.of(
                     CLAY_FURNACE,
                     LARGE_CLAY_OVEN,
@@ -334,19 +334,19 @@ public final class ModBlocks {
                         .requiresCorrectToolForDrops());
     }
 
-    private static DeferredBlock<R196SafeBlock> metalSafe(R196Material material, MapColor color, float strength) {
+    private static DeferredBlock<SafeBlock> metalSafe(MiteMaterial material, MapColor color, float strength) {
         return BLOCKS.registerBlock(
                 material.path() + "_safe",
-                properties -> new R196SafeBlock(material, properties),
+                properties -> new SafeBlock(material, properties),
                 properties -> properties
                         .mapColor(color)
-                        .strength(strength, material == R196Material.ADAMANTIUM ? 3_600.0F : strength * 8.0F)
+                        .strength(strength, material == MiteMaterial.ADAMANTIUM ? 3_600.0F : strength * 8.0F)
                         .sound(SoundType.METAL)
                         .requiresCorrectToolForDrops()
                         .noOcclusion());
     }
 
-    private static DeferredBlock<MetalAnvilBlock> metalAnvil(R196Material material, MapColor color) {
+    private static DeferredBlock<MetalAnvilBlock> metalAnvil(MiteMaterial material, MapColor color) {
         return BLOCKS.registerBlock(
                 material.path() + "_anvil",
                 properties -> new MetalAnvilBlock(material, properties),
@@ -358,18 +358,18 @@ public final class ModBlocks {
                         .noOcclusion());
     }
 
-    private static Map<R196Material, DeferredBlock<MetalAnvilBlock>> createMetalAnvilMap() {
+    private static Map<MiteMaterial, DeferredBlock<MetalAnvilBlock>> createMetalAnvilMap() {
         return Map.of(
-                R196Material.COPPER, COPPER_ANVIL,
-                R196Material.SILVER, SILVER_ANVIL,
-                R196Material.GOLD, GOLD_ANVIL,
-                R196Material.IRON, IRON_ANVIL,
-                R196Material.ANCIENT_METAL, ANCIENT_METAL_ANVIL,
-                R196Material.MITHRIL, MITHRIL_ANVIL,
-                R196Material.ADAMANTIUM, ADAMANTIUM_ANVIL);
+                MiteMaterial.COPPER, COPPER_ANVIL,
+                MiteMaterial.SILVER, SILVER_ANVIL,
+                MiteMaterial.GOLD, GOLD_ANVIL,
+                MiteMaterial.IRON, IRON_ANVIL,
+                MiteMaterial.ANCIENT_METAL, ANCIENT_METAL_ANVIL,
+                MiteMaterial.MITHRIL, MITHRIL_ANVIL,
+                MiteMaterial.ADAMANTIUM, ADAMANTIUM_ANVIL);
     }
 
-    public static DeferredBlock<MetalAnvilBlock> metalAnvil(R196Material material) {
+    public static DeferredBlock<MetalAnvilBlock> metalAnvil(MiteMaterial material) {
         DeferredBlock<MetalAnvilBlock> anvil = METAL_ANVIL_BY_MATERIAL.get(material);
         if (anvil == null) {
             throw new IllegalArgumentException("No metal anvil for " + material);

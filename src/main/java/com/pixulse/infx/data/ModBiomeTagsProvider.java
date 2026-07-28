@@ -1,7 +1,7 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.world.R196RiverBiomes;
+import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -19,14 +19,14 @@ final class ModBiomeTagsProvider extends KeyTagsProvider<Biome> {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
         tag(BiomeTags.IS_OVERWORLD)
-                .add(R196RiverBiomes.DESERT_RIVER)
-                .add(R196RiverBiomes.JUNGLE_RIVER)
-                .add(R196RiverBiomes.SWAMP_RIVER);
+                .add(RiverBiomes.DESERT_RIVER)
+                .add(RiverBiomes.JUNGLE_RIVER)
+                .add(RiverBiomes.SWAMP_RIVER);
         tag(BiomeTags.IS_RIVER)
-                .add(R196RiverBiomes.DESERT_RIVER)
-                .add(R196RiverBiomes.JUNGLE_RIVER)
-                .add(R196RiverBiomes.SWAMP_RIVER);
-        tag(BiomeTags.IS_JUNGLE).add(R196RiverBiomes.JUNGLE_RIVER);
+                .add(RiverBiomes.DESERT_RIVER)
+                .add(RiverBiomes.JUNGLE_RIVER)
+                .add(RiverBiomes.SWAMP_RIVER);
+        tag(BiomeTags.IS_JUNGLE).add(RiverBiomes.JUNGLE_RIVER);
         tag(BiomeTags.HAS_ANCIENT_CITY, true).add(Underworld.BIOME);
         tag(BiomeTags.HAS_BURIED_TREASURE, true).add(Underworld.BIOME);
         tag(BiomeTags.HAS_MINESHAFT, true).add(Underworld.BIOME);

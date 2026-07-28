@@ -3,29 +3,29 @@ package com.pixulse.infx.gametest;
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
-import com.pixulse.infx.block.entity.R196FurnaceBlockEntity;
+import com.pixulse.infx.block.entity.MiteFurnaceBlockEntity;
 import com.pixulse.infx.crafting.BenchTier;
 import com.pixulse.infx.crafting.CraftingProfile;
 import com.pixulse.infx.crafting.MiteCraftingRules;
 import com.pixulse.infx.crafting.TimedCraftingEngine;
 import com.pixulse.infx.crafting.TimedCraftingMenu;
-import com.pixulse.infx.equipment.R196QualitySystem;
+import com.pixulse.infx.equipment.QualitySystem;
 import com.pixulse.infx.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.harvest.HarvestEvents;
-import com.pixulse.infx.harvest.R196PlantHardness;
-import com.pixulse.infx.item.R196EquipmentKey;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
-import com.pixulse.infx.material.R196Quality;
+import com.pixulse.infx.harvest.PlantHardness;
+import com.pixulse.infx.item.EquipmentKey;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.material.Quality;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
-import com.pixulse.infx.progression.R196Experience;
+import com.pixulse.infx.progression.Experience;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.registry.ModDataComponents;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModRecipes;
 import com.pixulse.infx.server.ExtremeDifficulty;
-import com.pixulse.infx.survival.R196SurvivalData;
+import com.pixulse.infx.survival.SurvivalData;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -365,14 +365,14 @@ public final class ModGameTests {
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         assertMitePlantHardness(
-                helper, player, Blocks.SHORT_GRASS, R196PlantHardness.TALL_GRASS_HARDNESS, "short grass");
+                helper, player, Blocks.SHORT_GRASS, PlantHardness.TALL_GRASS_HARDNESS, "short grass");
         assertMitePlantHardness(
-                helper, player, Blocks.TALL_GRASS, R196PlantHardness.TALL_GRASS_HARDNESS, "tall grass");
-        assertMitePlantHardness(helper, player, Blocks.FERN, R196PlantHardness.TALL_GRASS_HARDNESS, "fern");
+                helper, player, Blocks.TALL_GRASS, PlantHardness.TALL_GRASS_HARDNESS, "tall grass");
+        assertMitePlantHardness(helper, player, Blocks.FERN, PlantHardness.TALL_GRASS_HARDNESS, "fern");
         assertMitePlantHardness(
-                helper, player, Blocks.LARGE_FERN, R196PlantHardness.TALL_GRASS_HARDNESS, "large fern");
+                helper, player, Blocks.LARGE_FERN, PlantHardness.TALL_GRASS_HARDNESS, "large fern");
         assertMitePlantHardness(
-                helper, player, Blocks.SUGAR_CANE, R196PlantHardness.SUGAR_CANE_HARDNESS, "sugar cane");
+                helper, player, Blocks.SUGAR_CANE, PlantHardness.SUGAR_CANE_HARDNESS, "sugar cane");
         helper.setBlock(WORK_POS, Blocks.OAK_LOG);
         helper.assertFalse(
                 HarvestEvents.hasDestroyProgress(player, helper.getBlockState(WORK_POS), absolutePos),
@@ -401,7 +401,7 @@ public final class ModGameTests {
         player.getFoodData().setFoodLevel(20);
         player.experienceLevel = 0;
         float stoneHardness = helper.getBlockState(WORK_POS).getDestroySpeed(helper.getLevel(), absolutePos);
-        float expectedStoneProgress = new R196EquipmentKey(R196Material.COPPER, R196EquipmentType.PICKAXE)
+        float expectedStoneProgress = new EquipmentKey(MiteMaterial.COPPER, EquipmentType.PICKAXE)
                         .miningSpeed()
                 / stoneHardness
                 / 512.0F;
@@ -472,7 +472,7 @@ public final class ModGameTests {
         helper.setBlock(WORK_POS, Blocks.DIAMOND_ORE);
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "iron must not harvest level-four diamond ore");
         player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
-                .equipment(R196Material.MITHRIL, R196EquipmentType.PICKAXE)
+                .equipment(MiteMaterial.MITHRIL, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "mithril must harvest level-four diamond ore");
@@ -480,7 +480,7 @@ public final class ModGameTests {
         helper.setBlock(WORK_POS, ModBlocks.MITHRIL_BLOCK.get());
         helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "mithril must not harvest its level-five storage block");
         player.setItemInHand(InteractionHand.MAIN_HAND, ModItems.catalog()
-                .equipment(R196Material.ADAMANTIUM, R196EquipmentType.PICKAXE)
+                .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
         helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "adamantium must harvest a level-five mithril block");
@@ -632,7 +632,7 @@ public final class ModGameTests {
 
     private static void timedCrafting(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        R196SurvivalData initialSurvival = player.getData(ModAttachments.SURVIVAL);
+        SurvivalData initialSurvival = player.getData(ModAttachments.SURVIVAL);
         helper.onEachTick(player::doTick);
         TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
@@ -655,7 +655,7 @@ public final class ModGameTests {
                     helper.assertTrue(countItem(player.getInventory(), ModItems.SINEW.get()) == 0, "result must still be delayed");
                     player.setData(
                             ModAttachments.SURVIVAL,
-                            new R196SurvivalData(
+                            new SurvivalData(
                                     0.0D,
                                     0.0D,
                                     initialSurvival.protein(),
@@ -704,7 +704,7 @@ public final class ModGameTests {
     private static void vanillaCraftingMenu(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
-        int qualityCost = R196QualitySystem.experienceCost(150.0F, R196Quality.FINE);
+        int qualityCost = QualitySystem.experienceCost(150.0F, Quality.FINE);
         int[] experienceBeforeQualityCraft = new int[1];
         helper.setBlock(WORK_POS, Blocks.CRAFTING_TABLE);
         player.openMenu(helper.getBlockState(WORK_POS)
@@ -758,10 +758,10 @@ public final class ModGameTests {
                     vanilla.clicked(0, 1, ContainerInput.PICKUP, player);
                     ItemStack qualityPreview = timed.infx$resultContainer().getItem(0);
                     helper.assertTrue(
-                            qualityPreview.is(equipment(R196Material.FLINT, R196EquipmentType.KNIFE)),
+                            qualityPreview.is(equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)),
                             "right-click must keep the tool crafting result");
                     helper.assertTrue(
-                            qualityPreview.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
+                            qualityPreview.get(ModDataComponents.QUALITY.get()) == Quality.FINE,
                             "enough experience must select Fine Quality on a crafting table");
                     helper.assertTrue(vanilla.getCarried().isEmpty(), "right-click must not take the quality preview");
                     experienceBeforeQualityCraft[0] = player.totalExperience;
@@ -770,11 +770,11 @@ public final class ModGameTests {
                 })
                 .thenWaitUntil(() -> {
                     ItemStack craftedKnife = player.getInventory().getNonEquipmentItems().stream()
-                            .filter(stack -> stack.is(equipment(R196Material.FLINT, R196EquipmentType.KNIFE)))
+                            .filter(stack -> stack.is(equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)))
                             .findFirst()
                             .orElse(ItemStack.EMPTY);
                     helper.assertTrue(
-                            craftedKnife.get(ModDataComponents.QUALITY.get()) == R196Quality.FINE,
+                            craftedKnife.get(ModDataComponents.QUALITY.get()) == Quality.FINE,
                             "the completed tool must retain the selected quality");
                     helper.assertTrue(
                             player.totalExperience == experienceBeforeQualityCraft[0] - qualityCost,
@@ -1249,7 +1249,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.SILVER, R196EquipmentType.SWORD),
+                equipment(MiteMaterial.SILVER, EquipmentType.SWORD),
                 "silver sword preview");
         clearGrid(copper.infx$craftingContainer());
         fillMetalHoe(copper.infx$craftingContainer(), Items.GOLD_INGOT);
@@ -1259,7 +1259,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.GOLD, R196EquipmentType.HOE),
+                equipment(MiteMaterial.GOLD, EquipmentType.HOE),
                 "gold hoe preview");
 
         player.closeContainer();
@@ -1284,7 +1284,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.SWORD),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.SWORD),
                 "mithril sword preview");
         clearGrid(mithril.infx$craftingContainer());
         fillMetalSword(mithril.infx$craftingContainer(), ModItems.ADAMANTIUM_INGOT.get());
@@ -1304,7 +1304,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 adamantium,
-                equipment(R196Material.ADAMANTIUM, R196EquipmentType.SWORD),
+                equipment(MiteMaterial.ADAMANTIUM, EquipmentType.SWORD),
                 "adamantium sword preview");
 
         removePlayer(player);
@@ -1327,7 +1327,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 hand,
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.HATCHET),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.HATCHET),
                 "obsidian hatchet preview");
         clearGrid(hand.infx$craftingContainer());
 
@@ -1348,7 +1348,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(R196Material.OBSIDIAN, R196EquipmentType.AXE),
+                equipment(MiteMaterial.OBSIDIAN, EquipmentType.AXE),
                 "obsidian axe preview");
 
         player.closeContainer();
@@ -1365,7 +1365,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.SILVER, R196EquipmentType.SHEARS),
+                equipment(MiteMaterial.SILVER, EquipmentType.SHEARS),
                 "silver shears preview");
 
         player.closeContainer();
@@ -1390,7 +1390,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.WAR_HAMMER),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.WAR_HAMMER),
                 "mithril war hammer preview");
 
         player.closeContainer();
@@ -1410,7 +1410,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 adamantium,
-                equipment(R196Material.ADAMANTIUM, R196EquipmentType.SCYTHE),
+                equipment(MiteMaterial.ADAMANTIUM, EquipmentType.SCYTHE),
                 "adamantium scythe preview");
 
         removePlayer(player);
@@ -1433,7 +1433,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 hand,
-                equipment(R196Material.FLINT, R196EquipmentType.KNIFE),
+                equipment(MiteMaterial.FLINT, EquipmentType.KNIFE),
                 "flint knife preview");
 
         player.closeContainer();
@@ -1454,7 +1454,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(R196Material.WOOD, R196EquipmentType.BOW),
+                equipment(MiteMaterial.WOOD, EquipmentType.BOW),
                 "wood bow preview");
 
         player.closeContainer();
@@ -1471,7 +1471,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.GOLD, R196EquipmentType.DAGGER),
+                equipment(MiteMaterial.GOLD, EquipmentType.DAGGER),
                 "gold dagger preview");
 
         player.closeContainer();
@@ -1502,7 +1502,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.ARROW),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.ARROW),
                 "mithril arrow preview");
 
         removePlayer(player);
@@ -1528,7 +1528,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(R196Material.LEATHER, R196EquipmentType.HELMET),
+                equipment(MiteMaterial.LEATHER, EquipmentType.HELMET),
                 "leather helmet preview");
         clearGrid(flintGrid);
         for (int slot : List.of(1, 3, 5, 7)) {
@@ -1565,7 +1565,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(R196Material.COPPER, R196EquipmentType.CHAINMAIL_BOOTS),
+                equipment(MiteMaterial.COPPER, EquipmentType.CHAINMAIL_BOOTS),
                 "copper chainmail boots preview");
 
         player.closeContainer();
@@ -1596,29 +1596,29 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(R196Material.MITHRIL, R196EquipmentType.HELMET),
+                equipment(MiteMaterial.MITHRIL, EquipmentType.HELMET),
                 "mithril helmet preview");
         player.closeContainer();
 
         player.setItemSlot(
                 EquipmentSlot.CHEST,
-                equipment(R196Material.LEATHER, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                equipment(MiteMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper, player, "wear_leather", "wearing leather armor must grant Suiting Up"))
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
-                            equipment(R196Material.COPPER, R196EquipmentType.HELMET).getDefaultInstance());
+                            equipment(MiteMaterial.COPPER, EquipmentType.HELMET).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.CHEST,
-                            equipment(R196Material.GOLD, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                            equipment(MiteMaterial.GOLD, EquipmentType.CHESTPLATE).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.LEGS,
-                            equipment(R196Material.IRON, R196EquipmentType.LEGGINGS).getDefaultInstance());
+                            equipment(MiteMaterial.IRON, EquipmentType.LEGGINGS).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.FEET,
-                            equipment(R196Material.MITHRIL, R196EquipmentType.BOOTS).getDefaultInstance());
+                            equipment(MiteMaterial.MITHRIL, EquipmentType.BOOTS).getDefaultInstance());
                 })
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
@@ -1628,16 +1628,16 @@ public final class ModGameTests {
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.HELMET).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.HELMET).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.CHEST,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.CHESTPLATE).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.CHESTPLATE).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.LEGS,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.LEGGINGS).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.LEGGINGS).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.FEET,
-                            equipment(R196Material.ADAMANTIUM, R196EquipmentType.BOOTS).getDefaultInstance());
+                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.BOOTS).getDefaultInstance());
                 })
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
@@ -1738,8 +1738,8 @@ public final class ModGameTests {
                 .defaultBlockState()
                 .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
         helper.setBlock(FURNACE_POS, clayState);
-        R196FurnaceBlockEntity[] furnace = {
-            helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class)
+        MiteFurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class)
         };
         ItemStack sandBatch = new ItemStack(Items.SAND, 4);
         helper.assertFalse(
@@ -1779,7 +1779,7 @@ public final class ModGameTests {
                             .defaultBlockState()
                             .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
                     helper.setBlock(FURNACE_POS, sandstoneState);
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
 
                     player.openMenu(furnace[0]);
                     helper.assertTrue(
@@ -1859,8 +1859,8 @@ public final class ModGameTests {
                 ModBlocks.LARGE_CLAY_OVEN.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        R196FurnaceBlockEntity[] furnace = {
-            helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class)
+        MiteFurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class)
         };
 
         helper.assertTrue(
@@ -1888,7 +1888,7 @@ public final class ModGameTests {
                 ModBlocks.OBSIDIAN_FURNACE.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+        furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
         helper.assertTrue(
                 furnace[0].canPlaceItem(1, Items.LAVA_BUCKET.getDefaultInstance()),
                 "the obsidian furnace must accept heat-3 lava");
@@ -1912,7 +1912,7 @@ public final class ModGameTests {
                             ModBlocks.NETHERRACK_FURNACE.get()
                                     .defaultBlockState()
                                     .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, R196FurnaceBlockEntity.class);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
                     helper.assertTrue(
                             furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                             "the netherrack furnace must accept heat-4 blaze rods");
@@ -1979,7 +1979,7 @@ public final class ModGameTests {
     }
 
     private static void grantMaximumExperience(ServerPlayer player) {
-        R196Experience.setTotal(player, R196Experience.XP_AT_DISPLAY_CAP);
+        Experience.setTotal(player, Experience.XP_AT_DISPLAY_CAP);
     }
 
     private static TimedWorkbenchMenu workbenchMenu(
@@ -2069,7 +2069,7 @@ public final class ModGameTests {
         }
     }
 
-    private static Item equipment(R196Material material, R196EquipmentType type) {
+    private static Item equipment(MiteMaterial material, EquipmentType type) {
         return ModItems.catalog().equipment(material, type).holder().get();
     }
 

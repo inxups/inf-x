@@ -3,8 +3,8 @@ package com.pixulse.infx.loot;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.registry.ModLootModifiers;
-import com.pixulse.infx.world.R196CreationBooks;
-import com.pixulse.infx.world.R196WorldData;
+import com.pixulse.infx.world.CreationBooks;
+import com.pixulse.infx.world.WorldData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Map;
 import net.minecraft.resources.Identifier;
@@ -37,7 +37,7 @@ public final class CreationBookLootModifier extends LootModifier {
         Float chance = CHANCES.get(table.getPath());
         if (chance == null) return loot;
         long day = Math.max(1L, context.getLevel().getOverworldClockTime() / 24_000L + 1L);
-        R196WorldData data = R196WorldData.get(context.getLevel());
+        WorldData data = WorldData.get(context.getLevel());
         if (day < FIRST_DAY || !data.hasWorldAdvancement("bookcase")) return loot;
         Vec3 origin = context.getOptionalParameter(LootContextParams.ORIGIN);
         String component = table + ":" + (origin == null
@@ -46,7 +46,7 @@ public final class CreationBookLootModifier extends LootModifier {
                         (int) Math.floor(origin.x) >> 4, (int) Math.floor(origin.z) >> 4));
         if (context.getRandom().nextFloat() >= chance || !data.beginCreationBookComponent(component)) return loot;
         int title = data.claimCreationBook(context.getRandom());
-        if (title >= 0) loot.add(R196CreationBooks.create(title));
+        if (title >= 0) loot.add(CreationBooks.create(title));
         return loot;
     }
 

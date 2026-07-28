@@ -1,9 +1,9 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.agriculture.R196GrassTrampling;
-import com.pixulse.infx.curse.R196CurseStatus;
-import com.pixulse.infx.survival.R196SurvivalData;
+import com.pixulse.infx.agriculture.GrassTrampling;
+import com.pixulse.infx.curse.CurseStatus;
+import com.pixulse.infx.survival.SurvivalData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -19,17 +19,17 @@ public final class ModAttachments {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, InfiniteX.MOD_ID);
 
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<R196SurvivalData>> SURVIVAL =
-            ATTACHMENTS.register("survival", () -> AttachmentType.builder(R196SurvivalData::initial)
-                    .serialize(R196SurvivalData.CODEC.fieldOf("survival"))
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<SurvivalData>> SURVIVAL =
+            ATTACHMENTS.register("survival", () -> AttachmentType.builder(SurvivalData::initial)
+                    .serialize(SurvivalData.CODEC.fieldOf("survival"))
                     .copyOnDeath()
-                    .sync((holder, player) -> holder == player, R196SurvivalData.STREAM_CODEC)
+                    .sync((holder, player) -> holder == player, SurvivalData.STREAM_CODEC)
                     .build());
 
     /** Realized curse state is projected from world SavedData and synchronized only to its player. */
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<R196CurseStatus>> CURSE_STATUS =
-            ATTACHMENTS.register("curse_status", () -> AttachmentType.builder(() -> R196CurseStatus.NONE)
-                    .sync((holder, player) -> holder == player, R196CurseStatus.STREAM_CODEC)
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<CurseStatus>> CURSE_STATUS =
+            ATTACHMENTS.register("curse_status", () -> AttachmentType.builder(() -> CurseStatus.NONE)
+                    .sync((holder, player) -> holder == player, CurseStatus.STREAM_CODEC)
                     .build());
 
     private static final StreamCodec<RegistryFriendlyByteBuf, Map<String, Integer>> GRASS_TRAMPLING_STREAM =
@@ -46,7 +46,7 @@ public final class ModAttachments {
             ATTACHMENTS.register(
                     "grass_trampling",
                     () -> AttachmentType.<Map<String, Integer>>builder(Map::of)
-                            .serialize(R196GrassTrampling.CODEC.fieldOf("tramplings"))
+                            .serialize(GrassTrampling.CODEC.fieldOf("tramplings"))
                             .sync(GRASS_TRAMPLING_STREAM)
                             .build());
 

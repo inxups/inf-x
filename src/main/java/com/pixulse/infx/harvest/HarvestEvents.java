@@ -2,8 +2,8 @@ package com.pixulse.infx.harvest;
 
 import java.util.Optional;
 
-import com.pixulse.infx.block.R196SafeBlock;
-import com.pixulse.infx.block.entity.R196SafeBlockEntity;
+import com.pixulse.infx.block.SafeBlock;
+import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.tag.ModTags;
 
 import net.minecraft.core.BlockPos;
@@ -89,11 +89,11 @@ public final class HarvestEvents {
         if (!state.is(ModTags.Blocks.PORTABLE_HAND_HARVEST)) {
             return false;
         }
-        if (!(state.getBlock() instanceof R196SafeBlock)) {
+        if (!(state.getBlock() instanceof SafeBlock)) {
             return true;
         }
         return pos != null
-                && player.level().getBlockEntity(pos) instanceof R196SafeBlockEntity safe
+                && player.level().getBlockEntity(pos) instanceof SafeBlockEntity safe
                 && safe.isPortableTo(player);
     }
 

@@ -7,10 +7,10 @@ import net.minecraft.world.phys.Vec3;
 
 /** R196 arachnid pounce: two-to-six blocks, attempted once in ten while grounded. */
 final class MiteArachnidLeapGoal extends Goal {
-    private final R196Spider spider;
+    private final MiteSpider spider;
     private LivingEntity target;
 
-    MiteArachnidLeapGoal(R196Spider spider) {
+    MiteArachnidLeapGoal(MiteSpider spider) {
         this.spider = spider;
         setFlags(EnumSet.of(Flag.JUMP, Flag.MOVE));
     }
@@ -20,7 +20,7 @@ final class MiteArachnidLeapGoal extends Goal {
         target = spider.getTarget();
         return target != null
                 && !spider.hasControllingPassenger()
-                && R196AttackRanges.isArachnidLeapDistance(spider.distanceToSqr(target))
+                && AttackRanges.isArachnidLeapDistance(spider.distanceToSqr(target))
                 && spider.onGround()
                 && spider.getRandom().nextInt(10) == 0;
     }

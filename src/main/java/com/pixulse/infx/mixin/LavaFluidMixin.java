@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.entity.R196MonsterEvents;
+import com.pixulse.infx.entity.MonsterEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -17,6 +17,6 @@ public abstract class LavaFluidMixin {
     @Inject(method = "randomTick", at = @At("HEAD"))
     private void infx$spawnFireElemental(
             ServerLevel level, BlockPos pos, FluidState state, RandomSource random, CallbackInfo callback) {
-        R196MonsterEvents.trySpawnFireElemental(level, pos, state, random);
+        MonsterEvents.trySpawnFireElemental(level, pos, state, random);
     }
 }

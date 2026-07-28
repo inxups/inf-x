@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-public final class ClayFurnaceBlock extends R196FurnaceBlock {
+public final class ClayFurnaceBlock extends MiteFurnaceBlock {
     public static final MapCodec<ClayFurnaceBlock> CODEC = simpleCodec(ClayFurnaceBlock::new);
 
     public ClayFurnaceBlock(BlockBehaviour.Properties properties) {

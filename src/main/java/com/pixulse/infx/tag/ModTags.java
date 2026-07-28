@@ -2,9 +2,9 @@ package com.pixulse.infx.tag;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.harvest.HarvestTier;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.item.R196MiningFamily;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.MiningFamily;
+import com.pixulse.infx.material.MiteMaterial;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -37,8 +37,8 @@ public final class ModTags {
             return create("requires_harvest_level/" + level);
         }
 
-        public static TagKey<Block> effectiveWith(R196MiningFamily family) {
-            if (family == R196MiningFamily.NONE) {
+        public static TagKey<Block> effectiveWith(MiningFamily family) {
+            if (family == MiningFamily.NONE) {
                 throw new IllegalArgumentException("NONE has no effective block tag");
             }
             return create("effective_tool/" + family.path());
@@ -90,15 +90,15 @@ public final class ModTags {
             return create("tool_tier/" + tier.path());
         }
 
-        public static TagKey<Item> repairMaterial(R196Material material) {
+        public static TagKey<Item> repairMaterial(MiteMaterial material) {
             return create("repair_materials/" + material.path());
         }
 
-        public static TagKey<Item> material(R196Material material) {
+        public static TagKey<Item> material(MiteMaterial material) {
             return create("materials/" + material.path());
         }
 
-        public static TagKey<Item> equipmentType(R196EquipmentType type) {
+        public static TagKey<Item> equipmentType(EquipmentType type) {
             return create("equipment/" + type.path());
         }
 

@@ -2,10 +2,10 @@ package com.pixulse.infx.progression;
 
 import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
-import com.pixulse.infx.item.R196Catalog;
+import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.registry.ModAttachments;
 import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.survival.R196SurvivalEvents;
+import com.pixulse.infx.survival.SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -61,34 +61,34 @@ public final class PlayerProgressionEvents {
 
     private static void onExperienceChange(PlayerXpEvent.XpChange event) {
         event.setCanceled(true);
-        R196Experience.add(event.getEntity(), event.getAmount());
-        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
+        Experience.add(event.getEntity(), event.getAmount());
+        SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onLevelChange(PlayerXpEvent.LevelChange event) {
         event.setCanceled(true);
-        R196Experience.addLevels(event.getEntity(), event.getLevels());
-        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
+        Experience.addLevels(event.getEntity(), event.getLevels());
+        SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        R196Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
-        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
+        Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
+        SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath()
                 || keepsExperienceOnDeath(event.getEntity())
                 || event.getOriginal().isSpectator()) {
-            R196Experience.setTotal(event.getEntity(), event.getOriginal().totalExperience);
-            R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
+            Experience.setTotal(event.getEntity(), event.getOriginal().totalExperience);
+            SurvivalEvents.recalculatePlayerLimits(event.getEntity());
             return;
         }
         int previous = event.getOriginal().getPersistentData()
                 .getInt(DEATH_TOTAL)
                 .orElse(event.getOriginal().totalExperience);
-        R196Experience.setTotal(event.getEntity(), R196Experience.deathTotal(previous));
-        R196SurvivalEvents.recalculatePlayerLimits(event.getEntity());
+        Experience.setTotal(event.getEntity(), Experience.deathTotal(previous));
+        SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     private static void onDeath(LivingDeathEvent event) {
@@ -104,7 +104,7 @@ public final class PlayerProgressionEvents {
                 event.setDroppedExperience(0);
                 return;
             }
-            event.setDroppedExperience(R196Experience.droppedOnDeath(player.totalExperience));
+            event.setDroppedExperience(Experience.droppedOnDeath(player.totalExperience));
         }
     }
 
@@ -152,7 +152,7 @@ public final class PlayerProgressionEvents {
     }
 
     public static float meleeMultiplier(int level) {
-        return R196Experience.meleeMultiplier(level);
+        return Experience.meleeMultiplier(level);
     }
 
     public static boolean isWeakStrike(Player player) {
@@ -162,7 +162,7 @@ public final class PlayerProgressionEvents {
                 || HarvestSpeedRules.isInCobweb(player)) {
             return true;
         }
-        R196Catalog.EquipmentEntry held = ModItems.catalog().equipment(player.getMainHandItem());
+        Catalog.EquipmentEntry held = ModItems.catalog().equipment(player.getMainHandItem());
         return held == null && player.getAttributeValue(Attributes.ATTACK_DAMAGE) <= 2.0;
     }
 }

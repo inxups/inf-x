@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.entity.R196ExplosionRanges;
+import com.pixulse.infx.entity.ExplosionRanges;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ExplosionDamageCalculator;
@@ -15,9 +15,9 @@ public abstract class ExplosionDamageCalculatorMixin {
     @Inject(method = "getEntityDamageAmount", at = @At("HEAD"), cancellable = true)
     private void infx$r196EntityDamage(
             Explosion explosion, Entity entity, float exposure, CallbackInfoReturnable<Float> callback) {
-        var radius = R196ExplosionRanges.entityRadius(explosion);
+        var radius = ExplosionRanges.entityRadius(explosion);
         if (radius.isPresent()) {
-            callback.setReturnValue(R196ExplosionRanges.damageAmount(
+            callback.setReturnValue(ExplosionRanges.damageAmount(
                     explosion, entity, exposure, radius.getAsDouble()));
         }
     }

@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.menu.R196EnchantmentMenu;
+import com.pixulse.infx.menu.MiteEnchantmentMenu;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,14 +33,14 @@ public abstract class EnchantmentScreenMixin {
                     target = "Lnet/minecraft/client/player/LocalPlayer;experienceLevel:I"))
     private int infx$compareRawExperience(LocalPlayer player) {
         EnchantmentMenu menu = ((EnchantmentScreen) (Object) this).getMenu();
-        return menu instanceof R196EnchantmentMenu ? player.totalExperience : player.experienceLevel;
+        return menu instanceof MiteEnchantmentMenu ? player.totalExperience : player.experienceLevel;
     }
 
     @Inject(method = "extractRenderState", at = @At("TAIL"))
     private void infx$replaceExperienceTooltip(
             GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo callback) {
         EnchantmentScreen screen = (EnchantmentScreen) (Object) this;
-        if (!(screen.getMenu() instanceof R196EnchantmentMenu menu)) return;
+        if (!(screen.getMenu() instanceof MiteEnchantmentMenu menu)) return;
 
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) return;

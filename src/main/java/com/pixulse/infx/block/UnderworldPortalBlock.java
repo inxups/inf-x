@@ -1,6 +1,6 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.progression.ProgressionEvents;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.world.UnderworldPortalEvents;
@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /** The dedicated two-way surface between the Overworld and the Underworld. */
-public final class UnderworldPortalBlock extends R196PortalBlock {
+public final class UnderworldPortalBlock extends MitePortalBlock {
     public static final BooleanProperty RUNE_GATE = BooleanProperty.create("rune_gate");
 
     public UnderworldPortalBlock(BlockBehaviour.Properties properties) {
@@ -97,7 +97,7 @@ public final class UnderworldPortalBlock extends R196PortalBlock {
         int signature = 0;
         for (RuneEntry entry : runes) signature = signature << 4 | entry.state().getValue(RuneStoneBlock.RUNE);
         return Optional.of(new RuneGate(
-                adamantium ? R196Material.ADAMANTIUM : R196Material.MITHRIL,
+                adamantium ? MiteMaterial.ADAMANTIUM : MiteMaterial.MITHRIL,
                 signature));
     }
 
@@ -142,13 +142,13 @@ public final class UnderworldPortalBlock extends R196PortalBlock {
     }
 
     public static Vec3 runeDestinationOffset(
-            R196Material material, int signature, int orientationGroup, int attempt) {
+            MiteMaterial material, int signature, int orientationGroup, int attempt) {
         long mixed = mix64(Integer.toUnsignedLong(signature)
                 ^ (long) orientationGroup * 0x9E3779B97F4A7C15L
                 ^ (long) attempt * 0xD1B54A32D192ED03L
-                ^ (material == R196Material.ADAMANTIUM ? 0x94D049BB133111EBL : 0x369DEA0F31A53F85L));
-        double minimum = material == R196Material.ADAMANTIUM ? 20_000.0 : 2_500.0;
-        double span = material == R196Material.ADAMANTIUM ? 20_000.0 : 2_500.0;
+                ^ (material == MiteMaterial.ADAMANTIUM ? 0x94D049BB133111EBL : 0x369DEA0F31A53F85L));
+        double minimum = material == MiteMaterial.ADAMANTIUM ? 20_000.0 : 2_500.0;
+        double span = material == MiteMaterial.ADAMANTIUM ? 20_000.0 : 2_500.0;
         double unit = ((mixed >>> 11) & ((1L << 53) - 1)) / (double) (1L << 53);
         double radius = minimum + span * unit;
         double angle = Math.floorMod(mixed >>> 32, 65_536L) / 65_536.0 * Math.PI * 2.0;
@@ -185,5 +185,5 @@ public final class UnderworldPortalBlock extends R196PortalBlock {
 
     private record RuneEntry(BlockPos pos, BlockState state) {}
 
-    private record RuneGate(R196Material material, int signature) {}
+    private record RuneGate(MiteMaterial material, int signature) {}
 }

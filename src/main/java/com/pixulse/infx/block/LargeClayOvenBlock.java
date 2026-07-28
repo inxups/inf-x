@@ -5,7 +5,7 @@ import com.pixulse.infx.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 /** The distinct heat-one oven body that accepts full blocks and other large inputs. */
-public final class LargeClayOvenBlock extends R196FurnaceBlock {
+public final class LargeClayOvenBlock extends MiteFurnaceBlock {
     public static final MapCodec<LargeClayOvenBlock> CODEC = simpleCodec(LargeClayOvenBlock::new);
 
     public LargeClayOvenBlock(BlockBehaviour.Properties properties) {

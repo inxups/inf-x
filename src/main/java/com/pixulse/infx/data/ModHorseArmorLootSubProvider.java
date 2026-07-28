@@ -1,8 +1,8 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.registry.ModItems;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -31,44 +31,44 @@ final class ModHorseArmorLootSubProvider implements LootTableSubProvider {
                         ConstantValue.exactly(8.0F),
                         147,
                         List.of(
-                                new WeightedArmor(R196Material.GOLD, 2),
-                                new WeightedArmor(R196Material.COPPER, 5),
-                                new WeightedArmor(R196Material.IRON, 1))));
+                                new WeightedArmor(MiteMaterial.GOLD, 2),
+                                new WeightedArmor(MiteMaterial.COPPER, 5),
+                                new WeightedArmor(MiteMaterial.IRON, 1))));
         output.accept(
                 tableKey("nether_bridge"),
                 table(
                         UniformGenerator.between(2.0F, 5.0F),
                         50,
                         List.of(
-                                new WeightedArmor(R196Material.GOLD, 8),
-                                new WeightedArmor(R196Material.COPPER, 5),
-                                new WeightedArmor(R196Material.IRON, 3))));
+                                new WeightedArmor(MiteMaterial.GOLD, 8),
+                                new WeightedArmor(MiteMaterial.COPPER, 5),
+                                new WeightedArmor(MiteMaterial.IRON, 3))));
         output.accept(
                 tableKey("desert_pyramid"),
                 table(
                         UniformGenerator.between(2.0F, 6.0F),
                         65,
                         List.of(
-                                new WeightedArmor(R196Material.IRON, 1),
-                                new WeightedArmor(R196Material.SILVER, 1),
-                                new WeightedArmor(R196Material.GOLD, 1))));
+                                new WeightedArmor(MiteMaterial.IRON, 1),
+                                new WeightedArmor(MiteMaterial.SILVER, 1),
+                                new WeightedArmor(MiteMaterial.GOLD, 1))));
         output.accept(
                 tableKey("jungle_temple"),
                 table(
                         UniformGenerator.between(2.0F, 6.0F),
                         60,
                         List.of(
-                                new WeightedArmor(R196Material.IRON, 1),
-                                new WeightedArmor(R196Material.SILVER, 1),
-                                new WeightedArmor(R196Material.GOLD, 1))));
+                                new WeightedArmor(MiteMaterial.IRON, 1),
+                                new WeightedArmor(MiteMaterial.SILVER, 1),
+                                new WeightedArmor(MiteMaterial.GOLD, 1))));
         output.accept(
                 tableKey("stronghold_corridor"),
                 table(
                         UniformGenerator.between(2.0F, 3.0F),
                         188,
                         List.of(
-                                new WeightedArmor(R196Material.COPPER, 1),
-                                new WeightedArmor(R196Material.IRON, 1))));
+                                new WeightedArmor(MiteMaterial.COPPER, 1),
+                                new WeightedArmor(MiteMaterial.IRON, 1))));
     }
 
     static ResourceKey<LootTable> tableKey(String structure) {
@@ -89,11 +89,11 @@ final class ModHorseArmorLootSubProvider implements LootTableSubProvider {
         return LootTable.lootTable().withPool(pool);
     }
 
-    private static ItemLike horseArmor(R196Material material) {
+    private static ItemLike horseArmor(MiteMaterial material) {
         return ModItems.catalog()
-                .equipment(material, R196EquipmentType.HORSE_ARMOR)
+                .equipment(material, EquipmentType.HORSE_ARMOR)
                 .holder();
     }
 
-    private record WeightedArmor(R196Material material, int weight) {}
+    private record WeightedArmor(MiteMaterial material, int weight) {}
 }

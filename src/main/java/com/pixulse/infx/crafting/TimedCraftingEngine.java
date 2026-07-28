@@ -22,8 +22,8 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.equipment.R196QualitySystem;
-import com.pixulse.infx.material.R196Quality;
+import com.pixulse.infx.equipment.QualitySystem;
+import com.pixulse.infx.material.Quality;
 import com.pixulse.infx.registry.ModAttachments;
 
 public final class TimedCraftingEngine {
@@ -54,14 +54,14 @@ public final class TimedCraftingEngine {
         if (result.setRecipeUsed(player, holder.holder())) {
             ItemStack assembled = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
             if (assembled.isItemEnabled(player.level().enabledFeatures())) {
-                int code = R196QualitySystem.clampCode(
+                int code = QualitySystem.clampCode(
                         assembled,
                         player,
                         holder.profile().difficulty(),
                         timedMenu.infx$selectedQualityCode(),
                         CraftingEnvironment.hasClumsiness(player));
                 timedMenu.infx$setSelectedQualityCode(code);
-                R196QualitySystem.applySelectedQuality(assembled, code);
+                QualitySystem.applySelectedQuality(assembled, code);
                 applySelectedRune(timedMenu, assembled);
                 preview = assembled;
             }
@@ -83,7 +83,7 @@ public final class TimedCraftingEngine {
             return;
         }
         CraftingMatch holder = match.orElseThrow();
-        float adjustedDifficulty = R196QualitySystem.adjustedDifficulty(
+        float adjustedDifficulty = QualitySystem.adjustedDifficulty(
                 holder.profile().difficulty(), timedMenu.infx$selectedQualityCode());
         boolean clumsy = CraftingEnvironment.hasClumsiness(player);
         int requiredTicks = CraftingTimeCalculator.requiredTicks(
@@ -99,7 +99,7 @@ public final class TimedCraftingEngine {
     public static void cycleResult(TimedCraftingMenu timedMenu, ServerPlayer player) {
         Optional<CraftingMatch> match = findRecipe(timedMenu, player.level());
         if (match.isEmpty()) {
-            timedMenu.infx$setSelectedQualityCode(R196QualitySystem.AVERAGE_CODE);
+            timedMenu.infx$setSelectedQualityCode(QualitySystem.AVERAGE_CODE);
             timedMenu.infx$setSelectedRune(0);
             return;
         }
@@ -111,11 +111,11 @@ public final class TimedCraftingEngine {
             refreshResult(timedMenu, player, true);
             return;
         }
-        if (!R196QualitySystem.supportsQuality(output)) {
+        if (!QualitySystem.supportsQuality(output)) {
             return;
         }
         boolean clumsy = CraftingEnvironment.hasClumsiness(player);
-        int code = R196QualitySystem.cycleCode(
+        int code = QualitySystem.cycleCode(
                 output,
                 player,
                 holder.profile().difficulty(),
@@ -194,16 +194,16 @@ public final class TimedCraftingEngine {
             return;
         }
         boolean clumsy = CraftingEnvironment.hasClumsiness(player);
-        int qualityCode = R196QualitySystem.clampCode(
+        int qualityCode = QualitySystem.clampCode(
                 output,
                 player,
                 holder.profile().difficulty(),
                 timedMenu.infx$selectedQualityCode(),
                 clumsy);
-        R196QualitySystem.applySelectedQuality(output, qualityCode);
+        QualitySystem.applySelectedQuality(output, qualityCode);
         applySelectedRune(timedMenu, output);
-        var quality = R196QualitySystem.fromCode(qualityCode);
-        int qualityCost = R196QualitySystem.experienceCost(holder.profile().difficulty(), quality, clumsy);
+        var quality = QualitySystem.fromCode(qualityCode);
+        int qualityCost = QualitySystem.experienceCost(holder.profile().difficulty(), quality, clumsy);
         if (qualityCost > player.totalExperience) {
             timedMenu.infx$resetTimedCrafting();
             refreshResult(timedMenu, player, true);
@@ -238,7 +238,7 @@ public final class TimedCraftingEngine {
                         .map(next -> next.holder().id().equals(holder.holder().id()))
                         .orElse(false);
         if (stillSameRecipe) {
-            float adjustedDifficulty = R196QualitySystem.adjustedDifficulty(
+            float adjustedDifficulty = QualitySystem.adjustedDifficulty(
                     holder.profile().difficulty(), timedMenu.infx$selectedQualityCode());
             int requiredTicks = CraftingTimeCalculator.requiredTicks(
                     adjustedDifficulty,
@@ -306,12 +306,12 @@ public final class TimedCraftingEngine {
     /** Shows the server-authoritative choice and its exact cost before crafting starts. */
     private static void announceQualitySelection(
             ServerPlayer player, float difficulty, int qualityCode, boolean clumsy) {
-        R196Quality quality = R196QualitySystem.fromCode(qualityCode);
+        Quality quality = QualitySystem.fromCode(qualityCode);
         if (quality == null) {
             player.sendSystemMessage(Component.translatable("message.infx.quality.average"));
             return;
         }
-        int cost = R196QualitySystem.experienceCost(difficulty, quality, clumsy);
+        int cost = QualitySystem.experienceCost(difficulty, quality, clumsy);
         player.sendSystemMessage(
                 Component.translatable(
                         "message.infx.quality.selected",

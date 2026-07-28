@@ -1,19 +1,13 @@
 package com.pixulse.infx.gametest;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.curse.R196CurseData;
-import com.pixulse.infx.entity.R196EarthElemental;
-import com.pixulse.infx.entity.R196Enderman;
-import com.pixulse.infx.entity.R196Mob;
-import com.pixulse.infx.entity.R196MonsterEvents;
-import com.pixulse.infx.entity.R196MonsterTactics;
-import com.pixulse.infx.entity.R196Slime;
-import com.pixulse.infx.entity.R196Witch;
-import com.pixulse.infx.material.R196Material;
-import com.pixulse.infx.item.R196EquipmentType;
+import com.pixulse.infx.curse.CurseData;
+import com.pixulse.infx.entity.*;
+import com.pixulse.infx.material.MiteMaterial;
+import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.registry.ModItems;
 import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.world.R196RiverBiomes;
+import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
 import java.util.List;
 import java.util.Set;
@@ -145,7 +139,7 @@ public final class ModMonsterGameTests {
         for (var holder : ModEntityTypes.ALL) {
             var entity = holder.get().create(helper.getLevel(), EntitySpawnReason.COMMAND);
             if (!passiveReplacements.contains(holder)) {
-                helper.assertTrue(entity instanceof R196Mob, holder.getId() + " must implement R196Mob");
+                helper.assertTrue(entity instanceof MiteMob, holder.getId() + " must implement MiteMob");
             }
             helper.assertTrue(
                     entity instanceof LivingEntity living && living.getMaxHealth() > 0.0F,
@@ -232,7 +226,7 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 !piglin.canBreakDoors() && !piglin.canPickUpLoot(),
                 "R196 zombified piglins must not inherit modern zombie door breaking or item pickup");
-        var piglinTarget = ModR196CompletionGameTests.createPlayer(helper);
+        var piglinTarget = ModCompletionGameTests.createPlayer(helper);
         piglin.setTarget(piglinTarget);
         // The replacement adjusts its modifier from customServerAiStep, which is
         // invoked by the real entity tick rather than by the client-side aiStep hook.
@@ -253,7 +247,7 @@ public final class ModMonsterGameTests {
                 Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.30D) < DAMAGE_EPSILON,
                 "R196 endermen must remove the chase-speed modifier without a target");
         piglin.setTarget(null);
-        ModR196CompletionGameTests.removePlayer(piglinTarget);
+        ModCompletionGameTests.removePlayer(piglinTarget);
         piglin.tick();
         helper.assertTrue(
                 Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
@@ -303,7 +297,7 @@ public final class ModMonsterGameTests {
             var slime = helper.spawnWithNoFreeWill(type.get(), new BlockPos(slimeX++, 2, 4));
             for (int size : List.of(1, 2, 4)) {
                 slime.setSize(size, true);
-                double expectedSpeed = slime.variant() == R196Slime.Variant.OOZE
+                double expectedSpeed = slime.variant() == MiteSlime.Variant.OOZE
                         ? 0.05D
                         : 0.20D + 0.10D * slime.getSize();
                 helper.assertTrue(
@@ -399,7 +393,7 @@ public final class ModMonsterGameTests {
                     Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
                     var replacement = helper.getLevel()
                             .getEntitiesOfClass(
-                                    com.pixulse.infx.entity.R196Zombie.class,
+                                    MiteZombie.class,
                                     new AABB(replacementPosition, replacementPosition).inflate(2.0D),
                                     entity -> entity.getType() == ModEntityTypes.R196_ZOMBIE.get())
                             .getFirst();
@@ -414,9 +408,9 @@ public final class ModMonsterGameTests {
                     helper.assertTrue(
                             helper.getLevel()
                                     .getEntitiesOfClass(
-                                            com.pixulse.infx.entity.R196Zombie.class,
+                                            MiteZombie.class,
                                             new AABB(convertedVillagerPosition, convertedVillagerPosition).inflate(2.0D),
-                                            com.pixulse.infx.entity.R196Zombie::isVillagerZombie)
+                                            MiteZombie::isVillagerZombie)
                                     .size()
                                     == 1,
                             "villager conversions must retain the R196 villager-zombie marker");
@@ -525,7 +519,7 @@ public final class ModMonsterGameTests {
                         == 2,
                 "jungle biomes must retain the additional R196 chicken entry");
 
-        MobSpawnSettings jungleRiver = biomes.getOrThrow(R196RiverBiomes.JUNGLE_RIVER).value().getMobSettings();
+        MobSpawnSettings jungleRiver = biomes.getOrThrow(RiverBiomes.JUNGLE_RIVER).value().getMobSettings();
         helper.assertTrue(
                 spawnTypes(jungleRiver, MobCategory.CREATURE).isEmpty()
                         && !spawnTypes(jungleRiver, MobCategory.MONSTER)
@@ -568,10 +562,10 @@ public final class ModMonsterGameTests {
 
     private static void assertEarthForm(
             GameTestHelper helper,
-            R196EarthElemental elemental,
+            EarthElemental elemental,
             net.minecraft.world.level.block.state.BlockState ground,
             boolean heated,
-            R196EarthElemental.Form expected) {
+            EarthElemental.Form expected) {
         elemental.initializeMiteForm(ground, heated);
         helper.assertTrue(
                 elemental.form() == expected && elemental.isMagma() == expected.isMagmaForm(),
@@ -601,7 +595,7 @@ public final class ModMonsterGameTests {
                 "snowballs must hurt the R196 blaze");
         helper.assertTrue(blaze.getHealth() == before - 3.0F, "snowballs must deal three damage to the R196 blaze");
 
-        var player = ModR196CompletionGameTests.createPlayer(helper);
+        var player = ModCompletionGameTests.createPlayer(helper);
         before = blaze.getHealth();
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
@@ -645,7 +639,7 @@ public final class ModMonsterGameTests {
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND,
                 ModItems.catalog()
-                        .equipment(R196Material.IRON, R196EquipmentType.WAR_HAMMER)
+                        .equipment(MiteMaterial.IRON, EquipmentType.WAR_HAMMER)
                         .holder()
                         .toStack());
         helper.assertTrue(
@@ -673,17 +667,17 @@ public final class ModMonsterGameTests {
                 "pickaxes must hurt the earth elemental");
         helper.assertTrue(earth.getHealth() < before, "pickaxe hits must deal earth elemental damage");
 
-        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), false, R196EarthElemental.Form.STONE_NORMAL);
-        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), true, R196EarthElemental.Form.STONE_MAGMA);
-        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), false, R196EarthElemental.Form.OBSIDIAN_NORMAL);
-        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), true, R196EarthElemental.Form.OBSIDIAN_MAGMA);
-        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), false, R196EarthElemental.Form.NETHERRACK_NORMAL);
-        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), true, R196EarthElemental.Form.NETHERRACK_MAGMA);
-        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), false, R196EarthElemental.Form.END_STONE_NORMAL);
-        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), true, R196EarthElemental.Form.END_STONE_MAGMA);
+        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), false, EarthElemental.Form.STONE_NORMAL);
+        assertEarthForm(helper, earth, Blocks.STONE.defaultBlockState(), true, EarthElemental.Form.STONE_MAGMA);
+        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), false, EarthElemental.Form.OBSIDIAN_NORMAL);
+        assertEarthForm(helper, earth, Blocks.OBSIDIAN.defaultBlockState(), true, EarthElemental.Form.OBSIDIAN_MAGMA);
+        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), false, EarthElemental.Form.NETHERRACK_NORMAL);
+        assertEarthForm(helper, earth, Blocks.NETHERRACK.defaultBlockState(), true, EarthElemental.Form.NETHERRACK_MAGMA);
+        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), false, EarthElemental.Form.END_STONE_NORMAL);
+        assertEarthForm(helper, earth, Blocks.END_STONE.defaultBlockState(), true, EarthElemental.Form.END_STONE_MAGMA);
         helper.assertTrue(earth.quench(level), "water-bucket quenching must cool molten mineral bodies");
         helper.assertTrue(
-                earth.form() == R196EarthElemental.Form.END_STONE_NORMAL && earth.heat() == 0,
+                earth.form() == EarthElemental.Form.END_STONE_NORMAL && earth.heat() == 0,
                 "quenching must restore the matching normal mineral form");
 
         earth.initializeMiteForm(Blocks.NETHERRACK.defaultBlockState(), true);
@@ -691,14 +685,14 @@ public final class ModMonsterGameTests {
         Snowball earthSnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
         helper.assertTrue(
                 !earth.hurtServer(level, level.damageSources().thrown(earthSnowball, player), 1.0F)
-                        && earth.form() == R196EarthElemental.Form.NETHERRACK_NORMAL
+                        && earth.form() == EarthElemental.Form.NETHERRACK_NORMAL
                         && earth.getHealth() == earthHealth,
                 "snowballs must quench mineral bodies without dealing damage");
 
         var clay = helper.spawnWithNoFreeWill(ModEntityTypes.CLAY_GOLEM.get(), new BlockPos(8, 2, 1));
         clay.initializeMiteForm(Blocks.CLAY.defaultBlockState(), false);
         helper.assertTrue(
-                clay.form() == R196EarthElemental.Form.CLAY_NORMAL && !clay.isMagma()
+                clay.form() == EarthElemental.Form.CLAY_NORMAL && !clay.isMagma()
                         && clay.doorBreakTicks(true) == 480 && clay.fireImmune()
                         && clay.getMaxSpawnClusterSize() == 1,
                 "normal clay golems must retain their non-magma body and fourfold door-break speed");
@@ -706,13 +700,13 @@ public final class ModMonsterGameTests {
         Snowball claySnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
         helper.assertTrue(
                 clay.hurtServer(level, level.damageSources().thrown(claySnowball, player), 1.0F)
-                        && clay.form() == R196EarthElemental.Form.CLAY_NORMAL
+                        && clay.form() == EarthElemental.Form.CLAY_NORMAL
                         && clay.getHealth() < clayHealth,
                 "normal clay must take ordinary snowball damage instead of quenching");
         clay.invulnerableTime = 0;
         clay.convertToMagma();
         helper.assertTrue(
-                clay.form() == R196EarthElemental.Form.CLAY_HARDENED && !clay.isMagma()
+                clay.form() == EarthElemental.Form.CLAY_HARDENED && !clay.isMagma()
                         && clay.doorBreakTicks(true) == 320 && !clay.quench(level),
                 "heated clay must harden permanently without entering a magma state");
 
@@ -783,18 +777,18 @@ public final class ModMonsterGameTests {
 
         var sharingSource = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ZOMBIE.get(), new BlockPos(14, 2, 12));
         var neutralEnderman = helper.spawnWithNoFreeWill(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(12, 2, 12));
-        R196MonsterEvents.propagateTarget(level, sharingSource, player);
+        MonsterEvents.propagateTarget(level, sharingSource, player);
         helper.assertTrue(
                 neutralEnderman.getTarget() == null,
                 "shared monster targets must not override R196 enderman neutrality");
         helper.assertTrue(
-                R196MonsterEvents.propagateTarget(level, neutralEnderman, player) == 0,
+                MonsterEvents.propagateTarget(level, neutralEnderman, player) == 0,
                 "R196 endermen must not propagate their own targets to nearby monsters");
         neutralEnderman.setTarget(player);
         helper.assertFalse(
-                R196MonsterTactics.tryDig(level, neutralEnderman),
+                MonsterTactics.tryDig(level, neutralEnderman),
                 "R196 endermen must never receive generic pursuit block digging");
-        ModR196CompletionGameTests.removePlayer(player);
+        ModCompletionGameTests.removePlayer(player);
 
         BlockPos squidPos = new BlockPos(3, 2, 7);
         helper.setBlock(squidPos, Blocks.WATER);
@@ -836,7 +830,7 @@ public final class ModMonsterGameTests {
         helper.setBlock(infernalStone, Blocks.STONE);
         var infernal = helper.spawnWithNoFreeWill(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(9, 2, 4));
-        var infernalTarget = ModR196CompletionGameTests.createPlayer(helper);
+        var infernalTarget = ModCompletionGameTests.createPlayer(helper);
         var infernalSwell = helper.spawn(ModEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(6, 2, 1));
         infernalSwell.setTarget(infernalTarget);
         helper.startSequence()
@@ -866,7 +860,7 @@ public final class ModMonsterGameTests {
                             helper.getBlockState(infernalStone).isAir(),
                             "infernal creeper explosions must break stone");
                 })
-                .thenExecute(() -> ModR196CompletionGameTests.removePlayer(infernalTarget))
+                .thenExecute(() -> ModCompletionGameTests.removePlayer(infernalTarget))
                 .thenSucceed();
     }
 
@@ -876,7 +870,7 @@ public final class ModMonsterGameTests {
         skeleton.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
                 ModItems.catalog()
-                        .equipment(R196Material.IRON, R196EquipmentType.SWORD)
+                        .equipment(MiteMaterial.IRON, EquipmentType.SWORD)
                         .holder()
                         .toStack());
         assertMeleeBoundary(helper, skeleton, skeletonTarget, 1.949, 1.951, "tool-equipped skeleton");
@@ -886,7 +880,7 @@ public final class ModMonsterGameTests {
         revenant.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
                 ModItems.catalog()
-                        .equipment(R196Material.IRON, R196EquipmentType.SWORD)
+                        .equipment(MiteMaterial.IRON, EquipmentType.SWORD)
                         .holder()
                         .toStack());
         assertMeleeBoundary(helper, revenant, revenantTarget, 1.949, 1.951, "tool-equipped revenant");
@@ -904,7 +898,7 @@ public final class ModMonsterGameTests {
         pigman.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
                 ModItems.catalog()
-                        .equipment(R196Material.GOLD, R196EquipmentType.SWORD)
+                        .equipment(MiteMaterial.GOLD, EquipmentType.SWORD)
                         .holder()
                         .toStack());
         assertMeleeBoundary(helper, pigman, pigmanTarget, 1.749, 1.75, "tool-equipped zombie pigman");
@@ -1019,13 +1013,13 @@ public final class ModMonsterGameTests {
 
     private static void rangedAttackRanges(GameTestHelper helper) {
         var level = helper.getLevel();
-        ServerPlayer player = ModR196CompletionGameTests.createPlayer(helper);
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
         player.setNoGravity(true);
         boolean[] skeletonCompletedDraw = {false};
         boolean[] skeletonWasUsing = {false};
         int[] skeletonMaxUseTicks = {0};
         boolean[] witchThrew = {false};
-        R196Witch[] witchRef = {null};
+        MiteWitch[] witchRef = {null};
 
         var skeleton = helper.spawn(ModEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 3));
         skeleton.setNoGravity(true);
@@ -1110,7 +1104,7 @@ public final class ModMonsterGameTests {
                         witchThrew[0], "witches must resume throwing after entering 20 blocks"))
                 .thenExecute(() -> {
                     witchRef[0].discard();
-                    ModR196CompletionGameTests.removePlayer(player);
+                    ModCompletionGameTests.removePlayer(player);
                 })
                 .thenSucceed();
     }
@@ -1200,7 +1194,7 @@ public final class ModMonsterGameTests {
 
     private static void enderman(GameTestHelper helper) {
         var level = helper.getLevel();
-        R196Enderman enderman = helper.spawn(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
+        MiteEnderman enderman = helper.spawn(ModEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
         ItemEntity pearl = new ItemEntity(
                 level, enderman.getX() + 1.0, enderman.getY(), enderman.getZ(), Items.ENDER_PEARL.getDefaultInstance());
         pearl.setNoPickUpDelay();
@@ -1219,29 +1213,29 @@ public final class ModMonsterGameTests {
 
     private static void witchCurse(GameTestHelper helper) {
         var level = helper.getLevel();
-        R196Witch witch = helper.spawn(ModEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
+        MiteWitch witch = helper.spawn(ModEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
         // MITE only excludes a creative/disable-damage player. A survival player with the
         // entity-level Invulnerable flag must still receive a pending witch curse.
-        ServerPlayer curseDeliveryProbe = ModR196CompletionGameTests.createPlayer(helper);
+        ServerPlayer curseDeliveryProbe = ModCompletionGameTests.createPlayer(helper);
         curseDeliveryProbe.setInvulnerable(true);
 
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        R196CurseData.get(level.getServer())
+                        CurseData.get(level.getServer())
                                 .entry(curseDeliveryProbe.getUUID())
                                 .isPresent(),
                         "R196 witches must create a pending curse for a survival player marked Invulnerable"))
                 .thenExecute(() -> {
                     witch.discard();
-                    R196CurseData.get(level.getServer()).remove(curseDeliveryProbe.getUUID());
-                    ModR196CompletionGameTests.removePlayer(curseDeliveryProbe);
+                    CurseData.get(level.getServer()).remove(curseDeliveryProbe.getUUID());
+                    ModCompletionGameTests.removePlayer(curseDeliveryProbe);
                 })
                 .thenSucceed();
     }
 
     private static void netherspawnMechanics(GameTestHelper helper) {
         var level = helper.getLevel();
-        var player = ModR196CompletionGameTests.createPlayer(helper);
+        var player = ModCompletionGameTests.createPlayer(helper);
         var snowballTarget = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2));
         var waterTarget = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2));
         var terrainSource = helper.spawnWithNoFreeWill(ModEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2));
@@ -1295,14 +1289,14 @@ public final class ModMonsterGameTests {
                     helper.assertTrue(
                             helper.getBlockState(deepslateGold).is(Blocks.DEEPSLATE_GOLD_ORE),
                             "netherspawn must preserve the modern gold-ore variant");
-                    ModR196CompletionGameTests.removePlayer(player);
+                    ModCompletionGameTests.removePlayer(player);
                 })
                 .thenSucceed();
     }
 
     private static void tactics(GameTestHelper helper) {
         var level = helper.getLevel();
-        var player = ModR196CompletionGameTests.createPlayer(helper);
+        var player = ModCompletionGameTests.createPlayer(helper);
         Vec3 playerPos = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(7, 2, 7)));
         player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
 
@@ -1313,7 +1307,7 @@ public final class ModMonsterGameTests {
         var piglin = helper.spawnWithNoFreeWill(
                 ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(4, 2, 2));
         leader.setTarget(player);
-        R196MonsterEvents.propagateTarget(level, leader, player);
+        MonsterEvents.propagateTarget(level, leader, player);
         helper.assertTrue(ally.getTarget() == player, "R196 monsters must share a newly acquired player target");
         helper.assertTrue(
                 piglin.getTarget() == null,
@@ -1332,17 +1326,17 @@ public final class ModMonsterGameTests {
         digger.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
                 ModItems.catalog()
-                        .equipment(R196Material.IRON, R196EquipmentType.PICKAXE)
+                        .equipment(MiteMaterial.IRON, EquipmentType.PICKAXE)
                         .holder()
                         .toStack());
         digger.setTarget(player);
         BlockPos wall = new BlockPos(4, 3, 7);
         helper.setBlock(wall, Blocks.STONE);
         for (int attempt = 0; attempt < 30 && !helper.getBlockState(wall).isAir(); attempt++) {
-            R196MonsterTactics.tryDig(level, digger);
+            MonsterTactics.tryDig(level, digger);
         }
         helper.assertTrue(helper.getBlockState(wall).isAir(), "tool-equipped blocked monster must mine through stone");
-        ModR196CompletionGameTests.removePlayer(player);
+        ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 }

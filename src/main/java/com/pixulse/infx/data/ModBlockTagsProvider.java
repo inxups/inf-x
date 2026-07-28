@@ -1,7 +1,7 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.R196MiningFamily;
+import com.pixulse.infx.item.MiningFamily;
 import com.pixulse.infx.registry.ModBlocks;
 import com.pixulse.infx.tag.ModTags;
 import java.util.concurrent.CompletableFuture;
@@ -147,7 +147,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
     }
 
     private void addEffectiveToolTags() {
-        TagAppender<ResourceKey<Block>, Block> pickaxe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.PICKAXE))
+        TagAppender<ResourceKey<Block>, Block> pickaxe = tag(ModTags.Blocks.effectiveWith(MiningFamily.PICKAXE))
                 .addTag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .addTag(BlockTags.FLOWER_POTS)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
@@ -180,7 +180,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         ModBlocks.LARGE_CLAY_OVEN.getKey());
         addMatching(pickaxe, ModBlockTagsProvider::isInfested);
 
-        TagAppender<ResourceKey<Block>, Block> axe = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.AXE))
+        TagAppender<ResourceKey<Block>, Block> axe = tag(ModTags.Blocks.effectiveWith(MiningFamily.AXE))
                 .addTag(BlockTags.MINEABLE_WITH_AXE)
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
                 .addTag(Tags.Blocks.GLASS_PANES)
@@ -207,7 +207,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
 
         tag(ModTags.Blocks.AXE_HALF_SPEED).addTag(Tags.Blocks.SANDSTONE_BLOCKS);
 
-        TagAppender<ResourceKey<Block>, Block> shovel = tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHOVEL))
+        TagAppender<ResourceKey<Block>, Block> shovel = tag(ModTags.Blocks.effectiveWith(MiningFamily.SHOVEL))
                 .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
                 .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.CANDLE_CAKES)
@@ -223,7 +223,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         addMatching(shovel, ModBlockTagsProvider::isInfested);
         tag(ModTags.Blocks.METAL_SHOVEL_EFFECTIVE).addTag(Tags.Blocks.GLASS_BLOCKS);
 
-        tag(ModTags.Blocks.effectiveWith(R196MiningFamily.HOE))
+        tag(ModTags.Blocks.effectiveWith(MiningFamily.HOE))
                 .addTag(BlockTags.MINEABLE_WITH_SHOVEL)
                 .addTag(BlockTags.CANDLE_CAKES)
                 .add(
@@ -233,7 +233,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.BEETROOTS),
                         ModBlocks.SANDSTONE_FURNACE.getKey());
 
-        tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SCYTHE))
+        tag(ModTags.Blocks.effectiveWith(MiningFamily.SCYTHE))
                 .addTag(BlockTags.CROPS)
                 .add(
                         blockKey(Blocks.SHORT_GRASS),
@@ -245,7 +245,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.SHORT_DRY_GRASS),
                         blockKey(Blocks.TALL_DRY_GRASS));
 
-        tag(ModTags.Blocks.effectiveWith(R196MiningFamily.CUDGEL))
+        tag(ModTags.Blocks.effectiveWith(MiningFamily.CUDGEL))
                 .addTag(Tags.Blocks.GLASS_BLOCKS)
                 .addTag(Tags.Blocks.GLASS_PANES)
                 .addTag(BlockTags.ICE)
@@ -260,13 +260,13 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.GLOWSTONE),
                         blockKey(Blocks.MELON));
 
-        addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SWORD)))
+        addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(MiningFamily.SWORD)))
                 .addTag(BlockTags.SWORD_EFFICIENT)
                 .addTag(BlockTags.SWORD_INSTANTLY_MINES)
                 .addTag(BlockTags.WOOL_CARPETS)
                 .addTag(Tags.Blocks.PUMPKINS)
                 .add(blockKey(Blocks.MELON));
-        addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(R196MiningFamily.SHEARS)))
+        addPlantCuttingTags(tag(ModTags.Blocks.effectiveWith(MiningFamily.SHEARS)))
                 .add(blockKey(Blocks.GLOW_LICHEN), blockKey(Blocks.TRIPWIRE));
 
         tag(ModTags.Blocks.WAR_HAMMER_EFFECTIVE)

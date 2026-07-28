@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.agriculture.R196GrassTrampling;
+import com.pixulse.infx.agriculture.GrassTrampling;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -31,6 +31,6 @@ public abstract class SpreadingSnowyBlockMixin {
         if (!level.getBlockState(target).is(Blocks.GRASS_BLOCK)) {
             return;
         }
-        R196GrassTrampling.recoverOne(level, target);
+        GrassTrampling.recoverOne(level, target);
     }
 }

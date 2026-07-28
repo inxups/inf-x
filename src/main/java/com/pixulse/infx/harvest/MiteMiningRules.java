@@ -1,9 +1,9 @@
 package com.pixulse.infx.harvest;
 
-import com.pixulse.infx.item.R196EquipmentKey;
-import com.pixulse.infx.item.R196EquipmentType;
-import com.pixulse.infx.item.R196MiningFamily;
-import com.pixulse.infx.material.R196Material;
+import com.pixulse.infx.item.EquipmentKey;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.MiningFamily;
+import com.pixulse.infx.material.MiteMaterial;
 import com.pixulse.infx.tag.ModTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class MiteMiningRules {
     private MiteMiningRules() {}
 
-    public static float destroySpeed(R196EquipmentKey key, BlockState state) {
+    public static float destroySpeed(EquipmentKey key, BlockState state) {
         if (!canHarvest(key, state)) {
             return 1.0F;
         }
@@ -23,33 +23,33 @@ public final class MiteMiningRules {
         return speed;
     }
 
-    public static boolean canHarvest(R196EquipmentKey key, BlockState state) {
+    public static boolean canHarvest(EquipmentKey key, BlockState state) {
         return isEffective(key, state) && harvestLevel(key.material()) >= HarvestRequirements.requiredLevel(state);
     }
 
-    public static boolean isEffective(R196EquipmentKey key, BlockState state) {
-        R196MiningFamily family = key.type().miningFamily();
-        if (family == R196MiningFamily.NONE || state.is(ModTags.Blocks.NO_EFFECTIVE_TOOL)) {
+    public static boolean isEffective(EquipmentKey key, BlockState state) {
+        MiningFamily family = key.type().miningFamily();
+        if (family == MiningFamily.NONE || state.is(ModTags.Blocks.NO_EFFECTIVE_TOOL)) {
             return false;
         }
-        if (family == R196MiningFamily.HOE && state.is(Blocks.CLAY)) {
+        if (family == MiningFamily.HOE && state.is(Blocks.CLAY)) {
             return false;
         }
-        if (family == R196MiningFamily.SCYTHE && isRootCrop(state)) {
+        if (family == MiningFamily.SCYTHE && isRootCrop(state)) {
             return false;
         }
         if (state.is(ModTags.Blocks.effectiveWith(family))) {
             return true;
         }
-        if (key.type() == R196EquipmentType.WAR_HAMMER && state.is(ModTags.Blocks.WAR_HAMMER_EFFECTIVE)) {
+        if (key.type() == EquipmentType.WAR_HAMMER && state.is(ModTags.Blocks.WAR_HAMMER_EFFECTIVE)) {
             return true;
         }
-        return family == R196MiningFamily.SHOVEL
-                && key.material().has(R196Material.Flag.METAL)
+        return family == MiningFamily.SHOVEL
+                && key.material().has(MiteMaterial.Flag.METAL)
                 && state.is(ModTags.Blocks.METAL_SHOVEL_EFFECTIVE);
     }
 
-    public static int harvestLevel(R196Material material) {
+    public static int harvestLevel(MiteMaterial material) {
         return material.harvestTier().map(HarvestTier::level).orElse(0);
     }
 
@@ -57,9 +57,9 @@ public final class MiteMiningRules {
         return state.is(Blocks.CARROTS) || state.is(Blocks.POTATOES) || state.is(Blocks.BEETROOTS);
     }
 
-    private static boolean isAxeFamily(R196EquipmentType type) {
-        return type == R196EquipmentType.HATCHET
-                || type == R196EquipmentType.AXE
-                || type == R196EquipmentType.BATTLE_AXE;
+    private static boolean isAxeFamily(EquipmentType type) {
+        return type == EquipmentType.HATCHET
+                || type == EquipmentType.AXE
+                || type == EquipmentType.BATTLE_AXE;
     }
 }

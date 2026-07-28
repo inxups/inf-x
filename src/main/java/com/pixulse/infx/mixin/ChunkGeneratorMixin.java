@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.world.R196VillageProgression;
+import com.pixulse.infx.world.VillageProgression;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
@@ -33,7 +33,7 @@ abstract class ChunkGeneratorMixin {
             SectionPos sectionPos,
             ResourceKey<Level> level,
             CallbackInfoReturnable<Boolean> callback) {
-        if (!level.equals(Level.OVERWORLD) || R196VillageProgression.generationUnlocked()) return;
+        if (!level.equals(Level.OVERWORLD) || VillageProgression.generationUnlocked()) return;
         boolean village = selected.structure().unwrapKey()
                 .map(key -> key.identifier().getPath().startsWith("village_"))
                 .orElse(false);

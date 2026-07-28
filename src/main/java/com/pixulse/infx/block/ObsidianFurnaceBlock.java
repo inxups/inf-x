@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
-public final class ObsidianFurnaceBlock extends R196FurnaceBlock {
+public final class ObsidianFurnaceBlock extends MiteFurnaceBlock {
     public static final MapCodec<ObsidianFurnaceBlock> CODEC = simpleCodec(ObsidianFurnaceBlock::new);
 
     public ObsidianFurnaceBlock(BlockBehaviour.Properties properties) {

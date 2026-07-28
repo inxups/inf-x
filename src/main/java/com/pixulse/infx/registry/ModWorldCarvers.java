@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.world.R196LargeCaveCarver;
+import com.pixulse.infx.world.LargeCaveCarver;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.neoforged.bus.api.IEventBus;
@@ -12,8 +12,8 @@ public final class ModWorldCarvers {
     private static final DeferredRegister<WorldCarver<?>> CARVERS =
             DeferredRegister.create(Registries.CARVER, InfiniteX.MOD_ID);
 
-    public static final DeferredHolder<WorldCarver<?>, R196LargeCaveCarver> LARGE_CAVE =
-            CARVERS.register("large_cave", R196LargeCaveCarver::new);
+    public static final DeferredHolder<WorldCarver<?>, LargeCaveCarver> LARGE_CAVE =
+            CARVERS.register("large_cave", LargeCaveCarver::new);
 
     private ModWorldCarvers() {}
 

@@ -1,6 +1,6 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.network.R196Network;
+import com.pixulse.infx.network.Network;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -41,7 +41,7 @@ public final class RunegateTeleportation {
         PENDING.put(
                 playerId,
                 new PendingTeleport(player.level(), transition));
-        PacketDistributor.sendToPlayer(player, R196Network.RunegateStartPayload.INSTANCE);
+        PacketDistributor.sendToPlayer(player, Network.RunegateStartPayload.INSTANCE);
         return true;
     }
 
@@ -89,7 +89,7 @@ public final class RunegateTeleportation {
     }
 
     private static void finish(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, R196Network.RunegateFinishedPayload.INSTANCE);
+        PacketDistributor.sendToPlayer(player, Network.RunegateFinishedPayload.INSTANCE);
     }
 
     private record PendingTeleport(ServerLevel sourceLevel, TeleportTransition transition) {}

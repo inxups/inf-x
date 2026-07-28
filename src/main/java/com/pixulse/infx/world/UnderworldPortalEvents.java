@@ -1,7 +1,7 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.block.R196PortalBlock;
-import com.pixulse.infx.block.R196PortalBlock.PortalType;
+import com.pixulse.infx.block.MitePortalBlock;
+import com.pixulse.infx.block.MitePortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.registry.ModBlocks;
 import java.util.ArrayDeque;
@@ -129,7 +129,7 @@ public final class UnderworldPortalEvents {
         return false;
     }
 
-    public static R196PortalBlock portalBlock(PortalType portalType) {
+    public static MitePortalBlock portalBlock(PortalType portalType) {
         return switch (portalType) {
             case UNDERWORLD -> ModBlocks.UNDERWORLD_PORTAL.get();
             case NETHER -> ModBlocks.NETHER_PORTAL.get();
