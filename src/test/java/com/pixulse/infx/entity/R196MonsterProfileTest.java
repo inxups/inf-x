@@ -86,13 +86,18 @@ class R196MonsterProfileTest {
     }
 
     @Test
-    void infernalCreeperSwellAndPowderRollsMatchR196() {
-        assertEquals(9.0, R196Creeper.infernalSwellStartDistanceSqr(false, 1.0F), EPSILON);
-        assertEquals(18.0, R196Creeper.infernalSwellStartDistanceSqr(false, 0.99F), EPSILON);
-        assertEquals(32.0, R196Creeper.infernalSwellStartDistanceSqr(true, 1.0F), EPSILON);
-        assertEquals(36.0, R196Creeper.infernalSwellContinueDistanceSqr(1.0F), EPSILON);
-        assertEquals(90.0, R196Creeper.infernalSwellContinueDistanceSqr(0.4F), EPSILON);
-        assertEquals(90.0, R196Creeper.infernalSwellContinueDistanceSqr(0.0F), EPSILON);
+    void creeperSwellAndPowderRollsMatchR196() {
+        assertEquals(4.5, R196Creeper.swellStartDistanceSqr(R196Creeper.Variant.CREEPER, false, 1.0F), EPSILON);
+        assertEquals(9.0, R196Creeper.swellStartDistanceSqr(R196Creeper.Variant.CREEPER, false, 0.99F), EPSILON);
+        assertEquals(16.0, R196Creeper.swellStartDistanceSqr(R196Creeper.Variant.CREEPER, true, 1.0F), EPSILON);
+        assertEquals(9.0, R196Creeper.swellStartDistanceSqr(R196Creeper.Variant.INFERNAL, false, 1.0F), EPSILON);
+        assertEquals(18.0, R196Creeper.swellStartDistanceSqr(R196Creeper.Variant.INFERNAL, false, 0.99F), EPSILON);
+        assertEquals(32.0, R196Creeper.swellStartDistanceSqr(R196Creeper.Variant.INFERNAL, true, 1.0F), EPSILON);
+        assertEquals(16.0, R196Creeper.swellContinueDistanceSqr(R196Creeper.Variant.CREEPER, 1.0F), EPSILON);
+        assertEquals(40.0, R196Creeper.swellContinueDistanceSqr(R196Creeper.Variant.CREEPER, 0.0F), EPSILON);
+        assertEquals(36.0, R196Creeper.swellContinueDistanceSqr(R196Creeper.Variant.INFERNAL, 1.0F), EPSILON);
+        assertEquals(90.0, R196Creeper.swellContinueDistanceSqr(R196Creeper.Variant.INFERNAL, 0.4F), EPSILON);
+        assertEquals(90.0, R196Creeper.swellContinueDistanceSqr(R196Creeper.Variant.INFERNAL, 0.0F), EPSILON);
 
         assertEquals(0, R196Creeper.infernalPowderDropCount(0, 0, 0, true, 0));
         assertEquals(2, R196Creeper.infernalPowderDropCount(0, 2, 0, true, 0));
@@ -260,7 +265,7 @@ class R196MonsterProfileTest {
         assertDimensions(entities, checked, 0.9F, 0.9F, "r196_pig");
         assertDimensions(entities, checked, 1.3964844F, 1.6F, "r196_horse");
         assertDimensions(entities, checked, 0.6F, 0.7F, "r196_ocelot");
-        assertDimensions(entities, checked, 0.6F, 0.85F, "r196_wolf");
+        assertDimensions(entities, checked, 0.7F, 0.8F, "r196_wolf");
         assertEquals(entities.keySet(), checked);
     }
 

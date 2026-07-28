@@ -84,7 +84,7 @@ public final class R196MonsterEvents {
         gameBus.addListener(R196MonsterEvents::applyFrenzyDamage);
         gameBus.addListener(R196MonsterEvents::applyMiteProjectileDamage);
         gameBus.addListener(R196MonsterEvents::retaliateAgainstBareHands);
-        gameBus.addListener(R196MonsterEvents::armInfernalCreeperFromCactus);
+        gameBus.addListener(R196MonsterEvents::armCreeperFromCactus);
     }
 
     /**
@@ -164,9 +164,8 @@ public final class R196MonsterEvents {
     }
 
     /** MITE's conspicuous-cactus trigger, mapped to a real cactus hit in the modern damage pipeline. */
-    private static void armInfernalCreeperFromCactus(LivingDamageEvent.Post event) {
+    private static void armCreeperFromCactus(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof R196Creeper creeper)
-                || creeper.variant() != R196Creeper.Variant.INFERNAL
                 || creeper.level().isClientSide()
                 || event.getHealthDamage() <= 0.0F
                 || !event.getSource().is(DamageTypes.CACTUS)

@@ -18,6 +18,7 @@
     "EggItemMixin",
     "EnchantmentMenuAccessor",
     "EntitySwimMixin",
+    "ExplosionDamageCalculatorMixin",
     "FishingHookMixin",
     "FurnaceFuelSlotMixin",
     "FurnaceInputSlotMixin",
@@ -38,6 +39,7 @@
     "RaidMixin",
     "ServerLevelSleepMixin",
     "ServerLevelFluidTickMixin",
+    "ServerExplosionMixin",
     "SpreadingSnowyBlockMixin"
   ],
   "client": [

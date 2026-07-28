@@ -26,8 +26,6 @@ public final class R196Squid extends Squid implements R196Mob {
     private static final int BOAT_DESTROY_HITS = 6;
     private static final int BOAT_HIT_DECAY_TICKS = 200;
 
-    private int attackCooldown;
-
     public R196Squid(EntityType<? extends Squid> type, Level level) {
         super(type, level);
     }
@@ -50,9 +48,6 @@ public final class R196Squid extends Squid implements R196Mob {
         if (!(level() instanceof ServerLevel level)) {
             return;
         }
-        if (attackCooldown > 0) {
-            attackCooldown--;
-        }
         // MITE squid keep the peace on blue-moon nights.
         if (R196MoonPhase.at(level) == R196MoonPhase.BLUE) {
             return;
@@ -67,9 +62,10 @@ public final class R196Squid extends Squid implements R196Mob {
         if (distance > 0.001) {
             setDeltaMovement(getDeltaMovement().scale(0.5).add(delta.normalize().scale(0.20)));
         }
-        if (distanceTo(target) < 1.0F && attackCooldown == 0) {
+        if (target instanceof Player player
+                && !(player.getVehicle() instanceof AbstractBoat)
+                && distanceTo(target) < 1.0F) {
             target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 200, 2), this);
-            attackCooldown = 20;
         }
     }
 
@@ -77,6 +73,12 @@ public final class R196Squid extends Squid implements R196Mob {
     protected void doPush(Entity entity) {
         if (ramPursuedBoat(entity)) {
             return;
+        }
+        if (level() instanceof ServerLevel level
+                && entity instanceof Animal animal
+                && canPreyUpon(level, animal)
+                && hasLineOfSight(animal)) {
+            animal.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 200, 2), this);
         }
         super.doPush(entity);
     }

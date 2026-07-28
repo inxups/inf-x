@@ -91,7 +91,7 @@ public final class ModEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<R196Ocelot>> R196_OCELOT = register(
             "r196_ocelot", "Ocelot", "豹猫", R196Ocelot::new, MobCategory.CREATURE, 0.6F, 0.7F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<R196VanillaWolf>> R196_WOLF = register(
-            "r196_wolf", "Wolf", "狼", R196VanillaWolf::new, MobCategory.CREATURE, 0.6F, 0.85F, false, true);
+            "r196_wolf", "Wolf", "狼", R196VanillaWolf::new, MobCategory.CREATURE, 0.7F, 0.8F, false, true);
 
     public static final DeferredHolder<EntityType<?>, EntityType<R196Zombie>> INVISIBLE_STALKER = register(
             "invisible_stalker", "Invisible Stalker", "影子潜伏者", R196Zombie::new, 0.6F, 1.8F, false);

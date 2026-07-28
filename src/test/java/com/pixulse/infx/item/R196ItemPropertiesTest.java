@@ -54,6 +54,11 @@ class R196ItemPropertiesTest {
         assertEquals(1.5F, R196ItemProperties.attackRange(R196EquipmentType.FISHING_ROD).maxReach());
         assertEquals(2.5F, R196ItemProperties.attackRange(R196EquipmentType.SCYTHE).maxReach());
         assertEquals(1.75F, R196ItemProperties.attackRange(R196EquipmentType.KNIFE).maxReach());
+        assertEquals(5.0F, R196ItemProperties.attackRange(R196EquipmentType.FISHING_ROD).maxCreativeReach());
+        assertEquals(6.0F, R196ItemProperties.attackRange(R196EquipmentType.SCYTHE).maxCreativeReach());
+        assertEquals(0.6F, R196ItemProperties.attackRange(R196EquipmentType.SWORD).mobFactor());
+        assertEquals(0.6F, R196ItemProperties.attackRange(R196EquipmentType.KNIFE).mobFactor());
+        assertEquals(0.6F, R196ItemProperties.attackRange(R196EquipmentType.SCYTHE).mobFactor());
     }
 
     @Test

@@ -62,6 +62,11 @@ public final class R196Silverfish extends Silverfish implements R196Mob {
     }
 
     @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinOldAiReach(this, target, R196AttackRanges.SILVERFISH_REACH);
+    }
+
+    @Override
     protected void registerGoals() {
         super.registerGoals();
         // MITE silverfish neither burrow into blocks nor use the modern 50% ally-release roll.

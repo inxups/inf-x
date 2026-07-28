@@ -51,7 +51,7 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
 
     private int summonedTroops;
     private int inspiredUntil;
-    private @Nullable RangedBowAttackGoal<R196Skeleton> bowGoal;
+    private @Nullable MiteHardLimitedBowAttackGoal<R196Skeleton> bowGoal;
 
     public R196Skeleton(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
@@ -97,6 +97,11 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
                     .add(Attributes.MOVEMENT_SPEED, 0.27)
                     .add(Attributes.ATTACK_DAMAGE, 8.0);
         };
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinNewAiReach(this, target);
     }
 
     @Override
@@ -171,7 +176,8 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
         if (level() != null && !level().isClientSide() && isHolding(stack -> stack.getItem() instanceof BowItem)) {
             goalSelector.removeAllGoals(goal -> goal instanceof RangedBowAttackGoal<?>);
             // MITE skeletons fire once every 60 ticks (40 while inspired) out to 30 blocks.
-            bowGoal = new RangedBowAttackGoal<>(this, 1.0, 60, 30.0F);
+            bowGoal = new MiteHardLimitedBowAttackGoal<>(
+                    this, 1.0, 60, (float) R196AttackRanges.SKELETON_RANGED_REACH);
             goalSelector.addGoal(4, bowGoal);
         }
     }
@@ -438,7 +444,7 @@ public final class R196Skeleton extends Skeleton implements R196Mob {
             return;
         }
         if (bowGoal != null) {
-            bowGoal.setMinAttackInterval(isInspired() ? 40 : 60);
+            bowGoal.setAttackInterval(isInspired() ? 40 : 60);
         }
         if (!isBoneLord()) {
             return;

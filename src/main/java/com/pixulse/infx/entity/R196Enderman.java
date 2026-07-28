@@ -64,6 +64,11 @@ public final class R196Enderman extends EnderMan implements R196Mob {
     }
 
     @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinOldAiReach(this, target, R196AttackRanges.OLD_AI_REACH);
+    }
+
+    @Override
     public void setTarget(@Nullable LivingEntity target) {
         super.setTarget(target);
         AttributeInstance movementSpeed = getAttribute(Attributes.MOVEMENT_SPEED);

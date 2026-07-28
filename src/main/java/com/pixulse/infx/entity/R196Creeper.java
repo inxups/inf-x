@@ -3,7 +3,6 @@ package com.pixulse.infx.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -53,11 +52,8 @@ public final class R196Creeper extends Creeper implements R196Mob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        if (variant() == Variant.INFERNAL) {
-            // Replace only the vanilla three/seven-block swell window with MITE's variant rules.
-            goalSelector.removeAllGoals(goal -> goal instanceof SwellGoal);
-            goalSelector.addGoal(2, new InfernalCreeperSwellGoal(this));
-        }
+        goalSelector.removeAllGoals(goal -> goal instanceof SwellGoal);
+        goalSelector.addGoal(2, new MiteCreeperSwellGoal(this));
     }
 
     @Override
@@ -107,14 +103,17 @@ public final class R196Creeper extends Creeper implements R196Mob {
         return killedByPlayer || nonPlayerItemRoll == 0;
     }
 
-    /** MITE multiplies its initial swell distance by two for the infernal variant. */
-    static double infernalSwellStartDistanceSqr(boolean navigationDone, float healthFraction) {
-        return navigationDone ? 32.0 : healthFraction < 1.0F ? 18.0 : 9.0;
+    /** MITE varies ignition distance by path state and doubles it for infernal creepers. */
+    static double swellStartDistanceSqr(Variant variant, boolean navigationDone, float healthFraction) {
+        double ordinary = navigationDone ? 16.0 : healthFraction < 1.0F ? 9.0 : 4.5;
+        return variant == Variant.INFERNAL ? ordinary * 2.0 : ordinary;
     }
 
     /** MITE preserves the swell while any visible player is within this health-scaled squared range. */
-    static double infernalSwellContinueDistanceSqr(float healthFraction) {
-        return 36.0F / Mth.clamp(healthFraction, 0.4F, 1.0F);
+    static double swellContinueDistanceSqr(Variant variant, float healthFraction) {
+        double base = variant == Variant.INFERNAL ? 36.0 : 16.0;
+        double clampedHealth = healthFraction <= 0.4F ? 0.4 : Math.min(healthFraction, 1.0F);
+        return base / clampedHealth;
     }
 
     float healthFraction() {

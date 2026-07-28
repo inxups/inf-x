@@ -85,6 +85,11 @@ public class R196EarthElemental extends IronGolem implements Enemy, R196Mob {
         return baseAttributes(12.0, 4.0);
     }
 
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return R196AttackRanges.withinNewAiReach(this, target, R196AttackRanges.EARTH_ELEMENTAL_REACH);
+    }
+
     protected static AttributeSupplier.Builder baseAttributes(double attackDamage, double armor) {
         return IronGolem.createAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0)
