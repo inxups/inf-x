@@ -371,7 +371,6 @@ final class ModWorldGen {
         MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
         addSpawn(mobs, EntityType.SPIDER, 80, 1, 2);
         addSpawn(mobs, EntityType.CREEPER, 100, 1, 2);
-        addSpawn(mobs, EntityType.SLIME, 100, 1, 4);
         addSpawn(mobs, EntityType.ENDERMAN, 10, 1, 4);
         addSpawn(mobs, EntityType.CAVE_SPIDER, 40, 1, 2);
         addSpawn(mobs, EntityType.BAT, 100, 8, 8);
@@ -907,7 +906,6 @@ final class ModWorldGen {
         addSpawn(mobs, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
         addSpawn(mobs, InfXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
         addSpawn(mobs, InfXEntityTypes.HELLHOUND.get(), 10, 1, 2);
-        addSpawn(mobs, InfXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
         addSpawn(mobs, InfXEntityTypes.SHADOW.get(), 10, 1, 1);
         addSpawn(mobs, InfXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
         addSpawn(mobs, InfXEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
