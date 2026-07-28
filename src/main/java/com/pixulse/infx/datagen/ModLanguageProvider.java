@@ -620,6 +620,13 @@ final class ModLanguageProvider extends LanguageProvider {
         add("tooltip.infx.fuel_heat", locale == Locale.EN_US ? "Fuel heat: %s" : "燃料热量：%s");
         add("tooltip.infx.recipe_heat", locale == Locale.EN_US ? "Required heat: %s" : "所需热量：%s");
         add("tooltip.infx.furnace_heat", locale == Locale.EN_US ? "Maximum heat: %s" : "最高热量：%s");
+        add("tooltip.infx.food.satiation", locale == Locale.EN_US ? "Satiation: +%s" : "饱食度：+%s");
+        add("tooltip.infx.food.nutrition", locale == Locale.EN_US ? "Nutrition: +%s" : "营养：+%s");
+        add("tooltip.infx.food.protein", locale == Locale.EN_US ? "Protein: +%s" : "蛋白质：+%s");
+        add("tooltip.infx.food.essential_fats", locale == Locale.EN_US ? "Essential fats: +%s" : "必需脂肪：+%s");
+        add("tooltip.infx.food.phytonutrients", locale == Locale.EN_US ? "Phytonutrients: +%s" : "植物营养素：+%s");
+        add("tooltip.infx.food.sugar", locale == Locale.EN_US ? "Sugar: +%s" : "糖分：+%s");
+        add("tooltip.infx.food.insulin_response", locale == Locale.EN_US ? "Insulin response: +%s" : "胰岛素反应：+%s");
         add(
                 "tooltip.infx.place_bucket_as_source",
                 locale == Locale.EN_US ? "Hold Ctrl to place a source block" : "按住Ctrl键来放置源头");
