@@ -44,7 +44,7 @@ class TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(710, lines.size(), "header plus 709 selected destinations");
+        assertEquals(711, lines.size(), "header plus 710 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -128,6 +128,37 @@ class TextureProvenanceTest {
         assertEquals(4, minY);
         assertEquals(14, maxX);
         assertEquals(14, maxY);
+    }
+
+    @Test
+    void witchCurseEffectIconUsesTheGoldRingSprite() throws Exception {
+        assertEquals(
+                InfiniteX.id("mob_effect/witch_curse"),
+                Gui.getMobEffectSprite(InfXMobEffects.WITCH_CURSE));
+        BufferedImage image = ImageIO.read(ASSETS.resolve("textures/mob_effect/witch_curse.png").toFile());
+        assertNotNull(image);
+        assertEquals(18, image.getWidth());
+        assertEquals(18, image.getHeight());
+
+        int minX = image.getWidth();
+        int minY = image.getHeight();
+        int maxX = -1;
+        int maxY = -1;
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if ((image.getRGB(x, y) >>> 24) == 0) {
+                    continue;
+                }
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x);
+                maxY = Math.max(maxY, y);
+            }
+        }
+        assertEquals(2, minX);
+        assertEquals(0, minY);
+        assertEquals(15, maxX);
+        assertEquals(17, maxY);
     }
 
     @Test
