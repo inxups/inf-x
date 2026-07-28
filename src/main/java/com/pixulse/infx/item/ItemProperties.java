@@ -2,7 +2,7 @@ package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.world.item.equipment.Equippable;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.ModDataComponents;
+import com.pixulse.infx.registry.InfinityXDataComponents;
 
 public final class ItemProperties {
     private ItemProperties() {}
@@ -34,7 +34,7 @@ public final class ItemProperties {
         }
         if (key.material() == MiteMaterial.RUSTED_IRON
                 && key.durability() > 0) {
-            properties.component(ModDataComponents.QUALITY.get(), Quality.POOR);
+            properties.component(InfinityXDataComponents.QUALITY.get(), Quality.POOR);
         }
         return switch (key.type().armorForm()) {
             case PLATE, CHAIN -> armor(key, properties);
@@ -158,7 +158,7 @@ public final class ItemProperties {
         int durability = key.material() == MiteMaterial.RUSTED_IRON
                 ? Math.max(1, Math.round(key.durability() * Quality.POOR.durabilityMultiplier()))
                 : key.durability();
-        properties.durability(durability).repairable(ModTags.Items.repairMaterial(key.material()));
+        properties.durability(durability).repairable(InfinityXTags.Items.repairMaterial(key.material()));
         if (key.material().enchantability() > 0) {
             properties.enchantable(key.material().enchantability());
         }

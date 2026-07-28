@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -231,8 +231,8 @@ class MonsterProfileTest {
 
     @Test
     void allRegisteredMobNamesAndDimensionsMatchTheR196Roster() {
-        Map<String, ModEntityTypes.EntityName> entities = ModEntityTypes.names().stream()
-                .collect(Collectors.toMap(ModEntityTypes.EntityName::path, entity -> entity));
+        Map<String, InfinityXEntityTypes.EntityName> entities = InfinityXEntityTypes.names().stream()
+                .collect(Collectors.toMap(InfinityXEntityTypes.EntityName::path, entity -> entity));
         assertEquals(expectedNames(), entities.entrySet().stream().collect(Collectors.toMap(
                 Map.Entry::getKey,
                 entry -> new Names(entry.getValue().english(), entry.getValue().chinese()))));
@@ -290,13 +290,13 @@ class MonsterProfileTest {
     }
 
     private static void assertDimensions(
-            Map<String, ModEntityTypes.EntityName> entities,
+            Map<String, InfinityXEntityTypes.EntityName> entities,
             Set<String> checked,
             float width,
             float height,
             String... paths) {
         for (String path : paths) {
-            ModEntityTypes.EntityName entity = entities.get(path);
+            InfinityXEntityTypes.EntityName entity = entities.get(path);
             assertEquals(width, entity.width(), EPSILON, path + " width");
             assertEquals(height, entity.height(), EPSILON, path + " height");
             checked.add(path);

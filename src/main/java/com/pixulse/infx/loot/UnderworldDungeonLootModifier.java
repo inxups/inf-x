@@ -5,8 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.ModLootModifiers;
+import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfinityXLootModifiers;
 import com.pixulse.infx.world.Underworld;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
@@ -57,22 +57,22 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
     private static ItemStack roll(LootContext context) {
         int value = context.getRandom().nextInt(100);
         if (value < 10) {
-            return ModItems.catalog().raw("ancient_metal_nugget").holder().toStack(1 + context.getRandom().nextInt(4));
+            return InfinityXItems.catalog().raw("ancient_metal_nugget").holder().toStack(1 + context.getRandom().nextInt(4));
         }
         if (value < 20) {
-            return ModItems.ANCIENT_METAL_INGOT.toStack(1 + context.getRandom().nextInt(4));
+            return InfinityXItems.ANCIENT_METAL_INGOT.toStack(1 + context.getRandom().nextInt(4));
         }
         if (value < 25) {
-            return ModItems.catalog().raw("ancient_metal_coin").holder().toStack();
+            return InfinityXItems.catalog().raw("ancient_metal_coin").holder().toStack();
         }
         if (value < 27) {
-            return ModItems.bucket(
+            return InfinityXItems.bucket(
                             MiteMaterial.ANCIENT_METAL,
                             MiteBucketItem.Contents.EMPTY)
                     .toStack();
         }
         if (value < 31) {
-            return ModItems.R196_RECORDS.get(value - 27).toStack();
+            return InfinityXItems.R196_RECORDS.get(value - 27).toStack();
         }
         if (value < 36) {
             return equipment(EquipmentType.HORSE_ARMOR);
@@ -84,11 +84,11 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
     }
 
     private static ItemStack equipment(EquipmentType type) {
-        return ModItems.catalog().equipment(MiteMaterial.ANCIENT_METAL, type).holder().toStack();
+        return InfinityXItems.catalog().equipment(MiteMaterial.ANCIENT_METAL, type).holder().toStack();
     }
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return ModLootModifiers.UNDERWORLD_DUNGEON.get();
+        return InfinityXLootModifiers.UNDERWORLD_DUNGEON.get();
     }
 }

@@ -15,7 +15,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-public final class ModAttachments {
+public final class InfinityXAttachments {
     private static final DeferredRegister<AttachmentType<?>> ATTACHMENTS =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, InfiniteX.MOD_ID);
 
@@ -50,7 +50,7 @@ public final class ModAttachments {
                             .sync(GRASS_TRAMPLING_STREAM)
                             .build());
 
-    private ModAttachments() {}
+    private InfinityXAttachments() {}
 
     public static void register(IEventBus modBus) {
         ATTACHMENTS.register(modBus);

@@ -3,8 +3,8 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.*;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,20 +26,20 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
-        tag(ModTags.Items.BINDINGS).add(itemKey(Items.STRING)).add(ModItems.SINEW.getKey());
-        tag(ModTags.Items.R196_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
-        tag(ModTags.Items.FURNACE_FUELS_HEAT_2)
+        tag(InfinityXTags.Items.BINDINGS).add(itemKey(Items.STRING)).add(InfinityXItems.SINEW.getKey());
+        tag(InfinityXTags.Items.R196_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
+        tag(InfinityXTags.Items.FURNACE_FUELS_HEAT_2)
                 .add(itemKey(Items.COAL))
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));
-        var waterBuckets = tag(ModTags.Items.WATER_BUCKETS).add(itemKey(Items.WATER_BUCKET));
-        var milkBuckets = tag(ModTags.Items.MILK_BUCKETS).add(itemKey(Items.MILK_BUCKET));
-        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
-            waterBuckets.add(ModItems.bucket(material, MiteBucketItem.Contents.WATER)
+        var waterBuckets = tag(InfinityXTags.Items.WATER_BUCKETS).add(itemKey(Items.WATER_BUCKET));
+        var milkBuckets = tag(InfinityXTags.Items.MILK_BUCKETS).add(itemKey(Items.MILK_BUCKET));
+        for (MiteMaterial material : InfinityXItems.BUCKET_MATERIALS) {
+            waterBuckets.add(InfinityXItems.bucket(material, MiteBucketItem.Contents.WATER)
                     .getKey());
-            milkBuckets.add(ModItems.bucket(material, MiteBucketItem.Contents.MILK)
+            milkBuckets.add(InfinityXItems.bucket(material, MiteBucketItem.Contents.MILK)
                     .getKey());
         }
-        tag(ModTags.Items.SMELTING_INPUTS_HEAT_2)
+        tag(InfinityXTags.Items.SMELTING_INPUTS_HEAT_2)
                 .add(itemKey(Items.RAW_COPPER))
                 .add(itemKey(Items.RAW_GOLD))
                 .add(itemKey(Items.RAW_IRON))
@@ -59,25 +59,25 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 .add(itemKey(Blocks.DEEPSLATE_DIAMOND_ORE.asItem()))
                 .add(itemKey(Blocks.NETHER_QUARTZ_ORE.asItem()))
                 .add(itemKey(Blocks.SANDSTONE.asItem()))
-                .add(ModItems.SILVER_ORE.getKey());
-        tag(ModTags.Items.SMELTING_INPUTS_HEAT_3).add(ModItems.MITHRIL_ORE.getKey());
-        tag(ModTags.Items.SMELTING_INPUTS_HEAT_4).add(ModItems.ADAMANTIUM_ORE.getKey());
-        tag(ModTags.Items.GELATINOUS_SPHERES).add(
-                ModItems.GREEN_GELATINOUS_SPHERE.getKey(),
-                ModItems.OCHRE_GELATINOUS_SPHERE.getKey(),
-                ModItems.CRIMSON_GELATINOUS_SPHERE.getKey(),
-                ModItems.GRAY_GELATINOUS_SPHERE.getKey(),
-                ModItems.BLACK_GELATINOUS_SPHERE.getKey());
+                .add(InfinityXItems.SILVER_ORE.getKey());
+        tag(InfinityXTags.Items.SMELTING_INPUTS_HEAT_3).add(InfinityXItems.MITHRIL_ORE.getKey());
+        tag(InfinityXTags.Items.SMELTING_INPUTS_HEAT_4).add(InfinityXItems.ADAMANTIUM_ORE.getKey());
+        tag(InfinityXTags.Items.GELATINOUS_SPHERES).add(
+                InfinityXItems.GREEN_GELATINOUS_SPHERE.getKey(),
+                InfinityXItems.OCHRE_GELATINOUS_SPHERE.getKey(),
+                InfinityXItems.CRIMSON_GELATINOUS_SPHERE.getKey(),
+                InfinityXItems.GRAY_GELATINOUS_SPHERE.getKey(),
+                InfinityXItems.BLACK_GELATINOUS_SPHERE.getKey());
         addCurseTags();
 
-        for (Catalog.RawEntry entry : ModItems.catalog().rawEntries()) {
-            entry.definition().material().ifPresent(material -> add(ModTags.Items.material(material), entry));
+        for (Catalog.RawEntry entry : InfinityXItems.catalog().rawEntries()) {
+            entry.definition().material().ifPresent(material -> add(InfinityXTags.Items.material(material), entry));
         }
         addRepairTags();
 
-        for (Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
-            add(ModTags.Items.material(entry.key().material()), entry);
-            add(ModTags.Items.equipmentType(entry.key().type()), entry);
+        for (Catalog.EquipmentEntry entry : InfinityXItems.catalog().equipmentEntries()) {
+            add(InfinityXTags.Items.material(entry.key().material()), entry);
+            add(InfinityXTags.Items.equipmentType(entry.key().type()), entry);
             addFamilyTags(entry);
             addEnchantmentTags(entry);
             addR196EnchantmentTags(entry);
@@ -86,7 +86,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
     }
 
     private void addCurseTags() {
-        var animalProducts = tag(ModTags.Items.CURSE_ANIMAL_PRODUCTS)
+        var animalProducts = tag(InfinityXTags.Items.CURSE_ANIMAL_PRODUCTS)
                 .addTag(ItemTags.MEAT)
                 .addTag(ItemTags.EGGS)
                 .add(
@@ -102,23 +102,23 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                         itemKey(Items.CAKE),
                         itemKey(Items.PUMPKIN_PIE),
                         itemKey(Items.RABBIT_STEW),
-                        ModItems.MILK_BOWL.getKey(),
-                        ModItems.CEREAL_PORRIDGE.getKey(),
-                        ModItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
-                        ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
-                        ModItems.CHICKEN_SOUP.getKey(),
-                        ModItems.BEEF_STEW.getKey(),
-                        ModItems.CHEESE.getKey(),
-                        ModItems.MASHED_POTATO.getKey(),
-                        ModItems.ICE_CREAM.getKey(),
-                        ModItems.WORM.getKey(),
-                        ModItems.COOKED_WORM.getKey());
-        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
-            animalProducts.add(ModItems.bucket(material, MiteBucketItem.Contents.MILK)
+                        InfinityXItems.MILK_BOWL.getKey(),
+                        InfinityXItems.CEREAL_PORRIDGE.getKey(),
+                        InfinityXItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
+                        InfinityXItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
+                        InfinityXItems.CHICKEN_SOUP.getKey(),
+                        InfinityXItems.BEEF_STEW.getKey(),
+                        InfinityXItems.CHEESE.getKey(),
+                        InfinityXItems.MASHED_POTATO.getKey(),
+                        InfinityXItems.ICE_CREAM.getKey(),
+                        InfinityXItems.WORM.getKey(),
+                        InfinityXItems.COOKED_WORM.getKey());
+        for (MiteMaterial material : InfinityXItems.BUCKET_MATERIALS) {
+            animalProducts.add(InfinityXItems.bucket(material, MiteBucketItem.Contents.MILK)
                     .getKey());
         }
 
-        tag(ModTags.Items.CURSE_PLANT_PRODUCTS)
+        tag(InfinityXTags.Items.CURSE_PLANT_PRODUCTS)
                 .add(
                         itemKey(Items.APPLE),
                         itemKey(Items.GOLDEN_APPLE),
@@ -150,47 +150,47 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                         itemKey(Items.RABBIT_STEW),
                         itemKey(Items.BROWN_MUSHROOM),
                         itemKey(Items.RED_MUSHROOM),
-                        ModItems.DOUGH.getKey(),
-                        ModItems.SALAD.getKey(),
-                        ModItems.BLUEBERRIES.getKey(),
-                        ModItems.BLUEBERRY_PORRIDGE.getKey(),
-                        ModItems.CEREAL_PORRIDGE.getKey(),
-                        ModItems.CHOCOLATE.getKey(),
-                        ModItems.PUMPKIN_SOUP.getKey(),
-                        ModItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
-                        ModItems.ONION.getKey(),
-                        ModItems.VEGETABLE_SOUP.getKey(),
-                        ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
-                        ModItems.CHICKEN_SOUP.getKey(),
-                        ModItems.BEEF_STEW.getKey(),
-                        ModItems.ORANGE.getKey(),
-                        ModItems.FRUIT_ICE.getKey(),
-                        ModItems.MASHED_POTATO.getKey(),
-                        ModItems.ICE_CREAM.getKey(),
-                        ModItems.BANANA.getKey());
+                        InfinityXItems.DOUGH.getKey(),
+                        InfinityXItems.SALAD.getKey(),
+                        InfinityXItems.BLUEBERRIES.getKey(),
+                        InfinityXItems.BLUEBERRY_PORRIDGE.getKey(),
+                        InfinityXItems.CEREAL_PORRIDGE.getKey(),
+                        InfinityXItems.CHOCOLATE.getKey(),
+                        InfinityXItems.PUMPKIN_SOUP.getKey(),
+                        InfinityXItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
+                        InfinityXItems.ONION.getKey(),
+                        InfinityXItems.VEGETABLE_SOUP.getKey(),
+                        InfinityXItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
+                        InfinityXItems.CHICKEN_SOUP.getKey(),
+                        InfinityXItems.BEEF_STEW.getKey(),
+                        InfinityXItems.ORANGE.getKey(),
+                        InfinityXItems.FRUIT_ICE.getKey(),
+                        InfinityXItems.MASHED_POTATO.getKey(),
+                        InfinityXItems.ICE_CREAM.getKey(),
+                        InfinityXItems.BANANA.getKey());
 
-        var drinks = tag(ModTags.Items.CURSE_DRINKS).add(
+        var drinks = tag(InfinityXTags.Items.CURSE_DRINKS).add(
                 itemKey(Items.POTION),
                 itemKey(Items.MILK_BUCKET),
                 itemKey(Items.HONEY_BOTTLE),
                 itemKey(Items.OMINOUS_BOTTLE),
                 itemKey(Items.BEETROOT_SOUP),
-                ModItems.WATER_BOWL.getKey(),
-                ModItems.MILK_BOWL.getKey(),
-                ModItems.PUMPKIN_SOUP.getKey(),
-                ModItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
-                ModItems.VEGETABLE_SOUP.getKey(),
-                ModItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
-                ModItems.CHICKEN_SOUP.getKey());
-        for (MiteMaterial material : ModItems.BUCKET_MATERIALS) {
-            drinks.add(ModItems.bucket(material, MiteBucketItem.Contents.MILK)
+                InfinityXItems.WATER_BOWL.getKey(),
+                InfinityXItems.MILK_BOWL.getKey(),
+                InfinityXItems.PUMPKIN_SOUP.getKey(),
+                InfinityXItems.CREAM_OF_MUSHROOM_SOUP.getKey(),
+                InfinityXItems.VEGETABLE_SOUP.getKey(),
+                InfinityXItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
+                InfinityXItems.CHICKEN_SOUP.getKey());
+        for (MiteMaterial material : InfinityXItems.BUCKET_MATERIALS) {
+            drinks.add(InfinityXItems.bucket(material, MiteBucketItem.Contents.MILK)
                     .getKey());
         }
     }
 
     private void addRepairTags() {
         for (MiteMaterial material : MiteMaterial.values()) {
-            TagAppender<ResourceKey<Item>, Item> repairs = tag(ModTags.Items.repairMaterial(material));
+            TagAppender<ResourceKey<Item>, Item> repairs = tag(InfinityXTags.Items.repairMaterial(material));
             switch (material) {
                 case LEATHER -> repairs.add(itemKey(Items.LEATHER));
                 case WOOD -> repairs.addTag(ItemTags.PLANKS);
@@ -199,12 +199,12 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 case COPPER -> repairs.add(itemKey(Items.COPPER_NUGGET));
                 case GOLD -> repairs.add(itemKey(Items.GOLD_NUGGET));
                 case RUSTED_IRON, IRON -> repairs.add(itemKey(Items.IRON_NUGGET));
-                case SILVER -> repairs.add(ModItems.catalog().raw("silver_nugget").holder().getKey());
+                case SILVER -> repairs.add(InfinityXItems.catalog().raw("silver_nugget").holder().getKey());
                 case ANCIENT_METAL ->
-                    repairs.add(ModItems.catalog().raw("ancient_metal_nugget").holder().getKey());
-                case MITHRIL -> repairs.add(ModItems.catalog().raw("mithril_nugget").holder().getKey());
+                    repairs.add(InfinityXItems.catalog().raw("ancient_metal_nugget").holder().getKey());
+                case MITHRIL -> repairs.add(InfinityXItems.catalog().raw("mithril_nugget").holder().getKey());
                 case ADAMANTIUM ->
-                    repairs.add(ModItems.catalog().raw("adamantium_nugget").holder().getKey());
+                    repairs.add(InfinityXItems.catalog().raw("adamantium_nugget").holder().getKey());
             }
         }
     }
@@ -262,50 +262,50 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         EquipmentType type = entry.key().type();
         MiteMaterial material = entry.key().material();
         if (isDurabilityEnchantable(type, material)) {
-            add(ModTags.Items.R196_DURABILITY_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_DURABILITY_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.SWORD) {
-            add(ModTags.Items.R196_DISARMING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_DISARMING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.KNIFE || type == EquipmentType.DAGGER) {
-            add(ModTags.Items.R196_BUTCHERING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_BUTCHERING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
-            add(ModTags.Items.R196_STUNNING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_STUNNING_ENCHANTABLE, entry);
         }
         if ((type == EquipmentType.SWORD || type == EquipmentType.SCYTHE)
                 && material != MiteMaterial.SILVER
                 && material != MiteMaterial.MITHRIL) {
-            add(ModTags.Items.R196_VAMPIRISM_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_VAMPIRISM_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.SWORD
                 || type == EquipmentType.BATTLE_AXE
                 || type == EquipmentType.SCYTHE) {
-            add(ModTags.Items.R196_SLAUGHTER_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_SLAUGHTER_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.BATTLE_AXE) {
-            add(ModTags.Items.R196_CLEAVING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_CLEAVING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.HOE
                 || type == EquipmentType.MATTOCK
                 || type == EquipmentType.SCYTHE) {
-            add(ModTags.Items.R196_HARVESTING_ENCHANTABLE, entry);
-            add(ModTags.Items.R196_FERTILITY_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_HARVESTING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_FERTILITY_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.PICKAXE) {
-            add(ModTags.Items.R196_PENETRATION_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_PENETRATION_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.AXE || type == EquipmentType.BATTLE_AXE) {
-            add(ModTags.Items.R196_TREE_FELLING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_TREE_FELLING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.PICKAXE || type == EquipmentType.SHOVEL) {
-            add(ModTags.Items.R196_FORTUNE_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_FORTUNE_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.LEGGINGS || type == EquipmentType.CHAINMAIL_LEGGINGS) {
-            add(ModTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CHESTPLATE || type == EquipmentType.CHAINMAIL_CHESTPLATE) {
-            add(ModTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_CHEST_ARMOR_ENCHANTABLE, entry);
         }
         addVanillaMiteEnchantmentTags(entry, type, material);
     }
@@ -319,16 +319,16 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.DAGGER
                 || type == EquipmentType.KNIFE;
         if (swordFamily) {
-            add(ModTags.Items.R196_SWORD_FAMILY_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_SWORD_FAMILY_ENCHANTABLE, entry);
         }
         if (swordFamily || type == EquipmentType.CUDGEL) {
-            add(ModTags.Items.R196_LOOTING_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_LOOTING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.WAR_HAMMER) {
-            add(ModTags.Items.R196_SMITE_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_SMITE_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
-            add(ModTags.Items.R196_KNOCKBACK_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_KNOCKBACK_ENCHANTABLE, entry);
         }
         // MITE efficiency: pickaxe class (war hammers excluded), the axe family, shovels
         // (mattock extends ItemShovel) and hoes.
@@ -339,21 +339,21 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.SHOVEL
                 || type == EquipmentType.MATTOCK
                 || type == EquipmentType.HOE) {
-            add(ModTags.Items.R196_EFFICIENCY_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_EFFICIENCY_ENCHANTABLE, entry);
         }
         // MITE silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
         if (type == EquipmentType.PICKAXE
                 || type == EquipmentType.SHOVEL
                 || type == EquipmentType.KNIFE
                 || type == EquipmentType.DAGGER) {
-            add(ModTags.Items.R196_SILK_TOUCH_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_SILK_TOUCH_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CHESTPLATE) {
-            add(ModTags.Items.R196_THORNS_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_THORNS_ENCHANTABLE, entry);
         }
         if ((type == EquipmentType.CHESTPLATE || type == EquipmentType.LEGGINGS)
                 && material.has(MiteMaterial.Flag.METAL)) {
-            add(ModTags.Items.R196_SOLID_METAL_TORSO_ENCHANTABLE, entry);
+            add(InfinityXTags.Items.R196_SOLID_METAL_TORSO_ENCHANTABLE, entry);
         }
     }
 
@@ -395,7 +395,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
             return;
         }
         entry.key().material().harvestTier()
-                .ifPresent(tier -> add(ModTags.Items.toolTier(tier), entry));
+                .ifPresent(tier -> add(InfinityXTags.Items.toolTier(tier), entry));
     }
 
     private void add(TagKey<Item> tag, Catalog.RawEntry entry) {

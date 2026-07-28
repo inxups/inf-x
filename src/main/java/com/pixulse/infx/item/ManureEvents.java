@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import com.pixulse.infx.entity.Livestock;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -38,7 +38,7 @@ public final class ManureEvents {
         var data = animal.getPersistentData();
         int countdown = data.getInt(COUNTDOWN_TAG).orElse(animal.getRandom().nextInt(interval));
         if (!animal.isBaby() && !Livestock.isDesperateForFood(animal) && --countdown <= 0) {
-            animal.spawnAtLocation(level, ModItems.catalog().raw("manure").holder());
+            animal.spawnAtLocation(level, InfinityXItems.catalog().raw("manure").holder());
             countdown = interval / 2 + animal.getRandom().nextInt(interval);
         }
         data.putInt(COUNTDOWN_TAG, countdown);

@@ -3,8 +3,8 @@ package com.pixulse.infx.player;
 import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.Catalog;
-import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXAttachments;
+import com.pixulse.infx.registry.InfinityXItems;
 import com.pixulse.infx.food.SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -157,12 +157,12 @@ public final class PlayerProgressionEvents {
 
     public static boolean isWeakStrike(Player player) {
         if (player.getHealth() < 2.0F
-                || !player.getData(ModAttachments.SURVIVAL).hasFoodEnergy()
+                || !player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy()
                 || HarvestSpeedRules.isParalyzed(player)
                 || HarvestSpeedRules.isInCobweb(player)) {
             return true;
         }
-        Catalog.EquipmentEntry held = ModItems.catalog().equipment(player.getMainHandItem());
+        Catalog.EquipmentEntry held = InfinityXItems.catalog().equipment(player.getMainHandItem());
         return held == null && player.getAttributeValue(Attributes.ATTACK_DAMAGE) <= 2.0;
     }
 }

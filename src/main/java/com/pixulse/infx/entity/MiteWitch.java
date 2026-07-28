@@ -2,8 +2,8 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.effect.curse.CurseManager;
 import com.pixulse.infx.effect.curse.CurseType;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXSounds;
 import java.util.Comparator;
 import java.util.Random;
 import net.minecraft.server.level.ServerLevel;
@@ -59,17 +59,17 @@ public final class MiteWitch extends Witch implements MiteMob {
 
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
-        return ModSounds.WITCH_AMBIENT.get();
+        return InfinityXSounds.WITCH_AMBIENT.get();
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return ModSounds.WITCH_HURT.get();
+        return InfinityXSounds.WITCH_HURT.get();
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return ModSounds.WITCH_DEATH.get();
+        return InfinityXSounds.WITCH_DEATH.get();
     }
 
     static boolean hasIndirectMagicDefense(DamageSource source) {
@@ -145,7 +145,7 @@ public final class MiteWitch extends Witch implements MiteMob {
             double distance = 8.0 + random.nextDouble() * 8.0;
             double x = target.getX() + Math.cos(angle) * distance;
             double z = target.getZ() + Math.sin(angle) * distance;
-            VanillaWolf wolf = ModEntityTypes.R196_WOLF.get().create(level, EntitySpawnReason.MOB_SUMMONED);
+            VanillaWolf wolf = InfinityXEntityTypes.R196_WOLF.get().create(level, EntitySpawnReason.MOB_SUMMONED);
             if (wolf == null) {
                 return;
             }

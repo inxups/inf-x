@@ -1,7 +1,7 @@
 package com.pixulse.infx.world;
 
 import com.pixulse.infx.item.MiteBucketItem;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -93,7 +93,7 @@ public final class PhysicsEvents {
         ItemStack stack = entity.getItem();
         if (stack.getItem() instanceof MiteBucketItem bucket) {
             if (bucket.contents() == MiteBucketItem.Contents.LAVA) {
-                entity.setItem(ModItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
+                entity.setItem(InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
                         .toStack(stack.getCount()));
                 entity.level()
                         .playSound(
@@ -105,7 +105,7 @@ public final class PhysicsEvents {
                                 1.0F);
             } else if (bucket.contents() != MiteBucketItem.Contents.STONE
                     && bucket.contents() != MiteBucketItem.Contents.WATER) {
-                entity.setItem(ModItems.bucket(bucket.material(), MiteBucketItem.Contents.WATER)
+                entity.setItem(InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.WATER)
                         .toStack(stack.getCount()));
             }
             return;
@@ -226,13 +226,13 @@ public final class PhysicsEvents {
                     && bucket.contents() == MiteBucketItem.Contents.LAVA) {
                 player.getInventory().setItem(
                         slot,
-                        ModItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
+                        InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
                                 .toStack(stack.getCount()));
             } else if (stack.getItem() instanceof MiteBucketItem bucket
                     && bucket.contents() == MiteBucketItem.Contents.MILK) {
                 player.getInventory().setItem(
                         slot,
-                        ModItems.bucket(bucket.material(), MiteBucketItem.Contents.EMPTY)
+                        InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.EMPTY)
                                 .toStack(stack.getCount()));
             } else if (stack.is(Items.LAVA_BUCKET)) {
                 player.getInventory().setItem(slot, new ItemStack(Items.OBSIDIAN, stack.getCount()));

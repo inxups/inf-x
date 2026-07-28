@@ -1,7 +1,7 @@
 package com.pixulse.infx.world.agriculture;
 
 import com.pixulse.infx.player.ProgressionEvents;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import com.pixulse.infx.world.MoonPhase;
 import java.util.ArrayList;
 import net.minecraft.core.BlockPos;
@@ -150,7 +150,7 @@ public final class AgricultureEvents {
 
     private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
-                || !event.getItemStack().is(ModItems.catalog().raw("manure").holder())) {
+                || !event.getItemStack().is(InfinityXItems.catalog().raw("manure").holder())) {
             return;
         }
         BlockState clicked = level.getBlockState(event.getPos());

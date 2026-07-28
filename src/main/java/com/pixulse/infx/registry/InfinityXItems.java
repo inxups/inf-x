@@ -35,57 +35,57 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class ModItems {
+public final class InfinityXItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(InfiniteX.MOD_ID);
 
     public static final DeferredItem<BlockItem> SILVER_ORE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.SILVER_ORE);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.SILVER_ORE);
     public static final DeferredItem<BlockItem> MITHRIL_ORE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_ORE);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.MITHRIL_ORE);
     public static final DeferredItem<BlockItem> ADAMANTIUM_ORE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_ORE, properties -> properties.fireResistant());
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.ADAMANTIUM_ORE, properties -> properties.fireResistant());
 
     public static final List<DeferredItem<BlockItem>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
 
-    public static final DeferredItem<BlockItem> SILVER_BLOCK = ITEMS.registerSimpleBlockItem(ModBlocks.SILVER_BLOCK);
+    public static final DeferredItem<BlockItem> SILVER_BLOCK = ITEMS.registerSimpleBlockItem(InfinityXBlocks.SILVER_BLOCK);
     public static final DeferredItem<BlockItem> ANCIENT_METAL_BLOCK =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ANCIENT_METAL_BLOCK);
-    public static final DeferredItem<BlockItem> MITHRIL_BLOCK = ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_BLOCK);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.ANCIENT_METAL_BLOCK);
+    public static final DeferredItem<BlockItem> MITHRIL_BLOCK = ITEMS.registerSimpleBlockItem(InfinityXBlocks.MITHRIL_BLOCK);
     public static final DeferredItem<BlockItem> ADAMANTIUM_BLOCK =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_BLOCK, properties -> properties.fireResistant());
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.ADAMANTIUM_BLOCK, properties -> properties.fireResistant());
     public static final List<DeferredItem<BlockItem>> METAL_STORAGE_BLOCKS =
             List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
 
-    public static final DeferredItem<BlockItem> MANTLE = ITEMS.registerSimpleBlockItem(ModBlocks.MANTLE);
+    public static final DeferredItem<BlockItem> MANTLE = ITEMS.registerSimpleBlockItem(InfinityXBlocks.MANTLE);
     public static final DeferredItem<BlockItem> MITHRIL_RUNE_STONE = ITEMS.registerItem(
             "mithril_rune_stone",
-            properties -> new RuneStoneItem(ModBlocks.MITHRIL_RUNE_STONE.get(), properties),
+            properties -> new RuneStoneItem(InfinityXBlocks.MITHRIL_RUNE_STONE.get(), properties),
             properties -> properties.component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final DeferredItem<BlockItem> ADAMANTIUM_RUNE_STONE = ITEMS.registerItem(
             "adamantium_rune_stone",
-            properties -> new RuneStoneItem(ModBlocks.ADAMANTIUM_RUNE_STONE.get(), properties),
+            properties -> new RuneStoneItem(InfinityXBlocks.ADAMANTIUM_RUNE_STONE.get(), properties),
             properties -> properties
                     .fireResistant()
                     .component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
-    public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(ModBlocks.NETHER_GRAVEL);
-    public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(ModBlocks.WITHERWOOD);
-    public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(ModBlocks.CORE);
-    public static final DeferredItem<BlockItem> SNOW_SLAB = ITEMS.registerSimpleBlockItem(ModBlocks.SNOW_SLAB);
+    public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(InfinityXBlocks.NETHER_GRAVEL);
+    public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(InfinityXBlocks.WITHERWOOD);
+    public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(InfinityXBlocks.CORE);
+    public static final DeferredItem<BlockItem> SNOW_SLAB = ITEMS.registerSimpleBlockItem(InfinityXBlocks.SNOW_SLAB);
     public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS = List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
     public static final List<DeferredItem<BlockItem>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
     public static final DeferredItem<BlockItem> EMERALD_ENCHANTING_TABLE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.EMERALD_ENCHANTING_TABLE);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.EMERALD_ENCHANTING_TABLE);
     public static final DeferredItem<BlockItem> DIAMOND_ENCHANTING_TABLE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.DIAMOND_ENCHANTING_TABLE);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.DIAMOND_ENCHANTING_TABLE);
     public static final List<DeferredItem<BlockItem>> ENCHANTING_TABLES =
             List.of(EMERALD_ENCHANTING_TABLE, DIAMOND_ENCHANTING_TABLE);
-    public static final List<DeferredItem<BlockItem>> METAL_SAFES = ModBlocks.METAL_SAFES.stream()
+    public static final List<DeferredItem<BlockItem>> METAL_SAFES = InfinityXBlocks.METAL_SAFES.stream()
             .map(ITEMS::registerSimpleBlockItem)
             .toList();
 
-    public static final List<DeferredItem<BlockItem>> METAL_ANVILS = ModBlocks.METAL_ANVILS.stream()
+    public static final List<DeferredItem<BlockItem>> METAL_ANVILS = InfinityXBlocks.METAL_ANVILS.stream()
             .map(anvil -> ITEMS.registerItem(
                     anvil.getId().getPath(),
                     properties -> new BlockItem(anvil.get(), properties),
@@ -98,35 +98,35 @@ public final class ModItems {
             .toList();
 
     public static final DeferredItem<BlockItem> FLINT_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.FLINT_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.FLINT_WORKBENCH);
     public static final DeferredItem<BlockItem> COPPER_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.COPPER_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.COPPER_WORKBENCH);
     public static final DeferredItem<BlockItem> SILVER_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.SILVER_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.SILVER_WORKBENCH);
     public static final DeferredItem<BlockItem> GOLD_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.GOLD_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.GOLD_WORKBENCH);
     public static final DeferredItem<BlockItem> IRON_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.IRON_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.IRON_WORKBENCH);
     public static final DeferredItem<BlockItem> ANCIENT_METAL_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ANCIENT_METAL_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.ANCIENT_METAL_WORKBENCH);
     public static final DeferredItem<BlockItem> MITHRIL_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.MITHRIL_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.MITHRIL_WORKBENCH);
     public static final DeferredItem<BlockItem> ADAMANTIUM_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.ADAMANTIUM_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.ADAMANTIUM_WORKBENCH);
     public static final DeferredItem<BlockItem> OBSIDIAN_WORKBENCH =
-            ITEMS.registerSimpleBlockItem(ModBlocks.OBSIDIAN_WORKBENCH);
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.OBSIDIAN_WORKBENCH);
     public static final DeferredItem<BlockItem> CLAY_FURNACE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> LARGE_CLAY_OVEN =
-            ITEMS.registerSimpleBlockItem(ModBlocks.LARGE_CLAY_OVEN, properties -> properties.stacksTo(1));
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.LARGE_CLAY_OVEN, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> SANDSTONE_FURNACE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.SANDSTONE_FURNACE, properties -> properties.stacksTo(1));
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.SANDSTONE_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> HARDENED_CLAY_FURNACE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.HARDENED_CLAY_FURNACE, properties -> properties.stacksTo(1));
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.HARDENED_CLAY_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> OBSIDIAN_FURNACE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.OBSIDIAN_FURNACE, properties -> properties.stacksTo(1));
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.OBSIDIAN_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> NETHERRACK_FURNACE =
-            ITEMS.registerSimpleBlockItem(ModBlocks.NETHERRACK_FURNACE, properties -> properties.stacksTo(1));
+            ITEMS.registerSimpleBlockItem(InfinityXBlocks.NETHERRACK_FURNACE, properties -> properties.stacksTo(1));
 
     public static final List<DeferredItem<BlockItem>> WORKBENCHES = List.of(
             FLINT_WORKBENCH,
@@ -224,10 +224,10 @@ public final class ModItems {
                     .stacksTo(1)
                     .component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET)
                     .usingConvertsTo(Items.GLASS_BOTTLE));
-    public static final DeferredItem<Item> RECORD_UNDERWORLD = record("record_underworld", ModJukeboxSongs.UNDERWORLD);
-    public static final DeferredItem<Item> RECORD_DESCENT = record("record_descent", ModJukeboxSongs.DESCENT);
-    public static final DeferredItem<Item> RECORD_WANDERER = record("record_wanderer", ModJukeboxSongs.WANDERER);
-    public static final DeferredItem<Item> RECORD_LEGENDS = record("record_legends", ModJukeboxSongs.LEGENDS);
+    public static final DeferredItem<Item> RECORD_UNDERWORLD = record("record_underworld", InfinityXJukeboxSongs.UNDERWORLD);
+    public static final DeferredItem<Item> RECORD_DESCENT = record("record_descent", InfinityXJukeboxSongs.DESCENT);
+    public static final DeferredItem<Item> RECORD_WANDERER = record("record_wanderer", InfinityXJukeboxSongs.WANDERER);
+    public static final DeferredItem<Item> RECORD_LEGENDS = record("record_legends", InfinityXJukeboxSongs.LEGENDS);
     public static final List<DeferredItem<Item>> R196_RECORDS =
             List.of(RECORD_UNDERWORLD, RECORD_DESCENT, RECORD_WANDERER, RECORD_LEGENDS);
 
@@ -293,7 +293,7 @@ public final class ModItems {
     public static final DeferredItem<ToolItem> IRON_SWORD =
             CATALOG.equipment(MiteMaterial.IRON, EquipmentType.SWORD).holderAs(ToolItem.class);
 
-    private ModItems() {}
+    private InfinityXItems() {}
 
     private static DeferredItem<Item> simple(String path) {
         return ITEMS.registerItem(path, Item::new);
@@ -429,7 +429,7 @@ public final class ModItems {
 
     private static List<DeferredItem<SpawnEggItem>> registerSpawnEggs() {
         List<DeferredItem<SpawnEggItem>> eggs = new ArrayList<>();
-        for (DeferredHolder<EntityType<?>, ? extends EntityType<?>> type : ModEntityTypes.ALL) {
+        for (DeferredHolder<EntityType<?>, ? extends EntityType<?>> type : InfinityXEntityTypes.ALL) {
             String path = type.getId().getPath() + "_spawn_egg";
             eggs.add(ITEMS.registerItem(
                     path,

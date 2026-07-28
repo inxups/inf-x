@@ -2,8 +2,8 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.DifficultyInstance;
@@ -167,7 +167,7 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
     }
 
     private static ItemStack equipment(MiteMaterial material, EquipmentType type) {
-        return ModItems.catalog().equipment(material, type).holder().toStack();
+        return InfinityXItems.catalog().equipment(material, type).holder().toStack();
     }
 
     @Override
@@ -412,7 +412,7 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
             damage *= 0.25F;
         }
         if (source.isDirect() && source.getEntity() instanceof LivingEntity attacker) {
-            var equipment = ModItems.catalog().equipment(attacker.getMainHandItem());
+            var equipment = InfinityXItems.catalog().equipment(attacker.getMainHandItem());
             if (equipment != null
                     && (equipment.key().type() == EquipmentType.CUDGEL
                             || equipment.key().type() == EquipmentType.CLUB
@@ -477,8 +477,8 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
 
     private void summonTroop(ServerLevel level) {
         EntityType<MiteSkeleton> troopType = variant() == Variant.ANCIENT_BONE_LORD
-                ? ModEntityTypes.LONGDEAD.get()
-                : ModEntityTypes.R196_SKELETON.get();
+                ? InfinityXEntityTypes.LONGDEAD.get()
+                : InfinityXEntityTypes.R196_SKELETON.get();
         MiteSkeleton troop = troopType.create(level, EntitySpawnReason.MOB_SUMMONED);
         if (troop == null) {
             return;
@@ -511,7 +511,7 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         if ((variant() == Variant.LONGDEAD || variant() == Variant.ANCIENT_BONE_LORD)
                 && random.nextFloat() < (killedByPlayer ? 0.50F : 0.25F)) {
-            spawnAtLocation(level, ModItems.ANCIENT_METAL_INGOT.toStack());
+            spawnAtLocation(level, InfinityXItems.ANCIENT_METAL_INGOT.toStack());
         }
     }
 }

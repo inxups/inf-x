@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -96,6 +96,6 @@ public final class MiteHorse extends Horse {
 
     @Override
     public @Nullable AgeableMob getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return ModEntityTypes.R196_HORSE.get().create(level, EntitySpawnReason.BREEDING);
+        return InfinityXEntityTypes.R196_HORSE.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

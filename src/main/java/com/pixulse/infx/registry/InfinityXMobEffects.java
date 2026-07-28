@@ -11,7 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class ModMobEffects {
+public final class InfinityXMobEffects {
     private static final DeferredRegister<MobEffect> EFFECTS =
             DeferredRegister.create(Registries.MOB_EFFECT, InfiniteX.MOD_ID);
 
@@ -29,7 +29,7 @@ public final class ModMobEffects {
                             -1.0D,
                             AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 
-    private ModMobEffects() {}
+    private InfinityXMobEffects() {}
 
     public static void register(IEventBus modBus) {
         EFFECTS.register(modBus);

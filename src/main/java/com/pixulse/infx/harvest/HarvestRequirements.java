@@ -1,6 +1,6 @@
 package com.pixulse.infx.harvest;
 
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 import java.util.OptionalInt;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,11 +17,11 @@ public final class HarvestRequirements {
     }
 
     public static OptionalInt explicitLevel(BlockState state) {
-        if (state.is(ModTags.Blocks.requiredLevel(0))) {
+        if (state.is(InfinityXTags.Blocks.requiredLevel(0))) {
             return OptionalInt.of(0);
         }
         for (int level = MAX_LEVEL; level >= 1; level--) {
-            if (state.is(ModTags.Blocks.requiredLevel(level))) {
+            if (state.is(InfinityXTags.Blocks.requiredLevel(level))) {
                 return OptionalInt.of(level);
             }
         }
@@ -31,7 +31,7 @@ public final class HarvestRequirements {
     public static int explicitLevelCount(BlockState state) {
         int matches = 0;
         for (int level = 0; level <= MAX_LEVEL; level++) {
-            if (state.is(ModTags.Blocks.requiredLevel(level))) {
+            if (state.is(InfinityXTags.Blocks.requiredLevel(level))) {
                 matches++;
             }
         }

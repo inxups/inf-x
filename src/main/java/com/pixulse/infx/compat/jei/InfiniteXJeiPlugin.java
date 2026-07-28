@@ -12,8 +12,8 @@ import com.pixulse.infx.screen.TimedWorkbenchScreen;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.TimedCraftingRecipe;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.ModMenus;
+import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfinityXMenus;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -47,8 +47,8 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registerRuneStoneSubtypes(
                 registration,
-                ModItems.MITHRIL_RUNE_STONE.get(),
-                ModItems.ADAMANTIUM_RUNE_STONE.get());
+                InfinityXItems.MITHRIL_RUNE_STONE.get(),
+                InfinityXItems.ADAMANTIUM_RUNE_STONE.get());
     }
 
     @Override
@@ -56,15 +56,15 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
         var guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(
                 new TimedCraftingRecipeCategory(guiHelper, BenchTier.HAND, Items.CRAFTING_TABLE),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.FLINT, ModItems.FLINT_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.OBSIDIAN, ModItems.OBSIDIAN_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.COPPER, ModItems.COPPER_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.IRON, ModItems.IRON_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.FLINT, InfinityXItems.FLINT_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.OBSIDIAN, InfinityXItems.OBSIDIAN_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.COPPER, InfinityXItems.COPPER_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.IRON, InfinityXItems.IRON_WORKBENCH.get()),
                 new TimedCraftingRecipeCategory(
-                        guiHelper, BenchTier.ANCIENT_METAL, ModItems.ANCIENT_METAL_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.MITHRIL, ModItems.MITHRIL_WORKBENCH.get()),
+                        guiHelper, BenchTier.ANCIENT_METAL, InfinityXItems.ANCIENT_METAL_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.MITHRIL, InfinityXItems.MITHRIL_WORKBENCH.get()),
                 new TimedCraftingRecipeCategory(
-                        guiHelper, BenchTier.ADAMANTIUM, ModItems.ADAMANTIUM_WORKBENCH.get()));
+                        guiHelper, BenchTier.ADAMANTIUM, InfinityXItems.ADAMANTIUM_WORKBENCH.get()));
     }
 
     @Override
@@ -100,7 +100,7 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
             ItemLike[] workbenches = Arrays.stream(BenchTier.values())
                     .filter(BenchTier::isWorkbench)
                     .filter(benchTier -> benchTier.supports(requiredTier))
-                    .map(benchTier -> (ItemLike) ModItems.workbench(benchTier).get())
+                    .map(benchTier -> (ItemLike) InfinityXItems.workbench(benchTier).get())
                     .toArray(ItemLike[]::new);
             registration.addCraftingStation(TimedCraftingJeiTypes.forBench(requiredTier), workbenches);
         }
@@ -116,7 +116,7 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
                 if (requiredTier.isRecipeTier() && benchTier.supports(requiredTier)) {
                     addTransferHandler(
                             registration,
-                            ModMenus.workbench(benchTier).get(),
+                            InfinityXMenus.workbench(benchTier).get(),
                             TimedCraftingJeiTypes.forBench(requiredTier));
                 }
             }

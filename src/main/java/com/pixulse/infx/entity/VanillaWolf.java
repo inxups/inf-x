@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
@@ -76,6 +76,6 @@ public final class VanillaWolf extends Wolf {
 
     @Override
     public @Nullable Wolf getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return ModEntityTypes.R196_WOLF.get().create(level, EntitySpawnReason.BREEDING);
+        return InfinityXEntityTypes.R196_WOLF.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

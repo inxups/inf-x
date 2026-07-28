@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
 import java.util.function.Supplier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -15,13 +15,13 @@ import org.jspecify.annotations.Nullable;
 
 /** Bucketable water-mob contents that keep the R196 bucket material. */
 public enum MobBucketKind {
-    COD("cod", "Cod", "鳕鱼", () -> ModEntityTypes.R196_COD.get(), EntityType.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
-    SALMON("salmon", "Salmon", "鲑鱼", () -> ModEntityTypes.R196_SALMON.get(), EntityType.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
+    COD("cod", "Cod", "鳕鱼", () -> InfinityXEntityTypes.R196_COD.get(), EntityType.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
+    SALMON("salmon", "Salmon", "鲑鱼", () -> InfinityXEntityTypes.R196_SALMON.get(), EntityType.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
     PUFFERFISH(
             "pufferfish",
             "Pufferfish",
             "河豚",
-            () -> ModEntityTypes.R196_PUFFERFISH.get(),
+            () -> InfinityXEntityTypes.R196_PUFFERFISH.get(),
             EntityType.PUFFERFISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.PUFFERFISH),
@@ -29,7 +29,7 @@ public enum MobBucketKind {
             "tropical",
             "Tropical Fish",
             "热带鱼",
-            () -> ModEntityTypes.R196_TROPICAL_FISH.get(),
+            () -> InfinityXEntityTypes.R196_TROPICAL_FISH.get(),
             EntityType.TROPICAL_FISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.TROPICAL_FISH),

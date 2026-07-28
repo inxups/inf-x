@@ -7,9 +7,9 @@ import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModDataComponents;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfinityXDataComponents;
+import com.pixulse.infx.registry.InfinityXItems;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -85,102 +85,102 @@ final class ModModelProvider extends ModelProvider {
     @Override
     protected Stream<? extends Holder<Block>> getKnownBlocks() {
         Stream<Block> generated = Stream.of(
-                        ModBlocks.FURNACES.stream().map(block -> (Block) block.value()),
-                        ModBlocks.ORES.stream().map(block -> (Block) block.value()),
-                        ModBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
-                        ModBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
-                        ModBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()))
+                        InfinityXBlocks.FURNACES.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.ORES.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
+                        InfinityXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
                 Stream.of(
-                        (Block) ModBlocks.UNDERWORLD_PORTAL.value(),
-                        ModBlocks.NETHER_PORTAL.value(),
-                        ModBlocks.RETURN_SPAWN_PORTAL.value()))
+                        (Block) InfinityXBlocks.UNDERWORLD_PORTAL.value(),
+                        InfinityXBlocks.NETHER_PORTAL.value(),
+                        InfinityXBlocks.RETURN_SPAWN_PORTAL.value()))
                 .map(BuiltInRegistries.BLOCK::wrapAsHolder);
     }
 
     @Override
     protected Stream<? extends Holder<Item>> getKnownItems() {
         return Stream.of(
-                        ModItems.catalog().entries().stream().map(entry -> entry.holder().value()),
-                        ModItems.FURNACES.stream().map(item -> (Item) item.value()),
-                        ModItems.ORES.stream().map(item -> (Item) item.value()),
-                        ModItems.METAL_STORAGE_BLOCKS.stream().map(item -> (Item) item.value()),
-                        ModItems.METAL_ANVILS.stream().map(item -> (Item) item.value()),
-                        ModItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()),
-                        ModItems.ENCHANTING_TABLES.stream().map(item -> (Item) item.value()),
-                        ModItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
-                        ModItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
-                        ModItems.MITE_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
-                        ModItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
-                        ModItems.R196_MOB_BUCKETS.stream().map(item -> (Item) item.value()),
-                        ModItems.R196_POWDER_SNOW_BUCKETS.stream().map(item -> (Item) item.value()),
-                        ModItems.R196_RECORDS.stream().map(item -> (Item) item.value()),
-                        ModItems.GELATINOUS_SPHERES.stream().map(item -> (Item) item.value()),
-                        Stream.of(ModItems.BOTTLE_OF_DISENCHANTING.value()),
+                        InfinityXItems.catalog().entries().stream().map(entry -> entry.holder().value()),
+                        InfinityXItems.FURNACES.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.ORES.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.METAL_STORAGE_BLOCKS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.METAL_ANVILS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.WORLD_BLOCKS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.ENCHANTING_TABLES.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.MITE_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.R196_MOB_BUCKETS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.R196_POWDER_SNOW_BUCKETS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.R196_RECORDS.stream().map(item -> (Item) item.value()),
+                        InfinityXItems.GELATINOUS_SPHERES.stream().map(item -> (Item) item.value()),
+                        Stream.of(InfinityXItems.BOTTLE_OF_DISENCHANTING.value()),
                         Stream.concat(
-                                Stream.of(ModItems.FLOUR.value(), ModItems.WATER_BOWL.value()),
-                                ModItems.R196_FOODS.stream().map(item -> item.value())))
+                                Stream.of(InfinityXItems.FLOUR.value(), InfinityXItems.WATER_BOWL.value()),
+                                InfinityXItems.R196_FOODS.stream().map(item -> item.value())))
                 .flatMap(stream -> stream)
                 .map(BuiltInRegistries.ITEM::wrapAsHolder);
     }
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        ModBlocks.FURNACES.stream()
-                .filter(furnace -> furnace.value() != ModBlocks.LARGE_CLAY_OVEN.value())
+        InfinityXBlocks.FURNACES.stream()
+                .filter(furnace -> furnace.value() != InfinityXBlocks.LARGE_CLAY_OVEN.value())
                 .forEach(furnace -> blockModels.createFurnace(
                         furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
         generateLargeClayOven(blockModels);
-        ModBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
-        ModBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
-        ModBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
+        InfinityXBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
+        InfinityXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
+        InfinityXBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
         generateSnowSlab(blockModels);
         blockModels.createCrossBlockWithDefaultItem(
-                ModBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
-        blockModels.createTrivialCube(ModBlocks.NETHER_GRAVEL.value());
-        blockModels.createTrivialCube(ModBlocks.CORE.value());
+                InfinityXBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
+        blockModels.createTrivialCube(InfinityXBlocks.NETHER_GRAVEL.value());
+        blockModels.createTrivialCube(InfinityXBlocks.CORE.value());
         blockModels.createTrivialBlock(
-                ModBlocks.INFESTED_NETHERRACK.value(),
+                InfinityXBlocks.INFESTED_NETHERRACK.value(),
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
                         TextureSlot.ALL,
                         new Material(Identifier.withDefaultNamespace("block/netherrack")))));
         blockModels.createTrivialBlock(
-                ModBlocks.MANTLE.value(),
+                InfinityXBlocks.MANTLE.value(),
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
                         TextureSlot.ALL,
                         new Material(Identifier.withDefaultNamespace("block/magma")))));
-        generateRuneStone(blockModels, itemModels, ModBlocks.MITHRIL_RUNE_STONE.value(), "mithril");
-        generateRuneStone(blockModels, itemModels, ModBlocks.ADAMANTIUM_RUNE_STONE.value(), "adamantium");
-        ModBlocks.ENCHANTING_TABLES.forEach(table -> {
+        generateRuneStone(blockModels, itemModels, InfinityXBlocks.MITHRIL_RUNE_STONE.value(), "mithril");
+        generateRuneStone(blockModels, itemModels, InfinityXBlocks.ADAMANTIUM_RUNE_STONE.value(), "adamantium");
+        InfinityXBlocks.ENCHANTING_TABLES.forEach(table -> {
             var model = BlockModelGenerators.plainVariant(
                     ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
             blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(table.value(), model));
             blockModels.registerSimpleItemModel(table.value(), ModelLocationUtils.getModelLocation(Blocks.ENCHANTING_TABLE));
         });
-        ModBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
+        InfinityXBlocks.METAL_SAFES.forEach(safe -> generateMetalSafe(blockModels, safe.value()));
         generateUnderworldPortal(blockModels);
         generateRedNetherPortal(blockModels);
-        generateRunegatePortal(blockModels, ModBlocks.RETURN_SPAWN_PORTAL.value());
-        ModItems.catalog().rawEntries().forEach(
+        generateRunegatePortal(blockModels, InfinityXBlocks.RETURN_SPAWN_PORTAL.value());
+        InfinityXItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
-        ModItems.R196_BUCKETS.forEach(bucket ->
+        InfinityXItems.R196_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
-        ModItems.R196_MOB_BUCKETS.forEach(bucket ->
+        InfinityXItems.R196_MOB_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
-        ModItems.R196_POWDER_SNOW_BUCKETS.forEach(bucket ->
+        InfinityXItems.R196_POWDER_SNOW_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
-        ModItems.R196_RECORDS.forEach(record ->
+        InfinityXItems.R196_RECORDS.forEach(record ->
                 itemModels.generateFlatItem(record.value(), ModelTemplates.FLAT_ITEM));
         generateGelatinousSphereModels(itemModels);
-        ModItems.SPAWN_EGGS.forEach(egg -> itemModels.generateFlatItem(egg.value(), ModelTemplates.FLAT_ITEM));
-        itemModels.generateFlatItem(ModItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
+        InfinityXItems.SPAWN_EGGS.forEach(egg -> itemModels.generateFlatItem(egg.value(), ModelTemplates.FLAT_ITEM));
+        itemModels.generateFlatItem(InfinityXItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateR196FoodModels(itemModels);
-        for (Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
+        for (Catalog.EquipmentEntry entry : InfinityXItems.catalog().equipmentEntries()) {
             if (entry.key().material() == MiteMaterial.LEATHER
                     && entry.key().type().armorForm() == EquipmentType.ArmorForm.PLATE) {
                 itemModels.generateTwoLayerDyedItem(entry.holder().value());
@@ -236,7 +236,7 @@ final class ModModelProvider extends ModelProvider {
                 ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"));
         var vanillaEw = BlockModelGenerators.plainVariant(
                 ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ew"));
-        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(ModBlocks.UNDERWORLD_PORTAL.value())
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(InfinityXBlocks.UNDERWORLD_PORTAL.value())
                 .with(PropertyDispatch.initial(
                                 BlockStateProperties.HORIZONTAL_AXIS, UnderworldPortalBlock.RUNE_GATE)
                         .select(Direction.Axis.X, false, vanillaNs)
@@ -261,7 +261,7 @@ final class ModModelProvider extends ModelProvider {
                 InfiniteX.id("block/nether_portal_ns"), textures, blockModels.modelOutput);
         Identifier redEw = RED_NETHER_PORTAL_EW_MODEL.create(
                 InfiniteX.id("block/nether_portal_ew"), textures, blockModels.modelOutput);
-        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(ModBlocks.NETHER_PORTAL.value())
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(InfinityXBlocks.NETHER_PORTAL.value())
                 .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
                         .select(Direction.Axis.X, BlockModelGenerators.plainVariant(redNs))
                         .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(redEw))));
@@ -271,45 +271,45 @@ final class ModModelProvider extends ModelProvider {
         Material snow = new Material(InfiniteX.id("block/snow_slab"));
         TextureMapping textures = TextureMapping.cube(snow);
         Identifier bottom = ModelTemplates.SLAB_BOTTOM.createWithSuffix(
-                ModBlocks.SNOW_SLAB.value(), "_bottom", textures, blockModels.modelOutput);
+                InfinityXBlocks.SNOW_SLAB.value(), "_bottom", textures, blockModels.modelOutput);
         Identifier top = ModelTemplates.SLAB_TOP.create(
-                ModBlocks.SNOW_SLAB.value(), textures, blockModels.modelOutput);
+                InfinityXBlocks.SNOW_SLAB.value(), textures, blockModels.modelOutput);
         Identifier full = ModelTemplates.CUBE_ALL.create(
-                ModBlocks.SNOW_SLAB.value(), textures, blockModels.modelOutput);
-        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(ModBlocks.SNOW_SLAB.value())
+                InfinityXBlocks.SNOW_SLAB.value(), textures, blockModels.modelOutput);
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(InfinityXBlocks.SNOW_SLAB.value())
                 .with(PropertyDispatch.initial(SlabBlock.TYPE)
                         .select(SlabType.BOTTOM, BlockModelGenerators.plainVariant(bottom))
                         .select(SlabType.TOP, BlockModelGenerators.plainVariant(top))
                         .select(SlabType.DOUBLE, BlockModelGenerators.plainVariant(full))));
-        blockModels.registerSimpleItemModel(ModBlocks.SNOW_SLAB.value(), bottom);
+        blockModels.registerSimpleItemModel(InfinityXBlocks.SNOW_SLAB.value(), bottom);
     }
 
     private static void generateR196FoodModels(ItemModelGenerators models) {
         Map<Item, String> textures = Map.ofEntries(
-                Map.entry(ModItems.FLOUR.value(), "flour"),
-                Map.entry(ModItems.WATER_BOWL.value(), "water_bowl"),
-                Map.entry(ModItems.DOUGH.value(), "dough"),
-                Map.entry(ModItems.SALAD.value(), "salad"),
-                Map.entry(ModItems.BLUEBERRIES.value(), "blueberries"),
-                Map.entry(ModItems.BLUEBERRY_PORRIDGE.value(), "blueberry_porridge"),
-                Map.entry(ModItems.MILK_BOWL.value(), "milk_bowl"),
-                Map.entry(ModItems.CEREAL_PORRIDGE.value(), "cereal_porridge"),
-                Map.entry(ModItems.CHOCOLATE.value(), "chocolate"),
-                Map.entry(ModItems.PUMPKIN_SOUP.value(), "pumpkin_soup"),
-                Map.entry(ModItems.CREAM_OF_MUSHROOM_SOUP.value(), "cream_of_mushroom_soup"),
-                Map.entry(ModItems.ONION.value(), "onion"),
-                Map.entry(ModItems.VEGETABLE_SOUP.value(), "vegetable_soup"),
-                Map.entry(ModItems.CREAM_OF_VEGETABLE_SOUP.value(), "cream_of_vegetable_soup"),
-                Map.entry(ModItems.CHICKEN_SOUP.value(), "chicken_soup"),
-                Map.entry(ModItems.BEEF_STEW.value(), "beef_stew"),
-                Map.entry(ModItems.ORANGE.value(), "orange"),
-                Map.entry(ModItems.FRUIT_ICE.value(), "fruit_ice"),
-                Map.entry(ModItems.CHEESE.value(), "cheese"),
-                Map.entry(ModItems.MASHED_POTATO.value(), "mashed_potato"),
-                Map.entry(ModItems.ICE_CREAM.value(), "ice_cream"),
-                Map.entry(ModItems.BANANA.value(), "banana"),
-                Map.entry(ModItems.WORM.value(), "worm"),
-                Map.entry(ModItems.COOKED_WORM.value(), "cooked_worm"));
+                Map.entry(InfinityXItems.FLOUR.value(), "flour"),
+                Map.entry(InfinityXItems.WATER_BOWL.value(), "water_bowl"),
+                Map.entry(InfinityXItems.DOUGH.value(), "dough"),
+                Map.entry(InfinityXItems.SALAD.value(), "salad"),
+                Map.entry(InfinityXItems.BLUEBERRIES.value(), "blueberries"),
+                Map.entry(InfinityXItems.BLUEBERRY_PORRIDGE.value(), "blueberry_porridge"),
+                Map.entry(InfinityXItems.MILK_BOWL.value(), "milk_bowl"),
+                Map.entry(InfinityXItems.CEREAL_PORRIDGE.value(), "cereal_porridge"),
+                Map.entry(InfinityXItems.CHOCOLATE.value(), "chocolate"),
+                Map.entry(InfinityXItems.PUMPKIN_SOUP.value(), "pumpkin_soup"),
+                Map.entry(InfinityXItems.CREAM_OF_MUSHROOM_SOUP.value(), "cream_of_mushroom_soup"),
+                Map.entry(InfinityXItems.ONION.value(), "onion"),
+                Map.entry(InfinityXItems.VEGETABLE_SOUP.value(), "vegetable_soup"),
+                Map.entry(InfinityXItems.CREAM_OF_VEGETABLE_SOUP.value(), "cream_of_vegetable_soup"),
+                Map.entry(InfinityXItems.CHICKEN_SOUP.value(), "chicken_soup"),
+                Map.entry(InfinityXItems.BEEF_STEW.value(), "beef_stew"),
+                Map.entry(InfinityXItems.ORANGE.value(), "orange"),
+                Map.entry(InfinityXItems.FRUIT_ICE.value(), "fruit_ice"),
+                Map.entry(InfinityXItems.CHEESE.value(), "cheese"),
+                Map.entry(InfinityXItems.MASHED_POTATO.value(), "mashed_potato"),
+                Map.entry(InfinityXItems.ICE_CREAM.value(), "ice_cream"),
+                Map.entry(InfinityXItems.BANANA.value(), "banana"),
+                Map.entry(InfinityXItems.WORM.value(), "worm"),
+                Map.entry(InfinityXItems.COOKED_WORM.value(), "cooked_worm"));
         textures.forEach((item, texture) -> {
             Identifier model = ModelTemplates.FLAT_ITEM.create(
                     ModelLocationUtils.getModelLocation(item),
@@ -321,11 +321,11 @@ final class ModModelProvider extends ModelProvider {
 
     private static void generateGelatinousSphereModels(ItemModelGenerators models) {
         Map<Item, String> textures = Map.ofEntries(
-                Map.entry(ModItems.GREEN_GELATINOUS_SPHERE.value(), "green"),
-                Map.entry(ModItems.OCHRE_GELATINOUS_SPHERE.value(), "ochre"),
-                Map.entry(ModItems.CRIMSON_GELATINOUS_SPHERE.value(), "crimson"),
-                Map.entry(ModItems.GRAY_GELATINOUS_SPHERE.value(), "gray"),
-                Map.entry(ModItems.BLACK_GELATINOUS_SPHERE.value(), "black"));
+                Map.entry(InfinityXItems.GREEN_GELATINOUS_SPHERE.value(), "green"),
+                Map.entry(InfinityXItems.OCHRE_GELATINOUS_SPHERE.value(), "ochre"),
+                Map.entry(InfinityXItems.CRIMSON_GELATINOUS_SPHERE.value(), "crimson"),
+                Map.entry(InfinityXItems.GRAY_GELATINOUS_SPHERE.value(), "gray"),
+                Map.entry(InfinityXItems.BLACK_GELATINOUS_SPHERE.value(), "black"));
         textures.forEach((item, texture) -> {
             Identifier model = ModelTemplates.FLAT_ITEM.create(
                     ModelLocationUtils.getModelLocation(item),
@@ -369,17 +369,17 @@ final class ModModelProvider extends ModelProvider {
 
     private static void generateLargeClayOven(BlockModelGenerators models) {
         var normal = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(ModBlocks.CLAY_FURNACE.value()));
+                ModelLocationUtils.getModelLocation(InfinityXBlocks.CLAY_FURNACE.value()));
         var lit = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(ModBlocks.CLAY_FURNACE.value(), "_on"));
+                ModelLocationUtils.getModelLocation(InfinityXBlocks.CLAY_FURNACE.value(), "_on"));
         models.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(ModBlocks.LARGE_CLAY_OVEN.value())
+                MultiVariantGenerator.dispatch(InfinityXBlocks.LARGE_CLAY_OVEN.value())
                         .with(BlockModelGenerators.createBooleanModelDispatch(
                                 BlockStateProperties.LIT, lit, normal))
                         .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
         models.registerSimpleItemModel(
-                ModBlocks.LARGE_CLAY_OVEN.value(),
-                ModelLocationUtils.getModelLocation(ModBlocks.CLAY_FURNACE.value()));
+                InfinityXBlocks.LARGE_CLAY_OVEN.value(),
+                ModelLocationUtils.getModelLocation(InfinityXBlocks.CLAY_FURNACE.value()));
     }
 
     private static void generateMetalAnvil(BlockModelGenerators models, MetalAnvilBlock block) {
@@ -444,7 +444,7 @@ final class ModModelProvider extends ModelProvider {
         }
 
         ItemModel.Unbaked nocked = ItemModelUtils.select(
-                new ComponentContents<>(ModDataComponents.NOCKED_ARROW_MATERIAL.get()),
+                new ComponentContents<>(InfinityXDataComponents.NOCKED_ARROW_MATERIAL.get()),
                 pulls.get(MiteMaterial.FLINT),
                 arrowMaterials().stream()
                         .map(material -> ItemModelUtils.when(material.path(), pulls.get(material)))

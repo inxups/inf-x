@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.InfinityXBlocks;
 import java.util.List;
 import net.minecraft.client.color.block.BlockTintSources;
 import net.neoforged.api.distmarker.Dist;
@@ -18,6 +18,6 @@ public final class PortalColors {
 
     @SubscribeEvent
     static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
-        event.register(List.of(BlockTintSources.constant(NETHER_PORTAL_TINT)), ModBlocks.NETHER_PORTAL.get());
+        event.register(List.of(BlockTintSources.constant(NETHER_PORTAL_TINT)), InfinityXBlocks.NETHER_PORTAL.get());
     }
 }

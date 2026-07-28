@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -86,7 +86,7 @@ public final class HarvestEvents {
     }
 
     private static boolean isPortable(Player player, BlockState state, @Nullable BlockPos pos) {
-        if (!state.is(ModTags.Blocks.PORTABLE_HAND_HARVEST)) {
+        if (!state.is(InfinityXTags.Blocks.PORTABLE_HAND_HARVEST)) {
             return false;
         }
         if (!(state.getBlock() instanceof SafeBlock)) {
@@ -100,7 +100,7 @@ public final class HarvestEvents {
     private static Optional<HarvestTier> highestToolTier(ItemStack tool) {
         for (int index = HarvestTier.values().length - 1; index >= 0; index--) {
             HarvestTier tier = HarvestTier.values()[index];
-            if (tool.is(ModTags.Items.toolTier(tier))) {
+            if (tool.is(InfinityXTags.Items.toolTier(tier))) {
                 return Optional.of(tier);
             }
         }

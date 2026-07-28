@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 统一注册表命名
+
+- 将 `registry` 包及其标签子包中的 `Mod*` 注册类型统一重命名为 `InfinityX*`，包括方块、物品、实体、菜单、数据组件、配方、标签和测试类型；所有代码引用已同步更新。
+
 ### 重组源码包结构
 
 - 参照 IAFCE 的领域分层，将农业、食物、生存、玩家进度、诅咒、装备、附魔、熔炉、材料、配方、兼容层、标签和服务端逻辑归入 `world`、`food`、`player`、`effect`、`item`、`block`、`recipe`、`compat`、`registry` 和 `event` 的对应子包。

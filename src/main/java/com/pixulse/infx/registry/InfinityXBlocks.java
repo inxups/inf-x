@@ -43,7 +43,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class ModBlocks {
+public final class InfinityXBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(InfiniteX.MOD_ID);
 
     public static final DeferredBlock<Block> SILVER_ORE = BLOCKS.registerSimpleBlock(
@@ -322,7 +322,7 @@ public final class ModBlocks {
             ADAMANTIUM_WORKBENCH,
             OBSIDIAN_WORKBENCH);
 
-    private ModBlocks() {}
+    private InfinityXBlocks() {}
 
     private static DeferredBlock<Block> metalStorageBlock(String name, MapColor color, float strength) {
         return BLOCKS.registerSimpleBlock(

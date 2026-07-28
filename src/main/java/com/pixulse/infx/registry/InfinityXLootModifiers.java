@@ -14,7 +14,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-public final class ModLootModifiers {
+public final class InfinityXLootModifiers {
     private static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> SERIALIZERS =
             DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, InfiniteX.MOD_ID);
 
@@ -36,7 +36,7 @@ public final class ModLootModifiers {
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<CreationBookLootModifier>>
             CREATION_BOOK = SERIALIZERS.register("creation_book", () -> CreationBookLootModifier.CODEC);
 
-    private ModLootModifiers() {}
+    private InfinityXLootModifiers() {}
 
     public static void register(IEventBus modBus) {
         SERIALIZERS.register(modBus);

@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
-class ModSpawnEggsTest {
+class InfinityXSpawnEggsTest {
     @Test
     void everyMobEntityHasOneSpawnEggItem() {
-        Set<String> entityPaths = ModEntityTypes.names().stream()
-                .map(ModEntityTypes.EntityName::path)
+        Set<String> entityPaths = InfinityXEntityTypes.names().stream()
+                .map(InfinityXEntityTypes.EntityName::path)
                 .collect(Collectors.toSet());
-        Set<String> eggPaths = ModItems.SPAWN_EGGS.stream()
+        Set<String> eggPaths = InfinityXItems.SPAWN_EGGS.stream()
                 .map(item -> item.getId().getPath())
                 .collect(Collectors.toSet());
 
@@ -32,7 +32,7 @@ class ModSpawnEggsTest {
             root = root.getParent();
         }
         assertTrue(root != null, "project root");
-        for (var egg : ModItems.SPAWN_EGGS) {
+        for (var egg : InfinityXItems.SPAWN_EGGS) {
             Identifier id = egg.getId();
             java.nio.file.Path texture = root.resolve(
                     "src/main/resources/assets/infx/textures/item/" + id.getPath() + ".png");

@@ -5,7 +5,7 @@ import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -39,11 +39,11 @@ public final class CorrosionRules {
             return false;
         }
 
-        Catalog.EquipmentEntry equipment = ModItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry equipment = InfinityXItems.catalog().equipment(stack);
         if (equipment != null) {
             return isHarmedBy(equipment.key().material(), type);
         }
-        Catalog.RawEntry raw = ModItems.catalog().raw(stack.getItem());
+        Catalog.RawEntry raw = InfinityXItems.catalog().raw(stack.getItem());
         if (raw != null && raw.definition().material().isPresent()) {
             return isHarmedBy(raw.definition().material().orElseThrow(), type);
         }
@@ -61,7 +61,7 @@ public final class CorrosionRules {
         if (!stack.isDamageableItem() || amount <= 0.0F) {
             return 0;
         }
-        Catalog.EquipmentEntry equipment = ModItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry equipment = InfinityXItems.catalog().equipment(stack);
         if (equipment == null) {
             return Math.max(1, Math.round(amount));
         }

@@ -5,7 +5,7 @@ import com.pixulse.infx.item.MiteMobBucketItem;
 import com.pixulse.infx.item.MiteSolidBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -40,15 +40,15 @@ public final class BucketHelper {
     }
 
     public static ItemStack emptyBucket(MiteMaterial material) {
-        return ModItems.bucket(material, MiteBucketItem.Contents.EMPTY).toStack();
+        return InfinityXItems.bucket(material, MiteBucketItem.Contents.EMPTY).toStack();
     }
 
     public static ItemStack waterBucket(MiteMaterial material) {
-        return ModItems.bucket(material, MiteBucketItem.Contents.WATER).toStack();
+        return InfinityXItems.bucket(material, MiteBucketItem.Contents.WATER).toStack();
     }
 
     public static ItemStack mobBucket(MiteMaterial material, MobBucketKind kind) {
-        return ModItems.mobBucket(material, kind).toStack();
+        return InfinityXItems.mobBucket(material, kind).toStack();
     }
 
     public static ItemStack mobBucket(MiteMaterial material, EntityType<?> type) {
@@ -60,7 +60,7 @@ public final class BucketHelper {
     }
 
     public static ItemStack powderSnowBucket(MiteMaterial material) {
-        return ModItems.powderSnowBucket(material).toStack();
+        return InfinityXItems.powderSnowBucket(material).toStack();
     }
 
     public static Item emptySuccessItem(ItemStack filled, net.minecraft.world.entity.player.Player player) {

@@ -1,9 +1,9 @@
 package com.pixulse.infx.player;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXItems;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.world.Underworld;
@@ -78,8 +78,8 @@ public final class ProgressionEvents {
         }
         ItemStack result = event.getSmelting();
         if (result.is(Items.IRON_INGOT)) award(player, "acquire_iron", SMELTED_IRON_CRITERION);
-        if (result.is(ModItems.MITHRIL_INGOT)) award(player, "mithril_ingot", "smelted_mithril");
-        if (result.is(ModItems.ADAMANTIUM_INGOT)) award(player, "adamantium_ingot", "smelted_adamantium");
+        if (result.is(InfinityXItems.MITHRIL_INGOT)) award(player, "mithril_ingot", "smelted_mithril");
+        if (result.is(InfinityXItems.ADAMANTIUM_INGOT)) award(player, "adamantium_ingot", "smelted_adamantium");
         if (result.is(Items.BREAD)) award(player, "make_bread", "smelted_bread");
         if (result.is(Items.COOKED_COD) || result.is(Items.COOKED_SALMON)) {
             award(player, "cook_fish", "smelted_fish");
@@ -92,17 +92,17 @@ public final class ProgressionEvents {
         Identifier id = BuiltInRegistries.ITEM.getKey(crafted.getItem());
         String path = id.getPath();
         if (path.equals("flour")) award(player, "flour", "crafted_flour");
-        if (crafted.is(ModItems.DIAMOND_ENCHANTING_TABLE.get())) {
+        if (crafted.is(InfinityXItems.DIAMOND_ENCHANTING_TABLE.get())) {
             award(player, "enchantments", "diamond_path");
         }
-        if (crafted.is(ModItems.EMERALD_ENCHANTING_TABLE.get())) {
+        if (crafted.is(InfinityXItems.EMERALD_ENCHANTING_TABLE.get())) {
             award(player, "enchantments", "emerald_path");
         }
         if ((path.contains("salad") || path.contains("soup") || path.contains("stew"))
                 || crafted.is(Items.MUSHROOM_STEW)) {
             award(player, "fine_dining", "crafted_fine_food");
         }
-        var entry = ModItems.catalog().equipment(crafted);
+        var entry = InfinityXItems.catalog().equipment(crafted);
         if (entry != null
                 && entry.key().material() == MiteMaterial.ADAMANTIUM
                 && (entry.key().type() == EquipmentType.PICKAXE
@@ -122,19 +122,19 @@ public final class ProgressionEvents {
         if (stack.is(Items.EMERALD)) award(player, "emeralds", "picked_up_emerald");
         if (stack.is(Items.BLAZE_ROD)) award(player, "blaze_rod", "picked_up_blaze_rod");
         if (stack.is(ItemTags.VILLAGER_PLANTABLE_SEEDS)
-                || stack.is(ModItems.BLUEBERRIES.get())
-                || stack.is(ModItems.WORM.get())) {
+                || stack.is(InfinityXItems.BLUEBERRIES.get())
+                || stack.is(InfinityXItems.WORM.get())) {
             award(player, "seeds", "picked_up_seed");
         }
     }
 
     private static boolean isR196MetalNugget(ItemStack stack) {
         return stack.is(Items.COPPER_NUGGET)
-                || stack.is(ModItems.SILVER_NUGGET)
+                || stack.is(InfinityXItems.SILVER_NUGGET)
                 || stack.is(Items.GOLD_NUGGET)
                 || stack.is(Items.IRON_NUGGET)
-                || stack.is(ModItems.MITHRIL_NUGGET)
-                || stack.is(ModItems.ADAMANTIUM_NUGGET);
+                || stack.is(InfinityXItems.MITHRIL_NUGGET)
+                || stack.is(InfinityXItems.ADAMANTIUM_NUGGET);
     }
 
     private static void onLivingDeath(LivingDeathEvent event) {
@@ -142,7 +142,7 @@ public final class ProgressionEvents {
         if (event.getEntity() instanceof Enemy) award(player, "kill_enemy", "killed_enemy");
         if (event.getSource().getDirectEntity() instanceof AbstractArrow
                 && (event.getEntity().getType() == EntityType.SKELETON
-                        || event.getEntity().getType() == ModEntityTypes.R196_SKELETON.get())) {
+                        || event.getEntity().getType() == InfinityXEntityTypes.R196_SKELETON.get())) {
             double dx = player.getX() - event.getEntity().getX();
             double dz = player.getZ() - event.getEntity().getZ();
             if (dx * dx + dz * dz >= 2_500.0) {
@@ -150,7 +150,7 @@ public final class ProgressionEvents {
             }
         }
         if ((event.getEntity().getType() == EntityType.GHAST
-                        || event.getEntity().getType() == ModEntityTypes.R196_GHAST.get())
+                        || event.getEntity().getType() == InfinityXEntityTypes.R196_GHAST.get())
                 && event.getSource().getDirectEntity() instanceof LargeFireball fireball
                 && fireball.getOwner() == player) {
             award(player, "ghast", "reflected_fireball_kill");
@@ -244,7 +244,7 @@ public final class ProgressionEvents {
     private static void onBlockBroken(BreakBlockEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         for (Direction direction : Direction.values()) {
-            if (player.level().getBlockState(event.getPos().relative(direction)).is(ModBlocks.MANTLE.get())) {
+            if (player.level().getBlockState(event.getPos().relative(direction)).is(InfinityXBlocks.MANTLE.get())) {
                 award(player, "portal_to_nether", "found_mantle");
                 return;
             }
@@ -303,7 +303,7 @@ public final class ProgressionEvents {
     private static boolean hasNearbyMantle(ServerPlayer player) {
         BlockPos origin = player.blockPosition();
         for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-4, -4, -4), origin.offset(4, 4, 4))) {
-            if (player.level().getBlockState(pos).is(ModBlocks.MANTLE.get())) return true;
+            if (player.level().getBlockState(pos).is(InfinityXBlocks.MANTLE.get())) return true;
         }
         return false;
     }

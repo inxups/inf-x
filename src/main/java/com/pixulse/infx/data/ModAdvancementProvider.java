@@ -3,8 +3,8 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -56,7 +56,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder stickPicker = manual(
                 output, "stick_picker", openInventory, Items.STICK, false, "picked_up_stick");
 
-        AdvancementHolder cuttingEdge = child("cutting_edge", stickPicker, ModItems.FLINT_HATCHET)
+        AdvancementHolder cuttingEdge = child("cutting_edge", stickPicker, InfinityXItems.FLINT_HATCHET)
                 .addCriterion(
                         "crafted_hatchet",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_hatchet")))
@@ -70,7 +70,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder mineWood = manual(
                 output, "mine_wood", cuttingEdge, Items.OAK_LOG, false, "picked_up_log");
 
-        AdvancementHolder buildWorkbench = child("build_work_bench", mineWood, ModBlocks.FLINT_WORKBENCH)
+        AdvancementHolder buildWorkbench = child("build_work_bench", mineWood, InfinityXBlocks.FLINT_WORKBENCH)
                 .addCriterion(
                         "crafted_flint_bench",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_workbench")))
@@ -84,7 +84,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder buildClub = child(
                         "build_club",
                         buildWorkbench,
-                        ModItems.catalog()
+                        InfinityXItems.catalog()
                                 .equipment(MiteMaterial.WOOD, EquipmentType.CLUB)
                                 .holder())
                 .addCriterion(
@@ -96,7 +96,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder killCow = manual(
                 output, "kill_cow", buildClub, Items.LEATHER, false, "picked_up_leather");
 
-        Advancement.Builder buildAxe = child("build_axe", buildWorkbench, ModItems.FLINT_AXE)
+        Advancement.Builder buildAxe = child("build_axe", buildWorkbench, InfinityXItems.FLINT_AXE)
                 .addCriterion(
                         "crafted_flint_axe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_axe")))
@@ -134,7 +134,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/build_axe")));
 
         AdvancementHolder buildShovel = addCraftedRecipeCriteria(
-                        child("build_shovel", buildWorkbench, ModItems.FLINT_SHOVEL)
+                        child("build_shovel", buildWorkbench, InfinityXItems.FLINT_SHOVEL)
                                 .addCriterion(
                                         "crafted_shovel",
                                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_shovel"))),
@@ -153,7 +153,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder nuggets = manual(
                 output, "nuggets", buildShovel, Items.COPPER_NUGGET, false, "picked_up_metal_nugget");
 
-        AdvancementHolder betterTools = child("better_tools", nuggets, ModBlocks.COPPER_WORKBENCH)
+        AdvancementHolder betterTools = child("better_tools", nuggets, InfinityXBlocks.COPPER_WORKBENCH)
                 .addCriterion(
                         "crafted_copper_bench",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_workbench")))
@@ -251,7 +251,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/wear_all_adamantium_plate_armor"));
         output.accept(wearAllAdamantiumPlateArmor);
 
-        Advancement.Builder buildHoeBuilder = child("build_hoe", betterTools, ModItems.COPPER_HOE)
+        Advancement.Builder buildHoeBuilder = child("build_hoe", betterTools, InfinityXItems.COPPER_HOE)
                 .addCriterion(
                         "crafted_copper_hoe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_hoe")))
@@ -290,7 +290,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                         child(
                                 "build_scythe",
                                 buildHoe,
-                                ModItems.catalog()
+                                InfinityXItems.catalog()
                                         .equipment(MiteMaterial.COPPER, EquipmentType.SCYTHE)
                                         .holder()),
                         "copper_scythe",
@@ -304,7 +304,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/build_scythe"));
         output.accept(buildScythe);
 
-        AdvancementHolder buildPickaxe = child("build_pickaxe", betterTools, ModItems.COPPER_PICKAXE)
+        AdvancementHolder buildPickaxe = child("build_pickaxe", betterTools, InfinityXItems.COPPER_PICKAXE)
                 .addCriterion(
                         "crafted_pickaxe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_pickaxe")))
@@ -332,7 +332,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .build(InfiniteX.id("progression/acquire_iron"));
         output.accept(acquireIron);
 
-        Advancement.Builder buildBetterPickaxe = child("build_better_pickaxe", acquireIron, ModItems.IRON_PICKAXE)
+        Advancement.Builder buildBetterPickaxe = child("build_better_pickaxe", acquireIron, InfinityXItems.IRON_PICKAXE)
                 .addCriterion(
                         "crafted_iron_pickaxe",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_pickaxe")))
@@ -373,14 +373,14 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         manual(output, "on_a_rail", acquireIron, Items.MINECART, true, "travelled_rail_1000");
 
         AdvancementHolder obsidianFurnace = child(
-                        "obsidian_furnace", buildBetterPickaxeHolder, ModBlocks.OBSIDIAN_FURNACE)
+                        "obsidian_furnace", buildBetterPickaxeHolder, InfinityXBlocks.OBSIDIAN_FURNACE)
                 .addCriterion(
                         "crafted_obsidian_furnace",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("obsidian_furnace")))
                 .build(InfiniteX.id("progression/obsidian_furnace"));
         output.accept(obsidianFurnace);
         AdvancementHolder mithrilIngot = manual(
-                output, "mithril_ingot", obsidianFurnace, ModItems.MITHRIL_INGOT, false, "smelted_mithril");
+                output, "mithril_ingot", obsidianFurnace, InfinityXItems.MITHRIL_INGOT, false, "smelted_mithril");
         AdvancementHolder diamonds = manual(
                 output, "diamonds", mithrilIngot, Items.DIAMOND, false, "picked_up_diamond");
         AdvancementHolder emeralds = manual(
@@ -391,7 +391,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/enchantments"));
         output.accept(enchantments);
-        manual(output, "overkill", enchantments, ModItems.IRON_SWORD, true, "melee_damage_18");
+        manual(output, "overkill", enchantments, InfinityXItems.IRON_SWORD, true, "melee_damage_18");
         AdvancementHolder bookcase = child("bookcase", enchantments, Items.BOOKSHELF)
                 .addCriterion(
                         "crafted_bookcase",
@@ -405,7 +405,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder portal = manual(
                 output, "portal", buildBetterPickaxeHolder, Items.OBSIDIAN, false, "changed_r196_dimension");
         AdvancementHolder portalToNether = manual(
-                output, "portal_to_nether", portal, ModBlocks.MANTLE, false, "found_mantle");
+                output, "portal_to_nether", portal, InfinityXBlocks.MANTLE, false, "found_mantle");
         manual(output, "ghast", portalToNether, Items.GHAST_TEAR, true, "reflected_fireball_kill");
         AdvancementHolder blazeRod = manual(
                 output, "blaze_rod", portalToNether, Items.BLAZE_ROD, false, "picked_up_blaze_rod");
@@ -414,7 +414,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 output, "the_end", blazeRod, Items.ENDER_EYE, true, "entered_end");
         manual(output, "the_end2", theEnd, Items.DRAGON_EGG, true, "returned_from_end");
         AdvancementHolder netherrackFurnace = child(
-                        "netherrack_furnace", blazeRod, ModBlocks.NETHERRACK_FURNACE)
+                        "netherrack_furnace", blazeRod, InfinityXBlocks.NETHERRACK_FURNACE)
                 .addCriterion(
                         "crafted_netherrack_furnace",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("netherrack_furnace")))
@@ -424,18 +424,18 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 output,
                 "adamantium_ingot",
                 netherrackFurnace,
-                ModItems.ADAMANTIUM_INGOT,
+                InfinityXItems.ADAMANTIUM_INGOT,
                 false,
                 "smelted_adamantium");
-        manual(output, "crystal_breaker", adamantiumIngot, ModItems.catalog()
+        manual(output, "crystal_breaker", adamantiumIngot, InfinityXItems.catalog()
                 .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder(), true, "crafted_crystal_tool");
-        manual(output, "runegate", portal, ModBlocks.MITHRIL_RUNE_STONE, true, "used_runegate");
+        manual(output, "runegate", portal, InfinityXBlocks.MITHRIL_RUNE_STONE, true, "used_runegate");
 
         AdvancementHolder seeds = manual(
                 output, "seeds", openInventory, Items.WHEAT_SEEDS, false, "picked_up_seed");
         manual(output, "eggs", seeds, Items.EGG, false, "ate_raw_egg");
         AdvancementHolder buildOven = addCraftedRecipeCriteria(
-                        child("build_oven", openInventory, ModBlocks.CLAY_FURNACE),
+                        child("build_oven", openInventory, InfinityXBlocks.CLAY_FURNACE),
                         "clay_furnace",
                         "large_clay_oven",
                         "sandstone_furnace",
@@ -459,7 +459,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                 output,
                 "soil_enrichment",
                 buildHoe,
-                ModItems.catalog().raw("manure").holder(),
+                InfinityXItems.catalog().raw("manure").holder(),
                 false,
                 "fertilized_soil");
         AdvancementHolder makeMycelium = manual(
@@ -473,7 +473,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                         child(
                                 "fishing_rod",
                                 betterTools,
-                                ModItems.catalog().equipment(MiteMaterial.FLINT, EquipmentType.FISHING_ROD).holder()),
+                                InfinityXItems.catalog().equipment(MiteMaterial.FLINT, EquipmentType.FISHING_ROD).holder()),
                         "flint_fishing_rod",
                         "obsidian_fishing_rod",
                         "copper_fishing_rod",
@@ -605,7 +605,7 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
     }
 
     private static ItemLike equipment(MiteMaterial material, EquipmentType type) {
-        return ModItems.catalog().equipment(material, type).holder();
+        return InfinityXItems.catalog().equipment(material, type).holder();
     }
 
     private static Component title(String name) {

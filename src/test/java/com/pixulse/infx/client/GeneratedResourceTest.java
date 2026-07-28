@@ -14,11 +14,11 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModEnchantments;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.ModJukeboxSongs;
+import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfinityXJukeboxSongs;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -43,7 +43,7 @@ class GeneratedResourceTest {
 
     @Test
     void enchantmentSourcesStrictlyReplaceVanillaWithR196() throws Exception {
-        Set<String> expected = ModEnchantments.ALL.stream()
+        Set<String> expected = InfinityXEnchantments.ALL.stream()
                 .map(key -> key.identifier().toString())
                 .collect(Collectors.toSet());
         for (String tag : List.of(
@@ -206,7 +206,7 @@ class GeneratedResourceTest {
     void everyCatalogItemHasDefinitionModelAndTwoTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
-        for (Catalog.Entry entry : ModItems.catalog().entries()) {
+        for (Catalog.Entry entry : InfinityXItems.catalog().entries()) {
             Path definition = GENERATED.resolve("assets/infx/items/" + entry.path() + ".json");
             Path model = GENERATED.resolve("assets/infx/models/item/" + entry.path() + ".json");
             assertAll(
@@ -238,19 +238,19 @@ class GeneratedResourceTest {
                             "format specifiers must match"));
         });
 
-        Set<String> blockPaths = ModBlocks.BLOCKS.getEntries().stream()
+        Set<String> blockPaths = InfinityXBlocks.BLOCKS.getEntries().stream()
                 .map(block -> block.getId().getPath())
                 .collect(Collectors.toSet());
-        ModBlocks.BLOCKS.getEntries().forEach(block ->
+        InfinityXBlocks.BLOCKS.getEntries().forEach(block ->
                 assertLanguageKey(english, chinese, "block.infx." + block.getId().getPath()));
-        ModItems.ITEMS.getEntries().forEach(item -> {
+        InfinityXItems.ITEMS.getEntries().forEach(item -> {
             String path = item.getId().getPath();
             String prefix = blockPaths.contains(path) ? "block.infx." : "item.infx.";
             assertLanguageKey(english, chinese, prefix + path);
         });
-        ModEntityTypes.names().forEach(entity ->
+        InfinityXEntityTypes.names().forEach(entity ->
                 assertLanguageKey(english, chinese, "entity.infx." + entity.path()));
-        Stream.concat(ModEnchantments.R196.stream(), Stream.of(ModEnchantments.CLUMSINESS))
+        Stream.concat(InfinityXEnchantments.R196.stream(), Stream.of(InfinityXEnchantments.CLUMSINESS))
                 .forEach(enchantment -> assertLanguageKey(
                         english, chinese, "enchantment.infx." + enchantment.identifier().getPath()));
         for (String effect : List.of("malnutrition", "witch_curse", "insulin_resistance", "paralysis")) {
@@ -263,17 +263,17 @@ class GeneratedResourceTest {
             assertLanguageKey(english, chinese, "quality.infx." + quality.getSerializedName());
         }
         Stream.of(
-                        ModJukeboxSongs.UNDERWORLD,
-                        ModJukeboxSongs.DESCENT,
-                        ModJukeboxSongs.WANDERER,
-                        ModJukeboxSongs.LEGENDS)
+                        InfinityXJukeboxSongs.UNDERWORLD,
+                        InfinityXJukeboxSongs.DESCENT,
+                        InfinityXJukeboxSongs.WANDERER,
+                        InfinityXJukeboxSongs.LEGENDS)
                 .forEach(song -> assertLanguageKey(
                         english, chinese, "jukebox_song.infx." + song.identifier().getPath()));
-        ModBlocks.FURNACES.forEach(furnace ->
+        InfinityXBlocks.FURNACES.forEach(furnace ->
                 assertLanguageKey(english, chinese, "container.infx." + furnace.getId().getPath()));
-        ModBlocks.WORKBENCHES.forEach(workbench ->
+        InfinityXBlocks.WORKBENCHES.forEach(workbench ->
                 assertLanguageKey(english, chinese, "container.infx." + workbench.getId().getPath()));
-        ModBlocks.METAL_SAFES.forEach(safe ->
+        InfinityXBlocks.METAL_SAFES.forEach(safe ->
                 assertLanguageKey(english, chinese, "container.infx." + safe.getId().getPath()));
         assertLanguageKey(english, chinese, "container.infx.metal_anvil");
     }
@@ -1856,7 +1856,7 @@ class GeneratedResourceTest {
 
     @Test
     void bowAndFishingDispatchesAreComplete() throws Exception {
-        for (Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
+        for (Catalog.EquipmentEntry entry : InfinityXItems.catalog().equipmentEntries()) {
             if (entry.key().type() == EquipmentType.BOW) {
                 String definition = Files.readString(
                         GENERATED.resolve("assets/infx/items/" + entry.path() + ".json"), UTF_8);
@@ -1884,7 +1884,7 @@ class GeneratedResourceTest {
 
     @Test
     void equipmentAssetsExposeEveryRequiredLayer() throws Exception {
-        for (Catalog.EquipmentEntry entry : ModItems.catalog().equipmentEntries()) {
+        for (Catalog.EquipmentEntry entry : InfinityXItems.catalog().equipmentEntries()) {
             var form = entry.key().type().armorForm();
             if (form == EquipmentType.ArmorForm.NONE) {
                 continue;
@@ -1913,7 +1913,7 @@ class GeneratedResourceTest {
                 .toList()) {
             destinations.add(line.split("\t", -1)[2]);
         }
-        for (Catalog.Entry entry : ModItems.catalog().entries()) {
+        for (Catalog.Entry entry : InfinityXItems.catalog().entries()) {
             assertTrue(destinations.remove("textures/item/" + entry.path() + ".png"), entry.path());
         }
         assertTrue(destinations.remove("textures/item/fishing_rod_cast.png"));

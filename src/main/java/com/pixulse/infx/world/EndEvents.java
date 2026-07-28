@@ -2,7 +2,7 @@ package com.pixulse.infx.world;
 
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
@@ -38,7 +38,7 @@ public final class EndEvents {
     }
 
     public static boolean hasAdamantiumCrystalTool(Player player) {
-        var entry = ModItems.catalog().equipment(player.getMainHandItem());
+        var entry = InfinityXItems.catalog().equipment(player.getMainHandItem());
         return entry != null
                 && entry.key().material() == MiteMaterial.ADAMANTIUM
                 && (entry.key().type() == EquipmentType.PICKAXE

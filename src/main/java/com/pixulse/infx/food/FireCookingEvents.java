@@ -1,6 +1,6 @@
 package com.pixulse.infx.food;
 
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.Map;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.TriState;
@@ -127,12 +127,12 @@ public final class FireCookingEvents {
     }
 
     public static Item cookedResult(Item raw) {
-        if (raw == ModItems.WORM.get()) return ModItems.COOKED_WORM.get();
+        if (raw == InfinityXItems.WORM.get()) return InfinityXItems.COOKED_WORM.get();
         return COOKED.get(raw);
     }
 
     public static boolean isCooked(ItemStack stack) {
-        return stack.is(ModItems.COOKED_WORM.get()) || COOKED.containsValue(stack.getItem());
+        return stack.is(InfinityXItems.COOKED_WORM.get()) || COOKED.containsValue(stack.getItem());
     }
 
     public static boolean isCookableOrCooked(ItemStack stack) {

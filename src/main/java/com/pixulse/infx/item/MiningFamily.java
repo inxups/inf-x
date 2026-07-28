@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 import java.util.List;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -43,7 +43,7 @@ public enum MiningFamily {
                     true);
             case CUDGEL -> new Tool(
                     List.of(Tool.Rule.minesAndDrops(
-                            blocks.getOrThrow(ModTags.Blocks.effectiveWith(CUDGEL)), speed)),
+                            blocks.getOrThrow(InfinityXTags.Blocks.effectiveWith(CUDGEL)), speed)),
                     1.0F,
                     0,
                     true);

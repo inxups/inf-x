@@ -1,8 +1,8 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.MiteBucketItem;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -93,7 +93,7 @@ public final class MiteCow extends Cow {
             }
             if (stack.is(Items.BOWL)) {
                 if (!takeMilk(serverLevel, 1)) return InteractionResult.CONSUME;
-                giveFilled(player, hand, stack, ModItems.MILK_BOWL.toStack(), Items.BOWL);
+                giveFilled(player, hand, stack, InfinityXItems.MILK_BOWL.toStack(), Items.BOWL);
                 return InteractionResult.SUCCESS;
             }
             if (stack.getItem() instanceof MiteBucketItem bucket
@@ -103,7 +103,7 @@ public final class MiteCow extends Cow {
                         player,
                         hand,
                         stack,
-                        ModItems.bucket(bucket.material(), MiteBucketItem.Contents.MILK).toStack(),
+                        InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.MILK).toStack(),
                         bucket);
                 return InteractionResult.SUCCESS;
             }
@@ -146,6 +146,6 @@ public final class MiteCow extends Cow {
 
     @Override
     public @Nullable Cow getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return ModEntityTypes.R196_COW.get().create(level, EntitySpawnReason.BREEDING);
+        return InfinityXEntityTypes.R196_COW.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

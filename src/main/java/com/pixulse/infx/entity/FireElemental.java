@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.registry.InfinityXSounds;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -92,7 +92,7 @@ public final class FireElemental extends Blaze implements MiteMob {
                         0.7F,
                         1.6F + (random.nextFloat() - random.nextFloat()) * 0.4F);
                 if (random.nextInt(4) == 0) {
-                    playMiteSound(ModSounds.FIRE_ELEMENTAL_SIZZLE.get(), 1.0F, 1.0F);
+                    playMiteSound(InfinityXSounds.FIRE_ELEMENTAL_SIZZLE.get(), 1.0F, 1.0F);
                 }
                 ticksUntilNextFizzSound = random.nextInt(7) + 2;
                 if (random.nextInt(isInWater() ? 1 : 4) == 0) {

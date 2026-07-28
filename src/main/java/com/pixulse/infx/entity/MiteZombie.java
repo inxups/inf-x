@@ -2,9 +2,9 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfinityXSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -213,7 +213,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
             return false;
         }
         MiteZombie converted = villager.convertTo(
-                ModEntityTypes.R196_ZOMBIE.get(),
+                InfinityXEntityTypes.R196_ZOMBIE.get(),
                 ConversionParams.single(villager, true, true),
                 zombie -> {
                     zombie.setVillagerZombie(true);
@@ -269,10 +269,10 @@ public final class MiteZombie extends Zombie implements MiteMob {
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
         return switch (variant()) {
-            case GHOUL -> ModSounds.GHOUL_AMBIENT.get();
-            case SHADOW -> ModSounds.SHADOW_AMBIENT.get();
-            case WIGHT -> ModSounds.WIGHT_AMBIENT.get();
-            case INVISIBLE_STALKER -> ModSounds.INVISIBLE_STALKER_AMBIENT.get();
+            case GHOUL -> InfinityXSounds.GHOUL_AMBIENT.get();
+            case SHADOW -> InfinityXSounds.SHADOW_AMBIENT.get();
+            case WIGHT -> InfinityXSounds.WIGHT_AMBIENT.get();
+            case INVISIBLE_STALKER -> InfinityXSounds.INVISIBLE_STALKER_AMBIENT.get();
             case REVENANT, ZOMBIE -> super.getAmbientSound();
         };
     }
@@ -280,10 +280,10 @@ public final class MiteZombie extends Zombie implements MiteMob {
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
         return switch (variant()) {
-            case GHOUL -> ModSounds.GHOUL_HURT.get();
-            case SHADOW -> ModSounds.SHADOW_HURT.get();
-            case WIGHT -> ModSounds.WIGHT_HURT.get();
-            case INVISIBLE_STALKER -> ModSounds.INVISIBLE_STALKER_HURT.get();
+            case GHOUL -> InfinityXSounds.GHOUL_HURT.get();
+            case SHADOW -> InfinityXSounds.SHADOW_HURT.get();
+            case WIGHT -> InfinityXSounds.WIGHT_HURT.get();
+            case INVISIBLE_STALKER -> InfinityXSounds.INVISIBLE_STALKER_HURT.get();
             case REVENANT, ZOMBIE -> super.getHurtSound(source);
         };
     }
@@ -291,10 +291,10 @@ public final class MiteZombie extends Zombie implements MiteMob {
     @Override
     protected SoundEvent getDeathSound() {
         return switch (variant()) {
-            case GHOUL -> ModSounds.GHOUL_DEATH.get();
-            case SHADOW -> ModSounds.SHADOW_DEATH.get();
-            case WIGHT -> ModSounds.WIGHT_DEATH.get();
-            case INVISIBLE_STALKER -> ModSounds.INVISIBLE_STALKER_DEATH.get();
+            case GHOUL -> InfinityXSounds.GHOUL_DEATH.get();
+            case SHADOW -> InfinityXSounds.SHADOW_DEATH.get();
+            case WIGHT -> InfinityXSounds.WIGHT_DEATH.get();
+            case INVISIBLE_STALKER -> InfinityXSounds.INVISIBLE_STALKER_DEATH.get();
             case REVENANT, ZOMBIE -> super.getDeathSound();
         };
     }
@@ -361,8 +361,8 @@ public final class MiteZombie extends Zombie implements MiteMob {
 
     private ItemStack rareDrop() {
         Item[] drops = villagerZombie
-                ? new Item[] {Items.WHEAT_SEEDS, Items.PUMPKIN_SEEDS, Items.MELON_SEEDS, Items.CARROT, Items.POTATO, ModItems.ONION.get()}
-                : new Item[] {Items.COPPER_NUGGET, ModItems.SILVER_NUGGET.get(), Items.GOLD_NUGGET, Items.IRON_NUGGET};
+                ? new Item[] {Items.WHEAT_SEEDS, Items.PUMPKIN_SEEDS, Items.MELON_SEEDS, Items.CARROT, Items.POTATO, InfinityXItems.ONION.get()}
+                : new Item[] {Items.COPPER_NUGGET, InfinityXItems.SILVER_NUGGET.get(), Items.GOLD_NUGGET, Items.IRON_NUGGET};
         return drops[random.nextInt(drops.length)].getDefaultInstance();
     }
 

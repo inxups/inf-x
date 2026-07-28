@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -115,6 +115,6 @@ public final class MiteSheep extends Sheep {
 
     @Override
     public @Nullable Sheep getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return ModEntityTypes.R196_SHEEP.get().create(level, EntitySpawnReason.BREEDING);
+        return InfinityXEntityTypes.R196_SHEEP.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

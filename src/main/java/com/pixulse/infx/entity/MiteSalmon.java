@@ -2,7 +2,7 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.MobBucketKind;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.animal.fish.AbstractFish;
@@ -22,6 +22,6 @@ public final class MiteSalmon extends Salmon implements MiteMob {
 
     @Override
     public ItemStack getBucketItemStack() {
-        return ModItems.mobBucket(MiteMaterial.IRON, MobBucketKind.SALMON).toStack();
+        return InfinityXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.SALMON).toStack();
     }
 }

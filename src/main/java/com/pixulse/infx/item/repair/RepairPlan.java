@@ -5,7 +5,7 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -16,7 +16,7 @@ public record RepairPlan(ItemStack output, int materialsUsed, int durabilityRest
 
     public static RepairPlan create(
             MiteMaterial anvilMaterial, ItemStack damaged, ItemStack consumable) {
-        Catalog.EquipmentEntry entry = ModItems.catalog().equipment(damaged);
+        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(damaged);
         if (entry == null || damaged.getCount() != 1 || !damaged.isDamaged() || consumable.isEmpty()) {
             return EMPTY;
         }
@@ -90,7 +90,7 @@ public record RepairPlan(ItemStack output, int materialsUsed, int durabilityRest
     }
 
     public static boolean supportsType(ItemStack stack) {
-        Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
         return entry != null && supports(entry.key().type());
     }
 
@@ -98,21 +98,21 @@ public record RepairPlan(ItemStack output, int materialsUsed, int durabilityRest
         return item == Items.COPPER_NUGGET
                 || item == Items.GOLD_NUGGET
                 || item == Items.IRON_NUGGET
-                || item == ModItems.SILVER_NUGGET.get()
-                || item == ModItems.catalog().raw("ancient_metal_nugget").holder().get()
-                || item == ModItems.MITHRIL_NUGGET.get()
-                || item == ModItems.ADAMANTIUM_NUGGET.get();
+                || item == InfinityXItems.SILVER_NUGGET.get()
+                || item == InfinityXItems.catalog().raw("ancient_metal_nugget").holder().get()
+                || item == InfinityXItems.MITHRIL_NUGGET.get()
+                || item == InfinityXItems.ADAMANTIUM_NUGGET.get();
     }
 
     public static Item repairItem(MiteMaterial material) {
         return switch (material) {
             case COPPER -> Items.COPPER_NUGGET;
-            case SILVER -> ModItems.SILVER_NUGGET.get();
+            case SILVER -> InfinityXItems.SILVER_NUGGET.get();
             case GOLD -> Items.GOLD_NUGGET;
             case RUSTED_IRON, IRON -> Items.IRON_NUGGET;
-            case ANCIENT_METAL -> ModItems.catalog().raw("ancient_metal_nugget").holder().get();
-            case MITHRIL -> ModItems.MITHRIL_NUGGET.get();
-            case ADAMANTIUM -> ModItems.ADAMANTIUM_NUGGET.get();
+            case ANCIENT_METAL -> InfinityXItems.catalog().raw("ancient_metal_nugget").holder().get();
+            case MITHRIL -> InfinityXItems.MITHRIL_NUGGET.get();
+            case ADAMANTIUM -> InfinityXItems.ADAMANTIUM_NUGGET.get();
             default -> Items.AIR;
         };
     }

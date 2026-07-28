@@ -2,13 +2,13 @@ package com.pixulse.infx.world;
 
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.InfinityXBlocks;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -34,7 +34,7 @@ public final class VillageProgression {
 
     private static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
-        var equipment = ModItems.catalog().equipment(event.getCrafting());
+        var equipment = InfinityXItems.catalog().equipment(event.getCrafting());
         if (equipment == null
                 || equipment.key().type() != EquipmentType.PICKAXE
                         && equipment.key().type() != EquipmentType.WAR_HAMMER
@@ -96,12 +96,12 @@ public final class VillageProgression {
                     } else if (state.is(BlockTags.CROPS)) {
                         level.removeBlock(cursor, false);
                     } else if (!placedSafe && (state.is(Blocks.CHEST) || state.is(Blocks.BARREL))) {
-                        level.setBlockAndUpdate(cursor, ModBlocks.IRON_SAFE.get().defaultBlockState());
+                        level.setBlockAndUpdate(cursor, InfinityXBlocks.IRON_SAFE.get().defaultBlockState());
                         if (level.getBlockEntity(cursor) instanceof SafeBlockEntity safe) {
                             safe.setItem(0, new ItemStack(Items.IRON_NUGGET, 4 + level.getRandom().nextInt(9)));
                             safe.setItem(1, new ItemStack(Items.COPPER_NUGGET, 8 + level.getRandom().nextInt(13)));
-                            safe.setItem(2, ModItems.SILVER_NUGGET.toStack(2 + level.getRandom().nextInt(7)));
-                            safe.setItem(3, ModItems.catalog().raw("copper_coin").holder().toStack());
+                            safe.setItem(2, InfinityXItems.SILVER_NUGGET.toStack(2 + level.getRandom().nextInt(7)));
+                            safe.setItem(3, InfinityXItems.catalog().raw("copper_coin").holder().toStack());
                         }
                         placedSafe = true;
                     }

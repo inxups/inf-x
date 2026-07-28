@@ -2,8 +2,8 @@ package com.pixulse.infx.effect.curse;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.registry.ModItems;
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -57,7 +57,7 @@ public final class CurseEvents {
     private static void startUsingItem(LivingEntityUseItemEvent.Start event) {
         if (!(event.getEntity() instanceof Player player)) return;
         ItemStack stack = event.getItem();
-        if (stack.is(ModItems.BOTTLE_OF_DISENCHANTING)) return;
+        if (stack.is(InfinityXItems.BOTTLE_OF_DISENCHANTING)) return;
 
         CurseType curse = forbiddenIngestion(player, stack);
         if (curse == null) return;
@@ -67,22 +67,22 @@ public final class CurseEvents {
 
     private static void finishUsingItem(LivingEntityUseItemEvent.Finish event) {
         if (event.getEntity() instanceof ServerPlayer player
-                && event.getItem().is(ModItems.BOTTLE_OF_DISENCHANTING)) {
+                && event.getItem().is(InfinityXItems.BOTTLE_OF_DISENCHANTING)) {
             CurseManager.removeFromPlayer(player);
         }
     }
 
     private static @Nullable CurseType forbiddenIngestion(Player player, ItemStack stack) {
-        if (stack.is(ModTags.Items.CURSE_ANIMAL_PRODUCTS)
+        if (stack.is(InfinityXTags.Items.CURSE_ANIMAL_PRODUCTS)
                 && CurseManager.hasCurse(player, CurseType.CANNOT_EAT_ANIMALS)) {
             return CurseType.CANNOT_EAT_ANIMALS;
         }
-        if (stack.is(ModTags.Items.CURSE_PLANT_PRODUCTS)
+        if (stack.is(InfinityXTags.Items.CURSE_PLANT_PRODUCTS)
                 && CurseManager.hasCurse(player, CurseType.CANNOT_EAT_PLANTS)) {
             return CurseType.CANNOT_EAT_PLANTS;
         }
         var consumable = stack.get(DataComponents.CONSUMABLE);
-        boolean drink = stack.is(ModTags.Items.CURSE_DRINKS)
+        boolean drink = stack.is(InfinityXTags.Items.CURSE_DRINKS)
                 || consumable != null && consumable.animation() == ItemUseAnimation.DRINK;
         return drink && CurseManager.hasCurse(player, CurseType.CANNOT_DRINK)
                 ? CurseType.CANNOT_DRINK

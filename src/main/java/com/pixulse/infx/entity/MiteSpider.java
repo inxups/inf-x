@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXSounds;
 import com.pixulse.infx.world.Underworld;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -83,17 +83,17 @@ public final class MiteSpider extends Spider implements MiteMob {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return variant() == Variant.DEMON ? ModSounds.DEMON_SPIDER_AMBIENT.get() : super.getAmbientSound();
+        return variant() == Variant.DEMON ? InfinityXSounds.DEMON_SPIDER_AMBIENT.get() : super.getAmbientSound();
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return variant() == Variant.DEMON ? ModSounds.DEMON_SPIDER_HURT.get() : super.getHurtSound(source);
+        return variant() == Variant.DEMON ? InfinityXSounds.DEMON_SPIDER_HURT.get() : super.getHurtSound(source);
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return variant() == Variant.DEMON ? ModSounds.DEMON_SPIDER_DEATH.get() : super.getDeathSound();
+        return variant() == Variant.DEMON ? InfinityXSounds.DEMON_SPIDER_DEATH.get() : super.getDeathSound();
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
@@ -217,8 +217,8 @@ public final class MiteSpider extends Spider implements MiteMob {
             passenger.discard();
             if (variant() == Variant.SPIDER) {
                 EntityType<MiteSkeleton> jockeyType = level.getLevel().dimension() == Underworld.LEVEL
-                        ? ModEntityTypes.LONGDEAD.get()
-                        : ModEntityTypes.R196_SKELETON.get();
+                        ? InfinityXEntityTypes.LONGDEAD.get()
+                        : InfinityXEntityTypes.R196_SKELETON.get();
                 MiteSkeleton jockey = jockeyType.create(level.getLevel(), EntitySpawnReason.JOCKEY);
                 if (jockey != null) {
                     jockey.snapTo(getX(), getY(), getZ(), getYRot(), 0.0F);

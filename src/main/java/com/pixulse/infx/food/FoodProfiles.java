@@ -1,6 +1,6 @@
 package com.pixulse.infx.food;
 
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.Set;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -65,28 +65,28 @@ public final class FoodProfiles {
                 || item == Items.BEETROOT_SEEDS || item == Items.NETHER_WART) {
             return new FoodProfile(0.5, 1, 2_000, 3_000, 1_000, 0);
         }
-        if (item == ModItems.DOUGH.get()) return new FoodProfile(1, 2, 2_000, 1_000, 0, 4_000);
-        if (item == ModItems.SALAD.get()) return new FoodProfile(3, 7, 2_000, 34_000, 4_000, 0);
-        if (item == ModItems.BLUEBERRIES.get()) return new FoodProfile(1, 3, 0, 14_000, 0, 5_000);
-        if (item == ModItems.BLUEBERRY_PORRIDGE.get()) return new FoodProfile(4, 8, 5_000, 20_000, 2_000, 8_000);
-        if (item == ModItems.MILK_BOWL.get()) return new FoodProfile(3, 5, 14_000, 0, 12_000, 4_000);
-        if (item == ModItems.CEREAL_PORRIDGE.get()) return new FoodProfile(4, 8, 8_000, 8_000, 3_000, 6_000);
-        if (item == ModItems.CHOCOLATE.get()) return new FoodProfile(4, 5, 2_000, 0, 8_000, 24_000);
-        if (item == ModItems.PUMPKIN_SOUP.get()) return new FoodProfile(3, 8, 2_000, 28_000, 2_000, 2_000);
-        if (item == ModItems.CREAM_OF_MUSHROOM_SOUP.get()) return new FoodProfile(4, 9, 8_000, 18_000, 9_000, 3_000);
-        if (item == ModItems.ONION.get()) return new FoodProfile(1, 3, 0, 16_000, 0, 1_000);
-        if (item == ModItems.VEGETABLE_SOUP.get()) return new FoodProfile(4, 9, 2_000, 36_000, 2_000, 0);
-        if (item == ModItems.CREAM_OF_VEGETABLE_SOUP.get()) return new FoodProfile(5, 10, 8_000, 38_000, 9_000, 3_000);
-        if (item == ModItems.CHICKEN_SOUP.get()) return new FoodProfile(5, 10, 24_000, 12_000, 7_000, 0);
-        if (item == ModItems.BEEF_STEW.get()) return new FoodProfile(6, 12, 30_000, 10_000, 10_000, 0);
-        if (item == ModItems.ORANGE.get()) return new FoodProfile(2, 5, 0, 20_000, 0, 7_000);
-        if (item == ModItems.FRUIT_ICE.get()) return new FoodProfile(3, 5, 0, 10_000, 0, 18_000);
-        if (item == ModItems.CHEESE.get()) return new FoodProfile(4, 7, 20_000, 0, 20_000, 1_000);
-        if (item == ModItems.MASHED_POTATO.get()) return new FoodProfile(4, 9, 4_000, 12_000, 6_000, 3_000);
-        if (item == ModItems.ICE_CREAM.get()) return new FoodProfile(4, 7, 8_000, 0, 10_000, 22_000);
-        if (item == ModItems.BANANA.get()) return new FoodProfile(2, 5, 1_000, 18_000, 0, 8_000);
-        if (item == ModItems.WORM.get()) return new FoodProfile(1, 2, 6_000, 0, 2_000, 0);
-        if (item == ModItems.COOKED_WORM.get()) return new FoodProfile(2, 4, 10_000, 0, 3_000, 0);
+        if (item == InfinityXItems.DOUGH.get()) return new FoodProfile(1, 2, 2_000, 1_000, 0, 4_000);
+        if (item == InfinityXItems.SALAD.get()) return new FoodProfile(3, 7, 2_000, 34_000, 4_000, 0);
+        if (item == InfinityXItems.BLUEBERRIES.get()) return new FoodProfile(1, 3, 0, 14_000, 0, 5_000);
+        if (item == InfinityXItems.BLUEBERRY_PORRIDGE.get()) return new FoodProfile(4, 8, 5_000, 20_000, 2_000, 8_000);
+        if (item == InfinityXItems.MILK_BOWL.get()) return new FoodProfile(3, 5, 14_000, 0, 12_000, 4_000);
+        if (item == InfinityXItems.CEREAL_PORRIDGE.get()) return new FoodProfile(4, 8, 8_000, 8_000, 3_000, 6_000);
+        if (item == InfinityXItems.CHOCOLATE.get()) return new FoodProfile(4, 5, 2_000, 0, 8_000, 24_000);
+        if (item == InfinityXItems.PUMPKIN_SOUP.get()) return new FoodProfile(3, 8, 2_000, 28_000, 2_000, 2_000);
+        if (item == InfinityXItems.CREAM_OF_MUSHROOM_SOUP.get()) return new FoodProfile(4, 9, 8_000, 18_000, 9_000, 3_000);
+        if (item == InfinityXItems.ONION.get()) return new FoodProfile(1, 3, 0, 16_000, 0, 1_000);
+        if (item == InfinityXItems.VEGETABLE_SOUP.get()) return new FoodProfile(4, 9, 2_000, 36_000, 2_000, 0);
+        if (item == InfinityXItems.CREAM_OF_VEGETABLE_SOUP.get()) return new FoodProfile(5, 10, 8_000, 38_000, 9_000, 3_000);
+        if (item == InfinityXItems.CHICKEN_SOUP.get()) return new FoodProfile(5, 10, 24_000, 12_000, 7_000, 0);
+        if (item == InfinityXItems.BEEF_STEW.get()) return new FoodProfile(6, 12, 30_000, 10_000, 10_000, 0);
+        if (item == InfinityXItems.ORANGE.get()) return new FoodProfile(2, 5, 0, 20_000, 0, 7_000);
+        if (item == InfinityXItems.FRUIT_ICE.get()) return new FoodProfile(3, 5, 0, 10_000, 0, 18_000);
+        if (item == InfinityXItems.CHEESE.get()) return new FoodProfile(4, 7, 20_000, 0, 20_000, 1_000);
+        if (item == InfinityXItems.MASHED_POTATO.get()) return new FoodProfile(4, 9, 4_000, 12_000, 6_000, 3_000);
+        if (item == InfinityXItems.ICE_CREAM.get()) return new FoodProfile(4, 7, 8_000, 0, 10_000, 22_000);
+        if (item == InfinityXItems.BANANA.get()) return new FoodProfile(2, 5, 1_000, 18_000, 0, 8_000);
+        if (item == InfinityXItems.WORM.get()) return new FoodProfile(1, 2, 6_000, 0, 2_000, 0);
+        if (item == InfinityXItems.COOKED_WORM.get()) return new FoodProfile(2, 4, 10_000, 0, 3_000, 0);
         if (item == Items.BREAD) return new FoodProfile(3, 7, 5_000, 2_000, 1_000, 5_000);
         if (item == Items.MUSHROOM_STEW || item == Items.RABBIT_STEW || item == Items.BEETROOT_SOUP) {
             return new FoodProfile(4, 9, 8_000, 24_000, 5_000, 0);

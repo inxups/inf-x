@@ -1,6 +1,6 @@
 package com.pixulse.infx.block.entity;
 
-import com.pixulse.infx.registry.ModBlockEntityTypes;
+import com.pixulse.infx.registry.InfinityXBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public final class MiteFurnaceBlockEntity extends AbstractFurnaceBlockEntity {
     public MiteFurnaceBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntityTypes.FURNACE.get(), pos, state, RecipeType.SMELTING);
+        super(InfinityXBlockEntityTypes.FURNACE.get(), pos, state, RecipeType.SMELTING);
     }
 
     @Override

@@ -8,7 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class ModSounds {
+public final class InfinityXSounds {
     private static final DeferredRegister<SoundEvent> SOUNDS =
             DeferredRegister.create(Registries.SOUND_EVENT, InfiniteX.MOD_ID);
 
@@ -63,7 +63,7 @@ public final class ModSounds {
                     "entity.gelatinous_cube.corrosion",
                     () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.gelatinous_cube.corrosion")));
 
-    private ModSounds() {}
+    private InfinityXSounds() {}
 
     private static DeferredHolder<SoundEvent, SoundEvent> record(String name) {
         return SOUNDS.register(

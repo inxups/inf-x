@@ -11,8 +11,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-public final class ModTags {
-    private ModTags() {}
+public final class InfinityXTags {
+    private InfinityXTags() {}
 
     public static final class Blocks {
         public static final TagKey<Block> PORTABLE_HAND_HARVEST = create("portable_hand_harvest");

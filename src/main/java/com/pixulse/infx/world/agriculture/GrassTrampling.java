@@ -2,7 +2,7 @@ package com.pixulse.infx.world.agriculture;
 
 import com.mojang.serialization.Codec;
 import com.pixulse.infx.entity.Livestock;
-import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.InfinityXAttachments;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import java.util.HashMap;
@@ -125,7 +125,7 @@ public final class GrassTrampling {
             return 0;
         }
         LevelChunk chunk = level.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
-        Map<String, Integer> map = chunk.getExistingDataOrNull(ModAttachments.GRASS_TRAMPLING.get());
+        Map<String, Integer> map = chunk.getExistingDataOrNull(InfinityXAttachments.GRASS_TRAMPLING.get());
         if (map == null || map.isEmpty()) {
             return 0;
         }
@@ -134,7 +134,7 @@ public final class GrassTrampling {
 
     public static void setTramplings(ServerLevel level, BlockPos pos, int tramplings) {
         LevelChunk chunk = level.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
-        Map<String, Integer> current = chunk.getData(ModAttachments.GRASS_TRAMPLING);
+        Map<String, Integer> current = chunk.getData(InfinityXAttachments.GRASS_TRAMPLING);
         Map<String, Integer> next = new HashMap<>(current);
         int clamped = Mth.clamp(tramplings, 0, MAX_TRAMPLINGS);
         String k = key(pos);
@@ -143,7 +143,7 @@ public final class GrassTrampling {
         } else {
             next.put(k, clamped);
         }
-        chunk.setData(ModAttachments.GRASS_TRAMPLING, Map.copyOf(next));
+        chunk.setData(InfinityXAttachments.GRASS_TRAMPLING, Map.copyOf(next));
         // Force client block color refresh without changing state.
         BlockState grass = level.getBlockState(pos);
         level.sendBlockUpdated(pos, grass, grass, 2);

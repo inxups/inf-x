@@ -6,9 +6,9 @@ import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.*;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.ModDataComponents;
-import com.pixulse.infx.registry.ModEnchantments;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXDataComponents;
+import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.EntityTypeTags;
@@ -35,7 +35,7 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
 import com.pixulse.infx.block.MiteFurnaceBlock;
 import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
-import com.pixulse.infx.registry.tag.ModTags;
+import com.pixulse.infx.registry.tag.InfinityXTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
@@ -70,7 +70,7 @@ public final class EquipmentBehaviors {
             return arrowItem.key().material() == MiteMaterial.SILVER;
         }
         if (event.getSource().getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker) {
-            Catalog.EquipmentEntry entry = ModItems.catalog().equipment(attacker.getMainHandItem());
+            Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(attacker.getMainHandItem());
             return entry != null
                     && entry.key().material() == MiteMaterial.SILVER
                     && entry.key().type() != EquipmentType.ARROW;
@@ -123,7 +123,7 @@ public final class EquipmentBehaviors {
 
     static void applyArmorDecay(ItemAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
-        Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
         if (entry == null
                 || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
                         && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)
@@ -188,7 +188,7 @@ public final class EquipmentBehaviors {
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = player.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+            Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
             if (entry == null || entry.key().type().armorForm() == EquipmentType.ArmorForm.NONE) {
                 continue;
             }
@@ -196,7 +196,7 @@ public final class EquipmentBehaviors {
             if (fall) {
                 total += EnchantmentRules.featherFallingPoints(
                         Enchantments.level(
-                                player.level(), stack, ModEnchantments.VANILLA_FEATHER_FALLING),
+                                player.level(), stack, InfinityXEnchantments.VANILLA_FEATHER_FALLING),
                         durabilityFactor);
                 continue;
             }
@@ -204,17 +204,17 @@ public final class EquipmentBehaviors {
             if (fire) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, ModEnchantments.VANILLA_FIRE_PROTECTION));
+                                player.level(), stack, InfinityXEnchantments.VANILLA_FIRE_PROTECTION));
             }
             if (explosion) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, ModEnchantments.VANILLA_BLAST_PROTECTION));
+                                player.level(), stack, InfinityXEnchantments.VANILLA_BLAST_PROTECTION));
             }
             if (projectile) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, ModEnchantments.VANILLA_PROJECTILE_PROTECTION));
+                                player.level(), stack, InfinityXEnchantments.VANILLA_PROJECTILE_PROTECTION));
             }
         }
         return total;
@@ -225,7 +225,7 @@ public final class EquipmentBehaviors {
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = player.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+            Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
             if (entry == null
                     || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
                             && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)) {
@@ -233,7 +233,7 @@ public final class EquipmentBehaviors {
             }
             float currentProtection = entry.key().armorProtection()
                     * armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
-            int level = Enchantments.level(player.level(), stack, ModEnchantments.PROTECTION);
+            int level = Enchantments.level(player.level(), stack, InfinityXEnchantments.PROTECTION);
             bonus += EnchantmentRules.protectionBonus(currentProtection, level);
         }
         return bonus;
@@ -245,8 +245,8 @@ public final class EquipmentBehaviors {
             return 0.0F;
         }
         ItemStack weapon = attacker.getMainHandItem();
-        int penetration = Enchantments.level(attacker.level(), weapon, ModEnchantments.PENETRATION);
-        int cleaving = Enchantments.level(attacker.level(), weapon, ModEnchantments.CLEAVING);
+        int penetration = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.PENETRATION);
+        int cleaving = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.CLEAVING);
         return EnchantmentRules.penetrationPoints(Math.max(penetration, cleaving));
     }
 
@@ -311,7 +311,7 @@ public final class EquipmentBehaviors {
     }
 
     public static int corrosionDamage(ItemStack stack, float incomingDamage, boolean fire, boolean lava) {
-        Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
         if (entry == null || !stack.isDamageableItem()) {
             return 0;
         }
@@ -338,12 +338,12 @@ public final class EquipmentBehaviors {
 
     static void addQualityTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        Quality quality = event.getItemStack().get(ModDataComponents.QUALITY.get());
+        Quality quality = event.getItemStack().get(InfinityXDataComponents.QUALITY.get());
         if (quality != null) {
             event.getToolTip().add(1, Component.translatable("quality.infx." + quality.getSerializedName())
                     .withStyle(quality.color()));
         }
-        Catalog.EquipmentEntry entry = ModItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
         if (entry != null) {
             EquipmentKey key = entry.key();
             event.getToolTip().add(Component.translatable(
@@ -379,7 +379,7 @@ public final class EquipmentBehaviors {
                         && bucket.contents() == MiteBucketItem.Contents.LAVA) {
             return FurnaceHeatPolicy.HEAT_LAVA;
         }
-        if (stack.is(ModTags.Items.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
+        if (stack.is(InfinityXTags.Items.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
         if (stack.is(ItemTags.LOGS) || stack.is(ItemTags.PLANKS)) return FurnaceHeatPolicy.HEAT_WOOD;
         return 0;
     }

@@ -3,7 +3,7 @@ package com.pixulse.infx.world;
 import com.pixulse.infx.block.MitePortalBlock;
 import com.pixulse.infx.block.MitePortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
-import com.pixulse.infx.registry.ModBlocks;
+import com.pixulse.infx.registry.InfinityXBlocks;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
@@ -67,7 +67,7 @@ public final class UnderworldPortalEvents {
             return false;
         }
         replaceConnectedPortal(level, origin, PortalType.UNDERWORLD);
-        if (!level.getBlockState(origin).is(ModBlocks.UNDERWORLD_PORTAL.get())) {
+        if (!level.getBlockState(origin).is(InfinityXBlocks.UNDERWORLD_PORTAL.get())) {
             clearConnectedPortal(level, origin);
             return false;
         }
@@ -99,7 +99,7 @@ public final class UnderworldPortalEvents {
     }
 
     public static boolean frameTouchesMantle(ServerLevel level, BlockPos origin) {
-        return frameHasSupport(level, origin, pos -> level.getBlockState(pos).is(ModBlocks.MANTLE.get()));
+        return frameHasSupport(level, origin, pos -> level.getBlockState(pos).is(InfinityXBlocks.MANTLE.get()));
     }
 
     private static boolean frameHasSupport(
@@ -131,16 +131,16 @@ public final class UnderworldPortalEvents {
 
     public static MitePortalBlock portalBlock(PortalType portalType) {
         return switch (portalType) {
-            case UNDERWORLD -> ModBlocks.UNDERWORLD_PORTAL.get();
-            case NETHER -> ModBlocks.NETHER_PORTAL.get();
-            case RETURN_SPAWN -> ModBlocks.RETURN_SPAWN_PORTAL.get();
+            case UNDERWORLD -> InfinityXBlocks.UNDERWORLD_PORTAL.get();
+            case NETHER -> InfinityXBlocks.NETHER_PORTAL.get();
+            case RETURN_SPAWN -> InfinityXBlocks.RETURN_SPAWN_PORTAL.get();
         };
     }
 
     public static boolean isR196Portal(BlockState state) {
-        return state.is(ModBlocks.UNDERWORLD_PORTAL.get())
-                || state.is(ModBlocks.NETHER_PORTAL.get())
-                || state.is(ModBlocks.RETURN_SPAWN_PORTAL.get());
+        return state.is(InfinityXBlocks.UNDERWORLD_PORTAL.get())
+                || state.is(InfinityXBlocks.NETHER_PORTAL.get())
+                || state.is(InfinityXBlocks.RETURN_SPAWN_PORTAL.get());
     }
 
     /** Replaces only the source block type, so adjacent portal families cannot join together. */

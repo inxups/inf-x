@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.ModEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -22,6 +22,6 @@ public final class MiteOcelot extends Ocelot {
 
     @Override
     public @Nullable Ocelot getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return ModEntityTypes.R196_OCELOT.get().create(level, EntitySpawnReason.BREEDING);
+        return InfinityXEntityTypes.R196_OCELOT.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

@@ -2,7 +2,7 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.equipment.CorrosionRules;
 import com.pixulse.infx.item.equipment.CorrosionType;
-import com.pixulse.infx.registry.ModSounds;
+import com.pixulse.infx.registry.InfinityXSounds;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -71,7 +71,7 @@ public final class GelatinousCubeEvents {
         level.playSound(
                 null,
                 pos,
-                ModSounds.GELATINOUS_CUBE_CORROSION.get(),
+                InfinityXSounds.GELATINOUS_CUBE_CORROSION.get(),
                 SoundSource.HOSTILE,
                 0.5F,
                 2.6F + (random.nextFloat() - random.nextFloat()) * 0.8F);

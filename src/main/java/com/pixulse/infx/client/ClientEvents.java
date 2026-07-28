@@ -13,10 +13,10 @@ import com.pixulse.infx.entity.MiteSlime;
 import com.pixulse.infx.entity.MiteSpider;
 import com.pixulse.infx.entity.MiteWolf;
 import com.pixulse.infx.entity.MiteZombie;
-import com.pixulse.infx.registry.ModBlockEntityTypes;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModMenus;
-import com.pixulse.infx.registry.ModRecipes;
+import com.pixulse.infx.registry.InfinityXBlockEntityTypes;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXMenus;
+import com.pixulse.infx.registry.InfinityXRecipes;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,10 +60,10 @@ public final class ClientEvents {
 
     @SubscribeEvent
     private static void registerScreens(RegisterMenuScreensEvent event) {
-        ModMenus.WORKBENCHES.forEach(menu -> event.register(menu.get(), TimedWorkbenchScreen::new));
-        event.register(ModMenus.METAL_ANVIL.get(), MetalAnvilScreen::new);
-        event.register(ModMenus.EMERALD_ENCHANTING.get(), EnchantmentScreen::new);
-        event.register(ModMenus.DIAMOND_ENCHANTING.get(), EnchantmentScreen::new);
+        InfinityXMenus.WORKBENCHES.forEach(menu -> event.register(menu.get(), TimedWorkbenchScreen::new));
+        event.register(InfinityXMenus.METAL_ANVIL.get(), MetalAnvilScreen::new);
+        event.register(InfinityXMenus.EMERALD_ENCHANTING.get(), EnchantmentScreen::new);
+        event.register(InfinityXMenus.DIAMOND_ENCHANTING.get(), EnchantmentScreen::new);
     }
 
     @SubscribeEvent
@@ -81,130 +81,130 @@ public final class ClientEvents {
     @SubscribeEvent
     private static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         // World geometry only — chunk mesh is particle-only (see ModModelProvider).
-        event.registerBlockEntityRenderer(ModBlockEntityTypes.SAFE.get(), SafeRenderer::new);
+        event.registerBlockEntityRenderer(InfinityXBlockEntityTypes.SAFE.get(), SafeRenderer::new);
         event.registerEntityRenderer(
-                ModEntityTypes.R196_ZOMBIE.get(),
+                InfinityXEntityTypes.R196_ZOMBIE.get(),
                 context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.ZOMBIE));
-        event.registerEntityRenderer(ModEntityTypes.INVISIBLE_STALKER.get(), InvisibleStalkerRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.INVISIBLE_STALKER.get(), InvisibleStalkerRenderer::new);
         event.registerEntityRenderer(
-                ModEntityTypes.GHOUL.get(),
+                InfinityXEntityTypes.GHOUL.get(),
                 context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.GHOUL));
         event.registerEntityRenderer(
-                ModEntityTypes.SHADOW.get(),
+                InfinityXEntityTypes.SHADOW.get(),
                 context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.SHADOW));
         event.registerEntityRenderer(
-                ModEntityTypes.WIGHT.get(),
+                InfinityXEntityTypes.WIGHT.get(),
                 context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.WIGHT));
         event.registerEntityRenderer(
-                ModEntityTypes.REVENANT.get(),
+                InfinityXEntityTypes.REVENANT.get(),
                 context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.REVENANT));
 
-        event.registerEntityRenderer(ModEntityTypes.R196_SKELETON.get(), SkeletonRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_SKELETON.get(), SkeletonRenderer::new);
         event.registerEntityRenderer(
-                ModEntityTypes.LONGDEAD.get(),
+                InfinityXEntityTypes.LONGDEAD.get(),
                 context -> new EntityRenderers.SkeletonTexture(context, MiteSkeleton.Variant.LONGDEAD));
         event.registerEntityRenderer(
-                ModEntityTypes.BONE_LORD.get(),
+                InfinityXEntityTypes.BONE_LORD.get(),
                 context -> new EntityRenderers.SkeletonTexture(context, MiteSkeleton.Variant.BONE_LORD));
         event.registerEntityRenderer(
-                ModEntityTypes.ANCIENT_BONE_LORD.get(),
+                InfinityXEntityTypes.ANCIENT_BONE_LORD.get(),
                 context -> new EntityRenderers.SkeletonTexture(context, MiteSkeleton.Variant.ANCIENT_BONE_LORD));
 
         event.registerEntityRenderer(
-                ModEntityTypes.R196_SPIDER.get(),
+                InfinityXEntityTypes.R196_SPIDER.get(),
                 context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.SPIDER));
         event.registerEntityRenderer(
-                ModEntityTypes.R196_CAVE_SPIDER.get(),
+                InfinityXEntityTypes.R196_CAVE_SPIDER.get(),
                 context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.CAVE_SPIDER, 0.5F));
         event.registerEntityRenderer(
-                ModEntityTypes.BLACK_WIDOW_SPIDER.get(),
+                InfinityXEntityTypes.BLACK_WIDOW_SPIDER.get(),
                 context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.BLACK_WIDOW, 0.6F));
         event.registerEntityRenderer(
-                ModEntityTypes.DEMON_SPIDER.get(),
+                InfinityXEntityTypes.DEMON_SPIDER.get(),
                 context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.DEMON));
         event.registerEntityRenderer(
-                ModEntityTypes.WOOD_SPIDER.get(),
+                InfinityXEntityTypes.WOOD_SPIDER.get(),
                 context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.WOOD, 0.6F));
         event.registerEntityRenderer(
-                ModEntityTypes.PHASE_SPIDER.get(),
+                InfinityXEntityTypes.PHASE_SPIDER.get(),
                 context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.PHASE, 0.6F));
 
-        event.registerEntityRenderer(ModEntityTypes.R196_CREEPER.get(), CreeperRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_CREEPER.get(), CreeperRenderer::new);
         event.registerEntityRenderer(
-                ModEntityTypes.INFERNAL_CREEPER.get(),
+                InfinityXEntityTypes.INFERNAL_CREEPER.get(),
                 context -> new EntityRenderers.CreeperTexture(context, MiteCreeper.Variant.INFERNAL));
 
         event.registerEntityRenderer(
-                ModEntityTypes.R196_SLIME.get(),
+                InfinityXEntityTypes.R196_SLIME.get(),
                 context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.SLIME));
         event.registerEntityRenderer(
-                ModEntityTypes.JELLY.get(),
+                InfinityXEntityTypes.JELLY.get(),
                 context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.JELLY));
         event.registerEntityRenderer(
-                ModEntityTypes.BLOB.get(),
+                InfinityXEntityTypes.BLOB.get(),
                 context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.BLOB));
         event.registerEntityRenderer(
-                ModEntityTypes.OOZE.get(),
+                InfinityXEntityTypes.OOZE.get(),
                 context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.OOZE));
         event.registerEntityRenderer(
-                ModEntityTypes.PUDDING.get(),
+                InfinityXEntityTypes.PUDDING.get(),
                 context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.PUDDING));
         event.registerEntityRenderer(
-                ModEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
-        event.registerEntityRenderer(ModEntityTypes.MAGMA_CUBE.get(), EntityRenderers.MagmaCubeTexture::new);
+                InfinityXEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
+        event.registerEntityRenderer(InfinityXEntityTypes.MAGMA_CUBE.get(), EntityRenderers.MagmaCubeTexture::new);
         event.registerEntityRenderer(
-                ModEntityTypes.NETHERSPAWN.get(),
+                InfinityXEntityTypes.NETHERSPAWN.get(),
                 context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.NETHERSPAWN));
         event.registerEntityRenderer(
-                ModEntityTypes.COPPERSPINE.get(),
+                InfinityXEntityTypes.COPPERSPINE.get(),
                 context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.COPPERSPINE));
         event.registerEntityRenderer(
-                ModEntityTypes.HOARY_SILVERFISH.get(),
+                InfinityXEntityTypes.HOARY_SILVERFISH.get(),
                 context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.HOARY));
         event.registerEntityRenderer(
-                ModEntityTypes.VAMPIRE_BAT.get(),
+                InfinityXEntityTypes.VAMPIRE_BAT.get(),
                 context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.VAMPIRE));
         event.registerEntityRenderer(
-                ModEntityTypes.NIGHTWING.get(),
+                InfinityXEntityTypes.NIGHTWING.get(),
                 context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.NIGHTWING));
         event.registerEntityRenderer(
-                ModEntityTypes.GIANT_VAMPIRE_BAT.get(),
+                InfinityXEntityTypes.GIANT_VAMPIRE_BAT.get(),
                 context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.GIANT_VAMPIRE, 2.0F));
         event.registerEntityRenderer(
-                ModEntityTypes.HELLHOUND.get(),
+                InfinityXEntityTypes.HELLHOUND.get(),
                 context -> new EntityRenderers.WolfTexture(context, MiteWolf.Variant.HELLHOUND));
         event.registerEntityRenderer(
-                ModEntityTypes.DIRE_WOLF.get(),
+                InfinityXEntityTypes.DIRE_WOLF.get(),
                 context -> new EntityRenderers.WolfTexture(context, MiteWolf.Variant.DIRE_WOLF));
-        event.registerEntityRenderer(ModEntityTypes.FIRE_ELEMENTAL.get(), EntityRenderers.FireElementalTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.EARTH_ELEMENTAL.get(), EarthElementalRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.CLAY_GOLEM.get(), EarthElementalRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_ENDERMAN.get(), EndermanRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.FIRE_ELEMENTAL.get(), EntityRenderers.FireElementalTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.EARTH_ELEMENTAL.get(), EarthElementalRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.CLAY_GOLEM.get(), EarthElementalRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_ENDERMAN.get(), EndermanRenderer::new);
         event.registerEntityRenderer(
-                ModEntityTypes.R196_SQUID.get(),
+                InfinityXEntityTypes.R196_SQUID.get(),
                 context -> new SquidRenderer<>(
                         context,
                         new SquidModel(context.bakeLayer(ModelLayers.SQUID)),
                         new SquidModel(context.bakeLayer(ModelLayers.SQUID_BABY))));
-        event.registerEntityRenderer(ModEntityTypes.R196_COD.get(), CodRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_SALMON.get(), SalmonRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_PUFFERFISH.get(), PufferfishRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_TROPICAL_FISH.get(), TropicalFishRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_WITCH.get(), WitchRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_COD.get(), CodRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_SALMON.get(), SalmonRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_PUFFERFISH.get(), PufferfishRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_TROPICAL_FISH.get(), TropicalFishRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_WITCH.get(), WitchRenderer::new);
         // MITE zombie pigmen keep the humanoid zombie model instead of the modern piglin model.
         event.registerEntityRenderer(
-                ModEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), EntityRenderers.ZombiePigmanTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_BLAZE.get(), EntityRenderers.BlazeTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_GHAST.get(), EntityRenderers.GhastTexture::new);
+                InfinityXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), EntityRenderers.ZombiePigmanTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_BLAZE.get(), EntityRenderers.BlazeTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_GHAST.get(), EntityRenderers.GhastTexture::new);
 
         // R196 livestock: vanilla models; sick skins when !isWell (MITE).
-        event.registerEntityRenderer(ModEntityTypes.R196_COW.get(), EntityRenderers.CowTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_CHICKEN.get(), EntityRenderers.ChickenTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_SHEEP.get(), EntityRenderers.SheepTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_PIG.get(), EntityRenderers.PigTexture::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_HORSE.get(), HorseRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_OCELOT.get(), OcelotRenderer::new);
-        event.registerEntityRenderer(ModEntityTypes.R196_WOLF.get(), WolfRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_COW.get(), EntityRenderers.CowTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_CHICKEN.get(), EntityRenderers.ChickenTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_SHEEP.get(), EntityRenderers.SheepTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_PIG.get(), EntityRenderers.PigTexture::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_HORSE.get(), HorseRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_OCELOT.get(), OcelotRenderer::new);
+        event.registerEntityRenderer(InfinityXEntityTypes.R196_WOLF.get(), WolfRenderer::new);
     }
 
     /**
@@ -219,7 +219,7 @@ public final class ClientEvents {
 
     @SubscribeEvent
     private static void receiveRecipes(RecipesReceivedEvent event) {
-        if (event.getRecipeTypes().contains(ModRecipes.CRAFTING.get())
+        if (event.getRecipeTypes().contains(InfinityXRecipes.CRAFTING.get())
                 || event.getRecipeTypes().contains(RecipeType.CRAFTING)) {
             syncedRecipes = event.getRecipeMap();
         }
@@ -232,7 +232,7 @@ public final class ClientEvents {
 
     public static Collection<RecipeHolder<TimedCraftingRecipe>> timedCraftingRecipes() {
         Collection<RecipeHolder<TimedCraftingRecipe>> explicit =
-                syncedRecipes.byType(ModRecipes.CRAFTING.get());
+                syncedRecipes.byType(InfinityXRecipes.CRAFTING.get());
         Collection<RecipeHolder<CraftingRecipe>> vanilla =
                 syncedRecipes.byType(RecipeType.CRAFTING);
         ArrayList<RecipeHolder<TimedCraftingRecipe>> result =

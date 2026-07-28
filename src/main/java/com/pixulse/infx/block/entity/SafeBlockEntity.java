@@ -1,7 +1,7 @@
 package com.pixulse.infx.block.entity;
 
 import com.pixulse.infx.block.SafeBlock;
-import com.pixulse.infx.registry.ModBlockEntityTypes;
+import com.pixulse.infx.registry.InfinityXBlockEntityTypes;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -73,7 +73,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     };
 
     public SafeBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntityTypes.SAFE.get(), pos, state);
+        super(InfinityXBlockEntityTypes.SAFE.get(), pos, state);
     }
 
     @Override

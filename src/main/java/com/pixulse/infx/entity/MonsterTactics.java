@@ -2,7 +2,7 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -103,7 +103,7 @@ public final class MonsterTactics {
             MiteMaterial material,
             EquipmentType type,
             long day) {
-        ItemStack stack = ModItems.catalog().equipment(material, type).holder().toStack();
+        ItemStack stack = InfinityXItems.catalog().equipment(material, type).holder().toStack();
         if (mob.getRandom().nextFloat() < enchantmentChance(day)) {
             int cost = Math.clamp(5 + (int) (day / 16L), 5, 40);
             stack = EnchantmentHelper.enchantItem(mob.getRandom(), stack, cost, level.registryAccess(), Optional.empty());

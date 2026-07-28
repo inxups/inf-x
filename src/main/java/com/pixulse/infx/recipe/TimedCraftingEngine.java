@@ -3,6 +3,7 @@ package com.pixulse.infx.recipe;
 import java.util.List;
 import java.util.Optional;
 
+import com.pixulse.infx.registry.InfinityXRecipes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
@@ -24,7 +25,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.InfinityXAttachments;
 
 public final class TimedCraftingEngine {
     private TimedCraftingEngine() {}
@@ -145,7 +146,7 @@ public final class TimedCraftingEngine {
         boolean sameRecipe = match.isPresent() && currentRecipeId.equals(state.activeRecipeId());
         TimedCraftingState.TickResult result = state.tick(
                 currentRecipeId,
-                player.getData(ModAttachments.SURVIVAL).hasFoodEnergy(),
+                player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy(),
                 timedMenu.infx$isCraftingContextValid(player),
                 sameRecipe);
 
@@ -160,7 +161,7 @@ public final class TimedCraftingEngine {
         CraftingInput input = timedMenu.infx$craftingContainer().asCraftInput();
         Optional<CraftingMatch> explicit = level.recipeAccess()
                 .recipeMap()
-                .getRecipesFor(com.pixulse.infx.registry.ModRecipes.CRAFTING.get(), input, level)
+                .getRecipesFor(InfinityXRecipes.CRAFTING.get(), input, level)
                 .filter(holder -> timedMenu.infx$benchTier().supports(holder.value().requiredBench()))
                 .findFirst()
                 .map(holder -> CraftingMatch.explicit(holder, input));

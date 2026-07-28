@@ -16,7 +16,7 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.minecraft.client.renderer.RenderPipelines;
-import com.pixulse.infx.registry.ModAttachments;
+import com.pixulse.infx.registry.InfinityXAttachments;
 import com.pixulse.infx.food.SurvivalRules;
 
 /** R196 debug-profile, sleep and scaled-food interfaces (all custom hotkeys removed). */
@@ -77,7 +77,7 @@ public final class ClientControls {
                 || !shouldRenderFoodBar(minecraft.player.isCreative(), minecraft.player.isSpectator())) return;
         event.setCanceled(true);
         var graphics = event.getGuiGraphics();
-        var data = minecraft.player.getData(ModAttachments.SURVIVAL);
+        var data = minecraft.player.getData(InfinityXAttachments.SURVIVAL);
         int food = (int) Math.ceil(data.nutrition());
         int slots = (int) Math.ceil(SurvivalRules.foodCap(minecraft.player.experienceLevel) / 2.0D);
         int rows = Math.max(1, (slots + 9) / 10);

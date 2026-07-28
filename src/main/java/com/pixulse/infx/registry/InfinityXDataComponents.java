@@ -10,7 +10,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class ModDataComponents {
+public final class InfinityXDataComponents {
     private static final DeferredRegister.DataComponents COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, InfiniteX.MOD_ID);
 
@@ -26,7 +26,7 @@ public final class ModDataComponents {
                     .networkSynchronized(ByteBufCodecs.fromCodec(Quality.CODEC))
                     .cacheEncoding());
 
-    private ModDataComponents() {}
+    private InfinityXDataComponents() {}
 
     public static void register(IEventBus modBus) {
         COMPONENTS.register(modBus);

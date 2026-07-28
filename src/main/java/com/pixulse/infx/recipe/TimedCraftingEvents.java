@@ -1,6 +1,6 @@
 package com.pixulse.infx.recipe;
 
-import com.pixulse.infx.registry.ModRecipes;
+import com.pixulse.infx.registry.InfinityXRecipes;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -17,7 +17,7 @@ public final class TimedCraftingEvents {
     }
 
     private static void onDatapackSync(OnDatapackSyncEvent event) {
-        event.sendRecipes(ModRecipes.CRAFTING.get(), RecipeType.CRAFTING);
+        event.sendRecipes(InfinityXRecipes.CRAFTING.get(), RecipeType.CRAFTING);
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {

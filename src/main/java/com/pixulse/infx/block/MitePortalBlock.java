@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModPoiTypes;
+import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfinityXPoiTypes;
 import com.pixulse.infx.world.RunegateTeleportation;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.UnderworldPortalEvents;
@@ -335,7 +335,7 @@ public class MitePortalBlock extends NetherPortalBlock {
                         level,
                         preferred,
                         searchRadius,
-                        holder -> holder.is(ModPoiTypes.forPortal(portalType)),
+                        holder -> holder.is(InfinityXPoiTypes.forPortal(portalType)),
                         portal -> isReusablePortal(level, portal))
                 .map(portal -> findPortalExit(level, portal));
     }
@@ -347,7 +347,7 @@ public class MitePortalBlock extends NetherPortalBlock {
                         preferred,
                         searchRadius,
                         holder -> holder.is(PoiTypes.NETHER_PORTAL)
-                                || holder.is(ModPoiTypes.UNDERWORLD_PORTAL),
+                                || holder.is(InfinityXPoiTypes.UNDERWORLD_PORTAL),
                         portal -> isLegacyPortalFor(level, portal))
                 .map(portal -> {
                     UnderworldPortalEvents.replaceConnectedPortal(level, portal, portalType);
@@ -392,10 +392,10 @@ public class MitePortalBlock extends NetherPortalBlock {
 
     private boolean isLegacyPortalFor(ServerLevel level, BlockPos portal) {
         BlockState state = level.getBlockState(portal);
-        if (!state.is(Blocks.NETHER_PORTAL) && !state.is(ModBlocks.UNDERWORLD_PORTAL.get())) {
+        if (!state.is(Blocks.NETHER_PORTAL) && !state.is(InfinityXBlocks.UNDERWORLD_PORTAL.get())) {
             return false;
         }
-        if (state.is(ModBlocks.UNDERWORLD_PORTAL.get())
+        if (state.is(InfinityXBlocks.UNDERWORLD_PORTAL.get())
                 && (state.getValue(UnderworldPortalBlock.RUNE_GATE)
                         || UnderworldPortalBlock.hasRuneGate(level, portal))) {
             return false;

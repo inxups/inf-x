@@ -4,7 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
@@ -31,21 +31,21 @@ final class ModUnderworldLootSubProvider implements LootTableSubProvider {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(8.0F))
                 .add(EmptyLootItem.emptyItem().setWeight(54))
-                .add(LootItem.lootTableItem(ModItems.catalog().raw("ancient_metal_nugget").holder())
+                .add(LootItem.lootTableItem(InfinityXItems.catalog().raw("ancient_metal_nugget").holder())
                         .setWeight(10)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4.0F))))
-                .add(LootItem.lootTableItem(ModItems.ANCIENT_METAL_INGOT)
+                .add(LootItem.lootTableItem(InfinityXItems.ANCIENT_METAL_INGOT)
                         .setWeight(10)
                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4.0F))))
-                .add(LootItem.lootTableItem(ModItems.catalog().raw("ancient_metal_coin").holder()).setWeight(5))
-                .add(LootItem.lootTableItem(ModItems.bucket(
+                .add(LootItem.lootTableItem(InfinityXItems.catalog().raw("ancient_metal_coin").holder()).setWeight(5))
+                .add(LootItem.lootTableItem(InfinityXItems.bucket(
                                 MiteMaterial.ANCIENT_METAL,
                                 MiteBucketItem.Contents.EMPTY))
                         .setWeight(2))
-                .add(LootItem.lootTableItem(ModItems.RECORD_UNDERWORLD).setWeight(1))
-                .add(LootItem.lootTableItem(ModItems.RECORD_DESCENT).setWeight(1))
-                .add(LootItem.lootTableItem(ModItems.RECORD_WANDERER).setWeight(1))
-                .add(LootItem.lootTableItem(ModItems.RECORD_LEGENDS).setWeight(1))
+                .add(LootItem.lootTableItem(InfinityXItems.RECORD_UNDERWORLD).setWeight(1))
+                .add(LootItem.lootTableItem(InfinityXItems.RECORD_DESCENT).setWeight(1))
+                .add(LootItem.lootTableItem(InfinityXItems.RECORD_WANDERER).setWeight(1))
+                .add(LootItem.lootTableItem(InfinityXItems.RECORD_LEGENDS).setWeight(1))
                 .add(LootItem.lootTableItem(equipment(EquipmentType.HORSE_ARMOR)).setWeight(5));
         List.of(
                         EquipmentType.PICKAXE,
@@ -63,6 +63,6 @@ final class ModUnderworldLootSubProvider implements LootTableSubProvider {
     }
 
     private static ItemLike equipment(EquipmentType type) {
-        return ModItems.catalog().equipment(MiteMaterial.ANCIENT_METAL, type).holder();
+        return InfinityXItems.catalog().equipment(MiteMaterial.ANCIENT_METAL, type).holder();
     }
 }

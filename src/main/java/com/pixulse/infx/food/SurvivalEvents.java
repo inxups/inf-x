@@ -3,9 +3,9 @@ package com.pixulse.infx.food;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.harvest.HarvestEvents;
-import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.registry.ModEnchantments;
-import com.pixulse.infx.registry.ModMobEffects;
+import com.pixulse.infx.registry.InfinityXAttachments;
+import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfinityXMobEffects;
 import java.util.Map;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
@@ -117,13 +117,13 @@ public final class SurvivalEvents {
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (!player.getPersistentData().getBoolean(INITIALIZED).orElse(false)) {
-            player.setData(ModAttachments.SURVIVAL, SurvivalData.initial());
+            player.setData(InfinityXAttachments.SURVIVAL, SurvivalData.initial());
             player.getPersistentData().putBoolean(INITIALIZED, true);
             player.getFoodData().setFoodLevel((int) SurvivalRules.INITIAL_CAP);
             player.getFoodData().setSaturation((float) SurvivalRules.INITIAL_CAP);
         }
         recalculatePlayerLimits(player);
-        mirrorFoodData(player, player.getData(ModAttachments.SURVIVAL));
+        mirrorFoodData(player, player.getData(InfinityXAttachments.SURVIVAL));
         ACTIVITIES.put(player, new PlayerActivity(MovementStats.capture(player)));
     }
 
@@ -150,17 +150,17 @@ public final class SurvivalEvents {
         FoodProfile food = FoodProfiles.forStack(stack);
         if (food == FoodProfile.EMPTY) {
             // Vanilla FoodData.eat may have already run; discard that temporary change.
-            mirrorFoodData(player, player.getData(ModAttachments.SURVIVAL));
+            mirrorFoodData(player, player.getData(InfinityXAttachments.SURVIVAL));
             return;
         }
-        SurvivalData updated = player.getData(ModAttachments.SURVIVAL)
+        SurvivalData updated = player.getData(InfinityXAttachments.SURVIVAL)
                 .eat(food, SurvivalRules.foodCap(player.experienceLevel));
-        player.setData(ModAttachments.SURVIVAL, updated);
+        player.setData(InfinityXAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
     }
 
     public static void syncFoodData(ServerPlayer player) {
-        mirrorFoodData(player, player.getData(ModAttachments.SURVIVAL));
+        mirrorFoodData(player, player.getData(InfinityXAttachments.SURVIVAL));
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -173,7 +173,7 @@ public final class SurvivalEvents {
         if (!activeMetabolism) {
             activity.stopMining();
         } else {
-            int endurance = Enchantments.maxArmorLevel(player, ModEnchantments.ENDURANCE);
+            int endurance = Enchantments.maxArmorLevel(player, InfinityXEnchantments.ENDURANCE);
             double enduranceActions = activity.miningMetabolism(player) + bowDrawMetabolism(player);
             double behaviorCost = movementCost
                     + rowingMetabolism(player)
@@ -196,14 +196,14 @@ public final class SurvivalEvents {
     public static boolean tickSleepingMetabolism(ServerPlayer player) {
         if (!hasActiveMetabolism(player)) return true;
         tickMetabolism(player, 1, true);
-        return player.getData(ModAttachments.SURVIVAL).hasFoodEnergy();
+        return player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy();
     }
 
     private static void tickMetabolism(ServerPlayer player, int elapsedTicks, boolean sleeping) {
-        SurvivalData current = player.getData(ModAttachments.SURVIVAL)
+        SurvivalData current = player.getData(InfinityXAttachments.SURVIVAL)
                 .clamp(SurvivalRules.foodCap(player.experienceLevel));
         if (!hasActiveMetabolism(player)) {
-            player.setData(ModAttachments.SURVIVAL, current);
+            player.setData(InfinityXAttachments.SURVIVAL, current);
             mirrorFoodData(player, current);
             return;
         }
@@ -221,7 +221,7 @@ public final class SurvivalEvents {
                 SurvivalRules.foodCap(player.experienceLevel));
         updated = applyStarvation(player, updated, elapsedTicks);
         updated = applyRecovery(player, updated, elapsedTicks, sleeping);
-        player.setData(ModAttachments.SURVIVAL, updated);
+        player.setData(InfinityXAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
         updateStatusEffects(player, updated);
     }
@@ -264,21 +264,21 @@ public final class SurvivalEvents {
     }
 
     private static int regenerationLevel(Player player) {
-        return Enchantments.maxArmorLevel(player, ModEnchantments.REGENERATION);
+        return Enchantments.maxArmorLevel(player, InfinityXEnchantments.REGENERATION);
     }
 
     private static void updateStatusEffects(ServerPlayer player, SurvivalData data) {
         if (data.isMalnourished()) {
-            player.addEffect(new MobEffectInstance(ModMobEffects.MALNUTRITION, 220, 0, true, false, true));
+            player.addEffect(new MobEffectInstance(InfinityXMobEffects.MALNUTRITION, 220, 0, true, false, true));
         } else {
-            player.removeEffect(ModMobEffects.MALNUTRITION);
+            player.removeEffect(InfinityXMobEffects.MALNUTRITION);
         }
         int insulin = data.insulinResistance().ordinal();
         if (insulin > 0) {
             player.addEffect(new MobEffectInstance(
-                    ModMobEffects.INSULIN_RESISTANCE, 220, insulin - 1, true, false, true));
+                    InfinityXMobEffects.INSULIN_RESISTANCE, 220, insulin - 1, true, false, true));
         } else {
-            player.removeEffect(ModMobEffects.INSULIN_RESISTANCE);
+            player.removeEffect(InfinityXMobEffects.INSULIN_RESISTANCE);
         }
     }
 
@@ -362,15 +362,15 @@ public final class SurvivalEvents {
 
     private static void consumeAction(ServerPlayer player, double amount) {
         if (!hasActiveMetabolism(player) || amount <= 0.0D) return;
-        SurvivalData updated = player.getData(ModAttachments.SURVIVAL)
+        SurvivalData updated = player.getData(InfinityXAttachments.SURVIVAL)
                 .metabolize(amount, 0.0D, 0,
                         SurvivalRules.foodCap(player.experienceLevel));
-        player.setData(ModAttachments.SURVIVAL, updated);
+        player.setData(InfinityXAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
     }
 
     private static void consumeEnduranceAction(ServerPlayer player, double amount) {
-        int endurance = Enchantments.maxArmorLevel(player, ModEnchantments.ENDURANCE);
+        int endurance = Enchantments.maxArmorLevel(player, InfinityXEnchantments.ENDURANCE);
         consumeAction(player, amount * SurvivalRules.enduranceModifier(endurance));
     }
 
@@ -380,8 +380,8 @@ public final class SurvivalEvents {
         maxHealth.setBaseValue(SurvivalRules.healthCap(player.experienceLevel));
         if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
         double foodCap = SurvivalRules.foodCap(player.experienceLevel);
-        SurvivalData clamped = player.getData(ModAttachments.SURVIVAL).clamp(foodCap);
-        player.setData(ModAttachments.SURVIVAL, clamped);
+        SurvivalData clamped = player.getData(InfinityXAttachments.SURVIVAL).clamp(foodCap);
+        player.setData(InfinityXAttachments.SURVIVAL, clamped);
         if (player instanceof ServerPlayer serverPlayer) mirrorFoodData(serverPlayer, clamped);
     }
 
@@ -412,14 +412,14 @@ public final class SurvivalEvents {
         if (movement == null) return;
         if (activeMetabolism
                 && !player.onGround()
-                && player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()) {
+                && player.getData(InfinityXAttachments.SURVIVAL).isEnergyEmpty()) {
             movement.addOrUpdateTransientModifier(new AttributeModifier(
                     EMPTY_AIR_SPEED, -0.25D, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
         } else {
             movement.removeModifier(EMPTY_AIR_SPEED);
         }
         if (activeMetabolism
-                && player.getData(ModAttachments.SURVIVAL).isEnergyEmpty()
+                && player.getData(InfinityXAttachments.SURVIVAL).isEnergyEmpty()
                 && player.isSprinting()) {
             player.setSprinting(false);
         }

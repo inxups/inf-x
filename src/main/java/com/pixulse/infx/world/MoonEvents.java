@@ -1,6 +1,6 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -93,7 +93,7 @@ public final class MoonEvents {
     private static void consumeWormBait(ServerPlayer player) {
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (!stack.is(ModItems.WORM.get())) continue;
+            if (!stack.is(InfinityXItems.WORM.get())) continue;
             stack.consume(1, player);
             return;
         }

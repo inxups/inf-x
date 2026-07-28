@@ -3,7 +3,7 @@ package com.pixulse.infx.entity;
 import com.pixulse.infx.item.equipment.CorrosionRules;
 import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.item.GelatinousSphereItem;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -372,11 +372,11 @@ public final class MiteSlime extends Slime implements MiteMob {
 
     private static Item gelatinousSphere(GelatinousSphereItem.Color color) {
         return switch (color) {
-            case GREEN -> ModItems.GREEN_GELATINOUS_SPHERE.get();
-            case OCHRE -> ModItems.OCHRE_GELATINOUS_SPHERE.get();
-            case CRIMSON -> ModItems.CRIMSON_GELATINOUS_SPHERE.get();
-            case GRAY -> ModItems.GRAY_GELATINOUS_SPHERE.get();
-            case BLACK -> ModItems.BLACK_GELATINOUS_SPHERE.get();
+            case GREEN -> InfinityXItems.GREEN_GELATINOUS_SPHERE.get();
+            case OCHRE -> InfinityXItems.OCHRE_GELATINOUS_SPHERE.get();
+            case CRIMSON -> InfinityXItems.CRIMSON_GELATINOUS_SPHERE.get();
+            case GRAY -> InfinityXItems.GRAY_GELATINOUS_SPHERE.get();
+            case BLACK -> InfinityXItems.BLACK_GELATINOUS_SPHERE.get();
         };
     }
 

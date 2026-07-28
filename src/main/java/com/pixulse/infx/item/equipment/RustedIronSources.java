@@ -5,7 +5,7 @@ import com.pixulse.infx.entity.MiteZombie;
 import com.pixulse.infx.entity.MiteZombifiedPiglin;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXItems;
 import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -87,13 +87,13 @@ public final class RustedIronSources {
         if (count <= 0) {
             return;
         }
-        ItemStack arrow = ModItems.catalog().equipment(material, EquipmentType.ARROW).holder().toStack();
+        ItemStack arrow = InfinityXItems.catalog().equipment(material, EquipmentType.ARROW).holder().toStack();
         arrow.setCount(count);
         event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(
                 skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(), arrow));
     }
 
     private static ItemStack equipment(EquipmentType type) {
-        return ModItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder().toStack();
+        return InfinityXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder().toStack();
     }
 }

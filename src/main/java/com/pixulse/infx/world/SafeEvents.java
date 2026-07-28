@@ -5,8 +5,8 @@ import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.harvest.MiteMiningRules;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.ModAttachments;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXAttachments;
+import com.pixulse.infx.registry.InfinityXItems;
 import com.pixulse.infx.food.SurvivalEvents;
 import com.pixulse.infx.food.SurvivalRules;
 import net.minecraft.server.level.ServerPlayer;
@@ -96,7 +96,7 @@ public final class SafeEvents {
     }
 
     private static MiteMaterial toolMaterial(ItemStack tool) {
-        var equipment = ModItems.catalog().equipment(tool);
+        var equipment = InfinityXItems.catalog().equipment(tool);
         if (equipment == null
                 || equipment.key().type() != EquipmentType.PICKAXE
                         && equipment.key().type() != EquipmentType.WAR_HAMMER) {
@@ -142,9 +142,9 @@ public final class SafeEvents {
                 || !player.getPersistentData().getBoolean(DISCONNECT_PENALTY).orElse(false)) return;
         player.getPersistentData().remove(DISCONNECT_PENALTY);
         player.setHealth(Math.max(1.0F, player.getHealth() * 0.5F));
-        var data = player.getData(ModAttachments.SURVIVAL)
+        var data = player.getData(InfinityXAttachments.SURVIVAL)
                 .consume(2.0D, 2_000, SurvivalRules.foodCap(player.experienceLevel));
-        player.setData(ModAttachments.SURVIVAL, data);
+        player.setData(InfinityXAttachments.SURVIVAL, data);
         SurvivalEvents.syncFoodData(player);
         player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.infx.disconnect_penalty"));
     }

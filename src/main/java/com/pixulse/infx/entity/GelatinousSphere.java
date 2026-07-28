@@ -2,8 +2,8 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.item.GelatinousSphereItem;
-import com.pixulse.infx.registry.ModEntityTypes;
-import com.pixulse.infx.registry.ModItems;
+import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfinityXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ItemParticleOption;
@@ -29,16 +29,16 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
     }
 
     public GelatinousSphere(Level level, LivingEntity owner, ItemStack stack) {
-        super(ModEntityTypes.GELATINOUS_SPHERE.get(), owner, level, stack);
+        super(InfinityXEntityTypes.GELATINOUS_SPHERE.get(), owner, level, stack);
     }
 
     public GelatinousSphere(Level level, double x, double y, double z, ItemStack stack) {
-        super(ModEntityTypes.GELATINOUS_SPHERE.get(), x, y, z, level, stack);
+        super(InfinityXEntityTypes.GELATINOUS_SPHERE.get(), x, y, z, level, stack);
     }
 
     @Override
     protected Item getDefaultItem() {
-        return ModItems.GREEN_GELATINOUS_SPHERE.get();
+        return InfinityXItems.GREEN_GELATINOUS_SPHERE.get();
     }
 
     @Override
@@ -97,6 +97,6 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
     private GelatinousSphereItem sphere() {
         return getItem().getItem() instanceof GelatinousSphereItem item
                 ? item
-                : ModItems.GREEN_GELATINOUS_SPHERE.get();
+                : InfinityXItems.GREEN_GELATINOUS_SPHERE.get();
     }
 }

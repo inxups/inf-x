@@ -8,12 +8,11 @@ import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.recipe.TimedCraftingState;
 import com.pixulse.infx.recipe.CraftingEnvironment;
-import com.pixulse.infx.registry.ModBlocks;
-import com.pixulse.infx.registry.ModMenus;
+import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfinityXMenus;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
@@ -74,7 +73,7 @@ public final class TimedWorkbenchMenu extends AbstractCraftingMenu implements Ti
             BenchTier benchTier,
             RegistryFriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
-        Block expected = ModBlocks.workbench(benchTier).get();
+        Block expected = InfinityXBlocks.workbench(benchTier).get();
         return new TimedWorkbenchMenu(
                 containerId,
                 inventory,
@@ -84,7 +83,7 @@ public final class TimedWorkbenchMenu extends AbstractCraftingMenu implements Ti
     }
 
     private static MenuType<TimedWorkbenchMenu> menuType(BenchTier tier) {
-        return ModMenus.workbench(tier).get();
+        return InfinityXMenus.workbench(tier).get();
     }
 
     @Override
