@@ -29,6 +29,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -80,6 +81,15 @@ public final class SurvivalEvents {
         event.modify(Items.EGG, (components, context, item) -> components
                 .set(DataComponents.FOOD, egg)
                 .set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD));
+        event.modify(Items.GOLDEN_APPLE, (components, context, item) -> components.set(
+                DataComponents.CONSUMABLE,
+                foodWithEffects(new MobEffectInstance(MobEffects.REGENERATION, 1_200, 0))));
+        event.modify(Items.ENCHANTED_GOLDEN_APPLE, (components, context, item) -> components.set(
+                DataComponents.CONSUMABLE,
+                foodWithEffects(
+                        new MobEffectInstance(MobEffects.REGENERATION, 1_200, 1),
+                        new MobEffectInstance(MobEffects.RESISTANCE, 1_200, 0),
+                        new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 1_200, 0))));
         FoodProperties smallFood = new FoodProperties.Builder()
                 .nutrition(1)
                 .saturationModifier(0.0F)
@@ -95,6 +105,13 @@ public final class SurvivalEvents {
                     .set(DataComponents.FOOD, smallFood)
                     .set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD));
         }
+    }
+
+    /** Builds the fixed, guaranteed status-effect payload used by R196 foods. */
+    private static Consumable foodWithEffects(MobEffectInstance... effects) {
+        return Consumables.defaultFood()
+                .onConsume(new ApplyStatusEffectsConsumeEffect(java.util.List.of(effects)))
+                .build();
     }
 
     @SubscribeEvent

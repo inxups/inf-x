@@ -100,6 +100,7 @@ import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BlockItem;
@@ -981,14 +982,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 driedKelp.satiation() == 0.0D && driedKelp.nutrition() == 1.0D,
                 "dried kelp must restore nutrition without satiation");
-        var redMushroomConsumable = Items.RED_MUSHROOM.getDefaultInstance().get(DataComponents.CONSUMABLE);
-        var redMushroomEffects = redMushroomConsumable == null
-                ? List.<net.minecraft.world.effect.MobEffectInstance>of()
-                : redMushroomConsumable.onConsumeEffects().stream()
-                        .filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
-                        .map(ApplyStatusEffectsConsumeEffect.class::cast)
-                        .flatMap(effect -> effect.effects().stream())
-                        .toList();
+        var redMushroomEffects = consumeStatusEffects(Items.RED_MUSHROOM.getDefaultInstance());
         helper.assertTrue(
                 redMushroomEffects.stream().anyMatch(effect -> effect.is(MobEffects.POISON)
                         && effect.getDuration() == 200
@@ -999,6 +993,26 @@ public final class ModCompletionGameTests {
                         && effect.getDuration() == 1_200
                         && effect.getAmplifier() == 4),
                 "red mushroom must apply R196 nausea V for 1200 ticks");
+        var goldenAppleEffects = consumeStatusEffects(Items.GOLDEN_APPLE.getDefaultInstance());
+        helper.assertTrue(
+                goldenAppleEffects.size() == 1
+                        && goldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.REGENERATION)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 0),
+                "golden apple must apply only R196 regeneration I for 1200 ticks");
+        var enchantedGoldenAppleEffects = consumeStatusEffects(Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance());
+        helper.assertTrue(
+                enchantedGoldenAppleEffects.size() == 3
+                        && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.REGENERATION)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 1)
+                        && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.RESISTANCE)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 0)
+                        && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.FIRE_RESISTANCE)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 0),
+                "enchanted golden apple must use only the three R196 1200-tick effects");
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 0, 1, 1, 0, 0));
         helper.assertTrue(
                 FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.EGG.getDefaultInstance())),
@@ -1080,6 +1094,17 @@ public final class ModCompletionGameTests {
         helper.assertFalse(player.isSprinting(), "empty R196 energy must stop sprinting");
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static List<MobEffectInstance> consumeStatusEffects(ItemStack stack) {
+        var consumable = stack.get(DataComponents.CONSUMABLE);
+        return consumable == null
+                ? List.of()
+                : consumable.onConsumeEffects().stream()
+                        .filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
+                        .map(ApplyStatusEffectsConsumeEffect.class::cast)
+                        .flatMap(effect -> effect.effects().stream())
+                        .toList();
     }
 
     private static void survivalModes(GameTestHelper helper) {
