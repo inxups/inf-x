@@ -1,15 +1,23 @@
 package com.pixulse.infx.datagen;
 
+import com.pixulse.infx.block.BlueberryBushBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyBlockState;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.NonNull;
 
@@ -30,6 +38,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         add(InfXBlocks.SNOW_SLAB.get(), createSlabItemTable(InfXBlocks.SNOW_SLAB.get()));
         dropSelf(InfXBlocks.NETHER_GRAVEL.get());
         dropSelf(InfXBlocks.WITHERWOOD.get());
+        add(InfXBlocks.BLUEBERRY_BUSH.get(), blueberryBushDrops(InfXBlocks.BLUEBERRY_BUSH.get()));
         dropRuneStone(InfXBlocks.MITHRIL_RUNE_STONE.get());
         dropRuneStone(InfXBlocks.ADAMANTIUM_RUNE_STONE.get());
         add(InfXBlocks.MANTLE.get(), noDrop());
@@ -38,6 +47,19 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
 
     private void dropRuneStone(RuneStoneBlock block) {
         add(block, createSingleItemTable(block).apply(CopyBlockState.copyState(block).copy(RuneStoneBlock.RUNE)));
+    }
+
+    private LootTable.Builder blueberryBushDrops(BlueberryBushBlock bush) {
+        var matureBush = LootItemBlockStatePropertyCondition.hasBlockStateProperties(bush)
+                .setProperties(StatePropertiesPredicate.Builder.properties()
+                        .hasProperty(SweetBerryBushBlock.AGE, SweetBerryBushBlock.MAX_AGE));
+        return LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .when(matureBush)
+                        .add(LootItem.lootTableItem(InfXItems.BLUEBERRIES)))
+                .withPool(LootPool.lootPool()
+                        .when(hasSilkTouch())
+                        .add(LootItem.lootTableItem(bush)));
     }
 
     @Override

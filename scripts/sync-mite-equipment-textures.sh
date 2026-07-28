@@ -265,6 +265,8 @@ sync resource-pack items/food/dough.png item/dough.png
 sync resource-pack items/bowls/bowl_salad.png item/salad.png
 sync resource-pack items/food/blueberries.png item/blueberries.png
 sync resource-pack items/bowls/porridge.png item/blueberry_porridge.png
+sync resource-pack blocks/bushes/blueberry.png block/blueberry_bush.png
+sync resource-pack blocks/bushes/blueberry_picked.png block/blueberry_bush_picked.png
 sync resource-pack items/bowls/bowl_milk.png item/milk_bowl.png
 sync resource-pack items/bowls/cereal.png item/cereal_porridge.png
 sync resource-pack items/food/chocolate.png item/chocolate.png
@@ -352,7 +354,7 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 573 ]] || { echo "Expected 573 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 575 ]] || { echo "Expected 575 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"

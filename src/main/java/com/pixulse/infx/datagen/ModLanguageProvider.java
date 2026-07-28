@@ -454,6 +454,7 @@ final class ModLanguageProvider extends LanguageProvider {
         addRecord("wanderer", "Wanderer");
         addRecord("legends", "Legends");
         add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
+        add("block.infx.blueberry_bush", locale == Locale.EN_US ? "Blueberry Bush" : "蓝莓丛");
         add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
         add("block.infx.infested_netherrack", locale == Locale.EN_US ? "Infested Netherrack" : "虫蚀下界岩");

@@ -85,6 +85,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -122,6 +123,7 @@ import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.HopperBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -1884,6 +1886,7 @@ public final class ModCompletionGameTests {
         InfXItems.METAL_SAFES.forEach(item -> assertStackLimit(helper, 4, item.value()));
         assertStackLimit(helper, 4, InfXItems.NETHER_GRAVEL.value());
         assertStackLimit(helper, 32, InfXItems.WITHERWOOD.value());
+        assertStackLimit(helper, 8, InfXItems.BLUEBERRY_BUSH.value());
         assertStackLimit(helper, 4, InfXItems.CORE.value());
         helper.succeed();
     }
@@ -1930,6 +1933,60 @@ public final class ModCompletionGameTests {
                 cow.hasEffect(MobEffects.WITHER)
                         && cow.getEffect(MobEffects.WITHER).getDuration() > 0,
                 "touching Witherwood applies Wither");
+
+        BlockPos blueberry = new BlockPos(8, 2, 6);
+        helper.setBlock(blueberry.below(), Blocks.GRASS_BLOCK);
+        helper.setBlock(
+                blueberry,
+                InfXBlocks.BLUEBERRY_BUSH.get()
+                        .defaultBlockState()
+                        .setValue(SweetBerryBushBlock.AGE, SweetBerryBushBlock.MAX_AGE));
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        BlockPos absoluteBlueberry = helper.absolutePos(blueberry);
+        InteractionResult blueberryHarvest = player.gameMode.useItemOn(
+                player,
+                level,
+                player.getMainHandItem(),
+                InteractionHand.MAIN_HAND,
+                new BlockHitResult(Vec3.atCenterOf(absoluteBlueberry), Direction.UP, absoluteBlueberry, false));
+        helper.assertTrue(blueberryHarvest == InteractionResult.SUCCESS, "a mature blueberry bush is harvested by hand");
+        helper.assertTrue(
+                helper.getBlockState(blueberry).getValue(SweetBerryBushBlock.AGE) == 0,
+                "harvesting a blueberry bush resets it to the picked state");
+        List<ItemEntity> blueberryDrops = level.getEntitiesOfClass(
+                        ItemEntity.class,
+                        AABB.ofSize(Vec3.atCenterOf(absoluteBlueberry), 4.0D, 4.0D, 4.0D),
+                        item -> item.getItem().is(InfXItems.BLUEBERRIES));
+        int harvestedBlueberries = blueberryDrops.stream()
+                .mapToInt(item -> item.getItem().getCount())
+                .sum();
+        helper.assertTrue(harvestedBlueberries == 1, "a mature blueberry bush yields exactly one blueberry");
+        blueberryDrops.forEach(ItemEntity::discard);
+        InfXBlocks.BLUEBERRY_BUSH.get().performBonemeal(
+                level, level.getRandom(), absoluteBlueberry, helper.getBlockState(blueberry));
+        int bonemealAge = helper.getBlockState(blueberry).getValue(SweetBerryBushBlock.AGE);
+        helper.assertTrue(bonemealAge >= 1 && bonemealAge <= 2, "bone meal advances a blueberry bush by one or two stages");
+
+        BlockPos sweetBerry = new BlockPos(12, 2, 6);
+        helper.setBlock(sweetBerry.below(), Blocks.GRASS_BLOCK);
+        helper.setBlock(
+                sweetBerry,
+                Blocks.SWEET_BERRY_BUSH.defaultBlockState()
+                        .setValue(SweetBerryBushBlock.AGE, SweetBerryBushBlock.MAX_AGE));
+        BlockPos absoluteSweetBerry = helper.absolutePos(sweetBerry);
+        helper.assertTrue(
+                player.gameMode.destroyBlock(absoluteSweetBerry),
+                "a player can break a mature vanilla sweet berry bush");
+        int sweetBerryBlueberries = level.getEntitiesOfClass(
+                        ItemEntity.class,
+                        AABB.ofSize(Vec3.atCenterOf(absoluteSweetBerry), 4.0D, 4.0D, 4.0D),
+                        item -> item.getItem().is(InfXItems.BLUEBERRIES))
+                .stream()
+                .mapToInt(item -> item.getItem().getCount())
+                .sum();
+        helper.assertTrue(
+                sweetBerryBlueberries == 0,
+                "breaking a mature vanilla sweet berry bush never drops custom blueberries");
 
         player.setItemInHand(
                 InteractionHand.MAIN_HAND,
