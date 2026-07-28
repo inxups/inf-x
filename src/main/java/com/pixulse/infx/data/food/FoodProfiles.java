@@ -1,96 +1,184 @@
 package com.pixulse.infx.data.food;
 
+import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.registry.InfXItems;
-import java.util.Set;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/** Nutrient metadata kept separate from modern {@code FoodProperties}. */
+/**
+ * R196 food values transcribed from Item, ItemMeat, ItemSeedFood and BlockCake. Modern-only food
+ * items use the nearest R196 counterpart rather than a new independent nutrition model.
+ */
 public final class FoodProfiles {
-    private static final Set<Item> RAW_MEAT = Set.of(
-            Items.BEEF,
-            Items.PORKCHOP,
-            Items.CHICKEN,
-            Items.MUTTON,
-            Items.RABBIT,
-            Items.COD,
-            Items.SALMON,
-            Items.TROPICAL_FISH,
-            Items.PUFFERFISH,
-            Items.ROTTEN_FLESH,
-            Items.SPIDER_EYE);
-    private static final Set<Item> COOKED_MEAT = Set.of(
-            Items.COOKED_BEEF,
-            Items.COOKED_PORKCHOP,
-            Items.COOKED_CHICKEN,
-            Items.COOKED_MUTTON,
-            Items.COOKED_RABBIT,
-            Items.COOKED_COD,
-            Items.COOKED_SALMON);
-    private static final Set<Item> VEGETABLES = Set.of(
-            Items.CARROT,
-            Items.POTATO,
-            Items.BAKED_POTATO,
-            Items.BEETROOT,
-            Items.MELON_SLICE,
-            Items.SWEET_BERRIES,
-            Items.GLOW_BERRIES,
-            Items.APPLE,
-            Items.GOLDEN_CARROT,
-            Items.DRIED_KELP,
-            Items.CHORUS_FRUIT,
-            Items.POISONOUS_POTATO);
-    private static final Set<Item> SWEETS = Set.of(
-            Items.SUGAR,
-            Items.COOKIE,
-            Items.CAKE,
-            Items.PUMPKIN_PIE,
-            Items.HONEY_BOTTLE,
-            Items.GOLDEN_APPLE,
-            Items.ENCHANTED_GOLDEN_APPLE);
+    private static final FoodProfile APPLE = mite(2, 1, 1_000, false, false, true);
+    private static final FoodProfile MUSHROOM_STEW = mite(2, 4, 0, false, false, false);
+    private static final FoodProfile BREAD = mite(8, 2, 0, false, false, false);
+    private static final FoodProfile RAW_PORK = mite(4, 4, 0, true, false, false);
+    private static final FoodProfile COOKED_PORK = mite(8, 8, 0, true, false, false);
+    private static final FoodProfile GOLDEN_APPLE = mite(2, 1, 1_000, false, false, true, 0, true);
+    private static final FoodProfile EGG = mite(1, 3, 0, true, false, false);
+    private static final FoodProfile RAW_COD = mite(3, 3, 0, true, true, false);
+    private static final FoodProfile COOKED_COD = mite(6, 6, 0, true, true, false);
+    private static final FoodProfile RAW_SALMON = mite(5, 5, 0, true, true, false);
+    private static final FoodProfile COOKED_SALMON = mite(10, 10, 0, true, true, false);
+    private static final FoodProfile SUGAR = mite(1, 0, 1_000, false, false, false);
+    private static final FoodProfile COOKIE = mite(3, 1, 250, false, false, false);
+    private static final FoodProfile MELON = mite(1, 1, 1_000, false, false, true);
+    private static final FoodProfile RAW_BEEF = mite(5, 5, 0, true, false, false);
+    private static final FoodProfile COOKED_BEEF = mite(10, 10, 0, true, false, false);
+    private static final FoodProfile RAW_CHICKEN = mite(3, 3, 0, true, false, false);
+    private static final FoodProfile COOKED_CHICKEN = mite(6, 6, 0, true, false, false);
+    private static final FoodProfile ROTTEN_FLESH = mite(2, 1, 0, true, false, false);
+    private static final FoodProfile SPIDER_EYE = mite(0, 1, 0, true, false, false);
+    private static final FoodProfile CARROT = mite(1, 2, 0, false, false, true);
+    private static final FoodProfile POTATO = mite(3, 1, 0, false, false, false);
+    private static final FoodProfile BAKED_POTATO = mite(6, 2, 0, false, false, false);
+    private static final FoodProfile POISONOUS_POTATO = mite(2, 0, 0, false, false, false);
+    private static final FoodProfile PUMPKIN_PIE = mite(10, 6, 1_000, true, false, true);
+    private static final FoodProfile MUSHROOM = mite(1, 1, 0, false, false, false);
+    private static final FoodProfile WHEAT_SEEDS = mite(1, 0, 0, false, true, false, 2_000, false);
+    private static final FoodProfile PUMPKIN_SEEDS = mite(1, 2, 0, false, true, false);
+    private static final FoodProfile MELON_SEEDS = mite(1, 1, 0, false, true, false);
+    private static final FoodProfile NETHER_WART = mite(1, 1, 0, false, false, false);
+    private static final FoodProfile MILK_BOWL = mite(0, 1, 0, true, false, false, 0, true);
+    private static final FoodProfile MILK_BUCKET = mite(0, 4, 0, true, false, false, 0, true);
+    private static final FoodProfile RAW_LAMB = mite(3, 3, 0, true, false, false);
+    private static final FoodProfile COOKED_LAMB = mite(6, 6, 0, true, false, false);
+    private static final FoodProfile CHEESE = mite(3, 3, 0, true, false, false);
+    private static final FoodProfile DOUGH = mite(6, 2, 0, false, false, false);
+    private static final FoodProfile CHOCOLATE = mite(3, 3, 1_000, false, false, false);
+    private static final FoodProfile ONION = mite(1, 1, 0, false, false, true);
+    private static final FoodProfile BEEF_STEW = mite(16, 16, 0, true, false, true);
+    private static final FoodProfile CHICKEN_SOUP = mite(10, 10, 0, true, false, true);
+    private static final FoodProfile VEGETABLE_SOUP = mite(6, 6, 0, false, false, true);
+    private static final FoodProfile ICE_CREAM = mite(5, 4, 1_000, true, false, false);
+    private static final FoodProfile SALAD = mite(1, 1, 0, false, false, true);
+    private static final FoodProfile CREAM_OF_MUSHROOM_SOUP = mite(3, 5, 0, true, false, false);
+    private static final FoodProfile CREAM_OF_VEGETABLE_SOUP = mite(7, 7, 0, true, false, true);
+    private static final FoodProfile PUMPKIN_SOUP = mite(1, 2, 0, false, false, true);
+    private static final FoodProfile ORANGE = mite(2, 1, 1_000, false, false, true);
+    private static final FoodProfile MASHED_POTATO = mite(12, 8, 0, true, false, false);
+    private static final FoodProfile FRUIT_ICE = mite(4, 2, 2_000, false, false, true);
+    private static final FoodProfile BLUEBERRIES = mite(1, 1, 1_000, false, false, true);
+    private static final FoodProfile BLUEBERRY_PORRIDGE = mite(4, 2, 2_000, false, false, true);
+    private static final FoodProfile CEREAL_PORRIDGE = mite(4, 2, 1_000, true, false, false);
+    private static final FoodProfile WORM = mite(0, 1, 0, true, false, false);
+    private static final FoodProfile COOKED_WORM = mite(1, 1, 0, true, false, false);
+    private static final FoodProfile CAKE_SLICE = mite(2, 2, 1_000 / 6, true, false, false);
 
     private FoodProfiles() {}
 
+    public static FoodProfile cakeSlice() {
+        return CAKE_SLICE;
+    }
+
     public static FoodProfile forStack(ItemStack stack) {
         Item item = stack.getItem();
-        if (item == Items.EGG) return new FoodProfile(1, 3, 12_000, 0, 2_000, 0);
-        if (RAW_MEAT.contains(item)) return new FoodProfile(1, 3, 10_000, 0, 4_000, 0);
-        if (COOKED_MEAT.contains(item)) return new FoodProfile(3, 6, 22_000, 0, 8_000, 0);
-        if (VEGETABLES.contains(item)) return new FoodProfile(2, 4, 0, 18_000, 1_000, 2_000);
-        if (SWEETS.contains(item)) return new FoodProfile(4, 5, 0, 1_000, 2_000, 18_000);
-        if (item == Items.BROWN_MUSHROOM) return new FoodProfile(1, 2, 1_000, 8_000, 0, 0);
-        if (item == Items.RED_MUSHROOM) return new FoodProfile(1, 2, 1_000, 6_000, 0, 0);
-        if (item == Items.WHEAT_SEEDS || item == Items.PUMPKIN_SEEDS || item == Items.MELON_SEEDS
-                || item == Items.BEETROOT_SEEDS || item == Items.NETHER_WART) {
-            return new FoodProfile(0.5, 1, 2_000, 3_000, 1_000, 0);
+        if (item instanceof MiteBucketItem bucket && bucket.contents() == MiteBucketItem.Contents.MILK) {
+            return MILK_BUCKET;
         }
-        if (item == InfXItems.DOUGH.get()) return new FoodProfile(1, 2, 2_000, 1_000, 0, 4_000);
-        if (item == InfXItems.SALAD.get()) return new FoodProfile(3, 7, 2_000, 34_000, 4_000, 0);
-        if (item == InfXItems.BLUEBERRIES.get()) return new FoodProfile(1, 3, 0, 14_000, 0, 5_000);
-        if (item == InfXItems.BLUEBERRY_PORRIDGE.get()) return new FoodProfile(4, 8, 5_000, 20_000, 2_000, 8_000);
-        if (item == InfXItems.MILK_BOWL.get()) return new FoodProfile(3, 5, 14_000, 0, 12_000, 4_000);
-        if (item == InfXItems.CEREAL_PORRIDGE.get()) return new FoodProfile(4, 8, 8_000, 8_000, 3_000, 6_000);
-        if (item == InfXItems.CHOCOLATE.get()) return new FoodProfile(4, 5, 2_000, 0, 8_000, 24_000);
-        if (item == InfXItems.PUMPKIN_SOUP.get()) return new FoodProfile(3, 8, 2_000, 28_000, 2_000, 2_000);
-        if (item == InfXItems.CREAM_OF_MUSHROOM_SOUP.get()) return new FoodProfile(4, 9, 8_000, 18_000, 9_000, 3_000);
-        if (item == InfXItems.ONION.get()) return new FoodProfile(1, 3, 0, 16_000, 0, 1_000);
-        if (item == InfXItems.VEGETABLE_SOUP.get()) return new FoodProfile(4, 9, 2_000, 36_000, 2_000, 0);
-        if (item == InfXItems.CREAM_OF_VEGETABLE_SOUP.get()) return new FoodProfile(5, 10, 8_000, 38_000, 9_000, 3_000);
-        if (item == InfXItems.CHICKEN_SOUP.get()) return new FoodProfile(5, 10, 24_000, 12_000, 7_000, 0);
-        if (item == InfXItems.BEEF_STEW.get()) return new FoodProfile(6, 12, 30_000, 10_000, 10_000, 0);
-        if (item == InfXItems.ORANGE.get()) return new FoodProfile(2, 5, 0, 20_000, 0, 7_000);
-        if (item == InfXItems.FRUIT_ICE.get()) return new FoodProfile(3, 5, 0, 10_000, 0, 18_000);
-        if (item == InfXItems.CHEESE.get()) return new FoodProfile(4, 7, 20_000, 0, 20_000, 1_000);
-        if (item == InfXItems.MASHED_POTATO.get()) return new FoodProfile(4, 9, 4_000, 12_000, 6_000, 3_000);
-        if (item == InfXItems.ICE_CREAM.get()) return new FoodProfile(4, 7, 8_000, 0, 10_000, 22_000);
-        if (item == InfXItems.BANANA.get()) return new FoodProfile(2, 5, 1_000, 18_000, 0, 8_000);
-        if (item == InfXItems.WORM.get()) return new FoodProfile(1, 2, 6_000, 0, 2_000, 0);
-        if (item == InfXItems.COOKED_WORM.get()) return new FoodProfile(2, 4, 10_000, 0, 3_000, 0);
-        if (item == Items.BREAD) return new FoodProfile(3, 7, 5_000, 2_000, 1_000, 5_000);
+        if (item == Items.MILK_BUCKET) return MILK_BUCKET;
+
+        if (item == Items.APPLE) return APPLE;
         if (item == Items.MUSHROOM_STEW || item == Items.RABBIT_STEW || item == Items.BEETROOT_SOUP) {
-            return new FoodProfile(4, 9, 8_000, 24_000, 5_000, 0);
+            return MUSHROOM_STEW;
         }
+        if (item == Items.BREAD) return BREAD;
+        if (item == Items.PORKCHOP) return RAW_PORK;
+        if (item == Items.COOKED_PORKCHOP) return COOKED_PORK;
+        if (item == Items.GOLDEN_APPLE || item == Items.ENCHANTED_GOLDEN_APPLE) return GOLDEN_APPLE;
+        if (item == Items.EGG) return EGG;
+        if (item == Items.COD) return RAW_COD;
+        if (item == Items.COOKED_COD) return COOKED_COD;
+        if (item == Items.SALMON) return RAW_SALMON;
+        if (item == Items.COOKED_SALMON) return COOKED_SALMON;
+        if (item == Items.SUGAR) return SUGAR;
+        if (item == Items.CAKE) return CAKE_SLICE;
+        if (item == Items.COOKIE) return COOKIE;
+        if (item == Items.MELON_SLICE) return MELON;
+        if (item == Items.BEEF) return RAW_BEEF;
+        if (item == Items.COOKED_BEEF) return COOKED_BEEF;
+        if (item == Items.CHICKEN) return RAW_CHICKEN;
+        if (item == Items.COOKED_CHICKEN) return COOKED_CHICKEN;
+        if (item == Items.ROTTEN_FLESH) return ROTTEN_FLESH;
+        if (item == Items.SPIDER_EYE) return SPIDER_EYE;
+        if (item == Items.CARROT || item == Items.GOLDEN_CARROT || item == Items.BEETROOT) return CARROT;
+        if (item == Items.POTATO) return POTATO;
+        if (item == Items.BAKED_POTATO) return BAKED_POTATO;
+        if (item == Items.POISONOUS_POTATO) return POISONOUS_POTATO;
+        if (item == Items.PUMPKIN_PIE) return PUMPKIN_PIE;
+        if (item == Items.BROWN_MUSHROOM || item == Items.RED_MUSHROOM) return MUSHROOM;
+        if (item == Items.WHEAT_SEEDS) return WHEAT_SEEDS;
+        if (item == Items.PUMPKIN_SEEDS) return PUMPKIN_SEEDS;
+        if (item == Items.MELON_SEEDS) return MELON_SEEDS;
+        if (item == Items.BEETROOT_SEEDS) return MELON_SEEDS;
+        if (item == Items.NETHER_WART) return NETHER_WART;
+        if (item == Items.MUTTON || item == Items.RABBIT) return RAW_LAMB;
+        if (item == Items.COOKED_MUTTON || item == Items.COOKED_RABBIT) return COOKED_LAMB;
+        if (item == Items.TROPICAL_FISH || item == Items.PUFFERFISH) return RAW_COD;
+        if (item == Items.SWEET_BERRIES || item == Items.GLOW_BERRIES) return BLUEBERRIES;
+        if (item == Items.DRIED_KELP) return MUSHROOM;
+        if (item == Items.CHORUS_FRUIT) return ORANGE;
+        if (item == Items.HONEY_BOTTLE) return SUGAR;
+
+        if (item == InfXItems.DOUGH.get()) return DOUGH;
+        if (item == InfXItems.SALAD.get()) return SALAD;
+        if (item == InfXItems.BLUEBERRIES.get()) return BLUEBERRIES;
+        if (item == InfXItems.BLUEBERRY_PORRIDGE.get()) return BLUEBERRY_PORRIDGE;
+        if (item == InfXItems.MILK_BOWL.get()) return MILK_BOWL;
+        if (item == InfXItems.CEREAL_PORRIDGE.get()) return CEREAL_PORRIDGE;
+        if (item == InfXItems.CHOCOLATE.get()) return CHOCOLATE;
+        if (item == InfXItems.PUMPKIN_SOUP.get()) return PUMPKIN_SOUP;
+        if (item == InfXItems.CREAM_OF_MUSHROOM_SOUP.get()) return CREAM_OF_MUSHROOM_SOUP;
+        if (item == InfXItems.ONION.get()) return ONION;
+        if (item == InfXItems.VEGETABLE_SOUP.get()) return VEGETABLE_SOUP;
+        if (item == InfXItems.CREAM_OF_VEGETABLE_SOUP.get()) return CREAM_OF_VEGETABLE_SOUP;
+        if (item == InfXItems.CHICKEN_SOUP.get()) return CHICKEN_SOUP;
+        if (item == InfXItems.BEEF_STEW.get()) return BEEF_STEW;
+        if (item == InfXItems.ORANGE.get() || item == InfXItems.BANANA.get()) return ORANGE;
+        if (item == InfXItems.FRUIT_ICE.get()) return FRUIT_ICE;
+        if (item == InfXItems.CHEESE.get()) return CHEESE;
+        if (item == InfXItems.MASHED_POTATO.get()) return MASHED_POTATO;
+        if (item == InfXItems.ICE_CREAM.get()) return ICE_CREAM;
+        if (item == InfXItems.WORM.get()) return WORM;
+        if (item == InfXItems.COOKED_WORM.get()) return COOKED_WORM;
         return FoodProfile.EMPTY;
+    }
+
+    private static FoodProfile mite(
+            double satiation,
+            double nutrition,
+            int sugarContent,
+            boolean hasProtein,
+            boolean hasEssentialFats,
+            boolean hasPhytonutrients) {
+        return FoodProfile.mite(
+                satiation,
+                nutrition,
+                sugarContent,
+                hasProtein,
+                hasEssentialFats,
+                hasPhytonutrients);
+    }
+
+    private static FoodProfile mite(
+            double satiation,
+            double nutrition,
+            int sugarContent,
+            boolean hasProtein,
+            boolean hasEssentialFats,
+            boolean hasPhytonutrients,
+            int extraEssentialFats,
+            boolean alwaysEdible) {
+        return FoodProfile.mite(
+                satiation,
+                nutrition,
+                sugarContent,
+                hasProtein,
+                hasEssentialFats,
+                hasPhytonutrients,
+                extraEssentialFats,
+                alwaysEdible);
     }
 }

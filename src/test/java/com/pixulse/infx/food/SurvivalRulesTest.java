@@ -2,6 +2,7 @@ package com.pixulse.infx.food;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.pixulse.infx.data.food.FoodIngestion;
 import com.pixulse.infx.data.food.FoodProfile;
 import com.pixulse.infx.data.food.SurvivalData;
 import com.pixulse.infx.data.food.SurvivalRules;
@@ -55,6 +56,48 @@ class SurvivalRulesTest {
                 new SurvivalData(1, 1, 1, 1, 1, 96_000, 0).insulinResistance());
         assertEquals(SurvivalData.InsulinResistance.SEVERE,
                 new SurvivalData(1, 1, 1, 1, 1, 144_000, 0).insulinResistance());
+        assertEquals(192_000, new SurvivalData(1, 1, 1, 1, 1, 200_000, 0).clamp(20).insulinResponse());
+    }
+
+    @Test
+    void sourceFoodFlagsDeriveLongTermNutrientsAndInsulinResponse() {
+        FoodProfile fish = FoodProfile.mite(3, 3, 1_000, true, true, false);
+        assertEquals(24_000, fish.protein());
+        assertEquals(24_000, fish.essentialFats());
+        assertEquals(0, fish.phytonutrients());
+        assertEquals(4_800, fish.insulinResponse());
+
+        FoodProfile wheatSeeds = FoodProfile.mite(1, 0, 0, false, true, false, 2_000, false);
+        assertEquals(2_000, wheatSeeds.essentialFats());
+
+        SurvivalData moderate = new SurvivalData(0, 0, 1, 1, 1, 96_000, 0);
+        SurvivalData afterApple = moderate.eat(FoodProfile.mite(2, 1, 1_000, false, false, true), 20);
+        assertEquals(1.0D, afterApple.satiation(), 1.0E-9D);
+        assertEquals(100_800, afterApple.insulinResponse());
+        assertFalse(afterApple.canMetabolizeFoodSugars());
+
+        SurvivalData capped = new SurvivalData(0, 0, 1, 1, 1, 191_999, 0)
+                .eat(FoodProfile.mite(1, 0, 1_000, false, false, false), 20);
+        assertEquals(192_000, capped.insulinResponse());
+    }
+
+    @Test
+    void ingestionGateHonorsFoodContentAndNutrientDeficits() {
+        FoodProfile protein = FoodProfile.mite(1, 1, 0, true, false, false);
+        FoodProfile phytonutrients = FoodProfile.mite(1, 1, 0, false, false, true);
+        FoodProfile satiationOnly = FoodProfile.mite(1, 0, 0, false, false, false);
+        FoodProfile nutritionOnly = FoodProfile.mite(0, 1, 0, false, false, false);
+        FoodProfile milk = FoodProfile.mite(0, 1, 0, true, false, false, 0, true);
+
+        SurvivalData proteinDeficit = new SurvivalData(6, 6, 0, 1, 1, 0, 0);
+        assertTrue(FoodIngestion.canIngest(proteinDeficit, 6, protein));
+        assertFalse(FoodIngestion.canIngest(proteinDeficit, 6, phytonutrients));
+        assertTrue(FoodIngestion.canIngest(proteinDeficit, 6, milk));
+
+        assertTrue(FoodIngestion.canIngest(new SurvivalData(0, 6, 1, 1, 1, 0, 0), 6, satiationOnly));
+        assertFalse(FoodIngestion.canIngest(new SurvivalData(0, 6, 1, 1, 1, 0, 0), 6, nutritionOnly));
+        assertFalse(FoodIngestion.canIngest(new SurvivalData(6, 5, 1, 1, 1, 0, 0), 6, satiationOnly));
+        assertTrue(FoodIngestion.canIngest(new SurvivalData(6, 5, 1, 1, 1, 0, 0), 6, nutritionOnly));
     }
 
     @Test
@@ -76,7 +119,8 @@ class SurvivalRulesTest {
         assertEquals(0, FoodProfile.EMPTY.protein());
         assertEquals(0, FoodProfile.EMPTY.phytonutrients());
         assertEquals(0, FoodProfile.EMPTY.essentialFats());
-        assertEquals(0, FoodProfile.EMPTY.sugar());
+        assertEquals(0, FoodProfile.EMPTY.sugarContent());
+        assertFalse(FoodProfile.EMPTY.alwaysEdible());
     }
 
     @Test

@@ -136,7 +136,7 @@ public final class SurvivalEvents {
     /** Applies an R196 food profile, or re-mirrors FoodData when the item has no profile. */
     public static void applyFood(ServerPlayer player, ItemStack stack) {
         FoodProfile food = FoodProfiles.forStack(stack);
-        if (food == FoodProfile.EMPTY) {
+        if (food.isEmpty()) {
             // Vanilla FoodData.eat may have already run; discard that temporary change.
             mirrorFoodData(player, player.getData(InfXAttachments.SURVIVAL));
             return;
@@ -144,6 +144,7 @@ public final class SurvivalEvents {
         SurvivalData updated = player.getData(InfXAttachments.SURVIVAL)
                 .eat(food, SurvivalRules.foodCap(player.experienceLevel));
         player.setData(InfXAttachments.SURVIVAL, updated);
+        applyInsulinEffects(player, food, updated);
         mirrorFoodData(player, updated);
     }
 
@@ -268,6 +269,19 @@ public final class SurvivalEvents {
                     InfXMobEffects.INSULIN_RESISTANCE, 220, insulin - 1, true, false, true));
         } else {
             player.removeEffect(InfXMobEffects.INSULIN_RESISTANCE);
+        }
+    }
+
+    /** Mirrors EntityPlayerMP#addInsulinResistance after a sugar-containing food is eaten. */
+    private static void applyInsulinEffects(ServerPlayer player, FoodProfile food, SurvivalData data) {
+        if (food.insulinResponse() <= 0 || data.insulinResistance() == SurvivalData.InsulinResistance.NONE) {
+            return;
+        }
+        int severity = data.insulinResistance().ordinal();
+        player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 400, severity - 1));
+        if (data.insulinResistance() == SurvivalData.InsulinResistance.SEVERE) {
+            player.addEffect(new MobEffectInstance(
+                    MobEffects.POISON, Math.max(food.insulinResponse() / 48, 100), 0));
         }
     }
 

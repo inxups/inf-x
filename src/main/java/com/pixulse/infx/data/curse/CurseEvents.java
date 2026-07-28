@@ -7,6 +7,8 @@ import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
+import com.pixulse.infx.data.food.FoodIngestion;
+import com.pixulse.infx.data.food.FoodProfiles;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.component.DataComponents;
@@ -100,7 +102,7 @@ public final class CurseEvents {
             curse = CurseType.CANNOT_OPEN_CHESTS;
         } else if (state.is(Blocks.CAKE)
                 && event.getItemStack().isEmpty()
-                && player.canEat(false)) {
+                && FoodIngestion.canIngest(player, FoodProfiles.cakeSlice())) {
             if (CurseManager.hasCurse(player, CurseType.CANNOT_EAT_ANIMALS)) {
                 curse = CurseType.CANNOT_EAT_ANIMALS;
             } else if (CurseManager.hasCurse(player, CurseType.CANNOT_EAT_PLANTS)) {

@@ -18,6 +18,7 @@ public record SurvivalData(
         double nutritionHungerProgress,
         double starvationProgress) {
     public static final int NUTRIENT_CAP = 160_000;
+    public static final int INSULIN_RESISTANCE_CAP = 192_000;
     public static final int MILD_INSULIN_RESISTANCE = 48_000;
     public static final int MODERATE_INSULIN_RESISTANCE = 96_000;
     public static final int SEVERE_INSULIN_RESISTANCE = 144_000;
@@ -107,7 +108,7 @@ public record SurvivalData(
                 Math.clamp(protein, 0, NUTRIENT_CAP),
                 Math.clamp(phytonutrients, 0, NUTRIENT_CAP),
                 Math.clamp(essentialFats, 0, NUTRIENT_CAP),
-                Math.clamp(insulinResponse, 0, NUTRIENT_CAP),
+                Math.clamp(insulinResponse, 0, INSULIN_RESISTANCE_CAP),
                 Math.max(0.0D, recoveryProgress),
                 Math.max(0.0D, hungerProgress),
                 Math.max(0.0D, nutritionHungerProgress),
@@ -180,14 +181,13 @@ public record SurvivalData(
     }
 
     public SurvivalData eat(FoodProfile food, double foodCap) {
-        int sugar = acceptsSugar() ? food.sugar() : 0;
         return new SurvivalData(
-                        satiation + food.satiation(),
+                        satiation + food.satiationFor(this),
                         nutrition + food.nutrition(),
                         protein + food.protein(),
                         phytonutrients + food.phytonutrients(),
                         essentialFats + food.essentialFats(),
-                        insulinResponse + sugar,
+                        insulinResponse + food.insulinResponse(),
                         recoveryProgress,
                         hungerProgress,
                         nutritionHungerProgress,
@@ -251,8 +251,13 @@ public record SurvivalData(
         return InsulinResistance.NONE;
     }
 
-    public boolean acceptsSugar() {
+    public boolean canMetabolizeFoodSugars() {
         return insulinResistance().ordinal() < InsulinResistance.MODERATE.ordinal();
+    }
+
+    /** Compatibility alias for callers written before sugar content and insulin response were split. */
+    public boolean acceptsSugar() {
+        return canMetabolizeFoodSugars();
     }
 
     public enum InsulinResistance {

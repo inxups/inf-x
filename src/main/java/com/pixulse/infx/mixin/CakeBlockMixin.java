@@ -1,5 +1,7 @@
 package com.pixulse.infx.mixin;
 
+import com.pixulse.infx.data.food.FoodIngestion;
+import com.pixulse.infx.data.food.FoodProfiles;
 import com.pixulse.infx.event.SurvivalEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
@@ -22,6 +25,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(CakeBlock.class)
 abstract class CakeBlockMixin {
+    /** CakeBlock otherwise calls only Player#canEat and loses R196's nutrient-deficit exception. */
+    @Redirect(
+            method = "eat",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/entity/player/Player;canEat(Z)Z"))
+    private static boolean infx$useR196CakeGate(Player player, boolean ignoredVanillaHunger) {
+        return FoodIngestion.canIngest(player, FoodProfiles.cakeSlice());
+    }
+
     @ModifyConstant(method = "eat", constant = @Constant(intValue = 6))
     private static int infx$sixServings(int vanillaLastBite) {
         return 5;
