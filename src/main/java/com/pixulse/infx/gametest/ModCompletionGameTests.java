@@ -100,6 +100,7 @@ import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.BlockItem;
@@ -108,6 +109,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
@@ -980,14 +982,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 driedKelp.satiation() == 0.0D && driedKelp.nutrition() == 1.0D,
                 "dried kelp must restore nutrition without satiation");
-        var redMushroomConsumable = Items.RED_MUSHROOM.getDefaultInstance().get(DataComponents.CONSUMABLE);
-        var redMushroomEffects = redMushroomConsumable == null
-                ? List.<net.minecraft.world.effect.MobEffectInstance>of()
-                : redMushroomConsumable.onConsumeEffects().stream()
-                        .filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
-                        .map(ApplyStatusEffectsConsumeEffect.class::cast)
-                        .flatMap(effect -> effect.effects().stream())
-                        .toList();
+        var redMushroomEffects = consumeStatusEffects(Items.RED_MUSHROOM.getDefaultInstance());
         helper.assertTrue(
                 redMushroomEffects.stream().anyMatch(effect -> effect.is(MobEffects.POISON)
                         && effect.getDuration() == 200
@@ -998,6 +993,26 @@ public final class ModCompletionGameTests {
                         && effect.getDuration() == 1_200
                         && effect.getAmplifier() == 4),
                 "red mushroom must apply R196 nausea V for 1200 ticks");
+        var goldenAppleEffects = consumeStatusEffects(Items.GOLDEN_APPLE.getDefaultInstance());
+        helper.assertTrue(
+                goldenAppleEffects.size() == 1
+                        && goldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.REGENERATION)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 0),
+                "golden apple must apply only R196 regeneration I for 1200 ticks");
+        var enchantedGoldenAppleEffects = consumeStatusEffects(Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance());
+        helper.assertTrue(
+                enchantedGoldenAppleEffects.size() == 3
+                        && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.REGENERATION)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 1)
+                        && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.RESISTANCE)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 0)
+                        && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.FIRE_RESISTANCE)
+                                && effect.getDuration() == 1_200
+                                && effect.getAmplifier() == 0),
+                "enchanted golden apple must use only the three R196 1200-tick effects");
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 0, 1, 1, 0, 0));
         helper.assertTrue(
                 FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.EGG.getDefaultInstance())),
@@ -1031,6 +1046,30 @@ public final class ModCompletionGameTests {
                         && Items.SUGAR.getDefaultInstance().has(DataComponents.CONSUMABLE),
                 "small R196 foods are directly edible");
 
+        ItemStack waterBowl = InfXItems.WATER_BOWL.toStack();
+        var waterBowlConsumable = waterBowl.get(DataComponents.CONSUMABLE);
+        helper.assertTrue(
+                waterBowlConsumable != null
+                        && waterBowlConsumable.animation() == ItemUseAnimation.DRINK
+                        && waterBowlConsumable.sound() == SoundEvents.GENERIC_DRINK
+                        && waterBowlConsumable.canConsume(player, waterBowl),
+                "water bowl must be drinkable with the generic drinking sound");
+        helper.assertTrue(
+                waterBowl.finishUsingItem(helper.getLevel(), player).is(Items.BOWL),
+                "drinking a water bowl must return an empty bowl");
+
+        ItemStack milkBowl = InfXItems.MILK_BOWL.toStack();
+        var milkBowlConsumable = milkBowl.get(DataComponents.CONSUMABLE);
+        helper.assertTrue(
+                milkBowlConsumable != null
+                        && milkBowlConsumable.animation() == ItemUseAnimation.DRINK
+                        && milkBowlConsumable.sound() == SoundEvents.GENERIC_DRINK
+                        && milkBowlConsumable.canConsume(player, milkBowl),
+                "milk bowl must use the drinking animation and sound");
+        helper.assertTrue(
+                milkBowl.finishUsingItem(helper.getLevel(), player).is(Items.BOWL),
+                "drinking a milk bowl must return an empty bowl");
+
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 2, 1, 1, 1, 0, 0));
         SurvivalEvents.recalculatePlayerLimits(player);
         helper.assertTrue(
@@ -1055,6 +1094,17 @@ public final class ModCompletionGameTests {
         helper.assertFalse(player.isSprinting(), "empty R196 energy must stop sprinting");
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static List<MobEffectInstance> consumeStatusEffects(ItemStack stack) {
+        var consumable = stack.get(DataComponents.CONSUMABLE);
+        return consumable == null
+                ? List.of()
+                : consumable.onConsumeEffects().stream()
+                        .filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
+                        .map(ApplyStatusEffectsConsumeEffect.class::cast)
+                        .flatMap(effect -> effect.effects().stream())
+                        .toList();
     }
 
     private static void survivalModes(GameTestHelper helper) {
