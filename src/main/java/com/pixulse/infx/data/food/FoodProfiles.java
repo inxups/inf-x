@@ -37,6 +37,7 @@ public final class FoodProfiles {
     private static final FoodProfile POISONOUS_POTATO = mite(2, 0, 0, false, false, false);
     private static final FoodProfile PUMPKIN_PIE = mite(10, 6, 1_000, true, false, true);
     private static final FoodProfile MUSHROOM = mite(1, 1, 0, false, false, false);
+    private static final FoodProfile DRIED_KELP = mite(0, 1, 0, false, false, false);
     private static final FoodProfile WHEAT_SEEDS = mite(1, 0, 0, false, true, false, 2_000, false);
     private static final FoodProfile PUMPKIN_SEEDS = mite(1, 2, 0, false, true, false);
     private static final FoodProfile MELON_SEEDS = mite(1, 1, 0, false, true, false);
@@ -118,7 +119,7 @@ public final class FoodProfiles {
         if (item == Items.COOKED_MUTTON || item == Items.COOKED_RABBIT) return COOKED_LAMB;
         if (item == Items.TROPICAL_FISH || item == Items.PUFFERFISH) return RAW_COD;
         if (item == Items.SWEET_BERRIES || item == Items.GLOW_BERRIES) return BLUEBERRIES;
-        if (item == Items.DRIED_KELP) return MUSHROOM;
+        if (item == Items.DRIED_KELP) return DRIED_KELP;
         if (item == Items.CHORUS_FRUIT) return ORANGE;
         if (item == Items.HONEY_BOTTLE) return SUGAR;
 

@@ -110,6 +110,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
@@ -973,6 +974,28 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 wheatSeeds.essentialFats() == 2_000 && wheatSeeds.nutrition() == 0.0D,
                 "wheat seeds retain R196's independent essential-fat bonus");
+        FoodProfile driedKelp = FoodProfiles.forStack(Items.DRIED_KELP.getDefaultInstance());
+        helper.assertTrue(
+                driedKelp.satiation() == 0.0D && driedKelp.nutrition() == 1.0D,
+                "dried kelp must restore nutrition without satiation");
+        var redMushroomConsumable = Items.RED_MUSHROOM.getDefaultInstance().get(DataComponents.CONSUMABLE);
+        var redMushroomEffects = redMushroomConsumable == null
+                ? List.<net.minecraft.world.effect.MobEffectInstance>of()
+                : redMushroomConsumable.onConsumeEffects().stream()
+                        .filter(ApplyStatusEffectsConsumeEffect.class::isInstance)
+                        .map(ApplyStatusEffectsConsumeEffect.class::cast)
+                        .flatMap(effect -> effect.effects().stream())
+                        .toList();
+        helper.assertTrue(
+                redMushroomEffects.stream().anyMatch(effect -> effect.is(MobEffects.POISON)
+                        && effect.getDuration() == 200
+                        && effect.getAmplifier() == 0),
+                "red mushroom must apply R196 poison I for 200 ticks");
+        helper.assertTrue(
+                redMushroomEffects.stream().anyMatch(effect -> effect.is(MobEffects.NAUSEA)
+                        && effect.getDuration() == 1_200
+                        && effect.getAmplifier() == 4),
+                "red mushroom must apply R196 nausea V for 1200 ticks");
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 0, 1, 1, 0, 0));
         helper.assertTrue(
                 FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.EGG.getDefaultInstance())),
