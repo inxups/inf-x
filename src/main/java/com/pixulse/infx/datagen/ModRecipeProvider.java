@@ -53,6 +53,16 @@ final class ModRecipeProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes() {
+        // R196 RecipesDyes: one bone produces exactly one bone meal, rather than vanilla's three.
+        addShapeless(
+                "bone_meal",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.BONE_MEAL,
+                1,
+                List.of(Ingredient.of(Items.BONE)));
         addShaped(
                 "sugar_from_sugar_cane",
                 BenchTier.HAND,

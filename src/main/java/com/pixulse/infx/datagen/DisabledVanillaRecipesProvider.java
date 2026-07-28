@@ -75,6 +75,7 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "diamond_sword",
             "shield",
             "blast_furnace",
+            "bone_meal",
             "smoker",
             "smithing_table",
             "stonecutter",

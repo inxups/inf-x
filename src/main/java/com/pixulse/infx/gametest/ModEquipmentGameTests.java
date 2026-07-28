@@ -58,6 +58,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.level.GameType;
@@ -129,6 +130,21 @@ public final class ModEquipmentGameTests {
     }
 
     private static void equipmentComponents(GameTestHelper helper) {
+        ItemStack stick = Items.STICK.getDefaultInstance();
+        ItemStack bone = Items.BONE.getDefaultInstance();
+        var stickRange = stick.get(DataComponents.ATTACK_RANGE);
+        var boneRange = bone.get(DataComponents.ATTACK_RANGE);
+        helper.assertTrue(stick.getMaxStackSize() == 32, "MITE sticks must stack to 32");
+        helper.assertTrue(
+                stickRange != null
+                        && stickRange.maxReach() == 2.0F
+                        && stickRange.maxCreativeReach() == 5.0F,
+                "MITE sticks must add 0.5 melee reach only");
+        helper.assertTrue(
+                boneRange != null
+                        && boneRange.maxReach() == 2.0F
+                        && boneRange.maxCreativeReach() == 5.0F,
+                "MITE bones must add 0.5 melee reach only");
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
             EquipmentKey key = entry.key();
             ItemStack stack = entry.holder().value().getDefaultInstance();

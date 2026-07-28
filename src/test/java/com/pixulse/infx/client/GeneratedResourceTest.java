@@ -1414,6 +1414,7 @@ class GeneratedResourceTest {
         }
 
         JsonObject dough = json(GENERATED.resolve("data/infx/recipe/dough.json"));
+        JsonObject boneMeal = json(GENERATED.resolve("data/infx/recipe/bone_meal.json"));
         JsonObject sugar = json(GENERATED.resolve("data/infx/recipe/sugar_from_sugar_cane.json"));
         JsonObject flintFromChips = json(GENERATED.resolve("data/infx/recipe/flint_from_flint_chips.json"));
         JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
@@ -1427,6 +1428,16 @@ class GeneratedResourceTest {
         assertAll(
                 "MITE recipe table",
                 () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
+                () -> assertEquals("infx:crafting_shapeless", boneMeal.get("type").getAsString()),
+                () -> assertEquals("hand", boneMeal.get("required_bench").getAsString()),
+                () -> assertEquals(100.0F, boneMeal.get("difficulty").getAsFloat()),
+                () -> assertEquals(
+                        "minecraft:bone",
+                        boneMeal.getAsJsonArray("ingredients").get(0).getAsString()),
+                () -> assertEquals(
+                        "minecraft:bone_meal",
+                        boneMeal.getAsJsonObject("result").get("id").getAsString()),
+                () -> assertFalse(boneMeal.getAsJsonObject("result").has("count")),
                 () -> assertEquals(800.0F, sugar.get("difficulty").getAsFloat()),
                 () -> assertEquals("hand", sugar.get("required_bench").getAsString()),
                 () -> assertEquals(
@@ -1468,6 +1479,7 @@ class GeneratedResourceTest {
 
         for (String disabled : List.of(
                 "bricks",
+                "bone_meal",
                 "chiseled_stone_bricks",
                 "clock",
                 "compass",
