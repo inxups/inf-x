@@ -19,17 +19,18 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.state.properties.ChestType;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
  * Placed safes use a non-overlapping chest model so metal lid/body seams do not z-fight.
  * Chunk meshes stay particle-only; this BER is the only world geometry.
  */
-final class SafeRenderer implements BlockEntityRenderer<SafeBlockEntity, ChestRenderState> {
+public final class SafeRenderer implements BlockEntityRenderer<SafeBlockEntity, ChestRenderState> {
     private final SpriteGetter sprites;
     private final SafeModel model;
 
-    SafeRenderer(BlockEntityRendererProvider.Context context) {
+    public SafeRenderer(BlockEntityRendererProvider.Context context) {
         this.sprites = context.sprites();
         this.model = new SafeModel(context.bakeLayer(SafeModel.LAYER));
     }
@@ -44,7 +45,7 @@ final class SafeRenderer implements BlockEntityRenderer<SafeBlockEntity, ChestRe
             SafeBlockEntity blockEntity,
             ChestRenderState state,
             float partialTicks,
-            Vec3 cameraPosition,
+            @NonNull Vec3 cameraPosition,
             ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderState.extractBase(blockEntity, state, breakProgress);
         state.type = ChestType.SINGLE;
@@ -61,7 +62,7 @@ final class SafeRenderer implements BlockEntityRenderer<SafeBlockEntity, ChestRe
             ChestRenderState state,
             PoseStack poseStack,
             SubmitNodeCollector submitNodeCollector,
-            CameraRenderState camera) {
+            @NonNull CameraRenderState camera) {
         poseStack.pushPose();
         poseStack.mulPose(ChestRenderer.modelTransformation(state.facing));
         float open = state.open;
@@ -85,7 +86,7 @@ final class SafeRenderer implements BlockEntityRenderer<SafeBlockEntity, ChestRe
     }
 
     @Override
-    public net.minecraft.world.phys.AABB getRenderBoundingBox(SafeBlockEntity blockEntity) {
+    public net.minecraft.world.phys.@NonNull AABB getRenderBoundingBox(SafeBlockEntity blockEntity) {
         net.minecraft.core.BlockPos pos = blockEntity.getBlockPos();
         return net.minecraft.world.phys.AABB.encapsulatingFullBlocks(pos.offset(-1, 0, -1), pos.offset(1, 1, 1));
     }

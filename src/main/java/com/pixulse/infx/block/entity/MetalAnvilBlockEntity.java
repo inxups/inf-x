@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 
 public final class MetalAnvilBlockEntity extends BlockEntity {
     private int damage;
@@ -44,13 +45,13 @@ public final class MetalAnvilBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void loadAdditional(ValueInput input) {
+    protected void loadAdditional(@NonNull ValueInput input) {
         super.loadAdditional(input);
         damage = input.getIntOr("Damage", 0);
     }
 
     @Override
-    protected void saveAdditional(ValueOutput output) {
+    protected void saveAdditional(@NonNull ValueOutput output) {
         super.saveAdditional(output);
         output.putInt("Damage", damage);
     }

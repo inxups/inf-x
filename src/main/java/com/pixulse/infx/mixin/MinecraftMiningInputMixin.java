@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.harvest.HarvestEvents;
-import com.pixulse.infx.harvest.MiningInputRules;
+import com.pixulse.infx.event.HarvestEvents;
+import com.pixulse.infx.data.harvest.MiningInputRules;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;

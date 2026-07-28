@@ -3,6 +3,7 @@ package com.pixulse.infx.world.agriculture;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.data.agriculture.GrassTrampling;
 import org.junit.jupiter.api.Test;
 
 class GrassTramplingTest {

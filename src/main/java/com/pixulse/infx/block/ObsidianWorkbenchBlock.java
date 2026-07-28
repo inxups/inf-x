@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.recipe.BenchTier;
 
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.jspecify.annotations.NonNull;
 
 public final class ObsidianWorkbenchBlock extends TieredWorkbenchBlock {
     public static final MapCodec<ObsidianWorkbenchBlock> CODEC = simpleCodec(ObsidianWorkbenchBlock::new);
@@ -13,7 +14,7 @@ public final class ObsidianWorkbenchBlock extends TieredWorkbenchBlock {
     }
 
     @Override
-    public MapCodec<ObsidianWorkbenchBlock> codec() {
+    public @NonNull MapCodec<ObsidianWorkbenchBlock> codec() {
         return CODEC;
     }
 }

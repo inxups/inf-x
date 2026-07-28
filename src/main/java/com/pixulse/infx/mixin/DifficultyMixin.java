@@ -4,7 +4,6 @@ import com.pixulse.infx.event.server.ExtremeDifficulty;
 import java.util.Arrays;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.Difficulty;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

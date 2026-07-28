@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.NonNull;
 
 /** Nether-gravel-only shrub that applies Wither while an entity touches it. */
 public final class WitherwoodBlock extends VegetationBlock {
@@ -27,27 +28,27 @@ public final class WitherwoodBlock extends VegetationBlock {
     }
 
     @Override
-    public MapCodec<WitherwoodBlock> codec() {
+    public @NonNull MapCodec<WitherwoodBlock> codec() {
         return CODEC;
     }
 
     @Override
-    protected boolean mayPlaceOn(BlockState state, BlockGetter level, BlockPos pos) {
+    protected boolean mayPlaceOn(BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos) {
         return state.is(InfXBlocks.NETHER_GRAVEL.get());
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected @NonNull VoxelShape getShape(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
         return SHAPE;
     }
 
     @Override
     protected void entityInside(
-            BlockState state,
+            @NonNull BlockState state,
             Level level,
-            BlockPos pos,
-            Entity entity,
-            InsideBlockEffectApplier effectApplier,
+            @NonNull BlockPos pos,
+            @NonNull Entity entity,
+            @NonNull InsideBlockEffectApplier effectApplier,
             boolean isPrecise) {
         if (!level.isClientSide() && entity instanceof LivingEntity living) {
             living.addEffect(new MobEffectInstance(MobEffects.WITHER, 200, 0, false, true));

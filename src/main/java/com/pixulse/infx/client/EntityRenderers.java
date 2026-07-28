@@ -53,11 +53,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.context.ContextKey;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.chicken.Chicken;
-import net.minecraft.world.entity.animal.cow.Cow;
-import net.minecraft.world.entity.animal.pig.Pig;
-import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Vanilla-model renderers that bind authorized MITE entity textures for R196 variants.
@@ -67,13 +64,14 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
  * the audited divergences bind {@code infx:} sheets: spider, blaze, ghast, and the humanoid
  * zombie pigman that replaces the modern piglin-model look.
  */
-final class EntityRenderers {
+public final class EntityRenderers {
     private static final ContextKey<Boolean> LIVESTOCK_WELL =
             new ContextKey<>(InfiniteX.id("livestock_well"));
     private static final ContextKey<Boolean> VILLAGER_ZOMBIE =
             new ContextKey<>(InfiniteX.id("villager_zombie"));
 
-    private EntityRenderers() {}
+    private EntityRenderers() {
+    }
 
     /**
      * Attach isWell to livestock render states.
@@ -85,15 +83,15 @@ final class EntityRenderers {
      * wiped before {@code getTextureLocation} runs, leaving every animal on its healthy skin.
      * Registered modifiers run after the reset, so the flag survives to the texture lookup.
      */
-    static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+    public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
         event.registerEntityModifier(
-                CowTexture.class, (Cow entity, CowRenderState state) -> extractWell(entity, state));
+                CowTexture.class, EntityRenderers::extractWell);
         event.registerEntityModifier(
-                ChickenTexture.class, (Chicken entity, ChickenRenderState state) -> extractWell(entity, state));
+                ChickenTexture.class, EntityRenderers::extractWell);
         event.registerEntityModifier(
-                PigTexture.class, (Pig entity, PigRenderState state) -> extractWell(entity, state));
+                PigTexture.class, EntityRenderers::extractWell);
         event.registerEntityModifier(
-                SheepTexture.class, (Sheep entity, SheepRenderState state) -> extractWell(entity, state));
+                SheepTexture.class, EntityRenderers::extractWell);
         event.registerEntityModifier(
                 ZombieTexture.class,
                 (net.minecraft.world.entity.monster.zombie.Zombie entity, ZombieRenderState state) ->
@@ -114,9 +112,9 @@ final class EntityRenderers {
     /**
      * Map a 26.2 healthy livestock texture id to the derived sick skin.
      * e.g. minecraft:textures/entity/cow/cow_temperate.png
-     *   -> infx:textures/entity/cow/cow_temperate_sick.png
-     *      minecraft:textures/entity/cow/cow_temperate_baby.png
-     *   -> infx:textures/entity/cow/cow_temperate_sick_baby.png
+     * -> infx:textures/entity/cow/cow_temperate_sick.png
+     * minecraft:textures/entity/cow/cow_temperate_baby.png
+     * -> infx:textures/entity/cow/cow_temperate_sick_baby.png
      */
     static Identifier sickTextureFor(Identifier healthy) {
         String path = healthy.getPath();
@@ -139,14 +137,16 @@ final class EntityRenderers {
         return mite(sickPath);
     }
 
-    /** 26.2 UV sick cow skins (temperate/warm/cold + baby) when !isWell(). */
-    static final class CowTexture extends CowRenderer {
-        CowTexture(EntityRendererProvider.Context context) {
+    /**
+     * 26.2 UV sick cow skins (temperate/warm/cold + baby) when !isWell().
+     */
+    public static final class CowTexture extends CowRenderer {
+        public CowTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(CowRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull CowRenderState state) {
             Identifier healthy = super.getTextureLocation(state);
             return isWell(state) ? healthy : sickTextureFor(healthy);
         }
@@ -156,14 +156,16 @@ final class EntityRenderers {
         }
     }
 
-    /** 26.2 UV sick chicken skins when !isWell(). */
-    static final class ChickenTexture extends ChickenRenderer {
-        ChickenTexture(EntityRendererProvider.Context context) {
+    /**
+     * 26.2 UV sick chicken skins when !isWell().
+     */
+    public static final class ChickenTexture extends ChickenRenderer {
+        public ChickenTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(ChickenRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull ChickenRenderState state) {
             Identifier healthy = super.getTextureLocation(state);
             return isWell(state) ? healthy : sickTextureFor(healthy);
         }
@@ -173,14 +175,16 @@ final class EntityRenderers {
         }
     }
 
-    /** 26.2 UV sick pig skins when !isWell(). */
-    static final class PigTexture extends PigRenderer {
-        PigTexture(EntityRendererProvider.Context context) {
+    /**
+     * 26.2 UV sick pig skins when !isWell().
+     */
+    public static final class PigTexture extends PigRenderer {
+        public PigTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(PigRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull PigRenderState state) {
             Identifier healthy = super.getTextureLocation(state);
             return isWell(state) ? healthy : sickTextureFor(healthy);
         }
@@ -190,14 +194,16 @@ final class EntityRenderers {
         }
     }
 
-    /** 26.2 UV sick sheep body skins when !isWell(); wool layers stay vanilla. */
-    static final class SheepTexture extends SheepRenderer {
-        SheepTexture(EntityRendererProvider.Context context) {
+    /**
+     * 26.2 UV sick sheep body skins when !isWell(); wool layers stay vanilla.
+     */
+    public static final class SheepTexture extends SheepRenderer {
+        public SheepTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(SheepRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull SheepRenderState state) {
             Identifier healthy = super.getTextureLocation(state);
             return isWell(state) ? healthy : sickTextureFor(healthy);
         }
@@ -207,12 +213,12 @@ final class EntityRenderers {
         }
     }
 
-    static final class ZombieTexture extends ZombieRenderer {
+    public static final class ZombieTexture extends ZombieRenderer {
         private final MiteZombie.Variant variant;
         private final Identifier texture;
         private final Identifier babyTexture;
 
-        ZombieTexture(EntityRendererProvider.Context context, MiteZombie.Variant variant) {
+        public ZombieTexture(EntityRendererProvider.Context context, MiteZombie.Variant variant) {
             super(context);
             this.variant = variant;
             this.texture = textureFor(variant);
@@ -220,7 +226,7 @@ final class EntityRenderers {
         }
 
         @Override
-        public Identifier getTextureLocation(ZombieRenderState state) {
+        public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
             if (variant == MiteZombie.Variant.ZOMBIE && Boolean.TRUE.equals(state.getRenderData(VILLAGER_ZOMBIE))) {
                 return villagerTexture();
             }
@@ -237,7 +243,9 @@ final class EntityRenderers {
             };
         }
 
-        /** 26.2 babies render with BabyZombieModel's own UV sheet, so adult sheets cannot be reused. */
+        /**
+         * 26.2 babies render with BabyZombieModel's own UV sheet, so adult sheets cannot be reused.
+         */
         static Identifier babyTextureFor(MiteZombie.Variant variant) {
             return switch (variant) {
                 case GHOUL -> mite("textures/entity/ghoul_baby.png");
@@ -254,14 +262,16 @@ final class EntityRenderers {
         }
     }
 
-    /** MITE zombie pigmen are humanoid zombies with the pack's 64x64 sheet, not modern piglin models. */
-    static final class ZombiePigmanTexture extends ZombieRenderer {
-        ZombiePigmanTexture(EntityRendererProvider.Context context) {
+    /**
+     * MITE zombie pigmen are humanoid zombies with the pack's 64x64 sheet, not modern piglin models.
+     */
+    public static final class ZombiePigmanTexture extends ZombieRenderer {
+        public ZombiePigmanTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(ZombieRenderState state) {
+        public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
             return state.isBaby ? babyTexture() : texture();
         }
 
@@ -274,16 +284,16 @@ final class EntityRenderers {
         }
     }
 
-    static final class SkeletonTexture extends SkeletonRenderer {
+    public static final class SkeletonTexture extends SkeletonRenderer {
         private final Identifier texture;
 
-        SkeletonTexture(EntityRendererProvider.Context context, MiteSkeleton.Variant variant) {
+        public SkeletonTexture(EntityRendererProvider.Context context, MiteSkeleton.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
         }
 
         @Override
-        public Identifier getTextureLocation(SkeletonRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull SkeletonRenderState state) {
             return texture;
         }
 
@@ -297,27 +307,27 @@ final class EntityRenderers {
         }
     }
 
-    static final class SpiderTexture extends SpiderRenderer<MiteSpider> {
+    public static final class SpiderTexture extends SpiderRenderer<MiteSpider> {
         private final Identifier texture;
         private final float renderScale;
 
-        SpiderTexture(EntityRendererProvider.Context context, MiteSpider.Variant variant) {
+        public SpiderTexture(EntityRendererProvider.Context context, MiteSpider.Variant variant) {
             this(context, variant, 1.0F);
         }
 
-        SpiderTexture(EntityRendererProvider.Context context, MiteSpider.Variant variant, float renderScale) {
+        public SpiderTexture(EntityRendererProvider.Context context, MiteSpider.Variant variant, float renderScale) {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
         }
 
         @Override
-        public Identifier getTextureLocation(LivingEntityRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull LivingEntityRenderState state) {
             return texture;
         }
 
         @Override
-        public void extractRenderState(MiteSpider entity, LivingEntityRenderState state, float partialTicks) {
+        public void extractRenderState(MiteSpider entity, @NonNull LivingEntityRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
             state.scale *= renderScale;
         }
@@ -334,16 +344,16 @@ final class EntityRenderers {
         }
     }
 
-    static final class CreeperTexture extends CreeperRenderer {
+    public static final class CreeperTexture extends CreeperRenderer {
         private final Identifier texture;
 
-        CreeperTexture(EntityRendererProvider.Context context, MiteCreeper.Variant variant) {
+        public CreeperTexture(EntityRendererProvider.Context context, MiteCreeper.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
         }
 
         @Override
-        public Identifier getTextureLocation(CreeperRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull CreeperRenderState state) {
             return texture;
         }
 
@@ -360,10 +370,10 @@ final class EntityRenderers {
      * renderer overrides {@link #getTextureLocation(SlimeRenderState)}. Rebuild the small renderer
      * with a texture-aware outer layer so both shells use the authorized MITE sheet.
      */
-    static final class SlimeTexture extends MobRenderer<MiteSlime, SlimeRenderState, SlimeModel> {
+    public static final class SlimeTexture extends MobRenderer<MiteSlime, SlimeRenderState, SlimeModel> {
         private final Identifier texture;
 
-        SlimeTexture(EntityRendererProvider.Context context, MiteSlime.Variant variant) {
+        public SlimeTexture(EntityRendererProvider.Context context, MiteSlime.Variant variant) {
             super(context, new SlimeModel(context.bakeLayer(ModelLayers.SLIME)), 0.25F);
             this.texture = textureFor(variant);
             addLayer(new MiteSlimeOuterLayer(this, context.getModelSet(), texture));
@@ -385,7 +395,7 @@ final class EntityRenderers {
         }
 
         @Override
-        public Identifier getTextureLocation(SlimeRenderState state) {
+        public @NonNull Identifier getTextureLocation(SlimeRenderState state) {
             return texture;
         }
 
@@ -412,7 +422,9 @@ final class EntityRenderers {
         }
     }
 
-    /** Texture-aware replacement for the outer shell hard-coded by the vanilla SlimeRenderer. */
+    /**
+     * Texture-aware replacement for the outer shell hard-coded by the vanilla SlimeRenderer.
+     */
     private static final class MiteSlimeOuterLayer extends RenderLayer<SlimeRenderState, SlimeModel> {
         private final SlimeModel model;
         private final Identifier texture;
@@ -428,8 +440,8 @@ final class EntityRenderers {
 
         @Override
         public void submit(
-                PoseStack poseStack,
-                SubmitNodeCollector submitNodeCollector,
+                @NonNull PoseStack poseStack,
+                @NonNull SubmitNodeCollector submitNodeCollector,
                 int lightCoords,
                 SlimeRenderState state,
                 float yRot,
@@ -462,13 +474,13 @@ final class EntityRenderers {
         }
     }
 
-    static final class MagmaCubeTexture extends MagmaCubeRenderer {
-        MagmaCubeTexture(EntityRendererProvider.Context context) {
+    public static final class MagmaCubeTexture extends MagmaCubeRenderer {
+        public MagmaCubeTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(SlimeRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull SlimeRenderState state) {
             return texture();
         }
 
@@ -477,16 +489,16 @@ final class EntityRenderers {
         }
     }
 
-    static final class SilverfishTexture extends SilverfishRenderer {
+    public static final class SilverfishTexture extends SilverfishRenderer {
         private final Identifier texture;
 
-        SilverfishTexture(EntityRendererProvider.Context context, MiteSilverfish.Variant variant) {
+        public SilverfishTexture(EntityRendererProvider.Context context, MiteSilverfish.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
         }
 
         @Override
-        public Identifier getTextureLocation(LivingEntityRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull LivingEntityRenderState state) {
             return texture;
         }
 
@@ -499,27 +511,27 @@ final class EntityRenderers {
         }
     }
 
-    static final class BatTexture extends BatRenderer {
+    public static final class BatTexture extends BatRenderer {
         private final Identifier texture;
         private final float renderScale;
 
-        BatTexture(EntityRendererProvider.Context context, MiteBat.Variant variant) {
+        public BatTexture(EntityRendererProvider.Context context, MiteBat.Variant variant) {
             this(context, variant, 1.0F);
         }
 
-        BatTexture(EntityRendererProvider.Context context, MiteBat.Variant variant, float renderScale) {
+        public BatTexture(EntityRendererProvider.Context context, MiteBat.Variant variant, float renderScale) {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
         }
 
         @Override
-        public Identifier getTextureLocation(BatRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull BatRenderState state) {
             return texture;
         }
 
         @Override
-        public void extractRenderState(Bat entity, BatRenderState state, float partialTicks) {
+        public void extractRenderState(@NonNull Bat entity, @NonNull BatRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
             state.scale *= renderScale;
         }
@@ -532,12 +544,12 @@ final class EntityRenderers {
         }
     }
 
-    static final class WolfTexture extends WolfRenderer {
+    public static final class WolfTexture extends WolfRenderer {
         private final Identifier wild;
         private final Identifier tame;
         private final Identifier angry;
 
-        WolfTexture(EntityRendererProvider.Context context, MiteWolf.Variant variant) {
+        public WolfTexture(EntityRendererProvider.Context context, MiteWolf.Variant variant) {
             super(context);
             this.wild = textureFor(variant, false, false);
             this.tame = textureFor(variant, true, false);
@@ -545,7 +557,7 @@ final class EntityRenderers {
         }
 
         @Override
-        public void extractRenderState(Wolf entity, WolfRenderState state, float partialTicks) {
+        public void extractRenderState(@NonNull Wolf entity, @NonNull WolfRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
             if (!(entity instanceof MiteWolf wolf)) {
                 return;
@@ -577,13 +589,13 @@ final class EntityRenderers {
         }
     }
 
-    static final class FireElementalTexture extends BlazeRenderer {
-        FireElementalTexture(EntityRendererProvider.Context context) {
+    public static final class FireElementalTexture extends BlazeRenderer {
+        public FireElementalTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(LivingEntityRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull LivingEntityRenderState state) {
             return texture();
         }
 
@@ -592,14 +604,16 @@ final class EntityRenderers {
         }
     }
 
-    /** MITE blaze sheet: brighter rod pixels than vanilla 26.2. */
-    static final class BlazeTexture extends BlazeRenderer {
-        BlazeTexture(EntityRendererProvider.Context context) {
+    /**
+     * MITE blaze sheet: brighter rod pixels than vanilla 26.2.
+     */
+    public static final class BlazeTexture extends BlazeRenderer {
+        public BlazeTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(LivingEntityRenderState state) {
+        public @NonNull Identifier getTextureLocation(@NonNull LivingEntityRenderState state) {
             return texture();
         }
 
@@ -608,14 +622,16 @@ final class EntityRenderers {
         }
     }
 
-    /** MITE ghast face art; 64x32 matches the ghast model's declared UV size. */
-    static final class GhastTexture extends GhastRenderer {
-        GhastTexture(EntityRendererProvider.Context context) {
+    /**
+     * MITE ghast face art; 64x32 matches the ghast model's declared UV size.
+     */
+    public static final class GhastTexture extends GhastRenderer {
+        public GhastTexture(EntityRendererProvider.Context context) {
             super(context);
         }
 
         @Override
-        public Identifier getTextureLocation(GhastRenderState state) {
+        public @NonNull Identifier getTextureLocation(GhastRenderState state) {
             return texture(state.isCharging);
         }
 

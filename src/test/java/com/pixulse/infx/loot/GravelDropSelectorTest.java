@@ -105,13 +105,12 @@ class GravelDropSelectorTest {
         return new Roll(bound, value);
     }
 
-    private record Roll(int bound, int value) {}
+    private record Roll(int bound, int value) {
+    }
 
-    private static final class ScriptedRandom implements IntUnaryOperator {
-        private final Queue<Roll> rolls;
-
+    private record ScriptedRandom(Queue<Roll> rolls) implements IntUnaryOperator {
         private ScriptedRandom(Roll... rolls) {
-            this.rolls = new ArrayDeque<>(Arrays.asList(rolls));
+            this(new ArrayDeque<>(Arrays.asList(rolls)));
         }
 
         @Override

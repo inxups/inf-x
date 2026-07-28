@@ -3,7 +3,7 @@ package com.pixulse.infx.block;
 import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.menu.MetalAnvilMenu;
+import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,6 +42,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
@@ -78,7 +79,7 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected MapCodec<? extends FallingBlock> codec() {
+    protected @NonNull MapCodec<? extends FallingBlock> codec() {
         return codec;
     }
 
@@ -88,7 +89,7 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity by, ItemStack stack) {
+    public void setPlacedBy(Level level, @NonNull BlockPos pos, @NonNull BlockState state, @Nullable LivingEntity by, @NonNull ItemStack stack) {
         if (level.getBlockEntity(pos) instanceof MetalAnvilBlockEntity anvil) {
             anvil.setDamage(stack.getDamageValue());
             int stage = damageStage(stack.getDamageValue());
@@ -99,8 +100,8 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NonNull InteractionResult useWithoutItem(
+            @NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hit) {
         if (player instanceof ServerPlayer serverPlayer) {
             MenuProvider provider = new SimpleMenuProvider(
                     (id, inventory, ignored) -> MetalAnvilMenu.server(
@@ -116,12 +117,12 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
         return new MetalAnvilBlockEntity(pos, state);
     }
 
     @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    protected void tick(@NonNull BlockState state, ServerLevel level, BlockPos pos, @NonNull RandomSource random) {
         if (isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinY()) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
             var data = blockEntity instanceof MetalAnvilBlockEntity anvil
@@ -139,7 +140,7 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+    protected @NonNull List<ItemStack> getDrops(@NonNull BlockState state, LootParams.Builder params) {
         ItemStack stack = new ItemStack(this);
         BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockEntity instanceof MetalAnvilBlockEntity anvil) {
@@ -149,17 +150,17 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected @NonNull VoxelShape getShape(BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
         return state.getValue(FACING).getAxis() == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
     }
 
     @Override
-    protected BlockState rotate(BlockState state, Rotation rotation) {
+    protected @NonNull BlockState rotate(BlockState state, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
 
     @Override
-    protected BlockState mirror(BlockState state, Mirror mirror) {
+    protected @NonNull BlockState mirror(@NonNull BlockState state, Mirror mirror) {
         return rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -169,17 +170,17 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     }
 
     @Override
-    protected boolean isPathfindable(BlockState state, PathComputationType type) {
+    protected boolean isPathfindable(@NonNull BlockState state, @NonNull PathComputationType type) {
         return false;
     }
 
     @Override
-    public int getDustColor(BlockState state, BlockGetter level, BlockPos pos) {
+    public int getDustColor(BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos) {
         return state.getMapColor(level, pos).col;
     }
 
     @Override
-    public net.minecraft.world.damagesource.DamageSource getFallDamageSource(Entity entity) {
+    public net.minecraft.world.damagesource.@NonNull DamageSource getFallDamageSource(Entity entity) {
         return entity.damageSources().anvil(entity);
     }
 }

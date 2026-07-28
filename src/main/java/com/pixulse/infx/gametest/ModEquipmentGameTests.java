@@ -6,9 +6,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.equipment.EquipmentBehaviors;
-import com.pixulse.infx.harvest.HarvestRequirements;
-import com.pixulse.infx.harvest.HarvestTier;
-import com.pixulse.infx.harvest.ToolWearCalculator;
+import com.pixulse.infx.data.harvest.HarvestRequirements;
+import com.pixulse.infx.data.harvest.HarvestTier;
+import com.pixulse.infx.data.harvest.ToolWearCalculator;
 import com.pixulse.infx.item.MiteArrowItem;
 import com.pixulse.infx.item.MiteBowItem;
 import com.pixulse.infx.item.Catalog;
@@ -111,8 +111,7 @@ public final class ModEquipmentGameTests {
     }
 
     @SubscribeEvent
-
-    private static void registerTests(RegisterGameTestsEvent event) {
+    public static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("equipment"), new TestEnvironmentDefinition.AllOf());
         for (String name : TEST_NAMES) {

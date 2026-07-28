@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.effect.curse.CurseManager;
-import com.pixulse.infx.effect.curse.CurseType;
+import com.pixulse.infx.data.curse.CurseManager;
+import com.pixulse.infx.data.curse.CurseType;
 import java.util.EnumSet;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +25,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Enderman replacement with pearl awareness and projectile damage support. */
@@ -63,7 +64,7 @@ public final class MiteEnderman extends EnderMan implements MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinOldAiReach(this, target, AttackRanges.OLD_AI_REACH);
     }
 
@@ -134,7 +135,7 @@ public final class MiteEnderman extends EnderMan implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         if (source.is(DamageTypeTags.IS_PROJECTILE)) {
             return hurtFromProjectile(level, source, damage);
         }
@@ -177,7 +178,7 @@ public final class MiteEnderman extends EnderMan implements MiteMob {
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
+    protected void customServerAiStep(@NonNull ServerLevel level) {
         if (tickCount % VALUABLE_TELEPORT_INTERVAL == 0 && random.nextInt(VALUABLE_TELEPORT_CHANCE) == 0) {
             teleportToValuableItem();
         }
@@ -240,21 +241,21 @@ public final class MiteEnderman extends EnderMan implements MiteMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt(STORED_PEARLS_KEY, storedPearls);
         output.putInt(STORED_EYES_KEY, storedEyes);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         storedPearls = input.getIntOr(STORED_PEARLS_KEY, 0);
         storedEyes = input.getIntOr(STORED_EYES_KEY, 0);
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         dropStoredValuables(level, Items.ENDER_PEARL, storedPearls);
         dropStoredValuables(level, Items.ENDER_EYE, storedEyes);

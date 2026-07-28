@@ -11,7 +11,7 @@ public final class ShearsEvents {
     private ShearsEvents() {}
 
     @SubscribeEvent
-    private static void cancelLeftClickShearsAttack(AttackEntityEvent event) {
+    public static void cancelLeftClickShearsAttack(AttackEntityEvent event) {
         if (MiteShearsItem.isRightClickAttack()) {
             return;
         }

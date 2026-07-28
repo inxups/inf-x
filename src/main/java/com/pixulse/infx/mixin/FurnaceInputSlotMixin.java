@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.block.furnace.FurnaceItemPolicy;
+import com.pixulse.infx.data.furnace.FurnaceItemPolicy;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;

@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.harvest.ToolWearApplication;
-import com.pixulse.infx.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.ToolWearApplication;
+import com.pixulse.infx.data.harvest.MiteMiningRules;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -15,6 +15,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.ItemAbility;
+import org.jspecify.annotations.NonNull;
 
 public class ToolItem extends Item {
     private final EquipmentKey key;
@@ -29,27 +30,27 @@ public class ToolItem extends Item {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NonNull InteractionResult useOn(@NonNull UseOnContext context) {
         return key.type().useAction().useOn(context);
     }
 
     @Override
-    public boolean canPerformAction(ItemInstance stack, ItemAbility ability) {
+    public boolean canPerformAction(@NonNull ItemInstance stack, @NonNull ItemAbility ability) {
         return key.type().useAction().canPerformAction(stack, ability);
     }
 
     @Override
-    public float getDestroySpeed(ItemStack stack, BlockState state) {
+    public float getDestroySpeed(@NonNull ItemStack stack, @NonNull BlockState state) {
         return MiteMiningRules.destroySpeed(key, state);
     }
 
     @Override
-    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+    public boolean isCorrectToolForDrops(@NonNull ItemStack stack, @NonNull BlockState state) {
         return MiteMiningRules.canHarvest(key, state);
     }
 
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
+    public boolean mineBlock(@NonNull ItemStack stack, @NonNull Level level, @NonNull BlockState state, @NonNull BlockPos pos, @NonNull LivingEntity owner) {
         applyMiningWear(key, stack, level, state, pos, owner);
         return stack.has(DataComponents.TOOL);
     }
@@ -71,6 +72,6 @@ public class ToolItem extends Item {
     }
 
     @Override
-    public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public void postHurtEnemy(@NonNull ItemStack stack, @NonNull LivingEntity target, @NonNull LivingEntity attacker) {
     }
 }

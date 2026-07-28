@@ -14,14 +14,14 @@ import net.minecraft.util.Mth;
  * <p>The old model was otherwise the normal biped layout, so the modern humanoid mesh keeps the
  * authored MITE UV placement while this override reproduces its distinctive arm pose.
  */
-final class EarthElementalModel extends HumanoidModel<EarthElementalRenderState> {
-    static final ModelLayerLocation LAYER = new ModelLayerLocation(InfiniteX.id("earth_elemental"), "main");
+public final class EarthElementalModel extends HumanoidModel<EarthElementalRenderState> {
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(InfiniteX.id("earth_elemental"), "main");
 
     EarthElementalModel(ModelPart root) {
         super(root);
     }
 
-    static LayerDefinition createBodyLayer() {
+    public static LayerDefinition createBodyLayer() {
         return LayerDefinition.create(HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F), 64, 32);
     }
 

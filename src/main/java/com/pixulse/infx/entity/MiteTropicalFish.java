@@ -9,6 +9,7 @@ import net.minecraft.world.entity.animal.fish.AbstractFish;
 import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /** InfiniteX tropical fish replacement retaining vanilla patterns and school data. */
 public final class MiteTropicalFish extends TropicalFish implements MiteMob {
@@ -21,7 +22,7 @@ public final class MiteTropicalFish extends TropicalFish implements MiteMob {
     }
 
     @Override
-    public ItemStack getBucketItemStack() {
+    public @NonNull ItemStack getBucketItemStack() {
         return InfXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.TROPICAL).toStack();
     }
 }

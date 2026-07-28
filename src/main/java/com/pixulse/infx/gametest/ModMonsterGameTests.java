@@ -4,7 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.effect.curse.CurseData;
+import com.pixulse.infx.data.curse.CurseData;
 import com.pixulse.infx.entity.*;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.EquipmentType;
@@ -97,8 +97,7 @@ public final class ModMonsterGameTests {
     }
 
     @SubscribeEvent
-
-    private static void registerTests(RegisterGameTestsEvent event) {
+    public static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_monsters"), new TestEnvironmentDefinition.AllOf());
         Holder<TestEnvironmentDefinition<?>> rangedEnvironment = event.registerEnvironment(

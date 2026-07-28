@@ -9,6 +9,7 @@ import net.minecraft.world.entity.animal.fish.AbstractFish;
 import net.minecraft.world.entity.animal.fish.Pufferfish;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /** InfiniteX pufferfish replacement retaining vanilla inflation and poison behavior. */
 public final class MitePufferfish extends Pufferfish implements MiteMob {
@@ -21,7 +22,7 @@ public final class MitePufferfish extends Pufferfish implements MiteMob {
     }
 
     @Override
-    public ItemStack getBucketItemStack() {
+    public @NonNull ItemStack getBucketItemStack() {
         return InfXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.PUFFERFISH).toStack();
     }
 }

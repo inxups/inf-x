@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

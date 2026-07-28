@@ -39,8 +39,7 @@ public final class RustedIronSources {
     private RustedIronSources() {}
 
     @SubscribeEvent
-
-    private static void onJoinLevel(EntityJoinLevelEvent event) {
+    public static void onJoinLevel(EntityJoinLevelEvent event) {
         if (event.loadedFromDisk() || !(event.getLevel() instanceof ServerLevel)) {
             return;
         }
@@ -70,8 +69,7 @@ public final class RustedIronSources {
     }
 
     @SubscribeEvent
-
-    private static void onLivingDrops(LivingDropsEvent event) {
+    public static void onLivingDrops(LivingDropsEvent event) {
         if (!(event.getEntity() instanceof AbstractSkeleton skeleton)
                 || skeleton instanceof WitherSkeleton
                 || !event.isRecentlyHit()) {

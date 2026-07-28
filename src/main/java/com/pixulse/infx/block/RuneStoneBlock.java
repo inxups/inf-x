@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import org.jspecify.annotations.NonNull;
 
 /** One of sixteen persistent rune patterns used at the four corners of a rune gate. */
 public final class RuneStoneBlock extends Block {
@@ -34,7 +35,7 @@ public final class RuneStoneBlock extends Block {
     }
 
     @Override
-    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+    protected void onPlace(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (level instanceof ServerLevel serverLevel && !state.is(oldState.getBlock())) {
             UnderworldPortalEvents.refreshRuneGateAppearance(serverLevel, pos);
@@ -43,7 +44,7 @@ public final class RuneStoneBlock extends Block {
 
     @Override
     protected void affectNeighborsAfterRemoval(
-            BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+            @NonNull BlockState state, @NonNull ServerLevel level, @NonNull BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         UnderworldPortalEvents.refreshRuneGateAppearance(level, pos);
     }

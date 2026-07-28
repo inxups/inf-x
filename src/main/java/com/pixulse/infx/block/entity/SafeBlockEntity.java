@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** MITE strongbox: player-only inventory; hoppers and other automation get no sided slots. */
@@ -46,19 +47,19 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     private final ChestLidController chestLidController = new ChestLidController();
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override
-        protected void onOpen(Level level, BlockPos pos, BlockState state) {
+        protected void onOpen(@NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState state) {
             // Match vanilla chests: lid animation is BER-only; do not rewrite OPEN block state
             // (that rebuilds the chunk section and flashes the safe model).
             SafeBlockEntity.this.playSound(SoundEvents.CHEST_OPEN);
         }
 
         @Override
-        protected void onClose(Level level, BlockPos pos, BlockState state) {
+        protected void onClose(@NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState state) {
             SafeBlockEntity.this.playSound(SoundEvents.CHEST_CLOSE);
         }
 
         @Override
-        protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int previous, int current) {
+        protected void openerCountChanged(Level level, @NonNull BlockPos pos, BlockState state, int previous, int current) {
             level.blockEvent(pos, state.getBlock(), 1, current);
         }
 
@@ -77,7 +78,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    protected void saveAdditional(ValueOutput output) {
+    protected void saveAdditional(@NonNull ValueOutput output) {
         super.saveAdditional(output);
         if (!trySaveLootTable(output)) ContainerHelper.saveAllItems(output, items);
         if (owner != null) output.putString("Owner", owner.toString());
@@ -85,7 +86,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    protected void loadAdditional(ValueInput input) {
+    protected void loadAdditional(@NonNull ValueInput input) {
         super.loadAdditional(input);
         items = NonNullList.withSize(getContainerSize(), ItemStack.EMPTY);
         if (!tryLoadLootTable(input)) ContainerHelper.loadAllItems(input, items);
@@ -124,7 +125,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+    public @NonNull CompoundTag getUpdateTag(HolderLookup.@NonNull Provider registries) {
         CompoundTag tag = new CompoundTag();
         if (owner != null) tag.putString("Owner", owner.toString());
         tag.putString("OwnerName", ownerName);
@@ -146,7 +147,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    public void startOpen(ContainerUser containerUser) {
+    public void startOpen(@NonNull ContainerUser containerUser) {
         if (!remove && !containerUser.getLivingEntity().isSpectator()) {
             openersCounter.incrementOpeners(
                     containerUser.getLivingEntity(),
@@ -158,7 +159,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    public void stopOpen(ContainerUser containerUser) {
+    public void stopOpen(@NonNull ContainerUser containerUser) {
         if (!remove && !containerUser.getLivingEntity().isSpectator()) {
             openersCounter.decrementOpeners(
                     containerUser.getLivingEntity(), getLevel(), getBlockPos(), getBlockState());
@@ -166,7 +167,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    public List<ContainerUser> getEntitiesWithContainerOpen() {
+    public @NonNull List<ContainerUser> getEntitiesWithContainerOpen() {
         return openersCounter.getEntitiesWithContainerOpen(getLevel(), getBlockPos());
     }
 
@@ -189,28 +190,28 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     public int getContainerSize() { return 27; }
 
     @Override
-    public int[] getSlotsForFace(Direction side) {
+    public int @NonNull [] getSlotsForFace(@NonNull Direction side) {
         return NO_SLOTS;
     }
 
     @Override
-    public boolean canPlaceItemThroughFace(int index, ItemStack stack, @Nullable Direction direction) {
+    public boolean canPlaceItemThroughFace(int index, @NonNull ItemStack stack, @Nullable Direction direction) {
         return false;
     }
 
     @Override
-    public boolean canTakeItemThroughFace(int index, ItemStack stack, Direction direction) {
+    public boolean canTakeItemThroughFace(int index, @NonNull ItemStack stack, @NonNull Direction direction) {
         return false;
     }
 
     @Override
-    protected NonNullList<ItemStack> getItems() { return items; }
+    protected @NonNull NonNullList<ItemStack> getItems() { return items; }
 
     @Override
-    protected void setItems(NonNullList<ItemStack> items) { this.items = items; }
+    protected void setItems(@NonNull NonNullList<ItemStack> items) { this.items = items; }
 
     @Override
-    protected Component getDefaultName() {
+    protected @NonNull Component getDefaultName() {
         String path = getBlockState().getBlock() instanceof SafeBlock safe
                 ? safe.material().path()
                 : "metal";
@@ -218,7 +219,7 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
+    protected @NonNull AbstractContainerMenu createMenu(int containerId, @NonNull Inventory inventory) {
         return ChestMenu.threeRows(containerId, inventory, this);
     }
 

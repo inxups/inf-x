@@ -5,11 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
@@ -20,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -49,7 +46,7 @@ public final class MiteHorse extends Horse {
                 10.0F,
                 1.15,
                 1.4,
-                entity -> entity.isAlive()));
+                LivingEntity::isAlive));
         goalSelector.addGoal(3, new AvoidEntityGoal<>(
                 this,
                 Player.class,
@@ -62,7 +59,7 @@ public final class MiteHorse extends Horse {
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public @NonNull InteractionResult mobInteract(@NonNull Player player, @NonNull InteractionHand hand) {
         if (!isTamed()
                 && level() instanceof ServerLevel serverLevel
                 && Livestock.isHorseMountBlocked(this, serverLevel.getGameTime())) {
@@ -72,7 +69,7 @@ public final class MiteHorse extends Horse {
     }
 
     @Override
-    public void removePassenger(Entity passenger) {
+    public void removePassenger(@NonNull Entity passenger) {
         super.removePassenger(passenger);
         if (!level().isClientSide()
                 && passenger instanceof Player
@@ -82,7 +79,7 @@ public final class MiteHorse extends Horse {
     }
 
     @Override
-    public void die(DamageSource source) {
+    public void die(@NonNull DamageSource source) {
         if (!level().isClientSide() && level() instanceof ServerLevel serverLevel) {
             serverLevel.addFreshEntity(new ItemEntity(
                     serverLevel,
@@ -95,7 +92,7 @@ public final class MiteHorse extends Horse {
     }
 
     @Override
-    public @Nullable AgeableMob getBreedOffspring(ServerLevel level, AgeableMob partner) {
+    public @Nullable AgeableMob getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
         return InfXEntityTypes.R196_HORSE.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

@@ -1,11 +1,13 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.effect.curse.CurseManager;
-import com.pixulse.infx.effect.curse.CurseType;
+import com.pixulse.infx.data.curse.CurseManager;
+import com.pixulse.infx.data.curse.CurseType;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXSounds;
+
 import java.util.Comparator;
 import java.util.Random;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -24,9 +26,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** Swamp-hut miniboss witch with a curse and a one-time wolf-pack summon. */
+/**
+ * Swamp-hut miniboss witch with a curse and a one-time wolf-pack summon.
+ */
 public final class MiteWitch extends Witch implements MiteMob {
     private static final float INDIRECT_MAGIC_DEFENSE = 10.0F;
 
@@ -51,24 +56,26 @@ public final class MiteWitch extends Witch implements MiteMob {
                 .add(Attributes.ATTACK_DAMAGE, 2.0);
     }
 
-    /** MITE witches are homebodies that never despawn. */
+    /**
+     * MITE witches are homebodies that never despawn.
+     */
     @Override
     public boolean removeWhenFarAway(double distance) {
         return false;
     }
 
     @Override
-    protected @Nullable SoundEvent getAmbientSound() {
+    protected @NonNull SoundEvent getAmbientSound() {
         return InfXSounds.WITCH_AMBIENT.get();
     }
 
     @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
         return InfXSounds.WITCH_HURT.get();
     }
 
     @Override
-    protected SoundEvent getDeathSound() {
+    protected @NonNull SoundEvent getDeathSound() {
         return InfXSounds.WITCH_DEATH.get();
     }
 
@@ -95,7 +102,9 @@ public final class MiteWitch extends Witch implements MiteMob {
         targetSelector.addGoal(2, new CurseNearestPlayerGoal(this));
     }
 
-    /** The target goal makes the one-in-four roll before calling this method. */
+    /**
+     * The target goal makes the one-in-four roll before calling this method.
+     */
     private void cursePlayer(ServerPlayer player) {
         CurseManager.addPending(
                 player,
@@ -104,7 +113,7 @@ public final class MiteWitch extends Witch implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         boolean hurt = super.hurtServer(level, source, damage);
         // MITE: the first player hit triggers a single wolf-pack summon 60 ticks later.
         if (hurt && !summonedWolves && summonWolvesAt < 0 && source.getEntity() instanceof Player) {
@@ -114,7 +123,7 @@ public final class MiteWitch extends Witch implements MiteMob {
     }
 
     @Override
-    public void die(DamageSource source) {
+    public void die(@NonNull DamageSource source) {
         if (level() instanceof ServerLevel level) {
             CurseManager.removeForWitch(level.getServer(), getUUID());
         }
@@ -122,7 +131,7 @@ public final class MiteWitch extends Witch implements MiteMob {
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
+    protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
         var target = getTarget();
         if (target == null) {
@@ -138,7 +147,9 @@ public final class MiteWitch extends Witch implements MiteMob {
         }
     }
 
-    /** MITE summons plain hostile wolves 8-16 blocks around the witch's target. */
+    /**
+     * MITE summons plain hostile wolves 8-16 blocks around the witch's target.
+     */
     private void summonWolfNear(ServerLevel level, LivingEntity target) {
         for (int attempt = 0; attempt < 16; attempt++) {
             double angle = random.nextDouble() * Math.PI * 2.0;
@@ -160,14 +171,14 @@ public final class MiteWitch extends Witch implements MiteMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putBoolean("R196SummonedWolves", summonedWolves);
         output.putInt("R196CurseRandomSeed", curseRandomSeed);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         summonedWolves = input.getBooleanOr("R196SummonedWolves", false);
         curseRandomSeed = input.getIntOr("R196CurseRandomSeed", curseRandomSeed);

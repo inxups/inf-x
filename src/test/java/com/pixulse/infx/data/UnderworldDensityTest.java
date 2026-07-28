@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayDeque;
 import java.util.List;
+
+import com.pixulse.infx.datagen.ModWorldGen;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;

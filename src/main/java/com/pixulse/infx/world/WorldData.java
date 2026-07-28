@@ -3,24 +3,26 @@ package com.pixulse.infx.world;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.InfiniteX;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
-/** World-wide R196 progression: first achievements, village gate and unique books. */
+/**
+ * World-wide R196 progression: first achievements, village gate and unique books.
+ */
 public final class WorldData extends SavedData {
-    private static final Codec<Map<String, FirstCompletion>> COMPLETIONS =
-            Codec.unboundedMap(Codec.STRING, FirstCompletion.CODEC);
+    private static final Codec<Map<String, FirstCompletion>> COMPLETIONS = Codec.unboundedMap(Codec.STRING, FirstCompletion.CODEC);
     private static final Codec<WorldData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     COMPLETIONS.optionalFieldOf("first_completions", Map.of()).forGetter(data -> data.firstCompletions),
                     Codec.INT.optionalFieldOf("creation_book_mask", 0).forGetter(data -> data.creationBookMask),
-                    Codec.STRING.listOf().optionalFieldOf("creation_book_components", java.util.List.of())
-                            .forGetter(data -> java.util.List.copyOf(data.creationBookComponents)),
+                    Codec.STRING.listOf().optionalFieldOf("creation_book_components", java.util.List.of()).forGetter(data -> java.util.List.copyOf(data.creationBookComponents)),
                     Codec.BOOL.optionalFieldOf("iron_tool_crafted", false).forGetter(data -> data.ironToolCrafted),
                     Codec.BOOL.optionalFieldOf("end_conquered", false).forGetter(data -> data.endConquered))
             .apply(instance, WorldData::new));

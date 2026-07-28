@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayDeque;
 import java.util.Random;
+
+import com.pixulse.infx.data.curse.CurseType;
 import org.junit.jupiter.api.Test;
 
 class CurseTypeTest {

@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /** One of MITE's five throwable gelatinous spheres. */
 public final class GelatinousSphereItem extends Item implements ProjectileItem {
@@ -69,7 +70,7 @@ public final class GelatinousSphereItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    public @NonNull InteractionResult use(Level level, Player player, @NonNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         level.playSound(
                 null,
@@ -91,7 +92,7 @@ public final class GelatinousSphereItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public Projectile asProjectile(Level level, Position position, ItemStack stack, Direction direction) {
+    public @NonNull Projectile asProjectile(@NonNull Level level, Position position, @NonNull ItemStack stack, @NonNull Direction direction) {
         return new GelatinousSphere(level, position.x(), position.y(), position.z(), stack);
     }
 }

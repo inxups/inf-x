@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.mojang.serialization.JsonOps;
 import java.util.UUID;
+
+import com.pixulse.infx.data.curse.CurseData;
+import com.pixulse.infx.data.curse.CurseType;
 import org.junit.jupiter.api.Test;
 
 class CurseDataTest {

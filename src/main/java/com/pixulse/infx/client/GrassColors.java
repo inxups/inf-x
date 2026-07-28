@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.world.agriculture.GrassTrampling;
+import com.pixulse.infx.data.agriculture.GrassTrampling;
 import java.util.List;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.BiomeColors;
@@ -15,6 +15,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import org.jspecify.annotations.NonNull;
 
 /** Client grass tint: biome color blended toward MITE manure brown when trampled. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
@@ -22,26 +23,26 @@ public final class GrassColors {
     private GrassColors() {}
 
     @SubscribeEvent
-    static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
+    public static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(trampledGrassBlock()), Blocks.GRASS_BLOCK);
     }
 
     static BlockTintSource trampledGrassBlock() {
         return new BlockTintSource() {
             @Override
-            public int color(BlockState state) {
+            public int color(@NonNull BlockState state) {
                 return GrassColor.getDefaultColor();
             }
 
             @Override
-            public int colorInWorld(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+            public int colorInWorld(@NonNull BlockState state, @NonNull BlockAndTintGetter level, @NonNull BlockPos pos) {
                 int biome = BiomeColors.getAverageGrassColor(level, pos);
                 int tramplings = clientTramplings(level, pos);
                 return GrassTrampling.blendColor(biome, tramplings);
             }
 
             @Override
-            public int colorAsTerrainParticle(BlockState state, BlockAndTintGetter level, BlockPos pos) {
+            public int colorAsTerrainParticle(@NonNull BlockState state, @NonNull BlockAndTintGetter level, @NonNull BlockPos pos) {
                 return -1;
             }
         };

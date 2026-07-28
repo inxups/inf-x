@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.world.agriculture.GrassTrampling;
+import com.pixulse.infx.data.agriculture.GrassTrampling;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;

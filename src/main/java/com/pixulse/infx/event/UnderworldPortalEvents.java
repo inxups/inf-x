@@ -31,8 +31,7 @@ public final class UnderworldPortalEvents {
     private UnderworldPortalEvents() {}
 
     @SubscribeEvent
-
-    private static void onPortalSpawn(BlockEvent.PortalSpawnEvent event) {
+    public static void onPortalSpawn(BlockEvent.PortalSpawnEvent event) {
         if (event.getLevel() instanceof ServerLevel level
                 && tryCreateR196Portal(level, event.getPos(), event.getPortalSize())) {
             event.setCanceled(true);

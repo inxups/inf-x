@@ -24,16 +24,14 @@ public final class AnimalEvents {
     private AnimalEvents() {}
 
     @SubscribeEvent
-
-    private static void onDamaged(LivingDamageEvent.Post event) {
+    public static void onDamaged(LivingDamageEvent.Post event) {
         if (event.getEntity() instanceof Animal animal) {
             Livestock.onHurt(animal, event.getSource(), event.getOriginalDamage());
         }
     }
 
     @SubscribeEvent
-
-    private static void onDrops(LivingDropsEvent event) {
+    public static void onDrops(LivingDropsEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
 
         if (event.getEntity() instanceof Animal animal

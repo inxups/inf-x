@@ -1,6 +1,6 @@
 package com.pixulse.infx.event;
 
-import com.pixulse.infx.world.agriculture.AgricultureData;
+import com.pixulse.infx.data.agriculture.AgricultureData;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -42,8 +42,7 @@ public final class AgricultureEvents {
     private AgricultureEvents() {}
 
     @SubscribeEvent
-
-    private static void beforeCropGrowth(CropGrowEvent.Pre event) {
+    public static void beforeCropGrowth(CropGrowEvent.Pre event) {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
         }
@@ -117,8 +116,7 @@ public final class AgricultureEvents {
     }
 
     @SubscribeEvent
-
-    private static void onBonemeal(BonemealEvent event) {
+    public static void onBonemeal(BonemealEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !isCrop(event.getState())) {
             return;
         }
@@ -150,8 +148,7 @@ public final class AgricultureEvents {
     }
 
     @SubscribeEvent
-
-    private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
                 || !event.getItemStack().is(InfXItems.catalog().raw("manure").holder())) {
             return;
@@ -189,8 +186,7 @@ public final class AgricultureEvents {
     }
 
     @SubscribeEvent
-
-    private static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         AgricultureData data = AgricultureData.get(level);
         BlockState placed = event.getPlacedBlock();
@@ -220,8 +216,7 @@ public final class AgricultureEvents {
     }
 
     @SubscribeEvent
-
-    private static void onBlockBroken(BreakBlockEvent event) {
+    public static void onBlockBroken(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         AgricultureData data = AgricultureData.get(level);
         if (event.getState().is(BlockTags.LOGS)) data.removeArtificialLog(event.getPos());
@@ -249,7 +244,7 @@ public final class AgricultureEvents {
 
     public static int maximumVineLength(BlockPos root) {
         long mixed = root.getX() * 341873128712L + root.getZ() * 132897987541L;
-        return 3 + Math.floorMod((int) (mixed ^ mixed >>> 32), 8);
+        return 3 + Math.floorMod(Long.hashCode(mixed), 8);
     }
 
     private static int vineLength(ServerLevel level, BlockPos pos) {
@@ -265,8 +260,7 @@ public final class AgricultureEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLevelTick(LevelTickEvent.Post event) {
+    public static void onLevelTick(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level) || level.getGameTime() % 200 != 0) {
             return;
         }

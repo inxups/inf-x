@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import org.jspecify.annotations.NonNull;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class Network {
@@ -23,7 +24,7 @@ public final class Network {
     private Network() {}
 
     @SubscribeEvent
-    private static void registerPayloads(RegisterPayloadHandlersEvent event) {
+    public static void registerPayloads(RegisterPayloadHandlersEvent event) {
         event.registrar("2")
                 .playToServer(EggThrowPayload.TYPE, EggThrowPayload.STREAM_CODEC, (payload, context) -> {
                     if (!(context.player() instanceof ServerPlayer player)) return;
@@ -65,7 +66,7 @@ public final class Network {
                 StreamCodec.composite(ByteBufCodecs.BOOL, EggThrowPayload::offhand, EggThrowPayload::new);
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return TYPE;
         }
     }
@@ -78,7 +79,7 @@ public final class Network {
                         ByteBufCodecs.BOOL, PlaceFluidSourcePayload::offhand, PlaceFluidSourcePayload::new);
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return TYPE;
         }
     }
@@ -90,7 +91,7 @@ public final class Network {
                 StreamCodec.unit(INSTANCE);
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return TYPE;
         }
     }
@@ -102,7 +103,7 @@ public final class Network {
                 StreamCodec.unit(INSTANCE);
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return TYPE;
         }
     }
@@ -114,7 +115,7 @@ public final class Network {
                 StreamCodec.unit(INSTANCE);
 
         @Override
-        public Type<? extends CustomPacketPayload> type() {
+        public @NonNull Type<? extends CustomPacketPayload> type() {
             return TYPE;
         }
     }

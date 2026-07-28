@@ -3,6 +3,7 @@ package com.pixulse.infx.world.agriculture;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.event.AgricultureEvents;
 import com.pixulse.infx.world.MoonPhase;
 

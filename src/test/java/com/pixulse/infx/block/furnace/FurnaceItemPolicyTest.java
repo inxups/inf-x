@@ -3,6 +3,7 @@ package com.pixulse.infx.block.furnace;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.data.furnace.FurnaceItemPolicy;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 

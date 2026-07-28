@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 class TimedRecipeDisplayTest {
@@ -23,7 +23,7 @@ class TimedRecipeDisplayTest {
     void shapedRecipesAreHiddenFromTheVanillaRecipeBook() {
         var delegate = new ShapedRecipe(COMMON_INFO, BOOK_INFO, null, null) {
             @Override
-            public List<RecipeDisplay> display() {
+            public @NonNull List<RecipeDisplay> display() {
                 return Collections.singletonList(null);
             }
         };
@@ -36,9 +36,9 @@ class TimedRecipeDisplayTest {
     @Test
     void shapelessRecipesAreHiddenFromTheVanillaRecipeBook() {
         var delegate = new ShapelessRecipe(
-                COMMON_INFO, BOOK_INFO, (ItemStackTemplate) null, List.of()) {
+                COMMON_INFO, BOOK_INFO, null, List.of()) {
             @Override
-            public List<RecipeDisplay> display() {
+            public @NonNull List<RecipeDisplay> display() {
                 return Collections.singletonList(null);
             }
         };

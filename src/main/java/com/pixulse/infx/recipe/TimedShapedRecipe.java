@@ -16,6 +16,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 public record TimedShapedRecipe(BenchTier requiredBench, float difficulty, ShapedRecipe delegate)
         implements TimedCraftingRecipe {
@@ -43,12 +44,12 @@ public record TimedShapedRecipe(BenchTier requiredBench, float difficulty, Shape
             new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingInput input, @NonNull Level level) {
         return delegate.matches(input, level);
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input) {
+    public @NonNull ItemStack assemble(CraftingInput input) {
         return delegate.assemble(input);
     }
 
@@ -63,27 +64,27 @@ public record TimedShapedRecipe(BenchTier requiredBench, float difficulty, Shape
     }
 
     @Override
-    public String group() {
+    public @NonNull String group() {
         return delegate.group();
     }
 
     @Override
-    public RecipeSerializer<TimedShapedRecipe> getSerializer() {
+    public @NonNull RecipeSerializer<TimedShapedRecipe> getSerializer() {
         return SERIALIZER;
     }
 
     @Override
-    public PlacementInfo placementInfo() {
+    public @NonNull PlacementInfo placementInfo() {
         return delegate.placementInfo();
     }
 
     @Override
-    public List<RecipeDisplay> display() {
+    public @NonNull List<RecipeDisplay> display() {
         return List.of();
     }
 
     @Override
-    public RecipeBookCategory recipeBookCategory() {
+    public @NonNull RecipeBookCategory recipeBookCategory() {
         return delegate.recipeBookCategory();
     }
 }

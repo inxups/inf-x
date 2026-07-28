@@ -57,7 +57,7 @@ public final class BlockStackLimits {
     private BlockStackLimits() {}
 
     @SubscribeEvent
-    private static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
+    public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
         for (Item item : BuiltInRegistries.ITEM) {
             if (limit(item, 64).isEmpty()) continue;
             event.modify(item, (components, context, modifiedItem) -> {

@@ -25,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** R196 cow: livestock needs and milk quota; panic is handled by the common livestock event. */
@@ -54,7 +55,7 @@ public final class MiteCow extends Cow {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         super.defineSynchedData(entityData);
         Livestock.defineWellData(entityData, dataWell());
     }
@@ -74,13 +75,13 @@ public final class MiteCow extends Cow {
     }
 
     @Override
-    public boolean canMate(Animal partner) {
+    public boolean canMate(@NonNull Animal partner) {
         if (!(level() instanceof ServerLevel serverLevel)) return super.canMate(partner);
         return super.canMate(partner) && Livestock.canMateWith(serverLevel, this, partner);
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public @NonNull InteractionResult mobInteract(Player player, @NonNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         boolean offeredFood = isFood(stack);
         if (!isBaby() && level() instanceof ServerLevel serverLevel) {
@@ -137,7 +138,7 @@ public final class MiteCow extends Cow {
 
     @Override
     public void finalizeSpawnChildFromBreeding(
-            ServerLevel level, Animal partner, @Nullable AgeableMob offspring) {
+            @NonNull ServerLevel level, @NonNull Animal partner, @Nullable AgeableMob offspring) {
         super.finalizeSpawnChildFromBreeding(level, partner, offspring);
         if (offspring instanceof Animal child) {
             Livestock.adoptWellnessFromParents(child, this, partner);
@@ -145,7 +146,7 @@ public final class MiteCow extends Cow {
     }
 
     @Override
-    public @Nullable Cow getBreedOffspring(ServerLevel level, AgeableMob partner) {
+    public @Nullable Cow getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
         return InfXEntityTypes.R196_COW.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

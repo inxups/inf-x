@@ -31,13 +31,13 @@ public final class RunegateAnimation {
     private RunegateAnimation() {}
 
     @SubscribeEvent
-    private static void registerPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
+    public static void registerPayloadHandlers(RegisterClientPayloadHandlersEvent event) {
         event.register(Network.RunegateStartPayload.TYPE, (payload, context) -> start());
         event.register(Network.RunegateFinishedPayload.TYPE, (payload, context) -> finish());
     }
 
     @SubscribeEvent
-    private static void tick(ClientTickEvent.Post event) {
+    public static void tick(ClientTickEvent.Post event) {
         if (teleporting) {
             counter = nextCounter(true, counter);
             if (counter == RunegateTeleportation.LOADING_TICKS) {
@@ -49,7 +49,7 @@ public final class RunegateAnimation {
     }
 
     @SubscribeEvent
-    private static void render(RenderGuiEvent.Pre event) {
+    public static void render(RenderGuiEvent.Pre event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (counter <= 0 || minecraft.level == null) {
             return;
@@ -60,7 +60,7 @@ public final class RunegateAnimation {
     }
 
     @SubscribeEvent
-    private static void clear(ClientPlayerNetworkEvent.LoggingOut event) {
+    public static void clear(ClientPlayerNetworkEvent.LoggingOut event) {
         teleporting = false;
         counter = 0;
     }

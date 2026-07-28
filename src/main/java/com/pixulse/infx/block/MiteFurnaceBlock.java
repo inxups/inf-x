@@ -9,7 +9,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
@@ -18,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public abstract class MiteFurnaceBlock extends AbstractFurnaceBlock {
@@ -40,27 +40,27 @@ public abstract class MiteFurnaceBlock extends AbstractFurnaceBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
         return new MiteFurnaceBlockEntity(pos, state);
     }
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
-            Level level, BlockState state, BlockEntityType<T> type) {
+            @NonNull Level level, @NonNull BlockState state, @NonNull BlockEntityType<T> type) {
         return createFurnaceTicker(level, type, InfXBlockEntityTypes.FURNACE.get());
     }
 
     @Override
-    protected void openContainer(Level level, BlockPos pos, Player player) {
+    protected void openContainer(Level level, @NonNull BlockPos pos, @NonNull Player player) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof MiteFurnaceBlockEntity furnace) {
-            player.openMenu((MenuProvider) furnace);
+            player.openMenu(furnace);
             player.awardStat(Stats.INTERACT_WITH_FURNACE);
         }
     }
 
     @Override
-    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+    public void animateTick(BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull RandomSource random) {
         if (!state.getValue(LIT)) {
             return;
         }

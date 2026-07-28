@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.InfestedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
+import org.jspecify.annotations.NonNull;
 
 /** Explosive, venomous and paralyzing R196 silverfish variants. */
 public final class MiteSilverfish extends Silverfish implements MiteMob {
@@ -62,7 +63,7 @@ public final class MiteSilverfish extends Silverfish implements MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinOldAiReach(this, target, AttackRanges.SILVERFISH_REACH);
     }
 
@@ -84,7 +85,7 @@ public final class MiteSilverfish extends Silverfish implements MiteMob {
     }
 
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
+    public boolean doHurtTarget(@NonNull ServerLevel level, @NonNull Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt && target instanceof LivingEntity living) {
             if (variant() == Variant.COPPERSPINE) {
@@ -97,7 +98,7 @@ public final class MiteSilverfish extends Silverfish implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (variant() == Variant.NETHERSPAWN && source.getDirectEntity() instanceof Snowball) {
             damage = Math.max(damage, 2.0F);
         }
@@ -127,7 +128,7 @@ public final class MiteSilverfish extends Silverfish implements MiteMob {
     }
 
     @Override
-    public void die(DamageSource source) {
+    public void die(@NonNull DamageSource source) {
         if (!exploded && variant() == Variant.NETHERSPAWN && level() instanceof ServerLevel level
                 && !isInWaterOrRain()
                 && !isInLava()

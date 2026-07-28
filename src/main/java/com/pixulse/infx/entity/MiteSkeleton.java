@@ -29,6 +29,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Skeleton replacement plus Longdead and both Bone Lord variants. */
@@ -100,15 +101,15 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinNewAiReach(this, target);
     }
 
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(
-            ServerLevelAccessor level,
-            DifficultyInstance difficulty,
-            EntitySpawnReason spawnReason,
+            @NonNull ServerLevelAccessor level,
+            @NonNull DifficultyInstance difficulty,
+            @NonNull EntitySpawnReason spawnReason,
             @Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
         // MITE skeletons always pick up loot; the vanilla finalizeSpawn re-rolls it at 55%.
@@ -183,7 +184,7 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
     }
 
     @Override
-    public void performRangedAttack(LivingEntity target, float power) {
+    public void performRangedAttack(@NonNull LivingEntity target, float power) {
         ItemStack bow = getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof BowItem));
         // MITE skeletons loose rusted-iron arrows; longdead loose ancient-metal arrows.
         ItemStack ammunition = equipment(
@@ -205,18 +206,17 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
                 targetMotionX,
                 targetMotionZ);
         if (level() instanceof ServerLevel level) {
-            AbstractArrow launchedArrow = arrow;
             float uncertainty = miteArrowInaccuracy(level.getDifficulty().getId());
             if (ballisticAim != null) {
                 Projectile.spawnProjectile(
-                        launchedArrow,
+                        arrow,
                         level,
                         ammunition,
                         projectile -> projectile.shoot(
                                 ballisticAim.x(), ballisticAim.y(), ballisticAim.z(), ARROW_SPEED, uncertainty));
             } else {
                 spawnMiteFallbackArrow(
-                        launchedArrow,
+                        arrow,
                         level,
                         ammunition,
                         target,
@@ -403,7 +403,7 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
     record BallisticAim(double x, double y, double z, double flightTicks) {}
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         if (source.getDirectEntity() instanceof AbstractArrow) {
             if (source.getEntity() instanceof AbstractSkeleton) {
                 return false;
@@ -495,19 +495,19 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt("R196SummonedTroops", summonedTroops);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         summonedTroops = input.getIntOr("R196SummonedTroops", 0);
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         if ((variant() == Variant.LONGDEAD || variant() == Variant.ANCIENT_BONE_LORD)
                 && random.nextFloat() < (killedByPlayer ? 0.50F : 0.25F)) {

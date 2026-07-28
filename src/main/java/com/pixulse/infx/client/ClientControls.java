@@ -17,7 +17,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.minecraft.client.renderer.RenderPipelines;
 import com.pixulse.infx.registry.InfXAttachments;
-import com.pixulse.infx.food.SurvivalRules;
+import com.pixulse.infx.data.food.SurvivalRules;
 
 /** R196 debug-profile, sleep and scaled-food interfaces (all custom hotkeys removed). */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
@@ -28,7 +28,7 @@ public final class ClientControls {
     private ClientControls() {}
 
     @SubscribeEvent
-    private static void clientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
+    public static void clientTick(net.neoforged.neoforge.client.event.ClientTickEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.level == null) return;
         configureDebugOverlay(minecraft);
@@ -62,7 +62,7 @@ public final class ClientControls {
     }
 
     @SubscribeEvent
-    private static void removeLeaveBedButton(ScreenEvent.Init.Post event) {
+    public static void removeLeaveBedButton(ScreenEvent.Init.Post event) {
         if (!(event.getScreen() instanceof InBedChatScreen)) return;
         for (var listener : java.util.List.copyOf(event.getListenersList())) {
             if (listener instanceof Button) event.removeListener(listener);
@@ -70,7 +70,7 @@ public final class ClientControls {
     }
 
     @SubscribeEvent
-    private static void renderScaledFoodBar(RenderGuiLayerEvent.Pre event) {
+    public static void renderScaledFoodBar(RenderGuiLayerEvent.Pre event) {
         if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.animal.fish.AbstractFish;
 import net.minecraft.world.entity.animal.fish.Salmon;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /** InfiniteX salmon replacement retaining vanilla school and size variants. */
 public final class MiteSalmon extends Salmon implements MiteMob {
@@ -21,7 +22,7 @@ public final class MiteSalmon extends Salmon implements MiteMob {
     }
 
     @Override
-    public ItemStack getBucketItemStack() {
+    public @NonNull ItemStack getBucketItemStack() {
         return InfXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.SALMON).toStack();
     }
 }

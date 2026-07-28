@@ -9,6 +9,7 @@ import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Records a debug entry's text and replays it until its next low-frequency refresh. */
@@ -42,8 +43,8 @@ public final class CachedDebugDisplay {
             this.initialized = true;
         }
 
-        for (int index = 0; index < this.calls.size(); index++) {
-            this.calls.get(index).replay(displayer);
+        for (RecordedCall call : this.calls) {
+            call.replay(displayer);
         }
     }
 
@@ -76,22 +77,22 @@ public final class CachedDebugDisplay {
         private final List<RecordedCall> calls = new ArrayList<>();
 
         @Override
-        public void addPriorityLine(String line) {
+        public void addPriorityLine(@NonNull String line) {
             this.calls.add(new PriorityLine(line));
         }
 
         @Override
-        public void addLine(String line) {
+        public void addLine(@NonNull String line) {
             this.calls.add(new RegularLine(line));
         }
 
         @Override
-        public void addToGroup(Identifier group, Collection<String> lines) {
+        public void addToGroup(@NonNull Identifier group, @NonNull Collection<String> lines) {
             this.calls.add(new GroupLines(group, List.copyOf(lines)));
         }
 
         @Override
-        public void addToGroup(Identifier group, String line) {
+        public void addToGroup(@NonNull Identifier group, @NonNull String line) {
             this.calls.add(new GroupLines(group, List.of(line)));
         }
     }

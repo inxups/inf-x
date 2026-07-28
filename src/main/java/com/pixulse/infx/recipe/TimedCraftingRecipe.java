@@ -7,6 +7,7 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import org.jspecify.annotations.NonNull;
 
 public interface TimedCraftingRecipe extends Recipe<CraftingInput> {
     BenchTier requiredBench();
@@ -30,7 +31,7 @@ public interface TimedCraftingRecipe extends Recipe<CraftingInput> {
     }
 
     @Override
-    default RecipeType<TimedCraftingRecipe> getType() {
+    default @NonNull RecipeType<TimedCraftingRecipe> getType() {
         return InfXRecipes.CRAFTING.get();
     }
 }

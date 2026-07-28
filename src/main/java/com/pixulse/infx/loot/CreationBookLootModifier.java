@@ -15,6 +15,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
+import org.jspecify.annotations.NonNull;
 
 /** Adds at most one world-unique creation book per eligible structure component. */
 public final class CreationBookLootModifier extends LootModifier {
@@ -31,9 +32,9 @@ public final class CreationBookLootModifier extends LootModifier {
     }
 
     @Override
-    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> loot, LootContext context) {
+    protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> loot, LootContext context) {
         Identifier table = context.getQueriedLootTableId();
-        if (table == null || !table.getNamespace().equals("minecraft")) return loot;
+        if (!table.getNamespace().equals("minecraft")) return loot;
         Float chance = CHANCES.get(table.getPath());
         if (chance == null) return loot;
         long day = Math.max(1L, context.getLevel().getOverworldClockTime() / 24_000L + 1L);
@@ -51,7 +52,7 @@ public final class CreationBookLootModifier extends LootModifier {
     }
 
     @Override
-    public MapCodec<? extends IGlobalLootModifier> codec() {
+    public @NonNull MapCodec<? extends IGlobalLootModifier> codec() {
         return InfXLootModifiers.CREATION_BOOK.get();
     }
 }

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.junit.jupiter.api.Test;
 
 class InfXCreativeTabsTest {
@@ -18,11 +19,11 @@ class InfXCreativeTabsTest {
     void categoriesCoverEveryRegisteredItemExactlyOnce() {
         List<Identifier> categorized = Arrays.stream(InfXCreativeTabs.Category.values())
                 .flatMap(category -> InfXCreativeTabs.items(category).stream())
-                .map(item -> item.getId())
+                .map(DeferredHolder::getId)
                 .toList();
         Set<Identifier> uniqueCategorized = new HashSet<>(categorized);
         Set<Identifier> registered = InfXItems.ITEMS.getEntries().stream()
-                .map(item -> item.getId())
+                .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
         // 395 baseline + 42 mob buckets + 7 powder-snow buckets + 4 fish spawn eggs + clay golem egg.
@@ -65,14 +66,14 @@ class InfXCreativeTabsTest {
         Set<Identifier> worldgenOnly = Set.of(
                 underworldPortal, netherPortal, returnSpawnPortal, infestedNetherrack);
         Set<Identifier> expectedBlockItems = InfXBlocks.BLOCKS.getEntries().stream()
-                .map(block -> block.getId())
+                .map(DeferredHolder::getId)
                 .filter(id -> !worldgenOnly.contains(id))
                 .collect(Collectors.toSet());
         Set<Identifier> creativeBlocks = InfXCreativeTabs.items(InfXCreativeTabs.Category.BLOCKS).stream()
-                .map(item -> item.getId())
+                .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
         Set<Identifier> registeredItems = InfXItems.ITEMS.getEntries().stream()
-                .map(item -> item.getId())
+                .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
         assertEquals(49, InfXBlocks.BLOCKS.getEntries().size());

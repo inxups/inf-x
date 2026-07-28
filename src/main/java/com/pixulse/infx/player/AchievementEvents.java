@@ -16,8 +16,7 @@ public final class AchievementEvents {
     private AchievementEvents() {}
 
     @SubscribeEvent
-
-    private static void onAdvancementEarned(AdvancementEvent.AdvancementEarnEvent event) {
+    public static void onAdvancementEarned(AdvancementEvent.AdvancementEarnEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         var id = event.getAdvancement().id();
         if (!id.getNamespace().equals(InfiniteX.MOD_ID) || !id.getPath().startsWith("progression/")) return;

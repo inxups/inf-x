@@ -10,6 +10,7 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class MiteArrowItem extends ArrowItem {
@@ -29,8 +30,8 @@ public final class MiteArrowItem extends ArrowItem {
     }
 
     @Override
-    public AbstractArrow createArrow(
-            Level level, ItemStack stack, LivingEntity owner, @Nullable ItemStack weapon) {
+    public @NonNull AbstractArrow createArrow(
+            @NonNull Level level, ItemStack stack, @NonNull LivingEntity owner, @Nullable ItemStack weapon) {
         Arrow arrow = new Arrow(level, owner, stack.copyWithCount(1), weapon);
         if (!stack.has(DataComponents.INTANGIBLE_PROJECTILE)) {
             arrow.pickup = AbstractArrow.Pickup.ALLOWED;
@@ -40,7 +41,7 @@ public final class MiteArrowItem extends ArrowItem {
     }
 
     @Override
-    public Projectile asProjectile(Level level, Position position, ItemStack stack, Direction direction) {
+    public @NonNull Projectile asProjectile(@NonNull Level level, Position position, ItemStack stack, @NonNull Direction direction) {
         Arrow arrow = new Arrow(level, position.x(), position.y(), position.z(), stack.copyWithCount(1), null);
         arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
         arrow.setBaseDamage(baseDamage());

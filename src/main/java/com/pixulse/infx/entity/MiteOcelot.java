@@ -8,6 +8,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.animal.feline.Ocelot;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** R196 ocelot replacement; reuses 26.2 ocelot model/textures (no livestock needs). */
@@ -21,7 +22,7 @@ public final class MiteOcelot extends Ocelot {
     }
 
     @Override
-    public @Nullable Ocelot getBreedOffspring(ServerLevel level, AgeableMob partner) {
+    public @Nullable Ocelot getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
         return InfXEntityTypes.R196_OCELOT.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

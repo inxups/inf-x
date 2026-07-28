@@ -28,8 +28,7 @@ public final class MoonEvents {
     private MoonEvents() {}
 
     @SubscribeEvent
-
-    private static void limitHostileSpawn(FinalizeSpawnEvent event) {
+    public static void limitHostileSpawn(FinalizeSpawnEvent event) {
         if (!(event.getLevel().getLevel() instanceof ServerLevel level)
                 || event.getSpawnType() != EntitySpawnReason.NATURAL) {
             return;
@@ -63,8 +62,7 @@ public final class MoonEvents {
     }
 
     @SubscribeEvent
-
-    private static void tickLevel(LevelTickEvent.Post event) {
+    public static void tickLevel(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level)
                 || level.dimension() != Level.OVERWORLD
                 || level.getGameTime() % 200 != 0) {
@@ -79,8 +77,7 @@ public final class MoonEvents {
     }
 
     @SubscribeEvent
-
-    private static void modifyFishing(ItemFishedEvent event) {
+    public static void modifyFishing(ItemFishedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         MoonPhase phase = MoonPhase.at(player.level());
         double multiplier = phase.fishingMultiplier();
@@ -104,8 +101,7 @@ public final class MoonEvents {
     }
 
     @SubscribeEvent
-
-    private static void modifyTaming(AnimalTameEvent event) {
+    public static void modifyTaming(AnimalTameEvent event) {
         if (!(event.getAnimal().level() instanceof ServerLevel level)
                 || !(event.getAnimal() instanceof Wolf)) {
             return;
@@ -119,8 +115,7 @@ public final class MoonEvents {
     }
 
     @SubscribeEvent
-
-    private static void makeBloodMoonWolvesHostile(EntityTickEvent.Post event) {
+    public static void makeBloodMoonWolvesHostile(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof Wolf wolf)
                 || wolf.isTame()
                 || !(wolf.level() instanceof ServerLevel level)

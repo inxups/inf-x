@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.data.curse.CurseStatus;
+import com.pixulse.infx.data.curse.CurseType;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;

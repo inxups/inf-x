@@ -11,7 +11,7 @@ import com.pixulse.infx.entity.MonsterTactics;
 import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXEntityTypes;
-import com.pixulse.infx.food.SurvivalEvents;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -61,15 +61,14 @@ public final class BedEvents {
     private static final Player.BedSleepingProblem MOBS_DIGGING = problem("message.infx.bed.mobs_digging");
     private static final Map<ServerPlayer, BlockPos> BED_ATTEMPTS = new WeakHashMap<>();
     private static final Set<ServerPlayer> DEFERRED_RESPAWNS =
-            Collections.newSetFromMap(new WeakHashMap<ServerPlayer, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
     private static final Set<ServerPlayer> APPLYING_RESPAWN =
-            Collections.newSetFromMap(new WeakHashMap<ServerPlayer, Boolean>());
+            Collections.newSetFromMap(new WeakHashMap<>());
 
     private BedEvents() {}
 
     @SubscribeEvent
-
-    private static void onBedUse(PlayerInteractEvent.RightClickBlock event) {
+    public static void onBedUse(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         BlockState state = level.getBlockState(event.getPos());
         if (!state.is(BlockTags.BEDS)) return;
@@ -91,11 +90,10 @@ public final class BedEvents {
      * bed entry, so a poisoned or exposed player cannot accidentally claim the bed.
      */
     @SubscribeEvent
-    private static void deferBedRespawn(PlayerSetSpawnEvent event) {
+    public static void deferBedRespawn(PlayerSetSpawnEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || APPLYING_RESPAWN.contains(player)) return;
         BlockPos attemptedBed = BED_ATTEMPTS.get(player);
-        if (attemptedBed == null
-                || event.getNewSpawn() == null
+        if (event.getNewSpawn() == null
                 || !event.getSpawnLevel().equals(Level.OVERWORLD)
                 || !event.getNewSpawn().equals(attemptedBed)) {
             return;
@@ -105,8 +103,7 @@ public final class BedEvents {
     }
 
     @SubscribeEvent
-
-    private static void canStartSleeping(CanPlayerSleepEvent event) {
+    public static void canStartSleeping(CanPlayerSleepEvent event) {
         ServerPlayer player = event.getEntity();
         boolean deferredRespawn = DEFERRED_RESPAWNS.remove(player);
         BED_ATTEMPTS.remove(player);
@@ -126,8 +123,7 @@ public final class BedEvents {
     }
 
     @SubscribeEvent
-
-    private static void canContinueSleeping(CanContinueSleepingEvent event) {
+    public static void canContinueSleeping(CanContinueSleepingEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !(player.level() instanceof ServerLevel level)
                 || !level.dimension().equals(Level.OVERWORLD)
@@ -150,8 +146,7 @@ public final class BedEvents {
     }
 
     @SubscribeEvent
-
-    private static void tickLevel(LevelTickEvent.Post event) {
+    public static void tickLevel(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !level.dimension().equals(Level.OVERWORLD)) return;
         List<ServerPlayer> players = participatingPlayers(level);
         if (players.isEmpty() || !allDeeplySleepingInBeds(players)) return;
@@ -323,7 +318,7 @@ public final class BedEvents {
 
     private static boolean hasDiggingZombie(ServerLevel level, BlockPos bed) {
         AABB area = new AABB(bed).inflate(BED_HORIZONTAL_HOSTILE_RANGE, BED_VERTICAL_HOSTILE_RANGE, BED_HORIZONTAL_HOSTILE_RANGE);
-        return level.getEntitiesOfClass(Mob.class, area, MonsterTactics::isDigging).size() > 0;
+        return !level.getEntitiesOfClass(Mob.class, area, MonsterTactics::isDigging).isEmpty();
     }
 
     private static boolean pathToBed(Mob mob, BlockPos bed, int maxPathLength) {

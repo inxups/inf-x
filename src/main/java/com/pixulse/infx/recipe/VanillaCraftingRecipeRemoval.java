@@ -20,8 +20,7 @@ public final class VanillaCraftingRecipeRemoval {
     private VanillaCraftingRecipeRemoval() {}
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-
-    private static void removeRecipes(ModifyRecipeJsonsEvent event) {
+    public static void removeRecipes(ModifyRecipeJsonsEvent event) {
         int removed = removeVanillaCraftingRecipes(event.getRecipeJsons());
         InfiniteX.LOGGER.info("Removed {} vanilla crafting recipes", removed);
     }

@@ -70,7 +70,7 @@ public final class Experience {
 
     public static void add(Player player, int amount) {
         long total = (long) player.totalExperience + amount;
-        setTotal(player, (int) Math.clamp(total, MIN_TOTAL_EXPERIENCE, Integer.MAX_VALUE));
+        setTotal(player, Math.clamp(total, MIN_TOTAL_EXPERIENCE, Integer.MAX_VALUE));
     }
 
     public static void addLevels(Player player, int amount) {

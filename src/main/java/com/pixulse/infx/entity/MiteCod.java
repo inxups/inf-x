@@ -9,6 +9,7 @@ import net.minecraft.world.entity.animal.fish.AbstractFish;
 import net.minecraft.world.entity.animal.fish.Cod;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /** InfiniteX cod replacement retaining vanilla schooling and bucket persistence. */
 public final class MiteCod extends Cod implements MiteMob {
@@ -21,7 +22,7 @@ public final class MiteCod extends Cod implements MiteMob {
     }
 
     @Override
-    public ItemStack getBucketItemStack() {
+    public @NonNull ItemStack getBucketItemStack() {
         return InfXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.COD).toStack();
     }
 }

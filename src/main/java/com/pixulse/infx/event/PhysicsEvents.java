@@ -47,22 +47,19 @@ public final class PhysicsEvents {
     private PhysicsEvents() {}
 
     @SubscribeEvent
-
-    private static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
+    public static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || updatingGravity) return;
         tryFall(level, event.getPos());
         for (Direction direction : event.getNotifiedSides()) tryFall(level, event.getPos().relative(direction));
     }
 
     @SubscribeEvent
-
-    private static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
+    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
         if (event.getLevel() instanceof ServerLevel level) tryFall(level, event.getPos());
     }
 
     @SubscribeEvent
-
-    private static void onEntityTick(EntityTickEvent.Post event) {
+    public static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
             wetInventory(player);
         }
@@ -131,8 +128,7 @@ public final class PhysicsEvents {
     }
 
     @SubscribeEvent
-
-    private static void onExplosion(ExplosionEvent.Detonate event) {
+    public static void onExplosion(ExplosionEvent.Detonate event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Vec3 center = event.getExplosion().center();
         float radius = event.getExplosion().radius();
@@ -172,8 +168,7 @@ public final class PhysicsEvents {
     }
 
     @SubscribeEvent
-
-    private static void onProjectileImpact(ProjectileImpactEvent event) {
+    public static void onProjectileImpact(ProjectileImpactEvent event) {
         if (!(event.getProjectile() instanceof AbstractArrow)
                 || !(event.getRayTraceResult() instanceof BlockHitResult hit)
                 || !(event.getProjectile().level() instanceof ServerLevel level)) return;
@@ -184,8 +179,7 @@ public final class PhysicsEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLivingFall(LivingFallEvent event) {
+    public static void onLivingFall(LivingFallEvent event) {
         BlockPos landing = event.getEntity().blockPosition().below();
         BlockState state = event.getEntity().level().getBlockState(landing);
         float multiplier = PhysicsRules.fallDamageMultiplier(state)
@@ -194,8 +188,7 @@ public final class PhysicsEvents {
     }
 
     @SubscribeEvent
-
-    private static void coverFragileBlock(PlayerInteractEvent.RightClickBlock event) {
+    public static void coverFragileBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
                 || !isFragile(level.getBlockState(event.getPos()))
                 || !(event.getItemStack().getItem() instanceof BlockItem blockItem)) return;
@@ -206,8 +199,7 @@ public final class PhysicsEvents {
     }
 
     @SubscribeEvent
-
-    private static void restrictFluidSources(CreateFluidSourceEvent event) {
+    public static void restrictFluidSources(CreateFluidSourceEvent event) {
         boolean dispenser = false;
         for (Direction direction : Direction.values()) {
             if (event.getLevel().getBlockState(event.getPos().relative(direction)).getBlock() instanceof DispenserBlock) {
@@ -219,8 +211,7 @@ public final class PhysicsEvents {
     }
 
     @SubscribeEvent
-
-    private static void meltLavaBucket(PlayerInteractEvent.RightClickBlock event) {
+    public static void meltLavaBucket(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
                 || !event.getItemStack().is(Items.LAVA_BUCKET)
                 || level.getRandom().nextFloat() >= 0.08F) return;

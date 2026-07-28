@@ -1,12 +1,13 @@
 package com.pixulse.infx.entity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import net.minecraft.world.entity.EntitySpawnReason;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class MonsterRosterTest {
     @Test
@@ -52,7 +53,7 @@ class MonsterRosterTest {
     void onlyWorldDrivenSpawnReasonsAreReplacementEligible() {
         assertTrue(MonsterEvents.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.NATURAL));
         assertTrue(MonsterEvents.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.SPAWNER));
-        assertTrue(!MonsterEvents.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.COMMAND));
-        assertTrue(!MonsterEvents.isWorldSpawn(null));
+        assertFalse(MonsterEvents.isWorldSpawn(EntitySpawnReason.COMMAND));
+        assertFalse(MonsterEvents.isWorldSpawn(null));
     }
 }

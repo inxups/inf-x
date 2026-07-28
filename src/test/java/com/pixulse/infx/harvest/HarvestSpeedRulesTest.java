@@ -2,6 +2,7 @@ package com.pixulse.infx.harvest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.pixulse.infx.data.harvest.HarvestSpeedRules;
 import org.junit.jupiter.api.Test;
 
 class HarvestSpeedRulesTest {

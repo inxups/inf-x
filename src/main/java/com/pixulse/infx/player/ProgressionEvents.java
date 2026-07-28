@@ -61,8 +61,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
+    public static void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || event.getAmountRemoved() <= 0) {
             return;
         }
@@ -77,8 +76,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+    public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         ItemStack crafted = event.getCrafting();
         Identifier id = BuiltInRegistries.ITEM.getKey(crafted.getItem());
@@ -104,8 +102,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onItemPickup(ItemEntityPickupEvent.Post event) {
+    public static void onItemPickup(ItemEntityPickupEvent.Post event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         ItemStack stack = event.getOriginalStack();
         if (stack.is(Items.STICK)) award(player, "stick_picker", "picked_up_stick");
@@ -132,8 +129,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLivingDeath(LivingDeathEvent event) {
+    public static void onLivingDeath(LivingDeathEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (event.getEntity() instanceof Enemy) award(player, "kill_enemy", "killed_enemy");
         if (event.getSource().getDirectEntity() instanceof AbstractArrow
@@ -154,8 +150,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLivingDamage(LivingDamageEvent.Post event) {
+    public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player
                 && event.getSource().getDirectEntity() == player
                 && event.getOriginalDamage() >= 18.0F) {
@@ -164,16 +159,14 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onItemFinished(LivingEntityUseItemEvent.Finish event) {
+    public static void onItemFinished(LivingEntityUseItemEvent.Finish event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getItem().is(Items.EGG)) {
             award(player, "eggs", "ate_raw_egg");
         }
     }
 
     @SubscribeEvent
-
-    private static void onPotionBrewed(PlayerBrewedPotionEvent event) {
+    public static void onPotionBrewed(PlayerBrewedPotionEvent event) {
         var contents = event.getStack().get(DataComponents.POTION_CONTENTS);
         if (event.getEntity() instanceof ServerPlayer player
                 && event.getStack().is(Items.POTION)
@@ -185,8 +178,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onWrittenBookOpened(PlayerInteractEvent.RightClickItem event) {
+    public static void onWrittenBookOpened(PlayerInteractEvent.RightClickItem event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !event.getItemStack().is(Items.WRITTEN_BOOK)) {
             return;
@@ -216,8 +208,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
+    public static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (event.getTo().equals(Level.END)) {
             if (event.getFrom().equals(Level.OVERWORLD)) {
@@ -248,8 +239,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onBlockBroken(BreakBlockEvent event) {
+    public static void onBlockBroken(BreakBlockEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         for (Direction direction : Direction.values()) {
             if (player.level().getBlockState(event.getPos().relative(direction)).is(InfXBlocks.MANTLE.get())) {
@@ -260,8 +250,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onPlayerTick(PlayerTickEvent.Post event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 20 != 0) return;
         var data = player.getPersistentData();
         if (player.getVehicle() instanceof AbstractMinecart) {
@@ -331,8 +320,7 @@ public final class ProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLivingFall(LivingFallEvent event) {
+    public static void onLivingFall(LivingFallEvent event) {
         if (event.getEntity() instanceof Pig pig
                 && event.getDistance() > 5.0
                 && pig.getFirstPassenger() instanceof ServerPlayer player) {

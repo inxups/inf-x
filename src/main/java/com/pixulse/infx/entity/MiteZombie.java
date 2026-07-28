@@ -47,6 +47,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Zombie-shaped R196 mobs, including the replacement zombie and five new variants. */
@@ -114,7 +115,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     public static AttributeSupplier.Builder attributes(Variant variant) {
         AttributeSupplier.Builder builder = Zombie.createAttributes().add(Attributes.ARMOR, 0.0);
         return switch (variant) {
-            case ZOMBIE -> builder
+            case ZOMBIE, SHADOW -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
                     .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.23)
@@ -128,11 +129,6 @@ public final class MiteZombie extends Zombie implements MiteMob {
                     .add(Attributes.MAX_HEALTH, 20.0)
                     .add(Attributes.FOLLOW_RANGE, 40.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.28)
-                    .add(Attributes.ATTACK_DAMAGE, 5.0);
-            case SHADOW -> builder
-                    .add(Attributes.MAX_HEALTH, 20.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.23)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case WIGHT -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
@@ -148,7 +144,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinNewAiReach(this, target);
     }
 
@@ -172,9 +168,9 @@ public final class MiteZombie extends Zombie implements MiteMob {
 
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(
-            ServerLevelAccessor level,
-            DifficultyInstance difficulty,
-            EntitySpawnReason reason,
+            @NonNull ServerLevelAccessor level,
+            @NonNull DifficultyInstance difficulty,
+            @NonNull EntitySpawnReason reason,
             @Nullable SpawnGroupData groupData) {
         // MITE zombies never spawn as babies, so chicken jockeys cannot appear either.
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, new ZombieGroupData(false, false));
@@ -208,7 +204,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    public boolean convertVillagerToZombieVillager(ServerLevel level, Villager villager) {
+    public boolean convertVillagerToZombieVillager(@NonNull ServerLevel level, @NonNull Villager villager) {
         if (!zombifiesVillagers(variant()) || getMainHandItem().has(DataComponents.TOOL)) {
             return false;
         }
@@ -231,7 +227,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
+    protected void populateDefaultEquipmentSlots(@NonNull RandomSource random, @NonNull DifficultyInstance difficulty) {
         // MITE only arms the plain zombie; the revenant receives its fixed kit in finalizeSpawn.
         if (variant() == Variant.ZOMBIE) {
             super.populateDefaultEquipmentSlots(random, difficulty);
@@ -256,7 +252,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float amount) {
         if (variant() == Variant.SHADOW && !MobDamageRules.silverMagicGateAccepts(source)) {
             return false;
         }
@@ -267,7 +263,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected @Nullable SoundEvent getAmbientSound() {
+    protected @NonNull SoundEvent getAmbientSound() {
         return switch (variant()) {
             case GHOUL -> InfXSounds.GHOUL_AMBIENT.get();
             case SHADOW -> InfXSounds.SHADOW_AMBIENT.get();
@@ -278,7 +274,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
         return switch (variant()) {
             case GHOUL -> InfXSounds.GHOUL_HURT.get();
             case SHADOW -> InfXSounds.SHADOW_HURT.get();
@@ -289,7 +285,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected SoundEvent getDeathSound() {
+    protected @NonNull SoundEvent getDeathSound() {
         return switch (variant()) {
             case GHOUL -> InfXSounds.GHOUL_DEATH.get();
             case SHADOW -> InfXSounds.SHADOW_DEATH.get();
@@ -306,7 +302,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected void playStepSound(BlockPos pos, BlockState state) {
+    protected void playStepSound(@NonNull BlockPos pos, @NonNull BlockState state) {
         if (variant() == Variant.INVISIBLE_STALKER || variant() == Variant.SHADOW) {
             return;
         }
@@ -314,7 +310,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
+    public boolean doHurtTarget(@NonNull ServerLevel level, @NonNull Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (!hurt || !(target instanceof LivingEntity living)) {
             return hurt;
@@ -342,7 +338,7 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         if (!killedByPlayer || (variant() != Variant.ZOMBIE && variant() != Variant.WIGHT && variant() != Variant.REVENANT)) {
             return;
@@ -406,13 +402,13 @@ public final class MiteZombie extends Zombie implements MiteMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output) {
+    protected void addAdditionalSaveData(net.minecraft.world.level.storage.@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putBoolean(VILLAGER_ZOMBIE_KEY, villagerZombie);
     }
 
     @Override
-    protected void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input) {
+    protected void readAdditionalSaveData(net.minecraft.world.level.storage.@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         villagerZombie = input.getBooleanOr(VILLAGER_ZOMBIE_KEY, false);
     }

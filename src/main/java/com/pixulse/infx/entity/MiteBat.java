@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Hostile cave bats. Vampire variants heal on contact; Nightwings blind their prey. */
@@ -57,7 +58,7 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
 
     /** MITE nightwings only fall to silver, magic or sunlight. */
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (variant() == Variant.NIGHTWING && !MobDamageRules.silverMagicGateAccepts(source)) {
             return false;
         }
@@ -65,7 +66,7 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
+    protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
         if (attackCooldown > 0) {
             attackCooldown--;
@@ -153,7 +154,7 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         if (feedCooldown > 0) {
             output.putInt("R196VampireBatFeedCooldown", feedCooldown);
@@ -161,7 +162,7 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         feedCooldown = Math.max(0, input.getIntOr("R196VampireBatFeedCooldown", 0));
     }

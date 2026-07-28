@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.regex.MatchResult;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.regex.Pattern;
@@ -333,7 +334,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void copperToIronProgressionDataIsComplete() throws Exception {
+    void copperToIronProgressionDataIsComplete() {
         for (String recipe : List.of("flint_shovel", "cobblestone_furnace", "iron_pickaxe")) {
             assertTrue(
                     Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")),
@@ -959,7 +960,7 @@ class GeneratedResourceTest {
             assertAll(
                     path,
                     () -> assertEquals(structure.getValue(), entries),
-                    () -> assertEquals(expectedRolls.get(path).get(0), minRolls),
+                    () -> assertEquals(expectedRolls.get(path).getFirst(), minRolls),
                     () -> assertEquals(expectedRolls.get(path).get(1), maxRolls),
                     () -> assertFalse(table.toString().contains("ancient_metal_horse_armor")),
                     () -> assertFalse(table.toString().contains("mithril_horse_armor")),
@@ -2151,7 +2152,7 @@ class GeneratedResourceTest {
     }
 
     private static List<String> formatSpecifiers(String translation) {
-        return FORMAT_SPECIFIER.matcher(translation).results().map(result -> result.group()).toList();
+        return FORMAT_SPECIFIER.matcher(translation).results().map(MatchResult::group).toList();
     }
 
     private static void assertLanguageKey(JsonObject english, JsonObject chinese, String key) {

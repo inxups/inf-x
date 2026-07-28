@@ -3,6 +3,7 @@ package com.pixulse.infx.harvest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.data.harvest.HarvestPolicy;
 import org.junit.jupiter.api.Test;
 
 class HarvestPolicyTest {

@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.harvest.HarvestRequirements;
+import com.pixulse.infx.data.harvest.HarvestRequirements;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -47,8 +47,10 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 
 /**
  * MITE R196 earth elemental with a material body selected from its spawn surface.
@@ -76,7 +78,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         super.defineSynchedData(entityData);
         entityData.define(DATA_FORM, (byte) Form.STONE_NORMAL.id());
     }
@@ -86,7 +88,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinNewAiReach(this, target, AttackRanges.EARTH_ELEMENTAL_REACH);
     }
 
@@ -322,7 +324,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     @Override
-    public void thunderHit(ServerLevel level, LightningBolt lightningBolt) {
+    public void thunderHit(@NonNull ServerLevel level, @NonNull LightningBolt lightningBolt) {
         // The MITE source calls super first, but its own immunity gate rejects lightning damage.
         // Applying only the material reaction prevents modern fire/lava side effects from leaking in.
         if (!isMagma() && !isHardenedClay()) {
@@ -334,7 +336,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
 
     /** MITE elementals hit for a flat value and magma bodies sometimes ignite damaged targets. */
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
+    public boolean doHurtTarget(@NonNull ServerLevel level, Entity target) {
         swing(InteractionHand.MAIN_HAND);
         DamageSource source = damageSources().mobAttack(this);
         boolean hurt = target.hurtServer(level, source, (float) getAttributeValue(Attributes.ATTACK_DAMAGE));
@@ -349,7 +351,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         // MITE snowballs deal their ordinary one point to normal clay, but mineral bodies only
         // use them as a quench trigger. Hardened clay still follows the tool-only damage gate.
         if (source.getDirectEntity() instanceof Snowball && !isNormalClay()) {
@@ -393,7 +395,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     @Override
-    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+    protected @NonNull InteractionResult mobInteract(@NonNull Player player, @NonNull InteractionHand hand) {
         // This is not a constructible iron golem: ingots cannot repair it.
         return InteractionResult.PASS;
     }
@@ -566,13 +568,13 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
             stopDigging(level);
             return;
         }
-        HitResult hit = level.clip(new ClipContext(
+        BlockHitResult hit = level.clip(new ClipContext(
                 getEyePosition(), target.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
         if (hit.getType() != HitResult.Type.BLOCK) {
             stopDigging(level);
             return;
         }
-        BlockPos pos = ((net.minecraft.world.phys.BlockHitResult) hit).getBlockPos();
+        BlockPos pos = hit.getBlockPos();
         if (Vec3.atCenterOf(pos).distanceToSqr(position()) > 3.25 || !canDestroyMiteBlock(level, pos)) {
             stopDigging(level);
             return;
@@ -671,20 +673,20 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         spawnAtLocation(level, miteDrop());
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt("R196EarthForm", form().id());
         output.putInt("R196EarthHeat", heat);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         setForm(Form.fromId(input.getIntOr("R196EarthForm", form().id())));
         heat = Math.max(0, input.getIntOr("R196EarthHeat", 0));

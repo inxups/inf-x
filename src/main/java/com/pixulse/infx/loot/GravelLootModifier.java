@@ -28,6 +28,7 @@ import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
+import org.jspecify.annotations.NonNull;
 
 public final class GravelLootModifier extends LootModifier {
     private static final Identifier GRAVEL_LOOT_TABLE = Identifier.withDefaultNamespace("blocks/gravel");
@@ -42,7 +43,7 @@ public final class GravelLootModifier extends LootModifier {
     }
 
     @Override
-    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+    protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         boolean netherGravel = NETHER_GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId());
         if (!GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId()) && !netherGravel) {
             return generatedLoot;
@@ -131,7 +132,7 @@ public final class GravelLootModifier extends LootModifier {
     }
 
     @Override
-    public MapCodec<? extends IGlobalLootModifier> codec() {
+    public @NonNull MapCodec<? extends IGlobalLootModifier> codec() {
         return InfXLootModifiers.GRAVEL.get();
     }
 }

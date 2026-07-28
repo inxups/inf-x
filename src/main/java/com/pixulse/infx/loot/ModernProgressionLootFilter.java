@@ -12,6 +12,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
+import org.jspecify.annotations.NonNull;
 
 /** Removes vanilla paths that bypass the R196 material and crafting progression. */
 public final class ModernProgressionLootFilter extends LootModifier {
@@ -69,7 +70,7 @@ public final class ModernProgressionLootFilter extends LootModifier {
     }
 
     @Override
-    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> loot, LootContext context) {
+    protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> loot, LootContext context) {
         Identifier table = context.getQueriedLootTableId();
         if (table == null || !table.getNamespace().equals("minecraft")) return loot;
         String path = table.getPath();
@@ -97,7 +98,7 @@ public final class ModernProgressionLootFilter extends LootModifier {
     }
 
     @Override
-    public MapCodec<? extends IGlobalLootModifier> codec() {
+    public @NonNull MapCodec<? extends IGlobalLootModifier> codec() {
         return InfXLootModifiers.MODERN_PROGRESSION_FILTER.get();
     }
 }

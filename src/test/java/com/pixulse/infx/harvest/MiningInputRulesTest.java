@@ -2,6 +2,7 @@ package com.pixulse.infx.harvest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.pixulse.infx.data.harvest.MiningInputRules;
 import net.minecraft.world.phys.HitResult;
 import org.junit.jupiter.api.Test;
 

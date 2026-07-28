@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Client-side JEI view of a normal 26.2 crafting recipe with its inferred
@@ -48,12 +49,12 @@ public record InferredTimedCraftingRecipe(CraftingProfile profile, CraftingRecip
     }
 
     @Override
-    public boolean matches(CraftingInput input, Level level) {
+    public boolean matches(CraftingInput input, @NonNull Level level) {
         return delegate.matches(input, level);
     }
 
     @Override
-    public ItemStack assemble(CraftingInput input) {
+    public @NonNull ItemStack assemble(CraftingInput input) {
         return delegate.assemble(input);
     }
 
@@ -73,27 +74,27 @@ public record InferredTimedCraftingRecipe(CraftingProfile profile, CraftingRecip
     }
 
     @Override
-    public String group() {
+    public @NonNull String group() {
         return delegate.group();
     }
 
     @Override
-    public RecipeSerializer<? extends Recipe<CraftingInput>> getSerializer() {
+    public @NonNull RecipeSerializer<? extends Recipe<CraftingInput>> getSerializer() {
         return delegate.getSerializer();
     }
 
     @Override
-    public PlacementInfo placementInfo() {
+    public @NonNull PlacementInfo placementInfo() {
         return delegate.placementInfo();
     }
 
     @Override
-    public List<RecipeDisplay> display() {
+    public @NonNull List<RecipeDisplay> display() {
         return delegate.display();
     }
 
     @Override
-    public RecipeBookCategory recipeBookCategory() {
+    public @NonNull RecipeBookCategory recipeBookCategory() {
         return delegate.recipeBookCategory();
     }
 }

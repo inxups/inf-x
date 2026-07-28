@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.boat.AbstractBoat;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** R196 squid replacement that hunts prey in water and applies its original slow. */
@@ -38,7 +39,7 @@ public final class MiteSquid extends Squid implements MiteMob {
 
     /** MITE squid grant no experience. */
     @Override
-    public int getBaseExperienceReward(ServerLevel level) {
+    public int getBaseExperienceReward(@NonNull ServerLevel level) {
         return 0;
     }
 
@@ -70,7 +71,7 @@ public final class MiteSquid extends Squid implements MiteMob {
     }
 
     @Override
-    protected void doPush(Entity entity) {
+    protected void doPush(@NonNull Entity entity) {
         if (ramPursuedBoat(entity)) {
             return;
         }

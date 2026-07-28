@@ -26,8 +26,7 @@ public final class MiteCommands {
     private MiteCommands() {}
 
     @SubscribeEvent
-
-    private static void registerCommands(RegisterCommandsEvent event) {
+    public static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         dispatcher.register(Commands.literal(ROOT)
                 .then(Commands.literal("day").executes(context -> reply(

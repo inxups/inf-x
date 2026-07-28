@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -61,7 +62,7 @@ class UnderworldCarverGeneratedResourceTest {
     }
 
     private static List<String> strings(JsonArray array) {
-        return array.asList().stream().map(element -> element.getAsString()).toList();
+        return array.asList().stream().map(JsonElement::getAsString).toList();
     }
 
     private static JsonObject json(Path path) throws IOException {

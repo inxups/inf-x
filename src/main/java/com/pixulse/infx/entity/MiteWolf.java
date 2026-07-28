@@ -16,7 +16,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 /** Dire wolves retain wolf taming, while hellhounds remain permanently wild and hostile. */
 public final class MiteWolf extends Wolf implements Enemy, MiteMob {
@@ -55,7 +55,7 @@ public final class MiteWolf extends Wolf implements Enemy, MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinWolfReach(this, target);
     }
 
@@ -126,7 +126,7 @@ public final class MiteWolf extends Wolf implements Enemy, MiteMob {
 
     /** MITE wolves shrug off half the damage from non-player, non-arrow attackers. */
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         if (source.getEntity() != null
                 && !(source.getEntity() instanceof Player)
                 && !(source.getDirectEntity() instanceof AbstractArrow)) {
@@ -136,22 +136,22 @@ public final class MiteWolf extends Wolf implements Enemy, MiteMob {
     }
 
     @Override
-    protected @Nullable SoundEvent getAmbientSound() {
+    protected @NonNull SoundEvent getAmbientSound() {
         return variant() == Variant.HELLHOUND ? InfXSounds.HELLHOUND_AMBIENT.get() : super.getAmbientSound();
     }
 
     @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
         return variant() == Variant.HELLHOUND ? InfXSounds.HELLHOUND_HURT.get() : super.getHurtSound(source);
     }
 
     @Override
-    protected SoundEvent getDeathSound() {
+    protected @NonNull SoundEvent getDeathSound() {
         return variant() == Variant.HELLHOUND ? InfXSounds.HELLHOUND_DEATH.get() : super.getDeathSound();
     }
 
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
+    public boolean doHurtTarget(@NonNull ServerLevel level, @NonNull Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt && variant() == Variant.HELLHOUND && random.nextFloat() < 0.4F) {
             playSound(InfXSounds.HELLHOUND_BREATH.get(), 4.0F, 1.0F);

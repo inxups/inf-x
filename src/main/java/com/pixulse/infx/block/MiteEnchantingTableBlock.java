@@ -1,6 +1,6 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class MiteEnchantingTableBlock extends EnchantingTableBlock {
@@ -29,8 +30,8 @@ public final class MiteEnchantingTableBlock extends EnchantingTableBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NonNull InteractionResult useWithoutItem(
+            @NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hit) {
         if (TieredWorkbenchBlock.isObstructed(level, pos)) {
             if (!level.isClientSide()) {
                 player.sendOverlayMessage(Component.translatable("message.infx.enchanting_table_obstructed"));
@@ -41,7 +42,7 @@ public final class MiteEnchantingTableBlock extends EnchantingTableBlock {
     }
 
     @Override
-    protected @Nullable MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+    protected @Nullable MenuProvider getMenuProvider(@NonNull BlockState state, Level level, @NonNull BlockPos pos) {
         if (!(level.getBlockEntity(pos) instanceof EnchantingTableBlockEntity table)) return null;
         Component title = table.getDisplayName();
         return new SimpleMenuProvider(

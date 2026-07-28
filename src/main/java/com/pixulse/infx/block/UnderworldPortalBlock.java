@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** The dedicated two-way surface between the Overworld and the Underworld. */
@@ -37,13 +38,13 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.@NonNull Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(RUNE_GATE);
     }
 
     @Override
-    public int getPortalTransitionTime(ServerLevel level, Entity entity) {
+    public int getPortalTransitionTime(@NonNull ServerLevel level, @NonNull Entity entity) {
         if (entity instanceof ServerPlayer player && player.portalProcess != null) {
             BlockPos entry = player.portalProcess.getEntryPosition();
             if (hasRuneGate(level, entry)
@@ -56,7 +57,7 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
 
     @Override
     public @Nullable TeleportTransition getPortalDestination(
-            ServerLevel currentLevel, Entity entity, BlockPos portalEntryPos) {
+            ServerLevel currentLevel, @NonNull Entity entity, @NonNull BlockPos portalEntryPos) {
         Optional<RuneGate> runeGate = findRuneGate(currentLevel, portalEntryPos);
         if (runeGate.isPresent()) {
             TeleportTransition transition = runeTransition(currentLevel, entity, runeGate.get());
@@ -107,7 +108,6 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
 
     private static TeleportTransition runeTransition(ServerLevel level, Entity entity, RuneGate gate) {
         int orientationGroup = switch (entity.getDirection()) {
-            case EAST, NORTH -> 0;
             case WEST, SOUTH -> 1;
             default -> 0;
         };

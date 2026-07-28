@@ -2,6 +2,9 @@ package com.pixulse.infx.food;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.pixulse.infx.data.food.FoodProfile;
+import com.pixulse.infx.data.food.SurvivalData;
+import com.pixulse.infx.data.food.SurvivalRules;
 import org.junit.jupiter.api.Test;
 
 class SurvivalRulesTest {

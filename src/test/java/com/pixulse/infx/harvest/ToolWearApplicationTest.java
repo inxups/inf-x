@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.pixulse.infx.data.harvest.ToolWearApplication;
 import org.junit.jupiter.api.Test;
 
 class ToolWearApplicationTest {
