@@ -1,31 +1,32 @@
 package com.pixulse.infx.harvest;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import java.util.Optional;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
+import com.pixulse.infx.registry.tag.InfXItemTags;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class HarvestEvents {
     private HarvestEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(EventPriority.HIGHEST, HarvestEvents::rejectInvalidMiningInput);
-        gameBus.addListener(EventPriority.HIGHEST, HarvestEvents::enforceRestrictions);
-        gameBus.addListener(EventPriority.HIGHEST, HarvestEvents::applyHarvestCapability);
-        gameBus.addListener(EventPriority.LOWEST, HarvestEvents::applyBreakSpeedRules);
-    }
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
 
     private static void rejectInvalidMiningInput(PlayerInteractEvent.LeftClickBlock event) {
         if ((event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.START
@@ -38,6 +39,8 @@ public final class HarvestEvents {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+
     private static void enforceRestrictions(BreakBlockEvent event) {
         Player player = event.getPlayer();
         BlockState state = event.getState();
@@ -49,9 +52,13 @@ public final class HarvestEvents {
         }
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+
     private static void applyHarvestCapability(PlayerEvent.HarvestCheck event) {
         event.setCanHarvest(isAllowed(event.getEntity(), event.getTargetBlock(), event.getPos()));
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
 
     private static void applyBreakSpeedRules(PlayerEvent.BreakSpeed event) {
         Player player = event.getEntity();
@@ -86,7 +93,7 @@ public final class HarvestEvents {
     }
 
     private static boolean isPortable(Player player, BlockState state, @Nullable BlockPos pos) {
-        if (!state.is(InfinityXTags.Blocks.PORTABLE_HAND_HARVEST)) {
+        if (!state.is(InfXBlockTags.PORTABLE_HAND_HARVEST)) {
             return false;
         }
         if (!(state.getBlock() instanceof SafeBlock)) {
@@ -100,7 +107,7 @@ public final class HarvestEvents {
     private static Optional<HarvestTier> highestToolTier(ItemStack tool) {
         for (int index = HarvestTier.values().length - 1; index >= 0; index--) {
             HarvestTier tier = HarvestTier.values()[index];
-            if (tool.is(InfinityXTags.Items.toolTier(tier))) {
+            if (tool.is(InfXItemTags.toolTier(tier))) {
                 return Optional.of(tier);
             }
         }

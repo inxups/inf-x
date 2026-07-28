@@ -17,12 +17,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 
-class InfiniteXJeiPluginTest {
+class InfXJeiPluginTest {
     @Test
     void runeStoneSubtypesUseTheirBlockStateComponents() {
         RecordingSubtypeRegistration registration = new RecordingSubtypeRegistration();
 
-        InfiniteXJeiPlugin.registerRuneStoneSubtypes(registration, Items.STONE, Items.DIRT);
+        InfXJeiPlugin.registerRuneStoneSubtypes(registration, Items.STONE, Items.DIRT);
 
         assertEquals(
                 Map.of(

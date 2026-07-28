@@ -1,6 +1,11 @@
 package com.pixulse.infx.food;
 
-import com.pixulse.infx.registry.InfinityXItems;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
+import com.pixulse.infx.registry.InfXItems;
 import java.util.Map;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.TriState;
@@ -9,13 +14,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BaseFireBlock;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** R196 open-fire cooking: raw food cooks, cooked food later burns away. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class FireCookingEvents {
     private static final String COOK_AT = "infx_fire_cook_at";
     private static final String BURN_AT = "infx_fire_burn_at";
@@ -32,13 +37,7 @@ public final class FireCookingEvents {
 
     private FireCookingEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(FireCookingEvents::tickItem);
-        gameBus.addListener(FireCookingEvents::preventHotPickup);
-        gameBus.addListener(FireCookingEvents::awardCookingExperience);
-        gameBus.addListener(FireCookingEvents::preserveCookingFood);
-        gameBus.addListener(FireCookingEvents::igniteCookedDrops);
-    }
+    @SubscribeEvent
 
     private static void tickItem(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof ItemEntity entity) || entity.level().isClientSide()) return;
@@ -76,11 +75,15 @@ public final class FireCookingEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void preventHotPickup(ItemEntityPickupEvent.Pre event) {
         if (event.getItemEntity().isOnFire() && isCookableOrCooked(event.getItemEntity().getItem())) {
             event.setCanPickup(TriState.FALSE);
         }
     }
+
+    @SubscribeEvent
 
     private static void awardCookingExperience(ItemEntityPickupEvent.Post event) {
         int experience = event.getItemEntity().getPersistentData().getInt(COOKING_XP).orElse(0);
@@ -90,6 +93,8 @@ public final class FireCookingEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void preserveCookingFood(EntityInvulnerabilityCheckEvent event) {
         if (event.getEntity() instanceof ItemEntity item
                 && isCookableOrCooked(item.getItem())
@@ -97,6 +102,8 @@ public final class FireCookingEvents {
             event.setInvulnerable(true);
         }
     }
+
+    @SubscribeEvent
 
     private static void igniteCookedDrops(LivingDropsEvent event) {
         if (!event.getSource().is(DamageTypeTags.IS_FIRE)) return;
@@ -127,12 +134,12 @@ public final class FireCookingEvents {
     }
 
     public static Item cookedResult(Item raw) {
-        if (raw == InfinityXItems.WORM.get()) return InfinityXItems.COOKED_WORM.get();
+        if (raw == InfXItems.WORM.get()) return InfXItems.COOKED_WORM.get();
         return COOKED.get(raw);
     }
 
     public static boolean isCooked(ItemStack stack) {
-        return stack.is(InfinityXItems.COOKED_WORM.get()) || COOKED.containsValue(stack.getItem());
+        return stack.is(InfXItems.COOKED_WORM.get()) || COOKED.containsValue(stack.getItem());
     }
 
     public static boolean isCookableOrCooked(ItemStack stack) {

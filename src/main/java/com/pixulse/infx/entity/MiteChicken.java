@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -125,6 +125,6 @@ public final class MiteChicken extends Chicken {
 
     @Override
     public @Nullable Chicken getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return InfinityXEntityTypes.R196_CHICKEN.get().create(level, EntitySpawnReason.BREEDING);
+        return InfXEntityTypes.R196_CHICKEN.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

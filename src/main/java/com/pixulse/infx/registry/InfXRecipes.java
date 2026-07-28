@@ -12,7 +12,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class InfinityXRecipes {
+public final class InfXRecipes {
     private static final DeferredRegister<RecipeType<?>> TYPES =
             DeferredRegister.create(Registries.RECIPE_TYPE, InfiniteX.MOD_ID);
     private static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS =
@@ -26,7 +26,7 @@ public final class InfinityXRecipes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<TimedShapelessRecipe>> CRAFTING_SHAPELESS =
             SERIALIZERS.register("crafting_shapeless", () -> TimedShapelessRecipe.SERIALIZER);
 
-    private InfinityXRecipes() {}
+    private InfXRecipes() {}
 
     public static void register(IEventBus modBus) {
         TYPES.register(modBus);

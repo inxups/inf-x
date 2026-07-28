@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.equipment.CorrosionType;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -23,17 +23,17 @@ public final class GelatinousCubeRules {
             return IMMUNE;
         }
         if (type == CorrosionType.PEPSIN) {
-            return state.is(InfinityXTags.Blocks.PEPSIN_DISSOLVABLE) ? GRADUAL_TICKS : IMMUNE;
+            return state.is(InfXBlockTags.PEPSIN_DISSOLVABLE) ? GRADUAL_TICKS : IMMUNE;
         }
         // Acid oozes scorch living ground into dirt on contact. Check this before the
         // solid-block fallback so grass does not incorrectly remain immune.
         if (isAcidScorchableGround(state, type)) {
             return INSTANT;
         }
-        if (state.is(InfinityXTags.Blocks.ACID_DISSOLVES_GRADUALLY)) {
+        if (state.is(InfXBlockTags.ACID_DISSOLVES_GRADUALLY)) {
             return GRADUAL_TICKS;
         }
-        if (state.is(InfinityXTags.Blocks.ACID_DISSOLVES_INSTANTLY)) {
+        if (state.is(InfXBlockTags.ACID_DISSOLVES_INSTANTLY)) {
             return INSTANT;
         }
         if (state.is(BlockTags.STONE_BUTTONS)

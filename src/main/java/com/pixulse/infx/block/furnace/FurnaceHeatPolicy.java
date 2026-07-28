@@ -2,7 +2,7 @@ package com.pixulse.infx.block.furnace;
 
 import com.pixulse.infx.block.MiteFurnaceBlock;
 import com.pixulse.infx.item.MiteBucketItem;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +42,7 @@ public final class FurnaceHeatPolicy {
                         && bucket.contents() == MiteBucketItem.Contents.LAVA) {
             return HEAT_LAVA;
         }
-        if (fuel.is(InfinityXTags.Items.FURNACE_FUELS_HEAT_2)) {
+        if (fuel.is(InfXItemTags.FURNACE_FUELS_HEAT_2)) {
             return HEAT_COAL;
         }
         return HEAT_WOOD;
@@ -52,13 +52,13 @@ public final class FurnaceHeatPolicy {
         if (input.isEmpty()) {
             return 0;
         }
-        if (input.is(InfinityXTags.Items.SMELTING_INPUTS_HEAT_4)) {
+        if (input.is(InfXItemTags.SMELTING_INPUTS_HEAT_4)) {
             return HEAT_BLAZE;
         }
-        if (input.is(InfinityXTags.Items.SMELTING_INPUTS_HEAT_3)) {
+        if (input.is(InfXItemTags.SMELTING_INPUTS_HEAT_3)) {
             return HEAT_LAVA;
         }
-        return input.is(InfinityXTags.Items.SMELTING_INPUTS_HEAT_2) ? HEAT_COAL : HEAT_WOOD;
+        return input.is(InfXItemTags.SMELTING_INPUTS_HEAT_2) ? HEAT_COAL : HEAT_WOOD;
     }
 
     public static boolean isMouthBlocked(BlockGetter level, BlockPos pos, BlockState state) {

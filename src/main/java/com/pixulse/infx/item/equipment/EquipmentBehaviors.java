@@ -1,14 +1,18 @@
 package com.pixulse.infx.item.equipment;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.*;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.InfinityXDataComponents;
-import com.pixulse.infx.registry.InfinityXEnchantments;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.EntityTypeTags;
@@ -19,8 +23,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -35,26 +37,17 @@ import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
 import com.pixulse.infx.block.MiteFurnaceBlock;
 import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
-import com.pixulse.infx.registry.tag.InfinityXTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class EquipmentBehaviors {
     private static final String RECOVERY_CHECKED = "infxArrowRecoveryChecked";
 
     private EquipmentBehaviors() {}
 
-    public static void register(IEventBus ignored) {
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::applySilverBonus);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::onProjectileImpact);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::applyArmorDecay);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::applyFixedPointArmor);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::applyFixedResistance);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::applyElementalCorrosion);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::addQualityTooltip);
-        NeoForge.EVENT_BUS.addListener(EquipmentBehaviors::addBucketTooltip);
-    }
+   @SubscribeEvent
 
     static void applySilverBonus(LivingIncomingDamageEvent event) {
         if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(event.getEntity().getType()).is(EntityTypeTags.UNDEAD)
@@ -70,13 +63,15 @@ public final class EquipmentBehaviors {
             return arrowItem.key().material() == MiteMaterial.SILVER;
         }
         if (event.getSource().getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker) {
-            Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(attacker.getMainHandItem());
+            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(attacker.getMainHandItem());
             return entry != null
                     && entry.key().material() == MiteMaterial.SILVER
                     && entry.key().type() != EquipmentType.ARROW;
         }
         return false;
     }
+
+    @SubscribeEvent
 
     private static void onProjectileImpact(ProjectileImpactEvent event) {
         if (event.getProjectile() instanceof AbstractArrow arrow) {
@@ -121,9 +116,11 @@ public final class EquipmentBehaviors {
                 recoveryChance(material), recoveryEnchantmentLevel);
     }
 
+   @SubscribeEvent
+
     static void applyArmorDecay(ItemAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
-        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry == null
                 || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
                         && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)
@@ -149,6 +146,8 @@ public final class EquipmentBehaviors {
         float remaining = Math.clamp((maxDamage - damage) / (float) maxDamage, 0.0F, 1.0F);
         return Math.min(1.0F, remaining * 2.0F);
     }
+
+   @SubscribeEvent
 
     static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)
@@ -188,7 +187,7 @@ public final class EquipmentBehaviors {
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = player.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
             if (entry == null || entry.key().type().armorForm() == EquipmentType.ArmorForm.NONE) {
                 continue;
             }
@@ -196,7 +195,7 @@ public final class EquipmentBehaviors {
             if (fall) {
                 total += EnchantmentRules.featherFallingPoints(
                         Enchantments.level(
-                                player.level(), stack, InfinityXEnchantments.VANILLA_FEATHER_FALLING),
+                                player.level(), stack, InfXEnchantments.VANILLA_FEATHER_FALLING),
                         durabilityFactor);
                 continue;
             }
@@ -204,17 +203,17 @@ public final class EquipmentBehaviors {
             if (fire) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, InfinityXEnchantments.VANILLA_FIRE_PROTECTION));
+                                player.level(), stack, InfXEnchantments.VANILLA_FIRE_PROTECTION));
             }
             if (explosion) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, InfinityXEnchantments.VANILLA_BLAST_PROTECTION));
+                                player.level(), stack, InfXEnchantments.VANILLA_BLAST_PROTECTION));
             }
             if (projectile) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, InfinityXEnchantments.VANILLA_PROJECTILE_PROTECTION));
+                                player.level(), stack, InfXEnchantments.VANILLA_PROJECTILE_PROTECTION));
             }
         }
         return total;
@@ -225,7 +224,7 @@ public final class EquipmentBehaviors {
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = player.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
             if (entry == null
                     || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
                             && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)) {
@@ -233,7 +232,7 @@ public final class EquipmentBehaviors {
             }
             float currentProtection = entry.key().armorProtection()
                     * armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
-            int level = Enchantments.level(player.level(), stack, InfinityXEnchantments.PROTECTION);
+            int level = Enchantments.level(player.level(), stack, InfXEnchantments.PROTECTION);
             bonus += EnchantmentRules.protectionBonus(currentProtection, level);
         }
         return bonus;
@@ -245,8 +244,8 @@ public final class EquipmentBehaviors {
             return 0.0F;
         }
         ItemStack weapon = attacker.getMainHandItem();
-        int penetration = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.PENETRATION);
-        int cleaving = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.CLEAVING);
+        int penetration = Enchantments.level(attacker.level(), weapon, InfXEnchantments.PENETRATION);
+        int cleaving = Enchantments.level(attacker.level(), weapon, InfXEnchantments.CLEAVING);
         return EnchantmentRules.penetrationPoints(Math.max(penetration, cleaving));
     }
 
@@ -258,6 +257,7 @@ public final class EquipmentBehaviors {
     }
 
     /** Replaces modern percentage resistance with R196's five fixed protection points per level. */
+   @SubscribeEvent
     static void applyFixedResistance(LivingIncomingDamageEvent event) {
         var resistance = event.getEntity().getEffect(MobEffects.RESISTANCE);
         if (resistance == null
@@ -270,6 +270,8 @@ public final class EquipmentBehaviors {
                 DamageContainer.Reduction.MOB_EFFECTS,
                 (container, vanillaReduction) -> fixedArmorReduction(container.getNewDamage(), protection));
     }
+
+   @SubscribeEvent
 
     static void applyElementalCorrosion(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
@@ -311,7 +313,7 @@ public final class EquipmentBehaviors {
     }
 
     public static int corrosionDamage(ItemStack stack, float incomingDamage, boolean fire, boolean lava) {
-        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry == null || !stack.isDamageableItem()) {
             return 0;
         }
@@ -336,14 +338,16 @@ public final class EquipmentBehaviors {
         return 0;
     }
 
+   @SubscribeEvent
+
     static void addQualityTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
-        Quality quality = event.getItemStack().get(InfinityXDataComponents.QUALITY.get());
+        Quality quality = event.getItemStack().get(InfXDataComponents.QUALITY.get());
         if (quality != null) {
             event.getToolTip().add(1, Component.translatable("quality.infx." + quality.getSerializedName())
                     .withStyle(quality.color()));
         }
-        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry != null) {
             EquipmentKey key = entry.key();
             event.getToolTip().add(Component.translatable(
@@ -379,10 +383,12 @@ public final class EquipmentBehaviors {
                         && bucket.contents() == MiteBucketItem.Contents.LAVA) {
             return FurnaceHeatPolicy.HEAT_LAVA;
         }
-        if (stack.is(InfinityXTags.Items.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
+        if (stack.is(InfXItemTags.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
         if (stack.is(ItemTags.LOGS) || stack.is(ItemTags.PLANKS)) return FurnaceHeatPolicy.HEAT_WOOD;
         return 0;
     }
+
+   @SubscribeEvent
 
     static void addBucketTooltip(ItemTooltipEvent event) {
         if (!(event.getItemStack().getItem() instanceof MiteBucketItem bucket)) {

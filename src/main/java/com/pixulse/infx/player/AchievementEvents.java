@@ -1,20 +1,21 @@
 package com.pixulse.infx.player;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.world.VillageProgression;
 import com.pixulse.infx.world.WorldData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.AdvancementEvent;
 
 /** Records and broadcasts the first player/day for every R196 advancement. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AchievementEvents {
     private AchievementEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(AchievementEvents::onAdvancementEarned);
-    }
+    @SubscribeEvent
 
     private static void onAdvancementEarned(AdvancementEvent.AdvancementEarnEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;

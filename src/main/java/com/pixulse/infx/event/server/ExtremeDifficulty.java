@@ -1,23 +1,23 @@
 package com.pixulse.infx.event.server;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.InfiniteXTestMode;
 import java.util.Objects;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.jspecify.annotations.Nullable;
 
 /** Owns the independent fifth Minecraft difficulty installed by {@code DifficultyMixin}. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ExtremeDifficulty {
     public static final String NAME = "extreme";
     private static @Nullable Difficulty value;
 
     private ExtremeDifficulty() {}
-
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(ExtremeDifficulty::onServerStarted);
-    }
 
     public static Difficulty value() {
         Difficulty.values();
@@ -60,7 +60,10 @@ public final class ExtremeDifficulty {
         return value;
     }
 
+    @SubscribeEvent
+
     private static void onServerStarted(ServerStartedEvent event) {
+        if (InfiniteXTestMode.isEnabled()) return;
         apply(event.getServer());
         InfiniteX.LOGGER.info("InfiniteX Extreme difficulty is active and locked");
     }

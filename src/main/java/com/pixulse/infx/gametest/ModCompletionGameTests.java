@@ -1,5 +1,8 @@
 package com.pixulse.infx.gametest;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.MetalAnvilBlock;
@@ -27,27 +30,27 @@ import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.menu.MetalAnvilMenu;
 import com.pixulse.infx.menu.MiteEnchantmentMenu;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.registry.InfinityXCreativeTabs;
-import com.pixulse.infx.registry.InfinityXDataComponents;
-import com.pixulse.infx.registry.InfinityXEnchantments;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.InfinityXAttachments;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
-import com.pixulse.infx.registry.InfinityXMenus;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXCreativeTabs;
+import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.player.Experience;
 import com.pixulse.infx.food.FoodProfile;
 import com.pixulse.infx.food.SurvivalData;
 import com.pixulse.infx.food.SurvivalEvents;
 import com.pixulse.infx.food.SurvivalRules;
 import com.pixulse.infx.network.Network;
-import com.pixulse.infx.world.EndEvents;
+import com.pixulse.infx.event.EndEvents;
 import com.pixulse.infx.world.FluidDecayData;
-import com.pixulse.infx.world.SafeEvents;
+import com.pixulse.infx.event.SafeEvents;
 import com.pixulse.infx.world.SwimPhysics;
 import com.pixulse.infx.world.SwimRules;
 import com.pixulse.infx.world.Underworld;
-import com.pixulse.infx.world.UnderworldPortalEvents;
+import com.pixulse.infx.event.UnderworldPortalEvents;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -142,6 +145,7 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ModCompletionGameTests {
     private static final long DROP_RANDOM_MULTIPLIER = 341_873_128_712L;
     private static final long DROP_RANDOM_OFFSET = 132_897_987_541L;
@@ -193,8 +197,9 @@ public final class ModCompletionGameTests {
 
     public static void register(IEventBus modBus) {
         FUNCTIONS.register(modBus);
-        modBus.addListener(ModCompletionGameTests::registerTests);
     }
+
+    @SubscribeEvent
 
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
@@ -219,7 +224,7 @@ public final class ModCompletionGameTests {
     private static void specialBehaviors(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
-        ItemStack silverSword = InfinityXItems.catalog()
+        ItemStack silverSword = InfXItems.catalog()
                 .equipment(MiteMaterial.SILVER, EquipmentType.SWORD)
                 .holder()
                 .toStack();
@@ -236,7 +241,7 @@ public final class ModCompletionGameTests {
         cow.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
         helper.assertTrue(Math.abs((before - cow.getHealth()) - 4.0F) < .001F, "silver melee must not boost normal targets");
 
-        MiteArrowItem silverArrow = (MiteArrowItem) InfinityXItems.catalog()
+        MiteArrowItem silverArrow = (MiteArrowItem) InfXItems.catalog()
                 .equipment(MiteMaterial.SILVER, EquipmentType.ARROW)
                 .holder()
                 .get();
@@ -247,13 +252,13 @@ public final class ModCompletionGameTests {
         secondZombie.hurtServer(level, level.damageSources().arrow(projectile, player), 4.0F);
         helper.assertTrue(Math.abs((before - secondZombie.getHealth()) - 5.0F) < .001F, "silver arrows must deal 125% to undead");
 
-        for (var entry : InfinityXItems.catalog().equipmentEntries()) {
+        for (var entry : InfXItems.catalog().equipmentEntries()) {
             helper.assertTrue(
                     entry.holder().toStack().has(DataComponents.DAMAGE_RESISTANT)
                             == (entry.key().material() == MiteMaterial.ADAMANTIUM),
                     entry.path() + " fire resistance boundary");
         }
-        for (var entry : InfinityXItems.catalog().rawEntries()) {
+        for (var entry : InfXItems.catalog().rawEntries()) {
             boolean expected = entry.definition().material()
                     .map(material -> material == MiteMaterial.ADAMANTIUM)
                     .orElse(false);
@@ -261,14 +266,14 @@ public final class ModCompletionGameTests {
                     entry.holder().toStack().has(DataComponents.DAMAGE_RESISTANT) == expected,
                     entry.path() + " raw fire resistance boundary");
         }
-        helper.assertTrue(InfinityXItems.ADAMANTIUM_ORE.toStack().has(DataComponents.DAMAGE_RESISTANT), "adamantium ore fire resistance");
-        helper.assertTrue(InfinityXItems.ADAMANTIUM_BLOCK.toStack().has(DataComponents.DAMAGE_RESISTANT), "adamantium block fire resistance");
+        helper.assertTrue(InfXItems.ADAMANTIUM_ORE.toStack().has(DataComponents.DAMAGE_RESISTANT), "adamantium ore fire resistance");
+        helper.assertTrue(InfXItems.ADAMANTIUM_BLOCK.toStack().has(DataComponents.DAMAGE_RESISTANT), "adamantium block fire resistance");
         helper.assertTrue(
-                InfinityXBlocks.ADAMANTIUM_ANVIL.get().asItem().getDefaultInstance().has(DataComponents.DAMAGE_RESISTANT),
+                InfXBlocks.ADAMANTIUM_ANVIL.get().asItem().getDefaultInstance().has(DataComponents.DAMAGE_RESISTANT),
                 "adamantium anvil fire resistance");
 
         ItemEntity adamantiumDrop = new ItemEntity(
-                level, player.getX(), player.getY(), player.getZ(), InfinityXItems.ADAMANTIUM_INGOT.toStack());
+                level, player.getX(), player.getY(), player.getZ(), InfXItems.ADAMANTIUM_INGOT.toStack());
         level.addFreshEntity(adamantiumDrop);
         helper.assertFalse(
                 adamantiumDrop.hurtServer(level, level.damageSources().lava(), 10.0F),
@@ -284,7 +289,7 @@ public final class ModCompletionGameTests {
 
         helper.assertTrue(EquipmentBehaviors.armorDurabilityFactor(50, 100) == 1.0F, "half durability protection");
         helper.assertTrue(EquipmentBehaviors.armorDurabilityFactor(99, 100) < .03F, "critical durability protection");
-        ItemStack fullChestplate = InfinityXItems.catalog()
+        ItemStack fullChestplate = InfXItems.catalog()
                 .equipment(MiteMaterial.IRON, EquipmentType.CHESTPLATE)
                 .holder()
                 .toStack();
@@ -308,18 +313,18 @@ public final class ModCompletionGameTests {
 
     private static void qualityAndCoin(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        ItemStack coins = InfinityXItems.catalog().raw("copper_coin").holder().toStack(2);
+        ItemStack coins = InfXItems.catalog().raw("copper_coin").holder().toStack(2);
         player.setItemInHand(InteractionHand.MAIN_HAND, coins);
         int beforeXp = player.totalExperience;
         ((CoinItem) coins.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
         helper.assertTrue(coins.getCount() == 1, "one server-side coin must be consumed");
         helper.assertTrue(player.totalExperience == beforeXp + 5, "copper coin must grant five XP");
 
-        ItemStack pickaxe = InfinityXItems.IRON_PICKAXE.toStack();
+        ItemStack pickaxe = InfXItems.IRON_PICKAXE.toStack();
         int baseDurability = pickaxe.getMaxDamage();
         int code = QualitySystem.toCode(Quality.FINE);
         QualitySystem.applySelectedQuality(pickaxe, code);
-        helper.assertTrue(pickaxe.get(InfinityXDataComponents.QUALITY.get()) == Quality.FINE, "quality component persists");
+        helper.assertTrue(pickaxe.get(InfXDataComponents.QUALITY.get()) == Quality.FINE, "quality component persists");
         helper.assertTrue(pickaxe.getMaxDamage() == Math.round(baseDurability * 1.5F), "fine durability modifier");
 
         player.giveExperiencePoints(1_000);
@@ -330,25 +335,25 @@ public final class ModCompletionGameTests {
         crafting.infx$cycleResult(player);
         ItemStack qualityPreview = crafting.infx$resultContainer().getItem(0);
         helper.assertTrue(
-                qualityPreview.is(InfinityXItems.catalog()
+                qualityPreview.is(InfXItems.catalog()
                         .equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)
                         .holder()),
                 "quality selection keeps the matched crafting result");
         helper.assertTrue(
-                qualityPreview.get(InfinityXDataComponents.QUALITY.get()) == Quality.FINE,
+                qualityPreview.get(InfXDataComponents.QUALITY.get()) == Quality.FINE,
                 "server crafting preview carries selected quality");
 
         BlockPos workbench = helper.absolutePos(new BlockPos(8, 2, 4));
-        helper.getLevel().setBlock(workbench, InfinityXBlocks.MITHRIL_WORKBENCH.get().defaultBlockState(), 3);
+        helper.getLevel().setBlock(workbench, InfXBlocks.MITHRIL_WORKBENCH.get().defaultBlockState(), 3);
         TimedWorkbenchMenu runeCrafting = TimedWorkbenchMenu.server(
                 78,
                 player.getInventory(),
                 BenchTier.MITHRIL,
                 ContainerLevelAccess.create(helper.getLevel(), workbench),
-                InfinityXBlocks.MITHRIL_WORKBENCH.get());
+                InfXBlocks.MITHRIL_WORKBENCH.get());
         player.containerMenu = runeCrafting;
         for (int slot : List.of(1, 3, 5, 7)) {
-            runeCrafting.infx$craftingContainer().setItem(slot, InfinityXItems.MITHRIL_NUGGET.toStack());
+            runeCrafting.infx$craftingContainer().setItem(slot, InfXItems.MITHRIL_NUGGET.toStack());
         }
         runeCrafting.infx$craftingContainer().setItem(4, Items.OBSIDIAN.getDefaultInstance());
         helper.assertTrue(
@@ -356,7 +361,7 @@ public final class ModCompletionGameTests {
                 "mithril rune-stone recipe must produce a timed result");
         runeCrafting.clicked(0, 1, ContainerInput.PICKUP, player);
         ItemStack runePreview = runeCrafting.infx$resultContainer().getItem(0);
-        helper.assertTrue(runePreview.is(InfinityXItems.MITHRIL_RUNE_STONE.get()), "right-click keeps rune-stone result");
+        helper.assertTrue(runePreview.is(InfXItems.MITHRIL_RUNE_STONE.get()), "right-click keeps rune-stone result");
         helper.assertTrue(RuneStoneBlock.rune(runePreview) == 1, "right-click advances the crafting rune type");
         removePlayer(player);
         helper.succeed();
@@ -365,9 +370,9 @@ public final class ModCompletionGameTests {
     private static void metalAnvil(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         BlockPos relative = new BlockPos(4, 2, 4);
-        helper.setBlock(relative, InfinityXBlocks.IRON_ANVIL.get());
+        helper.setBlock(relative, InfXBlocks.IRON_ANVIL.get());
         BlockPos absolute = helper.absolutePos(relative);
-        MetalAnvilBlock block = InfinityXBlocks.IRON_ANVIL.get();
+        MetalAnvilBlock block = InfXBlocks.IRON_ANVIL.get();
         MetalAnvilBlockEntity entity = (MetalAnvilBlockEntity) helper.getLevel().getBlockEntity(absolute);
 
         MetalAnvilMenu menu = MetalAnvilMenu.server(
@@ -376,17 +381,17 @@ public final class ModCompletionGameTests {
                 MiteMaterial.IRON,
                 ContainerLevelAccess.create(helper.getLevel(), absolute),
                 block);
-        ItemStack damaged = InfinityXItems.IRON_PICKAXE.toStack();
+        ItemStack damaged = InfXItems.IRON_PICKAXE.toStack();
         damaged.setDamageValue(1_000);
         damaged.set(DataComponents.CUSTOM_NAME, Component.literal("Keep Me"));
-        damaged.set(InfinityXDataComponents.QUALITY.get(), Quality.FINE);
+        damaged.set(InfXDataComponents.QUALITY.get(), Quality.FINE);
         menu.getSlot(0).set(damaged);
         menu.getSlot(1).set(new ItemStack(Items.IRON_NUGGET, 3));
         ItemStack result = menu.getSlot(2).getItem();
         helper.assertFalse(result.isEmpty(), "valid metal repair must produce output");
         helper.assertTrue(result.getDamageValue() < damaged.getDamageValue(), "repair must restore durability");
         helper.assertTrue(result.get(DataComponents.CUSTOM_NAME).equals(Component.literal("Keep Me")), "custom name preserved");
-        helper.assertTrue(result.get(InfinityXDataComponents.QUALITY.get()) == Quality.FINE, "quality preserved");
+        helper.assertTrue(result.get(InfXDataComponents.QUALITY.get()) == Quality.FINE, "quality preserved");
         menu.getSlot(2).onTake(player, result);
         helper.assertTrue(entity.damage() > 0, "repair must damage anvil by restored durability");
 
@@ -408,7 +413,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(replayed.damage() == savedDamage, "placed anvil restores persistent damage");
 
         int beforeRodRepair = entity.damage();
-        ItemStack fishingRod = InfinityXItems.catalog()
+        ItemStack fishingRod = InfXItems.catalog()
                 .equipment(MiteMaterial.IRON, EquipmentType.FISHING_ROD)
                 .holder()
                 .toStack();
@@ -456,7 +461,7 @@ public final class ModCompletionGameTests {
 
         // The dedicated return-spawn block stays in the Overworld and needs no second dimension.
         helper.assertTrue(helper.getLevel().getServer().getLevel(Underworld.LEVEL) == null, "GameTest has no custom levels");
-        TeleportTransition transition = InfinityXBlocks.RETURN_SPAWN_PORTAL.get()
+        TeleportTransition transition = InfXBlocks.RETURN_SPAWN_PORTAL.get()
                 .getPortalDestination(helper.getLevel(), portalProbe, portalProbe.blockPosition());
         helper.assertTrue(transition != null, "return-spawn portal must return a spawn transition");
         helper.assertTrue(transition.newLevel() == helper.getLevel(), "spawn route stays in the Overworld");
@@ -472,10 +477,10 @@ public final class ModCompletionGameTests {
                         helper.getLevel(), eligibleOrigin, eligibleShape),
                 "bottom-bedrock frame becomes an Underworld portal");
         helper.assertTrue(
-                helper.getLevel().getBlockState(eligibleOrigin).is(InfinityXBlocks.UNDERWORLD_PORTAL.get()),
+                helper.getLevel().getBlockState(eligibleOrigin).is(InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "eligible portal interior converted");
         helper.assertTrue(
-                InfinityXBlocks.UNDERWORLD_PORTAL.get()
+                InfXBlocks.UNDERWORLD_PORTAL.get()
                                 .getPortalDestination(helper.getLevel(), portalProbe, eligibleOrigin)
                         == null,
                 "bottom portal fails safely when the GameTest harness has no Underworld level");
@@ -490,7 +495,7 @@ public final class ModCompletionGameTests {
                         helper.getLevel(), ineligibleOrigin, ineligibleShape),
                 "raised frame must remain a Nether portal candidate");
         helper.assertFalse(
-                helper.getLevel().getBlockState(ineligibleOrigin).is(InfinityXBlocks.UNDERWORLD_PORTAL.get()),
+                helper.getLevel().getBlockState(ineligibleOrigin).is(InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "ineligible portal interior is not converted");
         helper.assertTrue(
                 helper.getLevel().getBlockState(ineligibleOrigin).isAir(),
@@ -499,60 +504,60 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 helper.getLevel().getBlockState(ineligibleOrigin).is(Blocks.NETHER_PORTAL),
                 "legacy faces can be recreated for migration coverage");
-        BlockPos migratedReturnArrival = InfinityXBlocks.RETURN_SPAWN_PORTAL.get()
+        BlockPos migratedReturnArrival = InfXBlocks.RETURN_SPAWN_PORTAL.get()
                 .findOrCreateArrivalPortal(helper.getLevel(), ineligibleOrigin);
         helper.assertTrue(
-                helper.getLevel().getBlockState(ineligibleOrigin).is(InfinityXBlocks.RETURN_SPAWN_PORTAL.get()),
+                helper.getLevel().getBlockState(ineligibleOrigin).is(InfXBlocks.RETURN_SPAWN_PORTAL.get()),
                 "a compatible legacy portal is upgraded instead of opening another portal");
         helper.assertTrue(
-                hasAdjacentPortal(helper, migratedReturnArrival, InfinityXBlocks.RETURN_SPAWN_PORTAL.get()),
+                hasAdjacentPortal(helper, migratedReturnArrival, InfXBlocks.RETURN_SPAWN_PORTAL.get()),
                 "legacy portal migration keeps the existing portal as the arrival point");
 
-        BlockPos arrival = InfinityXBlocks.UNDERWORLD_PORTAL.get()
+        BlockPos arrival = InfXBlocks.UNDERWORLD_PORTAL.get()
                 .createArrivalPortal(helper.getLevel(), helper.absolutePos(new BlockPos(8, 2, 8)));
         helper.assertTrue(helper.getLevel().getBlockState(arrival.below()).is(Blocks.OBSIDIAN), "arrival has a floor");
         helper.assertTrue(
                 helper.getLevel().getBlockState(arrival.relative(net.minecraft.core.Direction.NORTH))
-                        .is(InfinityXBlocks.UNDERWORLD_PORTAL.get()),
+                        .is(InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "arrival is beside the target portal");
         int underworldSurfaces = countPortalSurfaces(
                 helper,
-                InfinityXBlocks.UNDERWORLD_PORTAL.get(),
+                InfXBlocks.UNDERWORLD_PORTAL.get(),
                 arrival.offset(-8, -4, -8),
                 arrival.offset(8, 4, 8));
-        BlockPos reusedArrival = InfinityXBlocks.UNDERWORLD_PORTAL.get()
+        BlockPos reusedArrival = InfXBlocks.UNDERWORLD_PORTAL.get()
                 .findOrCreateArrivalPortal(helper.getLevel(), arrival);
         helper.assertTrue(
                 countPortalSurfaces(
                                 helper,
-                                InfinityXBlocks.UNDERWORLD_PORTAL.get(),
+                                InfXBlocks.UNDERWORLD_PORTAL.get(),
                                 arrival.offset(-8, -4, -8),
                                 arrival.offset(8, 4, 8))
                         == underworldSurfaces,
                 "an existing Underworld portal is reused instead of creating another one");
         helper.assertTrue(
-                hasAdjacentPortal(helper, reusedArrival, InfinityXBlocks.UNDERWORLD_PORTAL.get()),
+                hasAdjacentPortal(helper, reusedArrival, InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "reused arrival remains beside the existing Underworld portal");
 
-        BlockPos netherArrival = InfinityXBlocks.NETHER_PORTAL.get()
+        BlockPos netherArrival = InfXBlocks.NETHER_PORTAL.get()
                 .createArrivalPortal(helper.getLevel(), arrival.offset(12, 0, 0));
         int netherSurfaces = countPortalSurfaces(
                 helper,
-                InfinityXBlocks.NETHER_PORTAL.get(),
+                InfXBlocks.NETHER_PORTAL.get(),
                 netherArrival.offset(-8, -4, -8),
                 netherArrival.offset(8, 4, 8));
-        BlockPos reusedNetherArrival = InfinityXBlocks.NETHER_PORTAL.get()
+        BlockPos reusedNetherArrival = InfXBlocks.NETHER_PORTAL.get()
                 .findOrCreateArrivalPortal(helper.getLevel(), arrival);
         helper.assertTrue(
                 countPortalSurfaces(
                                 helper,
-                                InfinityXBlocks.NETHER_PORTAL.get(),
+                                InfXBlocks.NETHER_PORTAL.get(),
                                 netherArrival.offset(-8, -4, -8),
                                 netherArrival.offset(8, 4, 8))
                         == netherSurfaces,
                 "a Nether portal reuses only an existing Nether portal");
         helper.assertTrue(
-                hasAdjacentPortal(helper, reusedNetherArrival, InfinityXBlocks.NETHER_PORTAL.get()),
+                hasAdjacentPortal(helper, reusedNetherArrival, InfXBlocks.NETHER_PORTAL.get()),
                 "a Nether portal never reuses an Underworld portal surface");
         portalProbe.discard();
         helper.succeed();
@@ -568,7 +573,7 @@ public final class ModCompletionGameTests {
                 UnderworldPortalEvents.tryCreateR196Portal(helper.getLevel(), origin, shape),
                 "ordinary Overworld frame must become a return-spawn portal");
         helper.assertTrue(
-                helper.getLevel().getBlockState(origin).is(InfinityXBlocks.RETURN_SPAWN_PORTAL.get()),
+                helper.getLevel().getBlockState(origin).is(InfXBlocks.RETURN_SPAWN_PORTAL.get()),
                 "ordinary Overworld frame must not reuse the Underworld portal block");
 
         BlockPos[] corners = {
@@ -580,7 +585,7 @@ public final class ModCompletionGameTests {
         for (int i = 0; i < corners.length; i++) {
             helper.getLevel().setBlock(
                     corners[i],
-                    InfinityXBlocks.MITHRIL_RUNE_STONE.get()
+                    InfXBlocks.MITHRIL_RUNE_STONE.get()
                             .defaultBlockState()
                             .setValue(RuneStoneBlock.RUNE, i * 5),
                     3);
@@ -589,7 +594,7 @@ public final class ModCompletionGameTests {
                 UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
                 "four same-material corner runes must override the ordinary gate");
         helper.assertTrue(
-                helper.getLevel().getBlockState(origin).is(InfinityXBlocks.UNDERWORLD_PORTAL.get()),
+                helper.getLevel().getBlockState(origin).is(InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "a completed rune frame switches to the dedicated rune-capable portal block");
         helper.assertTrue(
                 helper.getLevel().getBlockState(corners[3]).getValue(RuneStoneBlock.RUNE) == 15,
@@ -599,12 +604,12 @@ public final class ModCompletionGameTests {
                 "four matching rune corners switch the active portal to the rune-gate surface");
 
         helper.getLevel().setBlock(
-                corners[0], InfinityXBlocks.ADAMANTIUM_RUNE_STONE.get().defaultBlockState(), 3);
+                corners[0], InfXBlocks.ADAMANTIUM_RUNE_STONE.get().defaultBlockState(), 3);
         helper.assertFalse(
                 UnderworldPortalBlock.hasRuneGate(helper.getLevel(), origin),
                 "mixed rune materials must not form a rune gate");
         helper.assertTrue(
-                helper.getLevel().getBlockState(origin).is(InfinityXBlocks.RETURN_SPAWN_PORTAL.get()),
+                helper.getLevel().getBlockState(origin).is(InfXBlocks.RETURN_SPAWN_PORTAL.get()),
                 "mixed rune corners restore the original return-spawn portal block");
 
         player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
@@ -630,7 +635,7 @@ public final class ModCompletionGameTests {
     private static void livestock(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
-        Cow cow = helper.spawn(InfinityXEntityTypes.R196_COW.get(), new BlockPos(2, 2, 8));
+        Cow cow = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(2, 2, 8));
         helper.assertTrue(cow.getMaxHealth() == 20.0F, "R196 cows must have twenty health");
         helper.setBlock(new BlockPos(3, 1, 8), Blocks.WATER);
         ItemEntity wheat = new ItemEntity(
@@ -645,13 +650,13 @@ public final class ModCompletionGameTests {
         interactAt(player, cow);
         helper.assertTrue(player.getMainHandItem().is(Items.BUCKET), "a second same-day milk bucket must be denied");
 
-        Cow bowlCow = helper.spawn(InfinityXEntityTypes.R196_COW.get(), new BlockPos(1, 2, 8));
+        Cow bowlCow = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(1, 2, 8));
         setLivestockWellness(bowlCow, 1.0F, 1.0F, 1.0F);
         for (int bowl = 0; bowl < 4; bowl++) {
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
             interactAt(player, bowlCow);
             helper.assertTrue(
-                    player.getMainHandItem().is(InfinityXItems.MILK_BOWL.get()),
+                    player.getMainHandItem().is(InfXItems.MILK_BOWL.get()),
                     "healthy cow must fill milk bowl " + (bowl + 1) + " of 4");
         }
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
@@ -675,7 +680,7 @@ public final class ModCompletionGameTests {
                 "unwell MITE livestock keep leather but lose their meat yield");
         setLivestockWellness(cow, 1.0F, 1.0F, 1.0F);
 
-        Sheep sheep = helper.spawn(InfinityXEntityTypes.R196_SHEEP.get(), new BlockPos(4, 2, 8));
+        Sheep sheep = helper.spawn(InfXEntityTypes.R196_SHEEP.get(), new BlockPos(4, 2, 8));
         setLivestockWellness(sheep, 0.24F, 1.0F, 1.0F);
         helper.assertTrue(sheep.readyForShearing(), "MITE wool is gated by shearing state, not wellness");
         setLivestockWellness(sheep, 1.0F, 1.0F, 1.0F);
@@ -684,7 +689,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
         sheep.discard();
 
-        Pig pig = helper.spawn(InfinityXEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 8));
+        Pig pig = helper.spawn(InfXEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 8));
         helper.assertTrue(Livestock.isWell(pig), "R196 pigs must initialize their synced isWell flag");
         level.setBlockAndUpdate(pig.blockPosition().below(2), Blocks.STONE.defaultBlockState());
         level.setBlockAndUpdate(pig.blockPosition().below(), Blocks.GRASS_BLOCK.defaultBlockState());
@@ -694,7 +699,7 @@ public final class ModCompletionGameTests {
                 "grass beneath livestock must improve the MITE food meter without a dropped breeding item");
 
         helper.setBlock(new BlockPos(5, 1, 6), Blocks.STONE);
-        Pig feedingPig = helper.spawn(InfinityXEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 6));
+        Pig feedingPig = helper.spawn(InfXEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 6));
         feedingPig.goalSelector.removeAllGoals(goal -> true);
         feedingPig.setAge(6_000);
         setLivestockWellness(feedingPig, 0.2F, 1.0F, 1.0F);
@@ -720,7 +725,7 @@ public final class ModCompletionGameTests {
             }
         }
         BlockPos chickenPos = new BlockPos(6, 2, 8);
-        Chicken chicken = helper.spawn(InfinityXEntityTypes.R196_CHICKEN.get(), chickenPos);
+        Chicken chicken = helper.spawn(InfXEntityTypes.R196_CHICKEN.get(), chickenPos);
         chicken.setAge(0);
         setLivestockWellness(chicken, 1.0F, 1.0F, 1.0F);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
@@ -736,8 +741,8 @@ public final class ModCompletionGameTests {
         // Keep the panic assertion on settled animals with a deterministic open floor.
         BlockPos panicSourcePos = new BlockPos(8, 2, 9);
         BlockPos panickedChickenPos = new BlockPos(9, 2, 9);
-        Cow panicSource = helper.spawn(InfinityXEntityTypes.R196_COW.get(), panicSourcePos);
-        Chicken panickedChicken = helper.spawn(InfinityXEntityTypes.R196_CHICKEN.get(), panickedChickenPos);
+        Cow panicSource = helper.spawn(InfXEntityTypes.R196_COW.get(), panicSourcePos);
+        Chicken panickedChicken = helper.spawn(InfXEntityTypes.R196_CHICKEN.get(), panickedChickenPos);
         panicSource.goalSelector.removeAllGoals(goal -> true);
         panicSource.setDeltaMovement(Vec3.ZERO);
         panicSource.setOnGround(true);
@@ -761,7 +766,7 @@ public final class ModCompletionGameTests {
         helper.setBlock(grass.below(2), Blocks.STONE);
         helper.setBlock(grass.below(), Blocks.GRASS_BLOCK);
         helper.setBlock(grass, Blocks.SHORT_GRASS);
-        Cow foodSeeker = helper.spawn(InfinityXEntityTypes.R196_COW.get(), new BlockPos(8, 2, 3));
+        Cow foodSeeker = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(8, 2, 3));
         foodSeeker.goalSelector.removeAllGoals(goal -> true);
         foodSeeker.setDeltaMovement(Vec3.ZERO);
         foodSeeker.setOnGround(true);
@@ -788,7 +793,7 @@ public final class ModCompletionGameTests {
                 Livestock.update(level, foodSeeker).food() > foodBeforeUpdate,
                 "grass-seeking livestock must improve its food meter at the selected source");
 
-        Cow seeker = helper.spawn(InfinityXEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
+        Cow seeker = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
         // Keep the manually exercised goal in sole control. The production goal
         // is registered on join and can otherwise reach the water before this
         // assertion gets a chance to inspect its selected navigation target.
@@ -952,22 +957,22 @@ public final class ModCompletionGameTests {
         helper.assertTrue(Math.abs(SurvivalRules.foodCap(player.experienceLevel) - 8.0D) < 0.001D,
                 "level five adds one food icon");
 
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(0, 2, 1, 1, 1, 0, 0));
-        SurvivalData egg = player.getData(InfinityXAttachments.SURVIVAL)
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 2, 1, 1, 1, 0, 0));
+        SurvivalData egg = player.getData(InfXAttachments.SURVIVAL)
                 .eat(new FoodProfile(1, 3, 12_000, 0, 2_000, 0), 8);
         helper.assertTrue(egg.satiation() == 1.0D && egg.nutrition() == 5.0D,
                 "egg fills both energy layers");
         helper.assertTrue(egg.phytonutrients() == 1, "egg cannot cure phytonutrient malnutrition");
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(0, 8, 1, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 8, 1, 1, 1, 0, 0));
         helper.assertTrue(player.canEat(false), "depleted satiation permits eating even when nutrition is full");
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(8, 8, 1, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 1, 1, 1, 0, 0));
         helper.assertFalse(player.canEat(false), "both full energy layers prevent eating");
         helper.assertTrue(
                 Items.SUGAR.getDefaultInstance().has(DataComponents.FOOD)
                         && Items.SUGAR.getDefaultInstance().has(DataComponents.CONSUMABLE),
                 "small R196 foods are directly edible");
 
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(8, 2, 1, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 2, 1, 1, 1, 0, 0));
         SurvivalEvents.recalculatePlayerLimits(player);
         helper.assertTrue(
                 player.getFoodData().getFoodLevel() == 2
@@ -979,13 +984,13 @@ public final class ModCompletionGameTests {
                 player.getFoodData().getFoodLevel() == 2
                         && Math.abs(player.getFoodData().getSaturationLevel() - 8.0F) < 0.001F,
                 "vanilla FoodData tick must not mutate R196 energy layers");
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(0.5, 0, 1, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0.5, 0, 1, 1, 1, 0, 0));
         player.setSprinting(true);
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
         helper.assertTrue(
-                player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy() && player.isSprinting(),
+                player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy() && player.isSprinting(),
                 "remaining Satiation must permit sprinting below vanilla's food threshold");
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(0, 0, 1, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 0, 1, 1, 1, 0, 0));
         player.setSprinting(true);
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
         helper.assertFalse(player.isSprinting(), "empty R196 energy must stop sprinting");
@@ -997,18 +1002,18 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
         SurvivalData frozen = new SurvivalData(6, 6, 1_000, 1_000, 1_000, 100, 0);
-        player.setData(InfinityXAttachments.SURVIVAL, frozen);
+        player.setData(InfXAttachments.SURVIVAL, frozen);
         player.gameMode.changeGameModeForPlayer(GameType.SPECTATOR);
 
         helper.startSequence()
                 .thenExecuteAfter(40, () -> {
                     helper.assertTrue(
-                            player.getData(InfinityXAttachments.SURVIVAL).equals(frozen),
+                            player.getData(InfXAttachments.SURVIVAL).equals(frozen),
                             "spectator mode must freeze R196 energy and nutrient metabolism");
                     player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
                 })
                 .thenExecuteAfter(40, () -> {
-                    SurvivalData active = player.getData(InfinityXAttachments.SURVIVAL);
+                    SurvivalData active = player.getData(InfXAttachments.SURVIVAL);
                     helper.assertTrue(active.hungerProgress() > 0.0D, "survival mode must accumulate hunger");
                     helper.assertTrue(active.protein() < frozen.protein(), "survival mode must decay nutrients");
                     removePlayer(player);
@@ -1066,7 +1071,7 @@ public final class ModCompletionGameTests {
         BlockPos miningRelative = new BlockPos(2, 2, 1);
         BlockPos miningPos = helper.absolutePos(miningRelative);
         helper.setBlock(miningRelative, Blocks.STONE);
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfinityXItems.catalog()
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
@@ -1167,12 +1172,12 @@ public final class ModCompletionGameTests {
     }
 
     private static void resetBehaviorHunger(ServerPlayer player) {
-        player.setData(InfinityXAttachments.SURVIVAL, new SurvivalData(6, 6, 1_000, 1_000, 1_000, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(6, 6, 1_000, 1_000, 1_000, 0, 0));
     }
 
     private static void assertBehaviorHunger(
             GameTestHelper helper, ServerPlayer player, double expected, String message) {
-        double actual = player.getData(InfinityXAttachments.SURVIVAL).hungerProgress();
+        double actual = player.getData(InfXAttachments.SURVIVAL).hungerProgress();
         helper.assertTrue(Math.abs(actual - expected) < 1.0E-7D, message + ": " + actual);
     }
 
@@ -1181,7 +1186,7 @@ public final class ModCompletionGameTests {
         ServerPlayer visitor = createPlayer(helper);
         assertR196EnchantmentRegistry(helper);
         BlockPos safePos = new BlockPos(4, 2, 4);
-        helper.setBlock(safePos, InfinityXBlocks.COPPER_SAFE.get());
+        helper.setBlock(safePos, InfXBlocks.COPPER_SAFE.get());
         SafeBlockEntity safe = helper.getBlockEntity(safePos, SafeBlockEntity.class);
         helper.assertTrue(safe.canOpen(visitor), "unowned village safes are publicly accessible");
         safe.setOwner(owner);
@@ -1199,20 +1204,20 @@ public final class ModCompletionGameTests {
         List<ItemEntity> ownerSafeDrops = helper.getLevel().getEntities(
                 EntityType.ITEM,
                 new AABB(helper.absolutePos(safePos)).inflate(2.0),
-                entity -> entity.getItem().is(InfinityXBlocks.COPPER_SAFE.get().asItem()));
+                entity -> entity.getItem().is(InfXBlocks.COPPER_SAFE.get().asItem()));
         helper.assertTrue(ownerSafeDrops.size() == 1,
                 "a strongbox owner must recover the portable safe item");
         ownerSafeDrops.forEach(ItemEntity::discard);
 
-        helper.setBlock(safePos, InfinityXBlocks.COPPER_SAFE.get());
+        helper.setBlock(safePos, InfXBlocks.COPPER_SAFE.get());
         safe = helper.getBlockEntity(safePos, SafeBlockEntity.class);
         safe.setOwner(owner);
         visitor.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.SURVIVAL);
-        visitor.setItemInHand(InteractionHand.MAIN_HAND, InfinityXItems.catalog()
+        visitor.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
                 .equipment(MiteMaterial.SILVER, EquipmentType.PICKAXE).holder().toStack());
         helper.assertFalse(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
                 "a foreign copper safe rejects another level-two metal");
-        visitor.setItemInHand(InteractionHand.MAIN_HAND, InfinityXItems.IRON_PICKAXE.toStack());
+        visitor.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.IRON_PICKAXE.toStack());
         visitor.setOnGround(true);
         visitor.getFoodData().setFoodLevel(20);
         visitor.experienceLevel = 0;
@@ -1235,11 +1240,11 @@ public final class ModCompletionGameTests {
                         .getEntities(
                                 EntityType.ITEM,
                                 new AABB(helper.absolutePos(safePos)).inflate(2.0),
-                                entity -> entity.getItem().is(InfinityXBlocks.COPPER_SAFE.get().asItem()))
+                                entity -> entity.getItem().is(InfXBlocks.COPPER_SAFE.get().asItem()))
                         .isEmpty(),
                 "MITE foreign strongboxes break without dropping the safe item");
 
-        helper.setBlock(safePos, InfinityXBlocks.COPPER_SAFE.get());
+        helper.setBlock(safePos, InfXBlocks.COPPER_SAFE.get());
         safe = helper.getBlockEntity(safePos, SafeBlockEntity.class);
         safe.setOwner(owner);
         safe.setItem(0, new ItemStack(Items.IRON_INGOT));
@@ -1257,7 +1262,7 @@ public final class ModCompletionGameTests {
                 "safe collision height matches MITE chest bounds: " + safeShape.max(net.minecraft.core.Direction.Axis.Y));
 
         BlockPos tableRelative = new BlockPos(8, 2, 8);
-        helper.setBlock(tableRelative, InfinityXBlocks.DIAMOND_ENCHANTING_TABLE.get());
+        helper.setBlock(tableRelative, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
         BlockPos table = helper.absolutePos(tableRelative);
         for (int y = 0; y <= 1; y++) {
             for (int x = -2; x <= 2; x++) {
@@ -1276,7 +1281,7 @@ public final class ModCompletionGameTests {
                 owner.getInventory(),
                 ContainerLevelAccess.create(helper.getLevel(), table),
                 MiteEnchantmentMenu.Kind.DIAMOND);
-        helper.assertTrue(menu.getType() == InfinityXMenus.DIAMOND_ENCHANTING.get(),
+        helper.assertTrue(menu.getType() == InfXMenus.DIAMOND_ENCHANTING.get(),
                 "diamond table synchronizes its custom client menu type");
         helper.assertTrue(menu.getSlot(1).mayPlace(Items.DIAMOND.getDefaultInstance()),
                 "diamond table accepts diamonds");
@@ -1285,7 +1290,7 @@ public final class ModCompletionGameTests {
         helper.assertFalse(menu.getSlot(1).mayPlace(Items.LAPIS_LAZULI.getDefaultInstance()),
                 "R196 tables reject vanilla lapis fuel");
 
-        ItemStack copperTool = InfinityXItems.catalog()
+        ItemStack copperTool = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
@@ -1293,7 +1298,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(menu.costs[2] == EnchantmentRules.experienceCost(53),
                 "a full diamond table must reduce copper's 30 enchantability to 53 effective power");
 
-        ItemStack mithrilTool = InfinityXItems.catalog()
+        ItemStack mithrilTool = InfXItems.catalog()
                 .equipment(MiteMaterial.MITHRIL, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
@@ -1319,7 +1324,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(menu.costs[2] == EnchantmentRules.experienceCost(53),
                 "books must use MITE's fixed enchantability of 30 instead of vanilla's value of one");
 
-        helper.setBlock(tableRelative, InfinityXBlocks.EMERALD_ENCHANTING_TABLE.get());
+        helper.setBlock(tableRelative, InfXBlocks.EMERALD_ENCHANTING_TABLE.get());
         MiteEnchantmentMenu emeraldMenu = new MiteEnchantmentMenu(
                 2,
                 owner.getInventory(),
@@ -1329,8 +1334,8 @@ public final class ModCompletionGameTests {
         helper.assertTrue(emeraldMenu.costs[2] == EnchantmentRules.experienceCost(50),
                 "the same mithril tool must be limited to 50 power at a full emerald table");
 
-        helper.setBlock(tableRelative, InfinityXBlocks.DIAMOND_ENCHANTING_TABLE.get());
-        ItemStack enchantingTool = InfinityXItems.catalog()
+        helper.setBlock(tableRelative, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
+        ItemStack enchantingTool = InfXItems.catalog()
                 .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
@@ -1364,10 +1369,10 @@ public final class ModCompletionGameTests {
                 owner,
                 menu,
                 PotionContents.createItemStack(Items.POTION, Potions.WATER),
-                InfinityXItems.BOTTLE_OF_DISENCHANTING.get(),
+                InfXItems.BOTTLE_OF_DISENCHANTING.get(),
                 Items.DIAMOND,
                 "diamond water conversion");
-        helper.setBlock(tableRelative, InfinityXBlocks.EMERALD_ENCHANTING_TABLE.get());
+        helper.setBlock(tableRelative, InfXBlocks.EMERALD_ENCHANTING_TABLE.get());
         assertConversionOptions(
                 helper,
                 owner,
@@ -1376,7 +1381,7 @@ public final class ModCompletionGameTests {
                 Items.ENCHANTED_GOLDEN_APPLE,
                 Items.EMERALD,
                 "emerald golden-apple conversion");
-        owner.setItemInHand(InteractionHand.MAIN_HAND, InfinityXItems.catalog()
+        owner.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
                 .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder().toStack());
         helper.assertTrue(EndEvents.hasAdamantiumCrystalTool(owner),
                 "adamantium pickaxe meets crystal gate");
@@ -1388,7 +1393,7 @@ public final class ModCompletionGameTests {
     private static void assertR196EnchantmentRegistry(GameTestHelper helper) {
         var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         Set<Holder<Enchantment>> expected = Set.copyOf(
-                InfinityXEnchantments.ALL.stream().map(enchantments::getOrThrow).toList());
+                InfXEnchantments.ALL.stream().map(enchantments::getOrThrow).toList());
         for (var source : List.of(
                 EnchantmentTags.IN_ENCHANTING_TABLE,
                 EnchantmentTags.ON_MOB_SPAWN_EQUIPMENT,
@@ -1408,7 +1413,7 @@ public final class ModCompletionGameTests {
                     source.location() + " has exactly 39 R196 and vanilla MITE entries");
             helper.assertTrue(actual.stream().allMatch(expected::contains), source.location() + " excludes modern entries");
         }
-        for (ResourceKey<Enchantment> key : InfinityXEnchantments.ALL) {
+        for (ResourceKey<Enchantment> key : InfXEnchantments.ALL) {
             Holder<Enchantment> enchantment = enchantments.getOrThrow(key);
             helper.assertTrue(
                     enchantment.value().exclusiveSet().contains(enchantment),
@@ -1417,9 +1422,9 @@ public final class ModCompletionGameTests {
                     Enchantment.areCompatible(enchantment, enchantment),
                     key.identifier() + " cannot be selected twice");
         }
-        Holder<Enchantment> silkTouch = enchantments.getOrThrow(InfinityXEnchantments.VANILLA_SILK_TOUCH);
-        Holder<Enchantment> fortune = enchantments.getOrThrow(InfinityXEnchantments.FORTUNE);
-        Holder<Enchantment> efficiency = enchantments.getOrThrow(InfinityXEnchantments.VANILLA_EFFICIENCY);
+        Holder<Enchantment> silkTouch = enchantments.getOrThrow(InfXEnchantments.VANILLA_SILK_TOUCH);
+        Holder<Enchantment> fortune = enchantments.getOrThrow(InfXEnchantments.FORTUNE);
+        Holder<Enchantment> efficiency = enchantments.getOrThrow(InfXEnchantments.VANILLA_EFFICIENCY);
         helper.assertFalse(
                 Enchantment.areCompatible(silkTouch, fortune),
                 "silk touch and fortune stay mutually exclusive");
@@ -1453,11 +1458,11 @@ public final class ModCompletionGameTests {
     private static void enchantmentDrops(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        ItemStack butcheringTool = InfinityXItems.catalog()
+        ItemStack butcheringTool = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.SWORD)
                 .holder()
                 .toStack();
-        butcheringTool.enchant(enchantments.getOrThrow(InfinityXEnchantments.BUTCHERING), 3);
+        butcheringTool.enchant(enchantments.getOrThrow(InfXEnchantments.BUTCHERING), 3);
         player.setItemInHand(InteractionHand.MAIN_HAND, butcheringTool);
         assertButcheringDrop(
                 helper,
@@ -1490,19 +1495,19 @@ public final class ModCompletionGameTests {
                 Items.SPIDER_EYE,
                 "spider");
 
-        ItemStack harvestingScythe = InfinityXItems.catalog()
+        ItemStack harvestingScythe = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.SCYTHE)
                 .holder()
                 .toStack();
-        harvestingScythe.enchant(enchantments.getOrThrow(InfinityXEnchantments.HARVESTING), 5);
-        ItemStack harvestingShovel = InfinityXItems.catalog()
+        harvestingScythe.enchant(enchantments.getOrThrow(InfXEnchantments.HARVESTING), 5);
+        ItemStack harvestingShovel = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL)
                 .holder()
                 .toStack();
-        harvestingShovel.enchant(enchantments.getOrThrow(InfinityXEnchantments.HARVESTING), 5);
+        harvestingShovel.enchant(enchantments.getOrThrow(InfXEnchantments.HARVESTING), 5);
         BlockPos cropPos = helper.absolutePos(new BlockPos(8, 2, 2));
         helper.assertTrue(
-                Enchantments.level(helper.getLevel(), harvestingScythe, InfinityXEnchantments.HARVESTING) == 5,
+                Enchantments.level(helper.getLevel(), harvestingScythe, InfXEnchantments.HARVESTING) == 5,
                 "harvesting test tool carries level five");
         assertHarvestingDrops(helper, player, harvestingScythe, matureCropState(Blocks.WHEAT), Items.WHEAT, Items.WHEAT_SEEDS, cropPos, "wheat");
         assertHarvestingDrops(helper, player, harvestingShovel, matureCropState(Blocks.CARROTS), Items.CARROT, null, cropPos, "carrot");
@@ -1521,11 +1526,11 @@ public final class ModCompletionGameTests {
                 harvestingShovel));
         helper.assertTrue(itemCount(mutableNonCropDrops, Items.NETHER_WART) == 1, "harvesting does not multiply nether wart");
 
-        ItemStack fortuneTool = InfinityXItems.catalog()
+        ItemStack fortuneTool = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
-        fortuneTool.enchant(enchantments.getOrThrow(InfinityXEnchantments.FORTUNE), 3);
+        fortuneTool.enchant(enchantments.getOrThrow(InfXEnchantments.FORTUNE), 3);
         BlockPos fortunePos = helper.absolutePos(new BlockPos(10, 2, 2));
         assertFortuneAddsDrop(helper, player, fortuneTool, Blocks.DIAMOND_ORE.defaultBlockState(), Items.DIAMOND, fortunePos, "diamond ore");
         assertFortuneAddsDrop(helper, player, fortuneTool, Blocks.REDSTONE_ORE.defaultBlockState(), Items.REDSTONE, fortunePos, "redstone ore");
@@ -1632,7 +1637,7 @@ public final class ModCompletionGameTests {
                     helper.getLevel(), pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.DIRT))));
             NeoForge.EVENT_BUS.post(new BlockDropsEvent(
                     helper.getLevel(), pos, Blocks.GRASS_BLOCK.defaultBlockState(), null, drops, player, tool));
-            if (itemCount(drops, InfinityXItems.WORM.get()) > 0) {
+            if (itemCount(drops, InfXItems.WORM.get()) > 0) {
                 helper.assertTrue(itemCount(drops, Items.DIRT) == 0, "grass fortune replaces dirt with a worm");
                 found = true;
             }
@@ -1686,12 +1691,12 @@ public final class ModCompletionGameTests {
 
     private static void creativeTabs(GameTestHelper helper) {
         List<CreativeModeTab> tabs = List.of(
-                InfinityXCreativeTabs.MAIN.get(),
-                InfinityXCreativeTabs.INGREDIENTS.get(),
-                InfinityXCreativeTabs.FOOD_AND_CONSUMABLES.get(),
-                InfinityXCreativeTabs.TOOLS_AND_UTILITIES.get(),
-                InfinityXCreativeTabs.COMBAT_AND_EQUIPMENT.get(),
-                InfinityXCreativeTabs.SPAWN_EGGS.get());
+                InfXCreativeTabs.MAIN.get(),
+                InfXCreativeTabs.INGREDIENTS.get(),
+                InfXCreativeTabs.FOOD_AND_CONSUMABLES.get(),
+                InfXCreativeTabs.TOOLS_AND_UTILITIES.get(),
+                InfXCreativeTabs.COMBAT_AND_EQUIPMENT.get(),
+                InfXCreativeTabs.SPAWN_EGGS.get());
         // Blocks expand two rune stones (16 each): 45 - 2 + 32 = 75.
         // Tools: 135 baseline + 42 mob buckets + 7 powder-snow buckets = 184.
         List<Integer> expectedSizes = List.of(75, 31, 24, 184, 113, 52);
@@ -1712,7 +1717,7 @@ public final class ModCompletionGameTests {
         }
 
         Set<Item> registered = new HashSet<>();
-        InfinityXItems.ITEMS.getEntries().forEach(item -> registered.add(item.value()));
+        InfXItems.ITEMS.getEntries().forEach(item -> registered.add(item.value()));
         Set<Item> uniqueDisplayed = new HashSet<>();
         displayed.forEach(stack -> uniqueDisplayed.add(stack.getItem()));
         helper.assertTrue(uniqueDisplayed.equals(registered), "creative categories exactly cover the item registry");
@@ -1739,9 +1744,9 @@ public final class ModCompletionGameTests {
                 tabs.getFirst().getDisplayItems().stream().allMatch(stack -> stack.getItem() instanceof BlockItem),
                 "the blocks tab only contains registered BlockItems");
         helper.assertTrue(
-                InfinityXBlocks.UNDERWORLD_PORTAL.get().asItem() == Items.AIR
-                        && InfinityXBlocks.NETHER_PORTAL.get().asItem() == Items.AIR
-                        && InfinityXBlocks.RETURN_SPAWN_PORTAL.get().asItem() == Items.AIR,
+                InfXBlocks.UNDERWORLD_PORTAL.get().asItem() == Items.AIR
+                        && InfXBlocks.NETHER_PORTAL.get().asItem() == Items.AIR
+                        && InfXBlocks.RETURN_SPAWN_PORTAL.get().asItem() == Items.AIR,
                 "all portal surfaces remain without an item form");
 
         List<CreativeModeTab> sortedTabs = CreativeModeTabRegistry.getSortedCreativeModeTabs();
@@ -1812,17 +1817,17 @@ public final class ModCompletionGameTests {
         assertStackLimit(helper, 64, Items.NETHER_WART);
         assertStackLimit(helper, 64, Items.REDSTONE);
 
-        InfinityXItems.FURNACES.forEach(item -> assertStackLimit(helper, 1, item.value()));
-        InfinityXItems.METAL_ANVILS.forEach(item -> assertStackLimit(helper, 1, item.value()));
-        InfinityXItems.WORKBENCHES.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        InfinityXItems.ORES.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        InfinityXItems.METAL_STORAGE_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        InfinityXItems.WORLD_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        InfinityXItems.ENCHANTING_TABLES.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        InfinityXItems.METAL_SAFES.forEach(item -> assertStackLimit(helper, 4, item.value()));
-        assertStackLimit(helper, 4, InfinityXItems.NETHER_GRAVEL.value());
-        assertStackLimit(helper, 32, InfinityXItems.WITHERWOOD.value());
-        assertStackLimit(helper, 4, InfinityXItems.CORE.value());
+        InfXItems.FURNACES.forEach(item -> assertStackLimit(helper, 1, item.value()));
+        InfXItems.METAL_ANVILS.forEach(item -> assertStackLimit(helper, 1, item.value()));
+        InfXItems.WORKBENCHES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        InfXItems.ORES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        InfXItems.METAL_STORAGE_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        InfXItems.WORLD_BLOCKS.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        InfXItems.ENCHANTING_TABLES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        InfXItems.METAL_SAFES.forEach(item -> assertStackLimit(helper, 4, item.value()));
+        assertStackLimit(helper, 4, InfXItems.NETHER_GRAVEL.value());
+        assertStackLimit(helper, 32, InfXItems.WITHERWOOD.value());
+        assertStackLimit(helper, 4, InfXItems.CORE.value());
         helper.succeed();
     }
 
@@ -1836,13 +1841,13 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
         helper.assertTrue(
-                InfinityXItems.R196_BUCKETS.size() == 35,
+                InfXItems.R196_BUCKETS.size() == 35,
                 "seven materials expose five registered bucket variants");
         helper.assertTrue(
-                InfinityXBlocks.NETHER_GRAVEL.get() instanceof net.minecraft.world.level.block.FallingBlock,
+                InfXBlocks.NETHER_GRAVEL.get() instanceof net.minecraft.world.level.block.FallingBlock,
                 "Nether gravel preserves falling-block behavior");
         helper.assertTrue(
-                InfinityXBlocks.CORE.get().defaultDestroyTime() < 0.0F,
+                InfXBlocks.CORE.get().defaultDestroyTime() < 0.0F,
                 "Core is unbreakable in survival");
         helper.assertTrue(
                 level.registryAccess().lookupOrThrow(Registries.CONFIGURED_CARVER).containsKey(
@@ -1854,14 +1859,14 @@ public final class ModCompletionGameTests {
                             ResourceKey.create(Registries.BIOME, InfiniteX.id(river))),
                     river + " is registered");
         }
-        for (ItemStack record : InfinityXItems.R196_RECORDS.stream().map(item -> item.toStack()).toList()) {
+        for (ItemStack record : InfXItems.R196_RECORDS.stream().map(item -> item.toStack()).toList()) {
             helper.assertTrue(record.has(DataComponents.JUKEBOX_PLAYABLE), "R196 record is jukebox-playable");
         }
 
         BlockPos bush = new BlockPos(6, 2, 6);
         helper.setBlock(bush.below(2), Blocks.STONE);
-        helper.setBlock(bush.below(), InfinityXBlocks.NETHER_GRAVEL.get());
-        helper.setBlock(bush, InfinityXBlocks.WITHERWOOD.get());
+        helper.setBlock(bush.below(), InfXBlocks.NETHER_GRAVEL.get());
+        helper.setBlock(bush, InfXBlocks.WITHERWOOD.get());
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, bush);
         cow.applyEffectsFromBlocks(cow.position(), cow.position());
         helper.assertTrue(
@@ -1871,20 +1876,20 @@ public final class ModCompletionGameTests {
 
         player.setItemInHand(
                 InteractionHand.MAIN_HAND,
-                InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).toStack());
+                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).toStack());
         helper.setBlock(new BlockPos(1, 1, 1), Blocks.STONE);
         helper.setBlock(new BlockPos(1, 2, 1), Blocks.WATER);
         helper.setBlock(new BlockPos(1, 3, 1), Blocks.WATER);
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        player.getMainHandItem().is(InfinityXItems.bucket(
+                        player.getMainHandItem().is(InfXItems.bucket(
                                 MiteMaterial.IRON, MiteBucketItem.Contents.STONE)),
                         "an immersed lava bucket solidifies without changing material"))
                 .thenExecute(() -> player.setItemInHand(
                         InteractionHand.MAIN_HAND,
-                        InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.MILK).toStack()))
+                        InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.MILK).toStack()))
                 .thenWaitUntil(() -> helper.assertTrue(
-                        player.getMainHandItem().is(InfinityXItems.bucket(
+                        player.getMainHandItem().is(InfXItems.bucket(
                                 MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY)),
                         "an immersed milk bucket leaks into its matching empty bucket"))
                 .thenExecute(() -> removePlayer(player))
@@ -2015,20 +2020,20 @@ public final class ModCompletionGameTests {
     private static void bucketMechanics(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         ServerLevel level = helper.getLevel();
-        Item emptyIron = InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY).value();
+        Item emptyIron = InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY).value();
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(emptyIron),
                 "the empty bucket registers its own dispenser behavior");
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(
-                        InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value()),
+                        InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value()),
                 "the water bucket registers its own dispenser behavior");
         helper.assertTrue(
-                DispenserBlock.DISPENSER_REGISTRY.containsKey(InfinityXItems.powderSnowBucket(MiteMaterial.IRON).value()),
+                DispenserBlock.DISPENSER_REGISTRY.containsKey(InfXItems.powderSnowBucket(MiteMaterial.IRON).value()),
                 "the powder-snow bucket registers its own dispenser behavior");
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(
-                        InfinityXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.COD).value()),
+                        InfXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.COD).value()),
                 "the mob bucket registers its own dispenser behavior");
 
         // MITE ItemBucket: scooping leaves the liquid cell in place unless Ctrl is held.
@@ -2040,7 +2045,7 @@ public final class ModCompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         helper.assertTrue(
-                player.getMainHandItem().is(InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
+                player.getMainHandItem().is(InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
                 "scooping water yields the same-material water bucket");
         helper.assertBlockPresent(Blocks.WATER, water);
 
@@ -2056,7 +2061,7 @@ public final class ModCompletionGameTests {
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         player.getPersistentData().remove(Network.CTRL_USE);
         helper.assertTrue(
-                player.getMainHandItem().is(InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
+                player.getMainHandItem().is(InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
                 "a Ctrl scoop still fills the bucket");
         helper.assertBlockPresent(Blocks.AIR, water);
 
@@ -2068,7 +2073,7 @@ public final class ModCompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         helper.assertTrue(
-                player.getMainHandItem().is(InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
+                player.getMainHandItem().is(InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
                 "flowing water fills the same-material bucket");
         helper.assertTrue(
                 helper.getBlockState(flowingWater).is(Blocks.WATER)
@@ -2083,7 +2088,7 @@ public final class ModCompletionGameTests {
         player.giveExperiencePoints(MiteBucketItem.SOURCE_EXPERIENCE_COST);
         int experienceBefore = player.totalExperience;
         MiteBucketItem waterBucket =
-                InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
+                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
         player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
         EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
         while (playerChannel.readOutbound() != null) {}
@@ -2110,9 +2115,9 @@ public final class ModCompletionGameTests {
 
     private static void bucketFluidInteractions(GameTestHelper helper, ServerPlayer player, ServerLevel level) {
         BucketItem waterBucket =
-                (BucketItem) InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
+                (BucketItem) InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
         BucketItem lavaBucket =
-                (BucketItem) InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).value();
+                (BucketItem) InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).value();
 
         // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
         BlockPos fire = helper.absolutePos(new BlockPos(4, 2, 2));
@@ -2173,10 +2178,10 @@ public final class ModCompletionGameTests {
 
     private static void bucketEntityInteractions(
             GameTestHelper helper, ServerPlayer player, ServerLevel level, BucketItem waterBucket) {
-        Item emptyIron = InfinityXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY).value();
+        Item emptyIron = InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY).value();
 
         // MITE ItemVessel#tryEntityInteraction: water satisfies a thirsty animal and spends the vessel.
-        var cow = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_COW.get(), new BlockPos(4, 2, 6));
+        var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_COW.get(), new BlockPos(4, 2, 6));
         setLivestockWellness(cow, 1.0F, 0.2F, 1.0F);
         helper.assertTrue(
                 Livestock.isThirsty(cow, level.getGameTime()), "the cow must start out thirsty");
@@ -2189,7 +2194,7 @@ public final class ModCompletionGameTests {
                 player.getMainHandItem().is(emptyIron), "watering an animal spends the water bucket");
 
         // MITE ItemVessel: water quenches a fire elemental for 20 damage.
-        var elemental = helper.spawnWithNoFreeWill(InfinityXEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 6));
+        var elemental = helper.spawnWithNoFreeWill(InfXEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 6));
         float before = elemental.getHealth();
         player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
         waterBucket.interactLivingEntity(

@@ -2,8 +2,9 @@ package com.pixulse.infx.world;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.pixulse.infx.event.SafeEvents;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.HashSet;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
@@ -55,8 +56,8 @@ class BasicSystemsTest {
 
     @Test
     void allTwentyTwoEnchantmentsAreDeclared() {
-        assertEquals(22, InfinityXEnchantments.R196.size());
-        assertEquals(22, InfinityXEnchantments.R196.stream().distinct().count());
+        assertEquals(22, InfXEnchantments.R196.size());
+        assertEquals(22, InfXEnchantments.R196.stream().distinct().count());
     }
 
     @Test

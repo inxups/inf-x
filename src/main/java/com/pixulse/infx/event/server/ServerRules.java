@@ -1,5 +1,8 @@
 package com.pixulse.infx.event.server;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,12 +13,12 @@ import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Dedicated-server-only chat throttling, metrics and reconnect restrictions. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ServerRules {
     public static final int CHAT_INCREMENT = 20;
     public static final int CHAT_THRESHOLD = 200;
@@ -25,12 +28,7 @@ public final class ServerRules {
 
     private ServerRules() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(ServerRules::onChat);
-        gameBus.addListener(ServerRules::onServerTick);
-        gameBus.addListener(ServerRules::onLogin);
-        gameBus.addListener(ServerRules::onLogout);
-    }
+    @SubscribeEvent
 
     private static void onChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
@@ -43,6 +41,8 @@ public final class ServerRules {
             player.connection.disconnect(Component.translatable("disconnect.infx.chat_spam"));
         }
     }
+
+    @SubscribeEvent
 
     private static void onServerTick(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
@@ -58,6 +58,8 @@ public final class ServerRules {
             InfiniteX.LOGGER.info("R196 performance: {}", ServerMetrics.formatLoad(server));
         }
     }
+
+    @SubscribeEvent
 
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -78,6 +80,8 @@ public final class ServerRules {
                     restriction.minimumRemainingTicks(gameTime) / 20L));
         });
     }
+
+    @SubscribeEvent
 
     private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;

@@ -1,8 +1,8 @@
 package com.pixulse.infx.world;
 
 import com.mojang.serialization.MapCodec;
-import com.pixulse.infx.registry.InfinityXBiomeModifiers;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfXBiomeModifiers;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.core.Holder;
@@ -91,18 +91,18 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
             add(spawns, EntityType.GHAST, 50, 1, 2);
             add(spawns, EntityType.ZOMBIFIED_PIGLIN, 100, 1, 4);
             add(spawns, EntityType.MAGMA_CUBE, 10, 4, 4);
-            add(spawns, InfinityXEntityTypes.EARTH_ELEMENTAL.get(), 40, 1, 1);
+            add(spawns, InfXEntityTypes.EARTH_ELEMENTAL.get(), 40, 1, 1);
         } else if (biome.is(BiomeTags.IS_END)) {
             clearNaturalSpawns(spawns);
             add(spawns, EntityType.ENDERMAN, 100, 4, 4);
-            add(spawns, InfinityXEntityTypes.EARTH_ELEMENTAL.get(), 20, 1, 4);
+            add(spawns, InfXEntityTypes.EARTH_ELEMENTAL.get(), 20, 1, 4);
         }
     }
 
     private static void addOverworldSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
         add(spawns, EntityType.BAT, 100, 8, 8);
-        add(spawns, InfinityXEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
-        add(spawns, InfinityXEntityTypes.NIGHTWING.get(), 4, 1, 4);
+        add(spawns, InfXEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
+        add(spawns, InfXEntityTypes.NIGHTWING.get(), 4, 1, 4);
         if (biome.is(Biomes.MUSHROOM_FIELDS)) return;
 
         add(spawns, EntityType.SPIDER, 80, 1, 2);
@@ -111,23 +111,23 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
         add(spawns, EntityType.CREEPER, 100, 1, 2);
         add(spawns, EntityType.SLIME, 100, 1, 4);
         add(spawns, EntityType.ENDERMAN, 10, 1, 4);
-        add(spawns, InfinityXEntityTypes.GHOUL.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.WIGHT.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.HELLHOUND.get(), 10, 1, 2);
-        add(spawns, InfinityXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
-        add(spawns, InfinityXEntityTypes.SHADOW.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.REVENANT.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
-        add(spawns, InfinityXEntityTypes.JELLY.get(), 30, 1, 4);
-        add(spawns, InfinityXEntityTypes.BLOB.get(), 30, 1, 4);
-        add(spawns, InfinityXEntityTypes.OOZE.get(), 20, 1, 4);
-        add(spawns, InfinityXEntityTypes.PUDDING.get(), 30, 1, 4);
-        add(spawns, InfinityXEntityTypes.BONE_LORD.get(), 5, 1, 1);
-        add(spawns, InfinityXEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
-        if (isAny(biome, JUNGLES)) add(spawns, InfinityXEntityTypes.BLACK_WIDOW_SPIDER.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.GHOUL.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.WIGHT.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.HELLHOUND.get(), 10, 1, 2);
+        add(spawns, InfXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
+        add(spawns, InfXEntityTypes.SHADOW.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.REVENANT.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
+        add(spawns, InfXEntityTypes.JELLY.get(), 30, 1, 4);
+        add(spawns, InfXEntityTypes.BLOB.get(), 30, 1, 4);
+        add(spawns, InfXEntityTypes.OOZE.get(), 20, 1, 4);
+        add(spawns, InfXEntityTypes.PUDDING.get(), 30, 1, 4);
+        add(spawns, InfXEntityTypes.BONE_LORD.get(), 5, 1, 1);
+        add(spawns, InfXEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
+        if (isAny(biome, JUNGLES)) add(spawns, InfXEntityTypes.BLACK_WIDOW_SPIDER.get(), 10, 1, 1);
         if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP)) {
             add(spawns, EntityType.SLIME, 10, 1, 1);
         }
@@ -135,60 +135,60 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
         addFishSpawns(biome, spawns);
 
         if (!isAny(biome, ANIMAL_BIOMES)) return;
-        add(spawns, InfinityXEntityTypes.R196_SHEEP.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.R196_PIG.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
-        add(spawns, InfinityXEntityTypes.R196_COW.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.R196_SHEEP.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.R196_PIG.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.R196_COW.get(), 10, 1, 1);
         if (biome.is(BiomeTags.IS_FOREST) && !isAny(biome, SNOW_BIOMES)) {
-            add(spawns, InfinityXEntityTypes.R196_WOLF.get(), 10, 1, 3);
+            add(spawns, InfXEntityTypes.R196_WOLF.get(), 10, 1, 3);
         }
         if (biome.is(BiomeTags.IS_TAIGA)) {
-            add(spawns, InfinityXEntityTypes.R196_WOLF.get(), 10, 1, 3);
-            add(spawns, InfinityXEntityTypes.DIRE_WOLF.get(), 5, 1, 3);
+            add(spawns, InfXEntityTypes.R196_WOLF.get(), 10, 1, 3);
+            add(spawns, InfXEntityTypes.DIRE_WOLF.get(), 5, 1, 3);
         }
         if (isAny(biome, SNOW_BIOMES)) {
-            add(spawns, InfinityXEntityTypes.R196_WOLF.get(), 4, 1, 3);
-            add(spawns, InfinityXEntityTypes.DIRE_WOLF.get(), 1, 1, 3);
+            add(spawns, InfXEntityTypes.R196_WOLF.get(), 4, 1, 3);
+            add(spawns, InfXEntityTypes.DIRE_WOLF.get(), 1, 1, 3);
         }
-        if (isAny(biome, PLAINS)) add(spawns, InfinityXEntityTypes.R196_HORSE.get(), 5, 1, 2);
+        if (isAny(biome, PLAINS)) add(spawns, InfXEntityTypes.R196_HORSE.get(), 5, 1, 2);
         if (isAny(biome, JUNGLES)) {
-            add(spawns, InfinityXEntityTypes.R196_OCELOT.get(), 10, 1, 1);
-            add(spawns, InfinityXEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
+            add(spawns, InfXEntityTypes.R196_OCELOT.get(), 10, 1, 1);
+            add(spawns, InfXEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
         }
     }
 
     /** Mirrors vanilla fish habitats while every natural entry uses the InfiniteX entity type. */
     private static void addFishSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
         if (biome.is(BiomeTags.IS_RIVER)) {
-            add(spawns, InfinityXEntityTypes.R196_SALMON.get(), 5, 1, 5);
+            add(spawns, InfXEntityTypes.R196_SALMON.get(), 5, 1, 5);
             return;
         }
         if (biome.is(Biomes.LUSH_CAVES) || biome.is(Biomes.MANGROVE_SWAMP)) {
-            add(spawns, InfinityXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            add(spawns, InfXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
             return;
         }
         if (biome.is(Biomes.WARM_OCEAN)) {
-            add(spawns, InfinityXEntityTypes.R196_PUFFERFISH.get(), 15, 1, 3);
-            add(spawns, InfinityXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            add(spawns, InfXEntityTypes.R196_PUFFERFISH.get(), 15, 1, 3);
+            add(spawns, InfXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
             return;
         }
         if (isAny(biome, LUKEWARM_OCEANS)) {
-            add(spawns, InfinityXEntityTypes.R196_COD.get(), biome.is(Biomes.DEEP_LUKEWARM_OCEAN) ? 8 : 15, 3, 6);
-            add(spawns, InfinityXEntityTypes.R196_PUFFERFISH.get(), 5, 1, 3);
-            add(spawns, InfinityXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            add(spawns, InfXEntityTypes.R196_COD.get(), biome.is(Biomes.DEEP_LUKEWARM_OCEAN) ? 8 : 15, 3, 6);
+            add(spawns, InfXEntityTypes.R196_PUFFERFISH.get(), 5, 1, 3);
+            add(spawns, InfXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
             return;
         }
         if (isAny(biome, COLD_OCEANS)) {
-            add(spawns, InfinityXEntityTypes.R196_COD.get(), 15, 3, 6);
-            add(spawns, InfinityXEntityTypes.R196_SALMON.get(), 15, 1, 5);
+            add(spawns, InfXEntityTypes.R196_COD.get(), 15, 3, 6);
+            add(spawns, InfXEntityTypes.R196_SALMON.get(), 15, 1, 5);
             return;
         }
         if (isAny(biome, FROZEN_OCEANS)) {
-            add(spawns, InfinityXEntityTypes.R196_SALMON.get(), 15, 1, 5);
+            add(spawns, InfXEntityTypes.R196_SALMON.get(), 15, 1, 5);
             return;
         }
         if (isAny(biome, NORMAL_OCEANS)) {
-            add(spawns, InfinityXEntityTypes.R196_COD.get(), 10, 3, 6);
+            add(spawns, InfXEntityTypes.R196_COD.get(), 10, 3, 6);
         }
     }
 
@@ -209,6 +209,6 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
 
     @Override
     public MapCodec<? extends BiomeModifier> codec() {
-        return InfinityXBiomeModifiers.R196_SPAWNS.get();
+        return InfXBiomeModifiers.R196_SPAWNS.get();
     }
 }

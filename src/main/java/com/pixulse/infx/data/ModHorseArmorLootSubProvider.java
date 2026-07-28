@@ -3,7 +3,7 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -90,7 +90,7 @@ final class ModHorseArmorLootSubProvider implements LootTableSubProvider {
     }
 
     private static ItemLike horseArmor(MiteMaterial material) {
-        return InfinityXItems.catalog()
+        return InfXItems.catalog()
                 .equipment(material, EquipmentType.HORSE_ARMOR)
                 .holder();
     }

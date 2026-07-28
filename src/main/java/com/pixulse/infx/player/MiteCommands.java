@@ -1,5 +1,10 @@
 package com.pixulse.infx.player;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -10,19 +15,17 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /** R196 game commands under the single root `/infx`. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class MiteCommands {
     public static final String ROOT = "infx";
     public static final List<String> NAMES = List.of("infx day", "infx villages");
 
     private MiteCommands() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(MiteCommands::registerCommands);
-    }
+    @SubscribeEvent
 
     private static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();

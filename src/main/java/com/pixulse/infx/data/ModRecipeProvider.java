@@ -7,9 +7,10 @@ import com.pixulse.infx.recipe.TimedShapelessRecipe;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.tag.InfXItemTags;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -67,7 +68,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 100.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.FLOUR,
+                InfXItems.FLOUR,
                 1,
                 Map.of('W', Ingredient.of(Items.WHEAT)),
                 List.of("WWW"));
@@ -77,10 +78,10 @@ final class ModRecipeProvider extends RecipeProvider {
                 25.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.WATER_BOWL,
+                InfXItems.WATER_BOWL,
                 4,
                 List.of(
-                        ingredient(InfinityXTags.Items.WATER_BUCKETS),
+                        ingredient(InfXItemTags.WATER_BUCKETS),
                         Ingredient.of(Items.BOWL),
                         Ingredient.of(Items.BOWL),
                         Ingredient.of(Items.BOWL),
@@ -91,18 +92,18 @@ final class ModRecipeProvider extends RecipeProvider {
                 150.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.DOUGH,
+                InfXItems.DOUGH,
                 1,
-                List.of(Ingredient.of(InfinityXItems.FLOUR), Ingredient.of(InfinityXItems.WATER_BOWL)));
+                List.of(Ingredient.of(InfXItems.FLOUR), Ingredient.of(InfXItems.WATER_BOWL)));
         addShaped(
                 "dough_from_water_bucket",
                 BenchTier.HAND,
                 600.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.DOUGH,
+                InfXItems.DOUGH,
                 4,
-                Map.of('F', Ingredient.of(InfinityXItems.FLOUR), 'W', ingredient(InfinityXTags.Items.WATER_BUCKETS)),
+                Map.of('F', Ingredient.of(InfXItems.FLOUR), 'W', ingredient(InfXItemTags.WATER_BUCKETS)),
                 List.of("F F", " W ", "F F"));
         addShapeless(
                 "salad",
@@ -110,7 +111,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 175.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.SALAD,
+                InfXItems.SALAD,
                 1,
                 List.of(
                         Ingredient.of(Items.BOWL),
@@ -123,20 +124,20 @@ final class ModRecipeProvider extends RecipeProvider {
                 175.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.BLUEBERRY_PORRIDGE,
+                InfXItems.BLUEBERRY_PORRIDGE,
                 1,
-                List.of(Ingredient.of(Items.WHEAT_SEEDS), Ingredient.of(InfinityXItems.BLUEBERRIES),
-                        Ingredient.of(Items.SUGAR), Ingredient.of(InfinityXItems.WATER_BOWL)));
+                List.of(Ingredient.of(Items.WHEAT_SEEDS), Ingredient.of(InfXItems.BLUEBERRIES),
+                        Ingredient.of(Items.SUGAR), Ingredient.of(InfXItems.WATER_BOWL)));
         addShapeless(
                 "milk_bowl",
                 BenchTier.FLINT,
                 75.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.MILK_BOWL,
+                InfXItems.MILK_BOWL,
                 4,
                 List.of(
-                        ingredient(InfinityXTags.Items.MILK_BUCKETS),
+                        ingredient(InfXItemTags.MILK_BUCKETS),
                         Ingredient.of(Items.BOWL),
                         Ingredient.of(Items.BOWL),
                         Ingredient.of(Items.BOWL),
@@ -147,16 +148,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 200.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.CEREAL_PORRIDGE,
+                InfXItems.CEREAL_PORRIDGE,
                 1,
-                List.of(Ingredient.of(InfinityXItems.MILK_BOWL), Ingredient.of(Items.WHEAT), Ingredient.of(Items.SUGAR)));
+                List.of(Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(Items.WHEAT), Ingredient.of(Items.SUGAR)));
         addShapeless(
                 "chocolate",
                 BenchTier.HAND,
                 100.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.CHOCOLATE,
+                InfXItems.CHOCOLATE,
                 1,
                 List.of(Ingredient.of(Items.COCOA_BEANS), Ingredient.of(Items.SUGAR)));
         addShapeless(
@@ -165,18 +166,18 @@ final class ModRecipeProvider extends RecipeProvider {
                 175.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.PUMPKIN_SOUP,
+                InfXItems.PUMPKIN_SOUP,
                 1,
-                List.of(Ingredient.of(Items.PUMPKIN), Ingredient.of(InfinityXItems.WATER_BOWL)));
+                List.of(Ingredient.of(Items.PUMPKIN), Ingredient.of(InfXItems.WATER_BOWL)));
         addShapeless(
                 "cream_of_mushroom_soup",
                 BenchTier.HAND,
                 225.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.CREAM_OF_MUSHROOM_SOUP,
+                InfXItems.CREAM_OF_MUSHROOM_SOUP,
                 1,
-                List.of(Ingredient.of(InfinityXItems.MILK_BOWL), Ingredient.of(Items.BROWN_MUSHROOM),
+                List.of(Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(Items.BROWN_MUSHROOM),
                         Ingredient.of(Items.BROWN_MUSHROOM)));
         addShapeless(
                 "vegetable_soup",
@@ -184,69 +185,69 @@ final class ModRecipeProvider extends RecipeProvider {
                 225.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.VEGETABLE_SOUP,
+                InfXItems.VEGETABLE_SOUP,
                 1,
                 List.of(Ingredient.of(Items.CARROT), Ingredient.of(Items.POTATO),
-                        Ingredient.of(InfinityXItems.ONION), Ingredient.of(InfinityXItems.WATER_BOWL)));
+                        Ingredient.of(InfXItems.ONION), Ingredient.of(InfXItems.WATER_BOWL)));
         addShapeless(
                 "cream_of_vegetable_soup",
                 BenchTier.HAND,
                 250.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.CREAM_OF_VEGETABLE_SOUP,
+                InfXItems.CREAM_OF_VEGETABLE_SOUP,
                 1,
-                List.of(Ingredient.of(InfinityXItems.MILK_BOWL), Ingredient.of(Items.CARROT), Ingredient.of(Items.POTATO),
-                        Ingredient.of(InfinityXItems.ONION)));
+                List.of(Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(Items.CARROT), Ingredient.of(Items.POTATO),
+                        Ingredient.of(InfXItems.ONION)));
         addShapeless(
                 "chicken_soup",
                 BenchTier.HAND,
                 275.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.CHICKEN_SOUP,
+                InfXItems.CHICKEN_SOUP,
                 1,
                 List.of(Ingredient.of(Items.COOKED_CHICKEN), Ingredient.of(Items.CARROT),
-                        Ingredient.of(InfinityXItems.ONION), Ingredient.of(InfinityXItems.WATER_BOWL)));
+                        Ingredient.of(InfXItems.ONION), Ingredient.of(InfXItems.WATER_BOWL)));
         addShapeless(
                 "beef_stew",
                 BenchTier.HAND,
                 300.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.BEEF_STEW,
+                InfXItems.BEEF_STEW,
                 1,
                 List.of(Ingredient.of(Items.COOKED_BEEF), Ingredient.of(Items.BROWN_MUSHROOM),
-                        Ingredient.of(Items.POTATO), Ingredient.of(InfinityXItems.WATER_BOWL)));
+                        Ingredient.of(Items.POTATO), Ingredient.of(InfXItems.WATER_BOWL)));
         addShapeless(
                 "mashed_potato",
                 BenchTier.HAND,
                 175.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.MASHED_POTATO,
+                InfXItems.MASHED_POTATO,
                 1,
-                List.of(Ingredient.of(InfinityXItems.MILK_BOWL), Ingredient.of(Items.BAKED_POTATO),
-                        Ingredient.of(InfinityXItems.CHEESE)));
+                List.of(Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(Items.BAKED_POTATO),
+                        Ingredient.of(InfXItems.CHEESE)));
         addShapeless(
                 "cheese",
                 BenchTier.HAND,
                 6_400.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.CHEESE,
+                InfXItems.CHEESE,
                 1,
-                List.of(Ingredient.of(InfinityXItems.MILK_BOWL), Ingredient.of(InfinityXItems.MILK_BOWL),
-                        Ingredient.of(InfinityXItems.MILK_BOWL), Ingredient.of(InfinityXItems.MILK_BOWL)));
+                List.of(Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(InfXItems.MILK_BOWL),
+                        Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(InfXItems.MILK_BOWL)));
         addShapeless(
                 "fruit_ice",
                 BenchTier.HAND,
                 150.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.FRUIT_ICE,
+                InfXItems.FRUIT_ICE,
                 1,
-                List.of(Ingredient.of(InfinityXItems.ORANGE), Ingredient.of(Items.SUGAR),
+                List.of(Ingredient.of(InfXItems.ORANGE), Ingredient.of(Items.SUGAR),
                         Ingredient.of(Items.SNOWBALL), Ingredient.of(Items.BOWL)));
         addShapeless(
                 "ice_cream",
@@ -254,9 +255,9 @@ final class ModRecipeProvider extends RecipeProvider {
                 200.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.ICE_CREAM,
+                InfXItems.ICE_CREAM,
                 1,
-                List.of(Ingredient.of(InfinityXItems.CHOCOLATE), Ingredient.of(InfinityXItems.MILK_BOWL),
+                List.of(Ingredient.of(InfXItems.CHOCOLATE), Ingredient.of(InfXItems.MILK_BOWL),
                         Ingredient.of(Items.SNOWBALL)));
         addShaped(
                 "pumpkin_pie",
@@ -266,7 +267,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.PUMPKIN_PIE,
                 1,
-                Map.of('P', Ingredient.of(Items.PUMPKIN), 'F', Ingredient.of(InfinityXItems.FLOUR),
+                Map.of('P', Ingredient.of(Items.PUMPKIN), 'F', Ingredient.of(InfXItems.FLOUR),
                         'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
                 List.of("PF", "SE"));
         addShaped(
@@ -279,9 +280,9 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of(
                         'M',
-                        ingredient(InfinityXTags.Items.MILK_BUCKETS),
+                        ingredient(InfXItemTags.MILK_BUCKETS),
                         'F',
-                        Ingredient.of(InfinityXItems.FLOUR),
+                        Ingredient.of(InfXItems.FLOUR),
                         'S',
                         Ingredient.of(Items.SUGAR),
                         'E',
@@ -295,7 +296,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.CAKE,
                 1,
-                Map.of('M', Ingredient.of(InfinityXItems.MILK_BOWL), 'F', Ingredient.of(InfinityXItems.FLOUR),
+                Map.of('M', Ingredient.of(InfXItems.MILK_BOWL), 'F', Ingredient.of(InfXItems.FLOUR),
                         'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
                 List.of("FS", "EM"));
         addShaped(
@@ -317,7 +318,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Items.MUSHROOM_STEW,
                 1,
                 Map.of('B', Ingredient.of(Items.BROWN_MUSHROOM), 'R', Ingredient.of(Items.RED_MUSHROOM),
-                        'W', Ingredient.of(InfinityXItems.WATER_BOWL)),
+                        'W', Ingredient.of(InfXItems.WATER_BOWL)),
                 List.of("RB", "W "));
         addShapeless(
                 "bottle_of_disenchanting",
@@ -325,7 +326,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 100.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.BOTTLE_OF_DISENCHANTING,
+                InfXItems.BOTTLE_OF_DISENCHANTING,
                 1,
                 List.of(
                         DataComponentIngredient.of(
@@ -336,22 +337,22 @@ final class ModRecipeProvider extends RecipeProvider {
                         Ingredient.of(Items.CHARCOAL)));
         addR196Buckets();
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfinityXItems.DOUGH),
+                        Ingredient.of(InfXItems.DOUGH),
                         RecipeCategory.FOOD,
                         CookingBookCategory.FOOD,
                         Items.BREAD,
                         1.0F,
                         200)
-                .unlockedBy("has_dough", has(InfinityXItems.DOUGH))
+                .unlockedBy("has_dough", has(InfXItems.DOUGH))
                 .save(output, recipeKey("bread_from_dough"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfinityXItems.WORM),
+                        Ingredient.of(InfXItems.WORM),
                         RecipeCategory.FOOD,
                         CookingBookCategory.FOOD,
-                        InfinityXItems.COOKED_WORM,
+                        InfXItems.COOKED_WORM,
                         0.2F,
                         160)
-                .unlockedBy("has_worm", has(InfinityXItems.WORM))
+                .unlockedBy("has_worm", has(InfXItems.WORM))
                 .save(output, recipeKey("cooked_worm"));
         addShaped(
                 "emerald_enchanting_table",
@@ -359,7 +360,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 3_200.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.EMERALD_ENCHANTING_TABLE,
+                InfXBlocks.EMERALD_ENCHANTING_TABLE,
                 1,
                 Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(Items.EMERALD),
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
@@ -370,25 +371,25 @@ final class ModRecipeProvider extends RecipeProvider {
                 6_400.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.DIAMOND_ENCHANTING_TABLE,
+                InfXBlocks.DIAMOND_ENCHANTING_TABLE,
                 1,
                 Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(Items.DIAMOND),
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of(" B ", "GOG", "OOO"));
-        addSafe("copper_safe", BenchTier.COPPER, InfinityXBlocks.COPPER_SAFE, Items.COPPER_INGOT, 3_600.0F);
-        addSafe("silver_safe", BenchTier.COPPER, InfinityXBlocks.SILVER_SAFE, InfinityXItems.SILVER_INGOT, 3_600.0F);
-        addSafe("gold_safe", BenchTier.GOLD, InfinityXBlocks.GOLD_SAFE, Items.GOLD_INGOT, 3_600.0F);
-        addSafe("iron_safe", BenchTier.IRON, InfinityXBlocks.IRON_SAFE, Items.IRON_INGOT, 7_200.0F);
-        addSafe("ancient_metal_safe", BenchTier.ANCIENT_METAL, InfinityXBlocks.ANCIENT_METAL_SAFE, InfinityXItems.ANCIENT_METAL_INGOT, 14_400.0F);
-        addSafe("mithril_safe", BenchTier.MITHRIL, InfinityXBlocks.MITHRIL_SAFE, InfinityXItems.MITHRIL_INGOT, 28_800.0F);
-        addSafe("adamantium_safe", BenchTier.ADAMANTIUM, InfinityXBlocks.ADAMANTIUM_SAFE, InfinityXItems.ADAMANTIUM_INGOT, 57_600.0F);
+        addSafe("copper_safe", BenchTier.COPPER, InfXBlocks.COPPER_SAFE, Items.COPPER_INGOT, 3_600.0F);
+        addSafe("silver_safe", BenchTier.COPPER, InfXBlocks.SILVER_SAFE, InfXItems.SILVER_INGOT, 3_600.0F);
+        addSafe("gold_safe", BenchTier.GOLD, InfXBlocks.GOLD_SAFE, Items.GOLD_INGOT, 3_600.0F);
+        addSafe("iron_safe", BenchTier.IRON, InfXBlocks.IRON_SAFE, Items.IRON_INGOT, 7_200.0F);
+        addSafe("ancient_metal_safe", BenchTier.ANCIENT_METAL, InfXBlocks.ANCIENT_METAL_SAFE, InfXItems.ANCIENT_METAL_INGOT, 14_400.0F);
+        addSafe("mithril_safe", BenchTier.MITHRIL, InfXBlocks.MITHRIL_SAFE, InfXItems.MITHRIL_INGOT, 28_800.0F);
+        addSafe("adamantium_safe", BenchTier.ADAMANTIUM, InfXBlocks.ADAMANTIUM_SAFE, InfXItems.ADAMANTIUM_INGOT, 57_600.0F);
         addShapeless(
                 "flint_to_flint_chips",
                 BenchTier.HAND,
                 100.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.FLINT_CHIP,
+                InfXItems.FLINT_CHIP,
                 4,
                 List.of(Ingredient.of(Items.FLINT)));
         addShaped(
@@ -399,7 +400,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.FLINT,
                 1,
-                Map.of('F', Ingredient.of(InfinityXItems.FLINT_CHIP)),
+                Map.of('F', Ingredient.of(InfXItems.FLINT_CHIP)),
                 List.of("FF", "FF"));
         addShapeless(
                 "leather_to_sinew",
@@ -407,7 +408,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 50.0F,
                 CraftingBookCategory.MISC,
                 "",
-                InfinityXItems.SINEW,
+                InfXItems.SINEW,
                 4,
                 List.of(Ingredient.of(Items.LEATHER)));
         addShardRecipes("obsidian", raw("obsidian_shard"), Blocks.OBSIDIAN, 200.0F);
@@ -422,7 +423,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 320.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.CLAY_FURNACE,
+                InfXBlocks.CLAY_FURNACE,
                 1,
                 Map.of('C', Ingredient.of(Blocks.CLAY)),
                 List.of("CC", "CC"));
@@ -432,7 +433,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 640.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.LARGE_CLAY_OVEN,
+                InfXBlocks.LARGE_CLAY_OVEN,
                 1,
                 Map.of('C', Ingredient.of(Blocks.CLAY)),
                 List.of("CCC", "C C", "CCC"));
@@ -442,7 +443,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 640.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.SANDSTONE_FURNACE,
+                InfXBlocks.SANDSTONE_FURNACE,
                 1,
                 Map.of('S', Ingredient.of(Blocks.SANDSTONE)),
                 List.of("SSS", "S S", "SSS"));
@@ -452,7 +453,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 1440.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.HARDENED_CLAY_FURNACE,
+                InfXBlocks.HARDENED_CLAY_FURNACE,
                 1,
                 Map.of('T', Ingredient.of(Blocks.TERRACOTTA)),
                 List.of("TTT", "T T", "TTT"));
@@ -462,7 +463,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 1920.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.OBSIDIAN_FURNACE,
+                InfXBlocks.OBSIDIAN_FURNACE,
                 1,
                 Map.of('O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of("OOO", "O O", "OOO"));
@@ -472,7 +473,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 1280.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.NETHERRACK_FURNACE,
+                InfXBlocks.NETHERRACK_FURNACE,
                 1,
                 Map.of('N', Ingredient.of(Blocks.NETHERRACK)),
                 List.of("NNN", "N N", "NNN"));
@@ -495,31 +496,31 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_sandstone", has(Blocks.SANDSTONE))
                 .save(output, recipeKey("sandstone_to_glass"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfinityXBlocks.SILVER_ORE),
+                        Ingredient.of(InfXBlocks.SILVER_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
-                        InfinityXItems.SILVER_INGOT,
+                        InfXItems.SILVER_INGOT,
                         0.7F,
                         200)
-                .unlockedBy("has_silver_ore", has(InfinityXBlocks.SILVER_ORE))
+                .unlockedBy("has_silver_ore", has(InfXBlocks.SILVER_ORE))
                 .save(output, recipeKey("silver_ingot_from_smelting_silver_ore"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfinityXBlocks.MITHRIL_ORE),
+                        Ingredient.of(InfXBlocks.MITHRIL_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
-                        InfinityXItems.MITHRIL_INGOT,
+                        InfXItems.MITHRIL_INGOT,
                         0.7F,
                         200)
-                .unlockedBy("has_mithril_ore", has(InfinityXBlocks.MITHRIL_ORE))
+                .unlockedBy("has_mithril_ore", has(InfXBlocks.MITHRIL_ORE))
                 .save(output, recipeKey("mithril_ingot_from_smelting_mithril_ore"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfinityXBlocks.ADAMANTIUM_ORE),
+                        Ingredient.of(InfXBlocks.ADAMANTIUM_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
-                        InfinityXItems.ADAMANTIUM_INGOT,
+                        InfXItems.ADAMANTIUM_INGOT,
                         0.7F,
                         200)
-                .unlockedBy("has_adamantium_ore", has(InfinityXBlocks.ADAMANTIUM_ORE))
+                .unlockedBy("has_adamantium_ore", has(InfXBlocks.ADAMANTIUM_ORE))
                 .save(output, recipeKey("adamantium_ingot_from_smelting_adamantium_ore"));
 
         addShaped(
@@ -528,12 +529,12 @@ final class ModRecipeProvider extends RecipeProvider {
                 150.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                InfinityXItems.FLINT_HATCHET,
+                InfXItems.FLINT_HATCHET,
                 1,
                 Map.of(
                         'F', Ingredient.of(Items.FLINT),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("FS", "BS"));
         addShaped(
                 "flint_shovel",
@@ -541,12 +542,12 @@ final class ModRecipeProvider extends RecipeProvider {
                 150.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                InfinityXItems.FLINT_SHOVEL,
+                InfXItems.FLINT_SHOVEL,
                 1,
                 Map.of(
                         'F', Ingredient.of(Items.FLINT),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("F ", "S ", "SB"));
         addShaped(
                 "flint_axe",
@@ -554,12 +555,12 @@ final class ModRecipeProvider extends RecipeProvider {
                 375.0F,
                 CraftingBookCategory.EQUIPMENT,
                 "",
-                InfinityXItems.FLINT_AXE,
+                InfXItems.FLINT_AXE,
                 1,
                 Map.of(
                         'F', Ingredient.of(Items.FLINT),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("FF", "FS", "BS"));
         addShaped(
                 "obsidian_hatchet",
@@ -572,7 +573,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("OS", "BS"));
         addShaped(
                 "obsidian_shovel",
@@ -585,7 +586,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("O ", "S ", "SB"));
         addShaped(
                 "obsidian_axe",
@@ -598,7 +599,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("OO", "OS", "BS"));
         addShaped(
                 "wood_cudgel",
@@ -635,7 +636,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of(
                         'F', Ingredient.of(Items.FLINT),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("FB", "S "));
         addShaped(
                 "obsidian_knife",
@@ -648,7 +649,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of("OB", "S "));
         addShaped(
                 "wood_bow",
@@ -660,31 +661,31 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of(
                         'S', Ingredient.of(Items.STICK),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS)),
+                        'B', ingredient(InfXItemTags.BINDINGS)),
                 List.of(" SB", "S B", " SB"));
         addMetalBow(
                 "ancient_metal",
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1750.0F,
-                InfinityXItems.ANCIENT_METAL_INGOT);
+                InfXItems.ANCIENT_METAL_INGOT);
         addMetalBow(
                 "mithril",
                 MiteMaterial.MITHRIL,
                 BenchTier.MITHRIL,
                 6550.0F,
-                InfinityXItems.MITHRIL_INGOT);
+                InfXItems.MITHRIL_INGOT);
         addShaped(
                 "flint_workbench",
                 BenchTier.HAND,
                 270.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.FLINT_WORKBENCH,
+                InfXBlocks.FLINT_WORKBENCH,
                 1,
                 Map.of(
                         'F', Ingredient.of(Items.FLINT),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS),
+                        'B', ingredient(InfXItemTags.BINDINGS),
                         'S', Ingredient.of(Items.STICK),
                         'L', ingredient(ItemTags.LOGS)),
                 List.of("FB", "SL"));
@@ -694,48 +695,48 @@ final class ModRecipeProvider extends RecipeProvider {
                 410.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.OBSIDIAN_WORKBENCH,
+                InfXBlocks.OBSIDIAN_WORKBENCH,
                 1,
                 Map.of(
                         'O', Ingredient.of(Items.OBSIDIAN),
-                        'B', ingredient(InfinityXTags.Items.BINDINGS),
+                        'B', ingredient(InfXItemTags.BINDINGS),
                         'S', Ingredient.of(Items.STICK),
                         'L', ingredient(ItemTags.LOGS)),
                 List.of("OB", "SL"));
-        addMetalWorkbench("copper", BenchTier.FLINT, 605.0F, Items.COPPER_INGOT, InfinityXBlocks.COPPER_WORKBENCH);
-        addMetalWorkbench("silver", BenchTier.FLINT, 605.0F, InfinityXItems.SILVER_INGOT, InfinityXBlocks.SILVER_WORKBENCH);
-        addMetalWorkbench("gold", BenchTier.FLINT, 605.0F, Items.GOLD_INGOT, InfinityXBlocks.GOLD_WORKBENCH);
-        addMetalWorkbench("iron", BenchTier.COPPER, 1005.0F, Items.IRON_INGOT, InfinityXBlocks.IRON_WORKBENCH);
+        addMetalWorkbench("copper", BenchTier.FLINT, 605.0F, Items.COPPER_INGOT, InfXBlocks.COPPER_WORKBENCH);
+        addMetalWorkbench("silver", BenchTier.FLINT, 605.0F, InfXItems.SILVER_INGOT, InfXBlocks.SILVER_WORKBENCH);
+        addMetalWorkbench("gold", BenchTier.FLINT, 605.0F, Items.GOLD_INGOT, InfXBlocks.GOLD_WORKBENCH);
+        addMetalWorkbench("iron", BenchTier.COPPER, 1005.0F, Items.IRON_INGOT, InfXBlocks.IRON_WORKBENCH);
         addMetalWorkbench(
                 "ancient_metal",
                 BenchTier.IRON,
                 1805.0F,
-                InfinityXItems.ANCIENT_METAL_INGOT,
-                InfinityXBlocks.ANCIENT_METAL_WORKBENCH);
+                InfXItems.ANCIENT_METAL_INGOT,
+                InfXBlocks.ANCIENT_METAL_WORKBENCH);
         addMetalWorkbench(
-                "mithril", BenchTier.ANCIENT_METAL, 6605.0F, InfinityXItems.MITHRIL_INGOT, InfinityXBlocks.MITHRIL_WORKBENCH);
+                "mithril", BenchTier.ANCIENT_METAL, 6605.0F, InfXItems.MITHRIL_INGOT, InfXBlocks.MITHRIL_WORKBENCH);
         addMetalWorkbench(
                 "adamantium",
                 BenchTier.MITHRIL,
                 25805.0F,
-                InfinityXItems.ADAMANTIUM_INGOT,
-                InfinityXBlocks.ADAMANTIUM_WORKBENCH);
-        addMetalStorageRecipes("silver", InfinityXItems.SILVER_INGOT, InfinityXBlocks.SILVER_BLOCK, 3_600.0F);
+                InfXItems.ADAMANTIUM_INGOT,
+                InfXBlocks.ADAMANTIUM_WORKBENCH);
+        addMetalStorageRecipes("silver", InfXItems.SILVER_INGOT, InfXBlocks.SILVER_BLOCK, 3_600.0F);
         addMetalStorageRecipes(
-                "ancient_metal", InfinityXItems.ANCIENT_METAL_INGOT, InfinityXBlocks.ANCIENT_METAL_BLOCK, 14_400.0F);
-        addMetalStorageRecipes("mithril", InfinityXItems.MITHRIL_INGOT, InfinityXBlocks.MITHRIL_BLOCK, 57_600.0F);
+                "ancient_metal", InfXItems.ANCIENT_METAL_INGOT, InfXBlocks.ANCIENT_METAL_BLOCK, 14_400.0F);
+        addMetalStorageRecipes("mithril", InfXItems.MITHRIL_INGOT, InfXBlocks.MITHRIL_BLOCK, 57_600.0F);
         addMetalStorageRecipes(
-                "adamantium", InfinityXItems.ADAMANTIUM_INGOT, InfinityXBlocks.ADAMANTIUM_BLOCK, 230_400.0F);
+                "adamantium", InfXItems.ADAMANTIUM_INGOT, InfXBlocks.ADAMANTIUM_BLOCK, 230_400.0F);
         addShaped(
                 "mithril_rune_stone",
                 BenchTier.MITHRIL,
                 3_200.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.MITHRIL_RUNE_STONE,
+                InfXBlocks.MITHRIL_RUNE_STONE,
                 1,
                 Map.of(
-                        'N', Ingredient.of(InfinityXItems.MITHRIL_NUGGET),
+                        'N', Ingredient.of(InfXItems.MITHRIL_NUGGET),
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of(" N ", "NON", " N "));
         addShaped(
@@ -744,32 +745,32 @@ final class ModRecipeProvider extends RecipeProvider {
                 12_800.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.ADAMANTIUM_RUNE_STONE,
+                InfXBlocks.ADAMANTIUM_RUNE_STONE,
                 1,
                 Map.of(
-                        'N', Ingredient.of(InfinityXItems.ADAMANTIUM_NUGGET),
+                        'N', Ingredient.of(InfXItems.ADAMANTIUM_NUGGET),
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of(" N ", "NON", " N "));
         addMetalAnvilRecipes();
         addMetalConversions("copper", 400.0F, Items.COPPER_NUGGET, Items.COPPER_INGOT);
-        addMetalConversions("silver", 400.0F, InfinityXItems.SILVER_NUGGET, InfinityXItems.SILVER_INGOT);
+        addMetalConversions("silver", 400.0F, InfXItems.SILVER_NUGGET, InfXItems.SILVER_INGOT);
         addMetalConversions("gold", 400.0F, Items.GOLD_NUGGET, Items.GOLD_INGOT);
         addMetalConversions("iron", 800.0F, Items.IRON_NUGGET, Items.IRON_INGOT);
         addMetalConversions(
                 "ancient_metal",
                 1600.0F,
-                InfinityXItems.catalog().raw("ancient_metal_nugget").holder(),
-                InfinityXItems.ANCIENT_METAL_INGOT);
-        addMetalConversions("mithril", 6400.0F, InfinityXItems.MITHRIL_NUGGET, InfinityXItems.MITHRIL_INGOT);
+                InfXItems.catalog().raw("ancient_metal_nugget").holder(),
+                InfXItems.ANCIENT_METAL_INGOT);
+        addMetalConversions("mithril", 6400.0F, InfXItems.MITHRIL_NUGGET, InfXItems.MITHRIL_INGOT);
         addMetalConversions(
                 "adamantium",
                 25600.0F,
-                InfinityXItems.ADAMANTIUM_NUGGET,
-                InfinityXItems.ADAMANTIUM_INGOT);
+                InfXItems.ADAMANTIUM_NUGGET,
+                InfXItems.ADAMANTIUM_INGOT);
         addChainConversions(
                 "copper", BenchTier.COPPER, 400.0F, Items.COPPER_NUGGET);
         addChainConversions(
-                "silver", BenchTier.COPPER, 400.0F, InfinityXItems.SILVER_NUGGET);
+                "silver", BenchTier.COPPER, 400.0F, InfXItems.SILVER_NUGGET);
         addChainConversions(
                 "gold", BenchTier.COPPER, 400.0F, Items.GOLD_NUGGET);
         addChainConversions(
@@ -778,14 +779,14 @@ final class ModRecipeProvider extends RecipeProvider {
                 "ancient_metal",
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
-                InfinityXItems.catalog().raw("ancient_metal_nugget").holder());
+                InfXItems.catalog().raw("ancient_metal_nugget").holder());
         addChainConversions(
-                "mithril", BenchTier.MITHRIL, 6400.0F, InfinityXItems.MITHRIL_NUGGET);
+                "mithril", BenchTier.MITHRIL, 6400.0F, InfXItems.MITHRIL_NUGGET);
         addChainConversions(
                 "adamantium",
                 BenchTier.ADAMANTIUM,
                 25600.0F,
-                InfinityXItems.ADAMANTIUM_NUGGET);
+                InfXItems.ADAMANTIUM_NUGGET);
 
         addPlanks("acacia", Items.ACACIA_PLANKS, ItemTags.ACACIA_LOGS, 4);
         addPlanks("bamboo", Items.BAMBOO_PLANKS, ItemTags.BAMBOO_BLOCKS, 2);
@@ -805,11 +806,11 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.COPPER,
                 400.0F,
                 Items.COPPER_INGOT,
-                InfinityXItems.COPPER_PICKAXE,
-                InfinityXItems.COPPER_SHOVEL,
-                InfinityXItems.COPPER_AXE,
-                InfinityXItems.COPPER_HOE,
-                InfinityXItems.COPPER_SWORD);
+                InfXItems.COPPER_PICKAXE,
+                InfXItems.COPPER_SHOVEL,
+                InfXItems.COPPER_AXE,
+                InfXItems.COPPER_HOE,
+                InfXItems.COPPER_SWORD);
         addShaped(
                 "cobblestone_furnace",
                 BenchTier.COPPER,
@@ -825,31 +826,31 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.IRON,
                 800.0F,
                 Items.IRON_INGOT,
-                InfinityXItems.IRON_PICKAXE,
-                InfinityXItems.IRON_SHOVEL,
-                InfinityXItems.IRON_AXE,
-                InfinityXItems.IRON_HOE,
-                InfinityXItems.IRON_SWORD);
-        addCatalogCoreMetalTools("silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, InfinityXItems.SILVER_INGOT);
+                InfXItems.IRON_PICKAXE,
+                InfXItems.IRON_SHOVEL,
+                InfXItems.IRON_AXE,
+                InfXItems.IRON_HOE,
+                InfXItems.IRON_SWORD);
+        addCatalogCoreMetalTools("silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, InfXItems.SILVER_INGOT);
         addCatalogCoreMetalTools("gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
         addCatalogCoreMetalTools(
                 "ancient_metal",
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
-                InfinityXItems.ANCIENT_METAL_INGOT);
+                InfXItems.ANCIENT_METAL_INGOT);
         addCatalogCoreMetalTools(
-                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfinityXItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfXItems.MITHRIL_INGOT);
         addCatalogCoreMetalTools(
                 "adamantium",
                 MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F,
-                InfinityXItems.ADAMANTIUM_INGOT);
+                InfXItems.ADAMANTIUM_INGOT);
         addCatalogSpecialMetalTools(
                 "copper", MiteMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
         addCatalogSpecialMetalTools(
-                "silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, InfinityXItems.SILVER_INGOT);
+                "silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, InfXItems.SILVER_INGOT);
         addCatalogSpecialMetalTools(
                 "gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
         addCatalogSpecialMetalTools(
@@ -859,17 +860,17 @@ final class ModRecipeProvider extends RecipeProvider {
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
-                InfinityXItems.ANCIENT_METAL_INGOT);
+                InfXItems.ANCIENT_METAL_INGOT);
         addCatalogSpecialMetalTools(
-                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfinityXItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfXItems.MITHRIL_INGOT);
         addCatalogSpecialMetalTools(
                 "adamantium",
                 MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F,
-                InfinityXItems.ADAMANTIUM_INGOT);
+                InfXItems.ADAMANTIUM_INGOT);
         addMetalDagger("copper", MiteMaterial.COPPER, BenchTier.COPPER, 425.0F, Items.COPPER_INGOT);
-        addMetalDagger("silver", MiteMaterial.SILVER, BenchTier.COPPER, 425.0F, InfinityXItems.SILVER_INGOT);
+        addMetalDagger("silver", MiteMaterial.SILVER, BenchTier.COPPER, 425.0F, InfXItems.SILVER_INGOT);
         addMetalDagger("gold", MiteMaterial.GOLD, BenchTier.COPPER, 425.0F, Items.GOLD_INGOT);
         addMetalDagger("iron", MiteMaterial.IRON, BenchTier.IRON, 825.0F, Items.IRON_INGOT);
         addMetalDagger(
@@ -877,30 +878,30 @@ final class ModRecipeProvider extends RecipeProvider {
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1625.0F,
-                InfinityXItems.ANCIENT_METAL_INGOT);
+                InfXItems.ANCIENT_METAL_INGOT);
         addMetalDagger(
-                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6425.0F, InfinityXItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6425.0F, InfXItems.MITHRIL_INGOT);
         addMetalDagger(
                 "adamantium",
                 MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25625.0F,
-                InfinityXItems.ADAMANTIUM_INGOT);
+                InfXItems.ADAMANTIUM_INGOT);
 
-        addArrow("flint", MiteMaterial.FLINT, BenchTier.FLINT, 75.0F, InfinityXItems.FLINT_CHIP);
+        addArrow("flint", MiteMaterial.FLINT, BenchTier.FLINT, 75.0F, InfXItems.FLINT_CHIP);
         addArrow(
                 "obsidian",
                 MiteMaterial.OBSIDIAN,
                 BenchTier.FLINT,
                 200.0F / 9.0F + 50.0F,
-                InfinityXItems.OBSIDIAN_SHARD);
+                InfXItems.OBSIDIAN_SHARD);
         addArrow("copper", MiteMaterial.COPPER, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.COPPER_NUGGET);
         addArrow(
                 "silver",
                 MiteMaterial.SILVER,
                 BenchTier.COPPER,
                 400.0F / 9.0F + 50.0F,
-                InfinityXItems.SILVER_NUGGET);
+                InfXItems.SILVER_NUGGET);
         addArrow("gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.GOLD_NUGGET);
         addArrow("iron", MiteMaterial.IRON, BenchTier.IRON, 800.0F / 9.0F + 50.0F, Items.IRON_NUGGET);
         addArrow(
@@ -908,25 +909,25 @@ final class ModRecipeProvider extends RecipeProvider {
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F / 9.0F + 50.0F,
-                InfinityXItems.catalog().raw("ancient_metal_nugget").holder());
+                InfXItems.catalog().raw("ancient_metal_nugget").holder());
         addArrow(
                 "mithril",
                 MiteMaterial.MITHRIL,
                 BenchTier.MITHRIL,
                 6400.0F / 9.0F + 50.0F,
-                InfinityXItems.MITHRIL_NUGGET);
+                InfXItems.MITHRIL_NUGGET);
         addArrow(
                 "adamantium",
                 MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F / 9.0F + 50.0F,
-                InfinityXItems.ADAMANTIUM_NUGGET);
+                InfXItems.ADAMANTIUM_NUGGET);
 
         addArmorSet("leather", MiteMaterial.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
         addMetalArmorSets(
                 "copper", MiteMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
         addMetalArmorSets(
-                "silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, InfinityXItems.SILVER_INGOT);
+                "silver", MiteMaterial.SILVER, BenchTier.COPPER, 400.0F, InfXItems.SILVER_INGOT);
         addMetalArmorSets(
                 "gold", MiteMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
         addArmorSet(
@@ -943,15 +944,15 @@ final class ModRecipeProvider extends RecipeProvider {
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
                 1600.0F,
-                InfinityXItems.ANCIENT_METAL_INGOT);
+                InfXItems.ANCIENT_METAL_INGOT);
         addMetalArmorSets(
-                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfinityXItems.MITHRIL_INGOT);
+                "mithril", MiteMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfXItems.MITHRIL_INGOT);
         addMetalArmorSets(
                 "adamantium",
                 MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
                 25600.0F,
-                InfinityXItems.ADAMANTIUM_INGOT);
+                InfXItems.ADAMANTIUM_INGOT);
     }
 
     private void addMetalConversions(
@@ -981,14 +982,14 @@ final class ModRecipeProvider extends RecipeProvider {
     }
 
     private void addR196Buckets() {
-        for (MiteMaterial material : InfinityXItems.BUCKET_MATERIALS) {
+        for (MiteMaterial material : InfXItems.BUCKET_MATERIALS) {
             addShaped(
                     material.path() + "_bucket",
                     bucketBench(material),
                     bucketIngotDifficulty(material) * 3.0F,
                     CraftingBookCategory.MISC,
                     "",
-                    InfinityXItems.bucket(material, MiteBucketItem.Contents.EMPTY),
+                    InfXItems.bucket(material, MiteBucketItem.Contents.EMPTY),
                     1,
                     Map.of('I', Ingredient.of(bucketIngot(material))),
                     List.of("I I", " I "));
@@ -998,21 +999,21 @@ final class ModRecipeProvider extends RecipeProvider {
                     100.0F,
                     CraftingBookCategory.MISC,
                     "",
-                    InfinityXItems.bucket(material, MiteBucketItem.Contents.EMPTY),
+                    InfXItems.bucket(material, MiteBucketItem.Contents.EMPTY),
                     1,
-                    List.of(Ingredient.of(InfinityXItems.bucket(material, MiteBucketItem.Contents.STONE))));
+                    List.of(Ingredient.of(InfXItems.bucket(material, MiteBucketItem.Contents.STONE))));
         }
     }
 
     private static ItemLike bucketIngot(MiteMaterial material) {
         return switch (material) {
             case COPPER -> Items.COPPER_INGOT;
-            case SILVER -> InfinityXItems.SILVER_INGOT;
+            case SILVER -> InfXItems.SILVER_INGOT;
             case GOLD -> Items.GOLD_INGOT;
             case IRON -> Items.IRON_INGOT;
-            case ANCIENT_METAL -> InfinityXItems.ANCIENT_METAL_INGOT;
-            case MITHRIL -> InfinityXItems.MITHRIL_INGOT;
-            case ADAMANTIUM -> InfinityXItems.ADAMANTIUM_INGOT;
+            case ANCIENT_METAL -> InfXItems.ANCIENT_METAL_INGOT;
+            case MITHRIL -> InfXItems.MITHRIL_INGOT;
+            case ADAMANTIUM -> InfXItems.ADAMANTIUM_INGOT;
             default -> throw new IllegalArgumentException("No R196 bucket ingot for " + material);
         };
     }
@@ -1119,7 +1120,7 @@ final class ModRecipeProvider extends RecipeProvider {
     }
 
     private static ItemLike raw(String path) {
-        return InfinityXItems.catalog().raw(path).holder();
+        return InfXItems.catalog().raw(path).holder();
     }
 
     private void addShardRecipes(String name, ItemLike shard, ItemLike whole, float difficulty) {
@@ -1231,7 +1232,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 100.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.SNOW_SLAB,
+                InfXBlocks.SNOW_SLAB,
                 1,
                 Map.of('S', Ingredient.of(Items.SNOWBALL)),
                 List.of("SS", "SS"));
@@ -1243,7 +1244,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Blocks.SNOW_BLOCK,
                 1,
-                Map.of('S', Ingredient.of(InfinityXBlocks.SNOW_SLAB)),
+                Map.of('S', Ingredient.of(InfXBlocks.SNOW_SLAB)),
                 List.of("S", "S"));
         addShaped(
                 "oak_sign",
@@ -1526,7 +1527,7 @@ final class ModRecipeProvider extends RecipeProvider {
     }
 
     private static ItemLike equipment(MiteMaterial material, EquipmentType type) {
-        return InfinityXItems.catalog().equipment(material, type).holder();
+        return InfXItems.catalog().equipment(material, type).holder();
     }
 
     private void addMetalWorkbench(
@@ -1577,26 +1578,26 @@ final class ModRecipeProvider extends RecipeProvider {
                 Items.COPPER_INGOT,
                 Blocks.COPPER_BLOCK,
                 12_400.0F);
-        addMetalAnvil(MiteMaterial.SILVER, BenchTier.SILVER, InfinityXItems.SILVER_INGOT, InfinityXBlocks.SILVER_BLOCK, 12_400.0F);
+        addMetalAnvil(MiteMaterial.SILVER, BenchTier.SILVER, InfXItems.SILVER_INGOT, InfXBlocks.SILVER_BLOCK, 12_400.0F);
         addMetalAnvil(MiteMaterial.GOLD, BenchTier.GOLD, Items.GOLD_INGOT, Blocks.GOLD_BLOCK, 12_400.0F);
         addMetalAnvil(MiteMaterial.IRON, BenchTier.IRON, Items.IRON_INGOT, Blocks.IRON_BLOCK, 24_800.0F);
         addMetalAnvil(
                 MiteMaterial.ANCIENT_METAL,
                 BenchTier.ANCIENT_METAL,
-                InfinityXItems.ANCIENT_METAL_INGOT,
-                InfinityXBlocks.ANCIENT_METAL_BLOCK,
+                InfXItems.ANCIENT_METAL_INGOT,
+                InfXBlocks.ANCIENT_METAL_BLOCK,
                 49_600.0F);
         addMetalAnvil(
                 MiteMaterial.MITHRIL,
                 BenchTier.MITHRIL,
-                InfinityXItems.MITHRIL_INGOT,
-                InfinityXBlocks.MITHRIL_BLOCK,
+                InfXItems.MITHRIL_INGOT,
+                InfXBlocks.MITHRIL_BLOCK,
                 198_400.0F);
         addMetalAnvil(
                 MiteMaterial.ADAMANTIUM,
                 BenchTier.ADAMANTIUM,
-                InfinityXItems.ADAMANTIUM_INGOT,
-                InfinityXBlocks.ADAMANTIUM_BLOCK,
+                InfXItems.ADAMANTIUM_INGOT,
+                InfXBlocks.ADAMANTIUM_BLOCK,
                 793_600.0F);
     }
 
@@ -1612,7 +1613,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 difficulty,
                 CraftingBookCategory.BUILDING,
                 "",
-                InfinityXBlocks.metalAnvil(material),
+                InfXBlocks.metalAnvil(material),
                 1,
                 Map.of('B', Ingredient.of(storageBlock), 'I', Ingredient.of(ingot)),
                 List.of("BBB", "I I", "I I"));

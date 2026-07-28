@@ -2,7 +2,7 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -125,7 +125,7 @@ public final class MiteZombifiedPiglin extends ZombifiedPiglin implements MiteMo
                 : roll == 2 ? EquipmentType.AXE : EquipmentType.PICKAXE;
         setItemSlot(
                 EquipmentSlot.MAINHAND,
-                InfinityXItems.catalog().equipment(MiteMaterial.GOLD, type).holder().toStack());
+                InfXItems.catalog().equipment(MiteMaterial.GOLD, type).holder().toStack());
     }
 
     @Override

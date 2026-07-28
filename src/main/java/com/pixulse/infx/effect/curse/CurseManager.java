@@ -1,9 +1,10 @@
 package com.pixulse.infx.effect.curse;
 
 import com.pixulse.infx.entity.MiteWitch;
-import com.pixulse.infx.registry.InfinityXAttachments;
-import com.pixulse.infx.registry.InfinityXMobEffects;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXMobEffects;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
+
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,7 +64,7 @@ public final class CurseManager {
     }
 
     public static CurseStatus status(Player player) {
-        return player.getData(InfinityXAttachments.CURSE_STATUS);
+        return player.getData(InfXAttachments.CURSE_STATUS);
     }
 
     public static boolean hasCurse(Player player, CurseType type) {
@@ -127,9 +128,9 @@ public final class CurseManager {
         BlockPos feet = BlockPos.containing(player.getX(), player.getBoundingBox().minY + 0.001D, player.getZ());
         var state = player.level().getBlockState(feet);
         double factor;
-        if (state.is(InfinityXTags.Blocks.CURSE_VINES)) {
+        if (state.is(InfXBlockTags.CURSE_VINES)) {
             factor = 0.2D;
-        } else if (state.is(InfinityXTags.Blocks.CURSE_PLANTS)) {
+        } else if (state.is(InfXBlockTags.CURSE_PLANTS)) {
             factor = 0.4D;
         } else {
             return input;
@@ -178,13 +179,13 @@ public final class CurseManager {
     }
 
     private static void setStatus(ServerPlayer player, CurseStatus status) {
-        if (!status.equals(player.getData(InfinityXAttachments.CURSE_STATUS))) {
-            player.setData(InfinityXAttachments.CURSE_STATUS, status);
+        if (!status.equals(player.getData(InfXAttachments.CURSE_STATUS))) {
+            player.setData(InfXAttachments.CURSE_STATUS, status);
         }
     }
 
     private static void removeLegacyMarker(ServerPlayer player) {
-        player.removeEffect(InfinityXMobEffects.WITCH_CURSE);
+        player.removeEffect(InfXMobEffects.WITCH_CURSE);
     }
 
     private static void curseParticles(ServerPlayer player) {

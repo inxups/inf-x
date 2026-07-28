@@ -6,7 +6,7 @@ import com.pixulse.infx.entity.Livestock;
 import com.pixulse.infx.entity.MiteSilverfish;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.network.Network;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.world.FluidDecayData;
 import java.util.function.Supplier;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -160,7 +160,7 @@ public final class MiteBucketItem extends BucketItem {
                 } else if (state.getFluidState().is(Fluids.LAVA)) {
                     filledStack = new ItemStack(lavaBucket.get());
                 } else if (state.is(Blocks.POWDER_SNOW)) {
-                    filledStack = InfinityXItems.powderSnowBucket(material).toStack();
+                    filledStack = InfXItems.powderSnowBucket(material).toStack();
                 } else {
                     return super.execute(source, dispensed);
                 }
@@ -416,7 +416,7 @@ public final class MiteBucketItem extends BucketItem {
                 : fluidState.is(FluidTags.LAVA)
                         ? lavaBucket
                         : state.is(Blocks.POWDER_SNOW)
-                                ? () -> InfinityXItems.powderSnowBucket(material).value()
+                                ? () -> InfXItems.powderSnowBucket(material).value()
                                 : null;
         if (filled == null) return InteractionResult.FAIL;
 

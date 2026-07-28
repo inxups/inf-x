@@ -3,7 +3,7 @@ package com.pixulse.infx.menu;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXMenus;
+import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.item.repair.RepairPlan;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -35,7 +35,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
             MiteMaterial anvilMaterial,
             ContainerLevelAccess access,
             Block expectedBlock) {
-        super(InfinityXMenus.METAL_ANVIL.get(), containerId, inventory, access, SLOTS);
+        super(InfXMenus.METAL_ANVIL.get(), containerId, inventory, access, SLOTS);
         this.anvilMaterial = anvilMaterial;
         this.expectedBlock = expectedBlock;
     }

@@ -4,8 +4,8 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.InfinityXDataComponents;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
@@ -25,12 +25,12 @@ public final class QualitySystem {
     private QualitySystem() {}
 
     public static boolean supportsQuality(ItemStack stack) {
-        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         return entry != null && entry.key().durability() > 0;
     }
 
     public static EquipmentKey key(ItemStack stack) {
-        Catalog.EquipmentEntry entry = InfinityXItems.catalog().equipment(stack);
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         return entry == null ? null : entry.key();
     }
 
@@ -150,12 +150,12 @@ public final class QualitySystem {
         Quality quality = fromCode(qualityCode);
         if (key == null || quality == null) {
             if (key != null && key.material() != MiteMaterial.RUSTED_IRON) {
-                stack.remove(InfinityXDataComponents.QUALITY.get());
+                stack.remove(InfXDataComponents.QUALITY.get());
                 stack.set(DataComponents.MAX_DAMAGE, key.durability());
             }
             return 0;
         }
-        stack.set(InfinityXDataComponents.QUALITY.get(), quality);
+        stack.set(InfXDataComponents.QUALITY.get(), quality);
         stack.set(
                 DataComponents.MAX_DAMAGE,
                 Math.max(1, Math.round(key.durability() * quality.durabilityMultiplier())));

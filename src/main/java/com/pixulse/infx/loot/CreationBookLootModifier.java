@@ -2,7 +2,7 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.registry.InfinityXLootModifiers;
+import com.pixulse.infx.registry.InfXLootModifiers;
 import com.pixulse.infx.world.CreationBooks;
 import com.pixulse.infx.world.WorldData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -52,6 +52,6 @@ public final class CreationBookLootModifier extends LootModifier {
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return InfinityXLootModifiers.CREATION_BOOK.get();
+        return InfXLootModifiers.CREATION_BOOK.get();
     }
 }

@@ -2,7 +2,7 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.registry.InfinityXLootModifiers;
+import com.pixulse.infx.registry.InfXLootModifiers;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -98,6 +98,6 @@ public final class ModernProgressionLootFilter extends LootModifier {
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return InfinityXLootModifiers.MODERN_PROGRESSION_FILTER.get();
+        return InfXLootModifiers.MODERN_PROGRESSION_FILTER.get();
     }
 }

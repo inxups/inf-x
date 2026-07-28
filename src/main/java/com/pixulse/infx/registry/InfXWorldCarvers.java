@@ -8,14 +8,14 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class InfinityXWorldCarvers {
+public final class InfXWorldCarvers {
     private static final DeferredRegister<WorldCarver<?>> CARVERS =
             DeferredRegister.create(Registries.CARVER, InfiniteX.MOD_ID);
 
     public static final DeferredHolder<WorldCarver<?>, LargeCaveCarver> LARGE_CAVE =
             CARVERS.register("large_cave", LargeCaveCarver::new);
 
-    private InfinityXWorldCarvers() {}
+    private InfXWorldCarvers() {}
 
     public static void register(IEventBus modBus) {
         CARVERS.register(modBus);

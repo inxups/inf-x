@@ -1,40 +1,40 @@
 package com.pixulse.infx.world;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.pixulse.infx.harvest.HarvestTier;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
-import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /** Day/tool village gate plus R164's villager-free, withered farms. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class VillageProgression {
     public static final long VILLAGE_DAY = 60L;
     private static volatile boolean generationUnlocked;
 
     private VillageProgression() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(VillageProgression::onItemCrafted);
-        gameBus.addListener(VillageProgression::onServerAboutToStart);
-        gameBus.addListener(VillageProgression::onServerTick);
-        gameBus.addListener(VillageProgression::onChunkLoad);
-    }
+    @SubscribeEvent
 
     private static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
-        var equipment = InfinityXItems.catalog().equipment(event.getCrafting());
+        var equipment = InfXItems.catalog().equipment(event.getCrafting());
         if (equipment == null
                 || equipment.key().type() != EquipmentType.PICKAXE
                         && equipment.key().type() != EquipmentType.WAR_HAMMER
@@ -47,9 +47,13 @@ public final class VillageProgression {
         refresh(level);
     }
 
+    @SubscribeEvent
+
     private static void onServerTick(ServerTickEvent.Post event) {
         if (event.getServer().getTickCount() % 20 == 0) refresh(event.getServer().overworld());
     }
+
+    @SubscribeEvent
 
     private static void onServerAboutToStart(ServerAboutToStartEvent event) {
         generationUnlocked = false;
@@ -70,6 +74,8 @@ public final class VillageProgression {
     public static long day(ServerLevel level) {
         return Math.max(1L, level.getOverworldClockTime() / 24_000L + 1L);
     }
+
+    @SubscribeEvent
 
     private static void onChunkLoad(ChunkEvent.Load event) {
         if (!event.isNewChunk() || !(event.getLevel() instanceof ServerLevel level)) return;
@@ -96,12 +102,12 @@ public final class VillageProgression {
                     } else if (state.is(BlockTags.CROPS)) {
                         level.removeBlock(cursor, false);
                     } else if (!placedSafe && (state.is(Blocks.CHEST) || state.is(Blocks.BARREL))) {
-                        level.setBlockAndUpdate(cursor, InfinityXBlocks.IRON_SAFE.get().defaultBlockState());
+                        level.setBlockAndUpdate(cursor, InfXBlocks.IRON_SAFE.get().defaultBlockState());
                         if (level.getBlockEntity(cursor) instanceof SafeBlockEntity safe) {
                             safe.setItem(0, new ItemStack(Items.IRON_NUGGET, 4 + level.getRandom().nextInt(9)));
                             safe.setItem(1, new ItemStack(Items.COPPER_NUGGET, 8 + level.getRandom().nextInt(13)));
-                            safe.setItem(2, InfinityXItems.SILVER_NUGGET.toStack(2 + level.getRandom().nextInt(7)));
-                            safe.setItem(3, InfinityXItems.catalog().raw("copper_coin").holder().toStack());
+                            safe.setItem(2, InfXItems.SILVER_NUGGET.toStack(2 + level.getRandom().nextInt(7)));
+                            safe.setItem(3, InfXItems.catalog().raw("copper_coin").holder().toStack());
                         }
                         placedSafe = true;
                     }

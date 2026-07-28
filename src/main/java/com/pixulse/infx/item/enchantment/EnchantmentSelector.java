@@ -1,6 +1,6 @@
 package com.pixulse.infx.item.enchantment;
 
-import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.Holder;
@@ -82,7 +82,7 @@ public final class EnchantmentSelector {
     }
 
     static List<ResourceKey<Enchantment>> candidateKeys() {
-        return InfinityXEnchantments.ALL;
+        return InfXEnchantments.ALL;
     }
 
     private static void shuffle(RandomSource random, List<EnchantmentInstance> enchantments) {

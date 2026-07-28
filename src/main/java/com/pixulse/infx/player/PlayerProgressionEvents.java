@@ -1,10 +1,15 @@
 package com.pixulse.infx.player;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.Catalog;
-import com.pixulse.infx.registry.InfinityXAttachments;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.food.SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -15,7 +20,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
@@ -25,25 +29,13 @@ import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** Server-authoritative R196 level progression, bonuses, death debt and auto-respawn. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class PlayerProgressionEvents {
     private static final String DEATH_TOTAL = "infx_r196_death_total";
     private static final String DEATH_TIME = "infx_r196_death_time";
     private static final int AUTO_RESPAWN_TICKS = 120 * 20;
 
     private PlayerProgressionEvents() {}
-
-    public static void register(IEventBus modBus, IEventBus gameBus) {
-        modBus.addListener(PlayerProgressionEvents::modifyPlayerRanges);
-        gameBus.addListener(PlayerProgressionEvents::onExperienceChange);
-        gameBus.addListener(PlayerProgressionEvents::onLevelChange);
-        gameBus.addListener(PlayerProgressionEvents::onLogin);
-        gameBus.addListener(PlayerProgressionEvents::onClone);
-        gameBus.addListener(PlayerProgressionEvents::onDeath);
-        gameBus.addListener(PlayerProgressionEvents::onExperienceDrop);
-        gameBus.addListener(PlayerProgressionEvents::onPlayerTick);
-        gameBus.addListener(EventPriority.HIGH, PlayerProgressionEvents::applyMeleeLevelBonus);
-        gameBus.addListener(EventPriority.LOWEST, PlayerProgressionEvents::enforceWeakStrike);
-    }
 
     private static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
         boolean testMode = InfiniteXTestMode.isEnabled();
@@ -59,11 +51,15 @@ public final class PlayerProgressionEvents {
         return testMode ? Player.DEFAULT_ENTITY_INTERACTION_RANGE : 2.5;
     }
 
+    @SubscribeEvent
+
     private static void onExperienceChange(PlayerXpEvent.XpChange event) {
         event.setCanceled(true);
         Experience.add(event.getEntity(), event.getAmount());
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
+
+    @SubscribeEvent
 
     private static void onLevelChange(PlayerXpEvent.LevelChange event) {
         event.setCanceled(true);
@@ -71,10 +67,14 @@ public final class PlayerProgressionEvents {
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
+    @SubscribeEvent
+
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
+
+    @SubscribeEvent
 
     private static void onClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath()
@@ -91,12 +91,16 @@ public final class PlayerProgressionEvents {
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
+    @SubscribeEvent
+
     private static void onDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             player.getPersistentData().putInt(DEATH_TOTAL, player.totalExperience);
             player.getPersistentData().putLong(DEATH_TIME, player.level().getGameTime());
         }
     }
+
+    @SubscribeEvent
 
     private static void onExperienceDrop(LivingExperienceDropEvent event) {
         if (event.getEntity() instanceof Player player) {
@@ -112,6 +116,8 @@ public final class PlayerProgressionEvents {
         return player.level() instanceof ServerLevel serverLevel
                 && serverLevel.getGameRules().get(GameRules.KEEP_INVENTORY);
     }
+
+    @SubscribeEvent
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isDeadOrDying()) {
@@ -132,6 +138,8 @@ public final class PlayerProgressionEvents {
         });
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGH)
+
     private static void applyMeleeLevelBonus(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)
                 || event.getSource().getDirectEntity() != player
@@ -140,6 +148,8 @@ public final class PlayerProgressionEvents {
         }
         event.setAmount(event.getAmount() * meleeMultiplier(player.experienceLevel));
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
 
     private static void enforceWeakStrike(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)
@@ -157,12 +167,19 @@ public final class PlayerProgressionEvents {
 
     public static boolean isWeakStrike(Player player) {
         if (player.getHealth() < 2.0F
-                || !player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy()
+                || !player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy()
                 || HarvestSpeedRules.isParalyzed(player)
                 || HarvestSpeedRules.isInCobweb(player)) {
             return true;
         }
-        Catalog.EquipmentEntry held = InfinityXItems.catalog().equipment(player.getMainHandItem());
+        Catalog.EquipmentEntry held = InfXItems.catalog().equipment(player.getMainHandItem());
         return held == null && player.getAttributeValue(Attributes.ATTACK_DAMAGE) <= 2.0;
+    }
+    @EventBusSubscriber(modid = InfiniteX.MOD_ID)
+    private static final class ModEvents {
+        @SubscribeEvent
+        private static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
+            PlayerProgressionEvents.modifyPlayerRanges(event);
+        }
     }
 }

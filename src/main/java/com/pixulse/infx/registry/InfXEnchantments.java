@@ -2,7 +2,8 @@ package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.tag.InfXItemTags;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -38,7 +39,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyC
  * The 22 R196 enchantments, the 17 vanilla-derived MITE enchantments re-registered under their
  * {@code minecraft:} ids with MITE profiles, and the crafting-only clumsiness curse.
  */
-public final class InfinityXEnchantments {
+public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> DURABILITY = key("durability");
     public static final ResourceKey<Enchantment> DISARMING = key("disarming");
     public static final ResourceKey<Enchantment> QUICKNESS = key("quickness");
@@ -145,7 +146,7 @@ public final class InfinityXEnchantments {
             Map.entry(VANILLA_PUNCH, profile(Rarity.UNCOMMON, 10)),
             Map.entry(VANILLA_FLAME, profile(Rarity.RARE, 20)));
 
-    private InfinityXEnchantments() {}
+    private InfXEnchantments() {}
 
     private static ResourceKey<Enchantment> key(String path) {
         return ResourceKey.create(Registries.ENCHANTMENT, InfiniteX.id(path));
@@ -158,9 +159,9 @@ public final class InfinityXEnchantments {
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         HolderGetter<Item> items = context.lookup(Registries.ITEM);
         HolderGetter<Enchantment> enchantments = context.lookup(Registries.ENCHANTMENT);
-        register(context, items, enchantments, DURABILITY, InfinityXTags.Items.R196_DURABILITY_ENCHANTABLE,
+        register(context, items, enchantments, DURABILITY, InfXItemTags.R196_DURABILITY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.ANY);
-        register(context, items, enchantments, DISARMING, InfinityXTags.Items.R196_DISARMING_ENCHANTABLE,
+        register(context, items, enchantments, DISARMING, InfXItemTags.R196_DISARMING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, QUICKNESS, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
@@ -168,37 +169,37 @@ public final class InfinityXEnchantments {
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, POISONING, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, BUTCHERING, InfinityXTags.Items.R196_BUTCHERING_ENCHANTABLE,
+        register(context, items, enchantments, BUTCHERING, InfXItemTags.R196_BUTCHERING_ENCHANTABLE,
                 EnchantmentRules.BUTCHERING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, STUNNING, InfinityXTags.Items.R196_STUNNING_ENCHANTABLE,
+        register(context, items, enchantments, STUNNING, InfXItemTags.R196_STUNNING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, VAMPIRISM, InfinityXTags.Items.R196_VAMPIRISM_ENCHANTABLE,
+        register(context, items, enchantments, VAMPIRISM, InfXItemTags.R196_VAMPIRISM_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, RECOVERY, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, SLAUGHTER, InfinityXTags.Items.R196_SLAUGHTER_ENCHANTABLE,
+        register(context, items, enchantments, SLAUGHTER, InfXItemTags.R196_SLAUGHTER_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, CLEAVING, InfinityXTags.Items.R196_CLEAVING_ENCHANTABLE,
+        register(context, items, enchantments, CLEAVING, InfXItemTags.R196_CLEAVING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, HARVESTING, InfinityXTags.Items.R196_HARVESTING_ENCHANTABLE,
+        register(context, items, enchantments, HARVESTING, InfXItemTags.R196_HARVESTING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, PENETRATION, InfinityXTags.Items.R196_PENETRATION_ENCHANTABLE,
+        register(context, items, enchantments, PENETRATION, InfXItemTags.R196_PENETRATION_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, BAITING, ItemTags.FISHING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, FERTILITY, InfinityXTags.Items.R196_FERTILITY_ENCHANTABLE,
+        register(context, items, enchantments, FERTILITY, InfXItemTags.R196_FERTILITY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, TREE_FELLING, InfinityXTags.Items.R196_TREE_FELLING_ENCHANTABLE,
+        register(context, items, enchantments, TREE_FELLING, InfXItemTags.R196_TREE_FELLING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, FORTUNE, InfinityXTags.Items.R196_FORTUNE_ENCHANTABLE,
+        register(context, items, enchantments, FORTUNE, InfXItemTags.R196_FORTUNE_ENCHANTABLE,
                 EnchantmentRules.FORTUNE_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, FREE_MOVEMENT, InfinityXTags.Items.R196_FREE_MOVEMENT_ENCHANTABLE,
+        register(context, items, enchantments, FREE_MOVEMENT, InfXItemTags.R196_FREE_MOVEMENT_ENCHANTABLE,
                 EnchantmentRules.FREE_MOVEMENT_MAX_LEVEL, EquipmentSlotGroup.LEGS);
-        register(context, items, enchantments, REGENERATION, InfinityXTags.Items.R196_CHEST_ARMOR_ENCHANTABLE,
+        register(context, items, enchantments, REGENERATION, InfXItemTags.R196_CHEST_ARMOR_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.CHEST);
         register(context, items, enchantments, SPEED, ItemTags.FOOT_ARMOR_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.FEET);
-        register(context, items, enchantments, ENDURANCE, InfinityXTags.Items.R196_CHEST_ARMOR_ENCHANTABLE,
+        register(context, items, enchantments, ENDURANCE, InfXItemTags.R196_CHEST_ARMOR_ENCHANTABLE,
                 EnchantmentRules.ENDURANCE_MAX_LEVEL, EquipmentSlotGroup.CHEST);
         register(context, items, enchantments, PROTECTION, ItemTags.ARMOR_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
@@ -227,7 +228,7 @@ public final class InfinityXEnchantments {
                                 AttributeModifier.Operation.ADD_MULTIPLIED_BASE)));
         register(context, items, enchantments, VANILLA_FEATHER_FALLING, ItemTags.FOOT_ARMOR_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.FEET);
-        register(context, items, enchantments, VANILLA_BLAST_PROTECTION, InfinityXTags.Items.R196_SOLID_METAL_TORSO_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_BLAST_PROTECTION, InfXItemTags.R196_SOLID_METAL_TORSO_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.ATTRIBUTES,
@@ -236,7 +237,7 @@ public final class InfinityXEnchantments {
                                 Attributes.EXPLOSION_KNOCKBACK_RESISTANCE,
                                 LevelBasedValue.perLevel(EnchantmentRules.BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL),
                                 AttributeModifier.Operation.ADD_VALUE)));
-        register(context, items, enchantments, VANILLA_PROJECTILE_PROTECTION, InfinityXTags.Items.R196_SOLID_METAL_TORSO_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_PROJECTILE_PROTECTION, InfXItemTags.R196_SOLID_METAL_TORSO_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
         register(context, items, enchantments, VANILLA_RESPIRATION, ItemTags.HEAD_ARMOR_ENCHANTABLE,
                 EnchantmentRules.RESPIRATION_MAX_LEVEL, EquipmentSlotGroup.HEAD,
@@ -256,9 +257,9 @@ public final class InfinityXEnchantments {
                                 Attributes.SUBMERGED_MINING_SPEED,
                                 LevelBasedValue.perLevel(4.0F),
                                 AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
-        register(context, items, enchantments, VANILLA_THORNS, InfinityXTags.Items.R196_THORNS_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_THORNS, InfXItemTags.R196_THORNS_ENCHANTABLE,
                 EnchantmentRules.THORNS_MAX_LEVEL, EquipmentSlotGroup.CHEST);
-        register(context, items, enchantments, VANILLA_SMITE, InfinityXTags.Items.R196_SMITE_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_SMITE, InfXItemTags.R196_SMITE_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.DAMAGE,
@@ -268,7 +269,7 @@ public final class InfinityXEnchantments {
                                 LootContext.EntityTarget.THIS,
                                 EntityPredicate.Builder.entity().entityType(
                                         EntityTypePredicate.of(entityTypes, EntityTypeTags.SENSITIVE_TO_SMITE)))));
-        register(context, items, enchantments, VANILLA_BANE_OF_ARTHROPODS, InfinityXTags.Items.R196_SWORD_FAMILY_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_BANE_OF_ARTHROPODS, InfXItemTags.R196_SWORD_FAMILY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.DAMAGE,
@@ -278,12 +279,12 @@ public final class InfinityXEnchantments {
                                 LootContext.EntityTarget.THIS,
                                 EntityPredicate.Builder.entity().entityType(
                                         EntityTypePredicate.of(entityTypes, EntityTypeTags.SENSITIVE_TO_BANE_OF_ARTHROPODS)))));
-        register(context, items, enchantments, VANILLA_KNOCKBACK, InfinityXTags.Items.R196_KNOCKBACK_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_KNOCKBACK, InfXItemTags.R196_KNOCKBACK_ENCHANTABLE,
                 EnchantmentRules.KNOCKBACK_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.KNOCKBACK,
                         new AddValue(LevelBasedValue.perLevel(1.0F))));
-        register(context, items, enchantments, VANILLA_FIRE_ASPECT, InfinityXTags.Items.R196_SWORD_FAMILY_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_FIRE_ASPECT, InfXItemTags.R196_SWORD_FAMILY_ENCHANTABLE,
                 EnchantmentRules.KNOCKBACK_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.POST_ATTACK,
@@ -294,9 +295,9 @@ public final class InfinityXEnchantments {
                         new Ignite(LevelBasedValue.constant(1.0F)),
                         net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition.hasDamageSource(
                                 DamageSourcePredicate.Builder.damageType().isDirect(true))));
-        register(context, items, enchantments, VANILLA_LOOTING, InfinityXTags.Items.R196_LOOTING_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_LOOTING, InfXItemTags.R196_LOOTING_ENCHANTABLE,
                 EnchantmentRules.LOOTING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, VANILLA_EFFICIENCY, InfinityXTags.Items.R196_EFFICIENCY_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_EFFICIENCY, InfXItemTags.R196_EFFICIENCY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.ATTRIBUTES,
@@ -305,7 +306,7 @@ public final class InfinityXEnchantments {
                                 Attributes.MINING_EFFICIENCY,
                                 new LevelBasedValue.LevelsSquared(1.0F),
                                 AttributeModifier.Operation.ADD_VALUE)));
-        register(context, items, enchantments, VANILLA_SILK_TOUCH, InfinityXTags.Items.R196_SILK_TOUCH_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_SILK_TOUCH, InfXItemTags.R196_SILK_TOUCH_ENCHANTABLE,
                 1, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, VANILLA_POWER, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,

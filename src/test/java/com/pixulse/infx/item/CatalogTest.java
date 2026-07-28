@@ -8,8 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.tag.InfXItemTags;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 
 class CatalogTest {
     private static Catalog catalog() {
-        return InfinityXItems.catalog();
+        return InfXItems.catalog();
     }
 
     private static List<String> goldenPaths() throws IOException, URISyntaxException {
@@ -54,51 +55,51 @@ class CatalogTest {
 
     @Test
     void aliasesPreserveCatalogRegistryIds() {
-        assertSame(InfinityXItems.FLINT_CHIP, catalog().raw("flint_chip").holder());
-        assertSame(InfinityXItems.SINEW, catalog().raw("sinew").holder());
-        assertSame(InfinityXItems.OBSIDIAN_SHARD, catalog().raw("obsidian_shard").holder());
-        assertSame(InfinityXItems.EMERALD_SHARD, catalog().raw("emerald_shard").holder());
-        assertSame(InfinityXItems.SILVER_NUGGET, catalog().raw("silver_nugget").holder());
-        assertSame(InfinityXItems.MITHRIL_NUGGET, catalog().raw("mithril_nugget").holder());
-        assertSame(InfinityXItems.ADAMANTIUM_NUGGET, catalog().raw("adamantium_nugget").holder());
+        assertSame(InfXItems.FLINT_CHIP, catalog().raw("flint_chip").holder());
+        assertSame(InfXItems.SINEW, catalog().raw("sinew").holder());
+        assertSame(InfXItems.OBSIDIAN_SHARD, catalog().raw("obsidian_shard").holder());
+        assertSame(InfXItems.EMERALD_SHARD, catalog().raw("emerald_shard").holder());
+        assertSame(InfXItems.SILVER_NUGGET, catalog().raw("silver_nugget").holder());
+        assertSame(InfXItems.MITHRIL_NUGGET, catalog().raw("mithril_nugget").holder());
+        assertSame(InfXItems.ADAMANTIUM_NUGGET, catalog().raw("adamantium_nugget").holder());
         assertSame(
-                InfinityXItems.FLINT_HATCHET,
+                InfXItems.FLINT_HATCHET,
                 catalog().equipment(MiteMaterial.FLINT, EquipmentType.HATCHET).holder());
         assertSame(
-                InfinityXItems.FLINT_SHOVEL,
+                InfXItems.FLINT_SHOVEL,
                 catalog().equipment(MiteMaterial.FLINT, EquipmentType.SHOVEL).holder());
         assertSame(
-                InfinityXItems.FLINT_AXE,
+                InfXItems.FLINT_AXE,
                 catalog().equipment(MiteMaterial.FLINT, EquipmentType.AXE).holder());
         assertSame(
-                InfinityXItems.COPPER_PICKAXE,
+                InfXItems.COPPER_PICKAXE,
                 catalog().equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE).holder());
         assertSame(
-                InfinityXItems.COPPER_SHOVEL,
+                InfXItems.COPPER_SHOVEL,
                 catalog().equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL).holder());
         assertSame(
-                InfinityXItems.COPPER_AXE,
+                InfXItems.COPPER_AXE,
                 catalog().equipment(MiteMaterial.COPPER, EquipmentType.AXE).holder());
         assertSame(
-                InfinityXItems.COPPER_HOE,
+                InfXItems.COPPER_HOE,
                 catalog().equipment(MiteMaterial.COPPER, EquipmentType.HOE).holder());
         assertSame(
-                InfinityXItems.COPPER_SWORD,
+                InfXItems.COPPER_SWORD,
                 catalog().equipment(MiteMaterial.COPPER, EquipmentType.SWORD).holder());
         assertSame(
-                InfinityXItems.IRON_PICKAXE,
+                InfXItems.IRON_PICKAXE,
                 catalog().equipment(MiteMaterial.IRON, EquipmentType.PICKAXE).holder());
         assertSame(
-                InfinityXItems.IRON_SHOVEL,
+                InfXItems.IRON_SHOVEL,
                 catalog().equipment(MiteMaterial.IRON, EquipmentType.SHOVEL).holder());
         assertSame(
-                InfinityXItems.IRON_AXE,
+                InfXItems.IRON_AXE,
                 catalog().equipment(MiteMaterial.IRON, EquipmentType.AXE).holder());
         assertSame(
-                InfinityXItems.IRON_HOE,
+                InfXItems.IRON_HOE,
                 catalog().equipment(MiteMaterial.IRON, EquipmentType.HOE).holder());
         assertSame(
-                InfinityXItems.IRON_SWORD,
+                InfXItems.IRON_SWORD,
                 catalog().equipment(MiteMaterial.IRON, EquipmentType.SWORD).holder());
     }
 
@@ -146,10 +147,10 @@ class CatalogTest {
         assertEquals("adamantium_horse_armor", catalog().equipmentEntries().getLast().path());
         assertEquals(
                 "repair_materials/rusted_iron",
-                InfinityXTags.Items.repairMaterial(MiteMaterial.RUSTED_IRON).location().getPath());
+                InfXItemTags.repairMaterial(MiteMaterial.RUSTED_IRON).location().getPath());
         assertEquals(
                 "equipment/war_hammer",
-                InfinityXTags.Items.equipmentType(EquipmentType.WAR_HAMMER).location().getPath());
+                InfXItemTags.equipmentType(EquipmentType.WAR_HAMMER).location().getPath());
     }
 
     @Test

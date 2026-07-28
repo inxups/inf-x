@@ -14,7 +14,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** POI indexes let ordinary portal surfaces find only their matching destination type. */
-public final class InfinityXPoiTypes {
+public final class InfXPoiTypes {
     public static final DeferredRegister<PoiType> POI_TYPES =
             DeferredRegister.create(Registries.POINT_OF_INTEREST_TYPE, InfiniteX.MOD_ID);
 
@@ -23,12 +23,12 @@ public final class InfinityXPoiTypes {
             () -> new PoiType(underworldPortalStates(), 0, 1));
     public static final DeferredHolder<PoiType, PoiType> NETHER_PORTAL = POI_TYPES.register(
             "nether_portal",
-            () -> new PoiType(portalStates(InfinityXBlocks.NETHER_PORTAL.get()), 0, 1));
+            () -> new PoiType(portalStates(InfXBlocks.NETHER_PORTAL.get()), 0, 1));
     public static final DeferredHolder<PoiType, PoiType> RETURN_SPAWN_PORTAL = POI_TYPES.register(
             "return_spawn_portal",
-            () -> new PoiType(portalStates(InfinityXBlocks.RETURN_SPAWN_PORTAL.get()), 0, 1));
+            () -> new PoiType(portalStates(InfXBlocks.RETURN_SPAWN_PORTAL.get()), 0, 1));
 
-    private InfinityXPoiTypes() {}
+    private InfXPoiTypes() {}
 
     public static void register(IEventBus modBus) {
         POI_TYPES.register(modBus);
@@ -43,7 +43,7 @@ public final class InfinityXPoiTypes {
     }
 
     private static Set<BlockState> underworldPortalStates() {
-        return InfinityXBlocks.UNDERWORLD_PORTAL.get().getStateDefinition().getPossibleStates().stream()
+        return InfXBlocks.UNDERWORLD_PORTAL.get().getStateDefinition().getPossibleStates().stream()
                 .filter(state -> !state.getValue(UnderworldPortalBlock.RUNE_GATE))
                 .collect(Collectors.toUnmodifiableSet());
     }

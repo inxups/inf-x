@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.InfinityXSounds;
+import com.pixulse.infx.registry.InfXSounds;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -137,24 +137,24 @@ public final class MiteWolf extends Wolf implements Enemy, MiteMob {
 
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
-        return variant() == Variant.HELLHOUND ? InfinityXSounds.HELLHOUND_AMBIENT.get() : super.getAmbientSound();
+        return variant() == Variant.HELLHOUND ? InfXSounds.HELLHOUND_AMBIENT.get() : super.getAmbientSound();
     }
 
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return variant() == Variant.HELLHOUND ? InfinityXSounds.HELLHOUND_HURT.get() : super.getHurtSound(source);
+        return variant() == Variant.HELLHOUND ? InfXSounds.HELLHOUND_HURT.get() : super.getHurtSound(source);
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return variant() == Variant.HELLHOUND ? InfinityXSounds.HELLHOUND_DEATH.get() : super.getDeathSound();
+        return variant() == Variant.HELLHOUND ? InfXSounds.HELLHOUND_DEATH.get() : super.getDeathSound();
     }
 
     @Override
     public boolean doHurtTarget(ServerLevel level, Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt && variant() == Variant.HELLHOUND && random.nextFloat() < 0.4F) {
-            playSound(InfinityXSounds.HELLHOUND_BREATH.get(), 4.0F, 1.0F);
+            playSound(InfXSounds.HELLHOUND_BREATH.get(), 4.0F, 1.0F);
             target.igniteForSeconds(1 + random.nextInt(8));
         }
         return hurt;

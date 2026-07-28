@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.pixulse.infx.block.entity.MiteFurnaceBlockEntity;
-import com.pixulse.infx.registry.InfinityXBlockEntityTypes;
+import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -47,7 +47,7 @@ public abstract class MiteFurnaceBlock extends AbstractFurnaceBlock {
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
             Level level, BlockState state, BlockEntityType<T> type) {
-        return createFurnaceTicker(level, type, InfinityXBlockEntityTypes.FURNACE.get());
+        return createFurnaceTicker(level, type, InfXBlockEntityTypes.FURNACE.get());
     }
 
     @Override

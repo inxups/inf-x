@@ -4,7 +4,7 @@ import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.MiningFamily;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -17,7 +17,7 @@ public final class MiteMiningRules {
             return 1.0F;
         }
         float speed = key.miningSpeed();
-        if (isAxeFamily(key.type()) && state.is(InfinityXTags.Blocks.AXE_HALF_SPEED)) {
+        if (isAxeFamily(key.type()) && state.is(InfXBlockTags.AXE_HALF_SPEED)) {
             speed *= 0.5F;
         }
         return speed;
@@ -29,7 +29,7 @@ public final class MiteMiningRules {
 
     public static boolean isEffective(EquipmentKey key, BlockState state) {
         MiningFamily family = key.type().miningFamily();
-        if (family == MiningFamily.NONE || state.is(InfinityXTags.Blocks.NO_EFFECTIVE_TOOL)) {
+        if (family == MiningFamily.NONE || state.is(InfXBlockTags.NO_EFFECTIVE_TOOL)) {
             return false;
         }
         if (family == MiningFamily.HOE && state.is(Blocks.CLAY)) {
@@ -38,15 +38,15 @@ public final class MiteMiningRules {
         if (family == MiningFamily.SCYTHE && isRootCrop(state)) {
             return false;
         }
-        if (state.is(InfinityXTags.Blocks.effectiveWith(family))) {
+        if (state.is(InfXBlockTags.effectiveWith(family))) {
             return true;
         }
-        if (key.type() == EquipmentType.WAR_HAMMER && state.is(InfinityXTags.Blocks.WAR_HAMMER_EFFECTIVE)) {
+        if (key.type() == EquipmentType.WAR_HAMMER && state.is(InfXBlockTags.WAR_HAMMER_EFFECTIVE)) {
             return true;
         }
         return family == MiningFamily.SHOVEL
                 && key.material().has(MiteMaterial.Flag.METAL)
-                && state.is(InfinityXTags.Blocks.METAL_SHOVEL_EFFECTIVE);
+                && state.is(InfXBlockTags.METAL_SHOVEL_EFFECTIVE);
     }
 
     public static int harvestLevel(MiteMaterial material) {

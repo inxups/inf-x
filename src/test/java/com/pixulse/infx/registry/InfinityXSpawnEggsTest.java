@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 class InfinityXSpawnEggsTest {
     @Test
     void everyMobEntityHasOneSpawnEggItem() {
-        Set<String> entityPaths = InfinityXEntityTypes.names().stream()
-                .map(InfinityXEntityTypes.EntityName::path)
+        Set<String> entityPaths = InfXEntityTypes.names().stream()
+                .map(InfXEntityTypes.EntityName::path)
                 .collect(Collectors.toSet());
-        Set<String> eggPaths = InfinityXItems.SPAWN_EGGS.stream()
+        Set<String> eggPaths = InfXItems.SPAWN_EGGS.stream()
                 .map(item -> item.getId().getPath())
                 .collect(Collectors.toSet());
 
@@ -32,7 +32,7 @@ class InfinityXSpawnEggsTest {
             root = root.getParent();
         }
         assertTrue(root != null, "project root");
-        for (var egg : InfinityXItems.SPAWN_EGGS) {
+        for (var egg : InfXItems.SPAWN_EGGS) {
             Identifier id = egg.getId();
             java.nio.file.Path texture = root.resolve(
                     "src/main/resources/assets/infx/textures/item/" + id.getPath() + ".png");

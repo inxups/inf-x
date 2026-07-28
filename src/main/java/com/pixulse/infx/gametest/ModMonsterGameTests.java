@@ -1,12 +1,15 @@
 package com.pixulse.infx.gametest;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.effect.curse.CurseData;
 import com.pixulse.infx.entity.*;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
 import java.util.List;
@@ -54,6 +57,7 @@ import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Runtime coverage for roster construction and vanilla natural-spawn replacement. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ModMonsterGameTests {
     private static final float DAMAGE_EPSILON = 0.001F;
     private static final String ROSTER = "r196_monster_roster";
@@ -90,8 +94,9 @@ public final class ModMonsterGameTests {
 
     public static void register(IEventBus modBus) {
         FUNCTIONS.register(modBus);
-        modBus.addListener(ModMonsterGameTests::registerTests);
     }
+
+    @SubscribeEvent
 
     private static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
@@ -129,14 +134,14 @@ public final class ModMonsterGameTests {
 
     private static void roster(GameTestHelper helper) {
         var passiveReplacements = Set.of(
-                InfinityXEntityTypes.R196_COW,
-                InfinityXEntityTypes.R196_CHICKEN,
-                InfinityXEntityTypes.R196_SHEEP,
-                InfinityXEntityTypes.R196_PIG,
-                InfinityXEntityTypes.R196_HORSE,
-                InfinityXEntityTypes.R196_OCELOT,
-                InfinityXEntityTypes.R196_WOLF);
-        for (var holder : InfinityXEntityTypes.ALL) {
+                InfXEntityTypes.R196_COW,
+                InfXEntityTypes.R196_CHICKEN,
+                InfXEntityTypes.R196_SHEEP,
+                InfXEntityTypes.R196_PIG,
+                InfXEntityTypes.R196_HORSE,
+                InfXEntityTypes.R196_OCELOT,
+                InfXEntityTypes.R196_WOLF);
+        for (var holder : InfXEntityTypes.ALL) {
             var entity = holder.get().create(helper.getLevel(), EntitySpawnReason.COMMAND);
             if (!passiveReplacements.contains(holder)) {
                 helper.assertTrue(entity instanceof MiteMob, holder.getId() + " must implement MiteMob");
@@ -148,33 +153,33 @@ public final class ModMonsterGameTests {
         }
         helper.assertTrue(
                 BuiltInRegistries.ENTITY_TYPE
-                        .wrapAsHolder(InfinityXEntityTypes.R196_ZOMBIE.get())
+                        .wrapAsHolder(InfXEntityTypes.R196_ZOMBIE.get())
                         .is(EntityTypeTags.UNDEAD),
                 "replacement zombies must retain vanilla undead semantics");
         helper.assertTrue(
                 BuiltInRegistries.ENTITY_TYPE
-                        .wrapAsHolder(InfinityXEntityTypes.R196_SKELETON.get())
+                        .wrapAsHolder(InfXEntityTypes.R196_SKELETON.get())
                         .is(EntityTypeTags.SKELETONS),
                 "replacement skeletons must retain the vanilla skeleton family tag");
         helper.assertTrue(
                 BuiltInRegistries.ENTITY_TYPE
-                        .wrapAsHolder(InfinityXEntityTypes.PHASE_SPIDER.get())
+                        .wrapAsHolder(InfXEntityTypes.PHASE_SPIDER.get())
                         .is(EntityTypeTags.ARTHROPOD),
                 "R196 spiders must retain arthropod semantics");
         helper.assertTrue(
                 BuiltInRegistries.ENTITY_TYPE
-                        .wrapAsHolder(InfinityXEntityTypes.R196_SQUID.get())
+                        .wrapAsHolder(InfXEntityTypes.R196_SQUID.get())
                         .is(EntityTypeTags.AQUATIC),
                 "replacement squid must retain aquatic semantics");
         helper.assertTrue(
-                InfinityXEntityTypes.R196_SQUID.get().getCategory() == MobCategory.WATER_CREATURE
-                        && InfinityXEntityTypes.R196_SQUID.get().isAllowedInPeaceful(),
+                InfXEntityTypes.R196_SQUID.get().getCategory() == MobCategory.WATER_CREATURE
+                        && InfXEntityTypes.R196_SQUID.get().isAllowedInPeaceful(),
                 "replacement squid must use the peaceful water-creature cap");
         for (var type : List.of(
-                InfinityXEntityTypes.R196_COD,
-                InfinityXEntityTypes.R196_SALMON,
-                InfinityXEntityTypes.R196_PUFFERFISH,
-                InfinityXEntityTypes.R196_TROPICAL_FISH)) {
+                InfXEntityTypes.R196_COD,
+                InfXEntityTypes.R196_SALMON,
+                InfXEntityTypes.R196_PUFFERFISH,
+                InfXEntityTypes.R196_TROPICAL_FISH)) {
             helper.assertTrue(
                     BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type.get()).is(EntityTypeTags.AQUATIC)
                             && BuiltInRegistries.ENTITY_TYPE
@@ -188,12 +193,12 @@ public final class ModMonsterGameTests {
                     type.getId() + " must retain vanilla aquatic interaction semantics");
         }
         helper.assertTrue(
-                InfinityXEntityTypes.VAMPIRE_BAT.get().getCategory() == MobCategory.AMBIENT
-                        && InfinityXEntityTypes.NIGHTWING.get().getCategory() == MobCategory.AMBIENT,
+                InfXEntityTypes.VAMPIRE_BAT.get().getCategory() == MobCategory.AMBIENT
+                        && InfXEntityTypes.NIGHTWING.get().getCategory() == MobCategory.AMBIENT,
                 "hostile cave bats must retain the R196 ambient spawn pool");
         helper.assertTrue(
-                InfinityXEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
-                        && InfinityXEntityTypes.DIRE_WOLF.get().isAllowedInPeaceful(),
+                InfXEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
+                        && InfXEntityTypes.DIRE_WOLF.get().isAllowedInPeaceful(),
                 "dire wolves must use animal spawning rather than the hostile cap");
         helper.succeed();
     }
@@ -201,22 +206,22 @@ public final class ModMonsterGameTests {
     private static void attributes(GameTestHelper helper) {
         int zombieX = 1;
         for (var type : List.of(
-                InfinityXEntityTypes.R196_ZOMBIE,
-                InfinityXEntityTypes.INVISIBLE_STALKER,
-                InfinityXEntityTypes.GHOUL,
-                InfinityXEntityTypes.SHADOW,
-                InfinityXEntityTypes.WIGHT,
-                InfinityXEntityTypes.REVENANT)) {
+                InfXEntityTypes.R196_ZOMBIE,
+                InfXEntityTypes.INVISIBLE_STALKER,
+                InfXEntityTypes.GHOUL,
+                InfXEntityTypes.SHADOW,
+                InfXEntityTypes.WIGHT,
+                InfXEntityTypes.REVENANT)) {
             var zombie = helper.spawnWithNoFreeWill(type.get(), new BlockPos(zombieX++, 2, 1));
             helper.assertTrue(
                     zombie.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
                     type.getId() + " must not inherit modern zombie armor");
         }
-        var stalker = helper.spawnWithNoFreeWill(InfinityXEntityTypes.INVISIBLE_STALKER.get(), new BlockPos(10, 2, 1));
+        var stalker = helper.spawnWithNoFreeWill(InfXEntityTypes.INVISIBLE_STALKER.get(), new BlockPos(10, 2, 1));
         helper.assertTrue(
                 stalker.canBreakDoors() && !stalker.isInvisible() && !stalker.canPickUpLoot(),
                 "invisible stalkers must break doors without inheriting vanilla invisibility or zombie loot pickup");
-        var piglin = helper.spawn(InfinityXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(8, 2, 1));
+        var piglin = helper.spawn(InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(8, 2, 1));
         helper.assertTrue(
                 piglin.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
                 "R196 zombified piglins must not inherit modern zombie armor");
@@ -234,7 +239,7 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.28D) < DAMAGE_EPSILON,
                 "R196 zombified piglins must use the normalized +0.05 chase-speed bonus");
-        var enderman = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_ENDERMAN.get(), new BlockPos(7, 2, 1));
+        var enderman = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(7, 2, 1));
         helper.assertTrue(
                 enderman.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.30D,
                 "R196 endermen must retain their 0.30 standing movement speed");
@@ -252,23 +257,23 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(piglin.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
                 "R196 zombified piglins must remove the chase-speed modifier without a target");
-        var blaze = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_BLAZE.get(), new BlockPos(9, 2, 1));
+        var blaze = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_BLAZE.get(), new BlockPos(9, 2, 1));
         helper.assertTrue(
                 Math.abs(blaze.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
                 "R196 blazes must retain the modern baseline movement speed");
 
         int spiderX = 1;
         for (var type : List.of(
-                InfinityXEntityTypes.R196_SPIDER,
-                InfinityXEntityTypes.R196_CAVE_SPIDER,
-                InfinityXEntityTypes.BLACK_WIDOW_SPIDER,
-                InfinityXEntityTypes.DEMON_SPIDER,
-                InfinityXEntityTypes.WOOD_SPIDER,
-                InfinityXEntityTypes.PHASE_SPIDER)) {
+                InfXEntityTypes.R196_SPIDER,
+                InfXEntityTypes.R196_CAVE_SPIDER,
+                InfXEntityTypes.BLACK_WIDOW_SPIDER,
+                InfXEntityTypes.DEMON_SPIDER,
+                InfXEntityTypes.WOOD_SPIDER,
+                InfXEntityTypes.PHASE_SPIDER)) {
             var spider = helper.spawnWithNoFreeWill(type.get(), new BlockPos(spiderX++, 2, 2));
-            double expectedSpeed = type == InfinityXEntityTypes.R196_SPIDER
-                            || type == InfinityXEntityTypes.R196_CAVE_SPIDER
-                            || type == InfinityXEntityTypes.DEMON_SPIDER
+            double expectedSpeed = type == InfXEntityTypes.R196_SPIDER
+                            || type == InfXEntityTypes.R196_CAVE_SPIDER
+                            || type == InfXEntityTypes.DEMON_SPIDER
                     ? 0.375D
                     : 0.30D;
             helper.assertTrue(
@@ -278,9 +283,9 @@ public final class ModMonsterGameTests {
 
         int silverfishX = 1;
         for (var type : List.of(
-                InfinityXEntityTypes.NETHERSPAWN,
-                InfinityXEntityTypes.COPPERSPINE,
-                InfinityXEntityTypes.HOARY_SILVERFISH)) {
+                InfXEntityTypes.NETHERSPAWN,
+                InfXEntityTypes.COPPERSPINE,
+                InfXEntityTypes.HOARY_SILVERFISH)) {
             var silverfish = helper.spawnWithNoFreeWill(type.get(), new BlockPos(silverfishX++, 2, 3));
             helper.assertTrue(
                     silverfish.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == 0.25D,
@@ -289,11 +294,11 @@ public final class ModMonsterGameTests {
 
         int slimeX = 1;
         for (var type : List.of(
-                InfinityXEntityTypes.R196_SLIME,
-                InfinityXEntityTypes.JELLY,
-                InfinityXEntityTypes.BLOB,
-                InfinityXEntityTypes.OOZE,
-                InfinityXEntityTypes.PUDDING)) {
+                InfXEntityTypes.R196_SLIME,
+                InfXEntityTypes.JELLY,
+                InfXEntityTypes.BLOB,
+                InfXEntityTypes.OOZE,
+                InfXEntityTypes.PUDDING)) {
             var slime = helper.spawnWithNoFreeWill(type.get(), new BlockPos(slimeX++, 2, 4));
             for (int size : List.of(1, 2, 4)) {
                 slime.setSize(size, true);
@@ -305,7 +310,7 @@ public final class ModMonsterGameTests {
                         type.getId() + " must retain its expected movement speed after size " + slime.getSize());
             }
         }
-        var magmaCube = helper.spawnWithNoFreeWill(InfinityXEntityTypes.MAGMA_CUBE.get(), new BlockPos(7, 2, 4));
+        var magmaCube = helper.spawnWithNoFreeWill(InfXEntityTypes.MAGMA_CUBE.get(), new BlockPos(7, 2, 4));
         for (int size : List.of(1, 4)) {
             magmaCube.setSize(size, true);
             helper.assertTrue(
@@ -322,7 +327,7 @@ public final class ModMonsterGameTests {
         var level = helper.getLevel();
         ItemEntity magicOwner = new ItemEntity(level, 0.0, 0.0, 0.0, Items.SNOWBALL.getDefaultInstance());
         Snowball magicProjectile = new Snowball(level, 0.0, 0.0, 0.0, Items.SNOWBALL.getDefaultInstance());
-        var directMagic = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_WITCH.get(), new BlockPos(1, 2, 8));
+        var directMagic = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_WITCH.get(), new BlockPos(1, 2, 8));
         float before = directMagic.getHealth();
         helper.assertTrue(
                 directMagic.hurtServer(level, level.damageSources().magic(), 20.0F),
@@ -331,7 +336,7 @@ public final class ModMonsterGameTests {
                 Math.abs(directMagic.getHealth() - (before - 20.0F)) < DAMAGE_EPSILON,
                 "direct magic must not receive the R196 witch's indirect-magic defense");
 
-        var indirectNonMagic = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_WITCH.get(), new BlockPos(4, 2, 8));
+        var indirectNonMagic = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_WITCH.get(), new BlockPos(4, 2, 8));
         before = indirectNonMagic.getHealth();
         helper.assertTrue(
                 indirectNonMagic.hurtServer(level, level.damageSources().thrown(magicProjectile, magicOwner), 20.0F),
@@ -340,7 +345,7 @@ public final class ModMonsterGameTests {
                 Math.abs(indirectNonMagic.getHealth() - (before - 20.0F)) < DAMAGE_EPSILON,
                 "indirect non-magic damage must not receive the R196 witch's defense");
 
-        var indirectMagic = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 8));
+        var indirectMagic = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 8));
         before = indirectMagic.getHealth();
         helper.assertTrue(
                 indirectMagic.hurtServer(level, level.damageSources().indirectMagic(magicProjectile, magicOwner), 20.0F),
@@ -369,7 +374,7 @@ public final class ModMonsterGameTests {
         explicitWitch.snapTo(
                 explicitWitchLocation.x, explicitWitchLocation.y, explicitWitchLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicitWitch);
-        var converter = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos.south());
+        var converter = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos.south());
         var villager = helper.spawn(EntityType.VILLAGER, convertedVillagerPos);
         helper.assertTrue(
                 converter.convertVillagerToZombieVillager(helper.getLevel(), villager),
@@ -379,11 +384,11 @@ public final class ModMonsterGameTests {
                 // vanilla join event, so the test must not inspect tick-zero's
                 // pre-transaction entity index.
                 .thenWaitUntil(() -> {
-                    helper.assertEntityPresent(InfinityXEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.R196_ZOMBIE.get(), naturalPos, 2.0D);
                     helper.assertEntityPresent(EntityType.ZOMBIE, explicitPos);
-                    helper.assertEntityPresent(InfinityXEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
-                    helper.assertEntityPresent(InfinityXEntityTypes.R196_WITCH.get(), explicitWitchPos, 2.0D);
-                    helper.assertEntityPresent(InfinityXEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos, 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.R196_WITCH.get(), explicitWitchPos, 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos, 2.0D);
                 })
                 .thenExecute(() -> {
                     helper.assertEntityNotPresent(EntityType.ZOMBIE, naturalPos);
@@ -395,7 +400,7 @@ public final class ModMonsterGameTests {
                             .getEntitiesOfClass(
                                     MiteZombie.class,
                                     new AABB(replacementPosition, replacementPosition).inflate(2.0D),
-                                    entity -> entity.getType() == InfinityXEntityTypes.R196_ZOMBIE.get())
+                                    entity -> entity.getType() == InfXEntityTypes.R196_ZOMBIE.get())
                             .getFirst();
                     helper.assertTrue(
                             replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 40.0D,
@@ -423,23 +428,23 @@ public final class ModMonsterGameTests {
         MobSpawnSettings plains = biomes.getOrThrow(Biomes.PLAINS).value().getMobSettings();
         helper.assertTrue(
                 Set.copyOf(spawnTypes(plains, MobCategory.CREATURE)).equals(Set.of(
-                        InfinityXEntityTypes.R196_SHEEP.get(),
-                        InfinityXEntityTypes.R196_PIG.get(),
-                        InfinityXEntityTypes.R196_CHICKEN.get(),
-                        InfinityXEntityTypes.R196_COW.get(),
-                        InfinityXEntityTypes.R196_HORSE.get())),
+                        InfXEntityTypes.R196_SHEEP.get(),
+                        InfXEntityTypes.R196_PIG.get(),
+                        InfXEntityTypes.R196_CHICKEN.get(),
+                        InfXEntityTypes.R196_COW.get(),
+                        InfXEntityTypes.R196_HORSE.get())),
                 "plains must use only the R196 livestock and horse table");
         helper.assertTrue(
                 !spawnTypes(plains, MobCategory.MONSTER).contains(EntityType.DROWNED)
-                        && spawnTypes(plains, MobCategory.MONSTER).contains(InfinityXEntityTypes.GHOUL.get()),
+                        && spawnTypes(plains, MobCategory.MONSTER).contains(InfXEntityTypes.GHOUL.get()),
                 "Overworld monster tables must replace modern biome additions");
         for (var type : List.of(
-                InfinityXEntityTypes.R196_COW,
-                InfinityXEntityTypes.R196_CHICKEN,
-                InfinityXEntityTypes.R196_SHEEP,
-                InfinityXEntityTypes.R196_PIG,
-                InfinityXEntityTypes.R196_HORSE,
-                InfinityXEntityTypes.R196_WOLF)) {
+                InfXEntityTypes.R196_COW,
+                InfXEntityTypes.R196_CHICKEN,
+                InfXEntityTypes.R196_SHEEP,
+                InfXEntityTypes.R196_PIG,
+                InfXEntityTypes.R196_HORSE,
+                InfXEntityTypes.R196_WOLF)) {
             helper.assertTrue(
                     SpawnPlacements.getPlacementType(type.get()) == SpawnPlacementTypes.ON_GROUND
                             && SpawnPlacements.getHeightmapType(type.get())
@@ -447,16 +452,16 @@ public final class ModMonsterGameTests {
                     type.getId() + " must retain vanilla ground spawn placement restrictions");
         }
         helper.assertTrue(
-                SpawnPlacements.getPlacementType(InfinityXEntityTypes.R196_OCELOT.get())
+                SpawnPlacements.getPlacementType(InfXEntityTypes.R196_OCELOT.get())
                                 == SpawnPlacementTypes.ON_GROUND
-                        && SpawnPlacements.getHeightmapType(InfinityXEntityTypes.R196_OCELOT.get())
+                        && SpawnPlacements.getHeightmapType(InfXEntityTypes.R196_OCELOT.get())
                                 == Heightmap.Types.MOTION_BLOCKING,
                 "R196 ocelots must retain vanilla ocelot spawn placement restrictions");
         for (var type : List.of(
-                InfinityXEntityTypes.R196_COD,
-                InfinityXEntityTypes.R196_SALMON,
-                InfinityXEntityTypes.R196_PUFFERFISH,
-                InfinityXEntityTypes.R196_TROPICAL_FISH)) {
+                InfXEntityTypes.R196_COD,
+                InfXEntityTypes.R196_SALMON,
+                InfXEntityTypes.R196_PUFFERFISH,
+                InfXEntityTypes.R196_TROPICAL_FISH)) {
             helper.assertTrue(
                     SpawnPlacements.getPlacementType(type.get()) == SpawnPlacementTypes.IN_WATER
                             && SpawnPlacements.getHeightmapType(type.get())
@@ -466,33 +471,33 @@ public final class ModMonsterGameTests {
 
         MobSpawnSettings ocean = biomes.getOrThrow(Biomes.OCEAN).value().getMobSettings();
         helper.assertTrue(
-                spawnTypes(ocean, MobCategory.WATER_AMBIENT).equals(List.of(InfinityXEntityTypes.R196_COD.get())),
+                spawnTypes(ocean, MobCategory.WATER_AMBIENT).equals(List.of(InfXEntityTypes.R196_COD.get())),
                 "normal oceans must spawn only InfiniteX cod");
         MobSpawnSettings coldOcean = biomes.getOrThrow(Biomes.COLD_OCEAN).value().getMobSettings();
         helper.assertTrue(
                 Set.copyOf(spawnTypes(coldOcean, MobCategory.WATER_AMBIENT)).equals(Set.of(
-                        InfinityXEntityTypes.R196_COD.get(), InfinityXEntityTypes.R196_SALMON.get())),
+                        InfXEntityTypes.R196_COD.get(), InfXEntityTypes.R196_SALMON.get())),
                 "cold oceans must replace cod and salmon with InfiniteX fish");
         MobSpawnSettings lukewarmOcean = biomes.getOrThrow(Biomes.LUKEWARM_OCEAN).value().getMobSettings();
         helper.assertTrue(
                 Set.copyOf(spawnTypes(lukewarmOcean, MobCategory.WATER_AMBIENT)).equals(Set.of(
-                        InfinityXEntityTypes.R196_COD.get(),
-                        InfinityXEntityTypes.R196_PUFFERFISH.get(),
-                        InfinityXEntityTypes.R196_TROPICAL_FISH.get())),
+                        InfXEntityTypes.R196_COD.get(),
+                        InfXEntityTypes.R196_PUFFERFISH.get(),
+                        InfXEntityTypes.R196_TROPICAL_FISH.get())),
                 "lukewarm oceans must use InfiniteX cod, pufferfish and tropical fish");
         MobSpawnSettings warmOcean = biomes.getOrThrow(Biomes.WARM_OCEAN).value().getMobSettings();
         helper.assertTrue(
                 Set.copyOf(spawnTypes(warmOcean, MobCategory.WATER_AMBIENT)).equals(Set.of(
-                        InfinityXEntityTypes.R196_PUFFERFISH.get(), InfinityXEntityTypes.R196_TROPICAL_FISH.get())),
+                        InfXEntityTypes.R196_PUFFERFISH.get(), InfXEntityTypes.R196_TROPICAL_FISH.get())),
                 "warm oceans must use InfiniteX pufferfish and tropical fish");
         MobSpawnSettings river = biomes.getOrThrow(Biomes.RIVER).value().getMobSettings();
         helper.assertTrue(
-                spawnTypes(river, MobCategory.WATER_AMBIENT).equals(List.of(InfinityXEntityTypes.R196_SALMON.get())),
+                spawnTypes(river, MobCategory.WATER_AMBIENT).equals(List.of(InfXEntityTypes.R196_SALMON.get())),
                 "rivers must use InfiniteX salmon");
         MobSpawnSettings lushCaves = biomes.getOrThrow(Biomes.LUSH_CAVES).value().getMobSettings();
         helper.assertTrue(
                 spawnTypes(lushCaves, MobCategory.WATER_AMBIENT)
-                        .equals(List.of(InfinityXEntityTypes.R196_TROPICAL_FISH.get())),
+                        .equals(List.of(InfXEntityTypes.R196_TROPICAL_FISH.get())),
                 "lush caves must use InfiniteX tropical fish");
 
         MobSpawnSettings mushroom = biomes.getOrThrow(Biomes.MUSHROOM_FIELDS).value().getMobSettings();
@@ -504,17 +509,17 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Set.copyOf(spawnTypes(mushroom, MobCategory.AMBIENT)).equals(Set.of(
                         EntityType.BAT,
-                        InfinityXEntityTypes.VAMPIRE_BAT.get(),
-                        InfinityXEntityTypes.NIGHTWING.get())),
+                        InfXEntityTypes.VAMPIRE_BAT.get(),
+                        InfXEntityTypes.NIGHTWING.get())),
                 "mushroom fields retain the inherited R196 cave-bat pool");
 
         MobSpawnSettings jungle = biomes.getOrThrow(Biomes.JUNGLE).value().getMobSettings();
         helper.assertTrue(
-                spawnTypes(jungle, MobCategory.MONSTER).contains(InfinityXEntityTypes.BLACK_WIDOW_SPIDER.get()),
+                spawnTypes(jungle, MobCategory.MONSTER).contains(InfXEntityTypes.BLACK_WIDOW_SPIDER.get()),
                 "jungle biomes must include black widow spiders");
         helper.assertTrue(
                 spawnTypes(jungle, MobCategory.CREATURE).stream()
-                                .filter(type -> type == InfinityXEntityTypes.R196_CHICKEN.get())
+                                .filter(type -> type == InfXEntityTypes.R196_CHICKEN.get())
                                 .count()
                         == 2,
                 "jungle biomes must retain the additional R196 chicken entry");
@@ -523,7 +528,7 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 spawnTypes(jungleRiver, MobCategory.CREATURE).isEmpty()
                         && !spawnTypes(jungleRiver, MobCategory.MONSTER)
-                                .contains(InfinityXEntityTypes.BLACK_WIDOW_SPIDER.get()),
+                                .contains(InfXEntityTypes.BLACK_WIDOW_SPIDER.get()),
                 "jungle rivers must use river rather than jungle animal overrides");
 
         MobSpawnSettings nether = biomes.getOrThrow(Biomes.NETHER_WASTES).value().getMobSettings();
@@ -532,14 +537,14 @@ public final class ModMonsterGameTests {
                         EntityType.GHAST,
                         EntityType.ZOMBIFIED_PIGLIN,
                         EntityType.MAGMA_CUBE,
-                        InfinityXEntityTypes.EARTH_ELEMENTAL.get()))
+                        InfXEntityTypes.EARTH_ELEMENTAL.get()))
                         && spawnTypes(nether, MobCategory.CREATURE).isEmpty(),
                 "Nether biomes must use the exact four-entry R196 pool");
 
         MobSpawnSettings end = biomes.getOrThrow(Biomes.END_HIGHLANDS).value().getMobSettings();
         helper.assertTrue(
                 Set.copyOf(spawnTypes(end, MobCategory.MONSTER)).equals(Set.of(
-                        EntityType.ENDERMAN, InfinityXEntityTypes.EARTH_ELEMENTAL.get())),
+                        EntityType.ENDERMAN, InfXEntityTypes.EARTH_ELEMENTAL.get())),
                 "End biomes must use only endermen and earth elementals");
 
         MobSpawnSettings underworld = biomes.getOrThrow(Underworld.BIOME).value().getMobSettings();
@@ -548,7 +553,7 @@ public final class ModMonsterGameTests {
                         && spawnTypes(underworld, MobCategory.CREATURE).isEmpty(),
                 "Underworld must retain aquatic spawning without blue-moon livestock");
         helper.assertTrue(
-                spawnTypes(underworld, MobCategory.MONSTER).contains(InfinityXEntityTypes.CLAY_GOLEM.get()),
+                spawnTypes(underworld, MobCategory.MONSTER).contains(InfXEntityTypes.CLAY_GOLEM.get()),
                 "Underworld must retain MITE's clay-golem spawn entry");
         helper.succeed();
     }
@@ -574,7 +579,7 @@ public final class ModMonsterGameTests {
 
     private static void behaviors(GameTestHelper helper) {
         var level = helper.getLevel();
-        var skeleton = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_SKELETON.get(), new BlockPos(1, 2, 1));
+        var skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_SKELETON.get(), new BlockPos(1, 2, 1));
         var vanillaSkeleton = helper.spawnWithNoFreeWill(EntityType.SKELETON, new BlockPos(2, 2, 1));
         Arrow arrow = EntityType.ARROW.create(level, EntitySpawnReason.COMMAND);
         float before = skeleton.getHealth();
@@ -583,7 +588,7 @@ public final class ModMonsterGameTests {
                 "R196 skeletons must reject arrows fired by another skeleton");
         helper.assertTrue(skeleton.getHealth() == before, "skeleton arrows must not reduce R196 skeleton health");
 
-        var blaze = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_BLAZE.get(), new BlockPos(3, 2, 1));
+        var blaze = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_BLAZE.get(), new BlockPos(3, 2, 1));
         before = blaze.getHealth();
         helper.assertTrue(
                 !blaze.hurtServer(level, level.damageSources().mobAttack(vanillaSkeleton), 4.0F),
@@ -619,7 +624,7 @@ public final class ModMonsterGameTests {
                 blaze.getHealth() < before,
                 "non-fire enchanted hits must deal damage while the attacker is burning");
 
-        var magma = helper.spawnWithNoFreeWill(InfinityXEntityTypes.MAGMA_CUBE.get(), new BlockPos(4, 2, 1));
+        var magma = helper.spawnWithNoFreeWill(InfXEntityTypes.MAGMA_CUBE.get(), new BlockPos(4, 2, 1));
         before = magma.getHealth();
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
@@ -628,7 +633,7 @@ public final class ModMonsterGameTests {
                 "swords must not hurt the R196 magma cube");
         helper.assertTrue(magma.getHealth() == before, "sword hits must not change magma cube health");
         player.setItemInHand(
-                net.minecraft.world.InteractionHand.MAIN_HAND, InfinityXItems.IRON_PICKAXE.toStack());
+                net.minecraft.world.InteractionHand.MAIN_HAND, InfXItems.IRON_PICKAXE.toStack());
         helper.assertTrue(
                 magma.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
                 "pickaxes must hurt the R196 magma cube");
@@ -638,7 +643,7 @@ public final class ModMonsterGameTests {
         before = magma.getHealth();
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND,
-                InfinityXItems.catalog()
+                InfXItems.catalog()
                         .equipment(MiteMaterial.IRON, EquipmentType.WAR_HAMMER)
                         .holder()
                         .toStack());
@@ -647,7 +652,7 @@ public final class ModMonsterGameTests {
                 "war hammers must hurt the R196 magma cube");
         helper.assertTrue(magma.getHealth() == before - 4.0F, "war hammer hits must deal magma cube damage");
 
-        var earth = helper.spawnWithNoFreeWill(InfinityXEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(5, 2, 1));
+        var earth = helper.spawnWithNoFreeWill(InfXEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(5, 2, 1));
         helper.assertTrue(
                 earth.fireImmune()
                         && earth.getMaxSpawnClusterSize() == 1
@@ -661,7 +666,7 @@ public final class ModMonsterGameTests {
                 "swords must not hurt the earth elemental");
         helper.assertTrue(earth.getHealth() == before, "sword hits must not change earth elemental health");
         player.setItemInHand(
-                net.minecraft.world.InteractionHand.MAIN_HAND, InfinityXItems.IRON_PICKAXE.toStack());
+                net.minecraft.world.InteractionHand.MAIN_HAND, InfXItems.IRON_PICKAXE.toStack());
         helper.assertTrue(
                 earth.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
                 "pickaxes must hurt the earth elemental");
@@ -689,7 +694,7 @@ public final class ModMonsterGameTests {
                         && earth.getHealth() == earthHealth,
                 "snowballs must quench mineral bodies without dealing damage");
 
-        var clay = helper.spawnWithNoFreeWill(InfinityXEntityTypes.CLAY_GOLEM.get(), new BlockPos(8, 2, 1));
+        var clay = helper.spawnWithNoFreeWill(InfXEntityTypes.CLAY_GOLEM.get(), new BlockPos(8, 2, 1));
         clay.initializeMiteForm(Blocks.CLAY.defaultBlockState(), false);
         helper.assertTrue(
                 clay.form() == EarthElemental.Form.CLAY_NORMAL && !clay.isMagma()
@@ -710,7 +715,7 @@ public final class ModMonsterGameTests {
                         && clay.doorBreakTicks(true) == 320 && !clay.quench(level),
                 "heated clay must harden permanently without entering a magma state");
 
-        var fire = helper.spawnWithNoFreeWill(InfinityXEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 1));
+        var fire = helper.spawnWithNoFreeWill(InfXEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 1));
         before = fire.getHealth();
         player.setItemInHand(
                 net.minecraft.world.InteractionHand.MAIN_HAND, Items.IRON_SWORD.getDefaultInstance());
@@ -744,7 +749,7 @@ public final class ModMonsterGameTests {
                 !fire.isSensitiveToWater(),
                 "fire elementals must not stack the modern per-tick water damage on MITE's own drain");
 
-        var enderman = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_ENDERMAN.get(), new BlockPos(8, 2, 1));
+        var enderman = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(8, 2, 1));
         Arrow endermanArrow = EntityType.ARROW.create(level, EntitySpawnReason.COMMAND);
         before = enderman.getHealth();
         helper.assertTrue(
@@ -775,8 +780,8 @@ public final class ModMonsterGameTests {
                 enderman.getTarget() == null && enderman.getLastHurtByMob() == null,
                 "non-projectile indirect damage must make R196 endermen blink and drop aggression");
 
-        var sharingSource = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_ZOMBIE.get(), new BlockPos(14, 2, 12));
-        var neutralEnderman = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_ENDERMAN.get(), new BlockPos(12, 2, 12));
+        var sharingSource = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ZOMBIE.get(), new BlockPos(14, 2, 12));
+        var neutralEnderman = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(12, 2, 12));
         MonsterEvents.propagateTarget(level, sharingSource, player);
         helper.assertTrue(
                 neutralEnderman.getTarget() == null,
@@ -793,8 +798,8 @@ public final class ModMonsterGameTests {
         BlockPos squidPos = new BlockPos(3, 2, 7);
         helper.setBlock(squidPos, Blocks.WATER);
         helper.setBlock(squidPos.east(2), Blocks.WATER);
-        var squid = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_SQUID.get(), squidPos);
-        var squidPrey = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_COW.get(), squidPos.east(2));
+        var squid = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_SQUID.get(), squidPos);
+        var squidPrey = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_COW.get(), squidPos.east(2));
         squid.aiStep();
         helper.assertFalse(
                 squidPrey.hasEffect(MobEffects.SLOWNESS),
@@ -828,17 +833,17 @@ public final class ModMonsterGameTests {
 
         BlockPos infernalStone = new BlockPos(1, 2, 3);
         helper.setBlock(infernalStone, Blocks.STONE);
-        var infernal = helper.spawnWithNoFreeWill(InfinityXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
+        var infernal = helper.spawnWithNoFreeWill(InfXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4));
         var cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(9, 2, 4));
         var infernalTarget = ModCompletionGameTests.createPlayer(helper);
-        var infernalSwell = helper.spawn(InfinityXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(6, 2, 1));
+        var infernalSwell = helper.spawn(InfXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(6, 2, 1));
         infernalSwell.setTarget(infernalTarget);
         helper.startSequence()
                 // Explosions query the level's entity index. Waiting for both
                 // entities prevents a tick-zero explosion from observing an
                 // empty index while spawn registration is still pending.
                 .thenWaitUntil(() -> {
-                    helper.assertEntityPresent(InfinityXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4), 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(1, 2, 4), 2.0D);
                     helper.assertEntityPresent(EntityType.COW, new BlockPos(9, 2, 4), 2.0D);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
@@ -865,49 +870,49 @@ public final class ModMonsterGameTests {
     }
 
     private static void attackRanges(GameTestHelper helper) {
-        var skeleton = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_SKELETON.get(), new BlockPos(2, 80, 2));
+        var skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_SKELETON.get(), new BlockPos(2, 80, 2));
         var skeletonTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 2));
         skeleton.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
-                InfinityXItems.catalog()
+                InfXItems.catalog()
                         .equipment(MiteMaterial.IRON, EquipmentType.SWORD)
                         .holder()
                         .toStack());
         assertMeleeBoundary(helper, skeleton, skeletonTarget, 1.949, 1.951, "tool-equipped skeleton");
 
-        var revenant = helper.spawnWithNoFreeWill(InfinityXEntityTypes.REVENANT.get(), new BlockPos(2, 80, 4));
+        var revenant = helper.spawnWithNoFreeWill(InfXEntityTypes.REVENANT.get(), new BlockPos(2, 80, 4));
         var revenantTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 4));
         revenant.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
-                InfinityXItems.catalog()
+                InfXItems.catalog()
                         .equipment(MiteMaterial.IRON, EquipmentType.SWORD)
                         .holder()
                         .toStack());
         assertMeleeBoundary(helper, revenant, revenantTarget, 1.949, 1.951, "tool-equipped revenant");
 
-        var earth = helper.spawnWithNoFreeWill(InfinityXEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(2, 80, 6));
+        var earth = helper.spawnWithNoFreeWill(InfXEntityTypes.EARTH_ELEMENTAL.get(), new BlockPos(2, 80, 6));
         var earthTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 6));
         assertMeleeBoundary(helper, earth, earthTarget, 2.0, 2.001, "earth elemental");
 
-        var spider = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_SPIDER.get(), new BlockPos(2, 80, 8));
+        var spider = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_SPIDER.get(), new BlockPos(2, 80, 8));
         var spiderTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 8));
         assertMeleeBoundary(helper, spider, spiderTarget, 1.749, 1.75, "spider");
 
-        var pigman = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(2, 80, 10));
+        var pigman = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(2, 80, 10));
         var pigmanTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 10));
         pigman.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
-                InfinityXItems.catalog()
+                InfXItems.catalog()
                         .equipment(MiteMaterial.GOLD, EquipmentType.SWORD)
                         .holder()
                         .toStack());
         assertMeleeBoundary(helper, pigman, pigmanTarget, 1.749, 1.75, "tool-equipped zombie pigman");
 
-        var silverfish = helper.spawnWithNoFreeWill(InfinityXEntityTypes.COPPERSPINE.get(), new BlockPos(2, 80, 12));
+        var silverfish = helper.spawnWithNoFreeWill(InfXEntityTypes.COPPERSPINE.get(), new BlockPos(2, 80, 12));
         var silverfishTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 12));
         assertMeleeBoundary(helper, silverfish, silverfishTarget, 1.199, 1.201, "silverfish");
 
-        var wolf = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_WOLF.get(), new BlockPos(2, 80, 14));
+        var wolf = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_WOLF.get(), new BlockPos(2, 80, 14));
         var wolfTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 80, 14));
         double wolfReach = Math.sqrt(
                 Math.pow(wolf.getBbWidth() * 1.75, 2.0) + wolfTarget.getBbWidth());
@@ -931,7 +936,7 @@ public final class ModMonsterGameTests {
                 .forEach(net.minecraft.world.entity.Entity::discard);
 
         // Ooze pursuit only moves toward the target; the collision callback dispatches damage.
-        var ooze = helper.spawn(InfinityXEntityTypes.OOZE.get(), new BlockPos(2, 80, 2));
+        var ooze = helper.spawn(InfXEntityTypes.OOZE.get(), new BlockPos(2, 80, 2));
         ooze.setSize(2, true);
         ooze.setNoGravity(true);
         ooze.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
@@ -955,7 +960,7 @@ public final class ModMonsterGameTests {
         oozeTarget.discard();
 
         for (var batType : List.of(
-                InfinityXEntityTypes.VAMPIRE_BAT, InfinityXEntityTypes.NIGHTWING, InfinityXEntityTypes.GIANT_VAMPIRE_BAT)) {
+                InfXEntityTypes.VAMPIRE_BAT, InfXEntityTypes.NIGHTWING, InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             helper.setBlock(new BlockPos(2, 86, 2), Blocks.STONE);
             var bat = helper.spawn(batType.get(), new BlockPos(2, 84, 2));
             bat.setNoGravity(true);
@@ -968,7 +973,7 @@ public final class ModMonsterGameTests {
             prey.snapTo(bat.getX(), bat.getY(), bat.getZ(), 0.0F, 0.0F);
             helper.assertTrue(bat.hasMiteAttackContact(prey), batType.getId() + " must accept half-box contact");
             bat.tick();
-            if (batType != InfinityXEntityTypes.NIGHTWING) {
+            if (batType != InfXEntityTypes.NIGHTWING) {
                 helper.assertTrue(prey.getHealth() < health, batType.getId() + " must attack after half-box contact");
             }
             bat.discard();
@@ -978,8 +983,8 @@ public final class ModMonsterGameTests {
         BlockPos squidPos = new BlockPos(2, 84, 2);
         helper.setBlock(squidPos, Blocks.WATER);
         helper.setBlock(squidPos.east(2), Blocks.WATER);
-        var squid = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_SQUID.get(), squidPos);
-        var squidPrey = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_COW.get(), squidPos.east(2));
+        var squid = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_SQUID.get(), squidPos);
+        var squidPrey = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_COW.get(), squidPos.east(2));
         squid.aiStep();
         helper.assertFalse(squidPrey.hasEffect(MobEffects.SLOWNESS), "squid must not slow animals at range");
         squidPrey.snapTo(squid.getX(), squid.getY(), squid.getZ(), 0.0F, 0.0F);
@@ -1021,7 +1026,7 @@ public final class ModMonsterGameTests {
         boolean[] witchThrew = {false};
         MiteWitch[] witchRef = {null};
 
-        var skeleton = helper.spawn(InfinityXEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 3));
+        var skeleton = helper.spawn(InfXEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 3));
         skeleton.setNoGravity(true);
         skeleton.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
         skeleton.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, Items.BOW.getDefaultInstance());
@@ -1070,7 +1075,7 @@ public final class ModMonsterGameTests {
                     skeleton.discard();
                 })
                 .thenExecute(() -> {
-                    var witch = helper.spawn(InfinityXEntityTypes.R196_WITCH.get(), new BlockPos(3, 2, 3));
+                    var witch = helper.spawn(InfXEntityTypes.R196_WITCH.get(), new BlockPos(3, 2, 3));
                     witch.setNoGravity(true);
                     witch.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
                     placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 20.5);
@@ -1119,23 +1124,23 @@ public final class ModMonsterGameTests {
     private static void explosionRanges(GameTestHelper helper) {
         var level = helper.getLevel();
 
-        var ordinary = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_CREEPER.get(), new BlockPos(4, 10, 4));
+        var ordinary = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_CREEPER.get(), new BlockPos(4, 10, 4));
         var ordinaryInside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(8, 10, 4));
         var ordinaryOutside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(9, 10, 4));
         placeExplosionTargets(helper, ordinary, ordinaryInside, ordinaryOutside, new BlockPos(4, 10, 4), 4.3, 4.5);
 
-        var infernal = helper.spawnWithNoFreeWill(InfinityXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(25, 10, 4));
+        var infernal = helper.spawnWithNoFreeWill(InfXEntityTypes.INFERNAL_CREEPER.get(), new BlockPos(25, 10, 4));
         var infernalInside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(33, 10, 4));
         var infernalOutside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(34, 10, 4));
         placeExplosionTargets(helper, infernal, infernalInside, infernalOutside, new BlockPos(25, 10, 4), 8.7, 8.9);
 
-        var netherspawn = helper.spawnWithNoFreeWill(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(4, 10, 25));
+        var netherspawn = helper.spawnWithNoFreeWill(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(4, 10, 25));
         var netherspawnInside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(8, 10, 25));
         var netherspawnOutside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(9, 10, 25));
         placeExplosionTargets(
                 helper, netherspawn, netherspawnInside, netherspawnOutside, new BlockPos(4, 10, 25), 3.9, 4.1);
 
-        var ghast = helper.spawnWithNoFreeWill(InfinityXEntityTypes.R196_GHAST.get(), new BlockPos(25, 10, 25));
+        var ghast = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_GHAST.get(), new BlockPos(25, 10, 25));
         var fireball = new LargeFireball(level, ghast, Vec3.ZERO, 1);
         var fireballInside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(29, 10, 25));
         var fireballOutside = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(30, 10, 25));
@@ -1194,14 +1199,14 @@ public final class ModMonsterGameTests {
 
     private static void enderman(GameTestHelper helper) {
         var level = helper.getLevel();
-        MiteEnderman enderman = helper.spawn(InfinityXEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
+        MiteEnderman enderman = helper.spawn(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
         ItemEntity pearl = new ItemEntity(
                 level, enderman.getX() + 1.0, enderman.getY(), enderman.getZ(), Items.ENDER_PEARL.getDefaultInstance());
         pearl.setNoPickUpDelay();
         level.addFreshEntity(pearl);
 
         helper.startSequence()
-                .thenWaitUntil(() -> helper.assertEntityPresent(InfinityXEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3), 2.0D))
+                .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3), 2.0D))
                 .thenWaitUntil(() -> helper.assertTrue(
                         pearl.isRemoved(),
                         "R196 endermen must collect nearby dropped ender pearls"))
@@ -1213,7 +1218,7 @@ public final class ModMonsterGameTests {
 
     private static void witchCurse(GameTestHelper helper) {
         var level = helper.getLevel();
-        MiteWitch witch = helper.spawn(InfinityXEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
+        MiteWitch witch = helper.spawn(InfXEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
         // MITE only excludes a creative/disable-damage player. A survival player with the
         // entity-level Invulnerable flag must still receive a pending witch curse.
         ServerPlayer curseDeliveryProbe = ModCompletionGameTests.createPlayer(helper);
@@ -1236,9 +1241,9 @@ public final class ModMonsterGameTests {
     private static void netherspawnMechanics(GameTestHelper helper) {
         var level = helper.getLevel();
         var player = ModCompletionGameTests.createPlayer(helper);
-        var snowballTarget = helper.spawnWithNoFreeWill(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2));
-        var waterTarget = helper.spawnWithNoFreeWill(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2));
-        var terrainSource = helper.spawnWithNoFreeWill(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2));
+        var snowballTarget = helper.spawnWithNoFreeWill(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2));
+        var waterTarget = helper.spawnWithNoFreeWill(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2));
+        var terrainSource = helper.spawnWithNoFreeWill(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2));
         BlockPos waterSafetyProbe = new BlockPos(6, 2, 2);
         BlockPos netherrack = new BlockPos(9, 2, 2);
         BlockPos quartz = new BlockPos(7, 2, 2);
@@ -1255,9 +1260,9 @@ public final class ModMonsterGameTests {
 
         helper.startSequence()
                 .thenWaitUntil(() -> {
-                    helper.assertEntityPresent(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2), 2.0D);
-                    helper.assertEntityPresent(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2), 2.0D);
-                    helper.assertEntityPresent(InfinityXEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2), 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(2, 2, 2), 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(5, 2, 2), 2.0D);
+                    helper.assertEntityPresent(InfXEntityTypes.NETHERSPAWN.get(), new BlockPos(8, 2, 2), 2.0D);
                 })
                 .thenExecute(() -> {
                     float healthBefore = snowballTarget.getHealth();
@@ -1301,11 +1306,11 @@ public final class ModMonsterGameTests {
         player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
 
         var leader = helper.spawn(
-                InfinityXEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 2));
+                InfXEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 2));
         var ally = helper.spawn(
-                InfinityXEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 2));
+                InfXEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 2));
         var piglin = helper.spawnWithNoFreeWill(
-                InfinityXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(4, 2, 2));
+                InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), new BlockPos(4, 2, 2));
         leader.setTarget(player);
         MonsterEvents.propagateTarget(level, leader, player);
         helper.assertTrue(ally.getTarget() == player, "R196 monsters must share a newly acquired player target");
@@ -1322,10 +1327,10 @@ public final class ModMonsterGameTests {
                 "player activity must not bypass R196 zombified-piglin awareness range");
 
         var digger = helper.spawnWithNoFreeWill(
-                InfinityXEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 7));
+                InfXEntityTypes.R196_ZOMBIE.get(), new BlockPos(2, 2, 7));
         digger.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
-                InfinityXItems.catalog()
+                InfXItems.catalog()
                         .equipment(MiteMaterial.IRON, EquipmentType.PICKAXE)
                         .holder()
                         .toStack());

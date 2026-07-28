@@ -1,6 +1,12 @@
-package com.pixulse.infx.world;
+package com.pixulse.infx.event;
 
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.world.MoonPhase;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -10,7 +16,6 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.AnimalTameEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
@@ -18,16 +23,11 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 /** Server-side R196 lunar spawn, weather, sleep, fishing and taming rules. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class MoonEvents {
     private MoonEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(MoonEvents::limitHostileSpawn);
-        gameBus.addListener(MoonEvents::tickLevel);
-        gameBus.addListener(MoonEvents::modifyFishing);
-        gameBus.addListener(MoonEvents::modifyTaming);
-        gameBus.addListener(MoonEvents::makeBloodMoonWolvesHostile);
-    }
+    @SubscribeEvent
 
     private static void limitHostileSpawn(FinalizeSpawnEvent event) {
         if (!(event.getLevel().getLevel() instanceof ServerLevel level)
@@ -62,6 +62,8 @@ public final class MoonEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void tickLevel(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level)
                 || level.dimension() != Level.OVERWORLD
@@ -75,6 +77,8 @@ public final class MoonEvents {
             setWeather(level, true, true);
         }
     }
+
+    @SubscribeEvent
 
     private static void modifyFishing(ItemFishedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -93,11 +97,13 @@ public final class MoonEvents {
     private static void consumeWormBait(ServerPlayer player) {
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (!stack.is(InfinityXItems.WORM.get())) continue;
+            if (!stack.is(InfXItems.WORM.get())) continue;
             stack.consume(1, player);
             return;
         }
     }
+
+    @SubscribeEvent
 
     private static void modifyTaming(AnimalTameEvent event) {
         if (!(event.getAnimal().level() instanceof ServerLevel level)
@@ -111,6 +117,8 @@ public final class MoonEvents {
             event.setCanceled(true);
         }
     }
+
+    @SubscribeEvent
 
     private static void makeBloodMoonWolvesHostile(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof Wolf wolf)

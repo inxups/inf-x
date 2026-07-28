@@ -1,4 +1,9 @@
-package com.pixulse.infx.world;
+package com.pixulse.infx.event;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -10,16 +15,14 @@ import net.minecraft.world.level.block.WallTorchBlock;
 import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
 /** Adds the four R196 safety torches above newly generated desert-pyramid treasure chests. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StructureSafetyEvents {
     private StructureSafetyEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(StructureSafetyEvents::onChunkLoad);
-    }
+    @SubscribeEvent
 
     private static void onChunkLoad(ChunkEvent.Load event) {
         if (!event.isNewChunk() || !(event.getLevel() instanceof ServerLevel level)) return;

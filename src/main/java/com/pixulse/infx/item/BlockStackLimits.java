@@ -1,5 +1,8 @@
 package com.pixulse.infx.item;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import java.util.OptionalInt;
@@ -32,10 +35,10 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
 /** MITE R196 stack limits for block inventory objects and their modern structural equivalents. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class BlockStackLimits {
     private static final int DEFAULT_BLOCK_LIMIT = 4;
     private static final Set<Item> STANDALONE_SIXTEEN = Set.of(
@@ -53,10 +56,7 @@ public final class BlockStackLimits {
 
     private BlockStackLimits() {}
 
-    public static void register(IEventBus modBus) {
-        modBus.addListener(BlockStackLimits::modifyDefaultComponents);
-    }
-
+    @SubscribeEvent
     private static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
         for (Item item : BuiltInRegistries.ITEM) {
             if (limit(item, 64).isEmpty()) continue;

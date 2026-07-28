@@ -1,5 +1,8 @@
 package com.pixulse.infx.network;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.world.RunegateTeleportation;
@@ -10,19 +13,16 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class Network {
     public static final String FORCE_EGG_THROW = "infx_force_egg_throw";
     public static final String CTRL_USE = "infx_ctrl_use";
 
     private Network() {}
 
-    public static void register(IEventBus modBus) {
-        modBus.addListener(Network::registerPayloads);
-    }
-
+    @SubscribeEvent
     private static void registerPayloads(RegisterPayloadHandlersEvent event) {
         event.registrar("2")
                 .playToServer(EggThrowPayload.TYPE, EggThrowPayload.STREAM_CODEC, (payload, context) -> {

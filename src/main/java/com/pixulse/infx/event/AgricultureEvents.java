@@ -1,7 +1,13 @@
-package com.pixulse.infx.world.agriculture;
+package com.pixulse.infx.event;
+
+import com.pixulse.infx.world.agriculture.AgricultureData;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.player.ProgressionEvents;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.world.MoonPhase;
 import java.util.ArrayList;
 import net.minecraft.core.BlockPos;
@@ -22,27 +28,20 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.BonemealEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 /** R196 crop climate, clustering, fertility, disease, wilting and offline rules. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AgricultureEvents {
     private static final long WILT_TICKS = 7L * 24_000L;
     private static final long OFFLINE_STAGE_MILLIS = 30L * 60L * 1000L;
 
     private AgricultureEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(AgricultureEvents::beforeCropGrowth);
-        gameBus.addListener(AgricultureEvents::onBonemeal);
-        gameBus.addListener(AgricultureEvents::onRightClickBlock);
-        gameBus.addListener(AgricultureEvents::onLevelTick);
-        gameBus.addListener(AgricultureEvents::onBlockPlaced);
-        gameBus.addListener(AgricultureEvents::onBlockBroken);
-    }
+    @SubscribeEvent
 
     private static void beforeCropGrowth(CropGrowEvent.Pre event) {
         if (!(event.getLevel() instanceof ServerLevel level)) {
@@ -117,6 +116,8 @@ public final class AgricultureEvents {
         return Math.clamp(result, 0.05F, 2.0F);
     }
 
+    @SubscribeEvent
+
     private static void onBonemeal(BonemealEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !isCrop(event.getState())) {
             return;
@@ -148,9 +149,11 @@ public final class AgricultureEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
-                || !event.getItemStack().is(InfinityXItems.catalog().raw("manure").holder())) {
+                || !event.getItemStack().is(InfXItems.catalog().raw("manure").holder())) {
             return;
         }
         BlockState clicked = level.getBlockState(event.getPos());
@@ -185,6 +188,8 @@ public final class AgricultureEvents {
         event.setCanceled(true);
     }
 
+    @SubscribeEvent
+
     private static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         AgricultureData data = AgricultureData.get(level);
@@ -213,6 +218,8 @@ public final class AgricultureEvents {
             }
         }
     }
+
+    @SubscribeEvent
 
     private static void onBlockBroken(BreakBlockEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -256,6 +263,8 @@ public final class AgricultureEvents {
         if (state.is(BlockTags.BASE_STONE_OVERWORLD)) return 0.8F;
         return 1.0F;
     }
+
+    @SubscribeEvent
 
     private static void onLevelTick(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level) || level.getGameTime() % 200 != 0) {

@@ -13,15 +13,15 @@ import java.util.stream.Collectors;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
 
-class InfinityXCreativeTabsTest {
+class InfXCreativeTabsTest {
     @Test
     void categoriesCoverEveryRegisteredItemExactlyOnce() {
-        List<Identifier> categorized = Arrays.stream(InfinityXCreativeTabs.Category.values())
-                .flatMap(category -> InfinityXCreativeTabs.items(category).stream())
+        List<Identifier> categorized = Arrays.stream(InfXCreativeTabs.Category.values())
+                .flatMap(category -> InfXCreativeTabs.items(category).stream())
                 .map(item -> item.getId())
                 .toList();
         Set<Identifier> uniqueCategorized = new HashSet<>(categorized);
-        Set<Identifier> registered = InfinityXItems.ITEMS.getEntries().stream()
+        Set<Identifier> registered = InfXItems.ITEMS.getEntries().stream()
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
@@ -33,21 +33,21 @@ class InfinityXCreativeTabsTest {
 
     @Test
     void categorySizesMatchTheCreativeInventoryDesign() {
-        Map<InfinityXCreativeTabs.Category, Integer> expected = Map.of(
-                InfinityXCreativeTabs.Category.BLOCKS, 45,
-                InfinityXCreativeTabs.Category.INGREDIENTS, 31,
-                InfinityXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
-                InfinityXCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
-                InfinityXCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113,
-                InfinityXCreativeTabs.Category.SPAWN_EGGS, 52);
+        Map<InfXCreativeTabs.Category, Integer> expected = Map.of(
+                InfXCreativeTabs.Category.BLOCKS, 45,
+                InfXCreativeTabs.Category.INGREDIENTS, 31,
+                InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
+                InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
+                InfXCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113,
+                InfXCreativeTabs.Category.SPAWN_EGGS, 52);
 
         expected.forEach((category, size) ->
-                assertEquals(size, InfinityXCreativeTabs.items(category).size(), category.name()));
+                assertEquals(size, InfXCreativeTabs.items(category).size(), category.name()));
     }
 
     @Test
     void animalReplacementSpawnEggsAreInTheSpawnEggsCategory() {
-        Set<String> eggPaths = InfinityXCreativeTabs.items(InfinityXCreativeTabs.Category.SPAWN_EGGS).stream()
+        Set<String> eggPaths = InfXCreativeTabs.items(InfXCreativeTabs.Category.SPAWN_EGGS).stream()
                 .map(item -> item.getId().getPath())
                 .collect(Collectors.toSet());
         for (String animal : List.of(
@@ -58,29 +58,29 @@ class InfinityXCreativeTabsTest {
 
     @Test
     void everyPlayerObtainableBlockHasOneCreativeBlockItem() {
-        Identifier underworldPortal = InfinityXBlocks.UNDERWORLD_PORTAL.getId();
-        Identifier netherPortal = InfinityXBlocks.NETHER_PORTAL.getId();
-        Identifier returnSpawnPortal = InfinityXBlocks.RETURN_SPAWN_PORTAL.getId();
-        Identifier infestedNetherrack = InfinityXBlocks.INFESTED_NETHERRACK.getId();
+        Identifier underworldPortal = InfXBlocks.UNDERWORLD_PORTAL.getId();
+        Identifier netherPortal = InfXBlocks.NETHER_PORTAL.getId();
+        Identifier returnSpawnPortal = InfXBlocks.RETURN_SPAWN_PORTAL.getId();
+        Identifier infestedNetherrack = InfXBlocks.INFESTED_NETHERRACK.getId();
         Set<Identifier> worldgenOnly = Set.of(
                 underworldPortal, netherPortal, returnSpawnPortal, infestedNetherrack);
-        Set<Identifier> expectedBlockItems = InfinityXBlocks.BLOCKS.getEntries().stream()
+        Set<Identifier> expectedBlockItems = InfXBlocks.BLOCKS.getEntries().stream()
                 .map(block -> block.getId())
                 .filter(id -> !worldgenOnly.contains(id))
                 .collect(Collectors.toSet());
-        Set<Identifier> creativeBlocks = InfinityXCreativeTabs.items(InfinityXCreativeTabs.Category.BLOCKS).stream()
+        Set<Identifier> creativeBlocks = InfXCreativeTabs.items(InfXCreativeTabs.Category.BLOCKS).stream()
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
-        Set<Identifier> registeredItems = InfinityXItems.ITEMS.getEntries().stream()
+        Set<Identifier> registeredItems = InfXItems.ITEMS.getEntries().stream()
                 .map(item -> item.getId())
                 .collect(Collectors.toSet());
 
-        assertEquals(49, InfinityXBlocks.BLOCKS.getEntries().size());
+        assertEquals(49, InfXBlocks.BLOCKS.getEntries().size());
         assertEquals(expectedBlockItems, creativeBlocks);
         assertFalse(registeredItems.contains(underworldPortal), "Underworld portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(netherPortal), "Nether portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(returnSpawnPortal), "Return-spawn portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(infestedNetherrack), "infested netherrack must remain worldgen-only");
-        assertTrue(InfinityXItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));
+        assertTrue(InfXItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));
     }
 }

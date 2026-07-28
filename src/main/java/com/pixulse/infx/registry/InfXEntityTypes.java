@@ -41,7 +41,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Entity type registry for original-mob replacements and the 29-item R196 roster. */
-public final class InfinityXEntityTypes {
+public final class InfXEntityTypes {
     public static final DeferredRegister.Entities ENTITIES = DeferredRegister.createEntities(InfiniteX.MOD_ID);
     private static final List<EntityName> NAMES = new ArrayList<>();
 
@@ -228,7 +228,7 @@ public final class InfinityXEntityTypes {
             .distinct()
             .toList();
 
-    private InfinityXEntityTypes() {}
+    private InfXEntityTypes() {}
 
     private static <E extends Entity> DeferredHolder<EntityType<?>, EntityType<E>> register(
             String path,

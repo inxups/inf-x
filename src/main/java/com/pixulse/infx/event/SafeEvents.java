@@ -1,12 +1,17 @@
-package com.pixulse.infx.world;
+package com.pixulse.infx.event;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.harvest.MiteMiningRules;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXAttachments;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.food.SurvivalEvents;
 import com.pixulse.infx.food.SurvivalRules;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,7 +20,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -24,21 +28,14 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import org.jspecify.annotations.Nullable;
 
 /** Ownership, higher-tier multiplayer break checks and combat-disconnect penalty. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class SafeEvents {
     private static final String LAST_DANGER = "infx_last_danger_tick";
     private static final String DISCONNECT_PENALTY = "infx_disconnect_penalty";
 
     private SafeEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(EventPriority.HIGH, SafeEvents::protectSafe);
-        gameBus.addListener(EventPriority.HIGH, SafeEvents::protectSafeDrops);
-        gameBus.addListener(EventPriority.HIGH, SafeEvents::protectSafeBreakSpeed);
-        gameBus.addListener(SafeEvents::trackDanger);
-        gameBus.addListener(SafeEvents::trackAttack);
-        gameBus.addListener(SafeEvents::onLogout);
-        gameBus.addListener(SafeEvents::onLogin);
-    }
+    @SubscribeEvent(priority = EventPriority.HIGH)
 
     private static void protectSafe(BreakBlockEvent event) {
         if (!(event.getState().getBlock() instanceof SafeBlock safe)
@@ -53,6 +50,8 @@ public final class SafeEvents {
                     owner ? "message.infx.safe_tool" : "message.infx.safe_foreign_tool"));
         }
     }
+
+    @SubscribeEvent(priority = EventPriority.HIGH)
 
     private static void protectSafeDrops(BlockDropsEvent event) {
         if (!(event.getState().getBlock() instanceof SafeBlock safe)
@@ -76,6 +75,8 @@ public final class SafeEvents {
         return blockEntity instanceof SafeBlockEntity safe && safe.isPortableTo(player);
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGH)
+
     private static void protectSafeBreakSpeed(PlayerEvent.BreakSpeed event) {
         if (!(event.getState().getBlock() instanceof SafeBlock safe)
                 || event.getEntity().hasInfiniteMaterials()) {
@@ -96,7 +97,7 @@ public final class SafeEvents {
     }
 
     private static MiteMaterial toolMaterial(ItemStack tool) {
-        var equipment = InfinityXItems.catalog().equipment(tool);
+        var equipment = InfXItems.catalog().equipment(tool);
         if (equipment == null
                 || equipment.key().type() != EquipmentType.PICKAXE
                         && equipment.key().type() != EquipmentType.WAR_HAMMER) {
@@ -113,17 +114,23 @@ public final class SafeEvents {
         return tool != null && MiteMiningRules.harvestLevel(tool) >= requiredLevel;
     }
 
+    @SubscribeEvent
+
     private static void trackDanger(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getSource().getEntity() != null) {
             player.getPersistentData().putLong(LAST_DANGER, player.level().getGameTime());
         }
     }
 
+    @SubscribeEvent
+
     private static void trackAttack(AttackEntityEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             player.getPersistentData().putLong(LAST_DANGER, player.level().getGameTime());
         }
     }
+
+    @SubscribeEvent
 
     private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
@@ -137,14 +144,16 @@ public final class SafeEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !player.getPersistentData().getBoolean(DISCONNECT_PENALTY).orElse(false)) return;
         player.getPersistentData().remove(DISCONNECT_PENALTY);
         player.setHealth(Math.max(1.0F, player.getHealth() * 0.5F));
-        var data = player.getData(InfinityXAttachments.SURVIVAL)
+        var data = player.getData(InfXAttachments.SURVIVAL)
                 .consume(2.0D, 2_000, SurvivalRules.foodCap(player.experienceLevel));
-        player.setData(InfinityXAttachments.SURVIVAL, data);
+        player.setData(InfXAttachments.SURVIVAL, data);
         SurvivalEvents.syncFoodData(player);
         player.sendSystemMessage(net.minecraft.network.chat.Component.translatable("message.infx.disconnect_penalty"));
     }

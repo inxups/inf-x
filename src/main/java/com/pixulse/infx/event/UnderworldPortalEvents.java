@@ -1,9 +1,15 @@
-package com.pixulse.infx.world;
+package com.pixulse.infx.event;
+
+import com.pixulse.infx.world.Underworld;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.block.MitePortalBlock;
 import com.pixulse.infx.block.MitePortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
-import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfXBlocks;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,17 +22,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.PortalShape;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import org.jspecify.annotations.Nullable;
 
 /** Converts each ordinary frame into a portal block with one fixed destination family. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class UnderworldPortalEvents {
     private UnderworldPortalEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(UnderworldPortalEvents::onPortalSpawn);
-    }
+    @SubscribeEvent
 
     private static void onPortalSpawn(BlockEvent.PortalSpawnEvent event) {
         if (event.getLevel() instanceof ServerLevel level
@@ -67,7 +71,7 @@ public final class UnderworldPortalEvents {
             return false;
         }
         replaceConnectedPortal(level, origin, PortalType.UNDERWORLD);
-        if (!level.getBlockState(origin).is(InfinityXBlocks.UNDERWORLD_PORTAL.get())) {
+        if (!level.getBlockState(origin).is(InfXBlocks.UNDERWORLD_PORTAL.get())) {
             clearConnectedPortal(level, origin);
             return false;
         }
@@ -99,7 +103,7 @@ public final class UnderworldPortalEvents {
     }
 
     public static boolean frameTouchesMantle(ServerLevel level, BlockPos origin) {
-        return frameHasSupport(level, origin, pos -> level.getBlockState(pos).is(InfinityXBlocks.MANTLE.get()));
+        return frameHasSupport(level, origin, pos -> level.getBlockState(pos).is(InfXBlocks.MANTLE.get()));
     }
 
     private static boolean frameHasSupport(
@@ -131,16 +135,16 @@ public final class UnderworldPortalEvents {
 
     public static MitePortalBlock portalBlock(PortalType portalType) {
         return switch (portalType) {
-            case UNDERWORLD -> InfinityXBlocks.UNDERWORLD_PORTAL.get();
-            case NETHER -> InfinityXBlocks.NETHER_PORTAL.get();
-            case RETURN_SPAWN -> InfinityXBlocks.RETURN_SPAWN_PORTAL.get();
+            case UNDERWORLD -> InfXBlocks.UNDERWORLD_PORTAL.get();
+            case NETHER -> InfXBlocks.NETHER_PORTAL.get();
+            case RETURN_SPAWN -> InfXBlocks.RETURN_SPAWN_PORTAL.get();
         };
     }
 
     public static boolean isR196Portal(BlockState state) {
-        return state.is(InfinityXBlocks.UNDERWORLD_PORTAL.get())
-                || state.is(InfinityXBlocks.NETHER_PORTAL.get())
-                || state.is(InfinityXBlocks.RETURN_SPAWN_PORTAL.get());
+        return state.is(InfXBlocks.UNDERWORLD_PORTAL.get())
+                || state.is(InfXBlocks.NETHER_PORTAL.get())
+                || state.is(InfXBlocks.RETURN_SPAWN_PORTAL.get());
     }
 
     /** Replaces only the source block type, so adjacent portal families cannot join together. */

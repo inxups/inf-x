@@ -1,7 +1,7 @@
 package com.pixulse.infx.data;
 
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.registry.InfinityXBlocks;
+import com.pixulse.infx.registry.InfXBlocks;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -18,20 +18,20 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
-        InfinityXBlocks.WORKBENCHES.forEach(workbench -> dropSelf(workbench.get()));
-        InfinityXBlocks.FURNACES.forEach(furnace -> dropSelf(furnace.get()));
-        InfinityXBlocks.ORES.forEach(ore -> dropSelf(ore.get()));
-        InfinityXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> dropSelf(block.get()));
-        InfinityXBlocks.METAL_ANVILS.forEach(anvil -> dropSelf(anvil.get()));
-        InfinityXBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
-        InfinityXBlocks.METAL_SAFES.forEach(safe -> dropSelf(safe.get()));
-        add(InfinityXBlocks.SNOW_SLAB.get(), createSlabItemTable(InfinityXBlocks.SNOW_SLAB.get()));
-        dropSelf(InfinityXBlocks.NETHER_GRAVEL.get());
-        dropSelf(InfinityXBlocks.WITHERWOOD.get());
-        dropRuneStone(InfinityXBlocks.MITHRIL_RUNE_STONE.get());
-        dropRuneStone(InfinityXBlocks.ADAMANTIUM_RUNE_STONE.get());
-        add(InfinityXBlocks.MANTLE.get(), noDrop());
-        add(InfinityXBlocks.CORE.get(), noDrop());
+        InfXBlocks.WORKBENCHES.forEach(workbench -> dropSelf(workbench.get()));
+        InfXBlocks.FURNACES.forEach(furnace -> dropSelf(furnace.get()));
+        InfXBlocks.ORES.forEach(ore -> dropSelf(ore.get()));
+        InfXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> dropSelf(block.get()));
+        InfXBlocks.METAL_ANVILS.forEach(anvil -> dropSelf(anvil.get()));
+        InfXBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
+        InfXBlocks.METAL_SAFES.forEach(safe -> dropSelf(safe.get()));
+        add(InfXBlocks.SNOW_SLAB.get(), createSlabItemTable(InfXBlocks.SNOW_SLAB.get()));
+        dropSelf(InfXBlocks.NETHER_GRAVEL.get());
+        dropSelf(InfXBlocks.WITHERWOOD.get());
+        dropRuneStone(InfXBlocks.MITHRIL_RUNE_STONE.get());
+        dropRuneStone(InfXBlocks.ADAMANTIUM_RUNE_STONE.get());
+        add(InfXBlocks.MANTLE.get(), noDrop());
+        add(InfXBlocks.CORE.get(), noDrop());
     }
 
     private void dropRuneStone(RuneStoneBlock block) {
@@ -41,16 +41,16 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
     @Override
     protected Iterable<Block> getKnownBlocks() {
         return Stream.of(
-                        InfinityXBlocks.WORKBENCHES.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.FURNACES.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.ORES.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.METAL_ANVILS.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.METAL_SAFES.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()),
-                        InfinityXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.get()))
+                        InfXBlocks.WORKBENCHES.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.FURNACES.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.ORES.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.METAL_STORAGE_BLOCKS.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.METAL_ANVILS.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.METAL_SAFES.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.get()))
                 .flatMap(stream -> stream)
                 .toList();
     }

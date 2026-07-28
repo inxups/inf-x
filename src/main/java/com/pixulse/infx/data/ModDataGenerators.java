@@ -1,5 +1,8 @@
 package com.pixulse.infx.data;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
 import java.util.List;
 import java.util.Set;
@@ -9,9 +12,11 @@ import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ModDataGenerators {
     private ModDataGenerators() {}
 
+    @SubscribeEvent
     public static void gatherData(GatherDataEvent.Client event) {
         event.createDatapackRegistryObjects(ModWorldGen.builder(), Set.of(InfiniteX.MOD_ID, "minecraft"));
         event.createProvider(ModBlockTagsProvider::new);

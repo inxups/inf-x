@@ -12,8 +12,8 @@ import com.pixulse.infx.screen.TimedWorkbenchScreen;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.TimedCraftingRecipe;
 import com.pixulse.infx.menu.TimedWorkbenchMenu;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.InfinityXMenus;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXMenus;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -35,7 +35,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
 
 @JeiPlugin
-public final class InfiniteXJeiPlugin implements IModPlugin {
+public final class InfXJeiPlugin implements IModPlugin {
     private static final Identifier PLUGIN_ID = InfiniteX.id("jei_plugin");
 
     @Override
@@ -47,8 +47,8 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registerRuneStoneSubtypes(
                 registration,
-                InfinityXItems.MITHRIL_RUNE_STONE.get(),
-                InfinityXItems.ADAMANTIUM_RUNE_STONE.get());
+                InfXItems.MITHRIL_RUNE_STONE.get(),
+                InfXItems.ADAMANTIUM_RUNE_STONE.get());
     }
 
     @Override
@@ -56,15 +56,15 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
         var guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(
                 new TimedCraftingRecipeCategory(guiHelper, BenchTier.HAND, Items.CRAFTING_TABLE),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.FLINT, InfinityXItems.FLINT_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.OBSIDIAN, InfinityXItems.OBSIDIAN_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.COPPER, InfinityXItems.COPPER_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.IRON, InfinityXItems.IRON_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.FLINT, InfXItems.FLINT_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.OBSIDIAN, InfXItems.OBSIDIAN_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.COPPER, InfXItems.COPPER_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.IRON, InfXItems.IRON_WORKBENCH.get()),
                 new TimedCraftingRecipeCategory(
-                        guiHelper, BenchTier.ANCIENT_METAL, InfinityXItems.ANCIENT_METAL_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.MITHRIL, InfinityXItems.MITHRIL_WORKBENCH.get()),
+                        guiHelper, BenchTier.ANCIENT_METAL, InfXItems.ANCIENT_METAL_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(guiHelper, BenchTier.MITHRIL, InfXItems.MITHRIL_WORKBENCH.get()),
                 new TimedCraftingRecipeCategory(
-                        guiHelper, BenchTier.ADAMANTIUM, InfinityXItems.ADAMANTIUM_WORKBENCH.get()));
+                        guiHelper, BenchTier.ADAMANTIUM, InfXItems.ADAMANTIUM_WORKBENCH.get()));
     }
 
     @Override
@@ -100,7 +100,7 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
             ItemLike[] workbenches = Arrays.stream(BenchTier.values())
                     .filter(BenchTier::isWorkbench)
                     .filter(benchTier -> benchTier.supports(requiredTier))
-                    .map(benchTier -> (ItemLike) InfinityXItems.workbench(benchTier).get())
+                    .map(benchTier -> (ItemLike) InfXItems.workbench(benchTier).get())
                     .toArray(ItemLike[]::new);
             registration.addCraftingStation(TimedCraftingJeiTypes.forBench(requiredTier), workbenches);
         }
@@ -116,7 +116,7 @@ public final class InfiniteXJeiPlugin implements IModPlugin {
                 if (requiredTier.isRecipeTier() && benchTier.supports(requiredTier)) {
                     addTransferHandler(
                             registration,
-                            InfinityXMenus.workbench(benchTier).get(),
+                            InfXMenus.workbench(benchTier).get(),
                             TimedCraftingJeiTypes.forBench(requiredTier));
                 }
             }

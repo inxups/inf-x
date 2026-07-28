@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Event subscription refactor
+
+- Replaced the entry-point's manual event-bus listener registration with NeoForge `@EventBusSubscriber` and `@SubscribeEvent` handlers while preserving listener priority.
+- Kept only registry and GameTest `DeferredRegister` bindings in the mod entry point.
+
 ### 统一注册表命名
 
 - 将 `registry` 包及其标签子包中的 `Mod*` 注册类型统一重命名为 `InfinityX*`，包括方块、物品、实体、菜单、数据组件、配方、标签和测试类型；所有代码引用已同步更新。

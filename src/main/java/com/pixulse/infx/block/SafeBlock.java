@@ -2,7 +2,7 @@ package com.pixulse.infx.block;
 
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXBlockEntityTypes;
+import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -101,7 +101,7 @@ public final class SafeBlock extends BarrelBlock {
             Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide()
                 ? createTickerHelper(
-                        type, InfinityXBlockEntityTypes.SAFE.get(), SafeBlockEntity::lidAnimateTick)
+                        type, InfXBlockEntityTypes.SAFE.get(), SafeBlockEntity::lidAnimateTick)
                 : null;
     }
 }

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.pixulse.infx.block.MitePortalBlock;
 import com.pixulse.infx.block.MitePortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
+import com.pixulse.infx.event.UnderworldPortalEvents;
 import com.pixulse.infx.item.material.MiteMaterial;
 import net.minecraft.world.level.Level;
 import org.junit.jupiter.api.Test;

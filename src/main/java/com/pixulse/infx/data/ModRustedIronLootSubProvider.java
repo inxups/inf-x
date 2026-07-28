@@ -3,7 +3,7 @@ package com.pixulse.infx.data;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
@@ -60,7 +60,7 @@ final class ModRustedIronLootSubProvider implements LootTableSubProvider {
         LootPool.Builder pool = LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(3.0F))
                 .add(EmptyLootItem.emptyItem().setWeight(150))
-                .add(LootItem.lootTableItem(InfinityXItems.catalog().raw("rusted_iron_chain").holder())
+                .add(LootItem.lootTableItem(InfXItems.catalog().raw("rusted_iron_chain").holder())
                         .setWeight(5));
         List.of(
                         EquipmentType.SHOVEL,
@@ -74,6 +74,6 @@ final class ModRustedIronLootSubProvider implements LootTableSubProvider {
     }
 
     private static ItemLike equipment(EquipmentType type) {
-        return InfinityXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder();
+        return InfXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder();
     }
 }

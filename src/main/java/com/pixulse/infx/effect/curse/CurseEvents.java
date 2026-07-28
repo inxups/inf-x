@@ -1,9 +1,14 @@
 package com.pixulse.infx.effect.curse;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -22,7 +27,6 @@ import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingEntityUseItemEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.CanContinueSleepingEvent;
@@ -32,21 +36,14 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.jspecify.annotations.Nullable;
 
 /** NeoForge event implementations for curse lifecycle and interaction gates. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class CurseEvents {
     private static final Player.BedSleepingProblem CURSED_SLEEP = new Player.BedSleepingProblem(
             Component.translatable("message.infx.curse.cannot_sleep"));
 
     private CurseEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(CurseEvents::tickPlayer);
-        gameBus.addListener(CurseEvents::startUsingItem);
-        gameBus.addListener(CurseEvents::finishUsingItem);
-        gameBus.addListener(CurseEvents::useBlock);
-        gameBus.addListener(EventPriority.HIGH, CurseEvents::startSleeping);
-        gameBus.addListener(EventPriority.HIGH, CurseEvents::continueSleeping);
-        gameBus.addListener(CurseEvents::attackEntity);
-    }
+    @SubscribeEvent
 
     private static void tickPlayer(PlayerTickEvent.Post event) {
         if (event.getEntity() instanceof ServerPlayer player) {
@@ -54,10 +51,12 @@ public final class CurseEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void startUsingItem(LivingEntityUseItemEvent.Start event) {
         if (!(event.getEntity() instanceof Player player)) return;
         ItemStack stack = event.getItem();
-        if (stack.is(InfinityXItems.BOTTLE_OF_DISENCHANTING)) return;
+        if (stack.is(InfXItems.BOTTLE_OF_DISENCHANTING)) return;
 
         CurseType curse = forbiddenIngestion(player, stack);
         if (curse == null) return;
@@ -65,29 +64,33 @@ public final class CurseEvents {
         event.setCanceled(true);
     }
 
+    @SubscribeEvent
+
     private static void finishUsingItem(LivingEntityUseItemEvent.Finish event) {
         if (event.getEntity() instanceof ServerPlayer player
-                && event.getItem().is(InfinityXItems.BOTTLE_OF_DISENCHANTING)) {
+                && event.getItem().is(InfXItems.BOTTLE_OF_DISENCHANTING)) {
             CurseManager.removeFromPlayer(player);
         }
     }
 
     private static @Nullable CurseType forbiddenIngestion(Player player, ItemStack stack) {
-        if (stack.is(InfinityXTags.Items.CURSE_ANIMAL_PRODUCTS)
+        if (stack.is(InfXItemTags.CURSE_ANIMAL_PRODUCTS)
                 && CurseManager.hasCurse(player, CurseType.CANNOT_EAT_ANIMALS)) {
             return CurseType.CANNOT_EAT_ANIMALS;
         }
-        if (stack.is(InfinityXTags.Items.CURSE_PLANT_PRODUCTS)
+        if (stack.is(InfXItemTags.CURSE_PLANT_PRODUCTS)
                 && CurseManager.hasCurse(player, CurseType.CANNOT_EAT_PLANTS)) {
             return CurseType.CANNOT_EAT_PLANTS;
         }
         var consumable = stack.get(DataComponents.CONSUMABLE);
-        boolean drink = stack.is(InfinityXTags.Items.CURSE_DRINKS)
+        boolean drink = stack.is(InfXItemTags.CURSE_DRINKS)
                 || consumable != null && consumable.animation() == ItemUseAnimation.DRINK;
         return drink && CurseManager.hasCurse(player, CurseType.CANNOT_DRINK)
                 ? CurseType.CANNOT_DRINK
                 : null;
     }
+
+    @SubscribeEvent
 
     private static void useBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
@@ -134,6 +137,8 @@ public final class CurseEvents {
                 && safe.canOpen(event.getEntity());
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGH)
+
     private static void startSleeping(CanPlayerSleepEvent event) {
         ServerPlayer player = event.getEntity();
         if (event.getProblem() != null
@@ -144,6 +149,8 @@ public final class CurseEvents {
         event.setProblem(CURSED_SLEEP);
     }
 
+    @SubscribeEvent(priority = EventPriority.HIGH)
+
     private static void continueSleeping(CanContinueSleepingEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !CurseManager.hasCurse(player, CurseType.CANNOT_SLEEP)) {
@@ -153,6 +160,8 @@ public final class CurseEvents {
         player.sendOverlayMessage(Component.translatable("message.infx.curse.cannot_sleep"));
         event.setContinueSleeping(false);
     }
+
+    @SubscribeEvent
 
     private static void attackEntity(AttackEntityEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)

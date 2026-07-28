@@ -11,53 +11,53 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 
-public final class InfinityXBlockEntityTypes {
+public final class InfXBlockEntityTypes {
     private static final DeferredRegister<BlockEntityType<?>> TYPES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, InfiniteX.MOD_ID);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MiteFurnaceBlockEntity>> FURNACE =
             TYPES.register("furnace", () -> new BlockEntityType<>(
                     MiteFurnaceBlockEntity::new,
-                    InfinityXBlocks.CLAY_FURNACE.get(),
-                    InfinityXBlocks.LARGE_CLAY_OVEN.get(),
-                    InfinityXBlocks.SANDSTONE_FURNACE.get(),
-                    InfinityXBlocks.HARDENED_CLAY_FURNACE.get(),
-                    InfinityXBlocks.OBSIDIAN_FURNACE.get(),
-                    InfinityXBlocks.NETHERRACK_FURNACE.get()));
+                    InfXBlocks.CLAY_FURNACE.get(),
+                    InfXBlocks.LARGE_CLAY_OVEN.get(),
+                    InfXBlocks.SANDSTONE_FURNACE.get(),
+                    InfXBlocks.HARDENED_CLAY_FURNACE.get(),
+                    InfXBlocks.OBSIDIAN_FURNACE.get(),
+                    InfXBlocks.NETHERRACK_FURNACE.get()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MetalAnvilBlockEntity>> METAL_ANVIL =
             TYPES.register("metal_anvil", () -> new BlockEntityType<>(
                     MetalAnvilBlockEntity::new,
-                    InfinityXBlocks.COPPER_ANVIL.get(),
-                    InfinityXBlocks.SILVER_ANVIL.get(),
-                    InfinityXBlocks.GOLD_ANVIL.get(),
-                    InfinityXBlocks.IRON_ANVIL.get(),
-                    InfinityXBlocks.ANCIENT_METAL_ANVIL.get(),
-                    InfinityXBlocks.MITHRIL_ANVIL.get(),
-                    InfinityXBlocks.ADAMANTIUM_ANVIL.get()));
+                    InfXBlocks.COPPER_ANVIL.get(),
+                    InfXBlocks.SILVER_ANVIL.get(),
+                    InfXBlocks.GOLD_ANVIL.get(),
+                    InfXBlocks.IRON_ANVIL.get(),
+                    InfXBlocks.ANCIENT_METAL_ANVIL.get(),
+                    InfXBlocks.MITHRIL_ANVIL.get(),
+                    InfXBlocks.ADAMANTIUM_ANVIL.get()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SafeBlockEntity>> SAFE =
             TYPES.register("safe", () -> new BlockEntityType<>(
                     SafeBlockEntity::new,
-                    InfinityXBlocks.COPPER_SAFE.get(),
-                    InfinityXBlocks.SILVER_SAFE.get(),
-                    InfinityXBlocks.GOLD_SAFE.get(),
-                    InfinityXBlocks.IRON_SAFE.get(),
-                    InfinityXBlocks.ANCIENT_METAL_SAFE.get(),
-                    InfinityXBlocks.MITHRIL_SAFE.get(),
-                    InfinityXBlocks.ADAMANTIUM_SAFE.get()));
+                    InfXBlocks.COPPER_SAFE.get(),
+                    InfXBlocks.SILVER_SAFE.get(),
+                    InfXBlocks.GOLD_SAFE.get(),
+                    InfXBlocks.IRON_SAFE.get(),
+                    InfXBlocks.ANCIENT_METAL_SAFE.get(),
+                    InfXBlocks.MITHRIL_SAFE.get(),
+                    InfXBlocks.ADAMANTIUM_SAFE.get()));
 
-    private InfinityXBlockEntityTypes() {}
+    private InfXBlockEntityTypes() {}
 
     public static void register(IEventBus modBus) {
         TYPES.register(modBus);
-        modBus.addListener(InfinityXBlockEntityTypes::addVanillaBlockEntityBlocks);
+        modBus.addListener(InfXBlockEntityTypes::addVanillaBlockEntityBlocks);
     }
 
     private static void addVanillaBlockEntityBlocks(BlockEntityTypeAddBlocksEvent event) {
         event.modify(
                 BlockEntityType.ENCHANTING_TABLE,
-                InfinityXBlocks.EMERALD_ENCHANTING_TABLE.get(),
-                InfinityXBlocks.DIAMOND_ENCHANTING_TABLE.get());
+                InfXBlocks.EMERALD_ENCHANTING_TABLE.get(),
+                InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
     }
 }

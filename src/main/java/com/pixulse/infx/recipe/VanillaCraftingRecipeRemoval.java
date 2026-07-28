@@ -1,26 +1,25 @@
 package com.pixulse.infx.recipe;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.pixulse.infx.InfiniteX;
 import java.util.Map;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.ModifyRecipeJsonsEvent;
 
 /** Removes Minecraft's built-in crafting recipes before recipe deserialization. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class VanillaCraftingRecipeRemoval {
     private static final String MINECRAFT_NAMESPACE = "minecraft";
     private static final String CRAFTING_SERIALIZER_PREFIX = "crafting_";
 
     private VanillaCraftingRecipeRemoval() {}
 
-    public static void register(IEventBus gameBus) {
-        // Run after ordinary recipe integrations so a later listener cannot
-        // accidentally restore a minecraft-namespaced crafting JSON.
-        gameBus.addListener(EventPriority.LOWEST, VanillaCraftingRecipeRemoval::removeRecipes);
-    }
+    @SubscribeEvent(priority = EventPriority.LOWEST)
 
     private static void removeRecipes(ModifyRecipeJsonsEvent event) {
         int removed = removeVanillaCraftingRecipes(event.getRecipeJsons());

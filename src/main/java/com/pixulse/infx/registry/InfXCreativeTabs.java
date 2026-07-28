@@ -24,7 +24,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class InfinityXCreativeTabs {
+public final class InfXCreativeTabs {
     private static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, InfiniteX.MOD_ID);
     private static final Identifier MAIN_ID = InfiniteX.id("main");
@@ -37,13 +37,13 @@ public final class InfinityXCreativeTabs {
 
     // NeoForge fixes all mod tabs after the vanilla chain, so anchor the group at its final category.
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN = TABS.register("main", () ->
-            tab("itemGroup.infx", InfinityXItems.SILVER_ORE::toStack, Category.BLOCKS)
+            tab("itemGroup.infx", InfXItems.SILVER_ORE::toStack, Category.BLOCKS)
                     .withTabsBefore(CreativeModeTabs.SPAWN_EGGS)
                     .build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> INGREDIENTS =
             TABS.register("ingredients", () ->
-                    tab("itemGroup.infx.ingredients", InfinityXItems.MITHRIL_INGOT::toStack, Category.INGREDIENTS)
+                    tab("itemGroup.infx.ingredients", InfXItems.MITHRIL_INGOT::toStack, Category.INGREDIENTS)
                             .withTabsBefore(MAIN_ID)
                             .build());
 
@@ -51,7 +51,7 @@ public final class InfinityXCreativeTabs {
             TABS.register("food_and_consumables", () ->
                     tab(
                                     "itemGroup.infx.food_and_consumables",
-                                    InfinityXItems.BEEF_STEW::toStack,
+                                    InfXItems.BEEF_STEW::toStack,
                                     Category.FOOD_AND_CONSUMABLES)
                             .withTabsBefore(INGREDIENTS_ID)
                             .build());
@@ -60,7 +60,7 @@ public final class InfinityXCreativeTabs {
             TABS.register("tools_and_utilities", () ->
                     tab(
                                     "itemGroup.infx.tools_and_utilities",
-                                    InfinityXItems.IRON_PICKAXE::toStack,
+                                    InfXItems.IRON_PICKAXE::toStack,
                                     Category.TOOLS_AND_UTILITIES)
                             .withTabsBefore(FOOD_AND_CONSUMABLES_ID)
                             .build());
@@ -69,7 +69,7 @@ public final class InfinityXCreativeTabs {
             TABS.register("combat_and_equipment", () ->
                     tab(
                                     "itemGroup.infx.combat_and_equipment",
-                                    InfinityXItems.IRON_SWORD::toStack,
+                                    InfXItems.IRON_SWORD::toStack,
                                     Category.COMBAT_AND_EQUIPMENT)
                             .withTabsBefore(TOOLS_AND_UTILITIES_ID)
                             .build());
@@ -78,7 +78,7 @@ public final class InfinityXCreativeTabs {
             TABS.register("spawn_eggs", () ->
                     tab(
                                     "itemGroup.infx.spawn_eggs",
-                                    () -> InfinityXItems.SPAWN_EGGS.getFirst().toStack(),
+                                    () -> InfXItems.SPAWN_EGGS.getFirst().toStack(),
                                     Category.SPAWN_EGGS)
                             .withTabsBefore(COMBAT_AND_EQUIPMENT_ID)
                             .build());
@@ -92,7 +92,7 @@ public final class InfinityXCreativeTabs {
         SPAWN_EGGS
     }
 
-    private InfinityXCreativeTabs() {}
+    private InfXCreativeTabs() {}
 
     static List<DeferredItem<? extends Item>> items(Category category) {
         return ITEMS_BY_CATEGORY.get(category);
@@ -122,51 +122,51 @@ public final class InfinityXCreativeTabs {
         categories.put(
                 Category.BLOCKS,
                 concatenate(
-                        InfinityXItems.ORES,
-                        InfinityXItems.METAL_STORAGE_BLOCKS,
-                        InfinityXItems.WORLD_BLOCKS,
-                        InfinityXItems.FULLTEXT_BLOCKS,
-                        InfinityXItems.MITE_RECIPE_BLOCKS,
-                        InfinityXItems.WORKBENCHES,
-                        InfinityXItems.FURNACES,
-                        InfinityXItems.METAL_ANVILS,
-                        InfinityXItems.ENCHANTING_TABLES,
-                        InfinityXItems.METAL_SAFES));
+                        InfXItems.ORES,
+                        InfXItems.METAL_STORAGE_BLOCKS,
+                        InfXItems.WORLD_BLOCKS,
+                        InfXItems.FULLTEXT_BLOCKS,
+                        InfXItems.MITE_RECIPE_BLOCKS,
+                        InfXItems.WORKBENCHES,
+                        InfXItems.FURNACES,
+                        InfXItems.METAL_ANVILS,
+                        InfXItems.ENCHANTING_TABLES,
+                        InfXItems.METAL_SAFES));
         categories.put(
                 Category.INGREDIENTS,
                 concatenate(
-                        InfinityXItems.catalog().rawEntries().stream().map(InfinityXCreativeTabs::holder).toList(),
-                        List.of(InfinityXItems.FLOUR)));
+                        InfXItems.catalog().rawEntries().stream().map(InfXCreativeTabs::holder).toList(),
+                        List.of(InfXItems.FLOUR)));
         categories.put(
                 Category.FOOD_AND_CONSUMABLES,
                 concatenate(
-                        List.of(InfinityXItems.WATER_BOWL),
-                        InfinityXItems.R196_FOODS,
-                        List.of(InfinityXItems.BOTTLE_OF_DISENCHANTING)));
+                        List.of(InfXItems.WATER_BOWL),
+                        InfXItems.R196_FOODS,
+                        List.of(InfXItems.BOTTLE_OF_DISENCHANTING)));
         categories.put(
                 Category.TOOLS_AND_UTILITIES,
                 concatenate(
                         equipmentItems(EquipmentCategory.TOOL),
-                        InfinityXItems.R196_BUCKETS,
-                        InfinityXItems.R196_MOB_BUCKETS,
-                        InfinityXItems.R196_POWDER_SNOW_BUCKETS,
-                        InfinityXItems.R196_RECORDS));
+                        InfXItems.R196_BUCKETS,
+                        InfXItems.R196_MOB_BUCKETS,
+                        InfXItems.R196_POWDER_SNOW_BUCKETS,
+                        InfXItems.R196_RECORDS));
         categories.put(
                 Category.COMBAT_AND_EQUIPMENT,
                 concatenate(
-                        InfinityXItems.catalog().equipmentEntries().stream()
+                        InfXItems.catalog().equipmentEntries().stream()
                                 .filter(entry -> entry.key().type().category() != EquipmentCategory.TOOL)
-                                .map(InfinityXCreativeTabs::holder)
+                                .map(InfXCreativeTabs::holder)
                                 .toList(),
-                        InfinityXItems.GELATINOUS_SPHERES));
-        categories.put(Category.SPAWN_EGGS, List.copyOf(InfinityXItems.SPAWN_EGGS));
+                        InfXItems.GELATINOUS_SPHERES));
+        categories.put(Category.SPAWN_EGGS, List.copyOf(InfXItems.SPAWN_EGGS));
         return Collections.unmodifiableMap(categories);
     }
 
     private static List<DeferredItem<? extends Item>> equipmentItems(EquipmentCategory category) {
-        return InfinityXItems.catalog().equipmentEntries().stream()
+        return InfXItems.catalog().equipmentEntries().stream()
                 .filter(entry -> entry.key().type().category() == category)
-                .map(InfinityXCreativeTabs::holder)
+                .map(InfXCreativeTabs::holder)
                 .toList();
     }
 
@@ -186,7 +186,7 @@ public final class InfinityXCreativeTabs {
 
     public static void register(IEventBus modBus) {
         TABS.register(modBus);
-        modBus.addListener(InfinityXCreativeTabs::addSpawnEggsToVanillaTab);
+        modBus.addListener(InfXCreativeTabs::addSpawnEggsToVanillaTab);
     }
 
     /** Also surface every R196 spawn egg in the vanilla Spawn Eggs tab (animals included). */
@@ -194,7 +194,7 @@ public final class InfinityXCreativeTabs {
         if (event.getTabKey() != CreativeModeTabs.SPAWN_EGGS) {
             return;
         }
-        for (DeferredItem<? extends Item> egg : InfinityXItems.SPAWN_EGGS) {
+        for (DeferredItem<? extends Item> egg : InfXItems.SPAWN_EGGS) {
             Item item = egg.get();
             if (item.isEnabled(event.getFlags())) {
                 event.accept(item);

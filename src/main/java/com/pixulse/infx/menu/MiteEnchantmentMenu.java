@@ -3,9 +3,9 @@ package com.pixulse.infx.menu;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.enchantment.EnchantmentSelector;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.InfinityXMenus;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXMenus;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -73,8 +73,8 @@ public final class MiteEnchantmentMenu extends EnchantmentMenu {
     @Override
     public MenuType<?> getType() {
         return switch (kind) {
-            case EMERALD -> InfinityXMenus.EMERALD_ENCHANTING.get();
-            case DIAMOND -> InfinityXMenus.DIAMOND_ENCHANTING.get();
+            case EMERALD -> InfXMenus.EMERALD_ENCHANTING.get();
+            case DIAMOND -> InfXMenus.DIAMOND_ENCHANTING.get();
         };
     }
 
@@ -158,7 +158,7 @@ public final class MiteEnchantmentMenu extends EnchantmentMenu {
     }
 
     private static ItemStack conversionResult(ItemStack stack) {
-        return isWaterBottle(stack) ? InfinityXItems.BOTTLE_OF_DISENCHANTING.toStack() : Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance();
+        return isWaterBottle(stack) ? InfXItems.BOTTLE_OF_DISENCHANTING.toStack() : Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance();
     }
 
     private List<EnchantmentInstance> enchantmentChoices(RegistryAccess registryAccess, ItemStack stack, int option) {
@@ -238,8 +238,8 @@ public final class MiteEnchantmentMenu extends EnchantmentMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(accessors().infx$access(), player, InfinityXBlocks.EMERALD_ENCHANTING_TABLE.get())
-                || stillValid(accessors().infx$access(), player, InfinityXBlocks.DIAMOND_ENCHANTING_TABLE.get());
+        return stillValid(accessors().infx$access(), player, InfXBlocks.EMERALD_ENCHANTING_TABLE.get())
+                || stillValid(accessors().infx$access(), player, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXDataComponents;
+import com.pixulse.infx.registry.InfXDataComponents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import org.jspecify.annotations.Nullable;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
-import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfXEnchantments;
 
 public final class MiteBowItem extends BowItem {
     private final EquipmentKey key;
@@ -49,9 +49,9 @@ public final class MiteBowItem extends BowItem {
             float angle,
             @Nullable LivingEntity targetOverride) {
         ItemStack bow = shooter.getMainHandItem();
-        int precision = Enchantments.level(shooter.level(), bow, InfinityXEnchantments.PRECISION);
-        int recovery = Enchantments.level(shooter.level(), bow, InfinityXEnchantments.RECOVERY);
-        int poisoning = Enchantments.level(shooter.level(), bow, InfinityXEnchantments.POISONING);
+        int precision = Enchantments.level(shooter.level(), bow, InfXEnchantments.PRECISION);
+        int recovery = Enchantments.level(shooter.level(), bow, InfXEnchantments.RECOVERY);
+        int poisoning = Enchantments.level(shooter.level(), bow, InfXEnchantments.POISONING);
         int experienceLevel = shooter instanceof Player player ? player.experienceLevel : 0;
         if (recovery > 0) projectile.getPersistentData().putInt("infx_recovery_enchantment", recovery);
         if (poisoning > 0) projectile.getPersistentData().putInt("infx_poisoning_enchantment", poisoning);
@@ -70,13 +70,13 @@ public final class MiteBowItem extends BowItem {
         ItemStack bow = player.getItemInHand(hand);
         ItemStack projectile = player.getProjectile(bow);
         if (projectile.getItem() instanceof MiteArrowItem arrow) {
-            bow.set(InfinityXDataComponents.NOCKED_ARROW_MATERIAL.get(), arrow.key().material().path());
+            bow.set(InfXDataComponents.NOCKED_ARROW_MATERIAL.get(), arrow.key().material().path());
         } else {
-            bow.remove(InfinityXDataComponents.NOCKED_ARROW_MATERIAL.get());
+            bow.remove(InfXDataComponents.NOCKED_ARROW_MATERIAL.get());
         }
         InteractionResult result = super.use(level, player, hand);
         if (!result.consumesAction()) {
-            bow.remove(InfinityXDataComponents.NOCKED_ARROW_MATERIAL.get());
+            bow.remove(InfXDataComponents.NOCKED_ARROW_MATERIAL.get());
         }
         return result;
     }
@@ -84,14 +84,14 @@ public final class MiteBowItem extends BowItem {
     @Override
     public boolean releaseUsing(ItemStack bow, Level level, LivingEntity entity, int remainingTime) {
         try {
-            int quickness = Enchantments.level(level, bow, InfinityXEnchantments.QUICKNESS);
+            int quickness = Enchantments.level(level, bow, InfXEnchantments.QUICKNESS);
             int duration = getUseDuration(bow, entity);
             int used = Math.max(0, duration - remainingTime);
             int adjustedRemaining = Math.max(0,
                     duration - EnchantmentRules.quicknessAdjustedUseTicks(used, quickness));
             return super.releaseUsing(bow, level, entity, adjustedRemaining);
         } finally {
-            bow.remove(InfinityXDataComponents.NOCKED_ARROW_MATERIAL.get());
+            bow.remove(InfXDataComponents.NOCKED_ARROW_MATERIAL.get());
         }
     }
 }

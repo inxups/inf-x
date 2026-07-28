@@ -1,11 +1,16 @@
 package com.pixulse.infx.item.equipment;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.pixulse.infx.entity.MiteSkeleton;
 import com.pixulse.infx.entity.MiteZombie;
 import com.pixulse.infx.entity.MiteZombifiedPiglin;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -13,11 +18,11 @@ import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.WitherSkeleton;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
 /** Restores monster-held rusted iron and rusted arrows instead of inventing ambient iron corrosion. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class RustedIronSources {
     private static final List<EquipmentType> ZOMBIE_WEAPONS = List.of(
             EquipmentType.SHOVEL,
@@ -33,10 +38,7 @@ public final class RustedIronSources {
 
     private RustedIronSources() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(RustedIronSources::onJoinLevel);
-        gameBus.addListener(RustedIronSources::onLivingDrops);
-    }
+    @SubscribeEvent
 
     private static void onJoinLevel(EntityJoinLevelEvent event) {
         if (event.loadedFromDisk() || !(event.getLevel() instanceof ServerLevel)) {
@@ -67,6 +69,8 @@ public final class RustedIronSources {
         }
     }
 
+    @SubscribeEvent
+
     private static void onLivingDrops(LivingDropsEvent event) {
         if (!(event.getEntity() instanceof AbstractSkeleton skeleton)
                 || skeleton instanceof WitherSkeleton
@@ -87,13 +91,13 @@ public final class RustedIronSources {
         if (count <= 0) {
             return;
         }
-        ItemStack arrow = InfinityXItems.catalog().equipment(material, EquipmentType.ARROW).holder().toStack();
+        ItemStack arrow = InfXItems.catalog().equipment(material, EquipmentType.ARROW).holder().toStack();
         arrow.setCount(count);
         event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(
                 skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(), arrow));
     }
 
     private static ItemStack equipment(EquipmentType type) {
-        return InfinityXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder().toStack();
+        return InfXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder().toStack();
     }
 }

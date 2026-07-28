@@ -1,9 +1,16 @@
-package com.pixulse.infx.world;
+package com.pixulse.infx.event;
+
+import com.pixulse.infx.world.BedRules;
+import com.pixulse.infx.world.MoonPhase;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.entity.MonsterTactics;
 import com.pixulse.infx.player.ProgressionEvents;
-import com.pixulse.infx.registry.InfinityXAttachments;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.food.SurvivalEvents;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +41,6 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.CanContinueSleepingEvent;
 import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -42,6 +48,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerSetSpawnEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 /** R196 bed entry checks, sustained rest, cooperative fast-forward and sleep ambushes. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class BedEvents {
     private static final double BED_HORIZONTAL_HOSTILE_RANGE = 8.0D;
     private static final double BED_VERTICAL_HOSTILE_RANGE = 5.0D;
@@ -60,13 +67,7 @@ public final class BedEvents {
 
     private BedEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(BedEvents::onBedUse);
-        gameBus.addListener(BedEvents::deferBedRespawn);
-        gameBus.addListener(BedEvents::canStartSleeping);
-        gameBus.addListener(BedEvents::canContinueSleeping);
-        gameBus.addListener(BedEvents::tickLevel);
-    }
+    @SubscribeEvent
 
     private static void onBedUse(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -89,6 +90,7 @@ public final class BedEvents {
      * R196's additional checks pass. Delay that one write and apply it only after a successful
      * bed entry, so a poisoned or exposed player cannot accidentally claim the bed.
      */
+    @SubscribeEvent
     private static void deferBedRespawn(PlayerSetSpawnEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || APPLYING_RESPAWN.contains(player)) return;
         BlockPos attemptedBed = BED_ATTEMPTS.get(player);
@@ -101,6 +103,8 @@ public final class BedEvents {
         event.setCanceled(true);
         DEFERRED_RESPAWNS.add(player);
     }
+
+    @SubscribeEvent
 
     private static void canStartSleeping(CanPlayerSleepEvent event) {
         ServerPlayer player = event.getEntity();
@@ -121,6 +125,8 @@ public final class BedEvents {
         if (problem == null && deferredRespawn) setBedRespawn(player, event.getPos());
     }
 
+    @SubscribeEvent
+
     private static void canContinueSleeping(CanContinueSleepingEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !(player.level() instanceof ServerLevel level)
@@ -129,7 +135,7 @@ public final class BedEvents {
             return;
         }
         BlockPos bed = player.getSleepingPos().orElseThrow();
-        if (player.getData(InfinityXAttachments.SURVIVAL).isStarving()) {
+        if (player.getData(InfXAttachments.SURVIVAL).isStarving()) {
             event.setContinueSleeping(false);
             player.sendOverlayMessage(Component.translatable("message.infx.bed.wake_hungry"));
             return;
@@ -142,6 +148,8 @@ public final class BedEvents {
         // Override the modern daytime-only BedRule; R196 permits resting at any hour.
         event.setContinueSleeping(true);
     }
+
+    @SubscribeEvent
 
     private static void tickLevel(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !level.dimension().equals(Level.OVERWORLD)) return;
@@ -238,7 +246,7 @@ public final class BedEvents {
             for (int y = minimumY; y <= maximumY; y++) {
                 BlockPos pos = new BlockPos(x, y, z);
                 if (!isAmbushSpawnPosition(level, pos)) continue;
-                var zombie = InfinityXEntityTypes.R196_ZOMBIE.get().create(level, EntitySpawnReason.EVENT);
+                var zombie = InfXEntityTypes.R196_ZOMBIE.get().create(level, EntitySpawnReason.EVENT);
                 if (zombie == null) return null;
                 zombie.snapTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
                 zombie.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.EVENT, null);
@@ -299,7 +307,7 @@ public final class BedEvents {
         if (!player.onGround()) return Player.BedSleepingProblem.OTHER_PROBLEM;
         if (hasReachableHostile(level, bed)) return Player.BedSleepingProblem.NOT_SAFE;
         if (level.canSeeSky(bed.above())) return NOT_SHELTERED;
-        if (player.getData(InfinityXAttachments.SURVIVAL).isStarving()) return TOO_HUNGRY;
+        if (player.getData(InfXAttachments.SURVIVAL).isStarving()) return TOO_HUNGRY;
         if (player.hasEffect(MobEffects.POISON)) return POISONED;
         return hasDiggingZombie(level, bed) ? MOBS_DIGGING : null;
     }

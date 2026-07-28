@@ -1,6 +1,11 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
@@ -42,7 +47,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.RandomSource;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -57,38 +61,18 @@ import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Registration, spawn replacement and cross-family AI hooks for R196 mobs. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class MonsterEvents {
     private static final int LIGHT_SEARCH_INTERVAL = 80;
     private static boolean sharingTarget;
 
     private MonsterEvents() {}
 
-    public static void register(IEventBus modBus, IEventBus gameBus) {
-        modBus.addListener(MonsterEvents::createAttributes);
-        modBus.addListener(MonsterEvents::registerSpawnPlacements);
-        gameBus.addListener(MonsterEvents::finalizeSpawn);
-        gameBus.addListener(MonsterEvents::leadRangedProjectile);
-        gameBus.addListener(MonsterEvents::replaceVanillaSpawn);
-        gameBus.addListener(MonsterEvents::shareTarget);
-        gameBus.addListener(MonsterEvents::amplifyInfernalCreeperExplosion);
-        gameBus.addListener(MonsterEvents::limitCreeperTerrainDamage);
-        gameBus.addListener(MonsterEvents::protectNetherspawnTerrain);
-        gameBus.addListener(MonsterEvents::attractToPlayerActivity);
-        gameBus.addListener(MonsterEvents::coordinateAndSeekLight);
-        gameBus.addListener(MonsterEvents::reduceSkeletonArrowGravity);
-        gameBus.addListener(MonsterEvents::applyWitchMagicDefense);
-        gameBus.addListener(MonsterEvents::limitSpawnerPopulation);
-        gameBus.addListener(MonsterEvents::preventObservedDespawn);
-        gameBus.addListener(MonsterEvents::applyFrenzyDamage);
-        gameBus.addListener(MonsterEvents::applyMiteProjectileDamage);
-        gameBus.addListener(MonsterEvents::retaliateAgainstBareHands);
-        gameBus.addListener(MonsterEvents::armCreeperFromCactus);
-    }
-
     /**
      * MITE frenzy: during blood-moon nights (and under bone-lord inspiration) monster melee
      * gains half its base attack again. Endermen are explicitly exempt in MITE.
      */
+    @SubscribeEvent
     private static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Mob attacker)
                 || !(attacker instanceof Enemy)
@@ -117,6 +101,7 @@ public final class MonsterEvents {
      * per-variant floor (rusted 5, longdead's ancient 9) and stay at the floor unless the bow
      * is enchanted.
      */
+    @SubscribeEvent
     private static void applyMiteProjectileDamage(LivingIncomingDamageEvent event) {
         if (event.getSource().getDirectEntity()
                         instanceof net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball fireball
@@ -138,6 +123,7 @@ public final class MonsterEvents {
      * MITE melee retaliation: punching a blaze or fire elemental without a tool always burns the
      * hand for one point; any other monster currently fighting back has a 1-in-8 chance.
      */
+    @SubscribeEvent
     private static void retaliateAgainstBareHands(net.neoforged.neoforge.event.entity.living.LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof Mob victim)
                 || !(victim instanceof Enemy)
@@ -162,6 +148,7 @@ public final class MonsterEvents {
     }
 
     /** MITE's conspicuous-cactus trigger, mapped to a real cactus hit in the modern damage pipeline. */
+    @SubscribeEvent
     private static void armCreeperFromCactus(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof MiteCreeper creeper)
                 || creeper.level().isClientSide()
@@ -174,67 +161,69 @@ public final class MonsterEvents {
     }
 
     private static void createAttributes(EntityAttributeCreationEvent event) {
-        event.put(InfinityXEntityTypes.R196_ZOMBIE.get(), MiteZombie.attributes(MiteZombie.Variant.ZOMBIE).build());
-        event.put(InfinityXEntityTypes.INVISIBLE_STALKER.get(), MiteZombie.attributes(MiteZombie.Variant.INVISIBLE_STALKER).build());
-        event.put(InfinityXEntityTypes.GHOUL.get(), MiteZombie.attributes(MiteZombie.Variant.GHOUL).build());
-        event.put(InfinityXEntityTypes.SHADOW.get(), MiteZombie.attributes(MiteZombie.Variant.SHADOW).build());
-        event.put(InfinityXEntityTypes.WIGHT.get(), MiteZombie.attributes(MiteZombie.Variant.WIGHT).build());
-        event.put(InfinityXEntityTypes.REVENANT.get(), MiteZombie.attributes(MiteZombie.Variant.REVENANT).build());
+        event.put(InfXEntityTypes.R196_ZOMBIE.get(), MiteZombie.attributes(MiteZombie.Variant.ZOMBIE).build());
+        event.put(InfXEntityTypes.INVISIBLE_STALKER.get(), MiteZombie.attributes(MiteZombie.Variant.INVISIBLE_STALKER).build());
+        event.put(InfXEntityTypes.GHOUL.get(), MiteZombie.attributes(MiteZombie.Variant.GHOUL).build());
+        event.put(InfXEntityTypes.SHADOW.get(), MiteZombie.attributes(MiteZombie.Variant.SHADOW).build());
+        event.put(InfXEntityTypes.WIGHT.get(), MiteZombie.attributes(MiteZombie.Variant.WIGHT).build());
+        event.put(InfXEntityTypes.REVENANT.get(), MiteZombie.attributes(MiteZombie.Variant.REVENANT).build());
 
-        event.put(InfinityXEntityTypes.R196_SKELETON.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.SKELETON).build());
-        event.put(InfinityXEntityTypes.LONGDEAD.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.LONGDEAD).build());
-        event.put(InfinityXEntityTypes.BONE_LORD.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.BONE_LORD).build());
-        event.put(InfinityXEntityTypes.ANCIENT_BONE_LORD.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.ANCIENT_BONE_LORD).build());
+        event.put(InfXEntityTypes.R196_SKELETON.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.SKELETON).build());
+        event.put(InfXEntityTypes.LONGDEAD.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.LONGDEAD).build());
+        event.put(InfXEntityTypes.BONE_LORD.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.BONE_LORD).build());
+        event.put(InfXEntityTypes.ANCIENT_BONE_LORD.get(), MiteSkeleton.attributes(MiteSkeleton.Variant.ANCIENT_BONE_LORD).build());
 
-        event.put(InfinityXEntityTypes.R196_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.SPIDER).build());
-        event.put(InfinityXEntityTypes.R196_CAVE_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.CAVE_SPIDER).build());
-        event.put(InfinityXEntityTypes.BLACK_WIDOW_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.BLACK_WIDOW).build());
-        event.put(InfinityXEntityTypes.DEMON_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.DEMON).build());
-        event.put(InfinityXEntityTypes.WOOD_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.WOOD).build());
-        event.put(InfinityXEntityTypes.PHASE_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.PHASE).build());
+        event.put(InfXEntityTypes.R196_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.SPIDER).build());
+        event.put(InfXEntityTypes.R196_CAVE_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.CAVE_SPIDER).build());
+        event.put(InfXEntityTypes.BLACK_WIDOW_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.BLACK_WIDOW).build());
+        event.put(InfXEntityTypes.DEMON_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.DEMON).build());
+        event.put(InfXEntityTypes.WOOD_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.WOOD).build());
+        event.put(InfXEntityTypes.PHASE_SPIDER.get(), MiteSpider.attributes(MiteSpider.Variant.PHASE).build());
 
-        event.put(InfinityXEntityTypes.R196_CREEPER.get(), MiteCreeper.attributes(MiteCreeper.Variant.CREEPER).build());
-        event.put(InfinityXEntityTypes.INFERNAL_CREEPER.get(), MiteCreeper.attributes(MiteCreeper.Variant.INFERNAL).build());
+        event.put(InfXEntityTypes.R196_CREEPER.get(), MiteCreeper.attributes(MiteCreeper.Variant.CREEPER).build());
+        event.put(InfXEntityTypes.INFERNAL_CREEPER.get(), MiteCreeper.attributes(MiteCreeper.Variant.INFERNAL).build());
 
-        event.put(InfinityXEntityTypes.R196_SLIME.get(), MiteSlime.attributes(MiteSlime.Variant.SLIME).build());
-        event.put(InfinityXEntityTypes.JELLY.get(), MiteSlime.attributes(MiteSlime.Variant.JELLY).build());
-        event.put(InfinityXEntityTypes.BLOB.get(), MiteSlime.attributes(MiteSlime.Variant.BLOB).build());
-        event.put(InfinityXEntityTypes.OOZE.get(), MiteSlime.attributes(MiteSlime.Variant.OOZE).build());
-        event.put(InfinityXEntityTypes.PUDDING.get(), MiteSlime.attributes(MiteSlime.Variant.PUDDING).build());
-        event.put(InfinityXEntityTypes.MAGMA_CUBE.get(), MiteMagmaCube.attributes().build());
+        event.put(InfXEntityTypes.R196_SLIME.get(), MiteSlime.attributes(MiteSlime.Variant.SLIME).build());
+        event.put(InfXEntityTypes.JELLY.get(), MiteSlime.attributes(MiteSlime.Variant.JELLY).build());
+        event.put(InfXEntityTypes.BLOB.get(), MiteSlime.attributes(MiteSlime.Variant.BLOB).build());
+        event.put(InfXEntityTypes.OOZE.get(), MiteSlime.attributes(MiteSlime.Variant.OOZE).build());
+        event.put(InfXEntityTypes.PUDDING.get(), MiteSlime.attributes(MiteSlime.Variant.PUDDING).build());
+        event.put(InfXEntityTypes.MAGMA_CUBE.get(), MiteMagmaCube.attributes().build());
 
-        for (var type : List.of(InfinityXEntityTypes.NETHERSPAWN, InfinityXEntityTypes.COPPERSPINE, InfinityXEntityTypes.HOARY_SILVERFISH)) {
+        for (var type : List.of(InfXEntityTypes.NETHERSPAWN, InfXEntityTypes.COPPERSPINE, InfXEntityTypes.HOARY_SILVERFISH)) {
             event.put(type.get(), MiteSilverfish.attributes().build());
         }
 
-        event.put(InfinityXEntityTypes.VAMPIRE_BAT.get(), MiteBat.attributes(MiteBat.Variant.VAMPIRE).build());
-        event.put(InfinityXEntityTypes.NIGHTWING.get(), MiteBat.attributes(MiteBat.Variant.NIGHTWING).build());
-        event.put(InfinityXEntityTypes.GIANT_VAMPIRE_BAT.get(), MiteBat.attributes(MiteBat.Variant.GIANT_VAMPIRE).build());
-        event.put(InfinityXEntityTypes.HELLHOUND.get(), MiteWolf.attributes(MiteWolf.Variant.HELLHOUND).build());
-        event.put(InfinityXEntityTypes.DIRE_WOLF.get(), MiteWolf.attributes(MiteWolf.Variant.DIRE_WOLF).build());
-        event.put(InfinityXEntityTypes.FIRE_ELEMENTAL.get(), FireElemental.attributes().build());
-        event.put(InfinityXEntityTypes.EARTH_ELEMENTAL.get(), EarthElemental.attributes().build());
-        event.put(InfinityXEntityTypes.CLAY_GOLEM.get(), ClayGolem.attributes().build());
+        event.put(InfXEntityTypes.VAMPIRE_BAT.get(), MiteBat.attributes(MiteBat.Variant.VAMPIRE).build());
+        event.put(InfXEntityTypes.NIGHTWING.get(), MiteBat.attributes(MiteBat.Variant.NIGHTWING).build());
+        event.put(InfXEntityTypes.GIANT_VAMPIRE_BAT.get(), MiteBat.attributes(MiteBat.Variant.GIANT_VAMPIRE).build());
+        event.put(InfXEntityTypes.HELLHOUND.get(), MiteWolf.attributes(MiteWolf.Variant.HELLHOUND).build());
+        event.put(InfXEntityTypes.DIRE_WOLF.get(), MiteWolf.attributes(MiteWolf.Variant.DIRE_WOLF).build());
+        event.put(InfXEntityTypes.FIRE_ELEMENTAL.get(), FireElemental.attributes().build());
+        event.put(InfXEntityTypes.EARTH_ELEMENTAL.get(), EarthElemental.attributes().build());
+        event.put(InfXEntityTypes.CLAY_GOLEM.get(), ClayGolem.attributes().build());
 
-        event.put(InfinityXEntityTypes.R196_ENDERMAN.get(), MiteEnderman.attributes().build());
-        event.put(InfinityXEntityTypes.R196_SQUID.get(), MiteSquid.attributes().build());
-        event.put(InfinityXEntityTypes.R196_COD.get(), MiteCod.attributes().build());
-        event.put(InfinityXEntityTypes.R196_SALMON.get(), MiteSalmon.attributes().build());
-        event.put(InfinityXEntityTypes.R196_PUFFERFISH.get(), MitePufferfish.attributes().build());
-        event.put(InfinityXEntityTypes.R196_TROPICAL_FISH.get(), MiteTropicalFish.attributes().build());
-        event.put(InfinityXEntityTypes.R196_WITCH.get(), MiteWitch.attributes().build());
-        event.put(InfinityXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), MiteZombifiedPiglin.attributes().build());
-        event.put(InfinityXEntityTypes.R196_BLAZE.get(), MiteBlaze.attributes().build());
-        event.put(InfinityXEntityTypes.R196_GHAST.get(), MiteGhast.attributes().build());
+        event.put(InfXEntityTypes.R196_ENDERMAN.get(), MiteEnderman.attributes().build());
+        event.put(InfXEntityTypes.R196_SQUID.get(), MiteSquid.attributes().build());
+        event.put(InfXEntityTypes.R196_COD.get(), MiteCod.attributes().build());
+        event.put(InfXEntityTypes.R196_SALMON.get(), MiteSalmon.attributes().build());
+        event.put(InfXEntityTypes.R196_PUFFERFISH.get(), MitePufferfish.attributes().build());
+        event.put(InfXEntityTypes.R196_TROPICAL_FISH.get(), MiteTropicalFish.attributes().build());
+        event.put(InfXEntityTypes.R196_WITCH.get(), MiteWitch.attributes().build());
+        event.put(InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), MiteZombifiedPiglin.attributes().build());
+        event.put(InfXEntityTypes.R196_BLAZE.get(), MiteBlaze.attributes().build());
+        event.put(InfXEntityTypes.R196_GHAST.get(), MiteGhast.attributes().build());
 
-        event.put(InfinityXEntityTypes.R196_COW.get(), MiteCow.attributes().build());
-        event.put(InfinityXEntityTypes.R196_CHICKEN.get(), MiteChicken.attributes().build());
-        event.put(InfinityXEntityTypes.R196_SHEEP.get(), MiteSheep.attributes().build());
-        event.put(InfinityXEntityTypes.R196_PIG.get(), MitePig.attributes().build());
-        event.put(InfinityXEntityTypes.R196_HORSE.get(), MiteHorse.attributes().build());
-        event.put(InfinityXEntityTypes.R196_OCELOT.get(), MiteOcelot.attributes().build());
-        event.put(InfinityXEntityTypes.R196_WOLF.get(), VanillaWolf.attributes().build());
+        event.put(InfXEntityTypes.R196_COW.get(), MiteCow.attributes().build());
+        event.put(InfXEntityTypes.R196_CHICKEN.get(), MiteChicken.attributes().build());
+        event.put(InfXEntityTypes.R196_SHEEP.get(), MiteSheep.attributes().build());
+        event.put(InfXEntityTypes.R196_PIG.get(), MitePig.attributes().build());
+        event.put(InfXEntityTypes.R196_HORSE.get(), MiteHorse.attributes().build());
+        event.put(InfXEntityTypes.R196_OCELOT.get(), MiteOcelot.attributes().build());
+        event.put(InfXEntityTypes.R196_WOLF.get(), VanillaWolf.attributes().build());
     }
+
+    @SubscribeEvent
 
     private static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
         event.register(
@@ -264,45 +253,45 @@ public final class MonsterEvents {
                 (type, level, reason, pos, random) -> !stoneAbove(level.getLevel(), pos),
                 RegisterSpawnPlacementsEvent.Operation.AND);
         for (var type : List.of(
-                InfinityXEntityTypes.INVISIBLE_STALKER,
-                InfinityXEntityTypes.GHOUL,
-                InfinityXEntityTypes.SHADOW,
-                InfinityXEntityTypes.WIGHT,
-                InfinityXEntityTypes.REVENANT)) {
+                InfXEntityTypes.INVISIBLE_STALKER,
+                InfXEntityTypes.GHOUL,
+                InfXEntityTypes.SHADOW,
+                InfXEntityTypes.WIGHT,
+                InfXEntityTypes.REVENANT)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        for (var type : List.of(InfinityXEntityTypes.LONGDEAD, InfinityXEntityTypes.BONE_LORD, InfinityXEntityTypes.ANCIENT_BONE_LORD)) {
+        for (var type : List.of(InfXEntityTypes.LONGDEAD, InfXEntityTypes.BONE_LORD, InfXEntityTypes.ANCIENT_BONE_LORD)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
-                InfinityXEntityTypes.BLACK_WIDOW_SPIDER,
-                InfinityXEntityTypes.DEMON_SPIDER,
-                InfinityXEntityTypes.WOOD_SPIDER,
-                InfinityXEntityTypes.PHASE_SPIDER)) {
+                InfXEntityTypes.BLACK_WIDOW_SPIDER,
+                InfXEntityTypes.DEMON_SPIDER,
+                InfXEntityTypes.WOOD_SPIDER,
+                InfXEntityTypes.PHASE_SPIDER)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        event.register(InfinityXEntityTypes.INFERNAL_CREEPER.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.INFERNAL_CREEPER.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> pos.getY() < 40
                         && Monster.checkMonsterSpawnRules(type, level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        for (var type : List.of(InfinityXEntityTypes.JELLY, InfinityXEntityTypes.BLOB, InfinityXEntityTypes.OOZE, InfinityXEntityTypes.PUDDING)) {
+        for (var type : List.of(InfXEntityTypes.JELLY, InfXEntityTypes.BLOB, InfXEntityTypes.OOZE, InfXEntityTypes.PUDDING)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        event.register(InfinityXEntityTypes.MAGMA_CUBE.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.MAGMA_CUBE.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> MagmaCube.checkMagmaCubeSpawnRules(
                         asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        for (var type : List.of(InfinityXEntityTypes.NETHERSPAWN, InfinityXEntityTypes.COPPERSPINE, InfinityXEntityTypes.HOARY_SILVERFISH)) {
+        for (var type : List.of(InfXEntityTypes.NETHERSPAWN, InfXEntityTypes.COPPERSPINE, InfXEntityTypes.HOARY_SILVERFISH)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        for (var type : List.of(InfinityXEntityTypes.VAMPIRE_BAT, InfinityXEntityTypes.NIGHTWING, InfinityXEntityTypes.GIANT_VAMPIRE_BAT)) {
+        for (var type : List.of(InfXEntityTypes.VAMPIRE_BAT, InfXEntityTypes.NIGHTWING, InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     (entityType, level, reason, pos, random) ->
                             net.minecraft.world.entity.ambient.Bat.checkBatSpawnRules(
@@ -310,48 +299,48 @@ public final class MonsterEvents {
                                     && checkR196BatDepth(entityType, level, pos),
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        event.register(InfinityXEntityTypes.HELLHOUND.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.HELLHOUND.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 MonsterEvents::checkR196MonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        event.register(InfinityXEntityTypes.DIRE_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.DIRE_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> Wolf.checkWolfSpawnRules(
                         asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        event.register(InfinityXEntityTypes.FIRE_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.FIRE_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> Mob.checkMobSpawnRules(type, level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        event.register(InfinityXEntityTypes.EARTH_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.EARTH_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 MonsterEvents::checkR196MonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        event.register(InfinityXEntityTypes.CLAY_GOLEM.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.CLAY_GOLEM.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 MonsterEvents::checkR196MonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
-        registerAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_COW.get());
-        registerAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_CHICKEN.get());
-        registerAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_SHEEP.get());
-        registerAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_PIG.get());
-        registerAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_HORSE.get());
-        event.register(InfinityXEntityTypes.R196_OCELOT.get(), SpawnPlacementTypes.ON_GROUND,
+        registerAnimalSpawnPlacement(event, InfXEntityTypes.R196_COW.get());
+        registerAnimalSpawnPlacement(event, InfXEntityTypes.R196_CHICKEN.get());
+        registerAnimalSpawnPlacement(event, InfXEntityTypes.R196_SHEEP.get());
+        registerAnimalSpawnPlacement(event, InfXEntityTypes.R196_PIG.get());
+        registerAnimalSpawnPlacement(event, InfXEntityTypes.R196_HORSE.get());
+        event.register(InfXEntityTypes.R196_OCELOT.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING,
                 (type, level, reason, pos, random) -> Ocelot.checkOcelotSpawnRules(
                         asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        event.register(InfinityXEntityTypes.R196_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
+        event.register(InfXEntityTypes.R196_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> Wolf.checkWolfSpawnRules(
                         asEntityType(type), level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
-        registerWaterAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_COD.get());
-        registerWaterAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_SALMON.get());
-        registerWaterAnimalSpawnPlacement(event, InfinityXEntityTypes.R196_PUFFERFISH.get());
+        registerWaterAnimalSpawnPlacement(event, InfXEntityTypes.R196_COD.get());
+        registerWaterAnimalSpawnPlacement(event, InfXEntityTypes.R196_SALMON.get());
+        registerWaterAnimalSpawnPlacement(event, InfXEntityTypes.R196_PUFFERFISH.get());
         event.register(
-                InfinityXEntityTypes.R196_TROPICAL_FISH.get(),
+                InfXEntityTypes.R196_TROPICAL_FISH.get(),
                 SpawnPlacementTypes.IN_WATER,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> TropicalFish.checkTropicalFishSpawnRules(
@@ -420,7 +409,7 @@ public final class MonsterEvents {
     private static boolean checkR196BatDepth(
             EntityType<? extends Mob> type, ServerLevelAccessor level, BlockPos pos) {
         ServerLevel serverLevel = level.getLevel();
-        int maximumY = type == InfinityXEntityTypes.NIGHTWING.get() ? 32 : 48;
+        int maximumY = type == InfXEntityTypes.NIGHTWING.get() ? 32 : 48;
         return serverLevel.dimension() != Level.OVERWORLD
                 || pos.getY() <= maximumY
                 || MoonPhase.at(serverLevel) == MoonPhase.BLOOD && !isDay(serverLevel);
@@ -491,6 +480,8 @@ public final class MonsterEvents {
         return (EntityType<T>) type;
     }
 
+    @SubscribeEvent
+
     private static void finalizeSpawn(FinalizeSpawnEvent event) {
         if (event.getEntity() instanceof EarthElemental elemental
                 && event.getSpawnType() != EntitySpawnReason.LOAD) {
@@ -511,6 +502,8 @@ public final class MonsterEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void attractToPlayerActivity(VanillaGameEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !(event.getCause() instanceof Player player)) return;
         double radius = MoonPhase.at(level) == MoonPhase.BLOOD ? 96.0 : 48.0;
@@ -529,6 +522,8 @@ public final class MonsterEvents {
             }
         }
     }
+
+    @SubscribeEvent
 
     private static void coordinateAndSeekLight(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof Mob mob)
@@ -583,6 +578,7 @@ public final class MonsterEvents {
      * Vanilla applies arrow gravity after movement. Restoring this amount after the tick gives
      * R196 skeleton arrows their tuned effective air gravity without altering any other arrow.
      */
+    @SubscribeEvent
     private static void reduceSkeletonArrowGravity(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow)
                 || !(arrow.getOwner() instanceof MiteSkeleton)
@@ -607,6 +603,8 @@ public final class MonsterEvents {
         return Math.floorMod(tickCount + entityId, LIGHT_SEARCH_INTERVAL) == 0;
     }
 
+    @SubscribeEvent
+
     private static void limitSpawnerPopulation(MobSpawnEvent.PositionCheck event) {
         if (event.getSpawnType() != EntitySpawnReason.SPAWNER
                 || !(event.getEntity().level() instanceof ServerLevel level)) {
@@ -628,6 +626,8 @@ public final class MonsterEvents {
         EntityType<?> secondCanonical = secondReplacement == null ? second : secondReplacement;
         return firstCanonical == secondCanonical;
     }
+
+    @SubscribeEvent
 
     private static void preventObservedDespawn(MobDespawnEvent event) {
         Mob mob = event.getEntity();
@@ -652,6 +652,8 @@ public final class MonsterEvents {
         }
         if (hasTarget || observed || specialEquipment) event.setResult(MobDespawnEvent.Result.DENY);
     }
+
+    @SubscribeEvent
 
     private static void replaceVanillaSpawn(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide()
@@ -683,30 +685,30 @@ public final class MonsterEvents {
         // class has no R196 curse lifecycle. Leave loaded entities alone to avoid silently
         // replacing persisted vanilla-witch state in existing worlds.
         if (original.getType() == EntityType.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
-            return InfinityXEntityTypes.R196_WITCH.get();
+            return InfXEntityTypes.R196_WITCH.get();
         }
         if (isWorldSpawn(original.getSpawnType())) {
             if (original.getType() == EntityType.CREEPER) {
                 int y = original.blockPosition().getY();
                 // MITE caps the infernal replacement odds at 50% even far below y=0.
                 if (y < 40 && original.getRandom().nextFloat() < Math.min(0.5F, Math.max(0, 40 - y) / 80.0F)) {
-                    return InfinityXEntityTypes.INFERNAL_CREEPER.get();
+                    return InfXEntityTypes.INFERNAL_CREEPER.get();
                 }
             }
             EntityType<? extends Mob> vanillaReplacement = replacementFor(original.getType());
             if (vanillaReplacement != null) return vanillaReplacement;
-            if (original.getType() == InfinityXEntityTypes.VAMPIRE_BAT.get()
+            if (original.getType() == InfXEntityTypes.VAMPIRE_BAT.get()
                     && level.dimension() == Underworld.LEVEL
                     && original.getRandom().nextInt(6) == 0) {
-                return InfinityXEntityTypes.GIANT_VAMPIRE_BAT.get();
+                return InfXEntityTypes.GIANT_VAMPIRE_BAT.get();
             }
         }
         if (original.getType() == EntityType.SILVERFISH
                 && original.getSpawnType() == EntitySpawnReason.TRIGGERED) {
-            if (level.dimension() == Level.NETHER) return InfinityXEntityTypes.NETHERSPAWN.get();
-            if (level.dimension() == Underworld.LEVEL) return InfinityXEntityTypes.HOARY_SILVERFISH.get();
+            if (level.dimension() == Level.NETHER) return InfXEntityTypes.NETHERSPAWN.get();
+            if (level.dimension() == Underworld.LEVEL) return InfXEntityTypes.HOARY_SILVERFISH.get();
             if (level.dimension() == Level.OVERWORLD && copperNear(level, original.blockPosition())) {
-                return InfinityXEntityTypes.COPPERSPINE.get();
+                return InfXEntityTypes.COPPERSPINE.get();
             }
         }
         return null;
@@ -777,7 +779,7 @@ public final class MonsterEvents {
         }
         if (!canSpawn) return false;
 
-        FireElemental elemental = InfinityXEntityTypes.FIRE_ELEMENTAL.get().create(level, EntitySpawnReason.EVENT);
+        FireElemental elemental = InfXEntityTypes.FIRE_ELEMENTAL.get().create(level, EntitySpawnReason.EVENT);
         if (elemental == null) return false;
         elemental.snapTo(lavaPos.getX() + 0.5D, lavaPos.getY() + 0.1D, lavaPos.getZ() + 0.5D, 0.0F, 0.0F);
         elemental.finalizeSpawn(
@@ -794,6 +796,8 @@ public final class MonsterEvents {
                         false)
                 != null;
     }
+
+    @SubscribeEvent
 
     private static void leadRangedProjectile(EntityJoinLevelEvent event) {
         if (!(event.getLevel() instanceof ServerLevel)
@@ -828,30 +832,30 @@ public final class MonsterEvents {
     }
 
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
-        if (original == EntityType.ZOMBIE) return InfinityXEntityTypes.R196_ZOMBIE.get();
-        if (original == EntityType.SKELETON) return InfinityXEntityTypes.R196_SKELETON.get();
-        if (original == EntityType.SPIDER) return InfinityXEntityTypes.R196_SPIDER.get();
-        if (original == EntityType.CAVE_SPIDER) return InfinityXEntityTypes.R196_CAVE_SPIDER.get();
-        if (original == EntityType.CREEPER) return InfinityXEntityTypes.R196_CREEPER.get();
-        if (original == EntityType.SLIME) return InfinityXEntityTypes.R196_SLIME.get();
-        if (original == EntityType.ENDERMAN) return InfinityXEntityTypes.R196_ENDERMAN.get();
-        if (original == EntityType.SQUID) return InfinityXEntityTypes.R196_SQUID.get();
-        if (original == EntityType.COD) return InfinityXEntityTypes.R196_COD.get();
-        if (original == EntityType.SALMON) return InfinityXEntityTypes.R196_SALMON.get();
-        if (original == EntityType.PUFFERFISH) return InfinityXEntityTypes.R196_PUFFERFISH.get();
-        if (original == EntityType.TROPICAL_FISH) return InfinityXEntityTypes.R196_TROPICAL_FISH.get();
-        if (original == EntityType.WITCH) return InfinityXEntityTypes.R196_WITCH.get();
-        if (original == EntityType.ZOMBIFIED_PIGLIN) return InfinityXEntityTypes.R196_ZOMBIFIED_PIGLIN.get();
-        if (original == EntityType.BLAZE) return InfinityXEntityTypes.R196_BLAZE.get();
-        if (original == EntityType.GHAST) return InfinityXEntityTypes.R196_GHAST.get();
-        if (original == EntityType.MAGMA_CUBE) return InfinityXEntityTypes.MAGMA_CUBE.get();
-        if (original == EntityType.COW) return InfinityXEntityTypes.R196_COW.get();
-        if (original == EntityType.CHICKEN) return InfinityXEntityTypes.R196_CHICKEN.get();
-        if (original == EntityType.SHEEP) return InfinityXEntityTypes.R196_SHEEP.get();
-        if (original == EntityType.PIG) return InfinityXEntityTypes.R196_PIG.get();
-        if (original == EntityType.HORSE) return InfinityXEntityTypes.R196_HORSE.get();
-        if (original == EntityType.OCELOT) return InfinityXEntityTypes.R196_OCELOT.get();
-        if (original == EntityType.WOLF) return InfinityXEntityTypes.R196_WOLF.get();
+        if (original == EntityType.ZOMBIE) return InfXEntityTypes.R196_ZOMBIE.get();
+        if (original == EntityType.SKELETON) return InfXEntityTypes.R196_SKELETON.get();
+        if (original == EntityType.SPIDER) return InfXEntityTypes.R196_SPIDER.get();
+        if (original == EntityType.CAVE_SPIDER) return InfXEntityTypes.R196_CAVE_SPIDER.get();
+        if (original == EntityType.CREEPER) return InfXEntityTypes.R196_CREEPER.get();
+        if (original == EntityType.SLIME) return InfXEntityTypes.R196_SLIME.get();
+        if (original == EntityType.ENDERMAN) return InfXEntityTypes.R196_ENDERMAN.get();
+        if (original == EntityType.SQUID) return InfXEntityTypes.R196_SQUID.get();
+        if (original == EntityType.COD) return InfXEntityTypes.R196_COD.get();
+        if (original == EntityType.SALMON) return InfXEntityTypes.R196_SALMON.get();
+        if (original == EntityType.PUFFERFISH) return InfXEntityTypes.R196_PUFFERFISH.get();
+        if (original == EntityType.TROPICAL_FISH) return InfXEntityTypes.R196_TROPICAL_FISH.get();
+        if (original == EntityType.WITCH) return InfXEntityTypes.R196_WITCH.get();
+        if (original == EntityType.ZOMBIFIED_PIGLIN) return InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get();
+        if (original == EntityType.BLAZE) return InfXEntityTypes.R196_BLAZE.get();
+        if (original == EntityType.GHAST) return InfXEntityTypes.R196_GHAST.get();
+        if (original == EntityType.MAGMA_CUBE) return InfXEntityTypes.MAGMA_CUBE.get();
+        if (original == EntityType.COW) return InfXEntityTypes.R196_COW.get();
+        if (original == EntityType.CHICKEN) return InfXEntityTypes.R196_CHICKEN.get();
+        if (original == EntityType.SHEEP) return InfXEntityTypes.R196_SHEEP.get();
+        if (original == EntityType.PIG) return InfXEntityTypes.R196_PIG.get();
+        if (original == EntityType.HORSE) return InfXEntityTypes.R196_HORSE.get();
+        if (original == EntityType.OCELOT) return InfXEntityTypes.R196_OCELOT.get();
+        if (original == EntityType.WOLF) return InfXEntityTypes.R196_WOLF.get();
         return null;
     }
 
@@ -865,6 +869,8 @@ public final class MonsterEvents {
                 || reason == EntitySpawnReason.TRIAL_SPAWNER;
     }
 
+    @SubscribeEvent
+
     private static void applyWitchMagicDefense(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof MiteWitch witch)
                 || event.getSource().getEntity() == witch
@@ -876,6 +882,8 @@ public final class MonsterEvents {
                 (container, vanillaReduction) -> MiteWitch.magicDefenseReduction(
                         event.getSource(), container.getNewDamage()));
     }
+
+    @SubscribeEvent
 
     private static void shareTarget(LivingChangeTargetEvent event) {
         if (sharingTarget || !(event.getEntity() instanceof MiteMob)
@@ -912,6 +920,8 @@ public final class MonsterEvents {
         return mob instanceof Enemy && !(mob instanceof MiteEnderman || mob instanceof MiteZombifiedPiglin);
     }
 
+    @SubscribeEvent
+
     private static void amplifyInfernalCreeperExplosion(ExplosionEvent.Start event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof MiteCreeper creeper)
                 || creeper.variant() != MiteCreeper.Variant.INFERNAL
@@ -937,6 +947,7 @@ public final class MonsterEvents {
     }
 
     /** Ordinary R196 creepers cannot crack stone; infernal creepers retain normal blast terrain damage. */
+    @SubscribeEvent
     private static void limitCreeperTerrainDamage(ExplosionEvent.Detonate event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof MiteCreeper creeper)) {
             return;
@@ -952,6 +963,7 @@ public final class MonsterEvents {
     }
 
     /** MITE netherspawn blasts leave their native netherrack and gold/quartz ore veins intact. */
+    @SubscribeEvent
     private static void protectNetherspawnTerrain(ExplosionEvent.Detonate event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof MiteSilverfish silverfish)
                 || silverfish.variant() != MiteSilverfish.Variant.NETHERSPAWN) {
@@ -959,5 +971,17 @@ public final class MonsterEvents {
         }
         event.getAffectedBlocks().removeIf(
                 pos -> MiteSilverfish.isNetherspawnExplosionProtected(event.getLevel().getBlockState(pos)));
+    }
+    @EventBusSubscriber(modid = InfiniteX.MOD_ID)
+    private static final class ModEvents {
+        @SubscribeEvent
+        private static void createAttributes(EntityAttributeCreationEvent event) {
+            MonsterEvents.createAttributes(event);
+        }
+
+        @SubscribeEvent
+        private static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+            MonsterEvents.registerSpawnPlacements(event);
+        }
     }
 }

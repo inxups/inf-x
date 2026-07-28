@@ -1,8 +1,13 @@
 package com.pixulse.infx.entity;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.pixulse.infx.item.equipment.CorrosionRules;
 import com.pixulse.infx.item.equipment.CorrosionType;
-import com.pixulse.infx.registry.InfinityXSounds;
+import com.pixulse.infx.registry.InfXSounds;
 import java.util.Comparator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -11,22 +16,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Server-side contact, item corrosion, and loot rules for R196 gelatinous cubes. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class GelatinousCubeEvents {
     private static final int CONTACT_INTERVAL = 20;
 
     private GelatinousCubeEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(GelatinousCubeEvents::onEntityTick);
-        gameBus.addListener(GelatinousCubeEvents::onLivingDamage);
-        gameBus.addListener(GelatinousCubeEvents::onLivingDrops);
-    }
+    @SubscribeEvent
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof MiteSlime slime)
@@ -71,7 +72,7 @@ public final class GelatinousCubeEvents {
         level.playSound(
                 null,
                 pos,
-                InfinityXSounds.GELATINOUS_CUBE_CORROSION.get(),
+                InfXSounds.GELATINOUS_CUBE_CORROSION.get(),
                 SoundSource.HOSTILE,
                 0.5F,
                 2.6F + (random.nextFloat() - random.nextFloat()) * 0.8F);
@@ -96,6 +97,8 @@ public final class GelatinousCubeEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || !(event.getEntity() instanceof MiteSlime slime)
@@ -106,6 +109,8 @@ public final class GelatinousCubeEvents {
         CorrosionRules.damageHeldItem(
                 player, slime.variant().corrosionType(), slime.variant().damageMultiplier());
     }
+
+    @SubscribeEvent
 
     private static void onLivingDrops(LivingDropsEvent event) {
         if (!(event.getEntity() instanceof MiteSlime slime) || !(slime.level() instanceof ServerLevel level)) {

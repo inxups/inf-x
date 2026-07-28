@@ -1,11 +1,15 @@
 package com.pixulse.infx.item.enchantment;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.registry.tag.InfXItemTags;
 import com.pixulse.infx.world.agriculture.AgricultureData;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.registry.InfinityXEnchantments;
-import com.pixulse.infx.registry.InfinityXMobEffects;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXMobEffects;
+
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -36,7 +40,6 @@ import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -49,6 +52,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** Runtime effects for R196's data-driven enchantment registrations. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class EnchantmentEvents {
     private static final net.minecraft.resources.Identifier SPEED = InfiniteX.id("enchantment_speed");
     private static final net.minecraft.resources.Identifier SLOWNESS_SPEED =
@@ -60,16 +64,7 @@ public final class EnchantmentEvents {
 
     private EnchantmentEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(EventPriority.HIGH, EnchantmentEvents::onIncomingDamage);
-        gameBus.addListener(EnchantmentEvents::onDamagePost);
-        gameBus.addListener(EnchantmentEvents::onLivingDrops);
-        gameBus.addListener(EnchantmentEvents::onBlockDrops);
-        gameBus.addListener(EnchantmentEvents::onBlockBroken);
-        gameBus.addListener(EnchantmentEvents::onToolModified);
-        gameBus.addListener(EnchantmentEvents::onEntityTick);
-        gameBus.addListener(EnchantmentEvents::onPlayerTick);
-    }
+    @SubscribeEvent(priority = EventPriority.HIGH)
 
     private static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
@@ -83,9 +78,11 @@ public final class EnchantmentEvents {
         }
 
         int slaughter = Enchantments.level(
-                attacker.level(), attacker.getMainHandItem(), InfinityXEnchantments.SLAUGHTER);
+                attacker.level(), attacker.getMainHandItem(), InfXEnchantments.SLAUGHTER);
         event.setAmount(event.getAmount() + EnchantmentRules.slaughterDamageBonus(slaughter));
     }
+
+    @SubscribeEvent
 
     private static void onDamagePost(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
@@ -114,7 +111,7 @@ public final class EnchantmentEvents {
         for (EquipmentSlot slot : new EquipmentSlot[]{
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
             ItemStack stack = target.getItemBySlot(slot);
-            int stackLevel = Enchantments.level(level, stack, InfinityXEnchantments.VANILLA_THORNS);
+            int stackLevel = Enchantments.level(level, stack, InfXEnchantments.VANILLA_THORNS);
             if (stackLevel > thorns) {
                 thorns = stackLevel;
                 thornsPiece = stack;
@@ -146,7 +143,7 @@ public final class EnchantmentEvents {
 
     private static void applyMeleeEffects(LivingEntity attacker, LivingEntity target, float healthDamage) {
         ItemStack weapon = attacker.getMainHandItem();
-        int stunning = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.STUNNING);
+        int stunning = Enchantments.level(attacker.level(), weapon, InfXEnchantments.STUNNING);
         if (stunning > 0 && attacker.getRandom().nextFloat() < EnchantmentRules.stunningChance(stunning)) {
             target.addEffect(new MobEffectInstance(
                     MobEffects.SLOWNESS,
@@ -154,7 +151,7 @@ public final class EnchantmentEvents {
                     EnchantmentRules.stunningAmplifier(stunning)), attacker);
         }
 
-        int disarming = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.DISARMING);
+        int disarming = Enchantments.level(attacker.level(), weapon, InfXEnchantments.DISARMING);
         if (attacker instanceof Player
                 && target instanceof Mob mob
                 && disarming > 0
@@ -162,7 +159,7 @@ public final class EnchantmentEvents {
             disarm(mob);
         }
 
-        int vampirism = Enchantments.level(attacker.level(), weapon, InfinityXEnchantments.VAMPIRISM);
+        int vampirism = Enchantments.level(attacker.level(), weapon, InfXEnchantments.VAMPIRISM);
         if (vampirism > 0
                 && isBiologicallyAlive(target)
                 && attacker.getRandom().nextFloat() < EnchantmentRules.vampirismChance(vampirism)) {
@@ -185,9 +182,11 @@ public final class EnchantmentEvents {
         return !BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(EntityTypeTags.UNDEAD);
     }
 
+    @SubscribeEvent
+
     private static void onLivingDrops(LivingDropsEvent event) {
         if (!event.isRecentlyHit() || !(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
-        int level = Enchantments.level(attacker.level(), attacker.getMainHandItem(), InfinityXEnchantments.BUTCHERING);
+        int level = Enchantments.level(attacker.level(), attacker.getMainHandItem(), InfXEnchantments.BUTCHERING);
         if (level <= 0) return;
 
         LivingEntity target = event.getEntity();
@@ -207,6 +206,8 @@ public final class EnchantmentEvents {
             addEntityDrop(event, new ItemStack(Items.SPIDER_EYE));
         }
     }
+
+    @SubscribeEvent
 
     private static void onBlockDrops(BlockDropsEvent event) {
         addHarvestingDrops(event);
@@ -229,7 +230,7 @@ public final class EnchantmentEvents {
     private static void addHarvestingDrops(BlockDropsEvent event) {
         Item crop = matureCropProduct(event.getState());
         if (crop == null) return;
-        int harvesting = Enchantments.level(event.getLevel(), event.getTool(), InfinityXEnchantments.HARVESTING);
+        int harvesting = Enchantments.level(event.getLevel(), event.getTool(), InfXEnchantments.HARVESTING);
         if (harvesting <= 0 || !event.getTool().isCorrectToolForDrops(event.getState())) return;
         for (ItemEntity original : List.copyOf(event.getDrops())) {
             if (!original.getItem().is(crop)) continue;
@@ -252,7 +253,7 @@ public final class EnchantmentEvents {
     }
 
     private static void addFortuneDrops(BlockDropsEvent event) {
-        int fortune = Enchantments.level(event.getLevel(), event.getTool(), InfinityXEnchantments.FORTUNE);
+        int fortune = Enchantments.level(event.getLevel(), event.getTool(), InfXEnchantments.FORTUNE);
         if (fortune <= 0) return;
 
         BlockState state = event.getState();
@@ -284,18 +285,20 @@ public final class EnchantmentEvents {
 
     private static boolean isFortuneOre(BlockState state) {
         return state.is(Tags.Blocks.ORES)
-                || state.is(InfinityXBlocks.SILVER_ORE.get())
-                || state.is(InfinityXBlocks.MITHRIL_ORE.get())
-                || state.is(InfinityXBlocks.ADAMANTIUM_ORE.get());
+                || state.is(InfXBlocks.SILVER_ORE.get())
+                || state.is(InfXBlocks.MITHRIL_ORE.get())
+                || state.is(InfXBlocks.ADAMANTIUM_ORE.get());
     }
+
+    @SubscribeEvent
 
     private static void onBlockBroken(BreakBlockEvent event) {
         if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel level)) return;
         fertilizeMatureCrop(event, level);
         if (felling || !event.getState().is(BlockTags.LOGS)) return;
         ItemStack tool = event.getPlayer().getMainHandItem();
-        if (!tool.is(InfinityXTags.Items.R196_TREE_FELLING_ENCHANTABLE)) return;
-        int enchantment = Enchantments.level(level, tool, InfinityXEnchantments.TREE_FELLING);
+        if (!tool.is(InfXItemTags.R196_TREE_FELLING_ENCHANTABLE)) return;
+        int enchantment = Enchantments.level(level, tool, InfXEnchantments.TREE_FELLING);
         if (enchantment <= 0) return;
         felling = true;
         try {
@@ -312,11 +315,13 @@ public final class EnchantmentEvents {
 
     private static void fertilizeMatureCrop(BreakBlockEvent event, ServerLevel level) {
         if (!(event.getState().getBlock() instanceof CropBlock crop) || !crop.isMaxAge(event.getState())) return;
-        int fertility = Enchantments.level(level, event.getPlayer().getMainHandItem(), InfinityXEnchantments.FERTILITY);
+        int fertility = Enchantments.level(level, event.getPlayer().getMainHandItem(), InfXEnchantments.FERTILITY);
         if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)) {
             AgricultureData.get(level).fertilize(event.getPos().below(), level.getGameTime());
         }
     }
+
+    @SubscribeEvent
 
     private static void onToolModified(BlockEvent.BlockToolModificationEvent event) {
         if (event.isSimulated()
@@ -324,11 +329,13 @@ public final class EnchantmentEvents {
                 || !(event.getLevel() instanceof ServerLevel level)
                 || event.getFinalState() == null
                 || !event.getFinalState().is(Blocks.FARMLAND)) return;
-        int fertility = Enchantments.level(level, event.getHeldItemStack(), InfinityXEnchantments.FERTILITY);
+        int fertility = Enchantments.level(level, event.getHeldItemStack(), InfXEnchantments.FERTILITY);
         if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)) {
             AgricultureData.get(level).fertilize(event.getPos(), level.getGameTime());
         }
     }
+
+    @SubscribeEvent
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof LivingEntity living) || living.level().isClientSide()) return;
@@ -349,9 +356,9 @@ public final class EnchantmentEvents {
 
     private static void applyFreeMovementResistance(LivingEntity entity) {
         MobEffectInstance slowness = entity.getEffect(MobEffects.SLOWNESS);
-        MobEffectInstance paralysis = entity.getEffect(InfinityXMobEffects.PARALYSIS);
+        MobEffectInstance paralysis = entity.getEffect(InfXMobEffects.PARALYSIS);
         if (slowness == null && paralysis == null) return;
-        int freeMovement = Enchantments.maxArmorLevel(entity, InfinityXEnchantments.FREE_MOVEMENT);
+        int freeMovement = Enchantments.maxArmorLevel(entity, InfXEnchantments.FREE_MOVEMENT);
         AttributeInstance movement = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         if (movement == null) return;
         replaceImpairmentModifier(
@@ -387,11 +394,13 @@ public final class EnchantmentEvents {
                 modifierId, adjusted, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
 
+    @SubscribeEvent
+
     private static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         var movement = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (movement == null) return;
-        int speed = Enchantments.maxArmorLevel(player, InfinityXEnchantments.SPEED);
+        int speed = Enchantments.maxArmorLevel(player, InfXEnchantments.SPEED);
         if (speed > 0) {
             movement.addOrUpdateTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
                     SPEED, speed * 0.05D,

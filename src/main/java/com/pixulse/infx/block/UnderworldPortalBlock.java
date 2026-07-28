@@ -2,8 +2,8 @@ package com.pixulse.infx.block;
 
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.player.ProgressionEvents;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.world.UnderworldPortalEvents;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.event.UnderworldPortalEvents;
 import com.pixulse.infx.world.RunegateTeleportation;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -88,8 +88,8 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
             if (adjacentFrame >= 2) runes.add(new RuneEntry(pos.immutable(), state));
         }
         if (runes.size() != 4) return Optional.empty();
-        boolean adamantium = runes.stream().allMatch(entry -> entry.state().is(InfinityXBlocks.ADAMANTIUM_RUNE_STONE.get()));
-        boolean mithril = runes.stream().allMatch(entry -> entry.state().is(InfinityXBlocks.MITHRIL_RUNE_STONE.get()));
+        boolean adamantium = runes.stream().allMatch(entry -> entry.state().is(InfXBlocks.ADAMANTIUM_RUNE_STONE.get()));
+        boolean mithril = runes.stream().allMatch(entry -> entry.state().is(InfXBlocks.MITHRIL_RUNE_STONE.get()));
         if (!adamantium && !mithril) return Optional.empty();
         runes.sort(Comparator.comparingInt((RuneEntry entry) -> entry.pos().getY())
                 .thenComparingInt(entry -> entry.pos().getX())

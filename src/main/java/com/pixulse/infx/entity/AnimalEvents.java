@@ -1,5 +1,10 @@
 package com.pixulse.infx.entity;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
@@ -7,7 +12,6 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
@@ -15,19 +19,19 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
  * Residual global animal hooks that are not owned by R196 replacement entity classes
  * (e.g. iron golem drop rewrite and livestock panic after a completed hit).
  */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AnimalEvents {
     private AnimalEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(AnimalEvents::onDamaged);
-        gameBus.addListener(AnimalEvents::onDrops);
-    }
+    @SubscribeEvent
 
     private static void onDamaged(LivingDamageEvent.Post event) {
         if (event.getEntity() instanceof Animal animal) {
             Livestock.onHurt(animal, event.getSource(), event.getOriginalDamage());
         }
     }
+
+    @SubscribeEvent
 
     private static void onDrops(LivingDropsEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;

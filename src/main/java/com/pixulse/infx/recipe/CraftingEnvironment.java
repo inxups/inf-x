@@ -3,7 +3,7 @@ package com.pixulse.infx.recipe;
 import com.pixulse.infx.effect.curse.CurseManager;
 import com.pixulse.infx.effect.curse.CurseType;
 import com.pixulse.infx.harvest.HarvestSpeedRules;
-import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfXEnchantments;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -22,7 +22,7 @@ public final class CraftingEnvironment {
             return true;
         }
         var enchantments = player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        return enchantments.get(InfinityXEnchantments.CLUMSINESS)
+        return enchantments.get(InfXEnchantments.CLUMSINESS)
                 .map(enchantment -> {
                     for (EquipmentSlot slot : EquipmentSlot.VALUES) {
                         var stack = player.getItemBySlot(slot);

@@ -1,6 +1,6 @@
 package com.pixulse.infx.recipe;
 
-import com.pixulse.infx.registry.InfinityXRecipes;
+import com.pixulse.infx.registry.InfXRecipes;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -31,6 +31,6 @@ public interface TimedCraftingRecipe extends Recipe<CraftingInput> {
 
     @Override
     default RecipeType<TimedCraftingRecipe> getType() {
-        return InfinityXRecipes.CRAFTING.get();
+        return InfXRecipes.CRAFTING.get();
     }
 }

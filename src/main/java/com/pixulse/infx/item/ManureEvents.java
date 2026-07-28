@@ -1,6 +1,11 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.registry.InfinityXItems;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.entity.Livestock;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -10,18 +15,16 @@ import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.cow.AbstractCow;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Server-authoritative livestock manure cycles from R196. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ManureEvents {
     private static final String COUNTDOWN_TAG = "infx_manure_countdown";
 
     private ManureEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(ManureEvents::onEntityTick);
-    }
+    @SubscribeEvent
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
@@ -38,7 +41,7 @@ public final class ManureEvents {
         var data = animal.getPersistentData();
         int countdown = data.getInt(COUNTDOWN_TAG).orElse(animal.getRandom().nextInt(interval));
         if (!animal.isBaby() && !Livestock.isDesperateForFood(animal) && --countdown <= 0) {
-            animal.spawnAtLocation(level, InfinityXItems.catalog().raw("manure").holder());
+            animal.spawnAtLocation(level, InfXItems.catalog().raw("manure").holder());
             countdown = interval / 2 + animal.getRandom().nextInt(interval);
         }
         data.putInt(COUNTDOWN_TAG, countdown);

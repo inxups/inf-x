@@ -9,13 +9,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.JukeboxSong;
 
-public final class InfinityXJukeboxSongs {
+public final class InfXJukeboxSongs {
     public static final ResourceKey<JukeboxSong> UNDERWORLD = key("underworld");
     public static final ResourceKey<JukeboxSong> DESCENT = key("descent");
     public static final ResourceKey<JukeboxSong> WANDERER = key("wanderer");
     public static final ResourceKey<JukeboxSong> LEGENDS = key("legends");
 
-    private InfinityXJukeboxSongs() {}
+    private InfXJukeboxSongs() {}
 
     private static ResourceKey<JukeboxSong> key(String name) {
         return ResourceKey.create(Registries.JUKEBOX_SONG, InfiniteX.id(name));
@@ -23,10 +23,10 @@ public final class InfinityXJukeboxSongs {
 
     public static void bootstrap(BootstrapContext<JukeboxSong> context) {
         HolderGetter<SoundEvent> sounds = context.lookup(Registries.SOUND_EVENT);
-        context.register(UNDERWORLD, song(sounds, InfinityXSounds.RECORD_UNDERWORLD.getKey(), "underworld", 122.906F, 11));
-        context.register(DESCENT, song(sounds, InfinityXSounds.RECORD_DESCENT.getKey(), "descent", 119.380F, 12));
-        context.register(WANDERER, song(sounds, InfinityXSounds.RECORD_WANDERER.getKey(), "wanderer", 123.768F, 13));
-        context.register(LEGENDS, song(sounds, InfinityXSounds.RECORD_LEGENDS.getKey(), "legends", 62.563F, 14));
+        context.register(UNDERWORLD, song(sounds, InfXSounds.RECORD_UNDERWORLD.getKey(), "underworld", 122.906F, 11));
+        context.register(DESCENT, song(sounds, InfXSounds.RECORD_DESCENT.getKey(), "descent", 119.380F, 12));
+        context.register(WANDERER, song(sounds, InfXSounds.RECORD_WANDERER.getKey(), "wanderer", 123.768F, 13));
+        context.register(LEGENDS, song(sounds, InfXSounds.RECORD_LEGENDS.getKey(), "legends", 62.563F, 14));
     }
 
     private static JukeboxSong song(

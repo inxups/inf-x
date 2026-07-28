@@ -4,7 +4,7 @@ import com.pixulse.infx.harvest.MiteMiningRules;
 import com.pixulse.infx.item.MiteArrowItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -55,7 +55,7 @@ public final class MobDamageRules {
         if (stack.isEmpty()) {
             return false;
         }
-        var equipment = InfinityXItems.catalog().equipment(stack);
+        var equipment = InfXItems.catalog().equipment(stack);
         if (equipment != null) {
             return MiteMiningRules.isEffective(equipment.key(), state);
         }
@@ -136,7 +136,7 @@ public final class MobDamageRules {
             return arrowItem.key().material() == MiteMaterial.SILVER;
         }
         if (source.getEntity() instanceof LivingEntity attacker) {
-            var entry = InfinityXItems.catalog().equipment(attacker.getMainHandItem());
+            var entry = InfXItems.catalog().equipment(attacker.getMainHandItem());
             return entry != null
                     && entry.key().material() == MiteMaterial.SILVER
                     && entry.key().type() != EquipmentType.ARROW;

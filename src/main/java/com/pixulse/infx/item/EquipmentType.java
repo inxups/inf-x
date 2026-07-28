@@ -1,7 +1,8 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.tag.InfinityXTags;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -208,7 +209,7 @@ public enum EquipmentType {
     public float blockDecay() { return blockDecay; }
 
     public float blockDecay(BlockState state) {
-        if (this == SCYTHE && state.is(InfinityXTags.Blocks.effectiveWith(MiningFamily.SCYTHE))) {
+        if (this == SCYTHE && state.is(InfXBlockTags.effectiveWith(MiningFamily.SCYTHE))) {
             return .5F;
         }
         if (this == KNIFE && state.is(BlockTags.SWORD_EFFICIENT)) {

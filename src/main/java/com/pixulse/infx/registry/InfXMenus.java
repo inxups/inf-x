@@ -15,7 +15,7 @@ import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class InfinityXMenus {
+public final class InfXMenus {
     private static final DeferredRegister<MenuType<?>> MENUS =
             DeferredRegister.create(Registries.MENU, InfiniteX.MOD_ID);
 
@@ -101,7 +101,7 @@ public final class InfinityXMenus {
             ADAMANTIUM_WORKBENCH,
             OBSIDIAN_WORKBENCH);
 
-    private InfinityXMenus() {}
+    private InfXMenus() {}
 
     public static DeferredHolder<MenuType<?>, MenuType<TimedWorkbenchMenu>> workbench(BenchTier tier) {
         return switch (tier) {

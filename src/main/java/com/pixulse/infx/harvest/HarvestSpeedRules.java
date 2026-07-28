@@ -3,9 +3,9 @@ package com.pixulse.infx.harvest;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.player.Experience;
-import com.pixulse.infx.registry.InfinityXAttachments;
-import com.pixulse.infx.registry.InfinityXEnchantments;
-import com.pixulse.infx.registry.InfinityXMobEffects;
+import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXMobEffects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.effect.MobEffectUtil;
@@ -48,7 +48,7 @@ public final class HarvestSpeedRules {
                             player.experienceLevel,
                             false,
                             false,
-                            !player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy(),
+                            !player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy(),
                             paralyzed,
                             inCobweb);
             strength = applyFreeMovementResistance(player, strength, paralyzed, inCobweb);
@@ -116,7 +116,7 @@ public final class HarvestSpeedRules {
             result *= (float) player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
         }
         if (!player.onGround()) result *= 0.2F;
-        if (!player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy()) result *= 0.2F;
+        if (!player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy()) result *= 0.2F;
         boolean paralyzed = isParalyzed(player);
         boolean inCobweb = isInCobweb(player);
         if (paralyzed) result *= 0.1F;
@@ -127,7 +127,7 @@ public final class HarvestSpeedRules {
     }
 
     public static boolean isParalyzed(Player player) {
-        if (player.hasEffect(InfinityXMobEffects.PARALYSIS)) return true;
+        if (player.hasEffect(InfXMobEffects.PARALYSIS)) return true;
         var slowness = player.getEffect(MobEffects.SLOWNESS);
         return slowness != null && slowness.getAmplifier() >= 4;
     }
@@ -141,7 +141,7 @@ public final class HarvestSpeedRules {
 
     private static float applyFreeMovementResistance(
             Player player, float strength, boolean paralyzed, boolean inCobweb) {
-        int freeMovement = Enchantments.maxArmorLevel(player, InfinityXEnchantments.FREE_MOVEMENT);
+        int freeMovement = Enchantments.maxArmorLevel(player, InfXEnchantments.FREE_MOVEMENT);
         if (freeMovement <= 0) return strength;
         float correction = EnchantmentRules.reducedImpairmentMultiplier(0.1F, freeMovement) / 0.1F;
         if (paralyzed) strength *= correction;

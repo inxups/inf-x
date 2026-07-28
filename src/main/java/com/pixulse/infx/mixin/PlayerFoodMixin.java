@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.registry.InfinityXAttachments;
+import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.food.SurvivalRules;
 import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ abstract class PlayerFoodMixin {
     @Inject(method = "canEat", at = @At("HEAD"), cancellable = true)
     private void infx$useNutritionCap(boolean ignoreHunger, CallbackInfoReturnable<Boolean> callback) {
         Player player = (Player) (Object) this;
-        var survival = player.getData(InfinityXAttachments.SURVIVAL);
+        var survival = player.getData(InfXAttachments.SURVIVAL);
         double cap = SurvivalRules.foodCap(player.experienceLevel);
         callback.setReturnValue(ignoreHunger || survival.satiation() < cap || survival.nutrition() < cap);
     }
@@ -24,6 +24,6 @@ abstract class PlayerFoodMixin {
     private void infx$useR196EnergyForExhaustiveManoeuvres(CallbackInfoReturnable<Boolean> callback) {
         Player player = (Player) (Object) this;
         callback.setReturnValue(
-                player.getAbilities().mayfly || player.getData(InfinityXAttachments.SURVIVAL).hasFoodEnergy());
+                player.getAbilities().mayfly || player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy());
     }
 }

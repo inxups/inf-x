@@ -3,7 +3,7 @@ package com.pixulse.infx.item;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.pixulse.infx.item.material.MiteMaterial;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.Map;
 import net.minecraft.world.entity.EntityType;
 import org.junit.jupiter.api.Test;
@@ -48,10 +48,10 @@ class BucketRulesTest {
 
     @Test
     void fishBucketsReleaseReplacementEntitiesAndMigrateLegacyFish() {
-        assertEquals(InfinityXEntityTypes.R196_COD.get(), MobBucketKind.COD.entityType());
-        assertEquals(InfinityXEntityTypes.R196_SALMON.get(), MobBucketKind.SALMON.entityType());
-        assertEquals(InfinityXEntityTypes.R196_PUFFERFISH.get(), MobBucketKind.PUFFERFISH.entityType());
-        assertEquals(InfinityXEntityTypes.R196_TROPICAL_FISH.get(), MobBucketKind.TROPICAL.entityType());
+        assertEquals(InfXEntityTypes.R196_COD.get(), MobBucketKind.COD.entityType());
+        assertEquals(InfXEntityTypes.R196_SALMON.get(), MobBucketKind.SALMON.entityType());
+        assertEquals(InfXEntityTypes.R196_PUFFERFISH.get(), MobBucketKind.PUFFERFISH.entityType());
+        assertEquals(InfXEntityTypes.R196_TROPICAL_FISH.get(), MobBucketKind.TROPICAL.entityType());
         assertEquals(MobBucketKind.COD, MobBucketKind.of(EntityType.COD));
         assertEquals(MobBucketKind.SALMON, MobBucketKind.of(EntityType.SALMON));
         assertEquals(MobBucketKind.PUFFERFISH, MobBucketKind.of(EntityType.PUFFERFISH));

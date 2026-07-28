@@ -1,9 +1,12 @@
 package com.pixulse.infx.player;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.world.Underworld;
@@ -28,7 +31,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.brewing.PlayerBrewedPotionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -40,6 +42,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ProgressionEvents {
     private static final Identifier ACQUIRE_IRON = InfiniteX.id("progression/acquire_iron");
     private static final String SMELTED_IRON_CRITERION = "smelted_iron";
@@ -57,20 +60,7 @@ public final class ProgressionEvents {
         }
     }
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(ProgressionEvents::onItemSmelted);
-        gameBus.addListener(ProgressionEvents::onItemCrafted);
-        gameBus.addListener(ProgressionEvents::onItemPickup);
-        gameBus.addListener(ProgressionEvents::onLivingDeath);
-        gameBus.addListener(ProgressionEvents::onLivingDamage);
-        gameBus.addListener(ProgressionEvents::onItemFinished);
-        gameBus.addListener(ProgressionEvents::onPotionBrewed);
-        gameBus.addListener(ProgressionEvents::onWrittenBookOpened);
-        gameBus.addListener(ProgressionEvents::onDimensionChanged);
-        gameBus.addListener(ProgressionEvents::onBlockBroken);
-        gameBus.addListener(ProgressionEvents::onPlayerTick);
-        gameBus.addListener(ProgressionEvents::onLivingFall);
-    }
+    @SubscribeEvent
 
     private static void onItemSmelted(PlayerEvent.ItemSmeltedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || event.getAmountRemoved() <= 0) {
@@ -78,13 +68,15 @@ public final class ProgressionEvents {
         }
         ItemStack result = event.getSmelting();
         if (result.is(Items.IRON_INGOT)) award(player, "acquire_iron", SMELTED_IRON_CRITERION);
-        if (result.is(InfinityXItems.MITHRIL_INGOT)) award(player, "mithril_ingot", "smelted_mithril");
-        if (result.is(InfinityXItems.ADAMANTIUM_INGOT)) award(player, "adamantium_ingot", "smelted_adamantium");
+        if (result.is(InfXItems.MITHRIL_INGOT)) award(player, "mithril_ingot", "smelted_mithril");
+        if (result.is(InfXItems.ADAMANTIUM_INGOT)) award(player, "adamantium_ingot", "smelted_adamantium");
         if (result.is(Items.BREAD)) award(player, "make_bread", "smelted_bread");
         if (result.is(Items.COOKED_COD) || result.is(Items.COOKED_SALMON)) {
             award(player, "cook_fish", "smelted_fish");
         }
     }
+
+    @SubscribeEvent
 
     private static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -92,17 +84,17 @@ public final class ProgressionEvents {
         Identifier id = BuiltInRegistries.ITEM.getKey(crafted.getItem());
         String path = id.getPath();
         if (path.equals("flour")) award(player, "flour", "crafted_flour");
-        if (crafted.is(InfinityXItems.DIAMOND_ENCHANTING_TABLE.get())) {
+        if (crafted.is(InfXItems.DIAMOND_ENCHANTING_TABLE.get())) {
             award(player, "enchantments", "diamond_path");
         }
-        if (crafted.is(InfinityXItems.EMERALD_ENCHANTING_TABLE.get())) {
+        if (crafted.is(InfXItems.EMERALD_ENCHANTING_TABLE.get())) {
             award(player, "enchantments", "emerald_path");
         }
         if ((path.contains("salad") || path.contains("soup") || path.contains("stew"))
                 || crafted.is(Items.MUSHROOM_STEW)) {
             award(player, "fine_dining", "crafted_fine_food");
         }
-        var entry = InfinityXItems.catalog().equipment(crafted);
+        var entry = InfXItems.catalog().equipment(crafted);
         if (entry != null
                 && entry.key().material() == MiteMaterial.ADAMANTIUM
                 && (entry.key().type() == EquipmentType.PICKAXE
@@ -110,6 +102,8 @@ public final class ProgressionEvents {
             award(player, "crystal_breaker", "crafted_crystal_tool");
         }
     }
+
+    @SubscribeEvent
 
     private static void onItemPickup(ItemEntityPickupEvent.Post event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
@@ -122,27 +116,29 @@ public final class ProgressionEvents {
         if (stack.is(Items.EMERALD)) award(player, "emeralds", "picked_up_emerald");
         if (stack.is(Items.BLAZE_ROD)) award(player, "blaze_rod", "picked_up_blaze_rod");
         if (stack.is(ItemTags.VILLAGER_PLANTABLE_SEEDS)
-                || stack.is(InfinityXItems.BLUEBERRIES.get())
-                || stack.is(InfinityXItems.WORM.get())) {
+                || stack.is(InfXItems.BLUEBERRIES.get())
+                || stack.is(InfXItems.WORM.get())) {
             award(player, "seeds", "picked_up_seed");
         }
     }
 
     private static boolean isR196MetalNugget(ItemStack stack) {
         return stack.is(Items.COPPER_NUGGET)
-                || stack.is(InfinityXItems.SILVER_NUGGET)
+                || stack.is(InfXItems.SILVER_NUGGET)
                 || stack.is(Items.GOLD_NUGGET)
                 || stack.is(Items.IRON_NUGGET)
-                || stack.is(InfinityXItems.MITHRIL_NUGGET)
-                || stack.is(InfinityXItems.ADAMANTIUM_NUGGET);
+                || stack.is(InfXItems.MITHRIL_NUGGET)
+                || stack.is(InfXItems.ADAMANTIUM_NUGGET);
     }
+
+    @SubscribeEvent
 
     private static void onLivingDeath(LivingDeathEvent event) {
         if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
         if (event.getEntity() instanceof Enemy) award(player, "kill_enemy", "killed_enemy");
         if (event.getSource().getDirectEntity() instanceof AbstractArrow
                 && (event.getEntity().getType() == EntityType.SKELETON
-                        || event.getEntity().getType() == InfinityXEntityTypes.R196_SKELETON.get())) {
+                        || event.getEntity().getType() == InfXEntityTypes.R196_SKELETON.get())) {
             double dx = player.getX() - event.getEntity().getX();
             double dz = player.getZ() - event.getEntity().getZ();
             if (dx * dx + dz * dz >= 2_500.0) {
@@ -150,12 +146,14 @@ public final class ProgressionEvents {
             }
         }
         if ((event.getEntity().getType() == EntityType.GHAST
-                        || event.getEntity().getType() == InfinityXEntityTypes.R196_GHAST.get())
+                        || event.getEntity().getType() == InfXEntityTypes.R196_GHAST.get())
                 && event.getSource().getDirectEntity() instanceof LargeFireball fireball
                 && fireball.getOwner() == player) {
             award(player, "ghast", "reflected_fireball_kill");
         }
     }
+
+    @SubscribeEvent
 
     private static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player
@@ -165,11 +163,15 @@ public final class ProgressionEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void onItemFinished(LivingEntityUseItemEvent.Finish event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getItem().is(Items.EGG)) {
             award(player, "eggs", "ate_raw_egg");
         }
     }
+
+    @SubscribeEvent
 
     private static void onPotionBrewed(PlayerBrewedPotionEvent event) {
         var contents = event.getStack().get(DataComponents.POTION_CONTENTS);
@@ -181,6 +183,8 @@ public final class ProgressionEvents {
             award(player, "potion", "brewed_potion");
         }
     }
+
+    @SubscribeEvent
 
     private static void onWrittenBookOpened(PlayerInteractEvent.RightClickItem event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
@@ -210,6 +214,8 @@ public final class ProgressionEvents {
     static boolean allCreationBooksRead(int mask) {
         return CreationBooks.complete(mask);
     }
+
+    @SubscribeEvent
 
     private static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -241,15 +247,19 @@ public final class ProgressionEvents {
         return fromEnd && seenCredits && dragonKilled;
     }
 
+    @SubscribeEvent
+
     private static void onBlockBroken(BreakBlockEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         for (Direction direction : Direction.values()) {
-            if (player.level().getBlockState(event.getPos().relative(direction)).is(InfinityXBlocks.MANTLE.get())) {
+            if (player.level().getBlockState(event.getPos().relative(direction)).is(InfXBlocks.MANTLE.get())) {
                 award(player, "portal_to_nether", "found_mantle");
                 return;
             }
         }
     }
+
+    @SubscribeEvent
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || player.tickCount % 20 != 0) return;
@@ -303,7 +313,7 @@ public final class ProgressionEvents {
     private static boolean hasNearbyMantle(ServerPlayer player) {
         BlockPos origin = player.blockPosition();
         for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-4, -4, -4), origin.offset(4, 4, 4))) {
-            if (player.level().getBlockState(pos).is(InfinityXBlocks.MANTLE.get())) return true;
+            if (player.level().getBlockState(pos).is(InfXBlocks.MANTLE.get())) return true;
         }
         return false;
     }
@@ -319,6 +329,8 @@ public final class ProgressionEvents {
         }
         return true;
     }
+
+    @SubscribeEvent
 
     private static void onLivingFall(LivingFallEvent event) {
         if (event.getEntity() instanceof Pig pig

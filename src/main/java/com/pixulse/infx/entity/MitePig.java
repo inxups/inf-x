@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.registry.InfinityXEntityTypes;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -85,6 +85,6 @@ public final class MitePig extends Pig {
 
     @Override
     public @Nullable Pig getBreedOffspring(ServerLevel level, AgeableMob partner) {
-        return InfinityXEntityTypes.R196_PIG.get().create(level, EntitySpawnReason.BREEDING);
+        return InfXEntityTypes.R196_PIG.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

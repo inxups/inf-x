@@ -2,8 +2,8 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.registry.InfinityXItems;
-import com.pixulse.infx.registry.InfinityXLootModifiers;
+import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXLootModifiers;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -46,7 +46,7 @@ public final class GlassShardLootModifier extends LootModifier {
             return generatedLoot;
         }
 
-        ItemStack shards = InfinityXItems.catalog().raw("glass_shard").holder().toStack(count);
+        ItemStack shards = InfXItems.catalog().raw("glass_shard").holder().toStack(count);
         generatedLoot.add(shards);
         return generatedLoot;
     }
@@ -62,6 +62,6 @@ public final class GlassShardLootModifier extends LootModifier {
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return InfinityXLootModifiers.GLASS_SHARDS.get();
+        return InfXLootModifiers.GLASS_SHARDS.get();
     }
 }

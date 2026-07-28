@@ -1,7 +1,13 @@
-package com.pixulse.infx.world;
+package com.pixulse.infx.event;
+
+import com.pixulse.infx.world.PhysicsRules;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.item.MiteBucketItem;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,7 +31,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -35,22 +40,13 @@ import net.neoforged.neoforge.event.level.block.CreateFluidSourceEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Loose terrain, explosion conversion, falling impact and R196 fluid restrictions. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class PhysicsEvents {
     private static boolean updatingGravity;
 
     private PhysicsEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(PhysicsEvents::onNeighborUpdate);
-        gameBus.addListener(PhysicsEvents::onBlockPlaced);
-        gameBus.addListener(PhysicsEvents::onEntityTick);
-        gameBus.addListener(PhysicsEvents::onExplosion);
-        gameBus.addListener(PhysicsEvents::onProjectileImpact);
-        gameBus.addListener(PhysicsEvents::onLivingFall);
-        gameBus.addListener(PhysicsEvents::coverFragileBlock);
-        gameBus.addListener(PhysicsEvents::restrictFluidSources);
-        gameBus.addListener(PhysicsEvents::meltLavaBucket);
-    }
+    @SubscribeEvent
 
     private static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || updatingGravity) return;
@@ -58,9 +54,13 @@ public final class PhysicsEvents {
         for (Direction direction : event.getNotifiedSides()) tryFall(level, event.getPos().relative(direction));
     }
 
+    @SubscribeEvent
+
     private static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
         if (event.getLevel() instanceof ServerLevel level) tryFall(level, event.getPos());
     }
+
+    @SubscribeEvent
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
@@ -93,7 +93,7 @@ public final class PhysicsEvents {
         ItemStack stack = entity.getItem();
         if (stack.getItem() instanceof MiteBucketItem bucket) {
             if (bucket.contents() == MiteBucketItem.Contents.LAVA) {
-                entity.setItem(InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
+                entity.setItem(InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
                         .toStack(stack.getCount()));
                 entity.level()
                         .playSound(
@@ -105,7 +105,7 @@ public final class PhysicsEvents {
                                 1.0F);
             } else if (bucket.contents() != MiteBucketItem.Contents.STONE
                     && bucket.contents() != MiteBucketItem.Contents.WATER) {
-                entity.setItem(InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.WATER)
+                entity.setItem(InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.WATER)
                         .toStack(stack.getCount()));
             }
             return;
@@ -129,6 +129,8 @@ public final class PhysicsEvents {
             updatingGravity = false;
         }
     }
+
+    @SubscribeEvent
 
     private static void onExplosion(ExplosionEvent.Detonate event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -169,6 +171,8 @@ public final class PhysicsEvents {
         else stack.setDamageValue(damage);
     }
 
+    @SubscribeEvent
+
     private static void onProjectileImpact(ProjectileImpactEvent event) {
         if (!(event.getProjectile() instanceof AbstractArrow)
                 || !(event.getRayTraceResult() instanceof BlockHitResult hit)
@@ -179,6 +183,8 @@ public final class PhysicsEvents {
         }
     }
 
+    @SubscribeEvent
+
     private static void onLivingFall(LivingFallEvent event) {
         BlockPos landing = event.getEntity().blockPosition().below();
         BlockState state = event.getEntity().level().getBlockState(landing);
@@ -186,6 +192,8 @@ public final class PhysicsEvents {
                 * PhysicsRules.snowLayerMultiplier(state);
         event.setDamageMultiplier(event.getDamageMultiplier() * multiplier);
     }
+
+    @SubscribeEvent
 
     private static void coverFragileBlock(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
@@ -197,6 +205,8 @@ public final class PhysicsEvents {
         event.setCanceled(true);
     }
 
+    @SubscribeEvent
+
     private static void restrictFluidSources(CreateFluidSourceEvent event) {
         boolean dispenser = false;
         for (Direction direction : Direction.values()) {
@@ -207,6 +217,8 @@ public final class PhysicsEvents {
         }
         event.setCanConvert(dispenser);
     }
+
+    @SubscribeEvent
 
     private static void meltLavaBucket(PlayerInteractEvent.RightClickBlock event) {
         if (!(event.getLevel() instanceof ServerLevel level)
@@ -226,13 +238,13 @@ public final class PhysicsEvents {
                     && bucket.contents() == MiteBucketItem.Contents.LAVA) {
                 player.getInventory().setItem(
                         slot,
-                        InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
+                        InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
                                 .toStack(stack.getCount()));
             } else if (stack.getItem() instanceof MiteBucketItem bucket
                     && bucket.contents() == MiteBucketItem.Contents.MILK) {
                 player.getInventory().setItem(
                         slot,
-                        InfinityXItems.bucket(bucket.material(), MiteBucketItem.Contents.EMPTY)
+                        InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.EMPTY)
                                 .toStack(stack.getCount()));
             } else if (stack.is(Items.LAVA_BUCKET)) {
                 player.getInventory().setItem(slot, new ItemStack(Items.OBSIDIAN, stack.getCount()));

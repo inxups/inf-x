@@ -6,9 +6,9 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.MobBucketKind;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.InfinityXBlocks;
-import com.pixulse.infx.registry.InfinityXEntityTypes;
-import com.pixulse.infx.registry.InfinityXItems;
+import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.InfXItems;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -405,7 +405,7 @@ final class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        InfinityXItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
+        InfXItems.catalog().entries().forEach(entry -> add("item.infx." + entry.path(), locale.name(entry)));
         FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         GELATINOUS_SPHERE_NAMES.forEach(
                 (path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
@@ -413,7 +413,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 add("curse.infx." + path + ".name", names[locale == Locale.EN_US ? 0 : 1]));
         CURSE_DESCRIPTIONS.forEach((path, descriptions) ->
                 add("curse.infx." + path + ".desc", descriptions[locale == Locale.EN_US ? 0 : 1]));
-        for (var material : InfinityXItems.BUCKET_MATERIALS) {
+        for (var material : InfXItems.BUCKET_MATERIALS) {
             for (var contents : MiteBucketItem.Contents.values()) {
                 String englishContents = switch (contents) {
                     case EMPTY -> "";
@@ -465,7 +465,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
                 : "重连受限：请等待次日调整时刻 %s 左右（至少 %s 秒）");
         ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
-        InfinityXEntityTypes.names().forEach(entity -> {
+        InfXEntityTypes.names().forEach(entity -> {
             add(
                     "entity.infx." + entity.path(),
                     locale == Locale.EN_US ? entity.english() : entity.chinese());
@@ -485,7 +485,7 @@ final class ModLanguageProvider extends LanguageProvider {
                             ? "Complete the R196 requirement: " + name
                             : "完成 R196 条件：" + name);
         });
-        for (var anvil : InfinityXBlocks.METAL_ANVILS) {
+        for (var anvil : InfXBlocks.METAL_ANVILS) {
             String material = anvil.get().material().path();
             String name = locale == Locale.EN_US
                     ? anvil.get().material().englishNoun() + " Anvil"
@@ -502,7 +502,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.adamantium_rune_stone", locale == Locale.EN_US ? "Adamantium Rune Stone" : "艾德曼符文石");
         add("block.infx.emerald_enchanting_table", locale == Locale.EN_US ? "Emerald Enchanting Table" : "绿宝石附魔台");
         add("block.infx.diamond_enchanting_table", locale == Locale.EN_US ? "Diamond Enchanting Table" : "钻石附魔台");
-        for (var safe : InfinityXBlocks.METAL_SAFES) {
+        for (var safe : InfXBlocks.METAL_SAFES) {
             String material = safe.get().material().path();
             String name = locale == Locale.EN_US
                     ? safe.get().material().englishNoun() + " Safe"

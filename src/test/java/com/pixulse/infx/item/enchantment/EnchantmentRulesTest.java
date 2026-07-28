@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.registry.InfinityXEnchantments;
+import com.pixulse.infx.registry.InfXEnchantments;
 import net.minecraft.util.RandomSource;
 import org.junit.jupiter.api.Test;
 
@@ -129,11 +129,11 @@ class EnchantmentRulesTest {
 
     @Test
     void selectorUsesOnlyTheFixedR196CandidatePool() {
-        assertSame(InfinityXEnchantments.ALL, EnchantmentSelector.candidateKeys());
+        assertSame(InfXEnchantments.ALL, EnchantmentSelector.candidateKeys());
         assertEquals(39, EnchantmentSelector.candidateKeys().size());
-        assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfinityXEnchantments.R196));
-        assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfinityXEnchantments.VANILLA_R196));
-        assertFalse(EnchantmentSelector.candidateKeys().contains(InfinityXEnchantments.CLUMSINESS));
+        assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.R196));
+        assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.VANILLA_R196));
+        assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.CLUMSINESS));
     }
 
     @Test

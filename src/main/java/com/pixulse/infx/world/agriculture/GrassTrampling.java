@@ -1,8 +1,13 @@
 package com.pixulse.infx.world.agriculture;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import com.mojang.serialization.Codec;
 import com.pixulse.infx.entity.Livestock;
-import com.pixulse.infx.registry.InfinityXAttachments;
+import com.pixulse.infx.registry.InfXAttachments;
 import it.unimi.dsi.fastutil.longs.Long2ByteMap;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import java.util.HashMap;
@@ -18,7 +23,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
@@ -27,6 +31,7 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
  * <p>Trampling count is stored per grass block on the chunk attachment (0-15), matching
  * MITE {@code BlockGrass} metadata bits. Color blend uses the same brown target (134, 96, 67).
  */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class GrassTrampling {
     public static final int MAX_TRAMPLINGS = 15;
     /** MITE brown manure grass target RGB. */
@@ -44,9 +49,7 @@ public final class GrassTrampling {
 
     private GrassTrampling() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(GrassTrampling::onEntityTick);
-    }
+    @SubscribeEvent
 
     private static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
@@ -125,7 +128,7 @@ public final class GrassTrampling {
             return 0;
         }
         LevelChunk chunk = level.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
-        Map<String, Integer> map = chunk.getExistingDataOrNull(InfinityXAttachments.GRASS_TRAMPLING.get());
+        Map<String, Integer> map = chunk.getExistingDataOrNull(InfXAttachments.GRASS_TRAMPLING.get());
         if (map == null || map.isEmpty()) {
             return 0;
         }
@@ -134,7 +137,7 @@ public final class GrassTrampling {
 
     public static void setTramplings(ServerLevel level, BlockPos pos, int tramplings) {
         LevelChunk chunk = level.getChunk(pos.getX() >> 4, pos.getZ() >> 4);
-        Map<String, Integer> current = chunk.getData(InfinityXAttachments.GRASS_TRAMPLING);
+        Map<String, Integer> current = chunk.getData(InfXAttachments.GRASS_TRAMPLING);
         Map<String, Integer> next = new HashMap<>(current);
         int clamped = Mth.clamp(tramplings, 0, MAX_TRAMPLINGS);
         String k = key(pos);
@@ -143,7 +146,7 @@ public final class GrassTrampling {
         } else {
             next.put(k, clamped);
         }
-        chunk.setData(InfinityXAttachments.GRASS_TRAMPLING, Map.copyOf(next));
+        chunk.setData(InfXAttachments.GRASS_TRAMPLING, Map.copyOf(next));
         // Force client block color refresh without changing state.
         BlockState grass = level.getBlockState(pos);
         level.sendBlockUpdated(pos, grass, grass, 2);

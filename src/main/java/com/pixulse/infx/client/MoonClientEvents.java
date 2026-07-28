@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.world.MoonEvents;
+import com.pixulse.infx.event.MoonEvents;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;

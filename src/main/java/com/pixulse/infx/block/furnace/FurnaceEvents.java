@@ -1,16 +1,19 @@
 package com.pixulse.infx.block.furnace;
 
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class FurnaceEvents {
     private FurnaceEvents() {}
 
-    public static void register(IEventBus gameBus) {
-        gameBus.addListener(FurnaceEvents::onRightClickBlock);
-    }
+    @SubscribeEvent
 
     private static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         BlockState state = event.getEntity().level().getBlockState(event.getPos());
