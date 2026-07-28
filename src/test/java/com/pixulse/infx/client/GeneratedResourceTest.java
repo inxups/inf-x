@@ -1992,6 +1992,9 @@ class GeneratedResourceTest {
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/entity/(cow|pig|chicken)/(cow|pig|chicken)_(temperate|warm|cold)_sick(_baby)?\\.png"
                         + "|textures/entity/sheep/sheep_sick(_baby)?\\.png")));
+        assertTrue(destinations.remove("textures/mob_effect/malnutrition.png"));
+        assertTrue(destinations.remove("textures/mob_effect/insulin_resistance.png"));
+        assertTrue(destinations.remove("textures/mob_effect/witch_curse.png"));
         assertTrue(destinations.removeIf(path -> path.endsWith("_spawn_egg.png")));
         assertTrue(destinations.isEmpty(), () -> "unexpected selected textures " + destinations);
         assertFalse(Files.exists(STATIC.resolve("assets/minecraft")));

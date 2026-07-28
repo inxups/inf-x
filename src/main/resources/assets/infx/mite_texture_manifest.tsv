@@ -706,3 +706,6 @@ resource-pack	items/tools/wood_cudgel.png	textures/item/wood_cudgel.png	8458d44e
 mite-src	items/wood_shovel.png	textures/item/wood_shovel.png	d0b418af7b10ac0e9b3e2dfa07fbc57dca382caa89e1d48bfcbc7681183703c8
 derived	item/spawn_egg/spawn_egg_wood_spider.png	textures/item/wood_spider_spawn_egg.png	6d08ddc68e94d260cc604508327fb76ab3e8de36f462df399e9d6bc120ae44ef
 resource-pack	items/food/worm_raw.png	textures/item/worm.png	07b763e2eeea77e97acf86d261fd1edd826b250628b773631ac8a0f2dfddb6e7
+derived	gui/MITE_icons.png+crop(19,199,16,16)+pad(18x18,1,1)	textures/mob_effect/malnutrition.png	7a2920c151b7f14b2b098016ab6ba63be9896916cd663329173037e359f2fbbd
+derived	items/sugar.png+pad(18x18,1,1)	textures/mob_effect/insulin_resistance.png	36e0769380f06abf8f45c5592ea1504f8fd2600260084aa715189652861f7e23
+derived	gui/mite_icon_gold_ring.png+crop(7,7,18,18)	textures/mob_effect/witch_curse.png	b0e86c7108b1f67ee89d42ffb981a215a25d0e6113a0786ec4d1cf7ef676a23c
