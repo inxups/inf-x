@@ -45,6 +45,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -144,6 +145,7 @@ final class ModModelProvider extends ModelProvider {
         generateSnowSlab(blockModels);
         blockModels.createCrossBlockWithDefaultItem(
                 InfXBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
+        generateBlueberryBush(blockModels);
         blockModels.createTrivialCube(InfXBlocks.NETHER_GRAVEL.value());
         blockModels.createTrivialCube(InfXBlocks.CORE.value());
         blockModels.createTrivialBlock(
@@ -225,6 +227,26 @@ final class ModModelProvider extends ModelProvider {
                 block.asItem(),
                 ItemModelUtils.selectBlockItemProperty(
                         RuneStoneBlock.RUNE, ItemModelUtils.plainModel(models[0]), itemVariants));
+    }
+
+    private static void generateBlueberryBush(BlockModelGenerators blockModels) {
+        Block bush = InfXBlocks.BLUEBERRY_BUSH.value();
+        Identifier ripe = ModelTemplates.CROSS.create(
+                bush,
+                TextureMapping.cross(new Material(InfiniteX.id("block/blueberry_bush"))),
+                blockModels.modelOutput);
+        Identifier picked = ModelTemplates.CROSS.createWithSuffix(
+                bush,
+                "_picked",
+                TextureMapping.cross(new Material(InfiniteX.id("block/blueberry_bush_picked"))),
+                blockModels.modelOutput);
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(bush)
+                .with(PropertyDispatch.initial(SweetBerryBushBlock.AGE)
+                        .select(0, BlockModelGenerators.plainVariant(picked))
+                        .select(1, BlockModelGenerators.plainVariant(picked))
+                        .select(2, BlockModelGenerators.plainVariant(picked))
+                        .select(3, BlockModelGenerators.plainVariant(ripe))));
+        blockModels.registerSimpleItemModel(bush, picked);
     }
 
     private static void generateUnderworldPortal(BlockModelGenerators blockModels) {

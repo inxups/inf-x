@@ -93,8 +93,8 @@ class FulltextGeneratedResourceTest {
     }
 
     @Test
-    void netherBlocksCoreAndRecordsHaveCompleteGeneratedData() throws Exception {
-        for (String block : List.of("witherwood", "nether_gravel", "core")) {
+    void worldBlocksCoreAndRecordsHaveCompleteGeneratedData() throws Exception {
+        for (String block : List.of("witherwood", "blueberry_bush", "nether_gravel", "core")) {
             assertAll(
                     block,
                     () -> assertTrue(Files.isRegularFile(
@@ -178,6 +178,26 @@ class FulltextGeneratedResourceTest {
                 "natural Nether witherwood",
                 () -> assertEquals("#minecraft:is_nether", witherwoodModifier.get("biomes").getAsString()),
                 () -> assertEquals("infx:witherwood_patch", witherwoodModifier.get("features").getAsString()));
+
+        JsonObject blueberryFeature = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/blueberry_bush_patch.json"));
+        JsonObject blueberryState = blueberryFeature.getAsJsonObject("config")
+                .getAsJsonObject("to_place")
+                .getAsJsonObject("state");
+        JsonObject blueberryModifier = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/add_blueberry_bush.json"));
+        assertAll(
+                "mature blueberry bushes in requested forests",
+                () -> assertEquals("infx:blueberry_bush", blueberryState.get("Name").getAsString()),
+                () -> assertEquals("3", blueberryState.getAsJsonObject("Properties").get("age").getAsString()),
+                () -> assertEquals(
+                        List.of(
+                                "minecraft:forest",
+                                "minecraft:flower_forest",
+                                "minecraft:old_growth_birch_forest"),
+                        strings(blueberryModifier.getAsJsonArray("biomes"))),
+                () -> assertEquals("infx:blueberry_bush_patch", blueberryModifier.get("features").getAsString()),
+                () -> assertEquals("vegetal_decoration", blueberryModifier.get("step").getAsString()));
 
         JsonObject netherGravel = json(GENERATED.resolve(
                 "data/minecraft/worldgen/configured_feature/ore_gravel_nether.json"));

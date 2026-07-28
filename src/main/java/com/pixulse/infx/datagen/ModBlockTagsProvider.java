@@ -67,6 +67,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.CRIMSON_FUNGUS),
                         blockKey(Blocks.WARPED_FUNGUS),
                         blockKey(Blocks.SWEET_BERRY_BUSH),
+                        InfXBlocks.BLUEBERRY_BUSH.getKey(),
                         blockKey(Blocks.LILY_PAD),
                         blockKey(Blocks.SEAGRASS),
                         blockKey(Blocks.TALL_SEAGRASS));

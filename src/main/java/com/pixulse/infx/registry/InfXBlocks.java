@@ -3,6 +3,7 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.AdamantiumWorkbenchBlock;
 import com.pixulse.infx.block.AncientMetalWorkbenchBlock;
+import com.pixulse.infx.block.BlueberryBushBlock;
 import com.pixulse.infx.block.CopperWorkbenchBlock;
 import com.pixulse.infx.block.ClayFurnaceBlock;
 import com.pixulse.infx.block.FlintWorkbenchBlock;
@@ -91,6 +92,16 @@ public final class InfXBlocks {
                     .instabreak()
                     .sound(SoundType.GRASS)
                     .offsetType(Block.OffsetType.XZ));
+    public static final DeferredBlock<BlueberryBushBlock> BLUEBERRY_BUSH = BLOCKS.registerBlock(
+            "blueberry_bush",
+            BlueberryBushBlock::new,
+            properties -> properties
+                    .mapColor(MapColor.PLANT)
+                    .replaceable()
+                    .noCollision()
+                    .strength(0.05F)
+                    .sound(SoundType.GRASS)
+                    .offsetType(Block.OffsetType.XZ));
     public static final DeferredBlock<Block> CORE = BLOCKS.registerSimpleBlock(
             "core",
             properties -> properties
@@ -106,7 +117,7 @@ public final class InfXBlocks {
                     .strength(0.2F)
                     .sound(SoundType.SNOW));
     public static final List<DeferredBlock<? extends Block>> FULLTEXT_BLOCKS =
-            List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
+            List.of(NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
     public static final List<DeferredBlock<? extends Block>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
 
     public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(

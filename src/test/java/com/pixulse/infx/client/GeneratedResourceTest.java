@@ -1931,6 +1931,7 @@ class GeneratedResourceTest {
         assertTrue(destinations.remove("textures/block/silver_ore.png"));
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
+        assertTrue(destinations.removeIf(path -> path.matches("textures/block/blueberry_bush(_picked)?\\.png")));
         assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));

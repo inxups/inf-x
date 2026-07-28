@@ -16,7 +16,6 @@ import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 
@@ -39,11 +38,6 @@ public final class FoodSourceEvents {
                         fortune, level.isRainingAt(event.getPos().above()))) == 0) {
             event.getDrops().clear();
             addDrop(event, InfXItems.WORM.toStack());
-            return;
-        }
-        if (state.is(Blocks.SWEET_BERRY_BUSH)
-                && state.getValue(SweetBerryBushBlock.AGE) >= 2) {
-            addDrop(event, InfXItems.BLUEBERRIES.toStack(1 + random.nextInt(2)));
             return;
         }
         if (!event.getDrops().isEmpty() || random.nextFloat() >= 0.005F) return;
