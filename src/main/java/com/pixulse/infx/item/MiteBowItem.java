@@ -10,6 +10,7 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.entity.projectile.Projectile;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
@@ -42,7 +43,7 @@ public final class MiteBowItem extends BowItem {
     @Override
     protected void shootProjectile(
             LivingEntity shooter,
-            Projectile projectile,
+            @NonNull Projectile projectile,
             int index,
             float power,
             float uncertainty,
@@ -66,7 +67,7 @@ public final class MiteBowItem extends BowItem {
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    public @NonNull InteractionResult use(@NonNull Level level, Player player, @NonNull InteractionHand hand) {
         ItemStack bow = player.getItemInHand(hand);
         ItemStack projectile = player.getProjectile(bow);
         if (projectile.getItem() instanceof MiteArrowItem arrow) {
@@ -82,7 +83,7 @@ public final class MiteBowItem extends BowItem {
     }
 
     @Override
-    public boolean releaseUsing(ItemStack bow, Level level, LivingEntity entity, int remainingTime) {
+    public boolean releaseUsing(@NonNull ItemStack bow, @NonNull Level level, @NonNull LivingEntity entity, int remainingTime) {
         try {
             int quickness = Enchantments.level(level, bow, InfXEnchantments.QUICKNESS);
             int duration = getUseDuration(bow, entity);

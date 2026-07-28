@@ -5,6 +5,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.NonNull;
 
 /** A rune-stone item whose selected R196 rune is stored as block-state item data. */
 public final class RuneStoneItem extends BlockItem {
@@ -13,7 +14,7 @@ public final class RuneStoneItem extends BlockItem {
     }
 
     @Override
-    public Component getName(ItemStack stack) {
+    public @NonNull Component getName(@NonNull ItemStack stack) {
         return super.getName(stack)
                 .copy()
                 .append(" \"")

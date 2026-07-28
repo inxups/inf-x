@@ -12,6 +12,7 @@ import net.minecraft.world.level.levelgen.Aquifer;
 import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.CarvingContext;
 import net.minecraft.world.level.levelgen.carver.WorldCarver;
+import org.jspecify.annotations.NonNull;
 
 /** A bounded 64x48x64 cellular cavern, attempted only 1/200 chunks outside radius 1000. */
 public final class LargeCaveCarver extends WorldCarver<CarverConfiguration> {
@@ -37,14 +38,14 @@ public final class LargeCaveCarver extends WorldCarver<CarverConfiguration> {
 
     @Override
     public boolean carve(
-            CarvingContext context,
+            @NonNull CarvingContext context,
             CarverConfiguration configuration,
-            ChunkAccess chunk,
-            Function<BlockPos, Holder<Biome>> biomeGetter,
-            RandomSource random,
-            Aquifer aquifer,
-            ChunkPos sourceChunkPos,
-            CarvingMask mask) {
+            @NonNull ChunkAccess chunk,
+            @NonNull Function<BlockPos, Holder<Biome>> biomeGetter,
+            @NonNull RandomSource random,
+            @NonNull Aquifer aquifer,
+            @NonNull ChunkPos sourceChunkPos,
+            @NonNull CarvingMask mask) {
         if (!eligibleDistance(sourceChunkPos)) return false;
         int originX = sourceChunkPos.getMinBlockX();
         int originZ = sourceChunkPos.getMinBlockZ();

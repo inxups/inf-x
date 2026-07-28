@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.jspecify.annotations.NonNull;
 
 /** Throwable counterpart to an R196 gelatinous sphere item. */
 public final class GelatinousSphere extends ThrowableItemProjectile {
@@ -37,7 +38,7 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
     }
 
     @Override
-    protected Item getDefaultItem() {
+    protected @NonNull Item getDefaultItem() {
         return InfXItems.GREEN_GELATINOUS_SPHERE.get();
     }
 
@@ -47,7 +48,7 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult hitResult) {
+    protected void onHitEntity(@NonNull EntityHitResult hitResult) {
         super.onHitEntity(hitResult);
         if (!(level() instanceof ServerLevel level)) {
             return;
@@ -57,7 +58,7 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult hitResult) {
+    protected void onHitBlock(@NonNull BlockHitResult hitResult) {
         if (level() instanceof ServerLevel level) {
             BlockPos target = hitResult.getBlockPos();
             Direction face = hitResult.getDirection();
@@ -73,7 +74,7 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHit(HitResult hitResult) {
+    protected void onHit(@NonNull HitResult hitResult) {
         super.onHit(hitResult);
         if (!level().isClientSide()) {
             level().broadcastEntityEvent(this, (byte) 3);

@@ -40,9 +40,8 @@ public final class ItemProperties {
             case PLATE, CHAIN -> armor(key, properties);
             case HORSE -> horseArmor(key, properties);
             case NONE -> switch (key.type()) {
-                case BOW -> commonDamageable(key, properties);
+                case BOW, FISHING_ROD -> commonDamageable(key, properties);
                 case ARROW -> properties;
-                case FISHING_ROD -> commonDamageable(key, properties);
                 default -> tool(key, properties);
             };
         };

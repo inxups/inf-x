@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.MiteMiningRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.NonNull;
 
 /**
  * R196 material shears: no right-click block stance; melee is on right-click with a short cooldown.
@@ -38,24 +39,24 @@ public final class MiteShearsItem extends ShearsItem {
     }
 
     @Override
-    public float getDestroySpeed(ItemStack stack, BlockState state) {
+    public float getDestroySpeed(@NonNull ItemStack stack, @NonNull BlockState state) {
         return MiteMiningRules.destroySpeed(key, state);
     }
 
     @Override
-    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+    public boolean isCorrectToolForDrops(@NonNull ItemStack stack, @NonNull BlockState state) {
         return MiteMiningRules.canHarvest(key, state);
     }
 
     @Override
-    public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity owner) {
+    public boolean mineBlock(@NonNull ItemStack stack, @NonNull Level level, @NonNull BlockState state, @NonNull BlockPos pos, @NonNull LivingEntity owner) {
         ToolItem.applyMiningWear(key, stack, level, state, pos, owner);
         return stack.has(DataComponents.TOOL);
     }
 
     @Override
-    public InteractionResult interactLivingEntity(
-            ItemStack stack, Player player, LivingEntity entity, InteractionHand hand) {
+    public @NonNull InteractionResult interactLivingEntity(
+            @NonNull ItemStack stack, @NonNull Player player, @NonNull LivingEntity entity, @NonNull InteractionHand hand) {
         InteractionResult shear = super.interactLivingEntity(stack, player, entity, hand);
         if (shear.consumesAction()) {
             return shear;

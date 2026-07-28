@@ -157,7 +157,7 @@ public final class Livestock {
                     10.0F,
                     1.15,
                     1.4,
-                    entity -> entity.isAlive()));
+                    LivingEntity::isAlive));
             animal.getPersistentData().putBoolean(GOALS_ADDED, true);
         }
     }
@@ -438,7 +438,7 @@ public final class Livestock {
                 || level.getEntitiesOfClass(
                                         LivingEntity.class,
                                         bounds.inflate(2.0, 0.5, 2.0),
-                                        living -> living.isAlive())
+                        LivingEntity::isAlive)
                                 .size()
                         > 2;
     }

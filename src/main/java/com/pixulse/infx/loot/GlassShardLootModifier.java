@@ -17,8 +17,11 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
+import org.jspecify.annotations.NonNull;
 
-/** Restores R196's recoverable clear-glass fragments without altering Silk Touch. */
+/**
+ * Restores R196's recoverable clear-glass fragments without altering Silk Touch.
+ */
 public final class GlassShardLootModifier extends LootModifier {
     private static final Identifier GLASS_TABLE = Identifier.withDefaultNamespace("blocks/glass");
     private static final Identifier GLASS_PANE_TABLE = Identifier.withDefaultNamespace("blocks/glass_pane");
@@ -31,20 +34,18 @@ public final class GlassShardLootModifier extends LootModifier {
     }
 
     @Override
-    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+    protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
         Identifier table = context.getQueriedLootTableId();
         BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
         int count;
-        if (GLASS_TABLE.equals(table) && state != null && state.is(Blocks.GLASS)) {
+        if (GLASS_TABLE.equals(table) && state != null && state.is(Blocks.GLASS))
             count = 6;
-        } else if (GLASS_PANE_TABLE.equals(table) && state != null && state.is(Blocks.GLASS_PANE)) {
+        else if (GLASS_PANE_TABLE.equals(table) && state != null && state.is(Blocks.GLASS_PANE))
             count = 1;
-        } else {
+        else
             return generatedLoot;
-        }
-        if (context.hasParameter(LootContextParams.EXPLOSION_RADIUS) || hasSilkTouch(context)) {
+        if (context.hasParameter(LootContextParams.EXPLOSION_RADIUS) || hasSilkTouch(context))
             return generatedLoot;
-        }
 
         ItemStack shards = InfXItems.catalog().raw("glass_shard").holder().toStack(count);
         generatedLoot.add(shards);
@@ -61,7 +62,7 @@ public final class GlassShardLootModifier extends LootModifier {
     }
 
     @Override
-    public MapCodec<? extends IGlobalLootModifier> codec() {
+    public @NonNull MapCodec<? extends IGlobalLootModifier> codec() {
         return InfXLootModifiers.GLASS_SHARDS.get();
     }
 }

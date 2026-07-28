@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.MiteMiningRules;
 import com.pixulse.infx.item.MiteArrowItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;

@@ -18,7 +18,7 @@ public abstract class ServerExplosionMixin {
             at = @At(value = "STORE"),
             ordinal = 0)
     private float infx$r196EntityRadius(float vanillaDoubleRadius) {
-        return (float) ExplosionRanges.entityRadius((Explosion) (Object) this)
+        return (float) ExplosionRanges.entityRadius((Explosion) this)
                 .orElse(vanillaDoubleRadius);
     }
 }

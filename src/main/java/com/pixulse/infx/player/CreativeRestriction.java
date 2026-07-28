@@ -17,8 +17,7 @@ public final class CreativeRestriction {
     private CreativeRestriction() {}
 
     @SubscribeEvent
-
-    private static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
+    public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
         if (InfiniteXTestMode.isEnabled()) return;
         if (event.getNewGameMode() == GameType.CREATIVE
                 && !(event.getEntity().level().getServer() instanceof GameTestServer)) {

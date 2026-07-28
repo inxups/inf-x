@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import net.minecraft.client.gui.components.debug.DebugScreenDisplayer;
 import net.minecraft.client.gui.components.debug.DebugScreenEntry;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 class DebugScreenOverlayCacheTest {
@@ -62,22 +63,22 @@ class DebugScreenOverlayCacheTest {
         private final List<String> output = new ArrayList<>();
 
         @Override
-        public void addPriorityLine(String line) {
+        public void addPriorityLine(@NonNull String line) {
             this.output.add("priority:" + line);
         }
 
         @Override
-        public void addLine(String line) {
+        public void addLine(@NonNull String line) {
             this.output.add("regular:" + line);
         }
 
         @Override
-        public void addToGroup(Identifier group, Collection<String> lines) {
+        public void addToGroup(@NonNull Identifier group, Collection<String> lines) {
             lines.forEach(line -> this.output.add("group:" + line));
         }
 
         @Override
-        public void addToGroup(Identifier group, String line) {
+        public void addToGroup(@NonNull Identifier group, @NonNull String line) {
             this.output.add("group:" + line);
         }
     }

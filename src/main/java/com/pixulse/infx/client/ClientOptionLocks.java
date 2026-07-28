@@ -30,7 +30,7 @@ public final class ClientOptionLocks {
     private ClientOptionLocks() {}
 
     @SubscribeEvent
-    private static void enforceLockedValues(ClientTickEvent.Post event) {
+    public static void enforceLockedValues(ClientTickEvent.Post event) {
         if (InfiniteXTestMode.isEnabled()) return;
         Minecraft minecraft = Minecraft.getInstance();
         enforceBrightness(minecraft);
@@ -38,7 +38,7 @@ public final class ClientOptionLocks {
     }
 
     @SubscribeEvent
-    private static void lockOptionScreens(ScreenEvent.Init.Post event) {
+    public static void lockOptionScreens(ScreenEvent.Init.Post event) {
         if (InfiniteXTestMode.isEnabled()) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (event.getScreen() instanceof VideoSettingsScreen) {

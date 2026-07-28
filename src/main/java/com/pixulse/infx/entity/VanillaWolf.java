@@ -13,6 +13,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -33,7 +34,7 @@ public final class VanillaWolf extends Wolf {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinWolfReach(this, target);
     }
 
@@ -65,7 +66,7 @@ public final class VanillaWolf extends Wolf {
 
     /** MITE wolves shrug off half the damage from non-player, non-arrow attackers. */
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         if (source.getEntity() != null
                 && !(source.getEntity() instanceof Player)
                 && !(source.getDirectEntity() instanceof AbstractArrow)) {
@@ -75,7 +76,7 @@ public final class VanillaWolf extends Wolf {
     }
 
     @Override
-    public @Nullable Wolf getBreedOffspring(ServerLevel level, AgeableMob partner) {
+    public @Nullable Wolf getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
         return InfXEntityTypes.R196_WOLF.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

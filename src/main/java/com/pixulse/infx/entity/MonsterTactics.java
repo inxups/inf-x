@@ -75,7 +75,7 @@ public final class MonsterTactics {
             weaponType = EquipmentType.BOW;
             weaponMaterial = material.ordinal() >= MiteMaterial.MITHRIL.ordinal()
                     ? MiteMaterial.MITHRIL
-                    : material.ordinal() >= MiteMaterial.ANCIENT_METAL.ordinal()
+                    : material.ordinal() == MiteMaterial.ANCIENT_METAL.ordinal()
                             ? MiteMaterial.ANCIENT_METAL
                             : MiteMaterial.WOOD;
         }

@@ -1,5 +1,7 @@
 package com.pixulse.infx.gametest;
 
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -13,14 +15,14 @@ import com.pixulse.infx.recipe.MiteCraftingRules;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.item.equipment.QualitySystem;
-import com.pixulse.infx.block.furnace.FurnaceHeatAccess;
-import com.pixulse.infx.harvest.HarvestEvents;
-import com.pixulse.infx.harvest.PlantHardness;
+import com.pixulse.infx.data.furnace.FurnaceHeatAccess;
+import com.pixulse.infx.event.HarvestEvents;
+import com.pixulse.infx.data.harvest.PlantHardness;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.player.Experience;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXBlocks;
@@ -28,7 +30,7 @@ import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXRecipes;
 import com.pixulse.infx.event.server.ExtremeDifficulty;
-import com.pixulse.infx.food.SurvivalData;
+import com.pixulse.infx.data.food.SurvivalData;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -322,8 +324,7 @@ public final class ModGameTests {
     }
 
     @SubscribeEvent
-
-    private static void registerTests(RegisterGameTestsEvent event) {
+    public static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("m1"), new TestEnvironmentDefinition.AllOf());
         registerTest(event, HARVEST_RESTRICTIONS, environment, 40);
@@ -864,7 +865,7 @@ public final class ModGameTests {
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     var nearbyItems = helper.getLevel().getEntities(
-                            EntityType.ITEM, player.getBoundingBox().inflate(4.0), entity -> entity.isAlive());
+                            EntityType.ITEM, player.getBoundingBox().inflate(4.0), Entity::isAlive);
                     helper.assertTrue(
                             nearbyItems.stream().anyMatch(entity -> entity.getItem().is(InfXItems.SINEW.get())),
                             "a full inventory must drop the crafted result at the player; progress="
@@ -924,7 +925,7 @@ public final class ModGameTests {
                         .getResourceManager()
                         .getResourceStack(Identifier.fromNamespaceAndPath("minecraft", "recipe/" + path + ".json"))
                         .stream()
-                        .map(resource -> resource.sourcePackId())
+                        .map(Resource::sourcePackId)
                         .toList();
                 helper.fail("minecraft:" + path + " must be disabled; loaded "
                         + loaded.value().getClass().getName() + " from resource stack " + sources);

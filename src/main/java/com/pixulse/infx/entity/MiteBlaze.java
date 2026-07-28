@@ -15,6 +15,7 @@ import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 
 /**
  * Blaze replacement with R196's six-point melee damage and MITE vulnerability rules.
@@ -34,7 +35,7 @@ public final class MiteBlaze extends Blaze implements MiteMob {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         super.defineSynchedData(entityData);
         entityData.define(DATA_MITE_CHARGED, false);
     }
@@ -66,7 +67,7 @@ public final class MiteBlaze extends Blaze implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (MobDamageRules.blazeAccepts(level, source)) {
             return super.hurtServer(level, source, damage);
         }

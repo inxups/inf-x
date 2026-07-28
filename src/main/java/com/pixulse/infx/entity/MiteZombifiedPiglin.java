@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Zombified piglin replacement that is hostile at close range without provocation. */
@@ -54,7 +55,7 @@ public final class MiteZombifiedPiglin extends ZombifiedPiglin implements MiteMo
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinOldAiReach(this, target, AttackRanges.OLD_AI_REACH);
     }
 
@@ -82,9 +83,9 @@ public final class MiteZombifiedPiglin extends ZombifiedPiglin implements MiteMo
 
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(
-            ServerLevelAccessor level,
-            DifficultyInstance difficulty,
-            EntitySpawnReason reason,
+            @NonNull ServerLevelAccessor level,
+            @NonNull DifficultyInstance difficulty,
+            @NonNull EntitySpawnReason reason,
             @Nullable SpawnGroupData groupData) {
         // MITE has no baby pig zombies and no chicken jockeys.
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, new Zombie.ZombieGroupData(false, false));
@@ -100,7 +101,7 @@ public final class MiteZombifiedPiglin extends ZombifiedPiglin implements MiteMo
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         // Preserve the restriction for pig zombies loaded from worlds saved before this fix.
         disableVanillaZombieAbilities();
@@ -118,7 +119,7 @@ public final class MiteZombifiedPiglin extends ZombifiedPiglin implements MiteMo
 
     /** MITE pig zombies always carry a worn golden weapon: sword 2, axe 1, pickaxe 1. */
     @Override
-    public void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
+    public void populateDefaultEquipmentSlots(RandomSource random, @NonNull DifficultyInstance difficulty) {
         int roll = random.nextInt(4);
         EquipmentType type = roll <= 1
                 ? EquipmentType.SWORD
@@ -129,7 +130,7 @@ public final class MiteZombifiedPiglin extends ZombifiedPiglin implements MiteMo
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
+    protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
         // Keep the target-specific lifecycle, but use the modern +0.05 fighting bonus.
         // The legacy 1.9x conversion made the 0.23 base speed visibly too fast in 26.2.

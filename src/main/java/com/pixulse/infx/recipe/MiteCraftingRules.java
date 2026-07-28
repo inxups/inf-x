@@ -211,7 +211,7 @@ public final class MiteCraftingRules {
             return false;
         }
         if (path.equals("bucket") || path.endsWith("_bucket")) {
-            return !inputs.anyMatch(stack -> !stack.isEmpty() && itemPath(stack.getItem()).contains("bucket"));
+            return inputs.noneMatch(stack -> !stack.isEmpty() && itemPath(stack.getItem()).contains("bucket"));
         }
         if (path.contains("knife")) {
             return false;
@@ -227,10 +227,7 @@ public final class MiteCraftingRules {
         // hardness check.  This prevents iron rails or redstone components
         // from being promoted solely because their recipe happens to consume
         // an ingot, while still covering modern metal hardware by name.
-        if (materialTier(output) != BenchTier.HAND && isMaterialProduct(path)) {
-            return true;
-        }
-        return false;
+        return materialTier(output) != BenchTier.HAND && isMaterialProduct(path);
     }
 
     private static boolean isMaterialProduct(String path) {
@@ -291,14 +288,14 @@ public final class MiteCraftingRules {
     }
 
     private static ItemStack displayOutput(SlotDisplay display) {
-        if (display instanceof SlotDisplay.ItemSlotDisplay item) {
-            return new ItemStack(item.item().value());
+        if (display instanceof SlotDisplay.ItemSlotDisplay(net.minecraft.core.Holder<Item> item1)) {
+            return new ItemStack(item1.value());
         }
-        if (display instanceof SlotDisplay.ItemStackSlotDisplay stack) {
-            return stack.stack().create();
+        if (display instanceof SlotDisplay.ItemStackSlotDisplay(net.minecraft.world.item.ItemStackTemplate stack1)) {
+            return stack1.create();
         }
-        if (display instanceof SlotDisplay.Composite composite) {
-            for (SlotDisplay child : composite.contents()) {
+        if (display instanceof SlotDisplay.Composite(java.util.List<SlotDisplay> contents)) {
+            for (SlotDisplay child : contents) {
                 ItemStack result = displayOutput(child);
                 if (!result.isEmpty()) {
                     return result;
@@ -383,8 +380,7 @@ public final class MiteCraftingRules {
             float whole = switch (base) {
                 case "flint" -> 100.0F;
                 case "quartz", "nether_quartz" -> 900.0F;
-                case "glass" -> 200.0F;
-                case "obsidian" -> 200.0F;
+                case "glass", "obsidian" -> 200.0F;
                 case "diamond" -> 1600.0F;
                 default -> materialIngotDifficulty(base);
             };

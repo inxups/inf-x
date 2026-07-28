@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.client.ClientEvents;
-import com.pixulse.infx.screen.TimedWorkbenchScreen;
+import com.pixulse.infx.event.client.ClientEvents;
+import com.pixulse.infx.screen.gui.TimedWorkbenchScreen;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.TimedCraftingRecipe;
-import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXMenus;
 
@@ -33,18 +33,19 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
+import org.jspecify.annotations.NonNull;
 
 @JeiPlugin
 public final class InfXJeiPlugin implements IModPlugin {
     private static final Identifier PLUGIN_ID = InfiniteX.id("jei_plugin");
 
     @Override
-    public Identifier getPluginUid() {
+    public @NonNull Identifier getPluginUid() {
         return PLUGIN_ID;
     }
 
     @Override
-    public void registerItemSubtypes(ISubtypeRegistration registration) {
+    public void registerItemSubtypes(@NonNull ISubtypeRegistration registration) {
         registerRuneStoneSubtypes(
                 registration,
                 InfXItems.MITHRIL_RUNE_STONE.get(),
@@ -68,7 +69,7 @@ public final class InfXJeiPlugin implements IModPlugin {
     }
 
     @Override
-    public void registerRecipes(IRecipeRegistration registration) {
+    public void registerRecipes(@NonNull IRecipeRegistration registration) {
         Map<BenchTier, List<RecipeHolder<TimedCraftingRecipe>>> recipesByBench =
                 new EnumMap<>(BenchTier.class);
         for (BenchTier benchTier : BenchTier.values()) {
@@ -92,7 +93,7 @@ public final class InfXJeiPlugin implements IModPlugin {
     }
 
     @Override
-    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+    public void registerRecipeCatalysts(@NonNull IRecipeCatalystRegistration registration) {
         for (BenchTier requiredTier : BenchTier.values()) {
             if (!requiredTier.isRecipeTier()) {
                 continue;
@@ -107,7 +108,7 @@ public final class InfXJeiPlugin implements IModPlugin {
     }
 
     @Override
-    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+    public void registerRecipeTransferHandlers(@NonNull IRecipeTransferRegistration registration) {
         for (BenchTier benchTier : BenchTier.values()) {
             if (!benchTier.isWorkbench()) {
                 continue;
@@ -127,7 +128,7 @@ public final class InfXJeiPlugin implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(TimedWorkbenchScreen.class, new IGuiContainerHandler<>() {
             @Override
-            public List<IGuiClickableArea> getGuiClickableAreas(
+            public @NonNull List<IGuiClickableArea> getGuiClickableAreas(
                     TimedWorkbenchScreen screen, double mouseX, double mouseY) {
                 BenchTier benchTier = screen.getMenu().infx$benchTier();
                 IRecipeType<?>[] recipeTypes = Arrays.stream(BenchTier.values())

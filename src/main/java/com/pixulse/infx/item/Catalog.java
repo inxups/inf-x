@@ -242,7 +242,7 @@ public final class Catalog {
                 throw new IllegalArgumentException(
                         "Wrong item class for " + path() + ": " + requestedClass.getName());
             }
-            return (DeferredItem<T>) (DeferredItem<?>) holder;
+            return (DeferredItem<T>) holder;
         }
     }
 
@@ -277,7 +277,7 @@ public final class Catalog {
                 throw new IllegalArgumentException(
                         "Wrong item class for " + path() + ": " + requestedClass.getName());
             }
-            return (DeferredItem<T>) (DeferredItem<?>) holder;
+            return (DeferredItem<T>) holder;
         }
     }
 }

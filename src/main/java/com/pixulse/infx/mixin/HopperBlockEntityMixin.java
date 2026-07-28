@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.block.furnace.FurnaceHeatAccess;
+import com.pixulse.infx.data.furnace.FurnaceHeatAccess;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;

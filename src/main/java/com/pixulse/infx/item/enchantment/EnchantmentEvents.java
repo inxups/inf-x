@@ -5,7 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.tag.InfXItemTags;
-import com.pixulse.infx.world.agriculture.AgricultureData;
+import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXMobEffects;
@@ -65,8 +65,7 @@ public final class EnchantmentEvents {
     private EnchantmentEvents() {}
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-
-    private static void onIncomingDamage(LivingIncomingDamageEvent event) {
+    public static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
         if (event.getSource().getDirectEntity() != attacker) return;
 
@@ -83,8 +82,7 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
-
-    private static void onDamagePost(LivingDamageEvent.Post event) {
+    public static void onDamagePost(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || event.getSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS)) return;
         if (event.getSource().getDirectEntity() instanceof AbstractArrow arrow) {
@@ -118,7 +116,7 @@ public final class EnchantmentEvents {
                 thornsSlot = slot;
             }
         }
-        if (thorns <= 0) return;
+        if (thorns == 0) return;
 
         boolean triggered = target.getRandom().nextFloat() < EnchantmentRules.thornsChance(thorns);
         if (triggered) {
@@ -183,33 +181,30 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLivingDrops(LivingDropsEvent event) {
+    public static void onLivingDrops(LivingDropsEvent event) {
         if (!event.isRecentlyHit() || !(event.getSource().getEntity() instanceof LivingEntity attacker)) return;
         int level = Enchantments.level(attacker.level(), attacker.getMainHandItem(), InfXEnchantments.BUTCHERING);
         if (level <= 0) return;
 
         LivingEntity target = event.getEntity();
-        if (target instanceof Cow) {
-            addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF, level);
-        } else if (target instanceof Pig) {
-            addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_PORKCHOP : Items.PORKCHOP, level);
-        } else if (target instanceof Sheep) {
-            addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_MUTTON : Items.MUTTON, level);
-        } else if (target instanceof Horse) {
-            addEntityDrop(event, new ItemStack(
+        switch (target) {
+            case Cow cow -> addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF, level);
+            case Pig pig ->
+                    addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_PORKCHOP : Items.PORKCHOP, level);
+            case Sheep sheep ->
+                    addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_MUTTON : Items.MUTTON, level);
+            case Horse horse -> addEntityDrop(event, new ItemStack(
                     target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
                     EnchantmentRules.horseButcheringBeefCount(level, target.getRandom())));
-        } else if (target instanceof Spider
-                && event.getDrops().stream().noneMatch(drop -> drop.getItem().is(Items.SPIDER_EYE))
-                && EnchantmentRules.butcheringAddsSpiderEye(level, target.getRandom())) {
-            addEntityDrop(event, new ItemStack(Items.SPIDER_EYE));
+            case Spider spider when event.getDrops().stream().noneMatch(drop -> drop.getItem().is(Items.SPIDER_EYE)) && EnchantmentRules.butcheringAddsSpiderEye(level, target.getRandom()) ->
+                    addEntityDrop(event, new ItemStack(Items.SPIDER_EYE));
+            default -> {
+            }
         }
     }
 
     @SubscribeEvent
-
-    private static void onBlockDrops(BlockDropsEvent event) {
+    public static void onBlockDrops(BlockDropsEvent event) {
         addHarvestingDrops(event);
         addFortuneDrops(event);
     }
@@ -291,8 +286,7 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
-
-    private static void onBlockBroken(BreakBlockEvent event) {
+    public static void onBlockBroken(BreakBlockEvent event) {
         if (event.isCanceled() || !(event.getLevel() instanceof ServerLevel level)) return;
         fertilizeMatureCrop(event, level);
         if (felling || !event.getState().is(BlockTags.LOGS)) return;
@@ -322,8 +316,7 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
-
-    private static void onToolModified(BlockEvent.BlockToolModificationEvent event) {
+    public static void onToolModified(BlockEvent.BlockToolModificationEvent event) {
         if (event.isSimulated()
                 || event.getItemAbility() != ItemAbilities.HOE_TILL
                 || !(event.getLevel() instanceof ServerLevel level)
@@ -336,8 +329,7 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
-
-    private static void onEntityTick(EntityTickEvent.Post event) {
+    public static void onEntityTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof LivingEntity living) || living.level().isClientSide()) return;
         applyFreeMovementResistance(living);
         if (!(living instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) return;
@@ -395,8 +387,7 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
-
-    private static void onPlayerTick(PlayerTickEvent.Post event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         var movement = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
         if (movement == null) return;

@@ -17,14 +17,12 @@ public final class TimedCraftingEvents {
     private TimedCraftingEvents() {}
 
     @SubscribeEvent
-
-    private static void onDatapackSync(OnDatapackSyncEvent event) {
+    public static void onDatapackSync(OnDatapackSyncEvent event) {
         event.sendRecipes(InfXRecipes.CRAFTING.get(), RecipeType.CRAFTING);
     }
 
     @SubscribeEvent
-
-    private static void onPlayerTick(PlayerTickEvent.Post event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (event.getEntity() instanceof ServerPlayer player
                 && player.containerMenu instanceof TimedCraftingMenu timedMenu) {
             timedMenu.infx$tickTimedCrafting(player);

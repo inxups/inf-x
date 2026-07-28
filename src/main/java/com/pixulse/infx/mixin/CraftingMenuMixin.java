@@ -28,15 +28,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Applies the same delayed crafting path to a vanilla 3x3 crafting menu. */
+/**
+ * Applies the same delayed crafting path to a vanilla 3x3 crafting menu.
+ */
 @Mixin(CraftingMenu.class)
 public abstract class CraftingMenuMixin extends AbstractCraftingMenu implements TimedCraftingMenu {
-    @Shadow @Final private Player player;
-    @Shadow private boolean placingRecipe;
+    @Shadow
+    @Final
+    private Player player;
+    @Shadow
+    private boolean placingRecipe;
 
-    @Unique private TimedCraftingState infx$state;
-    @Unique private SimpleContainerData infx$data;
-    @Unique private long infx$lastTick;
+    @Unique
+    private TimedCraftingState infx$state;
+    @Unique
+    private SimpleContainerData infx$data;
+    @Unique
+    private long infx$lastTick;
 
     protected CraftingMenuMixin(MenuType<?> menuType, int containerId, int width, int height) {
         super(menuType, containerId, width, height);
@@ -108,8 +116,7 @@ public abstract class CraftingMenuMixin extends AbstractCraftingMenu implements 
 
     @Override
     public boolean infx$isCraftingContextValid(Player player) {
-        return ((CraftingMenu) (Object) this).stillValid(player)
-                && CraftingEnvironment.canCraft(player);
+        return this.stillValid(player) && CraftingEnvironment.canCraft(player);
     }
 
     @Override

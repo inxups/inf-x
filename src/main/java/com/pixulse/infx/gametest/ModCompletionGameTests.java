@@ -22,14 +22,13 @@ import com.pixulse.infx.entity.Livestock;
 import com.pixulse.infx.item.MiteArrowItem;
 import com.pixulse.infx.item.MiteBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
-import com.pixulse.infx.item.CoinItem;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.menu.MetalAnvilMenu;
-import com.pixulse.infx.menu.MiteEnchantmentMenu;
-import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.screen.menu.MetalAnvilMenu;
+import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXCreativeTabs;
 import com.pixulse.infx.registry.InfXDataComponents;
@@ -39,10 +38,10 @@ import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.player.Experience;
-import com.pixulse.infx.food.FoodProfile;
-import com.pixulse.infx.food.SurvivalData;
-import com.pixulse.infx.food.SurvivalEvents;
-import com.pixulse.infx.food.SurvivalRules;
+import com.pixulse.infx.data.food.FoodProfile;
+import com.pixulse.infx.data.food.SurvivalData;
+import com.pixulse.infx.event.SurvivalEvents;
+import com.pixulse.infx.data.food.SurvivalRules;
 import com.pixulse.infx.network.Network;
 import com.pixulse.infx.event.EndEvents;
 import com.pixulse.infx.world.FluidDecayData;
@@ -143,6 +142,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
@@ -200,8 +200,7 @@ public final class ModCompletionGameTests {
     }
 
     @SubscribeEvent
-
-    private static void registerTests(RegisterGameTestsEvent event) {
+    public static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("r196_completion"), new TestEnvironmentDefinition.AllOf());
         for (String name : NAMES) {
@@ -316,7 +315,7 @@ public final class ModCompletionGameTests {
         ItemStack coins = InfXItems.catalog().raw("copper_coin").holder().toStack(2);
         player.setItemInHand(InteractionHand.MAIN_HAND, coins);
         int beforeXp = player.totalExperience;
-        ((CoinItem) coins.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        coins.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
         helper.assertTrue(coins.getCount() == 1, "one server-side coin must be consumed");
         helper.assertTrue(player.totalExperience == beforeXp + 5, "copper coin must grant five XP");
 
@@ -725,11 +724,11 @@ public final class ModCompletionGameTests {
             }
         }
         BlockPos chickenPos = new BlockPos(6, 2, 8);
-        Chicken chicken = helper.spawn(InfXEntityTypes.R196_CHICKEN.get(), chickenPos);
+        MiteChicken chicken = helper.spawn(InfXEntityTypes.R196_CHICKEN.get(), chickenPos);
         chicken.setAge(0);
         setLivestockWellness(chicken, 1.0F, 1.0F, 1.0F);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
-        ((MiteChicken) chicken).updateProduction(level);
+        chicken.updateProduction(level);
         BlockPos cauldron = new BlockPos(7, 1, 8);
         helper.setBlock(cauldron, Blocks.WATER_CAULDRON);
         setLivestockWellness(chicken, 1.0F, 0.4F, 1.0F);
@@ -1859,7 +1858,7 @@ public final class ModCompletionGameTests {
                             ResourceKey.create(Registries.BIOME, InfiniteX.id(river))),
                     river + " is registered");
         }
-        for (ItemStack record : InfXItems.R196_RECORDS.stream().map(item -> item.toStack()).toList()) {
+        for (ItemStack record : InfXItems.R196_RECORDS.stream().map(DeferredItem::toStack).toList()) {
             helper.assertTrue(record.has(DataComponents.JUKEBOX_PLAYABLE), "R196 record is jukebox-playable");
         }
 
@@ -2115,9 +2114,9 @@ public final class ModCompletionGameTests {
 
     private static void bucketFluidInteractions(GameTestHelper helper, ServerPlayer player, ServerLevel level) {
         BucketItem waterBucket =
-                (BucketItem) InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
+                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
         BucketItem lavaBucket =
-                (BucketItem) InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).value();
+                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).value();
 
         // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
         BlockPos fire = helper.absolutePos(new BlockPos(4, 2, 2));

@@ -2,6 +2,7 @@ package com.pixulse.infx.block.furnace;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 

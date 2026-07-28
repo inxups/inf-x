@@ -96,7 +96,7 @@ public abstract class InventoryMenuMixin extends AbstractCraftingMenu implements
 
     @Override
     public boolean infx$isCraftingContextValid(Player player) {
-        return player.containerMenu == (Object) this && CraftingEnvironment.canCraft(player);
+        return player.containerMenu == this && CraftingEnvironment.canCraft(player);
     }
 
     @Override

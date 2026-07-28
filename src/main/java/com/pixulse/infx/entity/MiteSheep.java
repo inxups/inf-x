@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** R196 sheep: productive shearing, fire/acid wool strip, leather drop chance. */
@@ -46,7 +47,7 @@ public final class MiteSheep extends Sheep {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder entityData) {
+    protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         super.defineSynchedData(entityData);
         Livestock.defineWellData(entityData, dataWell());
     }
@@ -66,7 +67,7 @@ public final class MiteSheep extends Sheep {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float amount) {
         boolean hurt = super.hurtServer(level, source, amount);
         if (hurt) {
             if (source.is(DamageTypeTags.IS_FIRE)
@@ -80,13 +81,13 @@ public final class MiteSheep extends Sheep {
     }
 
     @Override
-    public boolean canMate(Animal partner) {
+    public boolean canMate(@NonNull Animal partner) {
         if (!(level() instanceof ServerLevel serverLevel)) return super.canMate(partner);
         return super.canMate(partner) && Livestock.canMateWith(serverLevel, this, partner);
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public @NonNull InteractionResult mobInteract(Player player, @NonNull InteractionHand hand) {
         boolean offeredFood = isFood(player.getItemInHand(hand));
         InteractionResult result = super.mobInteract(player, hand);
         Livestock.markFedAfterInteraction(this, offeredFood, result);
@@ -94,7 +95,7 @@ public final class MiteSheep extends Sheep {
     }
 
     @Override
-    public void die(DamageSource source) {
+    public void die(@NonNull DamageSource source) {
         if (!level().isClientSide()
                 && getRandom().nextBoolean()
                 && level() instanceof ServerLevel serverLevel) {
@@ -106,7 +107,7 @@ public final class MiteSheep extends Sheep {
 
     @Override
     public void finalizeSpawnChildFromBreeding(
-            ServerLevel level, Animal partner, @Nullable AgeableMob offspring) {
+            @NonNull ServerLevel level, @NonNull Animal partner, @Nullable AgeableMob offspring) {
         super.finalizeSpawnChildFromBreeding(level, partner, offspring);
         if (offspring instanceof Animal child) {
             Livestock.adoptWellnessFromParents(child, this, partner);
@@ -114,7 +115,7 @@ public final class MiteSheep extends Sheep {
     }
 
     @Override
-    public @Nullable Sheep getBreedOffspring(ServerLevel level, AgeableMob partner) {
+    public @Nullable Sheep getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
         return InfXEntityTypes.R196_SHEEP.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

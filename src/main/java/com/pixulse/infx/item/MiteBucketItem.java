@@ -59,6 +59,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** A material-preserving R196 bucket for empty, water, lava, milk and stone contents. */
@@ -133,7 +134,7 @@ public final class MiteBucketItem extends BucketItem {
             private final DefaultDispenseItemBehavior fallback = new DefaultDispenseItemBehavior();
 
             @Override
-            public ItemStack execute(net.minecraft.core.dispenser.BlockSource source, ItemStack dispensed) {
+            public @NonNull ItemStack execute(net.minecraft.core.dispenser.@NonNull BlockSource source, @NonNull ItemStack dispensed) {
                 DispensibleContainerItem container = (DispensibleContainerItem) dispensed.getItem();
                 BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
                 Level level = source.level();
@@ -149,7 +150,7 @@ public final class MiteBucketItem extends BucketItem {
     private DefaultDispenseItemBehavior emptyDispenserBehavior() {
         return new DefaultDispenseItemBehavior() {
             @Override
-            public ItemStack execute(net.minecraft.core.dispenser.BlockSource source, ItemStack dispensed) {
+            public @NonNull ItemStack execute(net.minecraft.core.dispenser.@NonNull BlockSource source, @NonNull ItemStack dispensed) {
                 LevelAccessor level = source.level();
                 BlockPos target = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
                 BlockState state = level.getBlockState(target);
@@ -255,12 +256,12 @@ public final class MiteBucketItem extends BucketItem {
     }
 
     @Override
-    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
+    public int getBurnTime(@NonNull ItemStack itemStack, @Nullable RecipeType<?> recipeType, @NonNull FuelValues fuelValues) {
         return contents == Contents.LAVA ? LAVA_BURN_TIME : 0;
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
         return switch (contents) {
             case EMPTY -> fill(level, player, hand);
             case WATER, LAVA -> empty(level, player, hand);
@@ -487,8 +488,8 @@ public final class MiteBucketItem extends BucketItem {
     @Override
     public boolean emptyContents(
             @Nullable LivingEntity user,
-            Level level,
-            BlockPos pos,
+            @NonNull Level level,
+            @NonNull BlockPos pos,
             @Nullable BlockHitResult hitResult,
             @Nullable ItemStack containerItem) {
         if (!(this.content instanceof FlowingFluid flowingFluid)) {
@@ -659,7 +660,7 @@ public final class MiteBucketItem extends BucketItem {
     }
 
     @Override
-    protected void playEmptySound(@Nullable LivingEntity user, LevelAccessor level, BlockPos pos) {
+    protected void playEmptySound(@Nullable LivingEntity user, @NonNull LevelAccessor level, @NonNull BlockPos pos) {
         SoundEvent soundEvent = this.content.getFluidType()
                 .getSound(user, level, pos, net.neoforged.neoforge.common.SoundActions.BUCKET_EMPTY);
         if (soundEvent == null) {
@@ -667,7 +668,7 @@ public final class MiteBucketItem extends BucketItem {
         }
         // Ctrl use is canceled client-side and replayed only on the server, so the placing player
         // needs the server broadcast that ordinary bucket use replaces with a local sound.
-        @Nullable LivingEntity excludedPlayer = user;
+        LivingEntity excludedPlayer = user;
         if (user instanceof ServerPlayer player
                 && player.getPersistentData().getBooleanOr(Network.CTRL_USE, false)) {
             excludedPlayer = null;
@@ -677,7 +678,7 @@ public final class MiteBucketItem extends BucketItem {
     }
 
     @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+    public @NonNull ItemStack finishUsingItem(@NonNull ItemStack stack, @NonNull Level level, @NonNull LivingEntity entity) {
         ItemStack result = super.finishUsingItem(stack, level, entity);
         if (contents == Contents.MILK && result.isEmpty() && !entity.hasInfiniteMaterials()) {
             return new ItemStack(emptyBucket.get());
@@ -690,8 +691,8 @@ public final class MiteBucketItem extends BucketItem {
      * fire-aligned mobs. Thirst lives in server-side persistent data, so the client defers.
      */
     @Override
-    public InteractionResult interactLivingEntity(
-            ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+    public @NonNull InteractionResult interactLivingEntity(
+            @NonNull ItemStack stack, @NonNull Player player, @NonNull LivingEntity target, @NonNull InteractionHand hand) {
         if (contents != Contents.WATER || !(player.level() instanceof ServerLevel serverLevel)) {
             return InteractionResult.PASS;
         }
@@ -743,7 +744,7 @@ public final class MiteBucketItem extends BucketItem {
     }
 
     @Override
-    public @Nullable ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+    public @Nullable ItemStackTemplate getCraftingRemainder(@NonNull ItemInstance instance) {
         return contents == Contents.EMPTY ? null : new ItemStackTemplate(emptyBucket.get());
     }
 }

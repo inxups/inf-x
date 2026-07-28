@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.SolidBucketItem;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Material-preserving solid contents bucket (powder snow). */
@@ -39,7 +40,7 @@ public final class MiteSolidBucketItem extends SolidBucketItem {
     }
 
     @Override
-    public InteractionResult useOn(UseOnContext context) {
+    public @NonNull InteractionResult useOn(@NonNull UseOnContext context) {
         InteractionResult result = super.useOn(context);
         Player player = context.getPlayer();
         if (result.consumesAction() && player != null) {
@@ -52,7 +53,7 @@ public final class MiteSolidBucketItem extends SolidBucketItem {
     }
 
     @Override
-    public @Nullable ItemStackTemplate getCraftingRemainder(net.minecraft.world.item.ItemInstance instance) {
+    public @Nullable ItemStackTemplate getCraftingRemainder(net.minecraft.world.item.@NonNull ItemInstance instance) {
         return new ItemStackTemplate(emptyBucket.get());
     }
 }

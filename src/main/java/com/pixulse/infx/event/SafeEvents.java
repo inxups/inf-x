@@ -7,13 +7,12 @@ import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.MiteMiningRules;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXItems;
-import com.pixulse.infx.food.SurvivalEvents;
-import com.pixulse.infx.food.SurvivalRules;
+import com.pixulse.infx.data.food.SurvivalRules;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -36,8 +35,7 @@ public final class SafeEvents {
     private SafeEvents() {}
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-
-    private static void protectSafe(BreakBlockEvent event) {
+    public static void protectSafe(BreakBlockEvent event) {
         if (!(event.getState().getBlock() instanceof SafeBlock safe)
                 || !(event.getPlayer() instanceof ServerPlayer player)
                 || player.hasInfiniteMaterials()) return;
@@ -52,8 +50,7 @@ public final class SafeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-
-    private static void protectSafeDrops(BlockDropsEvent event) {
+    public static void protectSafeDrops(BlockDropsEvent event) {
         if (!(event.getState().getBlock() instanceof SafeBlock safe)
                 || mayDropSafeItem(event.getBreaker(), event.getBlockEntity())) {
             return;
@@ -76,8 +73,7 @@ public final class SafeEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-
-    private static void protectSafeBreakSpeed(PlayerEvent.BreakSpeed event) {
+    public static void protectSafeBreakSpeed(PlayerEvent.BreakSpeed event) {
         if (!(event.getState().getBlock() instanceof SafeBlock safe)
                 || event.getEntity().hasInfiniteMaterials()) {
             return;
@@ -115,24 +111,21 @@ public final class SafeEvents {
     }
 
     @SubscribeEvent
-
-    private static void trackDanger(LivingIncomingDamageEvent event) {
+    public static void trackDanger(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && event.getSource().getEntity() != null) {
             player.getPersistentData().putLong(LAST_DANGER, player.level().getGameTime());
         }
     }
 
     @SubscribeEvent
-
-    private static void trackAttack(AttackEntityEvent event) {
+    public static void trackAttack(AttackEntityEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             player.getPersistentData().putLong(LAST_DANGER, player.level().getGameTime());
         }
     }
 
     @SubscribeEvent
-
-    private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !player.level().getServer().isDedicatedServer()
                 || player.isSleeping()
@@ -145,8 +138,7 @@ public final class SafeEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)
                 || !player.getPersistentData().getBoolean(DISCONNECT_PENALTY).orElse(false)) return;
         player.getPersistentData().remove(DISCONNECT_PENALTY);

@@ -1,0 +1,52 @@
+package com.pixulse.infx.datagen;
+
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+
+import com.pixulse.infx.InfiniteX;
+import java.util.List;
+import java.util.Set;
+
+import net.minecraft.data.advancements.AdvancementProvider;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
+
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
+public final class ModDataGenerators {
+    private ModDataGenerators() {}
+
+    @SubscribeEvent
+    public static void gatherData(GatherDataEvent.Client event) {
+        event.createDatapackRegistryObjects(ModWorldGen.builder(), Set.of(InfiniteX.MOD_ID, "minecraft"));
+        event.createProvider(ModBlockTagsProvider::new);
+        event.createProvider(ModBiomeTagsProvider::new);
+        event.createProvider(ModEntityTypeTagsProvider::new);
+        event.createProvider(ModItemTagsProvider::new);
+        event.createProvider(ModEnchantmentTagsProvider::new);
+        event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.EN_US));
+        event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.ZH_CN));
+        event.createProvider(ModModelProvider::new);
+        event.createProvider(ModEquipmentAssetProvider::new);
+        event.createProvider(ModRecipeProvider.Runner::new);
+        event.createProvider(DisabledVanillaRecipesProvider::new);
+        event.createProvider((output, lookup) ->
+                new AdvancementProvider(output, lookup, List.of(new ModAdvancementProvider())));
+        event.createProvider((output, lookup) -> new LootTableProvider(
+                output,
+                Set.of(),
+                List.of(
+                        new LootTableProvider.SubProviderEntry(
+                                ModBlockLootSubProvider::new, LootContextParamSets.BLOCK),
+                        new LootTableProvider.SubProviderEntry(
+                                ModHorseArmorLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
+                                ModRustedIronLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
+                                ModUnderworldLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
+                                ModEntityLootSubProvider::new, LootContextParamSets.ENTITY)),
+                lookup));
+        event.createProvider(ModGlobalLootModifierProvider::new);
+    }
+}

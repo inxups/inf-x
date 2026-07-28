@@ -21,6 +21,7 @@ import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.level.ItemLike;
+import org.jspecify.annotations.NonNull;
 
 final class TimedCraftingRecipeCategory
         extends AbstractRecipeCategory<RecipeHolder<TimedCraftingRecipe>> {
@@ -45,26 +46,23 @@ final class TimedCraftingRecipeCategory
 
     @Override
     public void setRecipe(
-            IRecipeLayoutBuilder builder,
+            @NonNull IRecipeLayoutBuilder builder,
             RecipeHolder<TimedCraftingRecipe> recipeHolder,
-            IFocusGroup focuses) {
+            @NonNull IFocusGroup focuses) {
         RecipeDisplay display = getDisplay(recipeHolder.value());
         craftingGridHelper.createAndSetOutputs(builder, display.result());
 
-        if (display instanceof ShapedCraftingRecipeDisplay shaped) {
-            craftingGridHelper.createAndSetIngredientsFromDisplays(
-                    builder, shaped.ingredients(), shaped.width(), shaped.height());
-        } else if (display instanceof ShapelessCraftingRecipeDisplay shapeless) {
-            craftingGridHelper.createAndSetIngredientsFromDisplays(
-                    builder, shapeless.ingredients(), 0, 0);
-        }
+        if (display instanceof ShapedCraftingRecipeDisplay shaped)
+            craftingGridHelper.createAndSetIngredientsFromDisplays(builder, shaped.ingredients(), shaped.width(), shaped.height());
+        else if (display instanceof ShapelessCraftingRecipeDisplay shapeless)
+            craftingGridHelper.createAndSetIngredientsFromDisplays(builder, shapeless.ingredients(), 0, 0);
     }
 
     @Override
     public void createRecipeExtras(
             IRecipeExtrasBuilder builder,
             RecipeHolder<TimedCraftingRecipe> recipeHolder,
-            IFocusGroup focuses) {
+            @NonNull IFocusGroup focuses) {
         String difficulty = formatDifficulty(recipeHolder.value().difficulty());
         builder.addText(Component.translatable("jei.infx.difficulty", difficulty), WIDTH, 9)
                 .setColor(0xFF808080)
@@ -84,8 +82,8 @@ final class TimedCraftingRecipeCategory
     @Override
     public void draw(
             RecipeHolder<TimedCraftingRecipe> recipeHolder,
-            IRecipeSlotsView recipeSlotsView,
-            GuiGraphicsExtractor graphics,
+            @NonNull IRecipeSlotsView recipeSlotsView,
+            @NonNull GuiGraphicsExtractor graphics,
             double mouseX,
             double mouseY) {
         arrow.draw(graphics, 61, 19);

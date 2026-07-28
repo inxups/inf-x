@@ -42,6 +42,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import org.jspecify.annotations.NonNull;
 
 /** Vanilla slime replacement and the four corrosive R196 gelatinous cubes. */
 public final class MiteSlime extends Slime implements MiteMob {
@@ -206,9 +207,9 @@ public final class MiteSlime extends Slime implements MiteMob {
     /** MITE spawn sizes are uniform 1/2/4 with no difficulty bias. */
     @Override
     public @org.jspecify.annotations.Nullable SpawnGroupData finalizeSpawn(
-            ServerLevelAccessor level,
-            DifficultyInstance difficulty,
-            EntitySpawnReason spawnReason,
+            @NonNull ServerLevelAccessor level,
+            @NonNull DifficultyInstance difficulty,
+            @NonNull EntitySpawnReason spawnReason,
             @org.jspecify.annotations.Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
         // Unlike vanilla's difficulty-biased size roll, MITE uses a uniform 1/2/4 choice.
@@ -218,7 +219,7 @@ public final class MiteSlime extends Slime implements MiteMob {
 
     /** MITE cubes damage the animals and villagers they collide with, not only players. */
     @Override
-    public void push(Entity entity) {
+    public void push(@NonNull Entity entity) {
         super.push(entity);
         if ((entity instanceof Animal || entity instanceof Villager) && isDealsDamage()) {
             dealDamage((LivingEntity) entity);
@@ -352,7 +353,7 @@ public final class MiteSlime extends Slime implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (!acceptsDamage(level, source)) {
             return false;
         }
@@ -365,7 +366,7 @@ public final class MiteSlime extends Slime implements MiteMob {
 
     /** Modern equivalent of MITE's five colored slime-ball squish particles. */
     @Override
-    protected ParticleOptions getParticleType() {
+    protected @NonNull ParticleOptions getParticleType() {
         return new ItemParticleOption(
                 ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(gelatinousSphere().getDefaultInstance()));
     }

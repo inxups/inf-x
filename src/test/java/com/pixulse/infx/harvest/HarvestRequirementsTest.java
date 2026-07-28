@@ -3,6 +3,8 @@ package com.pixulse.infx.harvest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.OptionalInt;
+
+import com.pixulse.infx.data.harvest.HarvestRequirements;
 import org.junit.jupiter.api.Test;
 
 class HarvestRequirementsTest {

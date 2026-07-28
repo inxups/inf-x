@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.pixulse.infx.harvest.HarvestTier;
-import com.pixulse.infx.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.HarvestTier;
+import com.pixulse.infx.data.harvest.MiteMiningRules;
 import java.util.List;
 import java.util.Set;
 import net.minecraft.tags.BlockTags;

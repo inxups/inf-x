@@ -12,6 +12,7 @@ import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
 import org.joml.Vector3fc;
+import org.jspecify.annotations.NonNull;
 
 /** Inventory/item display for metal safes using the non-overlapping safe model. */
 public final class SafeSpecialRenderer implements NoDataSpecialModelRenderer {
@@ -31,7 +32,7 @@ public final class SafeSpecialRenderer implements NoDataSpecialModelRenderer {
 
     @Override
     public void submit(
-            PoseStack poseStack,
+            @NonNull PoseStack poseStack,
             SubmitNodeCollector submitNodeCollector,
             int lightCoords,
             int overlayCoords,
@@ -42,7 +43,7 @@ public final class SafeSpecialRenderer implements NoDataSpecialModelRenderer {
     }
 
     @Override
-    public void getExtents(Consumer<Vector3fc> output) {
+    public void getExtents(@NonNull Consumer<Vector3fc> output) {
         PoseStack poseStack = new PoseStack();
         model.setupAnim(0.0F);
         model.root().getExtentsForGui(poseStack, output);
@@ -50,7 +51,7 @@ public final class SafeSpecialRenderer implements NoDataSpecialModelRenderer {
 
     public record Unbaked(Identifier texture) implements NoDataSpecialModelRenderer.Unbaked {
         @Override
-        public MapCodec<Unbaked> type() {
+        public @NonNull MapCodec<Unbaked> type() {
             return MAP_CODEC;
         }
 

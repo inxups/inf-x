@@ -10,14 +10,15 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import org.jspecify.annotations.NonNull;
 
 /** Renders the MITE stalker as a faint wight-textured silhouette rather than a potion-invisible zombie. */
-final class InvisibleStalkerRenderer
+public final class InvisibleStalkerRenderer
         extends MobRenderer<MiteZombie, ZombieRenderState, InvisibleStalkerModel> {
     static final float OPACITY = 0.05F;
     private static final Identifier TEXTURE = InfiniteX.id("textures/entity/wight.png");
 
-    InvisibleStalkerRenderer(EntityRendererProvider.Context context) {
+    public InvisibleStalkerRenderer(EntityRendererProvider.Context context) {
         super(context, new InvisibleStalkerModel(context.bakeLayer(InvisibleStalkerModel.LAYER)), 0.5F);
     }
 
@@ -35,7 +36,7 @@ final class InvisibleStalkerRenderer
     }
 
     @Override
-    public Identifier getTextureLocation(ZombieRenderState state) {
+    public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
         return TEXTURE;
     }
 

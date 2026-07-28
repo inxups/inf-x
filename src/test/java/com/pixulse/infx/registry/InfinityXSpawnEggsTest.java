@@ -1,12 +1,11 @@
 package com.pixulse.infx.registry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.resources.Identifier;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class InfinityXSpawnEggsTest {
     @Test
@@ -26,12 +25,12 @@ class InfinityXSpawnEggsTest {
     }
 
     @Test
-    void spawnEggTexturesExistForEveryEgg() throws Exception {
+    void spawnEggTexturesExistForEveryEgg() {
         java.nio.file.Path root = java.nio.file.Path.of("").toAbsolutePath();
         while (root != null && !java.nio.file.Files.isRegularFile(root.resolve("settings.gradle"))) {
             root = root.getParent();
         }
-        assertTrue(root != null, "project root");
+        assertNotNull(root, "project root");
         for (var egg : InfXItems.SPAWN_EGGS) {
             Identifier id = egg.getId();
             java.nio.file.Path texture = root.resolve(

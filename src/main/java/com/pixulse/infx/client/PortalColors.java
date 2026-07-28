@@ -17,7 +17,7 @@ public final class PortalColors {
     private PortalColors() {}
 
     @SubscribeEvent
-    static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
+    public static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(BlockTintSources.constant(NETHER_PORTAL_TINT)), InfXBlocks.NETHER_PORTAL.get());
     }
 }

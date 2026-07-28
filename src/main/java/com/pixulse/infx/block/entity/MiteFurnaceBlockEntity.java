@@ -10,6 +10,7 @@ import net.minecraft.world.inventory.FurnaceMenu;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.NonNull;
 
 public final class MiteFurnaceBlockEntity extends AbstractFurnaceBlockEntity {
     public MiteFurnaceBlockEntity(BlockPos pos, BlockState state) {
@@ -17,13 +18,13 @@ public final class MiteFurnaceBlockEntity extends AbstractFurnaceBlockEntity {
     }
 
     @Override
-    protected Component getDefaultName() {
+    protected @NonNull Component getDefaultName() {
         String path = BuiltInRegistries.BLOCK.getKey(getBlockState().getBlock()).getPath();
         return Component.translatable("container.infx." + path);
     }
 
     @Override
-    protected AbstractContainerMenu createMenu(int containerId, Inventory inventory) {
+    protected @NonNull AbstractContainerMenu createMenu(int containerId, @NonNull Inventory inventory) {
         return new FurnaceMenu(containerId, inventory, this, dataAccess);
     }
 }

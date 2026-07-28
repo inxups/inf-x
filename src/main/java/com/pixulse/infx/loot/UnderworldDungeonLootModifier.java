@@ -16,6 +16,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
+import org.jspecify.annotations.NonNull;
 
 /** Adds R196's eight-roll ancient-metal pool only to Underworld monster rooms. */
 public final class UnderworldDungeonLootModifier extends LootModifier {
@@ -40,7 +41,7 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
     }
 
     @Override
-    protected ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> loot, LootContext context) {
+    protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> loot, LootContext context) {
         if (context.getLevel().dimension() != Underworld.LEVEL
                 || !SIMPLE_DUNGEON.equals(context.getQueriedLootTableId())) {
             return loot;
@@ -88,7 +89,7 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
     }
 
     @Override
-    public MapCodec<? extends IGlobalLootModifier> codec() {
+    public @NonNull MapCodec<? extends IGlobalLootModifier> codec() {
         return InfXLootModifiers.UNDERWORLD_DUNGEON.get();
     }
 }

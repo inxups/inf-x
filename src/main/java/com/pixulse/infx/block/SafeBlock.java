@@ -25,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class SafeBlock extends BarrelBlock {
@@ -43,28 +44,28 @@ public final class SafeBlock extends BarrelBlock {
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public @Nullable BlockEntity newBlockEntity(@NonNull BlockPos pos, @NonNull BlockState state) {
         return new SafeBlockEntity(pos, state);
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public @NonNull BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getHorizontalDirection().getOpposite();
         return defaultBlockState().setValue(FACING, facing).setValue(OPEN, false);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    protected @NonNull VoxelShape getShape(@NonNull BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
         return SHAPE;
     }
 
     @Override
     public void setPlacedBy(
-            Level level,
-            BlockPos pos,
-            BlockState state,
+            @NonNull Level level,
+            @NonNull BlockPos pos,
+            @NonNull BlockState state,
             @Nullable LivingEntity placer,
-            ItemStack stack) {
+            @NonNull ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (placer instanceof Player player && level.getBlockEntity(pos) instanceof SafeBlockEntity safe) {
             safe.setOwner(player);
@@ -72,8 +73,8 @@ public final class SafeBlock extends BarrelBlock {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NonNull InteractionResult useWithoutItem(
+            @NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hit) {
         if (!(level instanceof ServerLevel) || !(level.getBlockEntity(pos) instanceof SafeBlockEntity safe)) {
             return InteractionResult.SUCCESS;
         }
@@ -90,7 +91,7 @@ public final class SafeBlock extends BarrelBlock {
     }
 
     @Override
-    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    protected void tick(@NonNull BlockState state, ServerLevel level, @NonNull BlockPos pos, @NonNull RandomSource random) {
         if (level.getBlockEntity(pos) instanceof SafeBlockEntity safe) {
             safe.recheckOpen();
         }
@@ -98,7 +99,7 @@ public final class SafeBlock extends BarrelBlock {
 
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
-            Level level, BlockState state, BlockEntityType<T> type) {
+            Level level, @NonNull BlockState state, @NonNull BlockEntityType<T> type) {
         return level.isClientSide()
                 ? createTickerHelper(
                         type, InfXBlockEntityTypes.SAFE.get(), SafeBlockEntity::lidAnimateTick)

@@ -73,7 +73,7 @@ public final class MonsterEvents {
      * gains half its base attack again. Endermen are explicitly exempt in MITE.
      */
     @SubscribeEvent
-    private static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
+    public static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Mob attacker)
                 || !(attacker instanceof Enemy)
                 || attacker instanceof MiteEnderman
@@ -102,7 +102,7 @@ public final class MonsterEvents {
      * is enchanted.
      */
     @SubscribeEvent
-    private static void applyMiteProjectileDamage(LivingIncomingDamageEvent event) {
+    public static void applyMiteProjectileDamage(LivingIncomingDamageEvent event) {
         if (event.getSource().getDirectEntity()
                         instanceof net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball fireball
                 && fireball.getOwner() instanceof MiteBlaze) {
@@ -124,7 +124,7 @@ public final class MonsterEvents {
      * hand for one point; any other monster currently fighting back has a 1-in-8 chance.
      */
     @SubscribeEvent
-    private static void retaliateAgainstBareHands(net.neoforged.neoforge.event.entity.living.LivingDamageEvent.Post event) {
+    public static void retaliateAgainstBareHands(net.neoforged.neoforge.event.entity.living.LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof Mob victim)
                 || !(victim instanceof Enemy)
                 || !(victim.level() instanceof ServerLevel level)) {
@@ -149,7 +149,7 @@ public final class MonsterEvents {
 
     /** MITE's conspicuous-cactus trigger, mapped to a real cactus hit in the modern damage pipeline. */
     @SubscribeEvent
-    private static void armCreeperFromCactus(LivingDamageEvent.Post event) {
+    public static void armCreeperFromCactus(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof MiteCreeper creeper)
                 || creeper.level().isClientSide()
                 || event.getHealthDamage() <= 0.0F
@@ -224,8 +224,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+    public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
         event.register(
                 EntityType.CREEPER,
                 null,
@@ -310,7 +309,7 @@ public final class MonsterEvents {
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.FIRE_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                (type, level, reason, pos, random) -> Mob.checkMobSpawnRules(type, level, reason, pos, random),
+                Mob::checkMobSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.EARTH_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -396,10 +395,9 @@ public final class MonsterEvents {
             case "nightwing", "bone_lord" -> y <= 32 || bloodMoonUp;
             case "pudding" -> y <= 24 && serverLevel.getBlockState(pos.below()).is(Blocks.STONE)
                     && stoneAbove(serverLevel, pos);
-            case "hellhound" -> y <= 32;
+            case "hellhound", "demon_spider", "phase_spider" -> y <= 32;
             case "shadow" -> y <= 32 || bloodMoonUp && desert;
             case "wood_spider" -> woodSpiderHabitat(serverLevel, pos);
-            case "demon_spider", "phase_spider" -> y <= 32;
             case "black_widow_spider" -> random.nextBoolean();
             case "jelly" -> stoneAbove(serverLevel, pos);
             default -> true;
@@ -481,8 +479,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void finalizeSpawn(FinalizeSpawnEvent event) {
+    public static void finalizeSpawn(FinalizeSpawnEvent event) {
         if (event.getEntity() instanceof EarthElemental elemental
                 && event.getSpawnType() != EntitySpawnReason.LOAD) {
             elemental.initializeMiteForm();
@@ -503,8 +500,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void attractToPlayerActivity(VanillaGameEvent event) {
+    public static void attractToPlayerActivity(VanillaGameEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !(event.getCause() instanceof Player player)) return;
         double radius = MoonPhase.at(level) == MoonPhase.BLOOD ? 96.0 : 48.0;
         for (Mob mob : level.getEntitiesOfClass(
@@ -524,8 +520,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void coordinateAndSeekLight(EntityTickEvent.Post event) {
+    public static void coordinateAndSeekLight(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof Mob mob)
                 || !(mob instanceof Enemy)
                 || !(mob.level() instanceof ServerLevel level)) {
@@ -579,7 +574,7 @@ public final class MonsterEvents {
      * R196 skeleton arrows their tuned effective air gravity without altering any other arrow.
      */
     @SubscribeEvent
-    private static void reduceSkeletonArrowGravity(EntityTickEvent.Post event) {
+    public static void reduceSkeletonArrowGravity(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof AbstractArrow arrow)
                 || !(arrow.getOwner() instanceof MiteSkeleton)
                 || !(arrow.level() instanceof ServerLevel)
@@ -604,8 +599,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void limitSpawnerPopulation(MobSpawnEvent.PositionCheck event) {
+    public static void limitSpawnerPopulation(MobSpawnEvent.PositionCheck event) {
         if (event.getSpawnType() != EntitySpawnReason.SPAWNER
                 || !(event.getEntity().level() instanceof ServerLevel level)) {
             return;
@@ -628,8 +622,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void preventObservedDespawn(MobDespawnEvent event) {
+    public static void preventObservedDespawn(MobDespawnEvent event) {
         Mob mob = event.getEntity();
         if (!(mob instanceof Enemy) || !(mob.level() instanceof ServerLevel level)) return;
         boolean hasTarget = mob.getTarget() instanceof Player;
@@ -654,8 +647,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void replaceVanillaSpawn(EntityJoinLevelEvent event) {
+    public static void replaceVanillaSpawn(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide()
                 || !(event.getLevel() instanceof ServerLevel level)
                 || !(event.getEntity() instanceof Mob original)) {
@@ -798,8 +790,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void leadRangedProjectile(EntityJoinLevelEvent event) {
+    public static void leadRangedProjectile(EntityJoinLevelEvent event) {
         if (!(event.getLevel() instanceof ServerLevel)
                 || !(event.getEntity() instanceof Projectile projectile)
                 || !(projectile.getOwner() instanceof Mob shooter)
@@ -870,8 +861,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void applyWitchMagicDefense(LivingIncomingDamageEvent event) {
+    public static void applyWitchMagicDefense(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof MiteWitch witch)
                 || event.getSource().getEntity() == witch
                 || !event.getSource().is(DamageTypeTags.WITCH_RESISTANT_TO)) {
@@ -884,8 +874,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void shareTarget(LivingChangeTargetEvent event) {
+    public static void shareTarget(LivingChangeTargetEvent event) {
         if (sharingTarget || !(event.getEntity() instanceof MiteMob)
                 || !(event.getNewAboutToBeSetTarget() instanceof Player player)
                 || !(event.getEntity().level() instanceof ServerLevel level)) {
@@ -921,8 +910,7 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-
-    private static void amplifyInfernalCreeperExplosion(ExplosionEvent.Start event) {
+    public static void amplifyInfernalCreeperExplosion(ExplosionEvent.Start event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof MiteCreeper creeper)
                 || creeper.variant() != MiteCreeper.Variant.INFERNAL
                 || creeper.isAmplifyingExplosion()) {
@@ -948,7 +936,7 @@ public final class MonsterEvents {
 
     /** Ordinary R196 creepers cannot crack stone; infernal creepers retain normal blast terrain damage. */
     @SubscribeEvent
-    private static void limitCreeperTerrainDamage(ExplosionEvent.Detonate event) {
+    public static void limitCreeperTerrainDamage(ExplosionEvent.Detonate event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof MiteCreeper creeper)) {
             return;
         }
@@ -964,7 +952,7 @@ public final class MonsterEvents {
 
     /** MITE netherspawn blasts leave their native netherrack and gold/quartz ore veins intact. */
     @SubscribeEvent
-    private static void protectNetherspawnTerrain(ExplosionEvent.Detonate event) {
+    public static void protectNetherspawnTerrain(ExplosionEvent.Detonate event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof MiteSilverfish silverfish)
                 || silverfish.variant() != MiteSilverfish.Variant.NETHERSPAWN) {
             return;
@@ -975,12 +963,12 @@ public final class MonsterEvents {
     @EventBusSubscriber(modid = InfiniteX.MOD_ID)
     private static final class ModEvents {
         @SubscribeEvent
-        private static void createAttributes(EntityAttributeCreationEvent event) {
+        public static void createAttributes(EntityAttributeCreationEvent event) {
             MonsterEvents.createAttributes(event);
         }
 
         @SubscribeEvent
-        private static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
             MonsterEvents.registerSpawnPlacements(event);
         }
     }

@@ -9,6 +9,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.MagmaCube;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 
 /**
  * The R196 magma cube only accepts player melee from stone-mining tools (pickaxe / war hammer),
@@ -77,7 +78,7 @@ public final class MiteMagmaCube extends MagmaCube implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (!MobDamageRules.magmaCubeAccepts(source)) {
             return false;
         }

@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Material-preserving mob bucket that returns the matching empty R196 bucket. */
@@ -44,7 +45,7 @@ public final class MiteMobBucketItem extends MobBucketItem {
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    public @NonNull InteractionResult use(@NonNull Level level, @NonNull Player player, @NonNull InteractionHand hand) {
         InteractionResult result = super.use(level, player, hand);
         if (result instanceof InteractionResult.Success success) {
             ItemStack transformed = success.heldItemTransformedTo();
@@ -56,7 +57,7 @@ public final class MiteMobBucketItem extends MobBucketItem {
     }
 
     @Override
-    public @Nullable ItemStackTemplate getCraftingRemainder(net.minecraft.world.item.ItemInstance instance) {
+    public @Nullable ItemStackTemplate getCraftingRemainder(net.minecraft.world.item.@NonNull ItemInstance instance) {
         return new ItemStackTemplate(emptyBucket.get());
     }
 }

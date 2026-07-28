@@ -16,6 +16,7 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.MobSpawnSettingsBuilder;
 import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
+import org.jspecify.annotations.NonNull;
 
 /** Atomically replaces modern biome spawn lists with the R196 ecology. */
 public final class SpawnsBiomeModifier implements BiomeModifier {
@@ -80,7 +81,7 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
             MobCategory.WATER_AMBIENT);
 
     @Override
-    public void modify(Holder<Biome> biome, Phase phase, ModifiableBiomeInfo.BiomeInfo.Builder builder) {
+    public void modify(@NonNull Holder<Biome> biome, @NonNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NonNull Builder builder) {
         if (phase != Phase.MODIFY) return;
         MobSpawnSettingsBuilder spawns = builder.getMobSpawnSettings();
         if (biome.is(BiomeTags.IS_OVERWORLD)) {
@@ -208,7 +209,7 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
     }
 
     @Override
-    public MapCodec<? extends BiomeModifier> codec() {
+    public @NonNull MapCodec<? extends BiomeModifier> codec() {
         return InfXBiomeModifiers.R196_SPAWNS.get();
     }
 }

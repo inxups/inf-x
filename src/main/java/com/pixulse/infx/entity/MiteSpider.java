@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Spider replacement and the four R196 spider variants. */
@@ -82,17 +83,17 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    protected SoundEvent getAmbientSound() {
+    protected @NonNull SoundEvent getAmbientSound() {
         return variant() == Variant.DEMON ? InfXSounds.DEMON_SPIDER_AMBIENT.get() : super.getAmbientSound();
     }
 
     @Override
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
         return variant() == Variant.DEMON ? InfXSounds.DEMON_SPIDER_HURT.get() : super.getHurtSound(source);
     }
 
     @Override
-    protected SoundEvent getDeathSound() {
+    protected @NonNull SoundEvent getDeathSound() {
         return variant() == Variant.DEMON ? InfXSounds.DEMON_SPIDER_DEATH.get() : super.getDeathSound();
     }
 
@@ -111,7 +112,7 @@ public final class MiteSpider extends Spider implements MiteMob {
                     .add(Attributes.MAX_HEALTH, 16.0)
                     .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
-            case BLACK_WIDOW -> builder
+            case BLACK_WIDOW, WOOD -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
                     .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 1.0);
@@ -119,10 +120,6 @@ public final class MiteSpider extends Spider implements MiteMob {
                     .add(Attributes.MAX_HEALTH, 18.0)
                     .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
-            case WOOD -> builder
-                    .add(Attributes.MAX_HEALTH, 6.0)
-                    .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
-                    .add(Attributes.ATTACK_DAMAGE, 1.0);
             case PHASE -> builder
                     .add(Attributes.MAX_HEALTH, 6.0)
                     .add(Attributes.MOVEMENT_SPEED, movementSpeed(variant))
@@ -155,7 +152,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinOldAiReach(this, target, AttackRanges.OLD_AI_REACH);
     }
 
@@ -190,9 +187,9 @@ public final class MiteSpider extends Spider implements MiteMob {
 
     @Override
     public @Nullable SpawnGroupData finalizeSpawn(
-            ServerLevelAccessor level,
-            DifficultyInstance difficulty,
-            EntitySpawnReason spawnReason,
+            @NonNull ServerLevelAccessor level,
+            @NonNull DifficultyInstance difficulty,
+            @NonNull EntitySpawnReason spawnReason,
             @Nullable SpawnGroupData groupData) {
         if (groupData == null) {
             SpiderEffectsGroupData effects = new SpiderEffectsGroupData();
@@ -231,7 +228,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
+    public boolean doHurtTarget(@NonNull ServerLevel level, @NonNull Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (!hurt || !(target instanceof LivingEntity living)) {
             return hurt;
@@ -254,7 +251,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
+    protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
         LivingEntity target = getTarget();
         if (target == null) {
@@ -302,7 +299,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         // MITE phase spiders always evade while they have evasions left, jumping at least three
         // blocks sideways and away from the threat, then reacquire a player within 24 blocks.
         if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null) {
@@ -341,7 +338,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    protected void dropCustomDeathLoot(ServerLevel level, DamageSource source, boolean killedByPlayer) {
+    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
         if (killedByPlayer) {
             for (int webs = websRemaining; webs > 0; webs--) {
@@ -351,7 +348,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput output) {
+    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         output.putInt("R196PhaseEvasions", phaseEvasions);
         output.putInt("R196PhaseMaxEvasions", maxPhaseEvasions);
@@ -359,7 +356,7 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput input) {
+    protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
         phaseEvasions = input.getIntOr("R196PhaseEvasions", phaseEvasions);
         maxPhaseEvasions = input.getIntOr("R196PhaseMaxEvasions", maxPhaseEvasions);

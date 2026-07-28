@@ -36,7 +36,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
 import com.pixulse.infx.block.MiteFurnaceBlock;
-import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Items;
@@ -48,8 +48,7 @@ public final class EquipmentBehaviors {
     private EquipmentBehaviors() {}
 
    @SubscribeEvent
-
-    static void applySilverBonus(LivingIncomingDamageEvent event) {
+    public static void applySilverBonus(LivingIncomingDamageEvent event) {
         if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(event.getEntity().getType()).is(EntityTypeTags.UNDEAD)
                 || !hasSilverAspect(event)) {
             return;
@@ -72,8 +71,7 @@ public final class EquipmentBehaviors {
     }
 
     @SubscribeEvent
-
-    private static void onProjectileImpact(ProjectileImpactEvent event) {
+    public static void onProjectileImpact(ProjectileImpactEvent event) {
         if (event.getProjectile() instanceof AbstractArrow arrow) {
             resolveArrowRecovery(arrow, event.getRayTraceResult());
         }
@@ -117,8 +115,7 @@ public final class EquipmentBehaviors {
     }
 
    @SubscribeEvent
-
-    static void applyArmorDecay(ItemAttributeModifierEvent event) {
+    public static void applyArmorDecay(ItemAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry == null
@@ -148,8 +145,7 @@ public final class EquipmentBehaviors {
     }
 
    @SubscribeEvent
-
-    static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
+    public static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)
                 || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return;
@@ -258,7 +254,7 @@ public final class EquipmentBehaviors {
 
     /** Replaces modern percentage resistance with R196's five fixed protection points per level. */
    @SubscribeEvent
-    static void applyFixedResistance(LivingIncomingDamageEvent event) {
+    public static void applyFixedResistance(LivingIncomingDamageEvent event) {
         var resistance = event.getEntity().getEffect(MobEffects.RESISTANCE);
         if (resistance == null
                 || event.getSource().is(DamageTypeTags.BYPASSES_EFFECTS)
@@ -272,8 +268,7 @@ public final class EquipmentBehaviors {
     }
 
    @SubscribeEvent
-
-    static void applyElementalCorrosion(LivingIncomingDamageEvent event) {
+    public static void applyElementalCorrosion(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
         }
@@ -339,8 +334,7 @@ public final class EquipmentBehaviors {
     }
 
    @SubscribeEvent
-
-    static void addQualityTooltip(ItemTooltipEvent event) {
+    public static void addQualityTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
         Quality quality = event.getItemStack().get(InfXDataComponents.QUALITY.get());
         if (quality != null) {
@@ -389,8 +383,7 @@ public final class EquipmentBehaviors {
     }
 
    @SubscribeEvent
-
-    static void addBucketTooltip(ItemTooltipEvent event) {
+    public static void addBucketTooltip(ItemTooltipEvent event) {
         if (!(event.getItemStack().getItem() instanceof MiteBucketItem bucket)) {
             return;
         }

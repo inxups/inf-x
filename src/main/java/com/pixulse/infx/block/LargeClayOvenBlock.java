@@ -1,8 +1,9 @@
 package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
-import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.jspecify.annotations.NonNull;
 
 /** The distinct heat-one oven body that accepts full blocks and other large inputs. */
 public final class LargeClayOvenBlock extends MiteFurnaceBlock {
@@ -13,7 +14,7 @@ public final class LargeClayOvenBlock extends MiteFurnaceBlock {
     }
 
     @Override
-    public MapCodec<LargeClayOvenBlock> codec() {
+    public @NonNull MapCodec<LargeClayOvenBlock> codec() {
         return CODEC;
     }
 }

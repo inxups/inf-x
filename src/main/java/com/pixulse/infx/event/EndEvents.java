@@ -23,16 +23,14 @@ public final class EndEvents {
     private EndEvents() {}
 
     @SubscribeEvent
-
-    private static void restrictCrystalAttack(AttackEntityEvent event) {
+    public static void restrictCrystalAttack(AttackEntityEvent event) {
         if (event.getTarget() instanceof EndCrystal && !hasAdamantiumCrystalTool(event.getEntity())) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-
-    private static void restrictCrystalDamage(EntityInvulnerabilityCheckEvent event) {
+    public static void restrictCrystalDamage(EntityInvulnerabilityCheckEvent event) {
         if (!(event.getEntity() instanceof EndCrystal)) return;
         boolean validMelee = event.getSource().getEntity() instanceof Player player
                 && event.getSource().getDirectEntity() == player
@@ -49,8 +47,7 @@ public final class EndEvents {
     }
 
     @SubscribeEvent
-
-    private static void restoreDragonOnReload(PlayerEvent.PlayerChangedDimensionEvent event) {
+    public static void restoreDragonOnReload(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (!event.getTo().equals(Level.END) || !(event.getEntity().level() instanceof ServerLevel end)) return;
         if (end.players().size() > 1) return;
         for (EnderDragon dragon : end.getDragons()) {

@@ -1,6 +1,6 @@
 package com.pixulse.infx.item.material;
 
-import com.pixulse.infx.harvest.HarvestTier;
+import com.pixulse.infx.data.harvest.HarvestTier;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.tags.BlockTags;

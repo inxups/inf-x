@@ -1,8 +1,8 @@
 package com.pixulse.infx.recipe;
 
-import com.pixulse.infx.effect.curse.CurseManager;
-import com.pixulse.infx.effect.curse.CurseType;
-import com.pixulse.infx.harvest.HarvestSpeedRules;
+import com.pixulse.infx.data.curse.CurseManager;
+import com.pixulse.infx.data.curse.CurseType;
+import com.pixulse.infx.data.harvest.HarvestSpeedRules;
 import com.pixulse.infx.registry.InfXEnchantments;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.player.Player;

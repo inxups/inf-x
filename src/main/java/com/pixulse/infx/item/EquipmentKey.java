@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.harvest.ToolWearCalculator;
+import com.pixulse.infx.data.harvest.ToolWearCalculator;
 import com.pixulse.infx.item.material.MiteMaterial;
 import java.util.Arrays;
 import java.util.List;

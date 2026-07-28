@@ -15,8 +15,8 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
  * Vanilla lid sits at y=9 while the body reaches y=10, so side faces z-fight
  * and metal textures flash a mid-body seam. Body ends at y=9; lid starts there.
  */
-final class SafeModel extends Model<Float> {
-    static final ModelLayerLocation LAYER = new ModelLayerLocation(com.pixulse.infx.InfiniteX.id("safe"), "main");
+public final class SafeModel extends Model<Float> {
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(com.pixulse.infx.InfiniteX.id("safe"), "main");
 
     private final ModelPart lid;
     private final ModelPart lock;
@@ -27,7 +27,7 @@ final class SafeModel extends Model<Float> {
         this.lock = root.getChild("lock");
     }
 
-    static LayerDefinition createBodyLayer() {
+    public static LayerDefinition createBodyLayer() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
         // Body top meets lid bottom at y=9 — no shared side faces.

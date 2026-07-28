@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.block.furnace.FurnaceHeatPolicy;
-import com.pixulse.infx.block.furnace.FurnaceItemPolicy;
+import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
+import com.pixulse.infx.data.furnace.FurnaceItemPolicy;
 import net.minecraft.world.inventory.FurnaceFuelSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;

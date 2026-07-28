@@ -15,13 +15,13 @@ import org.jspecify.annotations.Nullable;
 
 /** Bucketable water-mob contents that keep the R196 bucket material. */
 public enum MobBucketKind {
-    COD("cod", "Cod", "鳕鱼", () -> InfXEntityTypes.R196_COD.get(), EntityType.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
-    SALMON("salmon", "Salmon", "鲑鱼", () -> InfXEntityTypes.R196_SALMON.get(), EntityType.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
+    COD("cod", "Cod", "鳕鱼", InfXEntityTypes.R196_COD, EntityType.COD, SoundEvents.BUCKET_EMPTY_FISH, Foods.COD),
+    SALMON("salmon", "Salmon", "鲑鱼", InfXEntityTypes.R196_SALMON, EntityType.SALMON, SoundEvents.BUCKET_EMPTY_FISH, Foods.SALMON),
     PUFFERFISH(
             "pufferfish",
             "Pufferfish",
             "河豚",
-            () -> InfXEntityTypes.R196_PUFFERFISH.get(),
+            InfXEntityTypes.R196_PUFFERFISH,
             EntityType.PUFFERFISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.PUFFERFISH),
@@ -29,7 +29,7 @@ public enum MobBucketKind {
             "tropical",
             "Tropical Fish",
             "热带鱼",
-            () -> InfXEntityTypes.R196_TROPICAL_FISH.get(),
+            InfXEntityTypes.R196_TROPICAL_FISH,
             EntityType.TROPICAL_FISH,
             SoundEvents.BUCKET_EMPTY_FISH,
             Foods.TROPICAL_FISH),

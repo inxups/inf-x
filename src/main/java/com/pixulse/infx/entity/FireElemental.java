@@ -21,7 +21,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.Blaze;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 /**
  * MITE fire elemental: melee, fireproof, lava-healing, and only vulnerable to water, snowballs,
@@ -51,7 +51,7 @@ public final class FireElemental extends Blaze implements MiteMob {
     }
 
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+    public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinNewAiReach(this, target);
     }
 
@@ -68,7 +68,7 @@ public final class FireElemental extends Blaze implements MiteMob {
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel level) {
+    protected void customServerAiStep(@NonNull ServerLevel level) {
         // Skip Blaze hover offset; MITE fire elementals are ground melee mobs.
     }
 
@@ -111,7 +111,9 @@ public final class FireElemental extends Blaze implements MiteMob {
         }
     }
 
-    /** The fixed-interval water drain must never run while a fire elemental is dry. */
+    /**
+     * The fixed-interval water drain must never run while a fire elemental is dry.
+     */
     static boolean shouldApplyWaterAttrition(int tickCount, boolean inWaterOrRain) {
         return inWaterOrRain && tickCount % WATER_TICK_INTERVAL == 0;
     }
@@ -122,7 +124,7 @@ public final class FireElemental extends Blaze implements MiteMob {
     }
 
     @Override
-    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+    public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (!MobDamageRules.fireElementalAccepts(level, source)) {
             return false;
         }
@@ -130,7 +132,7 @@ public final class FireElemental extends Blaze implements MiteMob {
     }
 
     @Override
-    public boolean doHurtTarget(ServerLevel level, Entity target) {
+    public boolean doHurtTarget(@NonNull ServerLevel level, @NonNull Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt) {
             target.igniteForSeconds(MELEE_IGNITE_SECONDS);
@@ -139,17 +141,17 @@ public final class FireElemental extends Blaze implements MiteMob {
     }
 
     @Override
-    protected @Nullable SoundEvent getAmbientSound() {
+    protected SoundEvent getAmbientSound() {
         return null;
     }
 
     @Override
-    protected @Nullable SoundEvent getHurtSound(DamageSource source) {
+    protected SoundEvent getHurtSound(@NonNull DamageSource source) {
         return null;
     }
 
     @Override
-    protected @Nullable SoundEvent getDeathSound() {
+    protected SoundEvent getDeathSound() {
         return null;
     }
 

@@ -23,8 +23,7 @@ public final class StructureSafetyEvents {
     private StructureSafetyEvents() {}
 
     @SubscribeEvent
-
-    private static void onChunkLoad(ChunkEvent.Load event) {
+    public static void onChunkLoad(ChunkEvent.Load event) {
         if (!event.isNewChunk() || !(event.getLevel() instanceof ServerLevel level)) return;
         LevelChunk chunk = event.getChunk();
         level.getServer().execute(() -> addDesertPyramidTorches(level, chunk));

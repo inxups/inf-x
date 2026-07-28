@@ -28,8 +28,7 @@ public final class GelatinousCubeEvents {
     private GelatinousCubeEvents() {}
 
     @SubscribeEvent
-
-    private static void onEntityTick(EntityTickEvent.Post event) {
+    public static void onEntityTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof MiteSlime slime)
                 || !(slime.level() instanceof ServerLevel level)
                 || slime.tickCount % CONTACT_INTERVAL != 0) {
@@ -85,21 +84,16 @@ public final class GelatinousCubeEvents {
     }
 
     private static void seekDissolvableItem(ServerLevel level, MiteSlime slime) {
-        ItemEntity nearest = level.getEntitiesOfClass(
+        level.getEntitiesOfClass(
                         ItemEntity.class,
                         slime.getBoundingBox().inflate(8.0),
                         item -> CorrosionRules.isHarmedBy(item.getItem(), slime.variant().corrosionType()))
                 .stream()
-                .min(Comparator.comparingDouble(slime::distanceToSqr))
-                .orElse(null);
-        if (nearest != null) {
-            slime.getNavigation().moveTo(nearest, 1.0);
-        }
+                .min(Comparator.comparingDouble(slime::distanceToSqr)).ifPresent(nearest -> slime.getNavigation().moveTo(nearest, 1.0));
     }
 
     @SubscribeEvent
-
-    private static void onLivingDamage(LivingDamageEvent.Post event) {
+    public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || !(event.getEntity() instanceof MiteSlime slime)
                 || !(event.getSource().getEntity() instanceof ServerPlayer player)
@@ -111,8 +105,7 @@ public final class GelatinousCubeEvents {
     }
 
     @SubscribeEvent
-
-    private static void onLivingDrops(LivingDropsEvent event) {
+    public static void onLivingDrops(LivingDropsEvent event) {
         if (!(event.getEntity() instanceof MiteSlime slime) || !(slime.level() instanceof ServerLevel level)) {
             return;
         }

@@ -3,6 +3,7 @@ package com.pixulse.infx.item.material;
 import com.mojang.serialization.Codec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.util.StringRepresentable;
+import org.jspecify.annotations.NonNull;
 
 /**
  * The persistent non-average R196 quality states.
@@ -32,7 +33,7 @@ public enum Quality implements StringRepresentable {
     }
 
     @Override
-    public String getSerializedName() {
+    public @NonNull String getSerializedName() {
         return serializedName;
     }
 

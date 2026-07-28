@@ -43,7 +43,7 @@ public final class InfXItems {
     public static final DeferredItem<BlockItem> MITHRIL_ORE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.MITHRIL_ORE);
     public static final DeferredItem<BlockItem> ADAMANTIUM_ORE =
-            ITEMS.registerSimpleBlockItem(InfXBlocks.ADAMANTIUM_ORE, properties -> properties.fireResistant());
+            ITEMS.registerSimpleBlockItem(InfXBlocks.ADAMANTIUM_ORE, Item.Properties::fireResistant);
 
     public static final List<DeferredItem<BlockItem>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
 
@@ -52,7 +52,7 @@ public final class InfXItems {
             ITEMS.registerSimpleBlockItem(InfXBlocks.ANCIENT_METAL_BLOCK);
     public static final DeferredItem<BlockItem> MITHRIL_BLOCK = ITEMS.registerSimpleBlockItem(InfXBlocks.MITHRIL_BLOCK);
     public static final DeferredItem<BlockItem> ADAMANTIUM_BLOCK =
-            ITEMS.registerSimpleBlockItem(InfXBlocks.ADAMANTIUM_BLOCK, properties -> properties.fireResistant());
+            ITEMS.registerSimpleBlockItem(InfXBlocks.ADAMANTIUM_BLOCK, Item.Properties::fireResistant);
     public static final List<DeferredItem<BlockItem>> METAL_STORAGE_BLOCKS =
             List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
 

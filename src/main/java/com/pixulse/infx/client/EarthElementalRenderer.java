@@ -13,10 +13,12 @@ import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
-/** R196 material-body renderer shared by ordinary earth elementals and clay golems. */
-final class EarthElementalRenderer<T extends EarthElemental>
-        extends MobRenderer<T, EarthElementalRenderState, EarthElementalModel> {
+/**
+ * R196 material-body renderer shared by ordinary earth elementals and clay golems.
+ */
+public final class EarthElementalRenderer<T extends EarthElemental> extends MobRenderer<T, EarthElementalRenderState, EarthElementalModel> {
     private static final Identifier STONE_NORMAL = texture("stone/earth_elemental_stone.png");
     private static final Identifier STONE_MAGMA = texture("stone/earth_elemental_stone_magma.png");
     private static final Identifier OBSIDIAN_NORMAL = texture("obsidian/earth_elemental_obsidian.png");
@@ -30,7 +32,7 @@ final class EarthElementalRenderer<T extends EarthElemental>
     private static final Identifier NORMAL_GLOW = texture("earth_elemental_glow.png");
     private static final Identifier MAGMA_GLOW = texture("earth_elemental_magma_glow.png");
 
-    EarthElementalRenderer(EntityRendererProvider.Context context) {
+    public EarthElementalRenderer(EntityRendererProvider.Context context) {
         super(context, new EarthElementalModel(context.bakeLayer(EarthElementalModel.LAYER)), 0.5F);
         addLayer(new GlowLayer(this));
     }
@@ -48,18 +50,20 @@ final class EarthElementalRenderer<T extends EarthElemental>
     }
 
     @Override
-    public Identifier getTextureLocation(EarthElementalRenderState state) {
+    public @NonNull Identifier getTextureLocation(EarthElementalRenderState state) {
         return textureFor(state.form);
     }
 
-    /** MITE magma elementals keep a faint light level even in total darkness. */
+    /**
+     * MITE magma elementals keep a faint light level even in total darkness.
+     */
     @Override
-    protected int getBlockLightLevel(T entity, BlockPos blockPos) {
+    protected int getBlockLightLevel(T entity, @NonNull BlockPos blockPos) {
         return entity.isMagma() ? Math.max(5, super.getBlockLightLevel(entity, blockPos)) : super.getBlockLightLevel(entity, blockPos);
     }
 
     @Override
-    protected int getSkyLightLevel(T entity, BlockPos blockPos) {
+    protected int getSkyLightLevel(T entity, @NonNull BlockPos blockPos) {
         return entity.isMagma() ? Math.max(5, super.getSkyLightLevel(entity, blockPos)) : super.getSkyLightLevel(entity, blockPos);
     }
 
@@ -94,7 +98,7 @@ final class EarthElementalRenderer<T extends EarthElemental>
 
         @Override
         public void submit(
-                PoseStack poseStack,
+                @NonNull PoseStack poseStack,
                 SubmitNodeCollector submitNodeCollector,
                 int lightCoords,
                 EarthElementalRenderState state,

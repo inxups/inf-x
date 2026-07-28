@@ -6,11 +6,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.InfiniteXTestMode;
-import com.pixulse.infx.harvest.HarvestSpeedRules;
+import com.pixulse.infx.data.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXItems;
-import com.pixulse.infx.food.SurvivalEvents;
+import com.pixulse.infx.event.SurvivalEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,31 +52,27 @@ public final class PlayerProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onExperienceChange(PlayerXpEvent.XpChange event) {
+    public static void onExperienceChange(PlayerXpEvent.XpChange event) {
         event.setCanceled(true);
         Experience.add(event.getEntity(), event.getAmount());
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     @SubscribeEvent
-
-    private static void onLevelChange(PlayerXpEvent.LevelChange event) {
+    public static void onLevelChange(PlayerXpEvent.LevelChange event) {
         event.setCanceled(true);
         Experience.addLevels(event.getEntity(), event.getLevels());
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     @SubscribeEvent
-
-    private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     @SubscribeEvent
-
-    private static void onClone(PlayerEvent.Clone event) {
+    public static void onClone(PlayerEvent.Clone event) {
         if (!event.isWasDeath()
                 || keepsExperienceOnDeath(event.getEntity())
                 || event.getOriginal().isSpectator()) {
@@ -92,8 +88,7 @@ public final class PlayerProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onDeath(LivingDeathEvent event) {
+    public static void onDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             player.getPersistentData().putInt(DEATH_TOTAL, player.totalExperience);
             player.getPersistentData().putLong(DEATH_TIME, player.level().getGameTime());
@@ -101,8 +96,7 @@ public final class PlayerProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onExperienceDrop(LivingExperienceDropEvent event) {
+    public static void onExperienceDrop(LivingExperienceDropEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (keepsExperienceOnDeath(player) || player.isSpectator()) {
                 event.setDroppedExperience(0);
@@ -118,8 +112,7 @@ public final class PlayerProgressionEvents {
     }
 
     @SubscribeEvent
-
-    private static void onPlayerTick(PlayerTickEvent.Post event) {
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isDeadOrDying()) {
             return;
         }
@@ -139,8 +132,7 @@ public final class PlayerProgressionEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGH)
-
-    private static void applyMeleeLevelBonus(LivingIncomingDamageEvent event) {
+    public static void applyMeleeLevelBonus(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)
                 || event.getSource().getDirectEntity() != player
                 || !event.getSource().is(DamageTypeTags.IS_PLAYER_ATTACK)) {
@@ -150,8 +142,7 @@ public final class PlayerProgressionEvents {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-
-    private static void enforceWeakStrike(LivingIncomingDamageEvent event) {
+    public static void enforceWeakStrike(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof Player player)
                 || event.getSource().getDirectEntity() != player
                 || !event.getSource().is(DamageTypeTags.IS_PLAYER_ATTACK)
@@ -178,7 +169,7 @@ public final class PlayerProgressionEvents {
     @EventBusSubscriber(modid = InfiniteX.MOD_ID)
     private static final class ModEvents {
         @SubscribeEvent
-        private static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
+        public static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
             PlayerProgressionEvents.modifyPlayerRanges(event);
         }
     }

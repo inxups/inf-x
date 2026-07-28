@@ -29,8 +29,7 @@ public final class ServerRules {
     private ServerRules() {}
 
     @SubscribeEvent
-
-    private static void onChat(ServerChatEvent event) {
+    public static void onChat(ServerChatEvent event) {
         ServerPlayer player = event.getPlayer();
         MinecraftServer server = player.level().getServer();
         if (!server.isDedicatedServer() || server.getPlayerList().isOp(player.nameAndId())) return;
@@ -43,8 +42,7 @@ public final class ServerRules {
     }
 
     @SubscribeEvent
-
-    private static void onServerTick(ServerTickEvent.Post event) {
+    public static void onServerTick(ServerTickEvent.Post event) {
         MinecraftServer server = event.getServer();
         if (!server.isDedicatedServer()) return;
         Iterator<Map.Entry<UUID, Integer>> scores = CHAT_SCORES.entrySet().iterator();
@@ -60,8 +58,7 @@ public final class ServerRules {
     }
 
     @SubscribeEvent
-
-    private static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         MinecraftServer server = player.level().getServer();
         if (!server.isDedicatedServer()) return;
@@ -82,8 +79,7 @@ public final class ServerRules {
     }
 
     @SubscribeEvent
-
-    private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         MinecraftServer server = player.level().getServer();
         CHAT_SCORES.remove(player.getUUID());

@@ -61,8 +61,7 @@ public final class ExtremeDifficulty {
     }
 
     @SubscribeEvent
-
-    private static void onServerStarted(ServerStartedEvent event) {
+    public static void onServerStarted(ServerStartedEvent event) {
         if (InfiniteXTestMode.isEnabled()) return;
         apply(event.getServer());
         InfiniteX.LOGGER.info("InfiniteX Extreme difficulty is active and locked");

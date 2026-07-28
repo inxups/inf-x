@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 
 class RawItemTest {
@@ -44,9 +46,9 @@ class RawItemTest {
     @Test
     void rawCatalogHasExactApprovedDefinitions() {
         assertEquals(EXPECTED.stream().map(ExpectedRawItem::path).toList(),
-                List.of(RawItem.values()).stream().map(RawItem::path).toList());
+                Stream.of(RawItem.values()).map(RawItem::path).toList());
         assertEquals(30, RawItem.values().length);
-        Set<String> unique = List.of(RawItem.values()).stream().map(RawItem::path).collect(Collectors.toSet());
+        Set<String> unique = Stream.of(RawItem.values()).map(RawItem::path).collect(Collectors.toSet());
         assertEquals(30, unique.size());
 
         for (int index = 0; index < EXPECTED.size(); index++) {
@@ -64,7 +66,7 @@ class RawItemTest {
     @Test
     void kindValuesHaveExactApprovedOrder() {
         assertEquals(List.of("SHARD", "BINDING", "FERTILIZER", "NUGGET", "INGOT", "CHAIN", "COIN"),
-                List.of(RawItem.Kind.values()).stream().map(Enum::name).toList());
+                Stream.of(RawItem.Kind.values()).map(Enum::name).toList());
     }
 
     @Test

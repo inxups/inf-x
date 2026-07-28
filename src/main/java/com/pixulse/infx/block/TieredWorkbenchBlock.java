@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.pixulse.infx.recipe.BenchTier;
-import com.pixulse.infx.menu.TimedWorkbenchMenu;
+import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jspecify.annotations.NonNull;
 
 public abstract class TieredWorkbenchBlock extends Block {
     private final BenchTier tier;
@@ -27,12 +28,12 @@ public abstract class TieredWorkbenchBlock extends Block {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Player player,
-            BlockHitResult hitResult) {
+    protected @NonNull InteractionResult useWithoutItem(
+            @NonNull BlockState state,
+            @NonNull Level level,
+            @NonNull BlockPos pos,
+            @NonNull Player player,
+            @NonNull BlockHitResult hitResult) {
         if (isObstructed(level, pos)) {
             if (!level.isClientSide()) {
                 player.sendOverlayMessage(Component.translatable("message.infx.workbench_obstructed"));
@@ -46,7 +47,7 @@ public abstract class TieredWorkbenchBlock extends Block {
     }
 
     @Override
-    protected MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
+    protected MenuProvider getMenuProvider(@NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos) {
         return new SimpleMenuProvider(
                 (containerId, inventory, player) -> TimedWorkbenchMenu.server(
                         containerId,

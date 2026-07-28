@@ -15,6 +15,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 
 class InfXJeiPluginTest {
@@ -36,12 +37,12 @@ class InfXJeiPluginTest {
 
         @Override
         public <B, I> void registerSubtypeInterpreter(
-                IIngredientTypeWithSubtypes<B, I> type, B base, ISubtypeInterpreter<I> interpreter) {
+                @NonNull IIngredientTypeWithSubtypes<B, I> type, B base, @NonNull ISubtypeInterpreter<I> interpreter) {
             fail("Rune stones should use JEI's data-component subtype registration");
         }
 
         @Override
-        public void registerFromDataComponentTypes(Item item, DataComponentType<?>... components) {
+        public void registerFromDataComponentTypes(@NonNull Item item, DataComponentType<?> @NonNull ... components) {
             componentsByItem.put(item, Arrays.asList(components));
         }
     }

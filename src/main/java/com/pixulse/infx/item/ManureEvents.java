@@ -25,8 +25,7 @@ public final class ManureEvents {
     private ManureEvents() {}
 
     @SubscribeEvent
-
-    private static void onEntityTick(EntityTickEvent.Post event) {
+    public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof Animal animal)
                 || !(entity.level() instanceof ServerLevel level)

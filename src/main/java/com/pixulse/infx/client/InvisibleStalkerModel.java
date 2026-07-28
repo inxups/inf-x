@@ -9,15 +9,17 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.util.Mth;
 
-/** MITE's 64x32 stalker silhouette keeps its arms raised even while idle. */
-final class InvisibleStalkerModel extends HumanoidModel<ZombieRenderState> {
-    static final ModelLayerLocation LAYER = new ModelLayerLocation(InfiniteX.id("invisible_stalker"), "main");
+/**
+ * MITE's 64x32 stalker silhouette keeps its arms raised even while idle.
+ */
+public final class InvisibleStalkerModel extends HumanoidModel<ZombieRenderState> {
+    public static final ModelLayerLocation LAYER = new ModelLayerLocation(InfiniteX.id("invisible_stalker"), "main");
 
     InvisibleStalkerModel(ModelPart root) {
         super(root);
     }
 
-    static LayerDefinition createBodyLayer() {
+    public static LayerDefinition createBodyLayer() {
         return LayerDefinition.create(HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F), 64, 32);
     }
 

@@ -62,16 +62,14 @@ public final class RunegateTeleportation {
     }
 
     @SubscribeEvent
-
-    private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+    public static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             PENDING.remove(player.getUUID());
         }
     }
 
     @SubscribeEvent
-
-    private static void onClone(PlayerEvent.Clone event) {
+    public static void onClone(PlayerEvent.Clone event) {
         if (!(event.getOriginal() instanceof ServerPlayer original)
                 || PENDING.remove(original.getUUID()) == null
                 || !(event.getEntity() instanceof ServerPlayer player)) {
@@ -81,16 +79,14 @@ public final class RunegateTeleportation {
     }
 
     @SubscribeEvent
-
-    private static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
+    public static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player && PENDING.remove(player.getUUID()) != null) {
             finish(player);
         }
     }
 
     @SubscribeEvent
-
-    private static void onServerStopping(ServerStoppingEvent event) {
+    public static void onServerStopping(ServerStoppingEvent event) {
         PENDING.clear();
     }
 

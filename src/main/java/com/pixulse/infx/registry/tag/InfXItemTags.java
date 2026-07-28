@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry.tag;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.harvest.HarvestTier;
+import com.pixulse.infx.data.harvest.HarvestTier;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import net.minecraft.core.registries.Registries;

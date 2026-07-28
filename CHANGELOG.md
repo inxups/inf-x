@@ -6,6 +6,7 @@
 
 - Replaced the entry-point's manual event-bus listener registration with NeoForge `@EventBusSubscriber` and `@SubscribeEvent` handlers while preserving listener priority.
 - Kept only registry and GameTest `DeferredRegister` bindings in the mod entry point.
+- Made all `@SubscribeEvent` handlers public and removed redundant annotation spacing.
 
 ### 统一注册表命名
 

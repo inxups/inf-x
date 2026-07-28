@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.recipe.BenchTier;
 
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import org.jspecify.annotations.NonNull;
 
 public final class MithrilWorkbenchBlock extends TieredWorkbenchBlock {
     public static final MapCodec<MithrilWorkbenchBlock> CODEC = simpleCodec(MithrilWorkbenchBlock::new);
@@ -13,7 +14,7 @@ public final class MithrilWorkbenchBlock extends TieredWorkbenchBlock {
     }
 
     @Override
-    public MapCodec<MithrilWorkbenchBlock> codec() {
+    public @NonNull MapCodec<MithrilWorkbenchBlock> codec() {
         return CODEC;
     }
 }

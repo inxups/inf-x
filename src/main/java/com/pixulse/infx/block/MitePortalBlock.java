@@ -18,6 +18,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
 import net.minecraft.world.level.Level;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** A portal surface whose block identity fixes its destination family. */
@@ -57,15 +59,15 @@ public class MitePortalBlock extends NetherPortalBlock {
     }
 
     @Override
-    protected BlockState updateShape(
+    protected @NonNull BlockState updateShape(
             BlockState state,
-            LevelReader level,
-            ScheduledTickAccess ticks,
-            BlockPos pos,
+            @NonNull LevelReader level,
+            @NonNull ScheduledTickAccess ticks,
+            @NonNull BlockPos pos,
             Direction direction,
-            BlockPos neighbourPos,
-            BlockState neighbourState,
-            RandomSource random) {
+            @NonNull BlockPos neighbourPos,
+            @NonNull BlockState neighbourState,
+            @NonNull RandomSource random) {
         Direction.Axis axis = state.getValue(AXIS);
         boolean wrongAxis = axis != direction.getAxis() && direction.getAxis().isHorizontal();
         return !wrongAxis
@@ -182,7 +184,7 @@ public class MitePortalBlock extends NetherPortalBlock {
     }
 
     @Override
-    public int getPortalTransitionTime(ServerLevel level, Entity entity) {
+    public int getPortalTransitionTime(@NonNull ServerLevel level, @NonNull Entity entity) {
         return portalType == PortalType.RETURN_SPAWN && entity instanceof ServerPlayer
                 ? MITE_RUNEGATE_ENTRY_TICKS
                 : super.getPortalTransitionTime(level, entity);
@@ -190,7 +192,7 @@ public class MitePortalBlock extends NetherPortalBlock {
 
     @Override
     public @Nullable TeleportTransition getPortalDestination(
-            ServerLevel currentLevel, Entity entity, BlockPos portalEntryPos) {
+            ServerLevel currentLevel, @NonNull Entity entity, @NonNull BlockPos portalEntryPos) {
         PortalRoute route = routeFor(portalType, currentLevel.dimension());
         if (route == PortalRoute.NONE) {
             return null;
@@ -373,7 +375,7 @@ public class MitePortalBlock extends NetherPortalBlock {
                         preferred,
                         searchRadius,
                         PoiManager.Occupancy.ANY)
-                .map(record -> record.getPos())
+                .map(PoiRecord::getPos)
                 .filter(worldBorder::isWithinBounds)
                 .filter(portalFilter)
                 .min(Comparator.<BlockPos>comparingDouble(portal -> portal.distSqr(preferred))

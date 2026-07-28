@@ -5,7 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
-import com.pixulse.infx.harvest.HarvestTier;
+import com.pixulse.infx.data.harvest.HarvestTier;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
@@ -31,8 +31,7 @@ public final class VillageProgression {
     private VillageProgression() {}
 
     @SubscribeEvent
-
-    private static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
+    public static void onItemCrafted(PlayerEvent.ItemCraftedEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
         var equipment = InfXItems.catalog().equipment(event.getCrafting());
         if (equipment == null
@@ -48,14 +47,12 @@ public final class VillageProgression {
     }
 
     @SubscribeEvent
-
-    private static void onServerTick(ServerTickEvent.Post event) {
+    public static void onServerTick(ServerTickEvent.Post event) {
         if (event.getServer().getTickCount() % 20 == 0) refresh(event.getServer().overworld());
     }
 
     @SubscribeEvent
-
-    private static void onServerAboutToStart(ServerAboutToStartEvent event) {
+    public static void onServerAboutToStart(ServerAboutToStartEvent event) {
         generationUnlocked = false;
     }
 
@@ -76,8 +73,7 @@ public final class VillageProgression {
     }
 
     @SubscribeEvent
-
-    private static void onChunkLoad(ChunkEvent.Load event) {
+    public static void onChunkLoad(ChunkEvent.Load event) {
         if (!event.isNewChunk() || !(event.getLevel() instanceof ServerLevel level)) return;
         var structures = level.registryAccess().lookupOrThrow(Registries.STRUCTURE);
         boolean village = event.getChunk().getAllStarts().keySet().stream()

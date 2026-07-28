@@ -35,14 +35,12 @@ public final class ModernContentAuditEvents {
     private ModernContentAuditEvents() {}
 
     @SubscribeEvent
-
-    private static void onLootTableLoad(LootTableLoadEvent event) {
+    public static void onLootTableLoad(LootTableLoadEvent event) {
         if (isExplicitlyDisabledLootTable(event.getName())) event.setCanceled(true);
     }
 
     @SubscribeEvent
-
-    private static void removeVillagers(EntityJoinLevelEvent event) {
+    public static void removeVillagers(EntityJoinLevelEvent event) {
         if (!event.getLevel().isClientSide() && event.getEntity() instanceof AbstractVillager) {
             event.setCanceled(true);
         }
