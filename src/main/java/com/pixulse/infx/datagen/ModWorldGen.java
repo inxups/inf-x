@@ -15,6 +15,7 @@ import java.util.Optional;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.BiomeDefaultFeatures;
@@ -44,10 +45,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
@@ -56,6 +59,7 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
@@ -83,9 +87,11 @@ import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
+import net.minecraft.world.level.levelgen.placement.HeightmapPlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
+import net.minecraft.world.level.levelgen.placement.RarityFilter;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
@@ -133,6 +139,8 @@ final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> WITHERWOOD_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("witherwood_patch"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> BLUEBERRY_BUSH_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("blueberry_bush_patch"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
@@ -145,6 +153,8 @@ final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
     private static final ResourceKey<PlacedFeature> WITHERWOOD_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("witherwood_patch"));
+    private static final ResourceKey<PlacedFeature> BLUEBERRY_BUSH_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("blueberry_bush_patch"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
@@ -159,6 +169,8 @@ final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_large_caves"));
     private static final ResourceKey<BiomeModifier> ADD_WITHERWOOD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
+    private static final ResourceKey<BiomeModifier> ADD_BLUEBERRY_BUSH =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_blueberry_bush"));
     private static final ResourceKey<BiomeModifier> R196_SPAWNS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("r196_spawns"));
 
@@ -285,6 +297,13 @@ final class ModWorldGen {
                 new ConfiguredFeature<>(
                         Feature.SIMPLE_BLOCK,
                         new SimpleBlockConfiguration(BlockStateProvider.simple(InfXBlocks.WITHERWOOD.get()))));
+        context.register(
+                BLUEBERRY_BUSH_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.SIMPLE_BLOCK,
+                        new SimpleBlockConfiguration(BlockStateProvider.simple(InfXBlocks.BLUEBERRY_BUSH.get()
+                                .defaultBlockState()
+                                .setValue(SweetBerryBushBlock.AGE, SweetBerryBushBlock.MAX_AGE)))));
         registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, InfXBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
     }
 
@@ -344,6 +363,20 @@ final class ModWorldGen {
                                         BlockPredicate.matchesBlocks(
                                                 net.minecraft.core.Direction.DOWN.getUnitVec3i(),
                                                 InfXBlocks.NETHER_GRAVEL.get()))))));
+        context.register(
+                BLUEBERRY_BUSH_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(BLUEBERRY_BUSH_CONFIGURED),
+                        List.of(
+                                RarityFilter.onAverageOnceEvery(5),
+                                CountPlacement.of(4),
+                                InSquarePlacement.spread(),
+                                HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES),
+                                BlockPredicateFilter.forPredicate(BlockPredicate.allOf(
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        BlockPredicate.wouldSurvive(
+                                                InfXBlocks.BLUEBERRY_BUSH.get().defaultBlockState(), Vec3i.ZERO))),
+                                BiomeFilter.biome())));
         context.register(
                 ADAMANTIUM_ORE_PLACED,
                 new PlacedFeature(
@@ -877,6 +910,15 @@ final class ModWorldGen {
                 new BiomeModifiers.AddFeaturesBiomeModifier(
                         biomes.getOrThrow(BiomeTags.IS_NETHER),
                         HolderSet.direct(placedFeatures.getOrThrow(WITHERWOOD_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(
+                ADD_BLUEBERRY_BUSH,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        HolderSet.direct(
+                                biomes.getOrThrow(Biomes.FOREST),
+                                biomes.getOrThrow(Biomes.FLOWER_FOREST),
+                                biomes.getOrThrow(Biomes.OLD_GROWTH_BIRCH_FOREST)),
+                        HolderSet.direct(placedFeatures.getOrThrow(BLUEBERRY_BUSH_PLACED)),
                         GenerationStep.Decoration.VEGETAL_DECORATION));
         registerR196SpawnModifiers(context);
     }

@@ -71,9 +71,12 @@ public final class InfXItems {
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
     public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(InfXBlocks.NETHER_GRAVEL);
     public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(InfXBlocks.WITHERWOOD);
+    public static final DeferredItem<BlockItem> BLUEBERRY_BUSH =
+            ITEMS.registerSimpleBlockItem(InfXBlocks.BLUEBERRY_BUSH, properties -> properties.stacksTo(8));
     public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(InfXBlocks.CORE);
     public static final DeferredItem<BlockItem> SNOW_SLAB = ITEMS.registerSimpleBlockItem(InfXBlocks.SNOW_SLAB);
-    public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS = List.of(NETHER_GRAVEL, WITHERWOOD, CORE);
+    public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS =
+            List.of(NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
     public static final List<DeferredItem<BlockItem>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
     public static final DeferredItem<BlockItem> EMERALD_ENCHANTING_TABLE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.EMERALD_ENCHANTING_TABLE);
