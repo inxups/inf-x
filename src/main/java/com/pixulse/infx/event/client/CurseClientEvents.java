@@ -146,7 +146,7 @@ public final class CurseClientEvents {
         Component detail = status.known() && status.type() != null
                 ? status.type().title()
                 : Component.translatable("curse.infx.unknown");
-        return Component.translatable("hud.infx.curse", detail);
+        return Component.translatable("hud.infx.curse");
     }
 
     private static Component description(CurseStatus status) {
