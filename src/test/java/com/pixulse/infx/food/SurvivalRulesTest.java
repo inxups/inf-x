@@ -144,13 +144,25 @@ class SurvivalRulesTest {
     @Test
     void anyRemainingR196EnergyPermitsExhaustiveMovement() {
         assertTrue(new SurvivalData(0.1, 0, 1, 1, 1, 0, 0).hasFoodEnergy(),
-                "remaining Satiation must permit sprinting");
+                "remaining Satiation must remain usable energy");
         assertTrue(new SurvivalData(0, 0.1, 1, 1, 1, 0, 0).hasFoodEnergy(),
-                "remaining Nutrition must permit sprinting");
+                "remaining Nutrition must remain usable energy");
         assertFalse(new SurvivalData(0, 0, 1, 1, 1, 0, 0).hasFoodEnergy(),
-                "empty Satiation and Nutrition must stop sprinting");
+                "empty Satiation and Nutrition must leave no usable energy");
         assertFalse(new SurvivalData(0.0001, 0, 1, 1, 1, 0, 0).hasFoodEnergy(),
-                "sub-unit rounding noise must not re-enable sprinting");
+                "sub-unit rounding noise must not re-enable usable energy");
+    }
+
+    @Test
+    void onlyNutritionPermitsSprinting() {
+        assertFalse(new SurvivalData(0.1, 0, 1, 1, 1, 0, 0).hasNutritionForSprinting(),
+                "remaining Satiation must not permit sprinting");
+        assertTrue(new SurvivalData(0, 0.1, 1, 1, 1, 0, 0).hasNutritionForSprinting(),
+                "remaining Nutrition must permit sprinting");
+        assertFalse(new SurvivalData(0, 0, 1, 1, 1, 0, 0).hasNutritionForSprinting(),
+                "empty Nutrition must stop sprinting");
+        assertFalse(new SurvivalData(0, 0.0001, 1, 1, 1, 0, 0).hasNutritionForSprinting(),
+                "sub-unit nutrition rounding noise must not re-enable sprinting");
     }
 
     @Test

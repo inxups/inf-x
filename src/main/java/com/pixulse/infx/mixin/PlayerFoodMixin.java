@@ -19,11 +19,12 @@ abstract class PlayerFoodMixin {
         callback.setReturnValue(ignoreHunger || survival.satiation() < cap || survival.nutrition() < cap);
     }
 
-    /** MITE allows sprinting while either Satiation or Nutrition remains above zero. */
+    /** R196 requires Nutrition for sprinting; Satiation alone only powers other actions. */
     @Inject(method = "hasEnoughFoodToDoExhaustiveManoeuvres", at = @At("HEAD"), cancellable = true)
     private void infx$useR196EnergyForExhaustiveManoeuvres(CallbackInfoReturnable<Boolean> callback) {
         Player player = (Player) (Object) this;
         callback.setReturnValue(
-                player.getAbilities().mayfly || player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy());
+                player.getAbilities().mayfly
+                        || player.getData(InfXAttachments.SURVIVAL).hasNutritionForSprinting());
     }
 }

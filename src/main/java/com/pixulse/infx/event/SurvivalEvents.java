@@ -443,7 +443,7 @@ public final class SurvivalEvents {
             movement.removeModifier(EMPTY_AIR_SPEED);
         }
         if (activeMetabolism
-                && player.getData(InfXAttachments.SURVIVAL).isEnergyEmpty()
+                && !player.getData(InfXAttachments.SURVIVAL).hasNutritionForSprinting()
                 && player.isSprinting()) {
             player.setSprinting(false);
         }
