@@ -4,9 +4,9 @@ license="${mod_license}"
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
-authors="inxups"
+authors="inxups, IAFEnvoy"
 description='''
-A modern survival-progression overhaul inspired by MITE R196 behavior and rebuilt for NeoForge.
+A not easy mod for minecraft.
 '''
 
 [[mixins]]
