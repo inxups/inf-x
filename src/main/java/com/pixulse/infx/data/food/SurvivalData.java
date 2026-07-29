@@ -264,6 +264,11 @@ public record SurvivalData(
         return !hasFoodEnergy();
     }
 
+    /** Sprinting requires Nutrition; remaining Satiation alone does not permit it. */
+    public boolean hasNutritionForSprinting() {
+        return !isStarving();
+    }
+
     public boolean isStarving() {
         return nutrition <= 0.0001D;
     }
