@@ -15,6 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
@@ -23,6 +24,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.feline.Ocelot;
@@ -596,6 +598,42 @@ public final class MonsterEvents {
      */
     static boolean shouldSearchForLight(int tickCount, int entityId) {
         return Math.floorMod(tickCount + entityId, LIGHT_SEARCH_INTERVAL) == 0;
+    }
+
+    /**
+     * MITE's regular block spawners skip ordinary darkness checks, including torch light. Reusing
+     * the trial-spawner reason for the second predicate check preserves every non-light placement
+     * condition because both reasons remain spawner reasons in vanilla.
+     */
+    @SubscribeEvent
+    public static void allowMiteSpawnerLight(MobSpawnEvent.SpawnPlacementCheck event) {
+        if (event.getSpawnType() != EntitySpawnReason.SPAWNER
+                || event.getDefaultResult()
+                || !(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        boolean allowedIgnoringModernLight = SpawnPlacements.checkSpawnRules(
+                asEntityType(event.getEntityType()),
+                level,
+                EntitySpawnReason.TRIAL_SPAWNER,
+                event.getPos(),
+                event.getRandom());
+        boolean burnsInDirectSunlight = BuiltInRegistries.ENTITY_TYPE
+                        .wrapAsHolder(event.getEntityType())
+                        .is(EntityTypeTags.BURN_IN_DAYLIGHT)
+                && isExposedToMiteSunlight(level, event.getPos());
+        if (MonsterTactics.allowsMiteSpawnerLightBypass(
+                event.getSpawnType(),
+                event.getDefaultResult(),
+                allowedIgnoringModernLight,
+                burnsInDirectSunlight)) {
+            event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.SUCCEED);
+        }
+    }
+
+    private static boolean isExposedToMiteSunlight(ServerLevel level, BlockPos pos) {
+        BlockPos head = pos.above();
+        return level.isBrightOutside() && !level.isRainingAt(head) && level.canSeeSky(head);
     }
 
     @SubscribeEvent

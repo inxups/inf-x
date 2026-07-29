@@ -46,6 +46,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -68,6 +69,7 @@ public final class ModMonsterGameTests {
     private static final String ENDERMAN = "r196_enderman";
     private static final String WITCH_CURSE = "r196_witch_curse";
     private static final String TACTICS = "r196_monster_tactics";
+    private static final String SPAWNER_LIGHT = "r196_spawner_light";
     private static final String SPAWNS = "r196_spawn_tables";
     private static final String ATTACK_RANGES = "r196_attack_ranges";
     private static final String RANGED_ATTACK_RANGES = "r196_ranged_attack_ranges";
@@ -84,6 +86,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ENDERMAN, () -> ModMonsterGameTests::enderman);
         FUNCTIONS.register(WITCH_CURSE, () -> ModMonsterGameTests::witchCurse);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
+        FUNCTIONS.register(SPAWNER_LIGHT, () -> ModMonsterGameTests::spawnerLight);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
         FUNCTIONS.register(ATTACK_RANGES, () -> ModMonsterGameTests::attackRanges);
         FUNCTIONS.register(RANGED_ATTACK_RANGES, () -> ModMonsterGameTests::rangedAttackRanges);
@@ -111,6 +114,7 @@ public final class ModMonsterGameTests {
                 ENDERMAN,
                 WITCH_CURSE,
                 TACTICS,
+                SPAWNER_LIGHT,
                 SPAWNS,
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
@@ -1212,6 +1216,32 @@ public final class ModMonsterGameTests {
                 .thenExecute(() -> helper.assertTrue(
                         enderman.requiresCustomPersistence(),
                         "R196 endermen carrying valuables must not despawn"))
+                .thenSucceed();
+    }
+
+    private static void spawnerLight(GameTestHelper helper) {
+        BlockPos spawnerPos = new BlockPos(4, 2, 4);
+        for (int x = 0; x <= 8; x++) {
+            for (int z = 0; z <= 8; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+                helper.setBlock(new BlockPos(x, 5, z), Blocks.STONE);
+            }
+        }
+        helper.setBlock(spawnerPos, Blocks.SPAWNER);
+        helper.setBlock(spawnerPos.above(2), Blocks.TORCH);
+
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos absoluteSpawnerPos = helper.absolutePos(spawnerPos);
+        SpawnerBlockEntity spawner = (SpawnerBlockEntity) helper.getLevel().getBlockEntity(absoluteSpawnerPos);
+        helper.assertTrue(spawner != null, "the test spawner must create its block entity");
+        spawner.setEntityId(EntityType.ZOMBIE, helper.getLevel().getRandom());
+        for (int tick = 0; tick <= 20; tick++) {
+            spawner.getSpawner().serverTick(helper.getLevel(), absoluteSpawnerPos);
+        }
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.R196_ZOMBIE.get(), spawnerPos, 8.0D))
+                .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
                 .thenSucceed();
     }
 

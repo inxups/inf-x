@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.material.MiteMaterial;
+import net.minecraft.world.entity.EntitySpawnReason;
 import org.junit.jupiter.api.Test;
 
 class MonsterTacticsTest {
@@ -23,6 +24,18 @@ class MonsterTacticsTest {
     void spawnersStopAtTwentyMatchingMobs() {
         assertFalse(MonsterTactics.spawnerAtCap(19));
         assertTrue(MonsterTactics.spawnerAtCap(20));
+    }
+
+    @Test
+    void ordinarySpawnersBypassTorchLightButKeepMiteSunlightAndPlacementGates() {
+        assertTrue(MonsterTactics.allowsMiteSpawnerLightBypass(
+                EntitySpawnReason.SPAWNER, false, true, false));
+        assertFalse(MonsterTactics.allowsMiteSpawnerLightBypass(
+                EntitySpawnReason.SPAWNER, false, true, true));
+        assertFalse(MonsterTactics.allowsMiteSpawnerLightBypass(
+                EntitySpawnReason.SPAWNER, false, false, false));
+        assertFalse(MonsterTactics.allowsMiteSpawnerLightBypass(
+                EntitySpawnReason.TRIAL_SPAWNER, false, true, false));
     }
 
     @Test

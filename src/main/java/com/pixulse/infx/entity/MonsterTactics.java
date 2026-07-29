@@ -57,6 +57,18 @@ public final class MonsterTactics {
         return nearbyMatchingMobs >= 20;
     }
 
+    /** MITE block spawners ignore torch light but do not create a mob that sunlight would burn. */
+    public static boolean allowsMiteSpawnerLightBypass(
+            net.minecraft.world.entity.EntitySpawnReason spawnReason,
+            boolean vanillaPlacementAllowed,
+            boolean placementAllowedIgnoringLight,
+            boolean burnsInDirectSunlight) {
+        return spawnReason == net.minecraft.world.entity.EntitySpawnReason.SPAWNER
+                && !vanillaPlacementAllowed
+                && placementAllowedIgnoringLight
+                && !burnsInDirectSunlight;
+    }
+
     public static Vec3 flankOffset(int entityId, double radius) {
         double angle = Math.floorMod(entityId, 8) * Math.PI / 4.0;
         return new Vec3(Math.cos(angle) * radius, 0.0, Math.sin(angle) * radius);
