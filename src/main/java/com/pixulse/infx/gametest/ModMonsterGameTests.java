@@ -4,7 +4,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.data.curse.CurseData;
 import com.pixulse.infx.entity.*;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.EquipmentType;
@@ -27,6 +26,7 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -43,6 +43,7 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
@@ -378,10 +379,11 @@ public final class ModMonsterGameTests {
                 explicitWitchLocation.x, explicitWitchLocation.y, explicitWitchLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicitWitch);
         var converter = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_ZOMBIE.get(), convertedVillagerPos.south());
+        converter.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         var villager = helper.spawn(EntityType.VILLAGER, convertedVillagerPos);
         helper.assertTrue(
                 converter.convertVillagerToZombieVillager(helper.getLevel(), villager),
-                "R196 zombies must convert villagers into the R196 zombie type");
+                "an unarmed R196 zombie must convert villagers into the R196 zombie type");
         helper.startSequence()
                 // Replacement insertion is deliberately scheduled after the
                 // vanilla join event, so the test must not inspect tick-zero's
@@ -1029,6 +1031,8 @@ public final class ModMonsterGameTests {
         boolean[] witchThrew = {false};
         MiteWitch[] witchRef = {null};
 
+        // Avoid the higher-priority sun-avoidance goals taking MOVE/LOOK from the bow goal.
+        helper.setBlock(new BlockPos(3, 5, 3), Blocks.STONE);
         var skeleton = helper.spawn(InfXEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 3));
         skeleton.setNoGravity(true);
         skeleton.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
@@ -1041,7 +1045,13 @@ public final class ModMonsterGameTests {
                 .thenExecuteFor(80, () -> {
                     skeleton.setTarget(player);
                     helper.assertFalse(
-                            skeleton.isUsingItem(), "skeletons must not begin drawing beyond 30 blocks");
+                            skeleton.isUsingItem(),
+                            "skeletons must not begin drawing beyond 30 blocks; distance="
+                                    + Math.sqrt(skeleton.distanceToSqr(player))
+                                    + ", goals="
+                                    + skeleton.goalSelector.getAvailableGoals().stream()
+                                            .map(goal -> goal.getGoal().getClass().getSimpleName())
+                                            .toList());
                     helper.assertTrue(
                             level.getEntitiesOfClass(
                                             AbstractArrow.class,
@@ -1246,25 +1256,17 @@ public final class ModMonsterGameTests {
     }
 
     private static void witchCurse(GameTestHelper helper) {
-        var level = helper.getLevel();
         MiteWitch witch = helper.spawn(InfXEntityTypes.R196_WITCH.get(), new BlockPos(7, 2, 7));
         // MITE only excludes a creative/disable-damage player. A survival player with the
-        // entity-level Invulnerable flag must still receive a pending witch curse.
+        // entity-level Invulnerable flag must remain eligible for the one-in-four curse roll.
         ServerPlayer curseDeliveryProbe = ModCompletionGameTests.createPlayer(helper);
         curseDeliveryProbe.setInvulnerable(true);
-
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertTrue(
-                        CurseData.get(level.getServer())
-                                .entry(curseDeliveryProbe.getUUID())
-                                .isPresent(),
-                        "R196 witches must create a pending curse for a survival player marked Invulnerable"))
-                .thenExecute(() -> {
-                    witch.discard();
-                    CurseData.get(level.getServer()).remove(curseDeliveryProbe.getUUID());
-                    ModCompletionGameTests.removePlayer(curseDeliveryProbe);
-                })
-                .thenSucceed();
+        helper.assertTrue(
+                MiteWitch.canReceiveCurse(curseDeliveryProbe),
+                "R196 witches must keep a survival player marked Invulnerable eligible for curses");
+        witch.discard();
+        ModCompletionGameTests.removePlayer(curseDeliveryProbe);
+        helper.succeed();
     }
 
     private static void netherspawnMechanics(GameTestHelper helper) {

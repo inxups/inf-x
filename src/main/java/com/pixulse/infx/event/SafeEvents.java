@@ -51,6 +51,17 @@ public final class SafeEvents {
         event.getDrops().removeIf(drop -> drop.getItem().is(safe.asItem()));
     }
 
+    /** Owners may recover a portable safe by hand, including its normal block drop. */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void allowOwnerHandHarvest(PlayerEvent.HarvestCheck event) {
+        if (!(event.getTargetBlock().getBlock() instanceof SafeBlock)
+                || event.getEntity().hasInfiniteMaterials()
+                || !isOwner(event.getEntity().level().getBlockEntity(event.getPos()), event.getEntity())) {
+            return;
+        }
+        event.setCanHarvest(true);
+    }
+
     /**
      * Only the owner (or creative) recovers the safe block item. Explosions and other
      * non-player breakers never drop the box itself, matching MITE {@code dropBlockAsEntityItem}.

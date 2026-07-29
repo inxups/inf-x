@@ -27,11 +27,20 @@ public final class HarvestEvents {
         BlockState state = event.getState();
         BlockPos pos = event.getPosition().orElse(null);
         float hardness = pos == null ? -1.0F : state.getDestroySpeed(player.level(), pos);
-        event.setNewSpeed(HarvestSpeedRules.adjustedBreakSpeed(
+        boolean portable = isPortable(player, state, pos);
+        float speed = HarvestSpeedRules.adjustedBreakSpeed(
                 player,
                 event.getNewSpeed(),
                 hardness,
-                isPortable(player, state, pos)));
+                portable);
+        // SafeEvents grants owners harvest capability so vanilla already uses its /30 divisor.
+        if (portable && !(state.getBlock() instanceof SafeBlock)) {
+            speed = HarvestSpeedRules.compensatePortableHandSpeed(
+                    speed,
+                    state.requiresCorrectToolForDrops(),
+                    player.hasCorrectToolForDrops(state));
+        }
+        event.setNewSpeed(speed);
     }
 
     private static boolean isPortable(Player player, BlockState state, @Nullable BlockPos pos) {
