@@ -45,6 +45,7 @@ public final class MiteEnchantmentMenu extends EnchantmentMenu {
     private static final int CONVERSION_POWER = 2;
     private final int[] enchantmentPowers = new int[3];
     private final Kind kind;
+    private ItemStack lastInput = ItemStack.EMPTY;
 
     public MiteEnchantmentMenu(int containerId, Inventory inventory, ContainerLevelAccess access, Kind kind) {
         super(containerId, inventory, access);
@@ -84,6 +85,16 @@ public final class MiteEnchantmentMenu extends EnchantmentMenu {
         Container enchantSlots = accessors().infx$enchantSlots();
         if (container != enchantSlots) return;
         ItemStack stack = container.getItem(0);
+        if (!ItemStack.isSameItemSameComponents(stack, lastInput)) {
+            lastInput = stack.copy();
+            if (!stack.isEmpty()) {
+                int currentSeed = accessors().infx$enchantmentSeed().get();
+                accessors().infx$random().setSeed(currentSeed);
+                int refreshedSeed = accessors().infx$random().nextInt();
+                if (refreshedSeed == currentSeed) refreshedSeed++;
+                accessors().infx$enchantmentSeed().set(refreshedSeed);
+            }
+        }
         if (stack.isEmpty() || !isTableInput(stack)) {
             for (int index = 0; index < 3; index++) {
                 costs[index] = 0;
