@@ -90,6 +90,24 @@ class MonsterProfileTest {
     }
 
     @Test
+    void phaseSpiderCombatGuardsRejectUnsafeStateTransitions() {
+        assertTrue(MiteSpider.shouldUsePhaseChaseTeleport(1.501F, 6.0F));
+        assertFalse(MiteSpider.shouldUsePhaseChaseTeleport(1.5F, 6.0F));
+        assertFalse(MiteSpider.shouldUsePhaseChaseTeleport(0.0F, 6.0F));
+
+        assertTrue(MiteSpider.canAttemptPhaseEvasion(1.0F, 0, false));
+        assertFalse(MiteSpider.canAttemptPhaseEvasion(0.0F, 0, false));
+        assertFalse(MiteSpider.canAttemptPhaseEvasion(1.0F, 1, false));
+        assertFalse(MiteSpider.canAttemptPhaseEvasion(1.0F, 0, true));
+
+        assertEquals(2, MiteSpider.clampPhaseMaxEvasions(0));
+        assertEquals(4, MiteSpider.clampPhaseMaxEvasions(99));
+        assertEquals(0, MiteSpider.clampPhaseEvasions(-1, 4));
+        assertEquals(4, MiteSpider.clampPhaseEvasions(99, 4));
+        assertEquals(2, MiteSpider.clampPhaseEvasions(99, 0));
+    }
+
+    @Test
     void creeperSwellAndPowderRollsMatchR196() {
         assertEquals(4.5, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.CREEPER, false, 1.0F), EPSILON);
         assertEquals(9.0, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.CREEPER, false, 0.99F), EPSILON);

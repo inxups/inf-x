@@ -43,6 +43,8 @@ public final class MiteSpider extends Spider implements MiteMob {
     private static final double MODERN_SPIDER_MOVEMENT_SPEED = 0.30;
     private static final double MITE_ARACHNID_SPEED_MULTIPLIER = 1.25;
     private static final double MAX_PHASE_CHASE_VERTICAL_DISTANCE = 2.0;
+    private static final int MIN_PHASE_EVASIONS = 2;
+    private static final int MAX_PHASE_EVASIONS = 4;
 
     public enum Variant {
         SPIDER,
@@ -61,7 +63,8 @@ public final class MiteSpider extends Spider implements MiteMob {
         super(type, level);
         websRemaining = variant() == Variant.PHASE ? 0 : initialWebCount(variant(), random.nextInt(4));
         if (variant() == Variant.PHASE) {
-            maxPhaseEvasions = random.nextInt(3) + 2;
+            maxPhaseEvasions = random.nextInt(MAX_PHASE_EVASIONS - MIN_PHASE_EVASIONS + 1)
+                    + MIN_PHASE_EVASIONS;
             phaseEvasions = maxPhaseEvasions;
         }
         xpReward = switch (variant()) {
@@ -154,6 +157,22 @@ public final class MiteSpider extends Spider implements MiteMob {
 
     static boolean canPhaseChaseAcrossVerticalDistance(double verticalDistance) {
         return Math.abs(verticalDistance) <= MAX_PHASE_CHASE_VERTICAL_DISTANCE;
+    }
+
+    static boolean shouldUsePhaseChaseTeleport(float health, float maxHealth) {
+        return maxHealth > 0.0F && health > maxHealth * 0.25F;
+    }
+
+    static boolean canAttemptPhaseEvasion(float damage, int invulnerableTime, boolean invulnerable) {
+        return damage > 0.0F && invulnerableTime <= 0 && !invulnerable;
+    }
+
+    static int clampPhaseMaxEvasions(int value) {
+        return Mth.clamp(value, MIN_PHASE_EVASIONS, MAX_PHASE_EVASIONS);
+    }
+
+    static int clampPhaseEvasions(int value, int maxEvasions) {
+        return Mth.clamp(value, 0, clampPhaseMaxEvasions(maxEvasions));
     }
 
     @Override
@@ -263,7 +282,12 @@ public final class MiteSpider extends Spider implements MiteMob {
             return;
         }
 
-        if (variant() == Variant.PHASE && tickCount % 10 == 0 && random.nextInt(3) == 0
+        // Low-health spiders are already owned by AvoidEntityGoal; do not pull them back toward
+        // the player with the phase chase teleport.
+        if (variant() == Variant.PHASE
+                && shouldUsePhaseChaseTeleport(getHealth(), getMaxHealth())
+                && tickCount % 10 == 0
+                && random.nextInt(3) == 0
                 && distanceToSqr(target) > 9.0) {
             teleportToward(target);
         }
@@ -310,7 +334,13 @@ public final class MiteSpider extends Spider implements MiteMob {
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         // MITE phase spiders always evade while they have evasions left, jumping at least three
         // blocks sideways and away from the threat, then reacquire a player within 24 blocks.
-        if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null) {
+        if (variant() == Variant.PHASE
+                && phaseEvasions > 0
+                && source.getEntity() != null
+                && canAttemptPhaseEvasion(
+                        damage,
+                        invulnerableTime,
+                        isInvulnerable() || isInvulnerableTo(level, source))) {
             for (int attempt = 0; attempt < 64; attempt++) {
                 int dx = random.nextInt(11) - 5;
                 int dy = random.nextInt(9) - 4;
@@ -327,9 +357,7 @@ public final class MiteSpider extends Spider implements MiteMob {
                 if (randomTeleport(x, y, z, true)) {
                     phaseEvasions--;
                     Player nearest = level.getNearestPlayer(this, 24.0);
-                    if (nearest != null) {
-                        setTarget(nearest);
-                    }
+                    setTarget(nearest);
                     return false;
                 }
             }
@@ -366,8 +394,15 @@ public final class MiteSpider extends Spider implements MiteMob {
     @Override
     protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
-        phaseEvasions = input.getIntOr("R196PhaseEvasions", phaseEvasions);
-        maxPhaseEvasions = input.getIntOr("R196PhaseMaxEvasions", maxPhaseEvasions);
+        if (variant() == Variant.PHASE) {
+            maxPhaseEvasions = clampPhaseMaxEvasions(
+                    input.getIntOr("R196PhaseMaxEvasions", maxPhaseEvasions));
+            phaseEvasions = clampPhaseEvasions(
+                    input.getIntOr("R196PhaseEvasions", phaseEvasions), maxPhaseEvasions);
+        } else {
+            phaseEvasions = 0;
+            maxPhaseEvasions = 0;
+        }
         websRemaining = variant() == Variant.PHASE
                 ? 0
                 : Mth.clamp(input.getIntOr("R196WebsRemaining", websRemaining), 0, 3);
