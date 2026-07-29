@@ -319,11 +319,13 @@ public final class ModEquipmentGameTests {
         helper.setBlock(leftClickPos.below(), Blocks.STONE);
         helper.setBlock(leftClickPos, Blocks.RED_WOOL);
         player.setItemInHand(InteractionHand.MAIN_HAND, blockShears);
-        helper.assertTrue(
+        helper.assertFalse(
                 player.gameMode.destroyBlock(helper.absolutePos(leftClickPos)),
-                "left-click shears must still destroy blocks");
-        int leftClickDrops = itemCount(helper, leftClickPos, Items.RED_WOOL);
-        helper.assertTrue(leftClickDrops == 0, "left-click shears must not produce block drops");
+                "left-click shears must not destroy blocks");
+        helper.assertTrue(helper.getBlockState(leftClickPos).is(Blocks.RED_WOOL),
+                "left-click shears must leave the block in place");
+        helper.assertTrue(blockShears.getDamageValue() == 0,
+                "a cancelled left-click block break must not consume durability");
 
         EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
         while (playerChannel.readOutbound() != null) {}
