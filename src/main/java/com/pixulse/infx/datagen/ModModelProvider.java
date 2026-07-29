@@ -1,6 +1,8 @@
 package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.block.MiteCropBlock;
+import com.pixulse.infx.block.MiteCropType;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.SafeBlock;
@@ -44,6 +46,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -101,7 +104,8 @@ final class ModModelProvider extends ModelProvider {
                         InfXBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
                         InfXBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
                         InfXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
-                        InfXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()))
+                        InfXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()),
+                        InfXBlocks.MITE_CROPS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
@@ -152,6 +156,7 @@ final class ModModelProvider extends ModelProvider {
         blockModels.createCrossBlockWithDefaultItem(
                 InfXBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
         generateBlueberryBush(blockModels);
+        InfXBlocks.MITE_CROPS.forEach(crop -> generateMiteCrop(blockModels, crop.value()));
         blockModels.createTrivialCube(InfXBlocks.NETHER_GRAVEL.value());
         blockModels.createTrivialCube(InfXBlocks.CORE.value());
         blockModels.createTrivialBlock(
@@ -264,6 +269,46 @@ final class ModModelProvider extends ModelProvider {
                         .select(2, BlockModelGenerators.plainVariant(picked))
                         .select(3, BlockModelGenerators.plainVariant(ripe))));
         blockModels.registerSimpleItemModel(bush, picked);
+    }
+
+    private static void generateMiteCrop(BlockModelGenerators blockModels, MiteCropBlock crop) {
+        MiteCropType type = crop.type();
+        Identifier[] healthy = new Identifier[type.textureStages()];
+        Identifier[] blighted = new Identifier[type.textureStages()];
+        Identifier[] dead = new Identifier[type.deadTextureStages()];
+        for (int stage = 0; stage < healthy.length; stage++) {
+            healthy[stage] = ModelTemplates.CROP.createWithSuffix(
+                    crop,
+                    "_healthy_" + stage,
+                    TextureMapping.crop(new Material(InfiniteX.id(
+                            "block/crops/" + type.textureName() + "/" + stage))),
+                    blockModels.modelOutput);
+            blighted[stage] = ModelTemplates.CROP.createWithSuffix(
+                    crop,
+                    "_blighted_" + stage,
+                    TextureMapping.crop(new Material(InfiniteX.id(
+                            "block/crops/" + type.textureName() + "/blighted/" + stage))),
+                    blockModels.modelOutput);
+        }
+        for (int stage = 0; stage < dead.length; stage++) {
+            dead[stage] = ModelTemplates.CROP.createWithSuffix(
+                    crop,
+                    "_dead_" + stage,
+                    TextureMapping.crop(new Material(InfiniteX.id(
+                            "block/crops/" + type.textureName() + "/dead/" + stage))),
+                    blockModels.modelOutput);
+        }
+
+        var states = PropertyDispatch.initial(CropBlock.AGE, MiteCropBlock.BLIGHTED, MiteCropBlock.DEAD);
+        for (int age = 0; age <= CropBlock.MAX_AGE; age++) {
+            int healthyStage = type.textureStage(age);
+            int deadStage = type.deadTextureStage(age);
+            states.select(age, false, false, BlockModelGenerators.plainVariant(healthy[healthyStage]));
+            states.select(age, true, false, BlockModelGenerators.plainVariant(blighted[healthyStage]));
+            states.select(age, false, true, BlockModelGenerators.plainVariant(dead[deadStage]));
+            states.select(age, true, true, BlockModelGenerators.plainVariant(dead[deadStage]));
+        }
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(crop).with(states));
     }
 
     private static void generateUnderworldPortal(BlockModelGenerators blockModels) {

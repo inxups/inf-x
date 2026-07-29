@@ -4,16 +4,16 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACK_TEXTURES="${1:-$ROOT/codex/reference/mite-resource-pack/assets/minecraft/textures}"
 SOURCE_TEXTURES="${2:-$ROOT/codex/reference/mite-src/assets/minecraft/textures}"
+ITF_REBORN_TEXTURES="${3:-${ITF_REBORN_TEXTURES:-/Users/inxups/Downloads/ITF-Reborn-R196/src/main/resources/assets/miteitfrb/textures}}"
 ASSET_ROOT="$ROOT/src/main/resources/assets/infx"
 DEST_TEXTURES="$ASSET_ROOT/textures"
 MANIFEST="$ASSET_ROOT/mite_texture_manifest.tsv"
 ROWS="$(mktemp)"
-trap 'rm -f "$ROWS" "$MANIFEST.tmp"' EXIT
+PREVIOUS_ROWS="$(mktemp)"
+trap 'rm -f "$ROWS" "$PREVIOUS_ROWS" "$MANIFEST.tmp"' EXIT
 
 if [[ -f "$MANIFEST" ]]; then
-  tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r _ _ destination _; do
-    [[ -n "$destination" ]] && rm -f "$ASSET_ROOT/$destination"
-  done
+  tail -n +2 "$MANIFEST" > "$PREVIOUS_ROWS"
 fi
 
 sync() {
@@ -21,6 +21,7 @@ sync() {
   case "$source_kind" in
     resource-pack) source_root="$PACK_TEXTURES" ;;
     mite-src) source_root="$SOURCE_TEXTURES" ;;
+    itf-reborn) source_root="$ITF_REBORN_TEXTURES" ;;
     *) echo "Unknown source kind: $source_kind" >&2; exit 1 ;;
   esac
   source="$source_root/$source_rel"
@@ -58,6 +59,32 @@ for material in silver ancient_metal mithril adamantium; do
   sync resource-pack "blocks/${material}_block.png" "block/${material}_block.png"
 done
 sync resource-pack blocks/snow.png block/snow_slab.png
+
+# Visible MITE row-crop states. Beetroot comes from the owner-provided ITF Reborn source.
+for crop in wheat carrots potatoes; do
+  case "$crop" in
+    wheat)
+      normal_last=7
+      dead_last=6
+      ;;
+    carrots|potatoes)
+      normal_last=3
+      dead_last=2
+      ;;
+  esac
+  for stage in $(seq 0 "$normal_last"); do
+    sync resource-pack "blocks/crops/$crop/$stage.png" "block/crops/$crop/$stage.png"
+    sync resource-pack "blocks/crops/$crop/blighted/$stage.png" "block/crops/$crop/blighted/$stage.png"
+  done
+  for stage in $(seq 0 "$dead_last"); do
+    sync resource-pack "blocks/crops/$crop/dead/$stage.png" "block/crops/$crop/dead/$stage.png"
+  done
+done
+for stage in 0 1 2 3; do
+  sync itf-reborn "blocks/crops/beetroot/$stage.png" "block/crops/beetroot/$stage.png"
+  sync itf-reborn "blocks/crops/beetroot/blighted/$stage.png" "block/crops/beetroot/blighted/$stage.png"
+  sync itf-reborn "blocks/crops/beetroot/dead/$stage.png" "block/crops/beetroot/dead/$stage.png"
+done
 
 for material in copper silver gold iron ancient_metal mithril adamantium; do
   sync resource-pack "blocks/anvil/$material/base.png" "block/anvil/$material/base.png"
@@ -356,10 +383,13 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 577 ]] || { echo "Expected 577 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 634 ]] || { echo "Expected 634 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
-  LC_ALL=C sort -t $'\t' -k3,3 "$ROWS"
+  {
+    awk -F $'\t' 'NR == FNR { replaced[$3] = 1; next } !($3 in replaced)' "$ROWS" "$PREVIOUS_ROWS"
+    cat "$ROWS"
+  } | LC_ALL=C sort -t $'\t' -k3,3
 } > "$MANIFEST.tmp"
 mv "$MANIFEST.tmp" "$MANIFEST"
 printf 'Synchronized %s approved MITE textures\n' "$row_count"

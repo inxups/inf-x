@@ -21,8 +21,8 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 /** Marks test-mode title screens and prevents unrestricted clients from entering online play. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class TestModeTitleScreenEvents {
-    static final String TEST_MODE_LABEL_KEY = "menu.infx.test_mode";
-    static final Component TEST_MODE_LABEL = Component.translatable(TEST_MODE_LABEL_KEY)
+    public static final String TEST_MODE_LABEL_KEY = "menu.infx.test_mode";
+    public static final Component TEST_MODE_LABEL = Component.translatable(TEST_MODE_LABEL_KEY)
             .withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
     private static final Component ONLINE_PLAY_DISABLED = Component.translatable(
             "menu.infx.test_mode.online_disabled");
@@ -53,13 +53,13 @@ public final class TestModeTitleScreenEvents {
                 font);
     }
 
-    static int testModeLabelY(int screenHeight) {
+    public static int testModeLabelY(int screenHeight) {
         int normalMenuTop = screenHeight / 4 + NORMAL_MENU_TOP_OFFSET;
         int yAboveMenu = normalMenuTop - TEST_MODE_LABEL_HEIGHT - LABEL_MENU_GAP;
         return Math.max(LABEL_Y_BELOW_LOGO, yAboveMenu);
     }
 
-    static void disableOnlineButtons(Iterable<? extends GuiEventListener> listeners) {
+    public static void disableOnlineButtons(Iterable<? extends GuiEventListener> listeners) {
         for (GuiEventListener listener : listeners) {
             if (!(listener instanceof Button button)
                     || ONLINE_BUTTONS.stream().noneMatch(key -> hasTranslationKey(button.getMessage(), key))) {
