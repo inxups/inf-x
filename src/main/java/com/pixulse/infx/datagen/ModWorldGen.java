@@ -11,6 +11,7 @@ import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
@@ -22,6 +23,7 @@ import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
+import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BiomeTags;
@@ -165,6 +167,8 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
     private static final ResourceKey<BiomeModifier> ADD_BLUEBERRY_BUSH =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_blueberry_bush"));
+    private static final ResourceKey<BiomeModifier> REMOVE_JUNGLE_MELONS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_jungle_melons"));
     private static final ResourceKey<BiomeModifier> R196_SPAWNS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("r196_spawns"));
 
@@ -899,6 +903,14 @@ public final class ModWorldGen {
                                 biomes.getOrThrow(Biomes.OLD_GROWTH_BIRCH_FOREST)),
                         HolderSet.direct(placedFeatures.getOrThrow(BLUEBERRY_BUSH_PLACED)),
                         GenerationStep.Decoration.VEGETAL_DECORATION));
+        context.register(
+                REMOVE_JUNGLE_MELONS,
+                new BiomeModifiers.RemoveFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_JUNGLE),
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(VegetationPlacements.PATCH_MELON),
+                                placedFeatures.getOrThrow(VegetationPlacements.PATCH_MELON_SPARSE)),
+                        Set.of(GenerationStep.Decoration.VEGETAL_DECORATION)));
         registerR196SpawnModifiers(context);
     }
 
