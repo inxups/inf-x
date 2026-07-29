@@ -44,10 +44,12 @@ import net.minecraft.gametest.framework.TestData;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
@@ -311,9 +313,31 @@ public final class ModEquipmentGameTests {
                 .holder()
                 .value()
                 .getDefaultInstance();
+
         BlockPos leavesPos = new BlockPos(8, 1, 1);
+        BlockPos leftClickPos = new BlockPos(8, 1, 3);
+        helper.setBlock(leftClickPos.below(), Blocks.STONE);
+        helper.setBlock(leftClickPos, Blocks.RED_WOOL);
+        player.setItemInHand(InteractionHand.MAIN_HAND, blockShears);
+        helper.assertTrue(
+                player.gameMode.destroyBlock(helper.absolutePos(leftClickPos)),
+                "left-click shears must still destroy blocks");
+        int leftClickDrops = itemCount(helper, leftClickPos, Items.RED_WOOL);
+        helper.assertTrue(leftClickDrops == 0, "left-click shears must not produce block drops");
+
+        EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
+        while (playerChannel.readOutbound() != null) {}
         useOnBlock(helper, player, leavesPos, Blocks.OAK_LEAVES.defaultBlockState(), blockShears);
         helper.assertTrue(helper.getBlockState(leavesPos).isAir(), "right-click shears must cut leaves");
+        boolean receivedShearsSound = false;
+        Object outbound;
+        while ((outbound = playerChannel.readOutbound()) != null) {
+            if (outbound instanceof ClientboundSoundPacket soundPacket
+                    && soundPacket.getSound().value() == SoundEvents.SHEARS_SNIP) {
+                receivedShearsSound = true;
+            }
+        }
+        helper.assertTrue(receivedShearsSound, "right-click block shearing must play the shears sound");
 
         BlockPos woolPos = new BlockPos(9, 1, 1);
         useOnBlock(helper, player, woolPos, Blocks.WHITE_WOOL.defaultBlockState(), blockShears);
@@ -334,11 +358,14 @@ public final class ModEquipmentGameTests {
                 .mapToInt(item -> item.getItem().getCount())
                 .sum();
         helper.assertTrue(blueberryDrops == 1, "cutting a mature blueberry bush must drop one blueberry");
+        int bushDrops = itemCount(helper, blueberryPos, InfXItems.BLUEBERRY_BUSH.get());
+        helper.assertTrue(bushDrops == 1, "cutting a blueberry bush must drop the bush itself");
         helper.getLevel()
                 .getEntitiesOfClass(
                         ItemEntity.class,
                         AABB.ofSize(helper.absoluteVec(Vec3.atCenterOf(blueberryPos)), 4.0D, 4.0D, 4.0D),
-                        item -> item.getItem().is(InfXItems.BLUEBERRIES))
+                        item -> item.getItem().is(InfXItems.BLUEBERRIES)
+                                || item.getItem().is(InfXItems.BLUEBERRY_BUSH))
                 .forEach(ItemEntity::discard);
         helper.assertTrue(blockShears.getDamageValue() > 0, "right-click block shearing must consume durability");
 
@@ -377,6 +404,17 @@ public final class ModEquipmentGameTests {
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
         InteractionResult result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
         helper.assertTrue(result.consumesAction(), stack.getItem() + " use action must succeed");
+    }
+
+    private static int itemCount(GameTestHelper helper, BlockPos relativePos, Item item) {
+        return helper.getLevel()
+                .getEntitiesOfClass(
+                        ItemEntity.class,
+                        AABB.ofSize(helper.absoluteVec(Vec3.atCenterOf(relativePos)), 4.0D, 4.0D, 4.0D),
+                        entity -> entity.getItem().is(item))
+                .stream()
+                .mapToInt(entity -> entity.getItem().getCount())
+                .sum();
     }
 
     private static void harvestTierCatalog(GameTestHelper helper) {
