@@ -174,8 +174,14 @@ public final class MiteSkeleton extends Skeleton implements MiteMob {
     @Override
     public void reassessWeaponGoal() {
         super.reassessWeaponGoal();
+        goalSelector.getAvailableGoals().stream()
+                .filter(candidate -> candidate.getGoal() instanceof MiteHardLimitedBowAttackGoal<?>
+                        || candidate.getGoal() instanceof RangedBowAttackGoal<?>)
+                .map(candidate -> candidate.getGoal())
+                .toList()
+                .forEach(goalSelector::removeGoal);
+        bowGoal = null;
         if (level() != null && !level().isClientSide() && isHolding(stack -> stack.getItem() instanceof BowItem)) {
-            goalSelector.removeAllGoals(goal -> goal instanceof RangedBowAttackGoal<?>);
             // MITE skeletons fire once every 60 ticks (40 while inspired) out to 30 blocks.
             bowGoal = new MiteHardLimitedBowAttackGoal<>(
                     this, 1.0, 60, (float) AttackRanges.SKELETON_RANGED_REACH);

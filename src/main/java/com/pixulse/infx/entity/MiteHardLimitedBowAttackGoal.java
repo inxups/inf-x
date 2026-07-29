@@ -19,6 +19,7 @@ final class MiteHardLimitedBowAttackGoal<T extends Mob & RangedAttackMob> extend
     private boolean strafingClockwise;
     private boolean strafingBackwards;
     private int strafingTime = -1;
+    private boolean targetWasOutOfRange;
 
     MiteHardLimitedBowAttackGoal(T mob, double speedModifier, int attackInterval, float attackRadius) {
         this.mob = mob;
@@ -56,6 +57,7 @@ final class MiteHardLimitedBowAttackGoal<T extends Mob & RangedAttackMob> extend
         mob.setAggressive(false);
         seeTime = 0;
         attackTime = -1;
+        targetWasOutOfRange = false;
         mob.stopUsingItem();
     }
 
@@ -89,9 +91,16 @@ final class MiteHardLimitedBowAttackGoal<T extends Mob & RangedAttackMob> extend
 
         if (!inRange) {
             // Cancel a draw that crossed the R196 cutoff and never begin a new one outside it.
+            targetWasOutOfRange = true;
             mob.stopUsingItem();
             mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
             return;
+        }
+        if (targetWasOutOfRange) {
+            // A hard cutoff cancels the prior firing cycle. Do not carry a stale bow cooldown
+            // across the boundary once the target is again a valid R196 ranged target.
+            attackTime = -1;
+            targetWasOutOfRange = false;
         }
 
         if (strafingTime >= 20) {

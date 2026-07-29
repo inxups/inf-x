@@ -37,6 +37,7 @@ import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
@@ -1025,23 +1026,34 @@ public final class ModMonsterGameTests {
         var level = helper.getLevel();
         ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
         player.setNoGravity(true);
+        BlockPos skeletonPos = new BlockPos(3, 2, 3);
+        forceEntityTicking(helper, skeletonPos);
         boolean[] skeletonCompletedDraw = {false};
         boolean[] skeletonWasUsing = {false};
         int[] skeletonMaxUseTicks = {0};
         boolean[] witchThrew = {false};
         MiteWitch[] witchRef = {null};
 
-        // Avoid the higher-priority sun-avoidance goals taking MOVE/LOOK from the bow goal.
-        helper.setBlock(new BlockPos(3, 5, 3), Blocks.STONE);
-        var skeleton = helper.spawn(InfXEntityTypes.R196_SKELETON.get(), new BlockPos(3, 2, 3));
+        var skeleton = helper.spawn(InfXEntityTypes.R196_SKELETON.get(), skeletonPos);
+        skeleton.setNoAi(true);
+        // RestrictSunGoal keeps sun-avoiding navigation enabled even beneath a roof. A helmet
+        // keeps this range test focused on the bow goal without changing its normal scheduler.
+        skeleton.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, Items.IRON_HELMET.getDefaultInstance());
         skeleton.setNoGravity(true);
         skeleton.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
         skeleton.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, Items.BOW.getDefaultInstance());
         skeleton.reassessWeaponGoal();
-        placePlayerAtDistance(helper, skeleton, player, new BlockPos(3, 2, 3), 30.5);
+        helper.assertTrue(
+                skeleton.goalSelector.getAvailableGoals().stream()
+                        .anyMatch(goal -> goal.getGoal().getClass().getSimpleName().equals("MiteHardLimitedBowAttackGoal")),
+                "skeletons holding bows must register the R196 bow goal");
+        placePlayerAtDistance(helper, skeleton, player, skeletonPos, 30.5);
         skeleton.setTarget(player);
 
         helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        skeleton.tickCount > 0, "the ranged-combat skeleton must join the ticking entity set"))
+                .thenExecute(() -> skeleton.setNoAi(false))
                 .thenExecuteFor(80, () -> {
                     skeleton.setTarget(player);
                     helper.assertFalse(
@@ -1060,7 +1072,7 @@ public final class ModMonsterGameTests {
                                     .isEmpty(),
                             "skeletons must not begin or release a shot beyond 30 blocks");
                 })
-                .thenExecute(() -> placePlayerAtDistance(helper, skeleton, player, new BlockPos(3, 2, 3), 29.0))
+                .thenExecute(() -> placePlayerAtDistance(helper, skeleton, player, skeletonPos, 29.0))
                 .thenExecuteFor(90, () -> {
                     skeleton.setTarget(player);
                     boolean using = skeleton.isUsingItem();
@@ -1079,6 +1091,7 @@ public final class ModMonsterGameTests {
                                 + "; target=" + (skeleton.getTarget() == player)
                                 + ", noAi=" + skeleton.isNoAi()
                                 + ", using=" + skeleton.isUsingItem()
+                                + ", maxUseTicks=" + skeletonMaxUseTicks[0]
                                 + ", bow=" + skeleton.getMainHandItem().is(Items.BOW)
                                 + ", visible=" + skeleton.getSensing().hasLineOfSight(player)
                                 + ", distance=" + Math.sqrt(skeleton.distanceToSqr(player))))
@@ -1132,6 +1145,11 @@ public final class ModMonsterGameTests {
         Vec3 absolute = helper.absoluteVec(Vec3.atBottomCenterOf(origin));
         attacker.snapTo(absolute.x, absolute.y, absolute.z, 0.0F, 0.0F);
         player.snapTo(absolute.x + distance, absolute.y, absolute.z, 0.0F, 0.0F);
+    }
+
+    private static void forceEntityTicking(GameTestHelper helper, BlockPos relativePos) {
+        ChunkPos chunk = ChunkPos.containing(helper.absolutePos(relativePos));
+        helper.getLevel().setChunkForced(chunk.x(), chunk.z(), true);
     }
 
     private static void explosionRanges(GameTestHelper helper) {
@@ -1212,17 +1230,33 @@ public final class ModMonsterGameTests {
 
     private static void enderman(GameTestHelper helper) {
         var level = helper.getLevel();
-        MiteEnderman enderman = helper.spawn(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3));
+        BlockPos endermanPos = new BlockPos(3, 2, 3);
+        forceEntityTicking(helper, endermanPos);
+        MiteEnderman enderman = helper.spawn(InfXEntityTypes.R196_ENDERMAN.get(), endermanPos);
+        enderman.setNoAi(true);
+        // Other tests in this batch create server players. Do not let those unrelated targets
+        // suppress the item-collection goal that this test exercises.
+        enderman.targetSelector.disableControlFlag(net.minecraft.world.entity.ai.goal.Goal.Flag.TARGET);
+        enderman.setTarget(null);
         ItemEntity pearl = new ItemEntity(
                 level, enderman.getX() + 1.0, enderman.getY(), enderman.getZ(), Items.ENDER_PEARL.getDefaultInstance());
-        pearl.setNoPickUpDelay();
+        // The custom goal collects directly, while a normal player must not be able to steal
+        // this probe from another test arena before the persistence assertion runs.
+        pearl.setPickUpDelay(200);
         level.addFreshEntity(pearl);
 
         helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        enderman.tickCount > 0, "the enderman must join the ticking entity set"))
+                .thenExecute(() -> enderman.setNoAi(false))
                 .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.R196_ENDERMAN.get(), new BlockPos(3, 2, 3), 2.0D))
                 .thenWaitUntil(() -> helper.assertTrue(
                         pearl.isRemoved(),
-                        "R196 endermen must collect nearby dropped ender pearls"))
+                        "R196 endermen must collect nearby dropped ender pearls"
+                                + "; target=" + enderman.getTarget()
+                                + ", inWaterOrRain=" + enderman.isInWaterOrRain()
+                                + ", onFire=" + enderman.isOnFire()
+                                + ", distance=" + Math.sqrt(enderman.distanceToSqr(pearl))))
                 .thenExecute(() -> helper.assertTrue(
                         enderman.requiresCustomPersistence(),
                         "R196 endermen carrying valuables must not despawn"))
