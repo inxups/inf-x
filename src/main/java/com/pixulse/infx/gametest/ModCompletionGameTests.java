@@ -1416,6 +1416,13 @@ public final class ModCompletionGameTests {
                 "a full diamond table must preserve mithril's 100 enchantability");
         helper.assertTrue(menu.enchantClue[2] >= 0,
                 "a 100-strength mithril option must have a selectable enchantment");
+        int seedBeforeReinsert = menu.getEnchantmentSeed();
+        menu.getSlot(0).setByPlayer(ItemStack.EMPTY);
+        menu.getSlot(0).setByPlayer(mithrilTool.copy());
+        helper.assertTrue(menu.getEnchantmentSeed() != seedBeforeReinsert,
+                "reinserting an item must refresh the enchanting seed");
+        helper.assertTrue(menu.enchantClue[2] >= 0,
+                "reinserting an item must produce a selectable enchantment");
         menu.getSlot(1).setByPlayer(new ItemStack(Items.DIAMOND, 3));
         Experience.setTotal(owner, menu.costs[2]);
         helper.assertTrue(owner.experienceLevel < 100,

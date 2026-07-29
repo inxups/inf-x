@@ -551,9 +551,6 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "%s was first to earn %s on day %s"
                 : "%s 首个完成 %s（第 %s 天）");
         add("message.infx.safe_obstructed", locale == Locale.EN_US ? "The safe is obstructed above" : "保险箱上方被遮挡");
-        add("message.infx.enchanting_table_obstructed", locale == Locale.EN_US
-                ? "The enchanting table needs clear space above it"
-                : "附魔台上方需要留空");
         add("container.infx.enchant.experience.requirement", locale == Locale.EN_US
                 ? "Requires %s XP"
                 : "需要 %s 点经验");
