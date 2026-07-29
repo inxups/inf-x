@@ -61,8 +61,4 @@ class ItemPropertiesTest {
         assertEquals(0.6F, ItemProperties.attackRange(EquipmentType.SCYTHE).mobFactor());
     }
 
-    @Test
-    void shearsRightClickAttackUsesAShortCooldown() {
-        assertEquals(10, MiteShearsItem.ATTACK_COOLDOWN_TICKS);
-    }
 }

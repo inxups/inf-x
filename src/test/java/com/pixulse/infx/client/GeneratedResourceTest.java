@@ -2173,6 +2173,7 @@ class GeneratedResourceTest {
                 () -> assertTrue(cudgel.contains("#minecraft:coral_blocks")),
                 () -> assertTrue(sword.contains("minecraft:hay_block")),
                 () -> assertTrue(shears.contains("minecraft:nether_wart")),
+                () -> assertTrue(shears.contains("infx:blueberry_bush")),
                 () -> assertTrue(axeHalfSpeed.contains("#c:sandstone/blocks")),
                 () -> assertFalse(axeHalfSpeed.contains("#c:sandstone/slabs")),
                 () -> assertTrue(portable.contains("minecraft:furnace")),
