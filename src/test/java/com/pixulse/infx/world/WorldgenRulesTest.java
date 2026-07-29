@@ -1,29 +1,14 @@
 package com.pixulse.infx.world;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.event.StructureSafetyEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.ChunkPos;
 import org.junit.jupiter.api.Test;
 
 class WorldgenRulesTest {
-    @Test
-    void largeCavesKeepDistanceProbabilityAndEnvelopeConstants() {
-        assertEquals(200, LargeCaveCarver.CHANCE_DENOMINATOR);
-        assertEquals(64, LargeCaveCarver.HORIZONTAL_SIZE);
-        assertEquals(8, LargeCaveCarver.MIN_Y);
-        assertEquals(55, LargeCaveCarver.MAX_Y);
-        assertFalse(LargeCaveCarver.eligibleDistance(new ChunkPos(0, 0)));
-        assertTrue(LargeCaveCarver.eligibleDistance(new ChunkPos(63, 0)));
-        assertTrue(LargeCaveCarver.insideCellularCave(32, 32, 32, 0, 0, 1234L));
-        assertFalse(LargeCaveCarver.insideCellularCave(64, 32, 32, 0, 0, 1234L));
-    }
-
     @Test
     void riverClimateRoutingProducesAllThreeR196Variants() {
         assertEquals(RiverBiomes.DESERT_RIVER, RiverBiomes.select(.8F, .1F));

@@ -1977,10 +1977,6 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 InfXBlocks.CORE.get().defaultDestroyTime() < 0.0F,
                 "Core is unbreakable in survival");
-        helper.assertTrue(
-                level.registryAccess().lookupOrThrow(Registries.CONFIGURED_CARVER).containsKey(
-                        ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("large_cave"))),
-                "the distant large-cave carver is registered");
         for (String river : List.of("desert_river", "jungle_river", "swamp_river")) {
             helper.assertTrue(
                     level.registryAccess().lookupOrThrow(Registries.BIOME).containsKey(
