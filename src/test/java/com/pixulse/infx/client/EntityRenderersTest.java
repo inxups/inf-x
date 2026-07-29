@@ -180,6 +180,9 @@ class EntityRenderersTest {
                 "infx:textures/entity/silverfish/hoary.png",
                 EntityRenderers.SilverfishTexture.textureFor(MiteSilverfish.Variant.HOARY).toString());
         assertEquals(
+                "infx:textures/entity/bat.png",
+                EntityRenderers.BatTexture.textureFor(MiteBat.Variant.NORMAL).toString());
+        assertEquals(
                 "infx:textures/entity/bat/vampire.png",
                 EntityRenderers.BatTexture.textureFor(MiteBat.Variant.VAMPIRE).toString());
         assertEquals(

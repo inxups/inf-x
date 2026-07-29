@@ -394,7 +394,7 @@ public final class ModWorldGen {
         addSpawn(mobs, EntityType.CREEPER, 100, 1, 2);
         addSpawn(mobs, EntityType.ENDERMAN, 10, 1, 4);
         addSpawn(mobs, EntityType.CAVE_SPIDER, 40, 1, 2);
-        addSpawn(mobs, EntityType.BAT, 100, 8, 8);
+        addSpawn(mobs, InfXEntityTypes.R196_BAT.get(), 100, 8, 8);
         addSpawn(mobs, EntityType.SQUID, 10, 4, 4);
         addUnderworldR196Spawns(mobs);
 

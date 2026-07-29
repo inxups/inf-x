@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.data.agriculture.GrassTrampling;
 import com.pixulse.infx.data.curse.CurseStatus;
 import com.pixulse.infx.data.food.SurvivalData;
+import com.pixulse.infx.data.nightwing.NightwingDimming;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -33,6 +34,12 @@ public final class InfXAttachments {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<CurseStatus>> CURSE_STATUS =
             ATTACHMENTS.register("curse_status", () -> AttachmentType.builder(() -> CurseStatus.NONE)
                     .sync((holder, player) -> holder == player, CurseStatus.STREAM_CODEC)
+                    .build());
+
+    /** Transient player-only screen dimming sent by a Nightwing hit. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<NightwingDimming>> NIGHTWING_DIMMING =
+            ATTACHMENTS.register("nightwing_dimming", () -> AttachmentType.builder(() -> NightwingDimming.NONE)
+                    .sync((holder, player) -> holder == player, NightwingDimming.STREAM_CODEC)
                     .build());
 
     private static final StreamCodec<RegistryFriendlyByteBuf, Map<String, Integer>> GRASS_TRAMPLING_STREAM =

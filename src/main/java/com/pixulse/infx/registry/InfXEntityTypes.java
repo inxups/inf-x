@@ -153,12 +153,14 @@ public final class InfXEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<MiteSilverfish>> HOARY_SILVERFISH = register(
             "hoary_silverfish", "Hoary Silverfish", "白化蠹虫", MiteSilverfish::new, 0.3F, 0.7F, false);
 
+    public static final DeferredHolder<EntityType<?>, EntityType<MiteBat>> R196_BAT = register(
+            "r196_bat", "Bat", "蝙蝠", MiteBat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<MiteBat>> VAMPIRE_BAT = register(
-            "vampire_bat", "Vampire Bat", "吸血蝙蝠", MiteBat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, false);
+            "vampire_bat", "Vampire Bat", "吸血蝙蝠", MiteBat::new, MobCategory.AMBIENT, 0.5F, 0.9F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<MiteBat>> NIGHTWING = register(
-            "nightwing", "Nightwing", "暗影蝙蝠", MiteBat::new, MobCategory.AMBIENT, 0.5F, 0.9F, true, false);
+            "nightwing", "Nightwing", "暗影蝙蝠", MiteBat::new, MobCategory.AMBIENT, 0.5F, 0.9F, true, true);
     public static final DeferredHolder<EntityType<?>, EntityType<MiteBat>> GIANT_VAMPIRE_BAT = register(
-            "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", MiteBat::new, MobCategory.AMBIENT, 1.0F, 1.8F, false, false);
+            "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", MiteBat::new, MobCategory.AMBIENT, 1.0F, 1.8F, false, true);
 
     public static final DeferredHolder<EntityType<?>, EntityType<MiteWolf>> HELLHOUND = register(
             "hellhound", "Hellhound", "地狱犬", MiteWolf::new, 0.6F, 0.8F, true);
@@ -215,6 +217,7 @@ public final class InfXEntityTypes {
             R196_BLAZE,
             R196_GHAST,
             MAGMA_CUBE,
+            R196_BAT,
             R196_COW,
             R196_CHICKEN,
             R196_SHEEP,

@@ -9,6 +9,7 @@ import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
+import java.time.LocalDate;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -196,6 +197,7 @@ public final class MonsterEvents {
             event.put(type.get(), MiteSilverfish.attributes().build());
         }
 
+        event.put(InfXEntityTypes.R196_BAT.get(), MiteBat.attributes(MiteBat.Variant.NORMAL).build());
         event.put(InfXEntityTypes.VAMPIRE_BAT.get(), MiteBat.attributes(MiteBat.Variant.VAMPIRE).build());
         event.put(InfXEntityTypes.NIGHTWING.get(), MiteBat.attributes(MiteBat.Variant.NIGHTWING).build());
         event.put(InfXEntityTypes.GIANT_VAMPIRE_BAT.get(), MiteBat.attributes(MiteBat.Variant.GIANT_VAMPIRE).build());
@@ -292,12 +294,13 @@ public final class MonsterEvents {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Monster::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        for (var type : List.of(InfXEntityTypes.VAMPIRE_BAT, InfXEntityTypes.NIGHTWING, InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
-            event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    (entityType, level, reason, pos, random) ->
-                            net.minecraft.world.entity.ambient.Bat.checkBatSpawnRules(
-                                    asEntityType(entityType), level, reason, pos, random)
-                                    && checkR196BatDepth(entityType, level, pos),
+        for (var type : List.of(
+                InfXEntityTypes.R196_BAT,
+                InfXEntityTypes.VAMPIRE_BAT,
+                InfXEntityTypes.NIGHTWING,
+                InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
+            event.register(type.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    MonsterEvents::checkR196BatSpawnRules,
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.HELLHOUND.get(), SpawnPlacementTypes.ON_GROUND,
@@ -406,9 +409,52 @@ public final class MonsterEvents {
         };
     }
 
+    /**
+     * MITE bats spawn in empty cave air, not on the modern {@code BATS_SPAWNABLE_ON} ground tag.
+     * Their light check walks downward to the first opaque block, exactly as R196 did.
+     */
+    static boolean checkR196BatSpawnRules(
+            EntityType<? extends Mob> type,
+            ServerLevelAccessor level,
+            EntitySpawnReason reason,
+            BlockPos pos,
+            RandomSource random) {
+        ServerLevel serverLevel = level.getLevel();
+        if (!serverLevel.isEmptyBlock(pos)
+                || serverLevel.dimension() == Level.OVERWORLD && pos.getY() >= 63
+                || !checkR196BatDepth(type, level, pos)) {
+            return false;
+        }
+        boolean halloween = isMiteBatHalloween(LocalDate.now());
+        if (!halloween && random.nextBoolean()) {
+            return false;
+        }
+        int lightBound = halloween ? 7 : 4;
+        return maximumR196BatBlockLight(serverLevel, pos) <= random.nextInt(lightBound);
+    }
+
+    static boolean isMiteBatHalloween(LocalDate date) {
+        return (date.getMonthValue() == 10 && date.getDayOfMonth() >= 20)
+                || (date.getMonthValue() == 11 && date.getDayOfMonth() <= 3);
+    }
+
+    private static int maximumR196BatBlockLight(ServerLevel level, BlockPos pos) {
+        int maximum = level.getBrightness(LightLayer.BLOCK, pos);
+        for (BlockPos sample = pos.below(); sample.getY() >= level.getMinY(); sample = sample.below()) {
+            if (level.getBlockState(sample).isSolidRender()) {
+                break;
+            }
+            maximum = Math.max(maximum, level.getBrightness(LightLayer.BLOCK, sample));
+        }
+        return maximum;
+    }
+
     private static boolean checkR196BatDepth(
             EntityType<? extends Mob> type, ServerLevelAccessor level, BlockPos pos) {
         ServerLevel serverLevel = level.getLevel();
+        if (type == InfXEntityTypes.R196_BAT.get()) {
+            return true;
+        }
         int maximumY = type == InfXEntityTypes.NIGHTWING.get() ? 32 : 48;
         return serverLevel.dimension() != Level.OVERWORLD
                 || pos.getY() <= maximumY
@@ -861,6 +907,7 @@ public final class MonsterEvents {
     }
 
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
+        if (original == EntityType.BAT) return InfXEntityTypes.R196_BAT.get();
         if (original == EntityType.ZOMBIE) return InfXEntityTypes.R196_ZOMBIE.get();
         if (original == EntityType.SKELETON) return InfXEntityTypes.R196_SKELETON.get();
         if (original == EntityType.SPIDER) return InfXEntityTypes.R196_SPIDER.get();
