@@ -346,6 +346,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         // MITE silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
         if (type == EquipmentType.PICKAXE
                 || type == EquipmentType.SHOVEL
+                || type == EquipmentType.SHEARS
                 || type == EquipmentType.KNIFE
                 || type == EquipmentType.DAGGER) {
             add(InfXItemTags.R196_SILK_TOUCH_ENCHANTABLE, entry);

@@ -74,6 +74,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -282,12 +285,40 @@ public final class ModEquipmentGameTests {
                 "shears must refuse another right-click attack during cooldown");
         shearTarget.discard();
 
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 1));
+        var offhandTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 3));
+        ItemStack offhandShears = InfXItems.catalog()
+                .equipment(MiteMaterial.COPPER, EquipmentType.SHEARS)
+                .holder()
+                .value()
+                .getDefaultInstance();
         ItemStack sword = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.SWORD)
                 .holder()
                 .value()
                 .getDefaultInstance();
+        player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+        player.setItemInHand(InteractionHand.OFF_HAND, offhandShears);
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
+        float offhandHealth = offhandTarget.getHealth();
+        int offhandWear = offhandShears.getDamageValue();
+        InteractionResult offhandResult = offhandShears.interactLivingEntity(
+                player, offhandTarget, InteractionHand.OFF_HAND);
+        helper.assertTrue(!offhandResult.consumesAction(), "offhand shears must not perform melee attack");
+        helper.assertTrue(
+                offhandTarget.getHealth() == offhandHealth,
+                "offhand shears must not route attack through the main-hand weapon");
+        helper.assertTrue(
+                offhandShears.getDamageValue() == offhandWear,
+                "offhand shears must not receive main-hand attack wear");
+        helper.assertTrue(
+                !player.getCooldowns().isOnCooldown(offhandShears),
+                "offhand shears must not receive a melee cooldown");
+        player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
+        offhandTarget.discard();
+
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 1));
         player.setItemInHand(InteractionHand.MAIN_HAND, sword);
         float healthBefore = zombie.getHealth();
         player.attack(zombie);
@@ -297,6 +328,41 @@ public final class ModEquipmentGameTests {
                         == new EquipmentKey(MiteMaterial.COPPER, EquipmentType.SWORD).attackWear(),
                 "material sword must apply R196 hit wear exactly once");
         zombie.discard();
+
+        var cancelledTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 2));
+        ItemStack cancelledShears = InfXItems.catalog()
+                .equipment(MiteMaterial.COPPER, EquipmentType.SHEARS)
+                .holder()
+                .value()
+                .getDefaultInstance();
+        player.setItemInHand(InteractionHand.MAIN_HAND, cancelledShears);
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
+        float cancelledHealth = cancelledTarget.getHealth();
+        int cancelledWear = cancelledShears.getDamageValue();
+        CancelAttackListener cancellation = new CancelAttackListener(cancelledTarget);
+        NeoForge.EVENT_BUS.register(cancellation);
+        InteractionResult cancelledResult;
+        try {
+            cancelledResult = cancelledShears.interactLivingEntity(
+                    player, cancelledTarget, InteractionHand.MAIN_HAND);
+        } finally {
+            NeoForge.EVENT_BUS.unregister(cancellation);
+        }
+        helper.assertTrue(
+                !cancelledResult.consumesAction(),
+                "cancelled shears attack must not consume the interaction");
+        helper.assertTrue(
+                cancelledTarget.getHealth() == cancelledHealth,
+                "cancelled shears attack must not damage the target");
+        helper.assertTrue(
+                cancelledShears.getDamageValue() == cancelledWear,
+                "cancelled shears attack must not damage the item");
+        helper.assertTrue(
+                !player.getCooldowns().isOnCooldown(cancelledShears),
+                "cancelled shears attack must not apply a cooldown");
+        cancelledTarget.discard();
 
         helper.setBlock(wearPos, Blocks.OAK_LOG);
         BlockPos absoluteWearPos = helper.absolutePos(wearPos);
@@ -324,6 +390,21 @@ public final class ModEquipmentGameTests {
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
         InteractionResult result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
         helper.assertTrue(result.consumesAction(), item + " use action must succeed");
+    }
+
+    private static final class CancelAttackListener {
+        private final net.minecraft.world.entity.Entity target;
+
+        private CancelAttackListener(net.minecraft.world.entity.Entity target) {
+            this.target = target;
+        }
+
+        @SubscribeEvent(priority = EventPriority.HIGHEST)
+        public void cancel(AttackEntityEvent event) {
+            if (event.getTarget() == target) {
+                event.setCanceled(true);
+            }
+        }
     }
 
     private static void harvestTierCatalog(GameTestHelper helper) {
