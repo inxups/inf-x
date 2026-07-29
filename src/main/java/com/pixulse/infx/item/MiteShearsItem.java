@@ -2,6 +2,7 @@ package com.pixulse.infx.item;
 
 import com.pixulse.infx.data.harvest.MiteMiningRules;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
+import java.util.function.BooleanSupplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -39,7 +41,7 @@ public final class MiteShearsItem extends ShearsItem {
         return key;
     }
 
-    static boolean isRightClickShearing(Level level, BlockPos pos) {
+    static boolean isRightClickShearing(LevelAccessor level, BlockPos pos) {
         ShearingContext context = RIGHT_CLICK_SHEARING.get();
         return context != null && context.level() == level && context.pos().equals(pos);
     }
@@ -79,11 +81,14 @@ public final class MiteShearsItem extends ShearsItem {
         if (context.getLevel().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
-        if (CommonHooks.fireBlockBreak(context.getLevel(), player.gameMode(), player, pos, state).isCanceled()) {
-            return InteractionResult.FAIL;
-        }
-
-        return shearBlock(context, player, state) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+        return withRightClickShearing(
+                        context.getLevel(),
+                        pos,
+                        () -> !CommonHooks.fireBlockBreak(context.getLevel(), player.gameMode(), player, pos, state)
+                                        .isCanceled()
+                                && shearBlock(context, player, state))
+                ? InteractionResult.SUCCESS
+                : InteractionResult.FAIL;
     }
 
     @Override
@@ -133,10 +138,14 @@ public final class MiteShearsItem extends ShearsItem {
                         .getOrThrow(Enchantments.SILK_TOUCH),
                 1);
 
+        block.playerDestroy(level, player, pos, state, blockEntity, silkTouchTool);
+    }
+
+    private static boolean withRightClickShearing(Level level, BlockPos pos, BooleanSupplier action) {
         ShearingContext previous = RIGHT_CLICK_SHEARING.get();
         RIGHT_CLICK_SHEARING.set(new ShearingContext(level, pos.immutable()));
         try {
-            block.playerDestroy(level, player, pos, state, blockEntity, silkTouchTool);
+            return action.getAsBoolean();
         } finally {
             if (previous == null) {
                 RIGHT_CLICK_SHEARING.remove();
@@ -166,5 +175,5 @@ public final class MiteShearsItem extends ShearsItem {
         return destroyed;
     }
 
-    private record ShearingContext(Level level, BlockPos pos) {}
+    private record ShearingContext(LevelAccessor level, BlockPos pos) {}
 }
