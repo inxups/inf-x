@@ -42,6 +42,7 @@ import org.jspecify.annotations.Nullable;
 public final class MiteSpider extends Spider implements MiteMob {
     private static final double MODERN_SPIDER_MOVEMENT_SPEED = 0.30;
     private static final double MITE_ARACHNID_SPEED_MULTIPLIER = 1.25;
+    private static final double MAX_PHASE_CHASE_VERTICAL_DISTANCE = 2.0;
 
     public enum Variant {
         SPIDER,
@@ -149,6 +150,10 @@ public final class MiteSpider extends Spider implements MiteMob {
 
     static boolean shouldThrowWebAtTick(Variant variant, int tickCount, int entityId) {
         return Math.floorMod(tickCount + entityId * 47, webThrowInterval(variant)) == 0;
+    }
+
+    static boolean canPhaseChaseAcrossVerticalDistance(double verticalDistance) {
+        return Math.abs(verticalDistance) <= MAX_PHASE_CHASE_VERTICAL_DISTANCE;
     }
 
     @Override
@@ -292,6 +297,9 @@ public final class MiteSpider extends Spider implements MiteMob {
     }
 
     private boolean teleportToward(LivingEntity target) {
+        if (!canPhaseChaseAcrossVerticalDistance(target.getY() - getY())) {
+            return false;
+        }
         double distance = Math.max(1.0, distanceTo(target));
         double x = getX() + (target.getX() - getX()) / distance * Math.min(4.0, distance - 1.0);
         double z = getZ() + (target.getZ() - getZ()) / distance * Math.min(4.0, distance - 1.0);
