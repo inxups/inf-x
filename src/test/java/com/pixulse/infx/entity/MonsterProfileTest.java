@@ -78,6 +78,10 @@ class MonsterProfileTest {
         assertTrue(MiteSpider.shouldThrowWebAtTick(MiteSpider.Variant.SPIDER, 0, 0));
         assertFalse(MiteSpider.shouldThrowWebAtTick(MiteSpider.Variant.SPIDER, 0, 1));
         assertTrue(MiteSpider.shouldThrowWebAtTick(MiteSpider.Variant.CAVE_SPIDER, 153, 1));
+        assertTrue(MiteSpider.canPhaseChaseAcrossVerticalDistance(2.0));
+        assertTrue(MiteSpider.canPhaseChaseAcrossVerticalDistance(-2.0));
+        assertFalse(MiteSpider.canPhaseChaseAcrossVerticalDistance(2.001));
+        assertFalse(MiteSpider.canPhaseChaseAcrossVerticalDistance(-2.001));
 
         AttributeSupplier blaze = stats(MiteBlaze.attributes());
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
