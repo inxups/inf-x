@@ -42,7 +42,8 @@
     "ServerLevelSleepMixin",
     "ServerLevelFluidTickMixin",
     "ServerExplosionMixin",
-    "SpreadingSnowyBlockMixin"
+    "SpreadingSnowyBlockMixin",
+    "WorldDimensionsMixin"
   ],
   "client": [
     "DifficultyButtonsMixin",
