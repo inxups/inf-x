@@ -1,9 +1,9 @@
 package com.pixulse.infx.item;
 
-import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.Item;
 
-/** R196 manure uses the modern bonemealable contract for crops, mushrooms and mycelium. */
-public final class ManureItem extends BoneMealItem {
+/** MITE manure fertilizes farmland; it is not a bone-meal growth accelerator. */
+public final class ManureItem extends Item {
     public ManureItem(Properties properties) {
         super(properties);
     }

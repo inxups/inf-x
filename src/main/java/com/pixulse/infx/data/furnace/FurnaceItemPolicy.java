@@ -33,7 +33,7 @@ public final class FurnaceItemPolicy {
         return stack.getItem() instanceof BoatItem;
     }
 
-    static boolean isLargeBlock(Block block) {
+    public static boolean isLargeBlock(Block block) {
         return !(block instanceof BaseTorchBlock)
                 && !(block instanceof SaplingBlock)
                 && !(block instanceof FlowerBlock)

@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import com.pixulse.infx.data.agriculture.AgricultureData;
+import com.pixulse.infx.block.MiteCropBlock;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXMobEffects;
@@ -241,6 +242,9 @@ public final class EnchantmentEvents {
 
     private static Item matureCropProduct(BlockState state) {
         if (!(state.getBlock() instanceof CropBlock crop) || !crop.isMaxAge(state)) return null;
+        if (crop instanceof MiteCropBlock miteCrop) {
+            return miteCrop.canYield(state) ? miteCrop.type().product() : null;
+        }
         if (state.is(Blocks.WHEAT)) return Items.WHEAT;
         if (state.is(Blocks.CARROTS)) return Items.CARROT;
         if (state.is(Blocks.POTATOES)) return Items.POTATO;
@@ -309,6 +313,7 @@ public final class EnchantmentEvents {
 
     private static void fertilizeMatureCrop(BreakBlockEvent event, ServerLevel level) {
         if (!(event.getState().getBlock() instanceof CropBlock crop) || !crop.isMaxAge(event.getState())) return;
+        if (crop instanceof MiteCropBlock miteCrop && !miteCrop.canYield(event.getState())) return;
         int fertility = Enchantments.level(level, event.getPlayer().getMainHandItem(), InfXEnchantments.FERTILITY);
         if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)) {
             AgricultureData.get(level).fertilize(event.getPos().below(), level.getGameTime());

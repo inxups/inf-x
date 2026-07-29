@@ -1597,9 +1597,9 @@ class GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Four replacement fish spawn eggs plus the clay-golem egg add one item definition and
+        // Four replacement fish spawn eggs, the clay-golem egg, and the bottle model add one item definition and
         // model each.
-        assertEquals(440, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(441, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(515, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -1970,6 +1970,11 @@ class GeneratedResourceTest {
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
         assertTrue(destinations.removeIf(path -> path.matches("textures/block/blueberry_bush(_picked)?\\.png")));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/crops/(wheat/(?:[0-7]|blighted/[0-7]|dead/[0-6])"
+                        + "|carrots/(?:[0-3]|blighted/[0-3]|dead/[0-2])"
+                        + "|potatoes/(?:[0-3]|blighted/[0-3]|dead/[0-2])"
+                        + "|beetroot/(?:[0-3]|blighted/[0-3]|dead/[0-3]))\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/emerald_enchanting_table_(side|top)\\.png")));
         assertTrue(destinations.remove("textures/block/snow_slab.png"));

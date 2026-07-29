@@ -16,7 +16,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 public final class CurseData extends SavedData {
     private static final Codec<UUID> UUID_CODEC = Codec.STRING.xmap(UUID::fromString, UUID::toString);
     private static final Codec<Map<String, Entry>> ENTRIES = Codec.unboundedMap(Codec.STRING, Entry.CODEC);
-    static final Codec<CurseData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<CurseData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     ENTRIES.optionalFieldOf("entries", Map.of()).forGetter(data -> data.entries))
             .apply(instance, CurseData::new));
 

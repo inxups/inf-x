@@ -56,11 +56,11 @@ public final class HarvestSpeedRules {
         return toModernBreakSpeed(strength);
     }
 
-    static float toModernBreakSpeed(float miteStrength) {
+    public static float toModernBreakSpeed(float miteStrength) {
         return miteStrength * MODERN_CORRECT_TOOL_DIVISOR / MITE_PROGRESS_DIVISOR;
     }
 
-    static float portableStrength(float hardness, float contextMultiplier) {
+    public static float portableStrength(float hardness, float contextMultiplier) {
         float minimum = hardness * PORTABLE_STRENGTH_PER_HARDNESS;
         return Math.max(minimum, minimum * contextMultiplier);
     }
@@ -81,11 +81,11 @@ public final class HarvestSpeedRules {
         return result;
     }
 
-    static float miteMiningFatigueMultiplier(int amplifier) {
+    public static float miteMiningFatigueMultiplier(int amplifier) {
         return amplifier < 0 ? 1.0F : Math.max(0.0F, 1.0F - (amplifier + 1) * 0.2F);
     }
 
-    static float modernMiningFatigueMultiplier(int amplifier) {
+    public static float modernMiningFatigueMultiplier(int amplifier) {
         return switch (amplifier) {
             case 0 -> 0.3F;
             case 1 -> 0.09F;

@@ -46,10 +46,6 @@ public enum MoonPhase {
         return this == BLUE ? 4.0D : this == FULL ? 1.5D : this == NEW ? 0.75D : 1.0D;
     }
 
-    public double cropMultiplier(boolean dedicatedServer) {
-        return this == BLUE && !dedicatedServer ? 4.0D : 1.0D;
-    }
-
     public boolean allowsSleep() {
         return this != BLOOD;
     }

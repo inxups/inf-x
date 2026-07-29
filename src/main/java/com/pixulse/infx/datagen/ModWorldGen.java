@@ -105,7 +105,7 @@ import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-final class ModWorldGen {
+public final class ModWorldGen {
     private static final int OVERWORLD_MIN_Y = -16;
     private static final int OVERWORLD_HEIGHT = 336;
     private static final int UNDERWORLD_MIN_Y = -192;
@@ -600,7 +600,7 @@ final class ModWorldGen {
                         true));
     }
 
-    static NoiseRouter underworldNoiseRouter(HolderGetter<NormalNoise.NoiseParameters> noises) {
+    public static NoiseRouter underworldNoiseRouter(HolderGetter<NormalNoise.NoiseParameters> noises) {
         return underworldNoiseRouter(noises, underworldFirstCave());
     }
 
