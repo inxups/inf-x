@@ -4,14 +4,19 @@ import com.pixulse.infx.data.harvest.MiteMiningRules;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.CommonHooks;
 import org.jspecify.annotations.NonNull;
@@ -21,6 +26,8 @@ import org.jspecify.annotations.NonNull;
  * left-click is normal melee.
  */
 public final class MiteShearsItem extends ShearsItem {
+    private static final ThreadLocal<ShearingContext> RIGHT_CLICK_SHEARING = new ThreadLocal<>();
+
     private final EquipmentKey key;
 
     public MiteShearsItem(EquipmentKey key, Properties properties) {
@@ -30,6 +37,11 @@ public final class MiteShearsItem extends ShearsItem {
 
     public EquipmentKey key() {
         return key;
+    }
+
+    static boolean isRightClickShearing(Level level, BlockPos pos) {
+        ShearingContext context = RIGHT_CLICK_SHEARING.get();
+        return context != null && context.level() == level && context.pos().equals(pos);
     }
 
     @Override
@@ -98,9 +110,40 @@ public final class MiteShearsItem extends ShearsItem {
         stack.mineBlock(level, destroyedState, pos, player);
         boolean destroyed = removeBlock(level, pos, destroyedState, player, canHarvest, originalStack);
         if (destroyed && canHarvest) {
-            block.playerDestroy(level, player, pos, destroyedState, blockEntity, originalStack);
+            dropShearedBlock(level, pos, player, block, destroyedState, blockEntity, originalStack);
+        }
+        if (destroyed) {
+            level.playSound(null, pos, SoundEvents.SHEARS_SNIP, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         return destroyed;
+    }
+
+    private static void dropShearedBlock(
+            Level level,
+            BlockPos pos,
+            Player player,
+            Block block,
+            BlockState state,
+            BlockEntity blockEntity,
+            ItemStack tool) {
+        ItemStack silkTouchTool = tool.copy();
+        silkTouchTool.enchant(
+                level.registryAccess()
+                        .lookupOrThrow(Registries.ENCHANTMENT)
+                        .getOrThrow(Enchantments.SILK_TOUCH),
+                1);
+
+        ShearingContext previous = RIGHT_CLICK_SHEARING.get();
+        RIGHT_CLICK_SHEARING.set(new ShearingContext(level, pos.immutable()));
+        try {
+            block.playerDestroy(level, player, pos, state, blockEntity, silkTouchTool);
+        } finally {
+            if (previous == null) {
+                RIGHT_CLICK_SHEARING.remove();
+            } else {
+                RIGHT_CLICK_SHEARING.set(previous);
+            }
+        }
     }
 
     private static boolean removeBlock(
@@ -122,4 +165,6 @@ public final class MiteShearsItem extends ShearsItem {
         }
         return destroyed;
     }
+
+    private record ShearingContext(Level level, BlockPos pos) {}
 }
