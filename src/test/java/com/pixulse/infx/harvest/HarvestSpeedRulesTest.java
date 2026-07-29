@@ -30,9 +30,13 @@ class HarvestSpeedRulesTest {
         float hardness = 3.5F;
         float strength = HarvestSpeedRules.portableStrength(hardness, 0.0001F);
         float adjustedSpeed = HarvestSpeedRules.toModernBreakSpeed(strength);
+        float handSpeed = HarvestSpeedRules.compensatePortableHandSpeed(adjustedSpeed, true, false);
 
         assertEquals(hardness * 4.0F, strength);
         assertEquals(1.0F / 128.0F, adjustedSpeed / hardness / 30.0F);
+        assertEquals(1.0F / 128.0F, handSpeed / hardness / 100.0F);
+        assertEquals(adjustedSpeed, HarvestSpeedRules.compensatePortableHandSpeed(adjustedSpeed, true, true));
+        assertEquals(adjustedSpeed, HarvestSpeedRules.compensatePortableHandSpeed(adjustedSpeed, false, false));
         assertEquals(hardness * 8.0F, HarvestSpeedRules.portableStrength(hardness, 2.0F));
     }
 

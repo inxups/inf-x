@@ -112,6 +112,11 @@ public final class MiteWitch extends Witch implements MiteMob {
                 CurseType.forWitch(curseRandomSeed, player.getScoreboardName()));
     }
 
+    /** MITE excludes only players whose game-mode abilities disable damage. */
+    public static boolean canReceiveCurse(Player player) {
+        return !player.getAbilities().invulnerable;
+    }
+
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         boolean hurt = super.hurtServer(level, source, damage);
@@ -214,10 +219,9 @@ public final class MiteWitch extends Witch implements MiteMob {
          * That flag can be present on an otherwise-survival player, so use a
          * non-combat query for curse delivery and retain the normal combat check
          * only when choosing the witch's actual attack target.
-         */
+        */
         private final TargetingConditions curseConditions = TargetingConditions.forNonCombat()
-                .selector((target, level) -> target instanceof Player player
-                        && !player.getAbilities().invulnerable);
+                .selector((target, level) -> target instanceof Player player && canReceiveCurse(player));
 
         private CurseNearestPlayerGoal(MiteWitch witch) {
             super(witch, Player.class, 0, true, false, null);

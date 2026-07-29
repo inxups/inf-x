@@ -1223,15 +1223,19 @@ public final class ModCompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         helper.setBlock(miningRelative, Blocks.STONE);
         resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock invalidMiningStart = new PlayerInteractEvent.LeftClickBlock(
+        PlayerInteractEvent.LeftClickBlock unrestrictedMiningStart = new PlayerInteractEvent.LeftClickBlock(
                 player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(invalidMiningStart);
-        helper.assertTrue(invalidMiningStart.isCanceled(),
-                "an ineffective block click must be rejected like a left click on air");
+        NeoForge.EVENT_BUS.post(unrestrictedMiningStart);
+        helper.assertFalse(unrestrictedMiningStart.isCanceled(),
+                "mining input validation remains delegated to vanilla");
+        assertBehaviorHunger(helper, player, 0.0025D,
+                "an unrestricted block click starts mining metabolism");
         player.tickCount++;
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0D,
-                "an ineffective block click must not start continuous mining metabolism");
+        assertBehaviorHunger(helper, player, 0.005D,
+                "an unrestricted mining session continues charging per tick");
+        NeoForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.STOP));
 
         BlockPos placeRelative = new BlockPos(2, 2, 2);
         BlockPos placePos = helper.absolutePos(placeRelative);

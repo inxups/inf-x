@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 /** R196 block strength, environmental multipliers and 512-unit mining progress. */
 public final class HarvestSpeedRules {
     static final float MODERN_CORRECT_TOOL_DIVISOR = 30.0F;
+    static final float MODERN_INCORRECT_TOOL_DIVISOR = 100.0F;
     static final float MITE_PROGRESS_DIVISOR = 512.0F;
     static final float PORTABLE_STRENGTH_PER_HARDNESS = 4.0F;
 
@@ -63,6 +64,18 @@ public final class HarvestSpeedRules {
     public static float portableStrength(float hardness, float contextMultiplier) {
         float minimum = hardness * PORTABLE_STRENGTH_PER_HARDNESS;
         return Math.max(minimum, minimum * contextMultiplier);
+    }
+
+    /**
+     * Compensates for vanilla's slower no-correct-tool divisor after a portable block has
+     * already received its MITE hand-harvest speed through {@code BreakSpeed}.
+     */
+    public static float compensatePortableHandSpeed(
+            float modernSpeed, boolean requiresCorrectTool, boolean hasCorrectTool) {
+        if (!requiresCorrectTool || hasCorrectTool) {
+            return modernSpeed;
+        }
+        return modernSpeed * MODERN_INCORRECT_TOOL_DIVISOR / MODERN_CORRECT_TOOL_DIVISOR;
     }
 
     public static float multiplier(
