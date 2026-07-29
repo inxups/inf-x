@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 覆盖极限难度玩家受击回归路径
+
+- 增加真实的怪物近战伤害玩家 GameTest，覆盖 NeoForge `Player.hurtServer` 的伤害缩放调用链，确保序列化的 `extreme` 难度继续以 Hard 游戏数值运行，不再触发 `IScalingFunction` 的穷尽分支异常。
+
 ### 刷新附魔台选项
 
 - 从附魔台取出物品再放回时会刷新附魔种子并重新生成附魔选项；材料槽变化不会单独重抽选项。

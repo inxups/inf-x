@@ -584,6 +584,17 @@ public final class ModGameTests {
                 "mob damage must use Hard's 1.5x difficulty scaling");
         helper.assertTrue(Math.abs(scaledExplosionDamage - 6.0F) < 0.001F,
                 "explosion damage must use Hard's 1.5x difficulty scaling");
+        float healthBeforeDirectHit = player.getHealth();
+        player.invulnerableTime = 0;
+        helper.assertTrue(
+                player.hurtServer(
+                        helper.getLevel(),
+                        helper.getLevel().damageSources().mobAttack(attacker),
+                        1.0F),
+                "a mob attack must reach the player hurt path on Extreme without throwing");
+        helper.assertTrue(
+                Math.abs(healthBeforeDirectHit - player.getHealth() - 1.5F) < 0.001F,
+                "direct mob damage must use Hard's 1.5x scaling on Extreme");
         helper.assertTrue(
                 difficultyCommand != null && difficultyCommand.getChild("extreme") != null,
                 "/difficulty extreme must be registered by the vanilla difficulty command");
