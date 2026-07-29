@@ -39,7 +39,7 @@ public final class HarvestRequirements {
         return matches;
     }
 
-    static int inferLevel(OptionalInt explicitLevel, boolean log, boolean mineableWithPickaxe) {
+    public static int inferLevel(OptionalInt explicitLevel, boolean log, boolean mineableWithPickaxe) {
         if (explicitLevel.isPresent()) {
             return explicitLevel.getAsInt();
         }

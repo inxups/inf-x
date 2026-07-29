@@ -4,6 +4,8 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.AdamantiumWorkbenchBlock;
 import com.pixulse.infx.block.AncientMetalWorkbenchBlock;
 import com.pixulse.infx.block.BlueberryBushBlock;
+import com.pixulse.infx.block.MiteCropBlock;
+import com.pixulse.infx.block.MiteCropType;
 import com.pixulse.infx.block.CopperWorkbenchBlock;
 import com.pixulse.infx.block.ClayFurnaceBlock;
 import com.pixulse.infx.block.FlintWorkbenchBlock;
@@ -38,6 +40,7 @@ import net.minecraft.world.level.block.ColoredFallingBlock;
 import net.minecraft.world.level.block.InfestedBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.util.ColorRGBA;
 import net.neoforged.bus.api.IEventBus;
@@ -102,6 +105,12 @@ public final class InfXBlocks {
                     .strength(0.05F)
                     .sound(SoundType.GRASS)
                     .offsetType(Block.OffsetType.XZ));
+    public static final DeferredBlock<MiteCropBlock> MITE_WHEAT = miteCrop(MiteCropType.WHEAT);
+    public static final DeferredBlock<MiteCropBlock> MITE_CARROTS = miteCrop(MiteCropType.CARROTS);
+    public static final DeferredBlock<MiteCropBlock> MITE_POTATOES = miteCrop(MiteCropType.POTATOES);
+    public static final DeferredBlock<MiteCropBlock> MITE_BEETROOTS = miteCrop(MiteCropType.BEETROOTS);
+    public static final List<DeferredBlock<MiteCropBlock>> MITE_CROPS =
+            List.of(MITE_WHEAT, MITE_CARROTS, MITE_POTATOES, MITE_BEETROOTS);
     public static final DeferredBlock<Block> CORE = BLOCKS.registerSimpleBlock(
             "core",
             properties -> properties
@@ -345,6 +354,13 @@ public final class InfXBlocks {
                         .requiresCorrectToolForDrops());
     }
 
+    private static DeferredBlock<MiteCropBlock> miteCrop(MiteCropType type) {
+        return BLOCKS.registerBlock(
+                "mite_" + type.registryName(),
+                properties -> new MiteCropBlock(type, properties),
+                properties -> properties.ofFullCopy(type.vanillaBlock()).randomTicks());
+    }
+
     private static DeferredBlock<SafeBlock> metalSafe(MiteMaterial material, MapColor color, float strength) {
         return BLOCKS.registerBlock(
                 material.path() + "_safe",
@@ -386,6 +402,13 @@ public final class InfXBlocks {
             throw new IllegalArgumentException("No metal anvil for " + material);
         }
         return anvil;
+    }
+
+    public static MiteCropBlock miteCropForVanilla(Block block) {
+        if (block == Blocks.WHEAT) return MITE_WHEAT.value();
+        if (block == Blocks.CARROTS) return MITE_CARROTS.value();
+        if (block == Blocks.POTATOES) return MITE_POTATOES.value();
+        return block == Blocks.BEETROOTS ? MITE_BEETROOTS.value() : null;
     }
 
     public static DeferredBlock<? extends TieredWorkbenchBlock> workbench(BenchTier tier) {

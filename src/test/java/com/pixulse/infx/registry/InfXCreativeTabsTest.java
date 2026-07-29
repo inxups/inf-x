@@ -26,8 +26,8 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        // 395 baseline + 42 mob buckets + 7 powder-snow buckets + 4 fish spawn eggs + clay golem egg.
-        assertEquals(449, registered.size());
+        // 396 baseline + 42 mob buckets + 7 powder-snow buckets + 4 fish spawn eggs + clay golem egg.
+        assertEquals(450, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -35,7 +35,7 @@ class InfXCreativeTabsTest {
     @Test
     void categorySizesMatchTheCreativeInventoryDesign() {
         Map<InfXCreativeTabs.Category, Integer> expected = Map.of(
-                InfXCreativeTabs.Category.BLOCKS, 45,
+                InfXCreativeTabs.Category.BLOCKS, 46,
                 InfXCreativeTabs.Category.INGREDIENTS, 31,
                 InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
                 InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
@@ -63,11 +63,18 @@ class InfXCreativeTabsTest {
         Identifier netherPortal = InfXBlocks.NETHER_PORTAL.getId();
         Identifier returnSpawnPortal = InfXBlocks.RETURN_SPAWN_PORTAL.getId();
         Identifier infestedNetherrack = InfXBlocks.INFESTED_NETHERRACK.getId();
-        Set<Identifier> worldgenOnly = Set.of(
-                underworldPortal, netherPortal, returnSpawnPortal, infestedNetherrack);
+        Set<Identifier> unobtainableBlocks = Set.of(
+                underworldPortal,
+                netherPortal,
+                returnSpawnPortal,
+                infestedNetherrack,
+                InfXBlocks.MITE_WHEAT.getId(),
+                InfXBlocks.MITE_CARROTS.getId(),
+                InfXBlocks.MITE_POTATOES.getId(),
+                InfXBlocks.MITE_BEETROOTS.getId());
         Set<Identifier> expectedBlockItems = InfXBlocks.BLOCKS.getEntries().stream()
                 .map(DeferredHolder::getId)
-                .filter(id -> !worldgenOnly.contains(id))
+                .filter(id -> !unobtainableBlocks.contains(id))
                 .collect(Collectors.toSet());
         Set<Identifier> creativeBlocks = InfXCreativeTabs.items(InfXCreativeTabs.Category.BLOCKS).stream()
                 .map(DeferredHolder::getId)
@@ -76,12 +83,19 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        assertEquals(49, InfXBlocks.BLOCKS.getEntries().size());
+        assertEquals(54, InfXBlocks.BLOCKS.getEntries().size());
         assertEquals(expectedBlockItems, creativeBlocks);
         assertFalse(registeredItems.contains(underworldPortal), "Underworld portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(netherPortal), "Nether portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(returnSpawnPortal), "Return-spawn portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(infestedNetherrack), "infested netherrack must remain worldgen-only");
+        for (Identifier crop : Set.of(
+                InfXBlocks.MITE_WHEAT.getId(),
+                InfXBlocks.MITE_CARROTS.getId(),
+                InfXBlocks.MITE_POTATOES.getId(),
+                InfXBlocks.MITE_BEETROOTS.getId())) {
+            assertFalse(registeredItems.contains(crop), crop + " must remain seed-placed only");
+        }
         assertTrue(InfXItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));
     }
 }

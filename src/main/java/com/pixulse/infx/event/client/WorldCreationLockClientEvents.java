@@ -79,7 +79,7 @@ public final class WorldCreationLockClientEvents {
         }
     }
 
-    static void lockWidgets(TabNavigationBar tabBar) {
+    public static void lockWidgets(TabNavigationBar tabBar) {
         findTab(tabBar, GAME_TAB).ifPresent(WorldCreationLockClientEvents::lockGameWidgets);
         findTab(tabBar, WORLD_TAB).ifPresent(WorldCreationLockClientEvents::lockWorldWidgets);
         if (!WorldCreationLockProfile.ALLOW_ADVANCED_CONFIGURATION) {
@@ -87,7 +87,7 @@ public final class WorldCreationLockClientEvents {
         }
     }
 
-    static boolean isAllowedGameMode(WorldCreationUiState.SelectedGameMode gameMode) {
+    public static boolean isAllowedGameMode(WorldCreationUiState.SelectedGameMode gameMode) {
         return gameMode == WorldCreationUiState.SelectedGameMode.SURVIVAL
                 || gameMode == WorldCreationUiState.SelectedGameMode.HARDCORE;
     }

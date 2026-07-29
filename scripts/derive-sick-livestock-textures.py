@@ -9,14 +9,21 @@ to each 26.2 healthy texture so UV layout matches the modern models.
 from __future__ import annotations
 
 import hashlib
+import os
 import struct
 import zlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MITE = Path("/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite-resource-pack/assets/minecraft/textures/entity")
-SRC_26 = Path("/Users/inxups/IdeaProjects/mc/inf-x/build/moddev/artifacts/minecraft-patched-26.2.0.21-beta.jar")
-TMP_26 = Path("/var/folders/m5/gv7_10k149l3j4l02mt548zr0000gp/T/opencode/mc26_tex/assets/minecraft/textures/entity")
+REFERENCE_ROOT = Path(os.environ.get("INFX_REFERENCE_ROOT", ROOT / "codex/reference"))
+if not REFERENCE_ROOT.is_dir():
+    REFERENCE_ROOT = Path("/Users/inxups/IdeaProjects/mc/inf-x/codex/reference")
+MITE = REFERENCE_ROOT / "mite-resource-pack/assets/minecraft/textures/entity"
+SRC_26 = Path(os.environ.get(
+    "INFX_26_CLIENT_JAR",
+    Path.home() / ".gradle/caches/neoformruntime/artifacts/minecraft_26.2_client.jar"))
+TMP_26_ROOT = ROOT / "build/tmp/mite-26.2-textures"
+TMP_26 = TMP_26_ROOT / "assets/minecraft/textures/entity"
 OUT = ROOT / "src/main/resources/assets/infx/textures/entity"
 MANIFEST = ROOT / "src/main/resources/assets/infx/mite_texture_manifest.tsv"
 
@@ -187,7 +194,9 @@ def ensure_26_sources():
         return
     import subprocess
 
-    TMP_26.parent.parent.parent.mkdir(parents=True, exist_ok=True)
+    if not SRC_26.is_file():
+        raise SystemExit(f"missing Minecraft 26.2 client asset jar {SRC_26}")
+    TMP_26_ROOT.mkdir(parents=True, exist_ok=True)
     subprocess.check_call(
         ["jar", "xf", str(SRC_26)]
         + [
@@ -221,7 +230,7 @@ def ensure_26_sources():
             }.items()
             for name in names
         ],
-        cwd=str(TMP_26.parent.parent.parent),
+        cwd=str(TMP_26_ROOT),
     )
 
 
@@ -306,7 +315,8 @@ def main() -> None:
         "textures/entity/sheep/sick.png",
         "textures/entity/chicken/sick.png",
     }
-    body = [line for line in body if line.split("\t")[2] not in drop]
+    replaced = {rel for _, rel, _ in entries}
+    body = [line for line in body if line.split("\t")[2] not in drop | replaced]
     for source, rel, digest in entries:
         body.append(f"derived\t{source}\t{rel}\t{digest}")
     body.sort(key=lambda line: line.split("\t")[2])
