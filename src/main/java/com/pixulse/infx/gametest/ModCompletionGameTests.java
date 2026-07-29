@@ -168,6 +168,7 @@ public final class ModCompletionGameTests {
             "r196_gravel_loot",
             "r196_hopper_xp",
             "r196_survival_core",
+            "r196_sprinting_nutrition",
             "r196_survival_modes",
             "r196_behavior_hunger",
             "r196_safe_enchanting",
@@ -189,6 +190,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("r196_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("r196_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
         FUNCTIONS.register("r196_survival_core", () -> ModCompletionGameTests::survivalCore);
+        FUNCTIONS.register("r196_sprinting_nutrition", () -> ModCompletionGameTests::sprintingNutrition);
         FUNCTIONS.register("r196_survival_modes", () -> ModCompletionGameTests::survivalModes);
         FUNCTIONS.register("r196_behavior_hunger", () -> ModCompletionGameTests::behaviorHunger);
         FUNCTIONS.register("r196_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
@@ -1082,16 +1084,24 @@ public final class ModCompletionGameTests {
                 player.getFoodData().getFoodLevel() == 2
                         && Math.abs(player.getFoodData().getSaturationLevel() - 8.0F) < 0.001F,
                 "vanilla FoodData tick must not mutate R196 energy layers");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void sprintingNutrition(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0.5, 0, 1, 1, 1, 0, 0));
         player.setSprinting(true);
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        helper.assertTrue(
-                player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy() && player.isSprinting(),
-                "remaining Satiation must permit sprinting below vanilla's food threshold");
+        helper.assertFalse(player.isSprinting(), "empty Nutrition must stop sprinting");
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 0.5, 1, 1, 1, 0, 0));
+        player.setSprinting(true);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        helper.assertTrue(player.isSprinting(), "remaining Nutrition must permit sprinting");
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 0, 1, 1, 1, 0, 0));
         player.setSprinting(true);
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        helper.assertFalse(player.isSprinting(), "empty R196 energy must stop sprinting");
+        helper.assertFalse(player.isSprinting(), "empty Nutrition must stop sprinting");
         removePlayer(player);
         helper.succeed();
     }
