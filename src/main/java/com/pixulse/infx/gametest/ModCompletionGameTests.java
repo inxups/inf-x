@@ -1373,6 +1373,17 @@ public final class ModCompletionGameTests {
         BlockPos tableRelative = new BlockPos(8, 2, 8);
         helper.setBlock(tableRelative, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
         BlockPos table = helper.absolutePos(tableRelative);
+        helper.setBlock(tableRelative.above(), Blocks.STONE);
+        BlockHitResult tableHit = new BlockHitResult(Vec3.atCenterOf(table), Direction.UP, table, false);
+        InteractionResult obstructedTableInteraction = helper.getBlockState(tableRelative)
+                .useWithoutItem(helper.getLevel(), owner, tableHit);
+        helper.assertTrue(
+                obstructedTableInteraction == InteractionResult.FAIL,
+                "an obstructed enchanting table must reject opening");
+        helper.assertTrue(
+                owner.containerMenu == owner.inventoryMenu,
+                "an obstructed enchanting table must not open a menu");
+        helper.setBlock(tableRelative.above(), Blocks.AIR);
         for (int y = 0; y <= 1; y++) {
             for (int x = -2; x <= 2; x++) {
                 for (int z = -2; z <= 2; z++) {
