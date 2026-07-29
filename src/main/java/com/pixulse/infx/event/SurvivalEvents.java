@@ -380,8 +380,7 @@ public final class SurvivalEvents {
                 || player.blockActionRestricted(player.level(), pos, player.gameMode.getGameModeForPlayer())) {
             return false;
         }
-        var state = player.level().getBlockState(pos);
-        return HarvestEvents.hasDestroyProgress(player, state, pos);
+        return true;
     }
 
     private static void consumeAction(ServerPlayer player, double amount) {

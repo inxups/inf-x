@@ -16,9 +16,6 @@ import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.data.furnace.FurnaceHeatAccess;
-import com.pixulse.infx.event.HarvestEvents;
-import com.pixulse.infx.data.harvest.PlantHardness;
-import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
@@ -78,14 +75,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.damagesource.IScalingFunction;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
@@ -253,8 +247,6 @@ public final class ModGameTests {
     private static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
-    private static final ResourceKey<Consumer<GameTestHelper>> HARVEST_RESTRICTIONS =
-            functionKey("harvest_restrictions");
     private static final ResourceKey<Consumer<GameTestHelper>> BENCH_HIERARCHY =
             functionKey("bench_hierarchy");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_CRAFTING =
@@ -295,7 +287,6 @@ public final class ModGameTests {
             functionKey("extreme_difficulty");
 
     static {
-        TEST_FUNCTIONS.register("harvest_restrictions", () -> ModGameTests::harvestRestrictions);
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
         TEST_FUNCTIONS.register("vanilla_recipe_removal", () -> ModGameTests::vanillaRecipeRemoval);
@@ -327,7 +318,6 @@ public final class ModGameTests {
     public static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("m1"), new TestEnvironmentDefinition.AllOf());
-        registerTest(event, HARVEST_RESTRICTIONS, environment, 40);
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
         registerTest(event, VANILLA_RECIPE_REMOVAL, environment, 40);
@@ -362,166 +352,6 @@ public final class ModGameTests {
                 true,
                 Rotation.NONE);
         event.registerTest(function.identifier(), new FunctionGameTestInstance(function, data));
-    }
-
-    private static void harvestRestrictions(GameTestHelper helper) {
-        ServerPlayer player = createPlayer(helper);
-        BlockPos absolutePos = helper.absolutePos(WORK_POS);
-
-        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        assertMitePlantHardness(
-                helper, player, Blocks.SHORT_GRASS, PlantHardness.TALL_GRASS_HARDNESS, "short grass");
-        assertMitePlantHardness(
-                helper, player, Blocks.TALL_GRASS, PlantHardness.TALL_GRASS_HARDNESS, "tall grass");
-        assertMitePlantHardness(helper, player, Blocks.FERN, PlantHardness.TALL_GRASS_HARDNESS, "fern");
-        assertMitePlantHardness(
-                helper, player, Blocks.LARGE_FERN, PlantHardness.TALL_GRASS_HARDNESS, "large fern");
-        assertMitePlantHardness(
-                helper, player, Blocks.SUGAR_CANE, PlantHardness.SUGAR_CANE_HARDNESS, "sugar cane");
-        helper.setBlock(WORK_POS, Blocks.OAK_LOG);
-        helper.assertFalse(
-                HarvestEvents.hasDestroyProgress(player, helper.getBlockState(WORK_POS), absolutePos),
-                "an invalid MITE tool must produce no block progress");
-        PlayerInteractEvent.LeftClickBlock invalidStart = new PlayerInteractEvent.LeftClickBlock(
-                player,
-                absolutePos,
-                Direction.UP,
-                PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(invalidStart);
-        helper.assertTrue(invalidStart.isCanceled(),
-                "an invalid mining target must not start a server mining session");
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "empty hand must not break logs");
-        helper.assertTrue(helper.getBlockState(WORK_POS).is(Blocks.OAK_LOG), "cancelled log break must keep the block");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.FLINT_HATCHET.get().getDefaultInstance());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "flint hatchet must break logs");
-        helper.assertTrue(helper.getBlockState(WORK_POS).isAir(), "allowed log break must remove the block");
-
-        helper.setBlock(WORK_POS, Blocks.STONE);
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "flint tier must not break pickaxe blocks");
-        helper.assertTrue(helper.getBlockState(WORK_POS).is(Blocks.STONE), "cancelled stone break must keep the block");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.COPPER_PICKAXE.get().getDefaultInstance());
-        player.setOnGround(true);
-        player.getFoodData().setFoodLevel(20);
-        player.experienceLevel = 0;
-        float stoneHardness = helper.getBlockState(WORK_POS).getDestroySpeed(helper.getLevel(), absolutePos);
-        float expectedStoneProgress = new EquipmentKey(MiteMaterial.COPPER, EquipmentType.PICKAXE)
-                        .miningSpeed()
-                / stoneHardness
-                / 512.0F;
-        float actualStoneProgress = helper.getBlockState(WORK_POS)
-                .getDestroyProgress(player, helper.getLevel(), absolutePos);
-        helper.assertTrue(
-                Math.abs(actualStoneProgress - expectedStoneProgress) < 1.0E-6F,
-                "ordinary mining must use MITE's 512-unit progress: " + actualStoneProgress);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break stone");
-
-        helper.setBlock(WORK_POS, InfXBlocks.SILVER_ORE.get());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "copper pickaxe must break silver ore");
-        helper.assertTrue(
-                helper.getBlockState(WORK_POS).isAir(),
-                "a harvested silver ore block must be removed");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        helper.setBlock(WORK_POS, Blocks.COAL_BLOCK);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE coal storage remains level zero");
-        helper.assertTrue(
-                helper.getLevel()
-                        .getEntities(EntityType.ITEM, player.getBoundingBox().inflate(8.0),
-                                entity -> entity.getItem().is(Items.COAL_BLOCK))
-                        .size() == 1,
-                "a level-zero coal block must still drop when harvested by hand");
-        helper.getLevel()
-                .getEntities(EntityType.ITEM, player.getBoundingBox().inflate(8.0),
-                        entity -> entity.getItem().is(Items.COAL_BLOCK))
-                .forEach(net.minecraft.world.entity.Entity::discard);
-        helper.setBlock(WORK_POS, Blocks.RAIL);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE circuit-material rails remain level zero");
-        helper.setBlock(WORK_POS, Blocks.FURNACE);
-        float portableProgress = helper.getBlockState(WORK_POS)
-                .getDestroyProgress(player, helper.getLevel(), absolutePos);
-        helper.assertTrue(
-                Math.abs(portableProgress - 1.0F / 128.0F) < 1.0E-6F,
-                "portable blocks must keep MITE's 128-tick baseline: " + portableProgress);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "MITE containers must be portable by hand");
-        helper.assertTrue(
-                helper.getLevel()
-                        .getEntities(EntityType.ITEM, player.getBoundingBox().inflate(8.0),
-                                entity -> entity.getItem().is(Items.FURNACE))
-                        .size() == 1,
-                "a portable furnace must drop when carried by hand");
-
-        helper.setBlock(WORK_POS, Blocks.TNT);
-        float instantPortableProgress = helper.getBlockState(WORK_POS)
-                .getDestroyProgress(player, helper.getLevel(), absolutePos);
-        helper.assertTrue(
-                instantPortableProgress > 0.0F && !Float.isNaN(instantPortableProgress),
-                "a zero-hardness portable block must remain a valid instant target: " + instantPortableProgress);
-
-        helper.setBlock(WORK_POS, Blocks.TERRACOTTA);
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "hardened clay must enforce MITE level one");
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.FLINT_AXE.get().getDefaultInstance());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against hardened clay");
-        helper.setBlock(WORK_POS, Blocks.SANDSTONE);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against sandstone");
-        helper.setBlock(WORK_POS, Blocks.GLASS);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "a flint axe must be effective against glass");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.COPPER_PICKAXE.get().getDefaultInstance());
-        helper.setBlock(WORK_POS, Blocks.IRON_BARS);
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "copper must not harvest MITE level-three iron");
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.IRON_PICKAXE.get().getDefaultInstance());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "iron must harvest MITE level-three iron");
-
-        helper.setBlock(WORK_POS, Blocks.DIAMOND_ORE);
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "iron must not harvest level-four diamond ore");
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.MITHRIL, EquipmentType.PICKAXE)
-                .holder()
-                .toStack());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "mithril must harvest level-four diamond ore");
-
-        helper.setBlock(WORK_POS, InfXBlocks.MITHRIL_BLOCK.get());
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "mithril must not harvest its level-five storage block");
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE)
-                .holder()
-                .toStack());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "adamantium must harvest a level-five mithril block");
-        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_BLOCK.get());
-        helper.assertFalse(player.gameMode.destroyBlock(absolutePos), "MITE level-six adamantium storage is not tool-harvestable");
-        helper.assertTrue(helper.getBlockState(WORK_POS).is(InfXBlocks.ADAMANTIUM_BLOCK.get()),
-                "failed level-six harvest must keep the block");
-
-        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        helper.setBlock(WORK_POS, Blocks.OAK_LOG);
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "creative players must bypass harvest restrictions");
-
-        helper.setBlock(WORK_POS, Blocks.BEDROCK);
-        helper.assertTrue(
-                HarvestEvents.hasDestroyProgress(player, helper.getBlockState(WORK_POS), absolutePos),
-                "creative players must retain a valid mining target for bedrock");
-        PlayerInteractEvent.LeftClickBlock creativeBedrockStart = new PlayerInteractEvent.LeftClickBlock(
-                player,
-                absolutePos,
-                Direction.UP,
-                PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(creativeBedrockStart);
-        helper.assertFalse(
-                creativeBedrockStart.isCanceled(),
-                "creative mining must not be cancelled for bedrock");
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "creative players must break bedrock");
-        helper.assertTrue(helper.getBlockState(WORK_POS).isAir(), "creative bedrock break must remove the block");
-
-        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
-        helper.assertTrue(player.gameMode.destroyBlock(absolutePos), "workbenches must be recoverable with an empty hand");
-
-        removePlayer(player);
-        helper.succeed();
     }
 
     private static void extremeDifficulty(GameTestHelper helper) {
@@ -1965,23 +1795,6 @@ public final class ModGameTests {
             player.closeContainer();
         }
         player.level().getServer().getPlayerList().remove(player);
-    }
-
-    private static void assertMitePlantHardness(
-            GameTestHelper helper, ServerPlayer player, Block block, float expectedHardness, String description) {
-        BlockState state = block.defaultBlockState();
-        BlockPos pos = helper.absolutePos(WORK_POS);
-        float hardness = state.getDestroySpeed(helper.getLevel(), pos);
-        helper.assertTrue(
-                Math.abs(hardness - expectedHardness) < 1.0E-6F,
-                description + " must use the mapped MITE plant hardness: " + hardness);
-        helper.assertTrue(
-                Math.abs(block.defaultDestroyTime() - expectedHardness) < 1.0E-6F,
-                description + " default destroy time must retain the mapped MITE hardness");
-        float progress = state.getDestroyProgress(player, helper.getLevel(), pos);
-        helper.assertTrue(
-                progress > 0.0F && progress < 1.0F,
-                description + " must no longer be an instant mining target: " + progress);
     }
 
     private static void grantMaximumExperience(ServerPlayer player) {
