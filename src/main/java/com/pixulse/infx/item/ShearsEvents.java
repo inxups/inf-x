@@ -1,6 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -10,9 +11,10 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 public final class ShearsEvents {
     private ShearsEvents() {}
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
     public static void cancelLeftClickShearsAttack(AttackEntityEvent event) {
         if (MiteShearsItem.isRightClickAttack()) {
+            MiteShearsItem.recordRightClickAttackCancellation(event.isCanceled());
             return;
         }
         if (event.getEntity().getMainHandItem().getItem() instanceof MiteShearsItem) {

@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.item.Catalog;
+import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.material.Quality;
@@ -112,6 +113,19 @@ class GeneratedResourceTest {
                         .map(JsonElement::getAsString)
                         .anyMatch("minecraft:silk_touch"::equals),
                 "fortune stays exclusive with silk touch");
+    }
+
+    @Test
+    void materialShearsAreSilkTouchEnchantable() throws Exception {
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/r196_silk_touch.json"));
+        Set<String> values = tag.getAsJsonArray("values").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> materialShears = EquipmentKey.all().stream()
+                .filter(key -> key.type() == EquipmentType.SHEARS)
+                .map(key -> "infx:" + key.path())
+                .collect(Collectors.toSet());
+        assertTrue(values.containsAll(materialShears), "all material shears must support silk touch");
     }
 
     @Test

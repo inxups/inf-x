@@ -22,6 +22,7 @@ public final class MiteShearsItem extends ShearsItem {
     public static final int ATTACK_COOLDOWN_TICKS = 10;
 
     private static final ThreadLocal<Boolean> RIGHT_CLICK_ATTACK = ThreadLocal.withInitial(() -> false);
+    private static final ThreadLocal<Boolean> RIGHT_CLICK_ATTACK_CANCELLED = ThreadLocal.withInitial(() -> false);
 
     private final EquipmentKey key;
 
@@ -36,6 +37,16 @@ public final class MiteShearsItem extends ShearsItem {
 
     static boolean isRightClickAttack() {
         return Boolean.TRUE.equals(RIGHT_CLICK_ATTACK.get());
+    }
+
+    static void recordRightClickAttackCancellation(boolean cancelled) {
+        if (isRightClickAttack()) {
+            RIGHT_CLICK_ATTACK_CANCELLED.set(cancelled);
+        }
+    }
+
+    private static boolean isRightClickAttackCancelled() {
+        return Boolean.TRUE.equals(RIGHT_CLICK_ATTACK_CANCELLED.get());
     }
 
     @Override
@@ -61,6 +72,10 @@ public final class MiteShearsItem extends ShearsItem {
         if (shear.consumesAction()) {
             return shear;
         }
+        // Player.attack always uses the main-hand weapon; do not attack with a different stack.
+        if (hand != InteractionHand.MAIN_HAND) {
+            return InteractionResult.PASS;
+        }
         if (player.getCooldowns().isOnCooldown(stack)) {
             return InteractionResult.FAIL;
         }
@@ -70,11 +85,18 @@ public final class MiteShearsItem extends ShearsItem {
         if (player.level().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
+        boolean attackCancelled;
         RIGHT_CLICK_ATTACK.set(true);
+        RIGHT_CLICK_ATTACK_CANCELLED.set(false);
         try {
             player.attack(entity);
+            attackCancelled = isRightClickAttackCancelled();
         } finally {
             RIGHT_CLICK_ATTACK.set(false);
+            RIGHT_CLICK_ATTACK_CANCELLED.remove();
+        }
+        if (attackCancelled) {
+            return InteractionResult.FAIL;
         }
         player.getCooldowns().addCooldown(stack, ATTACK_COOLDOWN_TICKS);
         return InteractionResult.SUCCESS;
