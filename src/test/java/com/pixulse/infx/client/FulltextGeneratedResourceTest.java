@@ -162,6 +162,18 @@ class FulltextGeneratedResourceTest {
                 () -> assertFalse(Files.exists(
                         GENERATED.resolve("data/infx/neoforge/biome_modifier/add_large_caves.json"))));
 
+        JsonObject jungleMelonRemoval = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/remove_jungle_melons.json"));
+        assertAll(
+                "natural jungle melons removed",
+                () -> assertEquals("neoforge:remove_features", jungleMelonRemoval.get("type").getAsString()),
+                () -> assertEquals("#minecraft:is_jungle", jungleMelonRemoval.get("biomes").getAsString()),
+                () -> assertEquals(
+                        List.of("minecraft:patch_melon", "minecraft:patch_melon_sparse"),
+                        strings(jungleMelonRemoval.getAsJsonArray("features"))),
+                () -> assertEquals(
+                        "vegetal_decoration", jungleMelonRemoval.get("steps").getAsString()));
+
         assertAll(
                 "witherwood_patch",
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
