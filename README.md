@@ -9,3 +9,7 @@ InfiniteX 是一个不太简单的Mod。
 
 ## 开发
 开发时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用 test 模式。
+
+## 其他
+部分材质来自YF101,qf
+部分声音文件取自MITE
