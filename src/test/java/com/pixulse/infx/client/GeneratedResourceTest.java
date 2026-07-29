@@ -163,6 +163,7 @@ class GeneratedResourceTest {
                 () -> assertFalse(underworldMonsters.contains("infx:fire_elemental")),
                 () -> assertFalse(underworldMonsters.contains("infx:hoary_silverfish")),
                 () -> assertFalse(underworldMonsters.contains("infx:wood_spider")),
+                () -> assertTrue(underworldAmbient.contains("infx:r196_bat")),
                 () -> assertTrue(underworldAmbient.contains("infx:vampire_bat")),
                 () -> assertTrue(underworldAmbient.contains("infx:nightwing")),
                 () -> assertFalse(underworldAmbient.contains("infx:giant_vampire_bat")),
@@ -1611,10 +1612,10 @@ class GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Four replacement fish spawn eggs, the clay-golem egg, and the bottle model add one item definition and
-        // model each.
-        assertEquals(441, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(515, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // Four replacement fish spawn eggs, the clay-golem egg, the R196 bat egg, and the bottle model add one
+        // item definition and model each.
+        assertEquals(442, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(516, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -2030,7 +2031,7 @@ class GeneratedResourceTest {
                         + "|obsidian/earth_elemental_obsidian(_magma)?"
                         + "|stone/earth_elemental_stone(_magma)?)\\.png"
                         + "|textures/entity/silverfish/(netherspawn|copperspine|hoary)\\.png"
-                        + "|textures/entity/bat/(vampire|nightwing)\\.png"
+                        + "|textures/entity/bat(?:/(vampire|nightwing))?\\.png"
                         + "|textures/entity/hellhound/hellhound\\.png"
                         + "|textures/entity/dire_wolf/(angry|neutral|tame)\\.png")));
         // Sick livestock skins derived from the 26.2 healthy variants (see sickTextureFor).

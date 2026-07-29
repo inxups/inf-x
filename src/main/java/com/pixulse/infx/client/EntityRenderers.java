@@ -538,6 +538,7 @@ public final class EntityRenderers {
 
         static Identifier textureFor(MiteBat.Variant variant) {
             return switch (variant) {
+                case NORMAL -> mite("textures/entity/bat.png");
                 case VAMPIRE, GIANT_VAMPIRE -> mite("textures/entity/bat/vampire.png");
                 case NIGHTWING -> mite("textures/entity/bat/nightwing.png");
             };

@@ -1,16 +1,22 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.data.nightwing.NightwingDimming;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.equipment.EquipmentBehaviors;
+import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.registry.InfXItems;
+import java.util.List;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.animal.feline.Ocelot;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -20,11 +26,13 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** Hostile cave bats. Vampire variants heal on contact; Nightwings blind their prey. */
-public final class MiteBat extends Bat implements Enemy, MiteMob {
+/** R196 ambient bats. Vampire variants heal on contact; Nightwings dim player vision. */
+public final class MiteBat extends Bat implements MiteMob {
     private static final int ATTACK_COOLDOWN_TICKS = 20;
     private static final int FEED_COOLDOWN_TICKS = 1_200;
+
     public enum Variant {
+        NORMAL,
         VAMPIRE,
         NIGHTWING,
         GIANT_VAMPIRE
@@ -36,23 +44,31 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
 
     public MiteBat(EntityType<? extends Bat> type, Level level) {
         super(type, level);
-        // MITE experience: vampire bats 5, giant vampires and nightwings 10.
-        xpReward = variant() == Variant.VAMPIRE ? 5 : 10;
+        xpReward = switch (variant()) {
+            case NORMAL -> 0;
+            case VAMPIRE -> 5;
+            case NIGHTWING, GIANT_VAMPIRE -> 10;
+        };
     }
 
     public Variant variant() {
         return switch (EntityVariant.path(this)) {
+            case "r196_bat" -> Variant.NORMAL;
             case "nightwing" -> Variant.NIGHTWING;
             case "giant_vampire_bat" -> Variant.GIANT_VAMPIRE;
-            default -> Variant.VAMPIRE;
+            case "vampire_bat" -> Variant.VAMPIRE;
+            default -> Variant.NORMAL;
         };
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        boolean giant = variant == Variant.GIANT_VAMPIRE;
-        return Bat.createAttributes()
-                .add(Attributes.MAX_HEALTH, giant ? 6.0 : 3.0)
-                .add(Attributes.ATTACK_DAMAGE, giant ? 2.0 : 1.0)
+        AttributeSupplier.Builder attributes = Bat.createAttributes()
+                .add(Attributes.MAX_HEALTH, variant == Variant.GIANT_VAMPIRE ? 6.0 : 3.0);
+        if (variant == Variant.NORMAL) {
+            return attributes;
+        }
+        return attributes
+                .add(Attributes.ATTACK_DAMAGE, variant == Variant.GIANT_VAMPIRE ? 2.0 : 1.0)
                 .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
@@ -68,18 +84,29 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
     @Override
     protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
+        Variant variant = variant();
+        if (variant == Variant.NORMAL) {
+            return;
+        }
+
         if (attackCooldown > 0) {
             attackCooldown--;
         }
-        if (variant() == Variant.VAMPIRE && feedCooldown > 0) {
+        if (variant == Variant.VAMPIRE && feedCooldown > 0) {
             if (getHealth() < getMaxHealth()) {
                 feedCooldown = 0;
             } else {
                 feedCooldown--;
+                if (prey != null && !isPrey(prey)) {
+                    prey = null;
+                }
             }
         }
 
-        if (tickCount % 20 == 0 || prey == null || !prey.isAlive() || prey.isRemoved()) {
+        if (prey != null && (!prey.isAlive() || prey.isRemoved() || !isPrey(prey))) {
+            prey = null;
+        }
+        if (tickCount % 20 == 0) {
             prey = findPrey(level);
         }
         LivingEntity target = prey;
@@ -96,12 +123,19 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
                 float before = target.getHealth();
                 if (doHurtTarget(level, target)) {
                     float dealt = Math.max(0.0F, before - target.getHealth());
-                    if (variant() == Variant.NIGHTWING) {
-                        target.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 120, 0), this);
+                    if (variant == Variant.NIGHTWING) {
+                        if (dealt > 0.0F && target instanceof ServerPlayer player) {
+                            NightwingDimming.apply(player, nightwingDimmingAmount(player));
+                        }
                     } else {
-                        heal(dealt);
-                        if (variant() == Variant.VAMPIRE && getHealth() >= getMaxHealth()) {
-                            feedCooldown = feedCooldownTicks();
+                        if (dealt > 0.0F) {
+                            heal(dealt);
+                            if (target instanceof Ocelot ocelot && ocelot.isAlive() && ocelot.getTarget() == null) {
+                                ocelot.setTarget(this);
+                            }
+                            if (variant == Variant.VAMPIRE && getHealth() >= getMaxHealth()) {
+                                feedCooldown = feedCooldownTicks();
+                            }
                         }
                     }
                 }
@@ -109,7 +143,7 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
             }
         }
 
-        if (variant() == Variant.NIGHTWING) {
+        if (variant == Variant.NIGHTWING) {
             if (level.isBrightOutside() && level.canSeeSky(blockPosition()) && !level.isRaining()) {
                 // MITE nightwings take 1000 sunlight damage: certain death.
                 hurtServer(level, damageSources().genericKill(), 1000.0F);
@@ -127,12 +161,41 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
         return AttackRanges.scaledHorizontalContact(this, target, 0.5);
     }
 
+    /** MITE shadow resistance is half of the worn silver armor coverage. */
+    static float nightwingDimmingAmount(Player player) {
+        float silverCoverage = 0.0F;
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            var stack = player.getItemBySlot(slot);
+            var equipment = InfXItems.catalog().equipment(stack);
+            if (equipment == null || equipment.key().material() != MiteMaterial.SILVER) {
+                continue;
+            }
+            EquipmentType type = equipment.key().type();
+            float coverage = switch (type.armorForm()) {
+                case PLATE -> type.durabilityComponents() / 24.0F;
+                case CHAIN -> type.durabilityComponents() / 48.0F;
+                default -> 0.0F;
+            };
+            silverCoverage += coverage
+                    * EquipmentBehaviors.armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
+        }
+        return nightwingDimmingAfterSilverCoverage(silverCoverage);
+    }
+
+    static float nightwingDimmingAfterSilverCoverage(float silverCoverage) {
+        float resistance = Math.clamp(silverCoverage, 0.0F, 1.0F) * 0.5F;
+        return 1.25F * (1.0F - resistance);
+    }
+
     /** MITE bats hunt the closest non-creative player, animal or villager within 32 blocks. */
     private @Nullable LivingEntity findPrey(ServerLevel level) {
         LivingEntity best = null;
         double bestDistance = Double.MAX_VALUE;
         for (LivingEntity candidate : level.getEntitiesOfClass(
-                LivingEntity.class, getBoundingBox().inflate(32.0), entity -> entity.isAlive() && isPrey(entity))) {
+                LivingEntity.class,
+                getBoundingBox().inflate(32.0),
+                entity -> entity.isAlive() && isPrey(entity) && hasLineOfSight(entity))) {
             double distance = distanceToSqr(candidate);
             if (distance < bestDistance) {
                 bestDistance = distance;
@@ -145,6 +208,9 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
     private boolean isPrey(LivingEntity entity) {
         if (entity instanceof Player player) {
             return !player.isCreative() && !player.isSpectator();
+        }
+        if (entity instanceof MiteWolf wolf && wolf.variant() == MiteWolf.Variant.HELLHOUND) {
+            return false;
         }
         return !restrictsPreyToPlayers() && (entity instanceof Animal || entity instanceof Villager);
     }
@@ -174,5 +240,10 @@ public final class MiteBat extends Bat implements Enemy, MiteMob {
     /** MITE vampire bats need a full minute of full health before resuming animal feeding. */
     static int feedCooldownTicks() {
         return FEED_COOLDOWN_TICKS;
+    }
+
+    @Override
+    public int getMaxSpawnClusterSize() {
+        return variant() == Variant.NORMAL ? 4 : 8;
     }
 }

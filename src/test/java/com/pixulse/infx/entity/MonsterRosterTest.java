@@ -40,12 +40,12 @@ class MonsterRosterTest {
                 .map(holder -> holder.getId().getPath())
                 .collect(Collectors.toSet());
 
-        assertEquals(24, replacements.size());
+        assertEquals(25, replacements.size());
         assertEquals(Set.of("magma_cube"), replacements.stream().filter(newMonsters::contains).collect(Collectors.toSet()));
-        assertEquals(52, InfXEntityTypes.ALL.size());
-        assertEquals(52, InfXEntityTypes.names().size());
+        assertEquals(53, InfXEntityTypes.ALL.size());
+        assertEquals(53, InfXEntityTypes.names().size());
         assertTrue(replacements.containsAll(Set.of(
-                "r196_cow", "r196_chicken", "r196_sheep", "r196_pig", "r196_horse", "r196_ocelot", "r196_wolf",
+                "r196_bat", "r196_cow", "r196_chicken", "r196_sheep", "r196_pig", "r196_horse", "r196_ocelot", "r196_wolf",
                 "r196_cod", "r196_salmon", "r196_pufferfish", "r196_tropical_fish")));
     }
 

@@ -101,7 +101,7 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
     }
 
     private static void addOverworldSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
-        add(spawns, EntityType.BAT, 100, 8, 8);
+        add(spawns, InfXEntityTypes.R196_BAT.get(), 100, 8, 8);
         add(spawns, InfXEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
         add(spawns, InfXEntityTypes.NIGHTWING.get(), 4, 1, 4);
         if (biome.is(Biomes.MUSHROOM_FIELDS)) return;

@@ -193,6 +193,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
             add(type.get(), LootTable.lootTable());
         }
         for (var type : java.util.List.of(
+                InfXEntityTypes.R196_BAT,
                 InfXEntityTypes.VAMPIRE_BAT,
                 InfXEntityTypes.NIGHTWING,
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {

@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
@@ -183,6 +184,12 @@ class MonsterProfileTest {
         assertEquals(3.0, stats(MitePufferfish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(3.0, stats(MiteTropicalFish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
 
+        AttributeSupplier normalBat = stats(MiteBat.attributes(MiteBat.Variant.NORMAL));
+        assertEquals(3.0, normalBat.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertFalse(normalBat.hasAttribute(Attributes.ATTACK_DAMAGE));
+        assertFalse(Enemy.class.isAssignableFrom(MiteBat.class));
+        assertEquals(1.25F, MiteBat.nightwingDimmingAfterSilverCoverage(0.0F), 1.0E-6F);
+        assertEquals(0.625F, MiteBat.nightwingDimmingAfterSilverCoverage(1.0F), 1.0E-6F);
         assertBat(MiteBat.Variant.VAMPIRE, 3.0, 1.0);
         assertBat(MiteBat.Variant.NIGHTWING, 3.0, 1.0);
         assertBat(MiteBat.Variant.GIANT_VAMPIRE, 6.0, 2.0);
@@ -260,7 +267,7 @@ class MonsterProfileTest {
         assertDimensions(entities, checked, 0.5F, 0.4F, "r196_tropical_fish");
         assertDimensions(entities, checked, 4.0F, 4.0F, "r196_ghast");
         assertDimensions(entities, checked, 0.3F, 0.7F, "netherspawn", "copperspine", "hoary_silverfish");
-        assertDimensions(entities, checked, 0.5F, 0.9F, "vampire_bat", "nightwing");
+        assertDimensions(entities, checked, 0.5F, 0.9F, "r196_bat", "vampire_bat", "nightwing");
         assertDimensions(entities, checked, 1.0F, 1.8F, "giant_vampire_bat");
         assertDimensions(entities, checked, 0.6F, 0.8F, "hellhound", "dire_wolf");
         assertDimensions(entities, checked, 0.9F, 1.4F, "r196_cow");
@@ -349,6 +356,7 @@ class MonsterProfileTest {
         add(names, "netherspawn", "Netherspawn", "爆炸蠹虫");
         add(names, "copperspine", "Copperspine", "铜毒蠹虫");
         add(names, "hoary_silverfish", "Hoary Silverfish", "白化蠹虫");
+        add(names, "r196_bat", "Bat", "蝙蝠");
         add(names, "vampire_bat", "Vampire Bat", "吸血蝙蝠");
         add(names, "nightwing", "Nightwing", "暗影蝙蝠");
         add(names, "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠");

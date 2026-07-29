@@ -196,10 +196,15 @@ public final class ModMonsterGameTests {
                             && type.get().isAllowedInPeaceful(),
                     type.getId() + " must retain vanilla aquatic interaction semantics");
         }
-        helper.assertTrue(
-                InfXEntityTypes.VAMPIRE_BAT.get().getCategory() == MobCategory.AMBIENT
-                        && InfXEntityTypes.NIGHTWING.get().getCategory() == MobCategory.AMBIENT,
-                "hostile cave bats must retain the R196 ambient spawn pool");
+        for (var type : List.of(
+                InfXEntityTypes.R196_BAT,
+                InfXEntityTypes.VAMPIRE_BAT,
+                InfXEntityTypes.NIGHTWING,
+                InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
+            helper.assertTrue(
+                    type.get().getCategory() == MobCategory.AMBIENT && type.get().isAllowedInPeaceful(),
+                    type.getId() + " must retain MITE's ambient, non-IMob spawn semantics");
+        }
         helper.assertTrue(
                 InfXEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
                         && InfXEntityTypes.DIRE_WOLF.get().isAllowedInPeaceful(),
@@ -473,6 +478,15 @@ public final class ModMonsterGameTests {
                                     == Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     type.getId() + " must retain vanilla water spawn placement restrictions");
         }
+        for (var type : List.of(
+                InfXEntityTypes.R196_BAT,
+                InfXEntityTypes.VAMPIRE_BAT,
+                InfXEntityTypes.NIGHTWING,
+                InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
+            helper.assertTrue(
+                    SpawnPlacements.getPlacementType(type.get()) == SpawnPlacementTypes.NO_RESTRICTIONS,
+                    type.getId() + " must spawn in MITE cave air without a modern ground-tag requirement");
+        }
 
         MobSpawnSettings ocean = biomes.getOrThrow(Biomes.OCEAN).value().getMobSettings();
         helper.assertTrue(
@@ -513,7 +527,7 @@ public final class ModMonsterGameTests {
                 "mushroom fields must remain free of monsters, animals and squid");
         helper.assertTrue(
                 Set.copyOf(spawnTypes(mushroom, MobCategory.AMBIENT)).equals(Set.of(
-                        EntityType.BAT,
+                        InfXEntityTypes.R196_BAT.get(),
                         InfXEntityTypes.VAMPIRE_BAT.get(),
                         InfXEntityTypes.NIGHTWING.get())),
                 "mushroom fields retain the inherited R196 cave-bat pool");
@@ -555,7 +569,8 @@ public final class ModMonsterGameTests {
         MobSpawnSettings underworld = biomes.getOrThrow(Underworld.BIOME).value().getMobSettings();
         helper.assertTrue(
                 spawnTypes(underworld, MobCategory.WATER_CREATURE).equals(List.of(EntityType.SQUID))
-                        && spawnTypes(underworld, MobCategory.CREATURE).isEmpty(),
+                        && spawnTypes(underworld, MobCategory.CREATURE).isEmpty()
+                        && spawnTypes(underworld, MobCategory.AMBIENT).contains(InfXEntityTypes.R196_BAT.get()),
                 "Underworld must retain aquatic spawning without blue-moon livestock");
         helper.assertTrue(
                 spawnTypes(underworld, MobCategory.MONSTER).contains(InfXEntityTypes.CLAY_GOLEM.get()),
@@ -978,8 +993,11 @@ public final class ModMonsterGameTests {
             prey.snapTo(bat.getX(), bat.getY(), bat.getZ(), 0.0F, 0.0F);
             helper.assertTrue(bat.hasMiteAttackContact(prey), batType.getId() + " must accept half-box contact");
             bat.tick();
-            if (batType != InfXEntityTypes.NIGHTWING) {
-                helper.assertTrue(prey.getHealth() < health, batType.getId() + " must attack after half-box contact");
+            helper.assertTrue(prey.getHealth() < health, batType.getId() + " must attack after half-box contact");
+            if (batType == InfXEntityTypes.NIGHTWING) {
+                helper.assertFalse(
+                        prey.hasEffect(MobEffects.DARKNESS),
+                        "Nightwing must use player-only vision dimming rather than modern Darkness");
             }
             bat.discard();
             prey.discard();

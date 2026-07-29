@@ -101,6 +101,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
                 InfXEntityTypes.FIRE_ELEMENTAL.getKey(),
                 InfXEntityTypes.R196_GHAST.getKey(),
                 InfXEntityTypes.MAGMA_CUBE.getKey(),
+                InfXEntityTypes.R196_BAT.getKey(),
                 InfXEntityTypes.VAMPIRE_BAT.getKey(),
                 InfXEntityTypes.NIGHTWING.getKey(),
                 InfXEntityTypes.GIANT_VAMPIRE_BAT.getKey());

@@ -226,6 +226,7 @@ def derive_baby(adult_px):
 
 
 COPIES = [
+    ("entity/bat.png", "textures/entity/bat.png"),
     ("entity/spider/spider.png", "textures/entity/spider/spider.png"),
     ("entity/blaze.png", "textures/entity/blaze.png"),
     ("entity/ghast/ghast.png", "textures/entity/ghast/ghast.png"),
@@ -252,6 +253,7 @@ BABIES = [
 # Both MITE earth-elemental entries use the approved clay egg art. Keeping this in the sync
 # script means the newly registered clay golem cannot lose its item icon after an asset refresh.
 SPAWN_EGGS = [
+    ("item/vampire_bat_spawn_egg.png", "textures/item/r196_bat_spawn_egg.png"),
     ("item/spawn_egg/spawn_egg_earth_element_clay.png", "textures/item/earth_elemental_spawn_egg.png"),
     ("item/spawn_egg/spawn_egg_earth_element_clay.png", "textures/item/clay_golem_spawn_egg.png"),
 ]

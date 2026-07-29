@@ -1,8 +1,11 @@
 package com.pixulse.infx.entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.registry.InfXEntityTypes;
+import java.time.LocalDate;
 import net.minecraft.world.entity.EntityType;
 import org.junit.jupiter.api.Test;
 
@@ -31,11 +34,20 @@ class MonsterEventsTest {
 
     @Test
     void worldSpawnReplacementMapsEveryVanillaFishToItsR196Entity() {
+        assertEquals(InfXEntityTypes.R196_BAT.get(), MonsterEvents.replacementFor(EntityType.BAT));
         assertEquals(InfXEntityTypes.R196_COD.get(), MonsterEvents.replacementFor(EntityType.COD));
         assertEquals(InfXEntityTypes.R196_SALMON.get(), MonsterEvents.replacementFor(EntityType.SALMON));
         assertEquals(InfXEntityTypes.R196_PUFFERFISH.get(), MonsterEvents.replacementFor(EntityType.PUFFERFISH));
         assertEquals(
                 InfXEntityTypes.R196_TROPICAL_FISH.get(),
                 MonsterEvents.replacementFor(EntityType.TROPICAL_FISH));
+    }
+
+    @Test
+    void miteBatHalloweenWindowMatchesR196CalendarDates() {
+        assertTrue(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 10, 20)));
+        assertTrue(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 11, 3)));
+        assertFalse(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 10, 19)));
+        assertFalse(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 11, 4)));
     }
 }

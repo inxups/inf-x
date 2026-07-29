@@ -163,6 +163,9 @@ public final class ClientEvents {
                 InfXEntityTypes.HOARY_SILVERFISH.get(),
                 context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.HOARY));
         event.registerEntityRenderer(
+                InfXEntityTypes.R196_BAT.get(),
+                context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.NORMAL));
+        event.registerEntityRenderer(
                 InfXEntityTypes.VAMPIRE_BAT.get(),
                 context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.VAMPIRE));
         event.registerEntityRenderer(
