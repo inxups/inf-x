@@ -325,6 +325,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.AZALEA),
                         blockKey(Blocks.FLOWERING_AZALEA),
                         blockKey(Blocks.SWEET_BERRY_BUSH),
+                        InfXBlocks.BLUEBERRY_BUSH.getKey(),
                         blockKey(Blocks.NETHER_SPROUTS),
                         blockKey(Blocks.CRIMSON_ROOTS),
                         blockKey(Blocks.WARPED_ROOTS),

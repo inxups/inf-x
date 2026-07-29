@@ -1,29 +1,26 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.data.harvest.MiteMiningRules;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ShearsItem;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.CommonHooks;
 import org.jspecify.annotations.NonNull;
 
 /**
- * R196 material shears: no right-click block stance; melee is on right-click with a short cooldown.
- * Left-click entity attacks are cancelled by {@link ShearsEvents}.
+ * R196 material shears: right-click cuts shears-effective blocks and shearable entities, while
+ * left-click is normal melee.
  */
 public final class MiteShearsItem extends ShearsItem {
-    /** Short post-attack cooldown so right-click melee is not free spam (0.5 s). */
-    public static final int ATTACK_COOLDOWN_TICKS = 10;
-
-    private static final ThreadLocal<Boolean> RIGHT_CLICK_ATTACK = ThreadLocal.withInitial(() -> false);
-    private static final ThreadLocal<Boolean> RIGHT_CLICK_ATTACK_CANCELLED = ThreadLocal.withInitial(() -> false);
-
     private final EquipmentKey key;
 
     public MiteShearsItem(EquipmentKey key, Properties properties) {
@@ -33,20 +30,6 @@ public final class MiteShearsItem extends ShearsItem {
 
     public EquipmentKey key() {
         return key;
-    }
-
-    static boolean isRightClickAttack() {
-        return Boolean.TRUE.equals(RIGHT_CLICK_ATTACK.get());
-    }
-
-    static void recordRightClickAttackCancellation(boolean cancelled) {
-        if (isRightClickAttack()) {
-            RIGHT_CLICK_ATTACK_CANCELLED.set(cancelled);
-        }
-    }
-
-    private static boolean isRightClickAttackCancelled() {
-        return Boolean.TRUE.equals(RIGHT_CLICK_ATTACK_CANCELLED.get());
     }
 
     @Override
@@ -60,45 +43,83 @@ public final class MiteShearsItem extends ShearsItem {
     }
 
     @Override
+    public @NonNull InteractionResult useOn(@NonNull UseOnContext context) {
+        InteractionResult vanilla = super.useOn(context);
+        if (vanilla.consumesAction()) {
+            return vanilla;
+        }
+
+        BlockPos pos = context.getClickedPos();
+        BlockState state = context.getLevel().getBlockState(pos);
+        if (!state.is(InfXBlockTags.effectiveWith(MiningFamily.SHEARS))) {
+            return vanilla;
+        }
+
+        Player player = context.getPlayer();
+        if (player == null) {
+            return vanilla;
+        }
+        if (!context.getLevel().mayInteract(player, pos)
+                || !player.mayUseItemAt(pos, context.getClickedFace(), context.getItemInHand())
+                || player.blockActionRestricted(context.getLevel(), pos, player.gameMode())) {
+            return InteractionResult.FAIL;
+        }
+        if (context.getLevel().isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+        if (CommonHooks.fireBlockBreak(context.getLevel(), player.gameMode(), player, pos, state).isCanceled()) {
+            return InteractionResult.FAIL;
+        }
+
+        return shearBlock(context, player, state) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+    }
+
+    @Override
     public boolean mineBlock(@NonNull ItemStack stack, @NonNull Level level, @NonNull BlockState state, @NonNull BlockPos pos, @NonNull LivingEntity owner) {
         ToolItem.applyMiningWear(key, stack, level, state, pos, owner);
         return stack.has(DataComponents.TOOL);
     }
 
-    @Override
-    public @NonNull InteractionResult interactLivingEntity(
-            @NonNull ItemStack stack, @NonNull Player player, @NonNull LivingEntity entity, @NonNull InteractionHand hand) {
-        InteractionResult shear = super.interactLivingEntity(stack, player, entity, hand);
-        if (shear.consumesAction()) {
-            return shear;
+    private static boolean shearBlock(UseOnContext context, Player player, BlockState state) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Block block = state.getBlock();
+        var blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
+        BlockState destroyedState = block.playerWillDestroy(level, pos, state, player);
+        ItemStack stack = context.getItemInHand();
+        ItemStack originalStack = stack.copy();
+
+        if (player.preventsBlockDrops()) {
+            return removeBlock(level, pos, destroyedState, player, false, originalStack);
         }
-        // Player.attack always uses the main-hand weapon; do not attack with a different stack.
-        if (hand != InteractionHand.MAIN_HAND) {
-            return InteractionResult.PASS;
+
+        boolean canHarvest = destroyedState.canHarvestBlock(level, pos, player);
+
+        stack.mineBlock(level, destroyedState, pos, player);
+        boolean destroyed = removeBlock(level, pos, destroyedState, player, canHarvest, originalStack);
+        if (destroyed && canHarvest) {
+            block.playerDestroy(level, player, pos, destroyedState, blockEntity, originalStack);
         }
-        if (player.getCooldowns().isOnCooldown(stack)) {
-            return InteractionResult.FAIL;
+        return destroyed;
+    }
+
+    private static boolean removeBlock(
+            Level level,
+            BlockPos pos,
+            BlockState state,
+            Player player,
+            boolean canHarvest,
+            ItemStack tool) {
+        boolean destroyed = state.onDestroyedByPlayer(
+                level,
+                pos,
+                player,
+                tool.copy(),
+                canHarvest,
+                level.getFluidState(pos));
+        if (destroyed) {
+            state.getBlock().destroy(level, pos, state);
         }
-        if (!entity.isAttackable() || entity.skipAttackInteraction(player)) {
-            return InteractionResult.PASS;
-        }
-        if (player.level().isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-        boolean attackCancelled;
-        RIGHT_CLICK_ATTACK.set(true);
-        RIGHT_CLICK_ATTACK_CANCELLED.set(false);
-        try {
-            player.attack(entity);
-            attackCancelled = isRightClickAttackCancelled();
-        } finally {
-            RIGHT_CLICK_ATTACK.set(false);
-            RIGHT_CLICK_ATTACK_CANCELLED.remove();
-        }
-        if (attackCancelled) {
-            return InteractionResult.FAIL;
-        }
-        player.getCooldowns().addCooldown(stack, ATTACK_COOLDOWN_TICKS);
-        return InteractionResult.SUCCESS;
+        return destroyed;
     }
 }

@@ -55,6 +55,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -65,18 +66,17 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -259,64 +259,41 @@ public final class ModEquipmentGameTests {
         sheep.discard();
 
         var shearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 2));
-        // A newly constructed GameTest player has no accumulated melee cooldown yet. Advance it
-        // before testing the item action so this verifies the shears attack rather than setup timing.
         for (int tick = 0; tick < 20; tick++) {
             player.doTick();
         }
         float shearTargetHealth = shearTarget.getHealth();
-        double shearAttackDamage = player.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        float shearAttackStrength = player.getAttackStrengthScale(0.5F);
-        helper.assertTrue(
-                shears.interactLivingEntity(player, shearTarget, InteractionHand.MAIN_HAND).consumesAction(),
-                "material shears must right-click attack non-shearable targets");
+        int shearWearBeforeAttack = shears.getDamageValue();
+        player.attack(shearTarget);
         helper.assertTrue(
                 shearTarget.getHealth() < shearTargetHealth,
-                "shears right-click must deal melee damage (damage="
-                        + shearAttackDamage
-                        + ", strength="
-                        + shearAttackStrength
-                        + ")");
+                "material shears must deal melee damage on left-click");
         helper.assertTrue(
-                player.getCooldowns().isOnCooldown(shears),
-                "shears right-click attack must apply a short cooldown");
-        helper.assertTrue(
-                !shears.interactLivingEntity(player, shearTarget, InteractionHand.MAIN_HAND).consumesAction(),
-                "shears must refuse another right-click attack during cooldown");
-        shearTarget.discard();
+                shears.getDamageValue()
+                        == shearWearBeforeAttack
+                                + new EquipmentKey(MiteMaterial.COPPER, EquipmentType.SHEARS).attackWear(),
+                "material shears must apply R196 hit wear on left-click");
 
-        var offhandTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 3));
-        ItemStack offhandShears = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SHEARS)
-                .holder()
-                .value()
-                .getDefaultInstance();
+        var rightClickTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 3));
+        float rightClickHealth = rightClickTarget.getHealth();
+        int rightClickWear = shears.getDamageValue();
+        helper.assertTrue(
+                !shears.interactLivingEntity(player, rightClickTarget, InteractionHand.MAIN_HAND).consumesAction(),
+                "material shears must not attack non-shearable entities on right-click");
+        helper.assertTrue(
+                rightClickTarget.getHealth() == rightClickHealth,
+                "right-clicking a non-shearable entity with shears must not deal damage");
+        helper.assertTrue(
+                shears.getDamageValue() == rightClickWear,
+                "right-clicking a non-shearable entity with shears must not consume durability");
+        shearTarget.discard();
+        rightClickTarget.discard();
+
         ItemStack sword = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.SWORD)
                 .holder()
                 .value()
                 .getDefaultInstance();
-        player.setItemInHand(InteractionHand.MAIN_HAND, sword);
-        player.setItemInHand(InteractionHand.OFF_HAND, offhandShears);
-        for (int tick = 0; tick < 20; tick++) {
-            player.doTick();
-        }
-        float offhandHealth = offhandTarget.getHealth();
-        int offhandWear = offhandShears.getDamageValue();
-        InteractionResult offhandResult = offhandShears.interactLivingEntity(
-                player, offhandTarget, InteractionHand.OFF_HAND);
-        helper.assertTrue(!offhandResult.consumesAction(), "offhand shears must not perform melee attack");
-        helper.assertTrue(
-                offhandTarget.getHealth() == offhandHealth,
-                "offhand shears must not route attack through the main-hand weapon");
-        helper.assertTrue(
-                offhandShears.getDamageValue() == offhandWear,
-                "offhand shears must not receive main-hand attack wear");
-        helper.assertTrue(
-                !player.getCooldowns().isOnCooldown(offhandShears),
-                "offhand shears must not receive a melee cooldown");
-        player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
-        offhandTarget.discard();
 
         var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 1));
         player.setItemInHand(InteractionHand.MAIN_HAND, sword);
@@ -329,40 +306,41 @@ public final class ModEquipmentGameTests {
                 "material sword must apply R196 hit wear exactly once");
         zombie.discard();
 
-        var cancelledTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 2));
-        ItemStack cancelledShears = InfXItems.catalog()
+        ItemStack blockShears = InfXItems.catalog()
                 .equipment(MiteMaterial.COPPER, EquipmentType.SHEARS)
                 .holder()
                 .value()
                 .getDefaultInstance();
-        player.setItemInHand(InteractionHand.MAIN_HAND, cancelledShears);
-        for (int tick = 0; tick < 20; tick++) {
-            player.doTick();
-        }
-        float cancelledHealth = cancelledTarget.getHealth();
-        int cancelledWear = cancelledShears.getDamageValue();
-        CancelAttackListener cancellation = new CancelAttackListener(cancelledTarget);
-        NeoForge.EVENT_BUS.register(cancellation);
-        InteractionResult cancelledResult;
-        try {
-            cancelledResult = cancelledShears.interactLivingEntity(
-                    player, cancelledTarget, InteractionHand.MAIN_HAND);
-        } finally {
-            NeoForge.EVENT_BUS.unregister(cancellation);
-        }
-        helper.assertTrue(
-                !cancelledResult.consumesAction(),
-                "cancelled shears attack must not consume the interaction");
-        helper.assertTrue(
-                cancelledTarget.getHealth() == cancelledHealth,
-                "cancelled shears attack must not damage the target");
-        helper.assertTrue(
-                cancelledShears.getDamageValue() == cancelledWear,
-                "cancelled shears attack must not damage the item");
-        helper.assertTrue(
-                !player.getCooldowns().isOnCooldown(cancelledShears),
-                "cancelled shears attack must not apply a cooldown");
-        cancelledTarget.discard();
+        BlockPos leavesPos = new BlockPos(8, 1, 1);
+        useOnBlock(helper, player, leavesPos, Blocks.OAK_LEAVES.defaultBlockState(), blockShears);
+        helper.assertTrue(helper.getBlockState(leavesPos).isAir(), "right-click shears must cut leaves");
+
+        BlockPos woolPos = new BlockPos(9, 1, 1);
+        useOnBlock(helper, player, woolPos, Blocks.WHITE_WOOL.defaultBlockState(), blockShears);
+        helper.assertTrue(helper.getBlockState(woolPos).isAir(), "right-click shears must cut wool");
+
+        BlockPos blueberryPos = new BlockPos(10, 1, 1);
+        BlockState matureBlueberry = InfXBlocks.BLUEBERRY_BUSH.get()
+                .defaultBlockState()
+                .setValue(SweetBerryBushBlock.AGE, SweetBerryBushBlock.MAX_AGE);
+        useOnBlock(helper, player, blueberryPos, matureBlueberry, blockShears);
+        helper.assertTrue(helper.getBlockState(blueberryPos).isAir(), "right-click shears must cut blueberry bushes");
+        int blueberryDrops = helper.getLevel()
+                .getEntitiesOfClass(
+                        ItemEntity.class,
+                        AABB.ofSize(helper.absoluteVec(Vec3.atCenterOf(blueberryPos)), 4.0D, 4.0D, 4.0D),
+                        item -> item.getItem().is(InfXItems.BLUEBERRIES))
+                .stream()
+                .mapToInt(item -> item.getItem().getCount())
+                .sum();
+        helper.assertTrue(blueberryDrops == 1, "cutting a mature blueberry bush must drop one blueberry");
+        helper.getLevel()
+                .getEntitiesOfClass(
+                        ItemEntity.class,
+                        AABB.ofSize(helper.absoluteVec(Vec3.atCenterOf(blueberryPos)), 4.0D, 4.0D, 4.0D),
+                        item -> item.getItem().is(InfXItems.BLUEBERRIES))
+                .forEach(ItemEntity::discard);
+        helper.assertTrue(blockShears.getDamageValue() > 0, "right-click block shearing must consume durability");
 
         helper.setBlock(wearPos, Blocks.OAK_LOG);
         BlockPos absoluteWearPos = helper.absolutePos(wearPos);
@@ -382,29 +360,23 @@ public final class ModEquipmentGameTests {
 
     private static void useOn(
             GameTestHelper helper, ServerPlayer player, BlockPos relativePos, Block block, Item item) {
-        helper.setBlock(relativePos.below(), Blocks.STONE);
-        helper.setBlock(relativePos, block);
-        helper.setBlock(relativePos.above(), Blocks.AIR);
-        player.setItemInHand(InteractionHand.MAIN_HAND, item.getDefaultInstance());
-        BlockPos absolute = helper.absolutePos(relativePos);
-        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
-        InteractionResult result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
-        helper.assertTrue(result.consumesAction(), item + " use action must succeed");
+        useOnBlock(helper, player, relativePos, block.defaultBlockState(), item.getDefaultInstance());
     }
 
-    private static final class CancelAttackListener {
-        private final net.minecraft.world.entity.Entity target;
-
-        private CancelAttackListener(net.minecraft.world.entity.Entity target) {
-            this.target = target;
-        }
-
-        @SubscribeEvent(priority = EventPriority.HIGHEST)
-        public void cancel(AttackEntityEvent event) {
-            if (event.getTarget() == target) {
-                event.setCanceled(true);
-            }
-        }
+    private static void useOnBlock(
+            GameTestHelper helper,
+            ServerPlayer player,
+            BlockPos relativePos,
+            BlockState state,
+            ItemStack stack) {
+        helper.setBlock(relativePos.below(), Blocks.STONE);
+        helper.setBlock(relativePos, state);
+        helper.setBlock(relativePos.above(), Blocks.AIR);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        BlockPos absolute = helper.absolutePos(relativePos);
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
+        InteractionResult result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        helper.assertTrue(result.consumesAction(), stack.getItem() + " use action must succeed");
     }
 
     private static void harvestTierCatalog(GameTestHelper helper) {

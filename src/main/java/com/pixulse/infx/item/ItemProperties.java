@@ -55,7 +55,7 @@ public final class ItemProperties {
                 .component(
                         DataComponents.WEAPON,
                         new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
-        // Shears: no right-click block stance; melee is handled on right-click with cooldown.
+        // Shears do not block attacks; they use the normal weapon component for left-click melee.
         if (key.type() != EquipmentType.SHEARS) {
             p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
         }
