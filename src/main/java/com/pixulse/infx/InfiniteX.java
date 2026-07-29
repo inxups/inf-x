@@ -17,7 +17,6 @@ import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXLootModifiers;
 import com.pixulse.infx.registry.InfXRecipes;
 import com.pixulse.infx.registry.InfXSounds;
-import com.pixulse.infx.registry.InfXWorldCarvers;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.registry.InfXMobEffects;
 
@@ -33,7 +32,6 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         InfXSounds.register(modBus);
-        InfXWorldCarvers.register(modBus);
         InfXBiomeModifiers.register(modBus);
         InfXAttachments.register(modBus);
         InfXBlocks.register(modBus);

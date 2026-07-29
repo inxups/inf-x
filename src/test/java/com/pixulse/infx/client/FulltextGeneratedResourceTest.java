@@ -132,7 +132,7 @@ class FulltextGeneratedResourceTest {
     }
 
     @Test
-    void fulltextWorldgenHasDistinctRiversNaturalPlantsAndDistantCaves() throws Exception {
+    void fulltextWorldgenHasDistinctRiversAndNaturalPlants() throws Exception {
         Map<String, float[]> climate = Map.of(
                 "desert_river", new float[] {1.4F, 0.0F, 0.0F},
                 "jungle_river", new float[] {1.0F, 0.9F, 1.0F},
@@ -155,16 +155,12 @@ class FulltextGeneratedResourceTest {
         for (String river : climate.keySet()) {
             assertTrue(overworldText.contains("infx:" + river), "Overworld climate source misses " + river);
         }
-
-        JsonObject carver = json(GENERATED.resolve("data/infx/worldgen/configured_carver/large_cave.json"));
-        JsonObject y = carver.getAsJsonObject("config").getAsJsonObject("y");
         assertAll(
-                "distant large cave carver",
-                () -> assertEquals("infx:large_cave", carver.get("type").getAsString()),
-                () -> assertEquals(8, y.getAsJsonObject("min_inclusive").get("absolute").getAsInt()),
-                () -> assertEquals(55, y.getAsJsonObject("max_inclusive").get("absolute").getAsInt()),
-                () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
-                        "data/infx/neoforge/biome_modifier/add_large_caves.json"))));
+                "large overworld caves removed",
+                () -> assertFalse(Files.exists(
+                        GENERATED.resolve("data/infx/worldgen/configured_carver/large_cave.json"))),
+                () -> assertFalse(Files.exists(
+                        GENERATED.resolve("data/infx/neoforge/biome_modifier/add_large_caves.json"))));
 
         assertAll(
                 "witherwood_patch",
