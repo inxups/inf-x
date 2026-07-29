@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test;
 
 class WorldCreationLockClientEventsTest {
     @Test
-    void leavesOnlyTheAllowedGameModeControlAvailable() {
+    void leavesAllowedWorldCreationControlsAvailable() {
         CycleButton<WorldCreationUiState.SelectedGameMode> gameMode = gameModeSwitch();
         CycleButton<Difficulty> difficulty = CycleButton.builder(Difficulty::getDisplayName, Difficulty.NORMAL)
                 .withValues(Difficulty.NORMAL)
@@ -48,7 +48,7 @@ class WorldCreationLockClientEventsTest {
         assertTrue(gameMode.active);
         assertFalse(difficulty.active);
         assertFalse(commands.active);
-        assertFalse(worldType.active);
+        assertTrue(worldType.active);
         assertFalse(customize.active);
         assertTrue(structures.active);
         assertFalse(bonusChest.active);
