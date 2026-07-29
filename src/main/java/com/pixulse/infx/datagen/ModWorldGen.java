@@ -5,7 +5,6 @@ import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
-import com.pixulse.infx.registry.InfXWorldCarvers;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
@@ -68,7 +67,6 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
 import net.minecraft.world.level.levelgen.carver.CanyonCarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.CaveCarverConfiguration;
@@ -123,8 +121,6 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("mite_r196_first_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
-    public static final ResourceKey<ConfiguredWorldCarver<?>> LARGE_CAVE_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("large_cave"));
     private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CAVE =
             ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_cave"));
     private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CAVE_EXTRA_UNDERGROUND =
@@ -165,8 +161,6 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_stone"));
     private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_NETHERRACK =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_netherrack"));
-    private static final ResourceKey<BiomeModifier> ADD_LARGE_CAVES =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_large_caves"));
     private static final ResourceKey<BiomeModifier> ADD_WITHERWOOD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
     private static final ResourceKey<BiomeModifier> ADD_BLUEBERRY_BUSH =
@@ -212,16 +206,6 @@ public final class ModWorldGen {
         HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
         HolderSet<Block> underworldReplaceables =
                 blocks.getOrThrow(InfXBlockTags.UNDERWORLD_CARVER_REPLACEABLES);
-        context.register(
-                LARGE_CAVE_CONFIGURED,
-                InfXWorldCarvers.LARGE_CAVE.get().configured(new CarverConfiguration(
-                        1.0F,
-                        UniformHeight.of(VerticalAnchor.absolute(8), VerticalAnchor.absolute(55)),
-                        ConstantFloat.of(1.0F),
-                        VerticalAnchor.aboveBottom(8),
-                        CarverDebugSettings.of(false, Blocks.OAK_BUTTON.defaultBlockState()),
-                        blocks.getOrThrow(BlockTags.OVERWORLD_CARVER_REPLACEABLES))));
-
         context.register(
                 UNDERWORLD_CAVE,
                 WorldCarver.CAVE.configured(new CaveCarverConfiguration(
@@ -900,11 +884,6 @@ public final class ModWorldGen {
                         biomes.getOrThrow(BiomeTags.IS_NETHER),
                         HolderSet.direct(placedFeatures.getOrThrow(R196_INFESTED_NETHERRACK_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES));
-        context.register(
-                ADD_LARGE_CAVES,
-                new BiomeModifiers.AddCarversBiomeModifier(
-                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
-                        HolderSet.direct(carvers.getOrThrow(LARGE_CAVE_CONFIGURED))));
         context.register(
                 ADD_WITHERWOOD,
                 new BiomeModifiers.AddFeaturesBiomeModifier(
