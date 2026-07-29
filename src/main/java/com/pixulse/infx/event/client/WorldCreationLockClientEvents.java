@@ -13,8 +13,11 @@ import net.minecraft.client.gui.components.tabs.TabNavigationBar;
 import net.minecraft.client.gui.components.tabs.Tab;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -66,6 +69,14 @@ public final class WorldCreationLockClientEvents {
         if (state.isBonusChest() != WorldCreationLockProfile.BONUS_CHEST) {
             state.setBonusChest(WorldCreationLockProfile.BONUS_CHEST);
         }
+        if (!usesLockedWorldPreset(state.getWorldType())) {
+            Holder<WorldPreset> largeBiomes = state.getSettings()
+                    .worldgenLoadContext()
+                    .lookupOrThrow(Registries.WORLD_PRESET)
+                    .get(WorldCreationLockProfile.WORLD_PRESET)
+                    .orElseThrow(() -> new IllegalStateException("Large-biomes world preset is unavailable"));
+            state.setWorldType(new WorldCreationUiState.WorldTypeEntry(largeBiomes));
+        }
     }
 
     public static void lockWidgets(TabNavigationBar tabBar) {
@@ -81,6 +92,11 @@ public final class WorldCreationLockClientEvents {
                 || gameMode == WorldCreationUiState.SelectedGameMode.HARDCORE;
     }
 
+    private static boolean usesLockedWorldPreset(WorldCreationUiState.WorldTypeEntry worldType) {
+        Holder<WorldPreset> preset = worldType.preset();
+        return preset != null && preset.unwrapKey().filter(WorldCreationLockProfile.WORLD_PRESET::equals).isPresent();
+    }
+
     private static void lockGameWidgets(Tab tab) {
         tab.visitChildren(widget -> {
             if (widget instanceof EditBox) return;
@@ -94,7 +110,7 @@ public final class WorldCreationLockClientEvents {
         tab.visitChildren(widget -> {
             if (widget instanceof CycleButton<?> cycleButton) {
                 if (cycleButton.getValue() instanceof WorldCreationUiState.WorldTypeEntry) {
-                    widget.active = true;
+                    widget.active = false;
                 } else if (cycleButton.getValue() instanceof Boolean) {
                     switches.add(cycleButton);
                 }
