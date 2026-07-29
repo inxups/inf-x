@@ -53,10 +53,6 @@ public final class MonsterTactics {
         return Math.clamp((day - 16L) / 384.0F, 0.0F, 0.65F);
     }
 
-    public static boolean spawnerAtCap(int nearbyMatchingMobs) {
-        return nearbyMatchingMobs >= 20;
-    }
-
     /** MITE block spawners ignore torch light but do not create a mob that sunlight would burn. */
     public static boolean allowsMiteSpawnerLightBypass(
             net.minecraft.world.entity.EntitySpawnReason spawnReason,

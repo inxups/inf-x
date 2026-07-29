@@ -21,9 +21,12 @@ class MonsterTacticsTest {
     }
 
     @Test
-    void spawnersStopAtTwentyMatchingMobs() {
-        assertFalse(MonsterTactics.spawnerAtCap(19));
-        assertTrue(MonsterTactics.spawnerAtCap(20));
+    void ordinarySpawnersBurnOutAfterFifteenPlayerAttributedDeaths() {
+        assertFalse(SpawnerBurnout.isExhausted(SpawnerBurnout.KILL_LIMIT - 1));
+        assertTrue(SpawnerBurnout.isExhausted(SpawnerBurnout.KILL_LIMIT));
+        assertEquals(1_100L, SpawnerBurnout.playerDamageExpiresAt(1_000L));
+        assertTrue(SpawnerBurnout.hasActivePlayerDamageCredit(1_100L, 1_100L));
+        assertFalse(SpawnerBurnout.hasActivePlayerDamageCredit(1_101L, 1_100L));
     }
 
     @Test

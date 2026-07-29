@@ -8,6 +8,7 @@ import com.pixulse.infx.data.curse.CurseData;
 import com.pixulse.infx.entity.*;
 import com.pixulse.infx.item.material.MiteMaterial;
 import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.RiverBiomes;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -70,6 +72,7 @@ public final class ModMonsterGameTests {
     private static final String WITCH_CURSE = "r196_witch_curse";
     private static final String TACTICS = "r196_monster_tactics";
     private static final String SPAWNER_LIGHT = "r196_spawner_light";
+    private static final String SPAWNER_BURNOUT = "r196_spawner_burnout";
     private static final String SPAWNS = "r196_spawn_tables";
     private static final String ATTACK_RANGES = "r196_attack_ranges";
     private static final String RANGED_ATTACK_RANGES = "r196_ranged_attack_ranges";
@@ -87,6 +90,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(WITCH_CURSE, () -> ModMonsterGameTests::witchCurse);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNER_LIGHT, () -> ModMonsterGameTests::spawnerLight);
+        FUNCTIONS.register(SPAWNER_BURNOUT, () -> ModMonsterGameTests::spawnerBurnout);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
         FUNCTIONS.register(ATTACK_RANGES, () -> ModMonsterGameTests::attackRanges);
         FUNCTIONS.register(RANGED_ATTACK_RANGES, () -> ModMonsterGameTests::rangedAttackRanges);
@@ -115,6 +119,7 @@ public final class ModMonsterGameTests {
                 WITCH_CURSE,
                 TACTICS,
                 SPAWNER_LIGHT,
+                SPAWNER_BURNOUT,
                 SPAWNS,
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
@@ -1236,11 +1241,76 @@ public final class ModMonsterGameTests {
         helper.assertTrue(spawner != null, "the test spawner must create its block entity");
         spawner.setEntityId(EntityType.ZOMBIE, helper.getLevel().getRandom());
         for (int tick = 0; tick <= 20; tick++) {
-            spawner.getSpawner().serverTick(helper.getLevel(), absoluteSpawnerPos);
+            SpawnerBlockEntity.serverTick(
+                    helper.getLevel(), absoluteSpawnerPos, spawner.getBlockState(), spawner);
         }
 
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.R196_ZOMBIE.get(), spawnerPos, 8.0D))
+                .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
+                .thenSucceed();
+    }
+
+    private static void spawnerBurnout(GameTestHelper helper) {
+        BlockPos spawnerPos = new BlockPos(4, 2, 4);
+        for (int x = 0; x <= 8; x++) {
+            for (int z = 0; z <= 8; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+                helper.setBlock(new BlockPos(x, 5, z), Blocks.STONE);
+            }
+        }
+        helper.setBlock(spawnerPos, Blocks.SPAWNER);
+        helper.setBlock(spawnerPos.above(2), Blocks.TORCH);
+
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos absoluteSpawnerPos = helper.absolutePos(spawnerPos);
+        SpawnerBlockEntity spawner = (SpawnerBlockEntity) helper.getLevel().getBlockEntity(absoluteSpawnerPos);
+        helper.assertTrue(spawner != null, "the test spawner must create its block entity");
+        spawner.setEntityId(EntityType.ZOMBIE, helper.getLevel().getRandom());
+        spawner.setData(InfXAttachments.SPAWNER_KILLS, SpawnerBurnout.KILL_LIMIT - 1);
+        for (int tick = 0; tick <= 20; tick++) {
+            SpawnerBlockEntity.serverTick(
+                    helper.getLevel(), absoluteSpawnerPos, spawner.getBlockState(), spawner);
+        }
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.R196_ZOMBIE.get(), spawnerPos, 5.0D))
+                .thenExecute(() -> {
+                    AABB bounds = new AABB(absoluteSpawnerPos).inflate(5.0D);
+                    List<MiteZombie> spawned = helper.getLevel().getEntitiesOfClass(MiteZombie.class, bounds);
+                    helper.assertTrue(!spawned.isEmpty(), "the ordinary spawner must produce a replacement zombie");
+                    MiteZombie zombie = spawned.getFirst();
+                    var origin = zombie.getExistingDataOrNull(InfXAttachments.SPAWNER_ORIGIN);
+                    helper.assertTrue(
+                            origin != null
+                                    && origin.equals(java.util.Optional.of(GlobalPos.of(
+                                            helper.getLevel().dimension(), absoluteSpawnerPos))),
+                            "the R196 replacement must retain its ordinary spawner origin");
+
+                    helper.assertTrue(
+                            zombie.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 1.0F),
+                            "a player hit must establish MITE spawner kill credit");
+                    helper.assertTrue(
+                            zombie.hurtServer(helper.getLevel(), helper.getLevel().damageSources().drown(), 100.0F),
+                            "an environmental death inside player credit must kill the spawner mob");
+                    helper.assertTrue(
+                            SpawnerBurnout.killCount(spawner) == SpawnerBurnout.KILL_LIMIT,
+                            "the fifteenth player-attributed death must exhaust the ordinary spawner");
+
+                    int aliveBefore = (int) helper.getLevel().getEntitiesOfClass(MiteZombie.class, bounds).stream()
+                            .filter(MiteZombie::isAlive)
+                            .count();
+                    for (int tick = 0; tick <= 20; tick++) {
+                        SpawnerBlockEntity.serverTick(
+                                helper.getLevel(), absoluteSpawnerPos, spawner.getBlockState(), spawner);
+                    }
+                    int aliveAfter = (int) helper.getLevel().getEntitiesOfClass(MiteZombie.class, bounds).stream()
+                            .filter(MiteZombie::isAlive)
+                            .count();
+                    helper.assertTrue(
+                            aliveAfter == aliveBefore,
+                            "an exhausted ordinary spawner must not create another replacement mob");
+                })
                 .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
                 .thenSucceed();
     }

@@ -1,11 +1,14 @@
 package com.pixulse.infx.registry;
 
+import com.mojang.serialization.Codec;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.data.agriculture.GrassTrampling;
 import com.pixulse.infx.data.curse.CurseStatus;
 import com.pixulse.infx.data.food.SurvivalData;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -52,6 +55,29 @@ public final class InfXAttachments {
                             .serialize(GrassTrampling.CODEC.fieldOf("tramplings"))
                             .sync(GRASS_TRAMPLING_STREAM)
                             .build());
+
+    /** Persistent ordinary-spawner source stored on mobs so delayed deaths retain their origin. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<GlobalPos>>> SPAWNER_ORIGIN =
+            ATTACHMENTS.register(
+                    "spawner_origin",
+                    () -> AttachmentType.<Optional<GlobalPos>>builder(Optional::empty)
+                            .serialize(GlobalPos.CODEC.optionalFieldOf("origin"))
+                            .build());
+
+    /** Persistent MITE ordinary-spawner kill counter, synchronized so exhausted spawners also stop client animation. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SPAWNER_KILLS =
+            ATTACHMENTS.register(
+                    "spawner_kills",
+                    () -> AttachmentType.<Integer>builder(() -> 0)
+                            .serialize(Codec.intRange(0, 15).fieldOf("kills"))
+                            .sync(ByteBufCodecs.VAR_INT)
+                            .build());
+
+    /** Server-only expiration tick for MITE's recent player-or-tamed-wolf damage credit. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Long>> SPAWNER_PLAYER_DAMAGE_UNTIL =
+            ATTACHMENTS.register(
+                    "spawner_player_damage_until",
+                    () -> AttachmentType.<Long>builder(() -> Long.MIN_VALUE).build());
 
     private InfXAttachments() {}
 

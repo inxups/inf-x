@@ -42,6 +42,7 @@
     "ServerLevelSleepMixin",
     "ServerLevelFluidTickMixin",
     "ServerExplosionMixin",
+    "SpawnerBlockEntityMixin",
     "SpreadingSnowyBlockMixin",
     "WorldDimensionsMixin"
   ],

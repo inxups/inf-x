@@ -1,5 +1,6 @@
 package com.pixulse.infx.entity;
 
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -44,6 +45,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
@@ -56,6 +58,7 @@ import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
@@ -482,6 +485,15 @@ public final class MonsterEvents {
 
     @SubscribeEvent
     public static void finalizeSpawn(FinalizeSpawnEvent event) {
+        if (event.getSpawnType() == EntitySpawnReason.SPAWNER) {
+            if (event.getSpawner() != null) {
+                event.getSpawner()
+                        .left()
+                        .filter(SpawnerBlockEntity.class::isInstance)
+                        .map(SpawnerBlockEntity.class::cast)
+                        .ifPresent(spawner -> SpawnerBurnout.recordOrigin(event.getEntity(), spawner));
+            }
+        }
         if (event.getEntity() instanceof EarthElemental elemental
                 && event.getSpawnType() != EntitySpawnReason.LOAD) {
             elemental.initializeMiteForm();
@@ -600,6 +612,14 @@ public final class MonsterEvents {
         return Math.floorMod(tickCount + entityId, LIGHT_SEARCH_INTERVAL) == 0;
     }
 
+    /** PositionCheck exposes the actual BaseSpawner before a vanilla mob is replaced with R196. */
+    @SubscribeEvent
+    public static void recordMiteSpawnerOrigin(MobSpawnEvent.PositionCheck event) {
+        if (event.getSpawnType() == EntitySpawnReason.SPAWNER && event.getSpawner() != null) {
+            SpawnerBurnout.recordOrigin(event.getEntity(), event.getSpawner());
+        }
+    }
+
     /**
      * MITE's regular block spawners skip ordinary darkness checks, including torch light. Reusing
      * the trial-spawner reason for the second predicate check preserves every non-light placement
@@ -637,26 +657,22 @@ public final class MonsterEvents {
     }
 
     @SubscribeEvent
-    public static void limitSpawnerPopulation(MobSpawnEvent.PositionCheck event) {
-        if (event.getSpawnType() != EntitySpawnReason.SPAWNER
-                || !(event.getEntity().level() instanceof ServerLevel level)) {
+    public static void recordMiteSpawnerKillCredit(LivingDamageEvent.Pre event) {
+        if (event.getNewDamage() <= 0.0F
+                || !(event.getEntity().level() instanceof ServerLevel level)
+                || !isPlayerOrTamedWolf(event.getSource().getEntity())) {
             return;
         }
-        Mob spawning = event.getEntity();
-        int nearby = level.getEntitiesOfClass(
-                        Mob.class,
-                        spawning.getBoundingBox().inflate(16.0),
-                        mob -> mob.isAlive() && sameSpawnFamily(mob.getType(), spawning.getType()))
-                .size();
-        if (MonsterTactics.spawnerAtCap(nearby)) event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+        SpawnerBurnout.recordPlayerDamage(event.getEntity(), level.getGameTime());
     }
 
-    static boolean sameSpawnFamily(EntityType<?> first, EntityType<?> second) {
-        EntityType<? extends Mob> firstReplacement = replacementFor(first);
-        EntityType<? extends Mob> secondReplacement = replacementFor(second);
-        EntityType<?> firstCanonical = firstReplacement == null ? first : firstReplacement;
-        EntityType<?> secondCanonical = secondReplacement == null ? second : secondReplacement;
-        return firstCanonical == secondCanonical;
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void countMiteSpawnerKill(LivingDeathEvent event) {
+        if (!event.isCanceled()) SpawnerBurnout.countAttributedDeath(event.getEntity());
+    }
+
+    private static boolean isPlayerOrTamedWolf(Entity attacker) {
+        return attacker instanceof Player || attacker instanceof Wolf wolf && wolf.isTame();
     }
 
     @SubscribeEvent
@@ -701,6 +717,7 @@ public final class MonsterEvents {
             return;
         }
         initializeReplacement(level, original, replacement);
+        SpawnerBurnout.copyOrigin(original, replacement);
         event.setCanceled(true);
         level.getServer().execute(() -> {
             if (!replacement.isRemoved()) {
