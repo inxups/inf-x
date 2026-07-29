@@ -49,7 +49,6 @@
     "DebugScreenOverlayMixin",
     "EnchantmentScreenMixin",
     "GuiExperienceMixin",
-    "MinecraftMiningInputMixin",
     "WorldCreationUiStateMixin"
   ],
   "injectors": {

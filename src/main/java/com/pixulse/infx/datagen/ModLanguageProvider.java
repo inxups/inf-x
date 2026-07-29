@@ -465,10 +465,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.underworld_portal", locale == Locale.EN_US ? "Underworld Portal" : "地下世界传送门");
         add("block.infx.nether_portal", locale == Locale.EN_US ? "Nether Portal" : "下界传送门");
         add("block.infx.return_spawn_portal", locale == Locale.EN_US ? "Return Spawn Portal" : "返回出生点传送门");
-        add("disconnect.infx.chat_spam", locale == Locale.EN_US ? "Kicked for chat spam" : "因聊天刷屏被踢出");
-        add("disconnect.infx.reconnect_limited", locale == Locale.EN_US
-                ? "Reconnect is limited until the next day around adjusted hour %s (%s seconds minimum)"
-                : "重连受限：请等待次日调整时刻 %s 左右（至少 %s 秒）");
         ENCHANTMENT_NAMES.forEach((path, names) -> add("enchantment.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         InfXEntityTypes.names().forEach(entity -> {
             add(
@@ -563,7 +559,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.safe_owned", locale == Locale.EN_US ? "This safe belongs to %s" : "该保险箱属于 %s");
         add("message.infx.safe_tool", locale == Locale.EN_US ? "A matching metal tool is required" : "需要对应金属等级的工具");
         add("message.infx.safe_foreign_tool", locale == Locale.EN_US ? "Another player's safe requires a tool one metal tier higher" : "破坏其他玩家的保险箱需要高一级金属工具");
-        add("message.infx.disconnect_penalty", locale == Locale.EN_US ? "Combat disconnect penalty applied" : "已应用战斗断线惩罚");
         add("effect.infx.malnutrition", locale == Locale.EN_US ? "Malnutrition" : "营养不良");
         add("effect.infx.witch_curse", locale == Locale.EN_US ? "Witch's Curse" : "女巫的诅咒");
         add("curse.infx.unknown", locale == Locale.EN_US ? "Unknown Effect" : "未知效果");
