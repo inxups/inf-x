@@ -13,12 +13,20 @@ import java.util.stream.Collectors;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
 class MonsterProfileTest {
     private static final double EPSILON = 1.0E-6;
+
+    @Test
+    void earthElementalsUseTheMiteHostileMobHierarchy() {
+        assertEquals(Monster.class, EarthElemental.class.getSuperclass());
+        assertEquals(EarthElemental.class, ClayGolem.class.getSuperclass());
+        assertTrue(Enemy.class.isAssignableFrom(EarthElemental.class));
+    }
 
     @Test
     void combatProfilesMatchTheR196SourceAttributes() {

@@ -12,7 +12,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -29,8 +28,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.golem.IronGolem;
-import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
@@ -55,7 +53,7 @@ import org.jspecify.annotations.Nullable;
  * <p>Stone, obsidian, netherrack and end-stone bodies each have normal and magma states. The
  * related {@link ClayGolem} uses the two clay states in the same synced form field.
  */
-public class EarthElemental extends IronGolem implements Enemy, MiteMob {
+public class EarthElemental extends Monster implements MiteMob {
     private static final EntityDataAccessor<Byte> DATA_FORM =
             SynchedEntityData.defineId(EarthElemental.class, EntityDataSerializers.BYTE);
 
@@ -70,9 +68,8 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     private int heat;
     private int ticksUntilNextFizzSound;
 
-    public EarthElemental(EntityType<? extends IronGolem> type, Level level) {
+    public EarthElemental(EntityType<? extends Monster> type, Level level) {
         super(type, level);
-        setPlayerCreated(false);
         xpReward = 15;
     }
 
@@ -92,7 +89,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     }
 
     protected static AttributeSupplier.Builder baseAttributes(double attackDamage, double armor) {
-        return IronGolem.createAttributes()
+        return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0)
                 .add(Attributes.FOLLOW_RANGE, 20.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.20)
@@ -101,7 +98,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.0);
     }
 
-    /** MITE elementals hunt players and villagers, break doors, and never inherit golem village AI. */
+    /** MITE elementals hunt players and villagers, break doors, and use normal hostile-mob AI. */
     @Override
     protected void registerGoals() {
         // Lets the ground navigator route through a closed wooden door so the dedicated MITE
@@ -392,18 +389,6 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
             return false;
         }
         return super.canBeAffected(effect);
-    }
-
-    @Override
-    protected @NonNull InteractionResult mobInteract(@NonNull Player player, @NonNull InteractionHand hand) {
-        // This is not a constructible iron golem: ingots cannot repair it.
-        return InteractionResult.PASS;
-    }
-
-    @Override
-    protected void doPush(Entity entity) {
-        // Preserve ordinary collision while removing IronGolem's opportunistic monster targeting.
-        entity.push(this);
     }
 
     @Override
