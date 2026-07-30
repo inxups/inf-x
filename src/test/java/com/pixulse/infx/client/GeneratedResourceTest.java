@@ -2004,7 +2004,7 @@ class GeneratedResourceTest {
                         + "|beetroot/(?:[0-3]|blighted/[0-3]|dead/[0-3]))\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/emerald_enchanting_table_(side|top)\\.png")));
-        assertTrue(destinations.remove("textures/block/gravel.png"));
+        assertTrue(destinations.remove("textures/block/sgravel.png"));
         assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));
@@ -2147,7 +2147,7 @@ class GeneratedResourceTest {
                 () -> assertTrue(levels.get(1).contains("#c:glass_blocks")),
                 () -> assertTrue(levels.get(1).contains("#minecraft:terracotta")),
                 () -> assertTrue(levels.get(1).contains("#c:sandstone/slabs")),
-                () -> assertTrue(levels.get(1).contains("infx:gravel")),
+                () -> assertTrue(levels.get(1).contains("infx:sgravel")),
                 () -> assertFalse(levels.get(1).contains("#c:sandstone/stairs")),
                 () -> assertTrue(levels.get(2).contains("infx:silver_ore")),
                 () -> assertTrue(levels.get(3).contains("minecraft:copper_bulb")),
@@ -2182,7 +2182,7 @@ class GeneratedResourceTest {
                 () -> assertFalse(axe.contains("#c:sandstone/stairs")),
                 () -> assertTrue(axe.contains("#minecraft:terracotta")),
                 () -> assertTrue(shovel.contains("#c:glass_panes")),
-                () -> assertTrue(vanillaShovel.contains("infx:gravel")),
+                () -> assertTrue(vanillaShovel.contains("infx:sgravel")),
                 () -> assertTrue(shovel.contains("infx:infested_netherrack")),
                 () -> assertTrue(hoe.contains("#minecraft:mineable/shovel")),
                 () -> assertTrue(hoe.contains("infx:sandstone_furnace")),

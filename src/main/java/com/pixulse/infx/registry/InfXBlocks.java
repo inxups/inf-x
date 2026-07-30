@@ -88,7 +88,7 @@ public final class InfXBlocks {
             DEEPSLATE_ADAMANTIUM_ORE);
 
     public static final DeferredBlock<ColoredFallingBlock> GRAVEL = BLOCKS.registerBlock(
-            "gravel",
+            "sgravel",
             properties -> new ColoredFallingBlock(new ColorRGBA(0xFF808080), properties),
             properties -> properties.ofFullCopy(Blocks.GRAVEL).requiresCorrectToolForDrops());
     public static final DeferredBlock<ColoredFallingBlock> NETHER_GRAVEL = BLOCKS.registerBlock(
