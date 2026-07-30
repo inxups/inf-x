@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,6 +34,8 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StructureGenerationGates {
     public static final Identifier VILLAGE_RULE = InfiniteX.id("village");
+    public static final Identifier ANCIENT_CITY_RULE = InfiniteX.id("ancient_city");
+    public static final Identifier TRIAL_CHAMBERS_RULE = InfiniteX.id("trial_chambers");
 
     private static final List<StructureGate> RULES = List.of(
             new StructureGate(
@@ -41,7 +44,17 @@ public final class StructureGenerationGates {
                     StructureSelector.tag(StructureTags.VILLAGE),
                     Conditions.allOf(
                             Conditions.afterDay(VillageProgression.VILLAGE_DAY),
-                            Conditions.milestone(WorldMilestone.IRON_TOOL_CRAFTED))));
+                            Conditions.milestone(WorldMilestone.IRON_TOOL_CRAFTED))),
+            new StructureGate(
+                    ANCIENT_CITY_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.ANCIENT_CITY),
+                    Conditions.never()),
+            new StructureGate(
+                    TRIAL_CHAMBERS_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.TRIAL_CHAMBERS),
+                    Conditions.never()));
     private static final Map<Identifier, StructureGate> RULES_BY_ID = RULES.stream()
             .collect(Collectors.toUnmodifiableMap(StructureGate::id, Function.identity()));
 
@@ -175,7 +188,14 @@ public final class StructureGenerationGates {
 
     /** Built-in, composable conditions for structure generation rules. */
     public static final class Conditions {
+        private static final GateCondition NEVER = progress -> false;
+
         private Conditions() {}
+
+        /** A condition used to permanently suppress a structure's future generation. */
+        public static GateCondition never() {
+            return NEVER;
+        }
 
         public static GateCondition afterDay(long day) {
             if (day < 1L) throw new IllegalArgumentException("Minimum day must be positive");
