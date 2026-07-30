@@ -11,6 +11,10 @@ class UnderworldTest {
         assertEquals(0, Underworld.MIN_Y);
         assertEquals(256, Underworld.MAX_Y_EXCLUSIVE);
         assertEquals(256, Underworld.HEIGHT);
+        assertEquals(120, Underworld.TERRAIN_MIN_Y);
+        assertEquals(248, Underworld.TERRAIN_MAX_Y_EXCLUSIVE);
+        assertEquals(128, Underworld.TERRAIN_HEIGHT);
+        assertEquals(144, Underworld.WATER_LEVEL);
     }
 
     @Test
