@@ -94,7 +94,7 @@ class FulltextGeneratedResourceTest {
 
     @Test
     void worldBlocksCoreAndRecordsHaveCompleteGeneratedData() throws Exception {
-        for (String block : List.of("gravel", "witherwood", "blueberry_bush", "nether_gravel", "core")) {
+        for (String block : List.of("sgravel", "witherwood", "blueberry_bush", "nether_gravel", "core")) {
             assertAll(
                     block,
                     () -> assertTrue(Files.isRegularFile(
@@ -111,9 +111,9 @@ class FulltextGeneratedResourceTest {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertAll(
-                "gravel translations",
-                () -> assertEquals("Gravel", english.get("block.infx.gravel").getAsString()),
-                () -> assertEquals("砾石", chinese.get("block.infx.gravel").getAsString()));
+                "sgravel translations",
+                () -> assertEquals("Gravel", english.get("block.infx.sgravel").getAsString()),
+                () -> assertEquals("砾石", chinese.get("block.infx.sgravel").getAsString()));
 
         Map<String, Integer> comparatorOutputs = Map.of(
                 "underworld", 11,
