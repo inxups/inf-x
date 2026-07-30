@@ -169,7 +169,7 @@ final class ModModelProvider extends ModelProvider {
                 InfXBlocks.MANTLE.value(),
                 TexturedModel.CUBE.updateTexture(mapping -> mapping.put(
                         TextureSlot.ALL,
-                        new Material(Identifier.withDefaultNamespace("block/magma")))));
+                        new Material(InfiniteX.id("block/mantle")))));
         generateRuneStone(blockModels, itemModels, InfXBlocks.MITHRIL_RUNE_STONE.value(), "mithril");
         generateRuneStone(blockModels, itemModels, InfXBlocks.ADAMANTIUM_RUNE_STONE.value(), "adamantium");
         InfXBlocks.ENCHANTING_TABLES.forEach(table -> {

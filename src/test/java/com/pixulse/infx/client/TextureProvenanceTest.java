@@ -44,7 +44,7 @@ class TextureProvenanceTest {
     void everySelectedDestinationIsUniqueReadableAndHashPinned() throws Exception {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         assertEquals("source_root\tsource\tdestination\tsha256", lines.getFirst());
-        assertEquals(778, lines.size(), "header plus 777 selected destinations");
+        assertEquals(780, lines.size(), "header plus 779 selected destinations");
         Set<String> destinations = new HashSet<>();
         MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
         for (String line : lines.subList(1, lines.size())) {
@@ -184,6 +184,8 @@ class TextureProvenanceTest {
                 Map.entry(
                         "textures/block/emerald_enchanting_table_top.png",
                         "blocks/emerald_enchanting_table_top.png"),
+                Map.entry("textures/block/mantle.png", "blocks/mantle.png"),
+                Map.entry("textures/block/mantle.png.mcmeta", "blocks/mantle.png.mcmeta"),
                 Map.entry("textures/item/flour.png", "items/food/flour.png"),
                 Map.entry("textures/item/water_bowl.png", "items/bowls/bowl_water.png"),
                 Map.entry("textures/item/dough.png", "items/food/dough.png"),
