@@ -219,7 +219,7 @@ class FulltextGeneratedResourceTest {
         JsonObject underworld = json(GENERATED.resolve(
                 "data/infx/worldgen/noise_settings/underworld.json"));
         assertFalse(underworld.toString().contains("infx:core"), "Underworld terrain must not use Core");
-        assertFalse(underworld.toString().contains("infx:mantle"), "Mantle is written by the MITE runtime strata pass");
+        assertTrue(underworld.toString().contains("infx:mantle"), "Underworld floor must use Mantle");
         assertFalse(underworld.toString().contains("minecraft:bedrock"), "Bedrock is written by the MITE runtime strata pass");
     }
 

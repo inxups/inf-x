@@ -738,7 +738,7 @@ public final class ModWorldGen {
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
                         underworldNoiseRouter(),
-                        SurfaceRules.state(Blocks.STONE.defaultBlockState()),
+                        underworldSurfaceRule(),
                         List.of(),
                         0,
                         false,
@@ -749,6 +749,15 @@ public final class ModWorldGen {
 
     public static NoiseRouter underworldNoiseRouter() {
         return withFinalDensity(NoiseRouterData.none(), DensityFunctions.constant(1.0));
+    }
+
+    private static SurfaceRules.RuleSource underworldSurfaceRule() {
+        SurfaceRules.RuleSource mantle = SurfaceRules.state(InfXBlocks.MANTLE.get().defaultBlockState());
+        // yBlockCheck is inclusive upward, so its inverse selects only the lowest build layer.
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(1), 0)), mantle),
+                SurfaceRules.state(Blocks.STONE.defaultBlockState()));
     }
 
     private static void registerOverworldNoiseSettings(
