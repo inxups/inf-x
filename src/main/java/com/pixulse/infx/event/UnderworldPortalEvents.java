@@ -28,6 +28,8 @@ import org.jspecify.annotations.Nullable;
 /** Converts each ordinary frame into a portal block with one fixed destination family. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class UnderworldPortalEvents {
+    private static final int BOTTOM_FRAME_MAX_OFFSET = 8;
+
     private UnderworldPortalEvents() {}
 
     @SubscribeEvent
@@ -97,12 +99,21 @@ public final class UnderworldPortalEvents {
     }
 
     public static boolean frameRestsOnBottomBedrock(ServerLevel level, BlockPos origin) {
-        return frameHasSupport(level, origin, pos -> pos.getY() == level.getMinY()
-                && level.getBlockState(pos).is(Blocks.BEDROCK));
+        return frameRestsOnBottomMaterial(level, origin, Blocks.BEDROCK);
     }
 
     public static boolean frameTouchesMantle(ServerLevel level, BlockPos origin) {
-        return frameHasSupport(level, origin, pos -> level.getBlockState(pos).is(InfXBlocks.MANTLE.get()));
+        return frameRestsOnBottomMaterial(level, origin, InfXBlocks.MANTLE.get());
+    }
+
+    /** MITE permits a bottom gate only when its lower frame is in the lowest eight block layers. */
+    private static boolean frameRestsOnBottomMaterial(ServerLevel level, BlockPos origin, Block material) {
+        int maximumFrameY = level.getMinY() + BOTTOM_FRAME_MAX_OFFSET;
+        return frameHasSupport(
+                level,
+                origin,
+                support -> support.above().getY() <= maximumFrameY
+                        && level.getBlockState(support).is(material));
     }
 
     private static boolean frameHasSupport(

@@ -45,6 +45,8 @@ public class InfxPortalBlock extends NetherPortalBlock {
     private static final int MAX_PORTAL_WIDTH = 21;
     private static final int MIN_PORTAL_HEIGHT = 3;
     private static final int MAX_PORTAL_HEIGHT = 21;
+    private static final PortalSize DEFAULT_PORTAL_SIZE =
+            new PortalSize(Direction.Axis.X, MIN_PORTAL_WIDTH, MIN_PORTAL_HEIGHT);
     protected static final int INFX_RUNEGATE_ENTRY_TICKS = 1;
 
     private final PortalType portalType;
@@ -235,7 +237,8 @@ public class InfxPortalBlock extends NetherPortalBlock {
             entity.getPersistentData().putLong(NETHER_RETURN_POS, currentPosition.asLong());
         }
 
-        BlockPos arrival = findOrCreateArrivalPortal(targetLevel, preferred, portalSearchRadius(targetLevel));
+        BlockPos arrival = findOrCreateArrivalPortal(
+                targetLevel, preferred, portalSearchRadius(targetLevel), portalSize(currentLevel, portalEntryPos));
         TeleportTransition.PostTeleportTransition post = TeleportTransition.PLAY_PORTAL_SOUND
                 .then(TeleportTransition.PLACE_PORTAL_TICKET)
                 .then(Entity::setPortalCooldown);
@@ -299,6 +302,45 @@ public class InfxPortalBlock extends NetherPortalBlock {
 
     private record PortalInterior(int height, int portalBlocks) {}
 
+    private record PortalSize(Direction.Axis axis, int width, int height) {}
+
+    /** Returns the validated source shape so newly created destination gates preserve its usable opening. */
+    private PortalSize portalSize(ServerLevel level, BlockPos portal) {
+        BlockState state = level.getBlockState(portal);
+        if (!state.is(this) || !state.hasProperty(AXIS)) {
+            return DEFAULT_PORTAL_SIZE;
+        }
+
+        Direction.Axis axis = state.getValue(AXIS);
+        if (!hasCompletePortalShape(level, portal, axis)) {
+            return DEFAULT_PORTAL_SIZE;
+        }
+
+        Direction horizontal = portalHorizontal(axis);
+        BlockPos bottom = portal;
+        for (int depth = 0; depth < MAX_PORTAL_HEIGHT && isPortalSurface(level, bottom.below(), axis); depth++) {
+            bottom = bottom.below();
+        }
+        BlockPos first = bottom;
+        for (int offset = 0;
+                offset < MAX_PORTAL_WIDTH && isPortalSurface(level, first.relative(horizontal.getOpposite()), axis);
+                offset++) {
+            first = first.relative(horizontal.getOpposite());
+        }
+
+        int width = 0;
+        while (width < MAX_PORTAL_WIDTH && isPortalSurface(level, first.relative(horizontal, width), axis)) {
+            width++;
+        }
+        int height = 0;
+        while (height < MAX_PORTAL_HEIGHT && isPortalSurface(level, first.above(height), axis)) {
+            height++;
+        }
+        return width >= MIN_PORTAL_WIDTH && height >= MIN_PORTAL_HEIGHT
+                ? new PortalSize(axis, width, height)
+                : DEFAULT_PORTAL_SIZE;
+    }
+
     private static BlockPos rememberedPosition(Entity entity, String key, BlockPos fallback) {
         return entity.getPersistentData().getLong(key).map(BlockPos::of).orElse(fallback);
     }
@@ -321,15 +363,16 @@ public class InfxPortalBlock extends NetherPortalBlock {
 
     /** Reuses the nearest compatible portal surface before creating a new destination. */
     public BlockPos findOrCreateArrivalPortal(ServerLevel level, BlockPos preferred) {
-        return findOrCreateArrivalPortal(level, preferred, portalSearchRadius(level));
+        return findOrCreateArrivalPortal(level, preferred, portalSearchRadius(level), DEFAULT_PORTAL_SIZE);
     }
 
-    private BlockPos findOrCreateArrivalPortal(ServerLevel level, BlockPos preferred, int searchRadius) {
+    private BlockPos findOrCreateArrivalPortal(
+            ServerLevel level, BlockPos preferred, int searchRadius, PortalSize portalSize) {
         Optional<BlockPos> existing = findExistingArrivalPortal(level, preferred, searchRadius);
         if (existing.isEmpty()) {
             existing = findLegacyArrivalPortal(level, preferred, searchRadius);
         }
-        return existing.orElseGet(() -> createArrivalPortal(level, preferred));
+        return existing.orElseGet(() -> createArrivalPortal(level, preferred, portalSize));
     }
 
     private Optional<BlockPos> findExistingArrivalPortal(ServerLevel level, BlockPos preferred, int searchRadius) {
@@ -446,12 +489,30 @@ public class InfxPortalBlock extends NetherPortalBlock {
     }
 
     public BlockPos createArrivalPortal(ServerLevel level, BlockPos preferred) {
-        return buildPortal(level, findSafePosition(level, preferred));
+        return createArrivalPortal(level, preferred, DEFAULT_PORTAL_SIZE);
     }
 
-    private static BlockPos findSafePosition(ServerLevel level, BlockPos preferred) {
+    /** Creates a destination gate with a shape that is valid for this portal family. */
+    public BlockPos createArrivalPortal(
+            ServerLevel level, BlockPos preferred, Direction.Axis axis, int width, int height) {
+        return createArrivalPortal(level, preferred, clampedPortalSize(axis, width, height));
+    }
+
+    private BlockPos createArrivalPortal(ServerLevel level, BlockPos preferred, PortalSize portalSize) {
+        return buildPortal(level, findSafePosition(level, preferred, portalSize), portalSize);
+    }
+
+    private static PortalSize clampedPortalSize(Direction.Axis axis, int width, int height) {
+        Direction.Axis portalAxis = axis == Direction.Axis.Z ? Direction.Axis.Z : Direction.Axis.X;
+        return new PortalSize(
+                portalAxis,
+                Math.clamp(width, MIN_PORTAL_WIDTH, MAX_PORTAL_WIDTH),
+                Math.clamp(height, MIN_PORTAL_HEIGHT, MAX_PORTAL_HEIGHT));
+    }
+
+    private static BlockPos findSafePosition(ServerLevel level, BlockPos preferred, PortalSize portalSize) {
         int minY = level.getMinY() + 2;
-        int maxY = level.getMaxY() - 5;
+        int maxY = level.getMaxY() - portalSize.height() - 2;
         int preferredY = Math.clamp(preferred.getY(), minY, maxY);
         BlockPos best = null;
         int bestDistance = Integer.MAX_VALUE;
@@ -459,7 +520,7 @@ public class InfxPortalBlock extends NetherPortalBlock {
             for (int dz = -4; dz <= 4; dz++) {
                 for (int y = minY; y <= maxY; y++) {
                     BlockPos candidate = new BlockPos(preferred.getX() + dx, y, preferred.getZ() + dz);
-                    if (isSafe(level, candidate)) {
+                    if (isSafe(level, candidate, portalSize)) {
                         int distance = Math.abs(y - preferredY) + Math.abs(dx) + Math.abs(dz);
                         if (distance < bestDistance) {
                             best = candidate;
@@ -472,21 +533,24 @@ public class InfxPortalBlock extends NetherPortalBlock {
         return best != null ? best : new BlockPos(preferred.getX(), preferredY, preferred.getZ());
     }
 
-    private static boolean isSafe(ServerLevel level, BlockPos feet) {
+    private static boolean isSafe(ServerLevel level, BlockPos feet, PortalSize portalSize) {
         if (!level.getBlockState(feet.below()).isFaceSturdy(level, feet.below(), Direction.UP)) {
             return false;
         }
-        for (int x = -1; x <= 2; x++) {
-            for (int y = 0; y <= 3; y++) {
-                if (!level.getBlockState(feet.offset(x, y, 0)).isAir()) {
+        Direction horizontal = portalHorizontal(portalSize.axis());
+        Direction exit = portalExitDirection(portalSize.axis());
+        for (int widthOffset = -1; widthOffset <= portalSize.width(); widthOffset++) {
+            for (int y = 0; y <= portalSize.height(); y++) {
+                if (!level.getBlockState(feet.relative(horizontal, widthOffset).above(y)).isAir()) {
                     return false;
                 }
             }
         }
-        for (int x = 0; x < 2; x++) {
-            for (int y = 0; y < 3; y++) {
-                if (!level.getBlockState(feet.offset(x, y, -1)).isAir()
-                        || !level.getBlockState(feet.offset(x, y, 1)).isAir()) {
+        for (int widthOffset = 0; widthOffset < portalSize.width(); widthOffset++) {
+            for (int y = 0; y < portalSize.height(); y++) {
+                BlockPos portalPos = feet.relative(horizontal, widthOffset).above(y);
+                if (!level.getBlockState(portalPos.relative(exit)).isAir()
+                        || !level.getBlockState(portalPos.relative(exit.getOpposite())).isAir()) {
                     return false;
                 }
             }
@@ -494,26 +558,36 @@ public class InfxPortalBlock extends NetherPortalBlock {
         return true;
     }
 
-    private BlockPos buildPortal(ServerLevel level, BlockPos feet) {
+    private BlockPos buildPortal(ServerLevel level, BlockPos feet, PortalSize portalSize) {
         BlockState obsidian = Blocks.OBSIDIAN.defaultBlockState();
-        BlockState portal = defaultBlockState().setValue(AXIS, Direction.Axis.X);
-        int z = feet.getZ();
-        for (int x = -1; x <= 2; x++) {
-            for (int platformZ = -1; platformZ <= 1; platformZ++) {
-                level.setBlock(new BlockPos(feet.getX() + x, feet.getY() - 1, z + platformZ), obsidian, 3);
+        BlockState portal = defaultBlockState().setValue(AXIS, portalSize.axis());
+        Direction horizontal = portalHorizontal(portalSize.axis());
+        Direction exit = portalExitDirection(portalSize.axis());
+        for (int widthOffset = -1; widthOffset <= portalSize.width(); widthOffset++) {
+            BlockPos framePos = feet.relative(horizontal, widthOffset);
+            for (int platformOffset = -1; platformOffset <= 1; platformOffset++) {
+                level.setBlock(framePos.below().relative(exit, platformOffset), obsidian, 3);
             }
-            level.setBlock(new BlockPos(feet.getX() + x, feet.getY() + 3, z), obsidian, 3);
+            level.setBlock(framePos.above(portalSize.height()), obsidian, 3);
         }
-        for (int y = 0; y < 3; y++) {
-            level.setBlock(new BlockPos(feet.getX() - 1, feet.getY() + y, z), obsidian, 3);
-            level.setBlock(new BlockPos(feet.getX() + 2, feet.getY() + y, z), obsidian, 3);
-            for (int x = 0; x < 2; x++) {
-                BlockPos portalPos = new BlockPos(feet.getX() + x, feet.getY() + y, z);
+        for (int y = 0; y < portalSize.height(); y++) {
+            level.setBlock(feet.relative(horizontal, -1).above(y), obsidian, 3);
+            level.setBlock(feet.relative(horizontal, portalSize.width()).above(y), obsidian, 3);
+            for (int widthOffset = 0; widthOffset < portalSize.width(); widthOffset++) {
+                BlockPos portalPos = feet.relative(horizontal, widthOffset).above(y);
                 level.setBlock(portalPos, portal, 18);
-                level.setBlock(portalPos.relative(Direction.SOUTH), Blocks.AIR.defaultBlockState(), 3);
-                level.setBlock(portalPos.relative(Direction.NORTH), Blocks.AIR.defaultBlockState(), 3);
+                level.setBlock(portalPos.relative(exit), Blocks.AIR.defaultBlockState(), 3);
+                level.setBlock(portalPos.relative(exit.getOpposite()), Blocks.AIR.defaultBlockState(), 3);
             }
         }
-        return feet.relative(Direction.SOUTH);
+        return feet.relative(exit);
+    }
+
+    private static Direction portalHorizontal(Direction.Axis axis) {
+        return axis == Direction.Axis.X ? Direction.EAST : Direction.SOUTH;
+    }
+
+    private static Direction portalExitDirection(Direction.Axis axis) {
+        return axis == Direction.Axis.X ? Direction.SOUTH : Direction.EAST;
     }
 }
