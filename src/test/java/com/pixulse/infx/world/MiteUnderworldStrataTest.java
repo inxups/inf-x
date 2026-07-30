@@ -15,28 +15,31 @@ import org.junit.jupiter.api.Test;
 class MiteUnderworldStrataTest {
     private static final long WORLD_SEED = 0x4D4954455F313936L;
     private static final ChunkPos CHUNK_POS = new ChunkPos(7, -11);
-    private static final int UNDERWORLD_MIN_Y = -192;
+    private static final int UNDERWORLD_MIN_Y = Underworld.MIN_Y;
 
     @Test
-    void mantleAndTopBedrockThicknessUseTheMiteHashedSeedAndChunkHash() {
-        MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(WORLD_SEED, CHUNK_POS);
-
+    void fixedFiveBlockBoundaryUsesTheConfiguredUnderworldRange() {
+        int topY = Underworld.MAX_Y_EXCLUSIVE - 1;
         assertAll(
-                () -> assertEquals(2, plan.boundaryThicknessAt(0, 0)),
-                () -> assertEquals(1, plan.boundaryThicknessAt(0, 15)),
-                () -> assertEquals(1, plan.boundaryThicknessAt(3, 4)),
-                () -> assertEquals(3, plan.boundaryThicknessAt(7, 4)),
-                () -> assertEquals(3, plan.boundaryThicknessAt(15, 0)),
-                () -> assertEquals(3, plan.boundaryThicknessAt(15, 15)));
+                () -> assertEquals(320, Underworld.HEIGHT),
+                () -> assertEquals(192, Underworld.MAX_Y_EXCLUSIVE),
+                () -> assertEquals(5, MiteUnderworldStrata.BOUNDARY_BEDROCK_THICKNESS),
+                () -> assertTrue(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, -128)),
+                () -> assertTrue(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, -124)),
+                () -> assertFalse(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, -123)),
+                () -> assertFalse(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, 186)),
+                () -> assertTrue(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, 187)),
+                () -> assertTrue(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, topY)),
+                () -> assertFalse(MiteUnderworldStrata.isBoundaryBedrock(UNDERWORLD_MIN_Y, Underworld.HEIGHT, 192)));
     }
 
     @Test
-    void strataAnchorsUseAbsoluteUnderworldHeights() {
+    void strataAnchorsMoveWithTheNewUnderworldFloor() {
         assertAll(
                 () -> assertEquals(0, MiteUnderworldStrata.FOUNDATION_WORLD_Y),
-                () -> assertEquals(-160, UNDERWORLD_MIN_Y + MiteUnderworldStrata.FIRST_SHEET_ANCHOR_Y),
-                () -> assertEquals(-120, UNDERWORLD_MIN_Y + MiteUnderworldStrata.SECOND_SHEET_ANCHOR_Y),
-                () -> assertEquals(-96, UNDERWORLD_MIN_Y + MiteUnderworldStrata.THIRD_SHEET_ANCHOR_Y));
+                () -> assertEquals(-96, UNDERWORLD_MIN_Y + MiteUnderworldStrata.FIRST_SHEET_ANCHOR_Y),
+                () -> assertEquals(-56, UNDERWORLD_MIN_Y + MiteUnderworldStrata.SECOND_SHEET_ANCHOR_Y),
+                () -> assertEquals(-32, UNDERWORLD_MIN_Y + MiteUnderworldStrata.THIRD_SHEET_ANCHOR_Y));
     }
 
     @Test
@@ -62,7 +65,7 @@ class MiteUnderworldStrataTest {
     }
 
     @Test
-    void lowerStrataKeepMiteMantleAndAllThreeIrregularInternalBedrockBands() {
+    void lowerStrataKeepAllThreeIrregularMiteBedrockBands() {
         MiteUnderworldStrata.StrataPlan plan = MiteUnderworldStrata.plan(WORLD_SEED, CHUNK_POS);
         int[] sheetCounts = new int[3];
         for (int chunkX = -2; chunkX <= 2; chunkX++) {
@@ -73,18 +76,6 @@ class MiteUnderworldStrataTest {
                 sheetCounts[0] += countBedrock(sampledPlan, 24, 48);
                 sheetCounts[1] += countBedrock(sampledPlan, 64, 88);
                 sheetCounts[2] += countBedrock(sampledPlan, 88, 112);
-            }
-        }
-
-        for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
-            for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
-                int thickness = plan.boundaryThicknessAt(localX, localZ);
-                for (int relativeY = 0; relativeY < thickness; relativeY++) {
-                    assertTrue(plan.hasMantleAt(localX, localZ, relativeY));
-                }
-                assertFalse(plan.hasMantleAt(localX, localZ, thickness));
-                assertFalse(plan.hasMantleAt(localX, localZ, -1));
-                assertTrue(thickness >= 1 && thickness <= 3);
             }
         }
 
@@ -154,10 +145,10 @@ class MiteUnderworldStrataTest {
 
         assertEquals(
                 List.of(
-                        new StrataProfile(2173, 2089, 2138, 761, -1603477306, 31289, 40026, 35126, 1888433229),
-                        new StrataProfile(2139, 2188, 2073, 80015, -1817601626, 9528, 83438, 6983, 1964995620),
-                        new StrataProfile(2156, 2151, 2093, 136900, 1214704297, 22048, 34293, 8388, 940276732),
-                        new StrataProfile(2100, 2135, 2165, 16964, 1470626957, 22626, 13841, 73162, -577394016)),
+                        new StrataProfile(761, -1603477306, 31289, 40026, 35126, -1424677138),
+                        new StrataProfile(80015, -1817601626, 9528, 83438, 6983, 1645480110),
+                        new StrataProfile(136900, 1214704297, 22048, 34293, 8388, -1366305652),
+                        new StrataProfile(16964, 1470626957, 22626, 13841, 73162, 1998106787)),
                 profiles);
     }
 
@@ -189,9 +180,7 @@ class MiteUnderworldStrataTest {
             for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
                 signature = 31 * signature + plan.foundationHeightAt(localX, localZ);
                 for (int relativeY = 0; relativeY < MiteUnderworldStrata.LEGACY_TERRAIN_START_Y; relativeY++) {
-                    int replacement = plan.hasMantleAt(localX, localZ, relativeY)
-                            ? 1
-                            : plan.hasBedrockAt(localX, localZ, relativeY) ? 2 : 0;
+                    int replacement = plan.hasBedrockAt(localX, localZ, relativeY) ? 1 : 0;
                     signature = 31 * signature + replacement;
                 }
             }
@@ -200,9 +189,6 @@ class MiteUnderworldStrataTest {
     }
 
     private static StrataProfile sampleGrid(long worldSeed) {
-        int oneBlockBoundaries = 0;
-        int twoBlockBoundaries = 0;
-        int threeBlockBoundaries = 0;
         int foundationBlockCount = 0;
         int foundationHeightSignature = 1;
         int[] sheetCounts = new int[3];
@@ -215,12 +201,6 @@ class MiteUnderworldStrataTest {
                         new ChunkPos(chunkX, chunkZ));
                 for (int localX = 0; localX < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localX++) {
                     for (int localZ = 0; localZ < MiteUnderworldStrata.CHUNK_SIDE_LENGTH; localZ++) {
-                        switch (plan.boundaryThicknessAt(localX, localZ)) {
-                            case 1 -> oneBlockBoundaries++;
-                            case 2 -> twoBlockBoundaries++;
-                            case 3 -> threeBlockBoundaries++;
-                            default -> throw new AssertionError("Unexpected boundary thickness");
-                        }
                         int foundationHeight = plan.foundationHeightAt(localX, localZ);
                         foundationBlockCount += foundationHeight;
                         foundationHeightSignature = 31 * foundationHeightSignature + foundationHeight;
@@ -228,11 +208,9 @@ class MiteUnderworldStrataTest {
                         for (int relativeY = 0;
                                 relativeY < MiteUnderworldStrata.LEGACY_TERRAIN_START_Y;
                                 relativeY++) {
-                            int replacement = plan.hasMantleAt(localX, localZ, relativeY)
-                                    ? 1
-                                    : plan.hasBedrockAt(localX, localZ, relativeY) ? 2 : 0;
+                            int replacement = plan.hasBedrockAt(localX, localZ, relativeY) ? 1 : 0;
                             signature = 31 * signature + replacement;
-                            if (replacement != 2) continue;
+                            if (replacement != 1) continue;
                             if (relativeY >= 24 && relativeY < 48) sheetCounts[0]++;
                             else if (relativeY >= 64 && relativeY < 88) sheetCounts[1]++;
                             else if (relativeY >= 88 && relativeY < 112) sheetCounts[2]++;
@@ -243,9 +221,6 @@ class MiteUnderworldStrataTest {
         }
 
         return new StrataProfile(
-                oneBlockBoundaries,
-                twoBlockBoundaries,
-                threeBlockBoundaries,
                 foundationBlockCount,
                 foundationHeightSignature,
                 sheetCounts[0],
@@ -255,9 +230,6 @@ class MiteUnderworldStrataTest {
     }
 
     private record StrataProfile(
-            int oneBlockBoundaries,
-            int twoBlockBoundaries,
-            int threeBlockBoundaries,
             int foundationBlockCount,
             int foundationHeightSignature,
             int firstSheetCoverage,
