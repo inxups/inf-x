@@ -1241,19 +1241,52 @@ public final class ModCompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         helper.setBlock(miningRelative, Blocks.STONE);
         resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock unrestrictedMiningStart = new PlayerInteractEvent.LeftClickBlock(
+        PlayerInteractEvent.LeftClickBlock emptyHandMiningStart = new PlayerInteractEvent.LeftClickBlock(
                 player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(unrestrictedMiningStart);
-        helper.assertFalse(unrestrictedMiningStart.isCanceled(),
-                "a positive-progress mining input remains delegated to vanilla");
-        assertBehaviorHunger(helper, player, 0.0025D,
-                "an unrestricted block click starts mining metabolism");
+        NeoForge.EVENT_BUS.post(emptyHandMiningStart);
+        helper.assertTrue(emptyHandMiningStart.isCanceled(),
+                "an empty hand cannot start mining a positive-level stone block");
+        assertBehaviorHunger(helper, player, 0.0D,
+                "an unharvestable block click is charged like a left click on air");
         player.tickCount++;
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.005D,
-                "an unrestricted mining session continues charging per tick");
-        NeoForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.STOP));
+        assertBehaviorHunger(helper, player, 0.0D,
+                "an unharvestable block click does not continue mining metabolism");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
+                .equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL)
+                .holder()
+                .toStack());
+        helper.setBlock(miningRelative, Blocks.STONE);
+        helper.assertFalse(player.getMainHandItem().isCorrectToolForDrops(helper.getBlockState(miningRelative)),
+                "a shovel is the wrong MITE tool family for stone");
+        resetBehaviorHunger(player);
+        PlayerInteractEvent.LeftClickBlock wrongToolMiningStart = new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(wrongToolMiningStart);
+        helper.assertTrue(wrongToolMiningStart.isCanceled(),
+                "a wrong-tool mining input is rejected as an empty swing");
+        assertBehaviorHunger(helper, player, 0.0D,
+                "a wrong-tool mining input does not start mining metabolism");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
+                .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
+                .holder()
+                .toStack());
+        helper.setBlock(miningRelative, InfXBlocks.ADAMANTIUM_BLOCK.get());
+        helper.assertFalse(player.getMainHandItem().isCorrectToolForDrops(helper.getBlockState(miningRelative)),
+                "a copper pickaxe does not meet an adamantium block's harvest level");
+        helper.assertTrue(
+                helper.getBlockState(miningRelative).getDestroyProgress(player, helper.getLevel(), miningPos) > 0.0F,
+                "an insufficient tool still has vanilla destroy progress before input validation");
+        resetBehaviorHunger(player);
+        PlayerInteractEvent.LeftClickBlock lowTierMiningStart = new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(lowTierMiningStart);
+        helper.assertTrue(lowTierMiningStart.isCanceled(),
+                "an insufficient-tier mining input is rejected as an empty swing");
+        assertBehaviorHunger(helper, player, 0.0D,
+                "an insufficient-tier mining input does not start mining metabolism");
 
         helper.setBlock(miningRelative, InfXBlocks.CORE.get());
         resetBehaviorHunger(player);
