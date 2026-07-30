@@ -13,7 +13,8 @@ public interface TimedCraftingMenu {
     int DATA_TIMED_RESULT = 3;
     int DATA_QUALITY = 4;
     int DATA_RUNE = 5;
-    int DATA_COUNT = 6;
+    int DATA_CYCLE_SEQUENCE = 6;
+    int DATA_COUNT = 7;
 
     BenchTier infx$benchTier();
 
@@ -82,6 +83,7 @@ public interface TimedCraftingMenu {
         data.set(DATA_PROGRESS, state.progressTicks());
         data.set(DATA_REQUIRED, state.requiredTicks());
         data.set(DATA_RUNNING, state.isRunning() ? 1 : 0);
+        data.set(DATA_CYCLE_SEQUENCE, state.cycleSequence());
     }
 
     default int infx$progressTicks() {
@@ -94,6 +96,10 @@ public interface TimedCraftingMenu {
 
     default boolean infx$isRunning() {
         return infx$craftingData().get(DATA_RUNNING) != 0;
+    }
+
+    default int infx$cycleSequence() {
+        return infx$craftingData().get(DATA_CYCLE_SEQUENCE);
     }
 
     default int infx$scaledProgress(int width) {
