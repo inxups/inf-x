@@ -17,6 +17,12 @@ class UnderworldTest {
         assertEquals(128, Underworld.TERRAIN_HEIGHT);
         assertEquals(144, Underworld.WATER_LEVEL);
         assertEquals(5, Underworld.BOUNDARY_MAX_THICKNESS);
+        assertEquals(-128, Underworld.INTERNAL_BEDROCK_MIN_Y);
+        assertEquals(120, Underworld.INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE);
+        assertEquals(-120, Underworld.BEDROCK_STRATUM_ONE_CENTER_Y);
+        assertEquals(-72, Underworld.BEDROCK_STRATUM_TWO_CENTER_Y);
+        assertEquals(-16, Underworld.BEDROCK_STRATUM_THREE_CENTER_Y);
+        assertEquals(99, Underworld.BEDROCK_STRATUM_FOUR_CENTER_Y);
     }
 
     @Test

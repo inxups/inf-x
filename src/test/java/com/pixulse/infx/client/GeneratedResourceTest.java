@@ -1656,7 +1656,7 @@ class GeneratedResourceTest {
         assertAll(
                 "Underworld dimension",
                 () -> assertEquals("infx:underworld", dimension.get("type").getAsString()),
-                () -> assertEquals("minecraft:noise", generator.get("type").getAsString()),
+                () -> assertEquals("infx:underworld", generator.get("type").getAsString()),
                 () -> assertEquals(
                         "infx:underworld",
                         generator.getAsJsonObject("biome_source").get("biome").getAsString()),
@@ -1735,6 +1735,29 @@ class GeneratedResourceTest {
                         "data/infx/worldgen/placed_feature/mithril_ore.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"))));
+
+        for (String strataNoise : List.of(
+                "underworld_bedrock_strata_1a",
+                "underworld_bedrock_strata_1b",
+                "underworld_bedrock_strata_2",
+                "underworld_bedrock_strata_3",
+                "underworld_bedrock_strata_4",
+                "underworld_bedrock_strata_1a_bump",
+                "underworld_bedrock_strata_1b_bump",
+                "underworld_bedrock_strata_1c_bump",
+                "underworld_bedrock_strata_2_bump",
+                "underworld_bedrock_strata_3_bump",
+                "underworld_bedrock_strata_4_bump")) {
+            JsonObject strata = json(GENERATED.resolve("data/infx/worldgen/noise/" + strataNoise + ".json"));
+            assertAll(
+                    strataNoise,
+                    () -> assertEquals(-3, strata.get("firstOctave").getAsInt()),
+                    () -> assertEquals(List.of(1.0, 1.0, 1.0, 1.0), strata.getAsJsonArray("amplitudes")
+                            .asList()
+                            .stream()
+                            .map(JsonElement::getAsDouble)
+                            .toList()));
+        }
 
         JsonObject dungeon = json(GENERATED.resolve("data/infx/loot_table/chests/underworld_dungeon.json"));
         JsonObject dungeonPool = dungeon.getAsJsonArray("pools").get(0).getAsJsonObject();
