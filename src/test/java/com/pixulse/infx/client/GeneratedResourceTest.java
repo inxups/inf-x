@@ -1708,6 +1708,7 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void overworldStopsAtMinusSixteenAndRetainsVanillaMineshafts() throws Exception {
     void overworldStopsAtMinusSixteenAndLeavesUndergroundStructuresUnassigned() throws Exception {
         JsonObject dimensionType = json(GENERATED.resolve("data/minecraft/dimension_type/overworld.json"));
         assertAll(
@@ -1742,14 +1743,18 @@ class GeneratedResourceTest {
         for (String structure : List.of(
                 "ancient_city",
                 "buried_treasure",
-                "mineshaft",
-                "mineshaft_mesa",
                 "trail_ruins",
                 "trial_chambers")) {
             assertFalse(
                     Files.exists(GENERATED.resolve(
                             "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json")),
                     structure + " must not target the empty Underworld biome");
+        }
+        for (String structure : List.of("mineshaft", "mineshaft_mesa")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve(
+                            "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json")),
+                    structure + " must retain its vanilla Overworld distribution");
         }
 
         JsonObject stronghold = json(GENERATED.resolve(
