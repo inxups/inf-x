@@ -9,7 +9,13 @@ import com.pixulse.infx.block.InfxPortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.event.UnderworldPortalEvents;
 import com.pixulse.infx.item.material.InfxMaterial;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
 class PortalTopologyTest {
@@ -74,6 +80,48 @@ class PortalTopologyTest {
         var opposite = UnderworldPortalBlock.runeDestinationOffset(InfxMaterial.MITHRIL, 0xABCD, 1, 0);
         assertEquals(first, repeated);
         assertNotEquals(first, opposite);
+    }
+
+    @Test
+    void runeDestinationsKeepTheSameOffsetAtDifferentEntries() {
+        BlockPos firstEntry = new BlockPos(1_234, 70, -5_678);
+        BlockPos secondEntry = firstEntry.offset(10_000, 0, -12_000);
+        BlockPos firstDestination = UnderworldPortalBlock.runeDestinationPosition(
+                firstEntry, InfxMaterial.ADAMANTIUM, 0xABCD, 0, 0);
+        BlockPos secondDestination = UnderworldPortalBlock.runeDestinationPosition(
+                secondEntry, InfxMaterial.ADAMANTIUM, 0xABCD, 0, 0);
+
+        assertEquals(10_000, secondDestination.getX() - firstDestination.getX());
+        assertEquals(-12_000, secondDestination.getZ() - firstDestination.getZ());
+        assertEquals(firstEntry.getY(), firstDestination.getY());
+        assertEquals(secondEntry.getY(), secondDestination.getY());
+    }
+
+    @Test
+    void ordinaryPortalDestinationsUseTheCurrentCoordinateAndDimensionScale() {
+        var registries = VanillaRegistries.createLookup();
+        DimensionType overworld = registries
+                .lookupOrThrow(Registries.DIMENSION_TYPE)
+                .getOrThrow(BuiltinDimensionTypes.OVERWORLD)
+                .value();
+        DimensionType nether = registries
+                .lookupOrThrow(Registries.DIMENSION_TYPE)
+                .getOrThrow(BuiltinDimensionTypes.NETHER)
+                .value();
+
+        assertEquals(
+                new BlockPos(100, 70, -200),
+                InfxPortalBlock.scaledExitPosition(overworld, nether, new Vec3(800, 70, -1_600)));
+        assertEquals(
+                new BlockPos(800, 70, -1_600),
+                InfxPortalBlock.scaledExitPosition(nether, overworld, new Vec3(100, 70, -200)));
+    }
+
+    @Test
+    void ordinaryPortalSearchKeepsTheVanillaDimensionRadii() {
+        assertEquals(16, InfxPortalBlock.portalSearchRadius(Level.NETHER));
+        assertEquals(128, InfxPortalBlock.portalSearchRadius(Level.OVERWORLD));
+        assertEquals(128, InfxPortalBlock.portalSearchRadius(Underworld.LEVEL));
     }
 
     @Test

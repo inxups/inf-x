@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -42,8 +43,6 @@ import org.jspecify.annotations.Nullable;
 
 /** A portal surface whose block identity fixes its destination family. */
 public class InfxPortalBlock extends NetherPortalBlock {
-    private static final String RETURN_POS = "infx_underworld_return_pos";
-    private static final String NETHER_RETURN_POS = "infx_nether_return_pos";
     private static final int NETHER_PORTAL_SEARCH_RADIUS = 16;
     private static final int OTHER_PORTAL_SEARCH_RADIUS = 128;
     private static final int MIN_PORTAL_WIDTH = 2;
@@ -276,21 +275,7 @@ public class InfxPortalBlock extends NetherPortalBlock {
             return null;
         }
 
-        boolean returningToOverworld = route == PortalRoute.OVERWORLD && portalType == PortalType.UNDERWORLD;
-        boolean returningToUnderworld = route == PortalRoute.UNDERWORLD && portalType == PortalType.NETHER;
-        BlockPos currentPosition = BlockPos.containing(entity.position());
-        WorldBorder targetWorldBorder = targetLevel.getWorldBorder();
-        BlockPos preferred = returningToOverworld
-                ? clampToWorldBorder(targetWorldBorder, rememberedPosition(entity, RETURN_POS, currentPosition))
-                : returningToUnderworld
-                        ? clampToWorldBorder(targetWorldBorder, rememberedPosition(entity, NETHER_RETURN_POS, currentPosition))
-                        : scaledExitPosition(currentLevel, targetLevel, entity);
-        if (route == PortalRoute.UNDERWORLD && currentLevel.dimension().equals(Level.OVERWORLD)) {
-            entity.getPersistentData().putLong(RETURN_POS, currentPosition.asLong());
-        }
-        if (route == PortalRoute.NETHER && currentLevel.dimension().equals(Underworld.LEVEL)) {
-            entity.getPersistentData().putLong(NETHER_RETURN_POS, currentPosition.asLong());
-        }
+        BlockPos preferred = scaledExitPosition(currentLevel, targetLevel, entity);
 
         BlockPos arrival = findOrCreateArrivalPortal(
                 targetLevel, preferred, portalSearchRadius(targetLevel), portalSize(currentLevel, portalEntryPos));
@@ -396,22 +381,27 @@ public class InfxPortalBlock extends NetherPortalBlock {
                 : DEFAULT_PORTAL_SIZE;
     }
 
-    private static BlockPos rememberedPosition(Entity entity, String key, BlockPos fallback) {
-        return entity.getPersistentData().getLong(key).map(BlockPos::of).orElse(fallback);
-    }
-
     private static BlockPos scaledExitPosition(ServerLevel currentLevel, ServerLevel targetLevel, Entity entity) {
         double scale = DimensionType.getTeleportationScale(currentLevel.dimensionType(), targetLevel.dimensionType());
-        return targetLevel.getWorldBorder()
-                .clampToBounds(entity.getX() * scale, entity.getY(), entity.getZ() * scale);
+        return targetLevel.getWorldBorder().clampToBounds(
+                entity.getX() * scale, entity.getY(), entity.getZ() * scale);
     }
 
-    private static BlockPos clampToWorldBorder(WorldBorder worldBorder, BlockPos pos) {
-        return worldBorder.clampToBounds(pos.getX(), pos.getY(), pos.getZ());
+    /** Applies the 26.1 coordinate-scale rule before a destination portal is selected. */
+    public static BlockPos scaledExitPosition(
+            DimensionType currentDimension, DimensionType targetDimension, Vec3 entityPosition) {
+        double scale = DimensionType.getTeleportationScale(currentDimension, targetDimension);
+        return BlockPos.containing(
+                entityPosition.x * scale, entityPosition.y, entityPosition.z * scale);
     }
 
     private static int portalSearchRadius(ServerLevel targetLevel) {
-        return targetLevel.dimension().equals(Level.NETHER)
+        return portalSearchRadius(targetLevel.dimension());
+    }
+
+    /** Keeps the 26.1 Nether-vs-other-dimension search radii explicit for custom portal families. */
+    public static int portalSearchRadius(ResourceKey<Level> targetDimension) {
+        return targetDimension.equals(Level.NETHER)
                 ? NETHER_PORTAL_SEARCH_RADIUS
                 : OTHER_PORTAL_SEARCH_RADIUS;
     }

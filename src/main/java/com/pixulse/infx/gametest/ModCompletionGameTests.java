@@ -598,7 +598,10 @@ public final class ModCompletionGameTests {
                 "legacy portal migration keeps the existing portal as the arrival point");
 
         BlockPos arrival = InfXBlocks.UNDERWORLD_PORTAL.get()
-                .createArrivalPortal(helper.getLevel(), helper.absolutePos(new BlockPos(8, 2, 8)));
+                .findOrCreateArrivalPortal(helper.getLevel(), helper.absolutePos(new BlockPos(192, 2, 192)));
+        helper.assertTrue(
+                hasAdjacentPortal(helper, arrival, InfXBlocks.UNDERWORLD_PORTAL.get()),
+                "no compatible portal in the search radius creates a new Underworld arrival");
         helper.assertTrue(helper.getLevel().getBlockState(arrival.below()).is(Blocks.OBSIDIAN), "arrival has a floor");
         helper.assertTrue(
                 helper.getLevel().getBlockState(arrival.relative(net.minecraft.core.Direction.NORTH))
@@ -622,6 +625,16 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 hasAdjacentPortal(helper, reusedArrival, InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "reused arrival remains beside the existing Underworld portal");
+
+        BlockPos nearerArrival = InfXBlocks.UNDERWORLD_PORTAL.get()
+                .createArrivalPortal(helper.getLevel(), arrival.offset(0, 0, 30));
+        BlockPos fartherArrival = InfXBlocks.UNDERWORLD_PORTAL.get()
+                .createArrivalPortal(helper.getLevel(), arrival.offset(0, 0, 60));
+        BlockPos nearestReuse = InfXBlocks.UNDERWORLD_PORTAL.get()
+                .findOrCreateArrivalPortal(helper.getLevel(), nearerArrival.offset(2, 0, 0));
+        helper.assertTrue(
+                nearestReuse.distSqr(nearerArrival) < nearestReuse.distSqr(fartherArrival),
+                "the nearest compatible Underworld portal wins the POI search");
 
         BlockPos wideArrival = InfXBlocks.UNDERWORLD_PORTAL.get()
                 .createArrivalPortal(helper.getLevel(), arrival.offset(0, 0, 10), Direction.Axis.Z, 4, 5);
