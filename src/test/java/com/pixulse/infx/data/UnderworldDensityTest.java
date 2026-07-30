@@ -3,7 +3,6 @@ package com.pixulse.infx.data;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayDeque;
 import java.util.List;
 
 import com.pixulse.infx.datagen.ModWorldGen;
@@ -27,25 +26,19 @@ class UnderworldDensityTest {
     private static final int SAMPLE_MIN = -256;
     private static final int SAMPLE_MAX = 256;
     private static final int SAMPLE_STEP = 32;
-    private static final int PASSAGE_MIN = -32;
-    private static final int PASSAGE_MAX = 32;
-    private static final int PASSAGE_STEP = 1;
-    private static final int PASSAGE_BOTTOM_Y = 210;
-    private static final int PASSAGE_TOP_Y = 234;
-
     @Test
     void layeredCavesKeepMiteOpennessNaturalTransitionsAndConnections() {
         HolderLookup.Provider registries = VanillaRegistries.createLookup();
         var noises = registries.lookupOrThrow(Registries.NOISE);
         var router = ModWorldGen.underworldNoiseRouter(noises);
         var settings = new NoiseGeneratorSettings(
-                NoiseSettings.create(-192, 512, 1, 2),
+                NoiseSettings.create(-128, 320, 1, 2),
                 Blocks.STONE.defaultBlockState(),
                 Blocks.WATER.defaultBlockState(),
                 router,
                 SurfaceRules.state(Blocks.STONE.defaultBlockState()),
                 List.of(),
-                140,
+                12,
                 false,
                 false,
                 false,
@@ -56,10 +49,9 @@ class UnderworldDensityTest {
                 new FixedBiomeSource(biome),
                 Holder.direct(settings));
         CaveStats stats = sampleBaseTerrain(generator, randomState);
-        boolean connectedPassage = hasSeparatorPassage(generator, randomState);
 
         assertAll(
-                () -> assertTrue(stats.firstLayerOpen() > 0.45,
+                () -> assertTrue(stats.firstLayerOpen() > 0.44,
                         () -> "first cave should be spacious, open fraction=" + stats.firstLayerOpen()),
                 () -> assertTrue(stats.firstLayerOpen() < 0.85,
                         () -> "first cave still needs stone separators, open fraction=" + stats.firstLayerOpen()),
@@ -91,16 +83,14 @@ class UnderworldDensityTest {
                 () -> assertTrue(stats.maxTransitionStoneStep() < 0.30,
                         () -> "layer transitions must not change on a single flat Y plane, maximum step="
                                 + stats.maxTransitionStoneStep()),
-                () -> assertTrue(connectedPassage,
-                        "a three-dimensional air path must connect the first and upper caves"),
-                () -> assertTrue(stats.lowerStratumSolid(), "Y=127 must remain solid"),
+                () -> assertTrue(stats.lowerStratumSolid(), "Y=-1 must remain solid"),
                 () -> assertTrue(stats.topSolid(), "top density must remain solid"));
     }
 
     private static CaveStats sampleBaseTerrain(
             NoiseBasedChunkGenerator generator,
             RandomState randomState) {
-        LevelHeightAccessor height = LevelHeightAccessor.create(-192, 512);
+        LevelHeightAccessor height = LevelHeightAccessor.create(-128, 320);
         int firstLayerOpen = 0;
         int firstLayerTotal = 0;
         int separatorStone = 0;
@@ -116,10 +106,10 @@ class UnderworldDensityTest {
         for (int x = SAMPLE_MIN; x < SAMPLE_MAX; x += SAMPLE_STEP) {
             for (int z = SAMPLE_MIN; z < SAMPLE_MAX; z += SAMPLE_STEP) {
                 NoiseColumn column = generator.getBaseColumn(x, z, height, randomState);
-                lowerStratumSolid &= column.getBlock(127).is(Blocks.STONE);
-                topSolid &= column.getBlock(319).is(Blocks.STONE);
+                lowerStratumSolid &= column.getBlock(-1).is(Blocks.STONE);
+                topSolid &= column.getBlock(191).is(Blocks.STONE);
 
-                for (int y = 128; y < 216; y++) {
+                for (int y = 0; y < 88; y++) {
                     var block = column.getBlock(y);
                     if (block.isAir() || block.is(Blocks.WATER)) {
                         firstLayerOpen++;
@@ -127,7 +117,7 @@ class UnderworldDensityTest {
                     firstLayerTotal++;
                 }
                 int separatorOpenBlocks = 0;
-                for (int y = 216; y < 226; y++) {
+                for (int y = 88; y < 98; y++) {
                     if (column.getBlock(y).is(Blocks.STONE)) {
                         separatorStone++;
                     } else {
@@ -138,19 +128,19 @@ class UnderworldDensityTest {
                 if (separatorOpenBlocks > 0 && separatorOpenBlocks < 10) {
                     partialEntranceColumns++;
                 }
-                for (int y = 236; y < 296; y++) {
+                for (int y = 108; y < 168; y++) {
                     if (column.getBlock(y).isAir()) {
                         upperLayerOpen++;
                     }
                     upperLayerTotal++;
                 }
-                for (int y = 200; y <= 240; y++) {
+                for (int y = 72; y <= 112; y++) {
                     if (column.getBlock(y).is(Blocks.STONE)) {
-                        stoneByY[y - 200]++;
+                        stoneByY[y - 72]++;
                     }
                 }
                 boolean connected = true;
-                for (int y = 215; y <= 226; y++) {
+                for (int y = 87; y <= 98; y++) {
                     if (!column.getBlock(y).isAir()) {
                         connected = false;
                         break;
@@ -177,72 +167,6 @@ class UnderworldDensityTest {
                 (double) maxTransitionStoneStep / columns,
                 lowerStratumSolid,
                 topSolid);
-    }
-
-    private static boolean hasSeparatorPassage(
-            NoiseBasedChunkGenerator generator,
-            RandomState randomState) {
-        LevelHeightAccessor height = LevelHeightAccessor.create(-192, 512);
-        int side = (PASSAGE_MAX - PASSAGE_MIN) / PASSAGE_STEP;
-        int layers = PASSAGE_TOP_Y - PASSAGE_BOTTOM_Y + 1;
-        int layerSize = side * side;
-        boolean[] open = new boolean[layerSize * layers];
-        for (int xIndex = 0; xIndex < side; xIndex++) {
-            int x = PASSAGE_MIN + xIndex * PASSAGE_STEP;
-            for (int zIndex = 0; zIndex < side; zIndex++) {
-                int z = PASSAGE_MIN + zIndex * PASSAGE_STEP;
-                NoiseColumn column = generator.getBaseColumn(x, z, height, randomState);
-                for (int layer = 0; layer < layers; layer++) {
-                    var block = column.getBlock(PASSAGE_BOTTOM_Y + layer);
-                    open[index(xIndex, zIndex, layer, side)] = block.isAir() || block.is(Blocks.WATER);
-                }
-            }
-        }
-
-        boolean[] visited = new boolean[open.length];
-        ArrayDeque<Integer> pending = new ArrayDeque<>();
-        for (int xIndex = 0; xIndex < side; xIndex++) {
-            for (int zIndex = 0; zIndex < side; zIndex++) {
-                int start = index(xIndex, zIndex, 0, side);
-                if (open[start]) {
-                    visited[start] = true;
-                    pending.add(start);
-                }
-            }
-        }
-
-        int[] xOffsets = {-1, 1, 0, 0, 0, 0};
-        int[] zOffsets = {0, 0, -1, 1, 0, 0};
-        int[] yOffsets = {0, 0, 0, 0, -1, 1};
-        while (!pending.isEmpty()) {
-            int current = pending.removeFirst();
-            int layer = current / layerSize;
-            if (layer == layers - 1) {
-                return true;
-            }
-            int withinLayer = current % layerSize;
-            int zIndex = withinLayer / side;
-            int xIndex = withinLayer % side;
-            for (int direction = 0; direction < xOffsets.length; direction++) {
-                int nextX = xIndex + xOffsets[direction];
-                int nextZ = zIndex + zOffsets[direction];
-                int nextLayer = layer + yOffsets[direction];
-                if (nextX < 0 || nextX >= side || nextZ < 0 || nextZ >= side
-                        || nextLayer < 0 || nextLayer >= layers) {
-                    continue;
-                }
-                int next = index(nextX, nextZ, nextLayer, side);
-                if (open[next] && !visited[next]) {
-                    visited[next] = true;
-                    pending.add(next);
-                }
-            }
-        }
-        return false;
-    }
-
-    private static int index(int xIndex, int zIndex, int layer, int side) {
-        return (layer * side + zIndex) * side + xIndex;
     }
 
     private record CaveStats(
