@@ -295,8 +295,12 @@ class TextureProvenanceTest {
                 Map.entry("textures/entity/silverfish/copperspine.png", "entity/silverfish/copperspine.png"),
                 Map.entry("textures/entity/silverfish/hoary.png", "entity/silverfish/hoary.png"),
                 Map.entry("textures/entity/bat.png", "entity/bat.png"),
-                Map.entry("textures/entity/bat/vampire.png", "entity/bat/vampire.png"),
-                Map.entry("textures/entity/bat/nightwing.png", "entity/bat/nightwing.png"),
+                Map.entry(
+                        "textures/entity/bat/vampire.png",
+                        "owner-provided:/Users/inxups/Downloads/vampire.png"),
+                Map.entry(
+                        "textures/entity/bat/nightwing.png",
+                        "owner-provided:/Users/inxups/Downloads/nightwing.png"),
                 Map.entry("textures/entity/hellhound/hellhound.png", "entity/hellhound/hellhound.png"),
                 Map.entry("textures/entity/dire_wolf/neutral.png", "entity/dire_wolf/neutral.png"),
                 Map.entry("textures/entity/dire_wolf/tame.png", "entity/dire_wolf/tame.png"),
