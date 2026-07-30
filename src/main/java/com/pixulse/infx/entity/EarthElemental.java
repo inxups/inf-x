@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -389,6 +390,12 @@ public class EarthElemental extends Monster implements MiteMob {
             return false;
         }
         return super.canBeAffected(effect);
+    }
+
+    /** MITE's {@code mob.irongolem.hit} maps to the modern iron-golem hurt sound. */
+    @Override
+    protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
+        return SoundEvents.IRON_GOLEM_HURT;
     }
 
     @Override
