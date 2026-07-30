@@ -12,6 +12,7 @@ import com.pixulse.infx.registry.InfXBiomeModifiers;
 import com.pixulse.infx.registry.InfXPoiTypes;
 import com.pixulse.infx.registry.InfXCreativeTabs;
 import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXDensityFunctionTypes;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXLootModifiers;
@@ -32,6 +33,7 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         InfXSounds.register(modBus);
+        InfXDensityFunctionTypes.register(modBus);
         InfXBiomeModifiers.register(modBus);
         InfXAttachments.register(modBus);
         InfXBlocks.register(modBus);
