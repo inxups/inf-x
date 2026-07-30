@@ -1,6 +1,6 @@
 # 结构生成解锁框架
 
-`StructureGenerationGates` 为需要世界进度才能生成的结构提供集中式 Java DSL。它目前承载村庄解锁规则以及永久禁用的原版结构，也可以复用于其他原版或模组结构。
+`StructureGenerationGates` 为需要世界进度才能生成的结构提供集中式 Java DSL。它目前承载村庄和世界进度解锁规则以及永久禁用的原版结构，也可以复用于其他原版或模组结构。
 
 框架只控制候选结构能否在新生成的区块中开始生成；不会修改已有区块，也不会在条件达成后回填此前被跳过的结构。
 
@@ -11,10 +11,15 @@
 | 规则 ID | 维度 | 结构选择器 | 解锁条件 |
 | --- | --- | --- | --- |
 | `infx:village` | 主世界 | `#minecraft:village` | 生存第 60 天或之后，且全世界已制作铁级工具 |
+| `infx:pillager_outpost` | 主世界 | `minecraft:pillager_outpost` | 与村庄相同：第 60 天且已制作铁级工具 |
+| `infx:mansion` | 主世界 | `minecraft:mansion` | 任意一名玩家累计获得 100,000 点经验 |
+| `infx:monument` | 主世界 | `minecraft:monument` | 任意玩家进入过任意下界要塞 |
+| `infx:overworld_ruined_portals` | 主世界 | `#minecraft:ruined_portal` | 任意玩家进入过下界；下界残破传送门不受此规则影响 |
+| `infx:shipwreck` | 主世界 | `#minecraft:shipwreck` | 任意玩家击杀过一只守卫者 |
 | `infx:ancient_city` | 主世界 | `minecraft:ancient_city` | 永不解锁 |
 | `infx:trial_chambers` | 主世界 | `minecraft:trial_chambers` | 永不解锁 |
 
-实现位于 [`StructureGenerationGates.java`](../src/main/java/com/pixulse/infx/world/StructureGenerationGates.java)。村庄的铁级工具检测、农田枯萎和保险箱后处理仍位于 [`VillageProgression.java`](../src/main/java/com/pixulse/infx/world/VillageProgression.java)。`/infx villages` 仍可查询该规则的状态。
+实现位于 [`StructureGenerationGates.java`](../src/main/java/com/pixulse/infx/world/StructureGenerationGates.java)。村庄的铁级工具检测、农田枯萎和保险箱后处理仍位于 [`VillageProgression.java`](../src/main/java/com/pixulse/infx/world/VillageProgression.java)；其他结构进度由 [`StructureProgressionEvents.java`](../src/main/java/com/pixulse/infx/world/StructureProgressionEvents.java) 记录。`/infx villages` 仍可查询村庄规则的状态。
 
 ## 规则语义
 
@@ -85,6 +90,10 @@ Conditions.allOf(
 
 - `IRON_TOOL_CRAFTED`
 - `END_CONQUERED`
+- `MANSION_EXPERIENCE_EARNED`：单个玩家累计获得至少 100,000 点正经验；经验消费、死亡或其他玩家的经验不会倒退或合并该进度。
+- `NETHER_ENTERED`
+- `NETHER_FORTRESS_ENTERED`
+- `MONUMENT_GUARDIAN_KILLED`
 
 ## 世界进度与线程模型
 
@@ -127,7 +136,7 @@ StructureGenerationGates.allows(dimension, candidateStructure)
 - 天数边界、里程碑与世界首次完成条件；
 - `allOf` / `anyOf`；
 - 多条重叠规则必须全部满足；
-- 村庄解锁条件和 Mixin 注册。
+- 所有内置结构进度门禁、村庄解锁条件和 Mixin 注册。
 
 修改框架或新增规则后，执行：
 
