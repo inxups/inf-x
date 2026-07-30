@@ -2,7 +2,7 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -17,7 +17,7 @@ import net.minecraft.world.level.storage.loot.entries.EmptyLootItem;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-/** R196's non-craftable rusted-iron finds in ordinary dungeons and abandoned mineshafts. */
+/** INFX's non-craftable rusted-iron finds in ordinary dungeons and abandoned mineshafts. */
 final class ModRustedIronLootSubProvider implements LootTableSubProvider {
     ModRustedIronLootSubProvider(HolderLookup.Provider registries) {}
 
@@ -74,6 +74,6 @@ final class ModRustedIronLootSubProvider implements LootTableSubProvider {
     }
 
     private static ItemLike equipment(EquipmentType type) {
-        return InfXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder();
+        return InfXItems.catalog().equipment(InfxMaterial.RUSTED_IRON, type).holder();
     }
 }

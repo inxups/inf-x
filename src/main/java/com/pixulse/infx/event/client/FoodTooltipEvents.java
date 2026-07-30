@@ -12,7 +12,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
-/** Adds the R196 food gains to F3+H item tooltips. */
+/** Adds the INFX food gains to F3+H item tooltips. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class FoodTooltipEvents {
     static final String SATIATION_TOOLTIP = "tooltip.infx.food.satiation";

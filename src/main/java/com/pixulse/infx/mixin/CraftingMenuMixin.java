@@ -90,7 +90,7 @@ public abstract class CraftingMenuMixin extends AbstractCraftingMenu implements 
 
     @Override
     public BenchTier infx$benchTier() {
-        // A vanilla crafting table is the generic R196 3x3 tool bench.
+        // A vanilla crafting table is the generic INFX 3x3 tool bench.
         return BenchTier.FLINT;
     }
 

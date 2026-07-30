@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Consumable#canConsume is the smallest modern hook with both the player and the item stack.
- * Player#canEat alone cannot reproduce R196's food-specific nutrient-deficit exception.
+ * Player#canEat alone cannot reproduce INFX's food-specific nutrient-deficit exception.
  */
 @Mixin(Consumable.class)
 abstract class ConsumableMixin {

@@ -1,7 +1,7 @@
 package com.pixulse.infx.event.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.network.Network;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
@@ -26,7 +26,7 @@ public final class BucketClientEvents {
         Minecraft minecraft = Minecraft.getInstance();
         if (!event.isUseItem()
                 || minecraft.player == null
-                || !(minecraft.player.getItemInHand(event.getHand()).getItem() instanceof MiteBucketItem bucket)
+                || !(minecraft.player.getItemInHand(event.getHand()).getItem() instanceof InfxBucketItem bucket)
                 || !controlDown(minecraft)
                 || !ctrlIsMeaningful(bucket, minecraft)) {
             return;
@@ -38,10 +38,10 @@ public final class BucketClientEvents {
     }
 
     /** Empty buckets always honour Ctrl; filled ones only when the source can actually be paid for. */
-    private static boolean ctrlIsMeaningful(MiteBucketItem bucket, Minecraft minecraft) {
+    private static boolean ctrlIsMeaningful(InfxBucketItem bucket, Minecraft minecraft) {
         return switch (bucket.contents()) {
             case EMPTY -> true;
-            case WATER, LAVA -> MiteBucketItem.canPlaceAsSource(minecraft.player, true);
+            case WATER, LAVA -> InfxBucketItem.canPlaceAsSource(minecraft.player, true);
             case MILK, STONE -> false;
         };
     }

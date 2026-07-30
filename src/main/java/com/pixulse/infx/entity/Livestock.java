@@ -41,7 +41,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/** MITE R196 livestock wellness and the goals that keep food, water, and freedom healthy. */
+/** MITE INFX livestock wellness and the goals that keep food, water, and freedom healthy. */
 public final class Livestock {
     static final String FOOD = "infx_livestock_food";
     static final String WATER = "infx_livestock_water";
@@ -80,7 +80,7 @@ public final class Livestock {
     private Livestock() {}
 
     /**
-     * Define a per-class isWell flag. Its accessor is registered while the concrete R196 entity
+     * Define a per-class isWell flag. Its accessor is registered while the concrete INFX entity
      * class initializes, before the entity's {@link SynchedEntityData.Builder} sizes its data array.
      * It must not use {@code Animal.class}, which collides with vanilla Cow/Pig/etc. variant data.
      */
@@ -114,10 +114,10 @@ public final class Livestock {
     }
 
     private static @Nullable EntityDataAccessor<Boolean> wellData(Animal animal) {
-        if (animal instanceof MiteCow) return MiteCow.dataWell();
-        if (animal instanceof MiteChicken) return MiteChicken.dataWell();
-        if (animal instanceof MitePig) return MitePig.dataWell();
-        if (animal instanceof MiteSheep) return MiteSheep.dataWell();
+        if (animal instanceof InfxCow) return InfxCow.dataWell();
+        if (animal instanceof InfxChicken) return InfxChicken.dataWell();
+        if (animal instanceof InfxPig) return InfxPig.dataWell();
+        if (animal instanceof InfxSheep) return InfxSheep.dataWell();
         return null;
     }
 
@@ -129,16 +129,16 @@ public final class Livestock {
                 || entity instanceof Chicken;
     }
 
-    /** R196 livestock that carry the client-synced isWell flag and unwell skin. */
+    /** INFX livestock that carry the client-synced isWell flag and unwell skin. */
     public static boolean hasSickSkin(Entity entity) {
-        return entity instanceof MiteCow
-                || entity instanceof MiteChicken
-                || entity instanceof MitePig
-                || entity instanceof MiteSheep;
+        return entity instanceof InfxCow
+                || entity instanceof InfxChicken
+                || entity instanceof InfxPig
+                || entity instanceof InfxSheep;
     }
 
     /**
-     * Install MITE-style seek and flee goals once on R196 livestock (cow/chicken/sheep/pig).
+     * Install MITE-style seek and flee goals once on INFX livestock (cow/chicken/sheep/pig).
      * Horses are not livestock and must not call this.
      */
     public static void ensureGoals(Animal animal) {
@@ -268,7 +268,7 @@ public final class Livestock {
         return isProductive(animal);
     }
 
-    /** Newborn R196 livestock inherit the lowest wellness value from each parent. */
+    /** Newborn INFX livestock inherit the lowest wellness value from each parent. */
     public static void adoptWellnessFromParents(Animal child, Animal firstParent, Animal secondParent) {
         if (!hasSickSkin(child)) return;
         setWellness(
@@ -278,7 +278,7 @@ public final class Livestock {
                 Math.min(freedom(firstParent), freedom(secondParent)));
     }
 
-    /** Panic starts on the affected R196 livestock and spreads without altering wellness values. */
+    /** Panic starts on the affected INFX livestock and spreads without altering wellness values. */
     public static void panic(ServerLevel level, Animal source) {
         panic(level, source, source.blockPosition());
     }
@@ -295,7 +295,7 @@ public final class Livestock {
         }
     }
 
-    /** Returns whether this R196 livestock animal must keep fleeing at the supplied game time. */
+    /** Returns whether this INFX livestock animal must keep fleeing at the supplied game time. */
     public static boolean isPanicked(Animal animal, long now) {
         return isPanicActive(animal.getPersistentData().getLong(PANIC_UNTIL).orElse(0L), now);
     }

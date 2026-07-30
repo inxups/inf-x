@@ -20,7 +20,7 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Restores R196's recoverable clear-glass fragments without altering Silk Touch.
+ * Restores INFX's recoverable clear-glass fragments without altering Silk Touch.
  */
 public final class GlassShardLootModifier extends LootModifier {
     private static final Identifier GLASS_TABLE = Identifier.withDefaultNamespace("blocks/glass");

@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Uses the same R196-only entity radius for damage falloff as the server query and knockback. */
+/** Uses the same INFX-only entity radius for damage falloff as the server query and knockback. */
 @Mixin(ExplosionDamageCalculator.class)
 public abstract class ExplosionDamageCalculatorMixin {
     @Inject(method = "getEntityDamageAmount", at = @At("HEAD"), cancellable = true)

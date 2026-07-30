@@ -8,7 +8,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** The sixteen equally weighted witch curses defined by MITE R196. */
+/** The sixteen equally weighted witch curses defined by MITE INFX. */
 public enum CurseType implements StringRepresentable {
     EQUIPMENT_DECAYS_FASTER(1, "equipment_decay"),
     CANNOT_HOLD_BREATH(2, "cannot_hold_breath"),
@@ -63,7 +63,7 @@ public enum CurseType implements StringRepresentable {
         return id > 0 && id < BY_ID.length ? BY_ID[id] : null;
     }
 
-    /** Rejection sampling over the original 64-entry table preserves R196's exact selection order. */
+    /** Rejection sampling over the original 64-entry table preserves INFX's exact selection order. */
     public static CurseType random(Random random) {
         CurseType selected;
         do {

@@ -3,16 +3,16 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.item.Catalog;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.GelatinousSphereItem;
-import com.pixulse.infx.item.MiteMobBucketItem;
+import com.pixulse.infx.item.InfxMobBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
-import com.pixulse.infx.item.MiteSolidBucketItem;
+import com.pixulse.infx.item.InfxSolidBucketItem;
 import com.pixulse.infx.item.ToolItem;
 import com.pixulse.infx.item.RuneStoneItem;
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -91,7 +91,7 @@ public final class InfXItems {
     public static final DeferredItem<BlockItem> SNOW_SLAB = ITEMS.registerSimpleBlockItem(InfXBlocks.SNOW_SLAB);
     public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS =
             List.of(GRAVEL, NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
-    public static final List<DeferredItem<BlockItem>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
+    public static final List<DeferredItem<BlockItem>> INFX_RECIPE_BLOCKS = List.of(SNOW_SLAB);
     public static final DeferredItem<BlockItem> EMERALD_ENCHANTING_TABLE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.EMERALD_ENCHANTING_TABLE);
     public static final DeferredItem<BlockItem> DIAMOND_ENCHANTING_TABLE =
@@ -108,7 +108,7 @@ public final class InfXItems {
                     properties -> new BlockItem(anvil.get(), properties),
                     properties -> {
                         Item.Properties configured = properties.durability(anvil.get().maximumDamage());
-                        return anvil.get().material().has(MiteMaterial.Flag.LAVA_SAFE)
+                        return anvil.get().material().has(InfxMaterial.Flag.LAVA_SAFE)
                                 ? configured.fireResistant()
                                 : configured;
                     }))
@@ -189,7 +189,7 @@ public final class InfXItems {
     public static final DeferredItem<Item> WORM = food("worm", 1, 0.1F);
     public static final DeferredItem<Item> COOKED_WORM = food("cooked_worm", 3, 0.4F);
 
-    public static final List<DeferredItem<Item>> R196_FOODS = List.of(
+    public static final List<DeferredItem<Item>> INFX_FOODS = List.of(
             DOUGH,
             SALAD,
             BLUEBERRIES,
@@ -213,25 +213,25 @@ public final class InfXItems {
             WORM,
             COOKED_WORM);
 
-    public static final List<MiteMaterial> BUCKET_MATERIALS = List.of(
-            MiteMaterial.COPPER,
-            MiteMaterial.SILVER,
-            MiteMaterial.GOLD,
-            MiteMaterial.IRON,
-            MiteMaterial.ANCIENT_METAL,
-            MiteMaterial.MITHRIL,
-            MiteMaterial.ADAMANTIUM);
-    private static final Map<MiteMaterial, EnumMap<MiteBucketItem.Contents, DeferredItem<MiteBucketItem>>>
-            BUCKETS_BY_MATERIAL = new EnumMap<>(MiteMaterial.class);
-    public static final List<DeferredItem<MiteBucketItem>> R196_BUCKETS = registerBuckets();
+    public static final List<InfxMaterial> BUCKET_MATERIALS = List.of(
+            InfxMaterial.COPPER,
+            InfxMaterial.SILVER,
+            InfxMaterial.GOLD,
+            InfxMaterial.IRON,
+            InfxMaterial.ANCIENT_METAL,
+            InfxMaterial.MITHRIL,
+            InfxMaterial.ADAMANTIUM);
+    private static final Map<InfxMaterial, EnumMap<InfxBucketItem.Contents, DeferredItem<InfxBucketItem>>>
+            BUCKETS_BY_MATERIAL = new EnumMap<>(InfxMaterial.class);
+    public static final List<DeferredItem<InfxBucketItem>> INFX_BUCKETS = registerBuckets();
 
-    private static final Map<MiteMaterial, EnumMap<MobBucketKind, DeferredItem<MiteMobBucketItem>>>
-            MOB_BUCKETS_BY_MATERIAL = new EnumMap<>(MiteMaterial.class);
-    public static final List<DeferredItem<MiteMobBucketItem>> R196_MOB_BUCKETS = registerMobBuckets();
+    private static final Map<InfxMaterial, EnumMap<MobBucketKind, DeferredItem<InfxMobBucketItem>>>
+            MOB_BUCKETS_BY_MATERIAL = new EnumMap<>(InfxMaterial.class);
+    public static final List<DeferredItem<InfxMobBucketItem>> INFX_MOB_BUCKETS = registerMobBuckets();
 
-    private static final Map<MiteMaterial, DeferredItem<MiteSolidBucketItem>> POWDER_SNOW_BUCKETS_BY_MATERIAL =
-            new EnumMap<>(MiteMaterial.class);
-    public static final List<DeferredItem<MiteSolidBucketItem>> R196_POWDER_SNOW_BUCKETS =
+    private static final Map<InfxMaterial, DeferredItem<InfxSolidBucketItem>> POWDER_SNOW_BUCKETS_BY_MATERIAL =
+            new EnumMap<>(InfxMaterial.class);
+    public static final List<DeferredItem<InfxSolidBucketItem>> INFX_POWDER_SNOW_BUCKETS =
             registerPowderSnowBuckets();
 
     public static final DeferredItem<Item> BOTTLE_OF_DISENCHANTING = ITEMS.registerItem(
@@ -245,7 +245,7 @@ public final class InfXItems {
     public static final DeferredItem<Item> RECORD_DESCENT = record("record_descent", InfXJukeboxSongs.DESCENT);
     public static final DeferredItem<Item> RECORD_WANDERER = record("record_wanderer", InfXJukeboxSongs.WANDERER);
     public static final DeferredItem<Item> RECORD_LEGENDS = record("record_legends", InfXJukeboxSongs.LEGENDS);
-    public static final List<DeferredItem<Item>> R196_RECORDS =
+    public static final List<DeferredItem<Item>> INFX_RECORDS =
             List.of(RECORD_UNDERWORLD, RECORD_DESCENT, RECORD_WANDERER, RECORD_LEGENDS);
 
     public static final DeferredItem<GelatinousSphereItem> GREEN_GELATINOUS_SPHERE = gelatinousSphere(
@@ -265,7 +265,7 @@ public final class InfXItems {
             GRAY_GELATINOUS_SPHERE,
             BLACK_GELATINOUS_SPHERE);
 
-    /** One 26.2-style spawn egg for every R196 mob entity (excludes gelatinous_sphere projectile). */
+    /** One 26.2-style spawn egg for every INFX mob entity (excludes gelatinous_sphere projectile). */
     public static final List<DeferredItem<SpawnEggItem>> SPAWN_EGGS = registerSpawnEggs();
 
     private static final Catalog CATALOG = Catalog.register(ITEMS);
@@ -284,31 +284,31 @@ public final class InfXItems {
     public static final DeferredItem<Item> ADAMANTIUM_INGOT =
             CATALOG.raw("adamantium_ingot").holderAs(Item.class);
     public static final DeferredItem<ToolItem> FLINT_HATCHET =
-            CATALOG.equipment(MiteMaterial.FLINT, EquipmentType.HATCHET).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.FLINT, EquipmentType.HATCHET).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> FLINT_SHOVEL =
-            CATALOG.equipment(MiteMaterial.FLINT, EquipmentType.SHOVEL).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.FLINT, EquipmentType.SHOVEL).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> FLINT_AXE =
-            CATALOG.equipment(MiteMaterial.FLINT, EquipmentType.AXE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.FLINT, EquipmentType.AXE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> COPPER_PICKAXE =
-            CATALOG.equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> COPPER_SHOVEL =
-            CATALOG.equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> COPPER_AXE =
-            CATALOG.equipment(MiteMaterial.COPPER, EquipmentType.AXE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.COPPER, EquipmentType.AXE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> COPPER_HOE =
-            CATALOG.equipment(MiteMaterial.COPPER, EquipmentType.HOE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.COPPER, EquipmentType.HOE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> COPPER_SWORD =
-            CATALOG.equipment(MiteMaterial.COPPER, EquipmentType.SWORD).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.COPPER, EquipmentType.SWORD).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> IRON_PICKAXE =
-            CATALOG.equipment(MiteMaterial.IRON, EquipmentType.PICKAXE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.IRON, EquipmentType.PICKAXE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> IRON_SHOVEL =
-            CATALOG.equipment(MiteMaterial.IRON, EquipmentType.SHOVEL).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.IRON, EquipmentType.SHOVEL).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> IRON_AXE =
-            CATALOG.equipment(MiteMaterial.IRON, EquipmentType.AXE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.IRON, EquipmentType.AXE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> IRON_HOE =
-            CATALOG.equipment(MiteMaterial.IRON, EquipmentType.HOE).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.IRON, EquipmentType.HOE).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> IRON_SWORD =
-            CATALOG.equipment(MiteMaterial.IRON, EquipmentType.SWORD).holderAs(ToolItem.class);
+            CATALOG.equipment(InfxMaterial.IRON, EquipmentType.SWORD).holderAs(ToolItem.class);
 
     private InfXItems() {}
 
@@ -354,29 +354,29 @@ public final class InfXItems {
                                 .build(), consumable));
     }
 
-    private static List<DeferredItem<MiteBucketItem>> registerBuckets() {
-        List<DeferredItem<MiteBucketItem>> registered = new ArrayList<>();
-        for (MiteMaterial material : BUCKET_MATERIALS) {
-            EnumMap<MiteBucketItem.Contents, DeferredItem<MiteBucketItem>> variants =
-                    new EnumMap<>(MiteBucketItem.Contents.class);
+    private static List<DeferredItem<InfxBucketItem>> registerBuckets() {
+        List<DeferredItem<InfxBucketItem>> registered = new ArrayList<>();
+        for (InfxMaterial material : BUCKET_MATERIALS) {
+            EnumMap<InfxBucketItem.Contents, DeferredItem<InfxBucketItem>> variants =
+                    new EnumMap<>(InfxBucketItem.Contents.class);
             BUCKETS_BY_MATERIAL.put(material, variants);
-            for (MiteBucketItem.Contents contents : MiteBucketItem.Contents.values()) {
-                DeferredItem<MiteBucketItem> bucket = ITEMS.registerItem(
+            for (InfxBucketItem.Contents contents : InfxBucketItem.Contents.values()) {
+                DeferredItem<InfxBucketItem> bucket = ITEMS.registerItem(
                         contents.path(material),
-                        properties -> new MiteBucketItem(
+                        properties -> new InfxBucketItem(
                                 material,
                                 contents,
-                                () -> bucket(material, MiteBucketItem.Contents.EMPTY).value(),
-                                () -> bucket(material, MiteBucketItem.Contents.WATER).value(),
-                                () -> bucket(material, MiteBucketItem.Contents.LAVA).value(),
+                                () -> bucket(material, InfxBucketItem.Contents.EMPTY).value(),
+                                () -> bucket(material, InfxBucketItem.Contents.WATER).value(),
+                                () -> bucket(material, InfxBucketItem.Contents.LAVA).value(),
                                 properties),
                         properties -> {
                             Item.Properties configured = properties.stacksTo(
-                                    contents == MiteBucketItem.Contents.EMPTY ? 8 : 1);
-                            if (contents == MiteBucketItem.Contents.MILK) {
+                                    contents == InfxBucketItem.Contents.EMPTY ? 8 : 1);
+                            if (contents == InfxBucketItem.Contents.MILK) {
                                 configured.component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET);
                             }
-                            return material == MiteMaterial.ADAMANTIUM
+                            return material == InfxMaterial.ADAMANTIUM
                                     ? configured.fireResistant()
                                     : configured;
                         });
@@ -387,19 +387,19 @@ public final class InfXItems {
         return List.copyOf(registered);
     }
 
-    private static List<DeferredItem<MiteMobBucketItem>> registerMobBuckets() {
-        List<DeferredItem<MiteMobBucketItem>> registered = new ArrayList<>();
-        for (MiteMaterial material : BUCKET_MATERIALS) {
-            EnumMap<MobBucketKind, DeferredItem<MiteMobBucketItem>> variants =
+    private static List<DeferredItem<InfxMobBucketItem>> registerMobBuckets() {
+        List<DeferredItem<InfxMobBucketItem>> registered = new ArrayList<>();
+        for (InfxMaterial material : BUCKET_MATERIALS) {
+            EnumMap<MobBucketKind, DeferredItem<InfxMobBucketItem>> variants =
                     new EnumMap<>(MobBucketKind.class);
             MOB_BUCKETS_BY_MATERIAL.put(material, variants);
             for (MobBucketKind kind : MobBucketKind.values()) {
-                DeferredItem<MiteMobBucketItem> bucket = ITEMS.registerItem(
+                DeferredItem<InfxMobBucketItem> bucket = ITEMS.registerItem(
                         kind.path(material),
-                        properties -> new MiteMobBucketItem(
+                        properties -> new InfxMobBucketItem(
                                 material,
                                 kind,
-                                () -> bucket(material, MiteBucketItem.Contents.EMPTY).value(),
+                                () -> bucket(material, InfxBucketItem.Contents.EMPTY).value(),
                                 properties),
                         properties -> {
                             Item.Properties configured = properties
@@ -408,7 +408,7 @@ public final class InfXItems {
                             if (kind.food() != null) {
                                 configured.component(DataComponents.FOOD, kind.food());
                             }
-                            return material == MiteMaterial.ADAMANTIUM
+                            return material == InfxMaterial.ADAMANTIUM
                                     ? configured.fireResistant()
                                     : configured;
                         });
@@ -419,20 +419,20 @@ public final class InfXItems {
         return List.copyOf(registered);
     }
 
-    private static List<DeferredItem<MiteSolidBucketItem>> registerPowderSnowBuckets() {
-        List<DeferredItem<MiteSolidBucketItem>> registered = new ArrayList<>();
-        for (MiteMaterial material : BUCKET_MATERIALS) {
-            DeferredItem<MiteSolidBucketItem> bucket = ITEMS.registerItem(
+    private static List<DeferredItem<InfxSolidBucketItem>> registerPowderSnowBuckets() {
+        List<DeferredItem<InfxSolidBucketItem>> registered = new ArrayList<>();
+        for (InfxMaterial material : BUCKET_MATERIALS) {
+            DeferredItem<InfxSolidBucketItem> bucket = ITEMS.registerItem(
                     "powder_snow_" + material.path() + "_bucket",
-                    properties -> new MiteSolidBucketItem(
+                    properties -> new InfxSolidBucketItem(
                             material,
                             Blocks.POWDER_SNOW,
                             SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
-                            () -> bucket(material, MiteBucketItem.Contents.EMPTY).value(),
+                            () -> bucket(material, InfxBucketItem.Contents.EMPTY).value(),
                             properties),
                     properties -> {
                         Item.Properties configured = properties.stacksTo(1);
-                        return material == MiteMaterial.ADAMANTIUM
+                        return material == InfxMaterial.ADAMANTIUM
                                 ? configured.fireResistant()
                                 : configured;
                     });
@@ -467,24 +467,24 @@ public final class InfXItems {
         return List.copyOf(eggs);
     }
 
-    public static DeferredItem<MiteBucketItem> bucket(MiteMaterial material, MiteBucketItem.Contents contents) {
-        EnumMap<MiteBucketItem.Contents, DeferredItem<MiteBucketItem>> variants = BUCKETS_BY_MATERIAL.get(material);
+    public static DeferredItem<InfxBucketItem> bucket(InfxMaterial material, InfxBucketItem.Contents contents) {
+        EnumMap<InfxBucketItem.Contents, DeferredItem<InfxBucketItem>> variants = BUCKETS_BY_MATERIAL.get(material);
         if (variants == null || !variants.containsKey(contents)) {
             throw new IllegalArgumentException("No bucket registered for " + material + " / " + contents);
         }
         return variants.get(contents);
     }
 
-    public static DeferredItem<MiteMobBucketItem> mobBucket(MiteMaterial material, MobBucketKind kind) {
-        EnumMap<MobBucketKind, DeferredItem<MiteMobBucketItem>> variants = MOB_BUCKETS_BY_MATERIAL.get(material);
+    public static DeferredItem<InfxMobBucketItem> mobBucket(InfxMaterial material, MobBucketKind kind) {
+        EnumMap<MobBucketKind, DeferredItem<InfxMobBucketItem>> variants = MOB_BUCKETS_BY_MATERIAL.get(material);
         if (variants == null || !variants.containsKey(kind)) {
             throw new IllegalArgumentException("No mob bucket registered for " + material + " / " + kind);
         }
         return variants.get(kind);
     }
 
-    public static DeferredItem<MiteSolidBucketItem> powderSnowBucket(MiteMaterial material) {
-        DeferredItem<MiteSolidBucketItem> bucket = POWDER_SNOW_BUCKETS_BY_MATERIAL.get(material);
+    public static DeferredItem<InfxSolidBucketItem> powderSnowBucket(InfxMaterial material) {
+        DeferredItem<InfxSolidBucketItem> bucket = POWDER_SNOW_BUCKETS_BY_MATERIAL.get(material);
         if (bucket == null) {
             throw new IllegalArgumentException("No powder snow bucket registered for " + material);
         }

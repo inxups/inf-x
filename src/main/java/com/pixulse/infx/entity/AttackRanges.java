@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.AABB;
 
-/** Exact R196 melee and contact predicates, independent from modern hitbox-expanded reach. */
+/** Exact INFX melee and contact predicates, independent from modern hitbox-expanded reach. */
 final class AttackRanges {
     static final double NEW_AI_REACH = 1.5;
     static final double OLD_AI_REACH = 1.75;

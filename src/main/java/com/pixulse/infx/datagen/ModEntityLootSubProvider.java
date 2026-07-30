@@ -1,7 +1,7 @@
 package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import java.util.stream.Stream;
@@ -59,7 +59,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
     public void generate() {
         // MITE zombie flesh: one piece at 50% for player kills, 25% otherwise. Rare drops
         // are procedural because a villager zombie uses a different MITE item pool.
-        zombieDrops(InfXEntityTypes.R196_ZOMBIE.get());
+        zombieDrops(InfXEntityTypes.INFX_ZOMBIE.get());
         zombieDrops(InfXEntityTypes.WIGHT.get());
         zombieDrops(InfXEntityTypes.REVENANT.get());
         // MITE ghouls, stalkers and shadows drop nothing at all.
@@ -68,17 +68,17 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         emptyDrops(InfXEntityTypes.SHADOW.get());
 
         for (var type : java.util.List.of(
-                InfXEntityTypes.R196_SKELETON,
+                InfXEntityTypes.INFX_SKELETON,
                 InfXEntityTypes.LONGDEAD,
                 InfXEntityTypes.BONE_LORD,
                 InfXEntityTypes.ANCIENT_BONE_LORD)) {
             drops(type.get(), Items.BONE, 0.0F, 2.0F);
         }
 
-        // MiteSpider emits its actual remaining web stock on player death. The data table
+        // InfxSpider emits its actual remaining web stock on player death. The data table
         // retains the independent one-in-three spider eye roll; phase spiders have no webs.
-        spiderDrops(InfXEntityTypes.R196_SPIDER.get());
-        spiderDrops(InfXEntityTypes.R196_CAVE_SPIDER.get());
+        spiderDrops(InfXEntityTypes.INFX_SPIDER.get());
+        spiderDrops(InfXEntityTypes.INFX_CAVE_SPIDER.get());
         spiderDrops(InfXEntityTypes.BLACK_WIDOW_SPIDER.get());
         spiderDrops(InfXEntityTypes.DEMON_SPIDER.get());
         spiderDrops(InfXEntityTypes.WOOD_SPIDER.get());
@@ -88,18 +88,18 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
         // MITE creepers keep their powder for player kills and yield a disc to skeleton kills.
         add(
-                InfXEntityTypes.R196_CREEPER.get(),
+                InfXEntityTypes.INFX_CREEPER.get(),
                 LootTable.lootTable()
                         .withPool(killedByPlayerPool(Items.GUNPOWDER, 0.0F, 2.0F))
                         .withPool(creeperMusicDiscPool()));
         // EntityInfernalCreeper's nested count, Looting and non-player reduction rolls are
-        // procedural, so MiteCreeper performs the powder rolls at death. Its inherited skeleton
+        // procedural, so InfxCreeper performs the powder rolls at death. Its inherited skeleton
         // disc drop remains data-driven here.
         add(
                 InfXEntityTypes.INFERNAL_CREEPER.get(),
                 LootTable.lootTable().withPool(creeperMusicDiscPool()));
 
-        emptyDrops(InfXEntityTypes.R196_SLIME.get());
+        emptyDrops(InfXEntityTypes.INFX_SLIME.get());
         for (var type : java.util.List.of(
                 InfXEntityTypes.JELLY,
                 InfXEntityTypes.BLOB,
@@ -125,7 +125,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         // MITE endermen roll nextInt(2 + looting), so the normal 0-1 pearl roll
         // receives the same per-level random count increase as blaze rods.
         add(
-                InfXEntityTypes.R196_ENDERMAN.get(),
+                InfXEntityTypes.INFX_ENDERMAN.get(),
                 LootTable.lootTable().withPool(
                         LootPool.lootPool()
                                 .setRolls(ConstantValue.exactly(1.0F))
@@ -135,18 +135,18 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                                 lookup, UniformGenerator.between(0.0F, 1.0F))))));
         // MITE squid surrender exactly one ink sac, and only to player kills.
         add(
-                InfXEntityTypes.R196_SQUID.get(),
+                InfXEntityTypes.INFX_SQUID.get(),
                 LootTable.lootTable().withPool(killedByPlayerPool(Items.INK_SAC, 1.0F, 1.0F)));
-        drops(InfXEntityTypes.R196_COD.get(), Items.COD, 1.0F, 1.0F);
-        drops(InfXEntityTypes.R196_SALMON.get(), Items.SALMON, 1.0F, 1.0F);
-        drops(InfXEntityTypes.R196_PUFFERFISH.get(), Items.PUFFERFISH, 1.0F, 1.0F);
-        drops(InfXEntityTypes.R196_TROPICAL_FISH.get(), Items.TROPICAL_FISH, 1.0F, 1.0F);
+        drops(InfXEntityTypes.INFX_COD.get(), Items.COD, 1.0F, 1.0F);
+        drops(InfXEntityTypes.INFX_SALMON.get(), Items.SALMON, 1.0F, 1.0F);
+        drops(InfXEntityTypes.INFX_PUFFERFISH.get(), Items.PUFFERFISH, 1.0F, 1.0F);
+        drops(InfXEntityTypes.INFX_TROPICAL_FISH.get(), Items.TROPICAL_FISH, 1.0F, 1.0F);
 
         witchDrops();
 
         // MITE pig zombies: flesh like zombies, loose nuggets, and a rare gold ingot.
         add(
-                InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(),
+                InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get(),
                 LootTable.lootTable()
                         .withPool(fleshPool())
                         .withPool(LootPool.lootPool()
@@ -164,7 +164,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
         // MITE blaze rods: nextInt(2 + looting), player kills only.
         add(
-                InfXEntityTypes.R196_BLAZE.get(),
+                InfXEntityTypes.INFX_BLAZE.get(),
                 LootTable.lootTable().withPool(
                         LootPool.lootPool()
                                 .setRolls(ConstantValue.exactly(1.0F))
@@ -177,7 +177,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         emptyDrops(InfXEntityTypes.FIRE_ELEMENTAL.get());
         // MITE ghasts carry both powder and the tear the brewing chain depends on.
         add(
-                InfXEntityTypes.R196_GHAST.get(),
+                InfXEntityTypes.INFX_GHAST.get(),
                 LootTable.lootTable()
                         .withPool(itemPool(Items.GHAST_TEAR, 0.0F, 1.0F))
                         .withPool(itemPool(Items.GUNPOWDER, 0.0F, 2.0F)));
@@ -193,7 +193,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
             add(type.get(), LootTable.lootTable());
         }
         for (var type : java.util.List.of(
-                InfXEntityTypes.R196_BAT,
+                InfXEntityTypes.INFX_BAT,
                 InfXEntityTypes.VAMPIRE_BAT,
                 InfXEntityTypes.NIGHTWING,
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
@@ -203,27 +203,27 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         emptyDrops(InfXEntityTypes.HELLHOUND.get());
         drops(InfXEntityTypes.DIRE_WOLF.get(), Items.LEATHER, 1.0F, 1.0F);
 
-        // R196 livestock replacements: simplified 26.2-style drops (models reuse vanilla assets).
+        // INFX livestock replacements: simplified 26.2-style drops (models reuse vanilla assets).
         add(
-                InfXEntityTypes.R196_COW.get(),
+                InfXEntityTypes.INFX_COW.get(),
                 LootTable.lootTable()
                         .withPool(itemPool(Items.LEATHER, 0.0F, 2.0F))
                         .withPool(itemPool(Items.BEEF, 1.0F, 3.0F)));
         add(
-                InfXEntityTypes.R196_CHICKEN.get(),
+                InfXEntityTypes.INFX_CHICKEN.get(),
                 LootTable.lootTable()
                         .withPool(itemPool(Items.FEATHER, 0.0F, 2.0F))
                         .withPool(itemPool(Items.CHICKEN, 1.0F, 1.0F)));
         // Mutton + one matching wool block when not sheared (inline; no nested vanilla tables).
         add(
-                InfXEntityTypes.R196_SHEEP.get(),
+                InfXEntityTypes.INFX_SHEEP.get(),
                 LootTable.lootTable()
                         .withPool(itemPool(Items.MUTTON, 1.0F, 2.0F))
                         .withPool(sheepWoolPool()));
-        drops(InfXEntityTypes.R196_PIG.get(), Items.PORKCHOP, 1.0F, 3.0F);
-        drops(InfXEntityTypes.R196_HORSE.get(), Items.LEATHER, 0.0F, 2.0F);
-        emptyDrops(InfXEntityTypes.R196_OCELOT.get());
-        drops(InfXEntityTypes.R196_WOLF.get(), Items.LEATHER, 1.0F, 1.0F);
+        drops(InfXEntityTypes.INFX_PIG.get(), Items.PORKCHOP, 1.0F, 3.0F);
+        drops(InfXEntityTypes.INFX_HORSE.get(), Items.LEATHER, 0.0F, 2.0F);
+        emptyDrops(InfXEntityTypes.INFX_OCELOT.get());
+        drops(InfXEntityTypes.INFX_WOLF.get(), Items.LEATHER, 1.0F, 1.0F);
     }
 
     /** MITE witches roll 1-5 draws from an 18-slot table (stick twice, one slot of six potions). */
@@ -249,7 +249,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         }
         pool.add(LootItem.lootTableItem(InfXItems.ONION.get()).setWeight(6));
         pool.add(LootItem.lootTableItem(
-                        InfXItems.catalog().equipment(MiteMaterial.FLINT, EquipmentType.KNIFE).holder())
+                        InfXItems.catalog().equipment(InfxMaterial.FLINT, EquipmentType.KNIFE).holder())
                 .setWeight(6));
         pool.add(LootItem.lootTableItem(Items.STICK).setWeight(12));
         pool.add(potionEntry(Items.POTION, Potions.FIRE_RESISTANCE));
@@ -258,7 +258,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         pool.add(potionEntry(Items.SPLASH_POTION, Potions.WEAKNESS));
         pool.add(potionEntry(Items.SPLASH_POTION, Potions.SLOWNESS));
         pool.add(potionEntry(Items.SPLASH_POTION, Potions.HARMING));
-        add(InfXEntityTypes.R196_WITCH.get(), LootTable.lootTable().withPool(pool));
+        add(InfXEntityTypes.INFX_WITCH.get(), LootTable.lootTable().withPool(pool));
     }
 
     private static LootPoolEntryContainer.Builder<?> potionEntry(

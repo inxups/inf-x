@@ -1,14 +1,14 @@
 package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.block.MiteCropBlock;
-import com.pixulse.infx.block.MiteCropType;
+import com.pixulse.infx.block.InfxCropBlock;
+import com.pixulse.infx.block.InfxCropType;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
@@ -84,7 +84,7 @@ final class ModModelProvider extends ModelProvider {
             Optional.empty(),
             TextureSlot.PARTICLE,
             PORTAL);
-    private static final ModelTemplate MITE_EMERALD_ENCHANTING_TABLE_MODEL = new ModelTemplate(
+    private static final ModelTemplate INFX_EMERALD_ENCHANTING_TABLE_MODEL = new ModelTemplate(
             Optional.of(Identifier.withDefaultNamespace("block/enchanting_table")),
             Optional.empty(),
             TextureSlot.PARTICLE,
@@ -104,8 +104,8 @@ final class ModModelProvider extends ModelProvider {
                         InfXBlocks.METAL_SAFES.stream().map(block -> (Block) block.value()),
                         InfXBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
                         InfXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
-                        InfXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()),
-                        InfXBlocks.MITE_CROPS.stream().map(block -> (Block) block.value()))
+                        InfXBlocks.INFX_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()),
+                        InfXBlocks.INFX_CROPS.stream().map(block -> (Block) block.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
@@ -128,16 +128,16 @@ final class ModModelProvider extends ModelProvider {
                         InfXItems.ENCHANTING_TABLES.stream().map(item -> (Item) item.value()),
                         InfXItems.METAL_SAFES.stream().map(item -> (Item) item.value()),
                         InfXItems.FULLTEXT_BLOCKS.stream().map(item -> (Item) item.value()),
-                        InfXItems.MITE_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
-                        InfXItems.R196_BUCKETS.stream().map(item -> (Item) item.value()),
-                        InfXItems.R196_MOB_BUCKETS.stream().map(item -> (Item) item.value()),
-                        InfXItems.R196_POWDER_SNOW_BUCKETS.stream().map(item -> (Item) item.value()),
-                        InfXItems.R196_RECORDS.stream().map(DeferredHolder::value),
+                        InfXItems.INFX_RECIPE_BLOCKS.stream().map(item -> (Item) item.value()),
+                        InfXItems.INFX_BUCKETS.stream().map(item -> (Item) item.value()),
+                        InfXItems.INFX_MOB_BUCKETS.stream().map(item -> (Item) item.value()),
+                        InfXItems.INFX_POWDER_SNOW_BUCKETS.stream().map(item -> (Item) item.value()),
+                        InfXItems.INFX_RECORDS.stream().map(DeferredHolder::value),
                         InfXItems.GELATINOUS_SPHERES.stream().map(item -> (Item) item.value()),
                         Stream.of(InfXItems.BOTTLE_OF_DISENCHANTING.value()),
                         Stream.concat(
                                 Stream.of(InfXItems.FLOUR.value(), InfXItems.WATER_BOWL.value()),
-                                InfXItems.R196_FOODS.stream().map(DeferredHolder::value)))
+                                InfXItems.INFX_FOODS.stream().map(DeferredHolder::value)))
                 .flatMap(stream -> stream)
                 .map(BuiltInRegistries.ITEM::wrapAsHolder);
     }
@@ -156,7 +156,7 @@ final class ModModelProvider extends ModelProvider {
         blockModels.createCrossBlockWithDefaultItem(
                 InfXBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
         generateBlueberryBush(blockModels);
-        InfXBlocks.MITE_CROPS.forEach(crop -> generateMiteCrop(blockModels, crop.value()));
+        InfXBlocks.INFX_CROPS.forEach(crop -> generateInfxCrop(blockModels, crop.value()));
         blockModels.createTrivialCube(InfXBlocks.GRAVEL.value());
         blockModels.createTrivialCube(InfXBlocks.NETHER_GRAVEL.value());
         blockModels.createTrivialCube(InfXBlocks.CORE.value());
@@ -174,7 +174,7 @@ final class ModModelProvider extends ModelProvider {
         generateRuneStone(blockModels, itemModels, InfXBlocks.ADAMANTIUM_RUNE_STONE.value(), "adamantium");
         InfXBlocks.ENCHANTING_TABLES.forEach(table -> {
             Identifier model = table == InfXBlocks.EMERALD_ENCHANTING_TABLE
-                    ? MITE_EMERALD_ENCHANTING_TABLE_MODEL.create(
+                    ? INFX_EMERALD_ENCHANTING_TABLE_MODEL.create(
                             ModelLocationUtils.getModelLocation(table.value()),
                             new TextureMapping()
                                     .put(TextureSlot.PARTICLE, new Material(
@@ -195,20 +195,20 @@ final class ModModelProvider extends ModelProvider {
         generateRunegatePortal(blockModels, InfXBlocks.RETURN_SPAWN_PORTAL.value());
         InfXItems.catalog().rawEntries().forEach(
                 entry -> itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_ITEM));
-        InfXItems.R196_BUCKETS.forEach(bucket ->
+        InfXItems.INFX_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
-        InfXItems.R196_MOB_BUCKETS.forEach(bucket ->
+        InfXItems.INFX_MOB_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
-        InfXItems.R196_POWDER_SNOW_BUCKETS.forEach(bucket ->
+        InfXItems.INFX_POWDER_SNOW_BUCKETS.forEach(bucket ->
                 itemModels.generateFlatItem(bucket.value(), ModelTemplates.FLAT_ITEM));
-        InfXItems.R196_RECORDS.forEach(record ->
+        InfXItems.INFX_RECORDS.forEach(record ->
                 itemModels.generateFlatItem(record.value(), ModelTemplates.FLAT_ITEM));
         generateGelatinousSphereModels(itemModels);
         InfXItems.SPAWN_EGGS.forEach(egg -> generateSpawnEggModel(itemModels, egg.value()));
         itemModels.generateFlatItem(InfXItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
-        generateR196FoodModels(itemModels);
+        generateInfxFoodModels(itemModels);
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
-            if (entry.key().material() == MiteMaterial.LEATHER
+            if (entry.key().material() == InfxMaterial.LEATHER
                     && entry.key().type().armorForm() == EquipmentType.ArmorForm.PLATE) {
                 itemModels.generateTwoLayerDyedItem(entry.holder().value());
                 continue;
@@ -272,8 +272,8 @@ final class ModModelProvider extends ModelProvider {
         blockModels.registerSimpleItemModel(bush, picked);
     }
 
-    private static void generateMiteCrop(BlockModelGenerators blockModels, MiteCropBlock crop) {
-        MiteCropType type = crop.type();
+    private static void generateInfxCrop(BlockModelGenerators blockModels, InfxCropBlock crop) {
+        InfxCropType type = crop.type();
         Identifier[] healthy = new Identifier[type.textureStages()];
         Identifier[] blighted = new Identifier[type.textureStages()];
         Identifier[] dead = new Identifier[type.deadTextureStages()];
@@ -300,7 +300,7 @@ final class ModModelProvider extends ModelProvider {
                     blockModels.modelOutput);
         }
 
-        var states = PropertyDispatch.initial(CropBlock.AGE, MiteCropBlock.BLIGHTED, MiteCropBlock.DEAD);
+        var states = PropertyDispatch.initial(CropBlock.AGE, InfxCropBlock.BLIGHTED, InfxCropBlock.DEAD);
         for (int age = 0; age <= CropBlock.MAX_AGE; age++) {
             int healthyStage = type.textureStage(age);
             int deadStage = type.deadTextureStage(age);
@@ -371,7 +371,7 @@ final class ModModelProvider extends ModelProvider {
         blockModels.registerSimpleItemModel(InfXBlocks.SNOW_SLAB.value(), bottom);
     }
 
-    private static void generateR196FoodModels(ItemModelGenerators models) {
+    private static void generateInfxFoodModels(ItemModelGenerators models) {
         Map<Item, String> textures = Map.ofEntries(
                 Map.entry(InfXItems.FLOUR.value(), "flour"),
                 Map.entry(InfXItems.WATER_BOWL.value(), "water_bowl"),
@@ -424,7 +424,7 @@ final class ModModelProvider extends ModelProvider {
 
     /**
      * Vanilla chest split: particle-only block model for chunk meshes, chest special
-     * model for inventory, and {@code R196SafeRenderer} BER for the placed block.
+     * model for inventory, and {@code SafeSpecialRenderer} BER for the placed block.
      */
     private static void generateMetalSafe(BlockModelGenerators models, SafeBlock safe) {
         Material particle = new Material(safeParticleTexture(safe.material()));
@@ -441,7 +441,7 @@ final class ModModelProvider extends ModelProvider {
                         new SafeSpecialRenderer.Unbaked(InfiniteX.id(safe.material().path()))));
     }
 
-    private static Identifier safeParticleTexture(MiteMaterial material) {
+    private static Identifier safeParticleTexture(InfxMaterial material) {
         return switch (material) {
             case COPPER -> Identifier.withDefaultNamespace("block/copper_block");
             case GOLD -> Identifier.withDefaultNamespace("block/gold_block");
@@ -513,18 +513,7 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateSpawnEggModel(ItemModelGenerators itemModels, Item egg) {
-        String path = BuiltInRegistries.ITEM.getKey(egg).getPath();
-        if (!path.startsWith("r196_")) {
-            itemModels.generateFlatItem(egg, ModelTemplates.FLAT_ITEM);
-            return;
-        }
-        Identifier model = ModelLocationUtils.getModelLocation(egg);
-        ModelTemplates.FLAT_ITEM.create(
-                model,
-                TextureMapping.layer0(new Material(
-                        InfiniteX.id("item/infx" + path.substring("r196".length())))),
-                itemModels.modelOutput);
-        itemModels.itemModelOutput.accept(egg, ItemModelUtils.plainModel(model));
+        itemModels.generateFlatItem(egg, ModelTemplates.FLAT_ITEM);
     }
 
     private static void generateMaterialBow(
@@ -534,8 +523,8 @@ final class ModModelProvider extends ModelProvider {
                 itemModels,
                 ModelLocationUtils.getModelLocation(bow),
                 InfiniteX.id("item/" + entry.path())));
-        EnumMap<MiteMaterial, ItemModel.Unbaked> pulls = new EnumMap<>(MiteMaterial.class);
-        for (MiteMaterial material : arrowMaterials()) {
+        EnumMap<InfxMaterial, ItemModel.Unbaked> pulls = new EnumMap<>(InfxMaterial.class);
+        for (InfxMaterial material : arrowMaterials()) {
             ItemModel.Unbaked[] frames = new ItemModel.Unbaked[3];
             for (int frame = 0; frame < frames.length; frame++) {
                 Identifier id = InfiniteX.id(
@@ -547,7 +536,7 @@ final class ModModelProvider extends ModelProvider {
 
         ItemModel.Unbaked nocked = ItemModelUtils.select(
                 new ComponentContents<>(InfXDataComponents.NOCKED_ARROW_MATERIAL.get()),
-                pulls.get(MiteMaterial.FLINT),
+                pulls.get(InfxMaterial.FLINT),
                 arrowMaterials().stream()
                         .map(material -> ItemModelUtils.when(material.path(), pulls.get(material)))
                         .toList());
@@ -574,8 +563,8 @@ final class ModModelProvider extends ModelProvider {
                 ItemModelUtils.override(frame2, .9F));
     }
 
-    private static List<MiteMaterial> arrowMaterials() {
-        return Arrays.stream(MiteMaterial.values())
+    private static List<InfxMaterial> arrowMaterials() {
+        return Arrays.stream(InfxMaterial.values())
                 .filter(EquipmentType.ARROW::allows)
                 .toList();
     }

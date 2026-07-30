@@ -60,10 +60,10 @@ class AttackRangesTest {
 
     @Test
     void explosionEntityRadiiKeepR196SourceMappingAndChargeMultiplier() {
-        assertEquals(4.4, ExplosionRanges.creeperEntityRadius(MiteCreeper.Variant.CREEPER, false), EPSILON);
-        assertEquals(8.8, ExplosionRanges.creeperEntityRadius(MiteCreeper.Variant.CREEPER, true), EPSILON);
-        assertEquals(8.8, ExplosionRanges.creeperEntityRadius(MiteCreeper.Variant.INFERNAL, false), EPSILON);
-        assertEquals(17.6, ExplosionRanges.creeperEntityRadius(MiteCreeper.Variant.INFERNAL, true), EPSILON);
+        assertEquals(4.4, ExplosionRanges.creeperEntityRadius(InfxCreeper.Variant.CREEPER, false), EPSILON);
+        assertEquals(8.8, ExplosionRanges.creeperEntityRadius(InfxCreeper.Variant.CREEPER, true), EPSILON);
+        assertEquals(8.8, ExplosionRanges.creeperEntityRadius(InfxCreeper.Variant.INFERNAL, false), EPSILON);
+        assertEquals(17.6, ExplosionRanges.creeperEntityRadius(InfxCreeper.Variant.INFERNAL, true), EPSILON);
         assertEquals(4.0, ExplosionRanges.NETHERSPAWN_ENTITY_RADIUS, EPSILON);
         assertEquals(4.0, ExplosionRanges.GHAST_FIREBALL_ENTITY_RADIUS, EPSILON);
         assertTrue(ExplosionRanges.entityRadius((net.minecraft.world.entity.Entity) null).isEmpty());

@@ -19,7 +19,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-/** R196 open-fire cooking: raw food cooks, cooked food later burns away. */
+/** INFX open-fire cooking: raw food cooks, cooked food later burns away. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class FireCookingEvents {
     private static final String COOK_AT = "infx_fire_cook_at";

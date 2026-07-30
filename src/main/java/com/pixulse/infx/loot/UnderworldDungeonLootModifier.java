@@ -2,9 +2,9 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXLootModifiers;
 import com.pixulse.infx.world.Underworld;
@@ -18,7 +18,7 @@ import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
 import org.jspecify.annotations.NonNull;
 
-/** Adds R196's eight-roll ancient-metal pool only to Underworld monster rooms. */
+/** Adds INFX's eight-roll ancient-metal pool only to Underworld monster rooms. */
 public final class UnderworldDungeonLootModifier extends LootModifier {
     private static final Identifier SIMPLE_DUNGEON = Identifier.withDefaultNamespace("chests/simple_dungeon");
     private static final List<EquipmentType> EQUIPMENT = List.of(
@@ -68,12 +68,12 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
         }
         if (value < 27) {
             return InfXItems.bucket(
-                            MiteMaterial.ANCIENT_METAL,
-                            MiteBucketItem.Contents.EMPTY)
+                            InfxMaterial.ANCIENT_METAL,
+                            InfxBucketItem.Contents.EMPTY)
                     .toStack();
         }
         if (value < 31) {
-            return InfXItems.R196_RECORDS.get(value - 27).toStack();
+            return InfXItems.INFX_RECORDS.get(value - 27).toStack();
         }
         if (value < 36) {
             return equipment(EquipmentType.HORSE_ARMOR);
@@ -85,7 +85,7 @@ public final class UnderworldDungeonLootModifier extends LootModifier {
     }
 
     private static ItemStack equipment(EquipmentType type) {
-        return InfXItems.catalog().equipment(MiteMaterial.ANCIENT_METAL, type).holder().toStack();
+        return InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, type).holder().toStack();
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.data.harvest.ToolWearApplication;
-import com.pixulse.infx.data.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.InfxMiningRules;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -41,12 +41,12 @@ public class ToolItem extends Item {
 
     @Override
     public float getDestroySpeed(@NonNull ItemStack stack, @NonNull BlockState state) {
-        return MiteMiningRules.destroySpeed(key, state);
+        return InfxMiningRules.destroySpeed(key, state);
     }
 
     @Override
     public boolean isCorrectToolForDrops(@NonNull ItemStack stack, @NonNull BlockState state) {
-        return MiteMiningRules.canHarvest(key, state);
+        return InfxMiningRules.canHarvest(key, state);
     }
 
     @Override

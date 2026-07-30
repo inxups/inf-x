@@ -6,7 +6,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jspecify.annotations.NonNull;
 
 /** The distinct heat-one oven body that accepts full blocks and other large inputs. */
-public final class LargeClayOvenBlock extends MiteFurnaceBlock {
+public final class LargeClayOvenBlock extends InfxFurnaceBlock {
     public static final MapCodec<LargeClayOvenBlock> CODEC = simpleCodec(LargeClayOvenBlock::new);
 
     public LargeClayOvenBlock(BlockBehaviour.Properties properties) {

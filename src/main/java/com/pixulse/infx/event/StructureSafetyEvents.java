@@ -17,7 +17,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.levelgen.structure.StructureStart;
 import net.neoforged.neoforge.event.level.ChunkEvent;
 
-/** Adds the four R196 safety torches above newly generated desert-pyramid treasure chests. */
+/** Adds the four INFX safety torches above newly generated desert-pyramid treasure chests. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StructureSafetyEvents {
     private StructureSafetyEvents() {}

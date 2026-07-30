@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import java.util.Optional;
@@ -20,16 +20,16 @@ import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-/** Deterministic policy and runtime helpers for R196 monster coordination. */
+/** Deterministic policy and runtime helpers for INFX monster coordination. */
 public final class MonsterTactics {
     private static final String DIG_POS = "infx_monster_dig_pos";
     private static final String DIG_PROGRESS = "infx_monster_dig_progress";
-    private static final List<MiteMaterial> GEAR_MATERIALS = List.of(
-            MiteMaterial.COPPER,
-            MiteMaterial.IRON,
-            MiteMaterial.ANCIENT_METAL,
-            MiteMaterial.MITHRIL,
-            MiteMaterial.ADAMANTIUM);
+    private static final List<InfxMaterial> GEAR_MATERIALS = List.of(
+            InfxMaterial.COPPER,
+            InfxMaterial.IRON,
+            InfxMaterial.ANCIENT_METAL,
+            InfxMaterial.MITHRIL,
+            InfxMaterial.ADAMANTIUM);
 
     private MonsterTactics() {}
 
@@ -37,12 +37,12 @@ public final class MonsterTactics {
         return Math.max(1L, level.getOverworldClockTime() / 24_000L + 1L);
     }
 
-    public static MiteMaterial maximumGearMaterial(long day) {
-        if (day >= 256L) return MiteMaterial.ADAMANTIUM;
-        if (day >= 128L) return MiteMaterial.MITHRIL;
-        if (day >= 64L) return MiteMaterial.ANCIENT_METAL;
-        if (day >= 32L) return MiteMaterial.IRON;
-        return MiteMaterial.COPPER;
+    public static InfxMaterial maximumGearMaterial(long day) {
+        if (day >= 256L) return InfxMaterial.ADAMANTIUM;
+        if (day >= 128L) return InfxMaterial.MITHRIL;
+        if (day >= 64L) return InfxMaterial.ANCIENT_METAL;
+        if (day >= 32L) return InfxMaterial.IRON;
+        return InfxMaterial.COPPER;
     }
 
     public static float equipmentChance(long day) {
@@ -79,17 +79,17 @@ public final class MonsterTactics {
         long day = survivalDay(level);
         if (mob.getRandom().nextFloat() >= equipmentChance(day)) return;
         int maximum = GEAR_MATERIALS.indexOf(maximumGearMaterial(day));
-        MiteMaterial material = GEAR_MATERIALS.get(mob.getRandom().nextInt(maximum + 1));
+        InfxMaterial material = GEAR_MATERIALS.get(mob.getRandom().nextInt(maximum + 1));
 
         EquipmentType weaponType = EquipmentType.SWORD;
-        MiteMaterial weaponMaterial = material;
+        InfxMaterial weaponMaterial = material;
         if (mob instanceof AbstractSkeleton && mob.getRandom().nextBoolean()) {
             weaponType = EquipmentType.BOW;
-            weaponMaterial = material.ordinal() >= MiteMaterial.MITHRIL.ordinal()
-                    ? MiteMaterial.MITHRIL
-                    : material.ordinal() == MiteMaterial.ANCIENT_METAL.ordinal()
-                            ? MiteMaterial.ANCIENT_METAL
-                            : MiteMaterial.WOOD;
+            weaponMaterial = material.ordinal() >= InfxMaterial.MITHRIL.ordinal()
+                    ? InfxMaterial.MITHRIL
+                    : material.ordinal() == InfxMaterial.ANCIENT_METAL.ordinal()
+                            ? InfxMaterial.ANCIENT_METAL
+                            : InfxMaterial.WOOD;
         }
         equip(level, mob, EquipmentSlot.MAINHAND, weaponMaterial, weaponType, day);
 
@@ -112,7 +112,7 @@ public final class MonsterTactics {
             ServerLevel level,
             Mob mob,
             EquipmentSlot slot,
-            MiteMaterial material,
+            InfxMaterial material,
             EquipmentType type,
             long day) {
         ItemStack stack = InfXItems.catalog().equipment(material, type).holder().toStack();
@@ -130,23 +130,23 @@ public final class MonsterTactics {
      * their own fixed MITE kit which must not be overwritten.
      */
     static boolean wearsWorldAgeGear(Mob mob) {
-        if (mob instanceof MiteSpider
-                || mob instanceof MiteZombifiedPiglin
-                || mob instanceof MiteBlaze
+        if (mob instanceof InfxSpider
+                || mob instanceof InfxZombifiedPiglin
+                || mob instanceof InfxBlaze
                 || mob instanceof FireElemental) {
             return false;
         }
-        if (mob instanceof MiteZombie zombie) {
-            return zombie.variant() == MiteZombie.Variant.ZOMBIE;
+        if (mob instanceof InfxZombie zombie) {
+            return zombie.variant() == InfxZombie.Variant.ZOMBIE;
         }
-        if (mob instanceof MiteSkeleton skeleton) {
-            return skeleton.variant() == MiteSkeleton.Variant.SKELETON;
+        if (mob instanceof InfxSkeleton skeleton) {
+            return skeleton.variant() == InfxSkeleton.Variant.SKELETON;
         }
         return true;
     }
 
     public static void cooperate(ServerLevel level, Mob mob) {
-        if (mob instanceof MiteEnderman) {
+        if (mob instanceof InfxEnderman) {
             return;
         }
         var target = mob.getTarget();
@@ -166,7 +166,7 @@ public final class MonsterTactics {
     }
 
     public static boolean tryDig(ServerLevel level, Mob mob) {
-        if (mob instanceof MiteEnderman
+        if (mob instanceof InfxEnderman
                 || !level.getGameRules().get(GameRules.MOB_GRIEFING)
                 || mob.getTarget() == null) {
             return stopDigging(level, mob);

@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.block.entity.MiteFurnaceBlockEntity;
+import com.pixulse.infx.block.entity.InfxFurnaceBlockEntity;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import net.minecraft.core.registries.Registries;
@@ -15,9 +15,9 @@ public final class InfXBlockEntityTypes {
     private static final DeferredRegister<BlockEntityType<?>> TYPES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, InfiniteX.MOD_ID);
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MiteFurnaceBlockEntity>> FURNACE =
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<InfxFurnaceBlockEntity>> FURNACE =
             TYPES.register("furnace", () -> new BlockEntityType<>(
-                    MiteFurnaceBlockEntity::new,
+                    InfxFurnaceBlockEntity::new,
                     InfXBlocks.CLAY_FURNACE.get(),
                     InfXBlocks.LARGE_CLAY_OVEN.get(),
                     InfXBlocks.SANDSTONE_FURNACE.get(),

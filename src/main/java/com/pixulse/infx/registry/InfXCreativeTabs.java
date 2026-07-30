@@ -126,7 +126,7 @@ public final class InfXCreativeTabs {
                         InfXItems.METAL_STORAGE_BLOCKS,
                         InfXItems.WORLD_BLOCKS,
                         InfXItems.FULLTEXT_BLOCKS,
-                        InfXItems.MITE_RECIPE_BLOCKS,
+                        InfXItems.INFX_RECIPE_BLOCKS,
                         InfXItems.WORKBENCHES,
                         InfXItems.FURNACES,
                         InfXItems.METAL_ANVILS,
@@ -141,16 +141,16 @@ public final class InfXCreativeTabs {
                 Category.FOOD_AND_CONSUMABLES,
                 concatenate(
                         List.of(InfXItems.WATER_BOWL),
-                        InfXItems.R196_FOODS,
+                        InfXItems.INFX_FOODS,
                         List.of(InfXItems.BOTTLE_OF_DISENCHANTING)));
         categories.put(
                 Category.TOOLS_AND_UTILITIES,
                 concatenate(
                         equipmentItems(EquipmentCategory.TOOL),
-                        InfXItems.R196_BUCKETS,
-                        InfXItems.R196_MOB_BUCKETS,
-                        InfXItems.R196_POWDER_SNOW_BUCKETS,
-                        InfXItems.R196_RECORDS));
+                        InfXItems.INFX_BUCKETS,
+                        InfXItems.INFX_MOB_BUCKETS,
+                        InfXItems.INFX_POWDER_SNOW_BUCKETS,
+                        InfXItems.INFX_RECORDS));
         categories.put(
                 Category.COMBAT_AND_EQUIPMENT,
                 concatenate(
@@ -189,7 +189,7 @@ public final class InfXCreativeTabs {
         modBus.addListener(InfXCreativeTabs::addSpawnEggsToVanillaTab);
     }
 
-    /** Also surface every R196 spawn egg in the vanilla Spawn Eggs tab (animals included). */
+    /** Also surface every INFX spawn egg in the vanilla Spawn Eggs tab (animals included). */
     private static void addSpawnEggsToVanillaTab(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() != CreativeModeTabs.SPAWN_EGGS) {
             return;

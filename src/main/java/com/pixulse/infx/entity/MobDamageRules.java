@@ -1,9 +1,9 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.data.harvest.MiteMiningRules;
-import com.pixulse.infx.item.MiteArrowItem;
+import com.pixulse.infx.data.harvest.InfxMiningRules;
+import com.pixulse.infx.item.InfxArrowItem;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
@@ -18,7 +18,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Shared R196/MITE combat vulnerability helpers for special mobs. */
+/** Shared INFX/MITE combat vulnerability helpers for special mobs. */
 public final class MobDamageRules {
     private MobDamageRules() {}
 
@@ -57,7 +57,7 @@ public final class MobDamageRules {
         }
         var equipment = InfXItems.catalog().equipment(stack);
         if (equipment != null) {
-            return MiteMiningRules.isEffective(equipment.key(), state);
+            return InfxMiningRules.isEffective(equipment.key(), state);
         }
         return stack.is(ItemTags.PICKAXES)
                 && stack.getDestroySpeed(state) > 1.0F
@@ -132,13 +132,13 @@ public final class MobDamageRules {
     /** MITE silver aspect: silver-headed arrows in flight or a silver weapon in the attacker's hand. */
     public static boolean hasSilverAspect(DamageSource source) {
         if (source.getDirectEntity() instanceof AbstractArrow arrow
-                && arrow.getPickupItemStackOrigin().getItem() instanceof MiteArrowItem arrowItem) {
-            return arrowItem.key().material() == MiteMaterial.SILVER;
+                && arrow.getPickupItemStackOrigin().getItem() instanceof InfxArrowItem arrowItem) {
+            return arrowItem.key().material() == InfxMaterial.SILVER;
         }
         if (source.getEntity() instanceof LivingEntity attacker) {
             var entry = InfXItems.catalog().equipment(attacker.getMainHandItem());
             return entry != null
-                    && entry.key().material() == MiteMaterial.SILVER
+                    && entry.key().material() == InfxMaterial.SILVER
                     && entry.key().type() != EquipmentType.ARROW;
         }
         return false;

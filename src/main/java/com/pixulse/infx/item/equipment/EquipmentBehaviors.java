@@ -7,7 +7,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.*;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXEnchantments;
@@ -35,7 +35,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
-import com.pixulse.infx.block.MiteFurnaceBlock;
+import com.pixulse.infx.block.InfxFurnaceBlock;
 import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.BlockItem;
@@ -58,13 +58,13 @@ public final class EquipmentBehaviors {
 
     private static boolean hasSilverAspect(LivingIncomingDamageEvent event) {
         if (event.getSource().getDirectEntity() instanceof AbstractArrow arrow
-                && arrow.getPickupItemStackOrigin().getItem() instanceof MiteArrowItem arrowItem) {
-            return arrowItem.key().material() == MiteMaterial.SILVER;
+                && arrow.getPickupItemStackOrigin().getItem() instanceof InfxArrowItem arrowItem) {
+            return arrowItem.key().material() == InfxMaterial.SILVER;
         }
         if (event.getSource().getEntity() instanceof net.minecraft.world.entity.LivingEntity attacker) {
             Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(attacker.getMainHandItem());
             return entry != null
-                    && entry.key().material() == MiteMaterial.SILVER
+                    && entry.key().material() == InfxMaterial.SILVER
                     && entry.key().type() != EquipmentType.ARROW;
         }
         return false;
@@ -80,7 +80,7 @@ public final class EquipmentBehaviors {
     public static void resolveArrowRecovery(AbstractArrow arrow, HitResult hit) {
         if (hit.getType() != HitResult.Type.ENTITY
                 || !(arrow.level() instanceof net.minecraft.server.level.ServerLevel level)
-                || !(arrow.getPickupItemStackOrigin().getItem() instanceof MiteArrowItem arrowItem)
+                || !(arrow.getPickupItemStackOrigin().getItem() instanceof InfxArrowItem arrowItem)
                 || arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY
                 || arrow.getPersistentData().getBooleanOr(RECOVERY_CHECKED, false)) {
             return;
@@ -96,7 +96,7 @@ public final class EquipmentBehaviors {
         }
     }
 
-    public static float recoveryChance(MiteMaterial material) {
+    public static float recoveryChance(InfxMaterial material) {
         return switch (material) {
             case FLINT -> .30F;
             case OBSIDIAN -> .40F;
@@ -109,7 +109,7 @@ public final class EquipmentBehaviors {
         };
     }
 
-    public static float recoveryChance(MiteMaterial material, int recoveryEnchantmentLevel) {
+    public static float recoveryChance(InfxMaterial material, int recoveryEnchantmentLevel) {
         return EnchantmentRules.arrowRecoveryChance(
                 recoveryChance(material), recoveryEnchantmentLevel);
     }
@@ -252,7 +252,7 @@ public final class EquipmentBehaviors {
         return Math.min(armorPoints, incomingDamage - 1.0F);
     }
 
-    /** Replaces modern percentage resistance with R196's five fixed protection points per level. */
+    /** Replaces modern percentage resistance with INFX's five fixed protection points per level. */
    @SubscribeEvent
     public static void applyFixedResistance(LivingIncomingDamageEvent event) {
         var resistance = event.getEntity().getEffect(MobEffects.RESISTANCE);
@@ -316,15 +316,15 @@ public final class EquipmentBehaviors {
     }
 
     static int corrosionDamage(
-            MiteMaterial material,
+            InfxMaterial material,
             int maxDamage,
             float incomingDamage,
             boolean fire,
             boolean lava) {
-        if (material == MiteMaterial.ADAMANTIUM) {
+        if (material == InfxMaterial.ADAMANTIUM) {
             return 0;
         }
-        if (material == MiteMaterial.LEATHER && (fire || lava)) {
+        if (material == InfxMaterial.LEATHER && (fire || lava)) {
             return maxDamage;
         }
         if (lava) {
@@ -365,7 +365,7 @@ public final class EquipmentBehaviors {
         int recipeHeat = FurnaceHeatPolicy.requiredHeat(stack);
         if (recipeHeat > 1) event.getToolTip().add(Component.translatable("tooltip.infx.recipe_heat", recipeHeat));
         if (stack.getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() instanceof MiteFurnaceBlock furnace) {
+                && blockItem.getBlock() instanceof InfxFurnaceBlock furnace) {
             event.getToolTip().add(Component.translatable("tooltip.infx.furnace_heat", furnace.maximumHeat()));
         }
     }
@@ -373,8 +373,8 @@ public final class EquipmentBehaviors {
     private static int tooltipFuelHeat(ItemStack stack) {
         if (stack.is(Items.BLAZE_ROD)) return FurnaceHeatPolicy.HEAT_BLAZE;
         if (stack.is(Items.LAVA_BUCKET)
-                || stack.getItem() instanceof MiteBucketItem bucket
-                        && bucket.contents() == MiteBucketItem.Contents.LAVA) {
+                || stack.getItem() instanceof InfxBucketItem bucket
+                        && bucket.contents() == InfxBucketItem.Contents.LAVA) {
             return FurnaceHeatPolicy.HEAT_LAVA;
         }
         if (stack.is(InfXItemTags.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
@@ -384,22 +384,22 @@ public final class EquipmentBehaviors {
 
    @SubscribeEvent
     public static void addBucketTooltip(ItemTooltipEvent event) {
-        if (!(event.getItemStack().getItem() instanceof MiteBucketItem bucket)) {
+        if (!(event.getItemStack().getItem() instanceof InfxBucketItem bucket)) {
             return;
         }
         var player = event.getEntity();
         if (player != null
-                && player.totalExperience >= MiteBucketItem.SOURCE_EXPERIENCE_COST
-                && (bucket.contents() == MiteBucketItem.Contents.WATER
-                        || bucket.contents() == MiteBucketItem.Contents.LAVA)) {
+                && player.totalExperience >= InfxBucketItem.SOURCE_EXPERIENCE_COST
+                && (bucket.contents() == InfxBucketItem.Contents.WATER
+                        || bucket.contents() == InfxBucketItem.Contents.LAVA)) {
             event.getToolTip()
                     .add(net.minecraft.network.chat.Component.translatable("tooltip.infx.place_bucket_as_source")
                             .withStyle(
-                                    bucket.contents() == MiteBucketItem.Contents.WATER
+                                    bucket.contents() == InfxBucketItem.Contents.WATER
                                             ? net.minecraft.ChatFormatting.BLUE
                                             : net.minecraft.ChatFormatting.RED));
         }
-        if (bucket.contents() == MiteBucketItem.Contents.LAVA) {
+        if (bucket.contents() == InfxBucketItem.Contents.LAVA) {
             int chance = Math.round(bucket.lavaMeltChance() * 100.0F);
             if (chance > 0) {
                 event.getToolTip().add(net.minecraft.network.chat.Component.empty());

@@ -53,7 +53,7 @@ class FulltextAssetProvenanceTest {
                 "resource-pack",
                 Path.of("/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite-resource-pack/assets/minecraft"),
                 "mite-client-assets",
-                Path.of("/Users/inxups/mc/mite/MITE-R196-FMLv3.4.2/.minecraft/assets/virtual/legacy"));
+                Path.of("/Users/inxups/mc/mite/MITE-INFX-FMLv3.4.2/.minecraft/assets/virtual/legacy"));
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         for (String line : lines.subList(1, lines.size())) {
             String[] fields = line.split("\t", -1);

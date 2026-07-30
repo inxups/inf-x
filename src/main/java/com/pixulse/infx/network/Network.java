@@ -4,7 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.world.RunegateTeleportation;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -44,7 +44,7 @@ public final class Network {
                             if (!(context.player() instanceof ServerPlayer player)) return;
                             InteractionHand hand =
                                     payload.offhand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-                            if (player.getItemInHand(hand).getItem() instanceof MiteBucketItem bucket) {
+                            if (player.getItemInHand(hand).getItem() instanceof InfxBucketItem bucket) {
                                 bucket.useWithCtrl(player, hand);
                             }
                         })

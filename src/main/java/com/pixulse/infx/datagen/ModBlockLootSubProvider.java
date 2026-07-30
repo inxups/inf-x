@@ -1,8 +1,8 @@
 package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.block.BlueberryBushBlock;
-import com.pixulse.infx.block.MiteCropBlock;
-import com.pixulse.infx.block.MiteCropType;
+import com.pixulse.infx.block.InfxCropBlock;
+import com.pixulse.infx.block.InfxCropType;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
@@ -50,7 +50,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         dropSelf(InfXBlocks.NETHER_GRAVEL.get());
         dropSelf(InfXBlocks.WITHERWOOD.get());
         add(InfXBlocks.BLUEBERRY_BUSH.get(), blueberryBushDrops(InfXBlocks.BLUEBERRY_BUSH.get()));
-        InfXBlocks.MITE_CROPS.forEach(crop -> add(crop.get(), miteCropDrops(crop.get())));
+        InfXBlocks.INFX_CROPS.forEach(crop -> add(crop.get(), infxCropDrops(crop.get())));
         dropRuneStone(InfXBlocks.MITHRIL_RUNE_STONE.get());
         dropRuneStone(InfXBlocks.ADAMANTIUM_RUNE_STONE.get());
         add(InfXBlocks.MANTLE.get(), noDrop());
@@ -74,16 +74,16 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                         .add(LootItem.lootTableItem(bush)));
     }
 
-    private LootTable.Builder miteCropDrops(MiteCropBlock crop) {
+    private LootTable.Builder infxCropDrops(InfxCropBlock crop) {
         var planted = cropState(crop, 0);
         var mature = cropState(crop, crop.getMaxAge());
         LootTable.Builder table = LootTable.lootTable()
                 .withPool(LootPool.lootPool().add(LootItem.lootTableItem(crop.type().seed()).when(planted)))
                 .withPool(matureCropProductPool(crop, mature));
-        if (crop.type() == MiteCropType.POTATOES) {
+        if (crop.type() == InfxCropType.POTATOES) {
             table.withPool(potatoPoisonPool(crop, planted, mature));
         }
-        if (crop.type() == MiteCropType.BEETROOTS) {
+        if (crop.type() == InfxCropType.BEETROOTS) {
             table.withPool(LootPool.lootPool().add(LootItem.lootTableItem(crop.type().seed())
                     .when(mature)
                     .when(LootItemRandomChanceCondition.randomChance(crop.type().bonusYieldChance()))));
@@ -92,8 +92,8 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
     }
 
     private static LootPool.Builder matureCropProductPool(
-            MiteCropBlock crop, LootItemBlockStatePropertyCondition.Builder mature) {
-        MiteCropType type = crop.type();
+            InfxCropBlock crop, LootItemBlockStatePropertyCondition.Builder mature) {
+        InfxCropType type = crop.type();
         if (type.matureYield() == 1) {
             return LootPool.lootPool().add(LootItem.lootTableItem(type.product()).when(mature));
         }
@@ -108,7 +108,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
     }
 
     private static LootPool.Builder potatoPoisonPool(
-            MiteCropBlock crop,
+            InfxCropBlock crop,
             LootItemBlockStatePropertyCondition.Builder planted,
             LootItemBlockStatePropertyCondition.Builder mature) {
         return LootPool.lootPool().add(LootItem.lootTableItem(Items.POISONOUS_POTATO)
@@ -116,18 +116,18 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                 .when(InvertedLootItemCondition.invert(AnyOfCondition.anyOf(planted, mature))));
     }
 
-    private static LootItemBlockStatePropertyCondition.Builder cropState(MiteCropBlock crop, int age) {
+    private static LootItemBlockStatePropertyCondition.Builder cropState(InfxCropBlock crop, int age) {
         return LootItemBlockStatePropertyCondition.hasBlockStateProperties(crop)
                 .setProperties(StatePropertiesPredicate.Builder.properties()
                         .hasProperty(CropBlock.AGE, age)
-                        .hasProperty(MiteCropBlock.BLIGHTED, false)
-                        .hasProperty(MiteCropBlock.DEAD, false));
+                        .hasProperty(InfxCropBlock.BLIGHTED, false)
+                        .hasProperty(InfxCropBlock.DEAD, false));
     }
 
-    private static LootItemBlockStatePropertyCondition.Builder livingCropState(MiteCropBlock crop) {
+    private static LootItemBlockStatePropertyCondition.Builder livingCropState(InfxCropBlock crop) {
         return LootItemBlockStatePropertyCondition.hasBlockStateProperties(crop)
                 .setProperties(StatePropertiesPredicate.Builder.properties()
-                        .hasProperty(MiteCropBlock.DEAD, false));
+                        .hasProperty(InfxCropBlock.DEAD, false));
     }
 
     @Override
@@ -142,8 +142,8 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                         InfXBlocks.ENCHANTING_TABLES.stream().map(block -> (Block) block.get()),
                         InfXBlocks.METAL_SAFES.stream().map(block -> (Block) block.get()),
                         InfXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()),
-                        InfXBlocks.MITE_RECIPE_BLOCKS.stream().map(block -> (Block) block.get()),
-                        InfXBlocks.MITE_CROPS.stream().map(block -> (Block) block.get()))
+                        InfXBlocks.INFX_RECIPE_BLOCKS.stream().map(block -> (Block) block.get()),
+                        InfXBlocks.INFX_CROPS.stream().map(block -> (Block) block.get()))
                 .flatMap(stream -> stream)
                 .toList();
     }

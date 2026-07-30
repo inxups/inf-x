@@ -2,7 +2,7 @@ package com.pixulse.infx.item.equipment;
 
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentKey;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
@@ -149,7 +149,7 @@ public final class QualitySystem {
         EquipmentKey key = key(stack);
         Quality quality = fromCode(qualityCode);
         if (key == null || quality == null) {
-            if (key != null && key.material() != MiteMaterial.RUSTED_IRON) {
+            if (key != null && key.material() != InfxMaterial.RUSTED_IRON) {
                 stack.remove(InfXDataComponents.QUALITY.get());
                 stack.set(DataComponents.MAX_DAMAGE, key.durability());
             }

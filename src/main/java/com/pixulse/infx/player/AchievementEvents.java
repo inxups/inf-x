@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.event.entity.player.AdvancementEvent;
 
-/** Records and broadcasts the first player/day for every R196 advancement. */
+/** Records and broadcasts the first player/day for every INFX advancement. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AchievementEvents {
     private AchievementEvents() {}

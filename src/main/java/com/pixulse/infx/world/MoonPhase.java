@@ -2,7 +2,7 @@ package com.pixulse.infx.world;
 
 import net.minecraft.server.level.ServerLevel;
 
-/** The R196 lunar calendar shared by livestock and hostile-mob rules. */
+/** The INFX lunar calendar shared by livestock and hostile-mob rules. */
 public enum MoonPhase {
     NORMAL,
     NEW,

@@ -42,7 +42,7 @@ public final class RiverBiomes {
         if (!original.is(Biomes.RIVER.identifier())) return Stream.of(Pair.of(point, original));
 
         // The modern Overworld preset collapses non-frozen rivers into one broad
-        // temperature/humidity point. Split that point so the three R196 river
+        // temperature/humidity point. Split that point so the three INFX river
         // biomes are reachable from the actual climate sampler rather than only
         // existing as unused registry entries.
         return Stream.of(

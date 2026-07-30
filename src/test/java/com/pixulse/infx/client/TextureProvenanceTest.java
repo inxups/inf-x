@@ -341,7 +341,7 @@ class TextureProvenanceTest {
                 case "resource-pack" -> reference.resolve("mite-resource-pack/assets/minecraft/textures");
                 case "mite-src" -> reference.resolve("mite-src/assets/minecraft/textures");
                 case "itf-reborn" -> Path.of(
-                        "/Users/inxups/Downloads/ITF-Reborn-R196/src/main/resources/assets/miteitfrb/textures");
+                        "/Users/inxups/Downloads/ITF-Reborn-INFX/src/main/resources/assets/miteitfrb/textures");
                 default -> throw new AssertionError("unknown source root " + fields[0]);
             };
             Path source = sourceRoot.resolve(fields[1]);

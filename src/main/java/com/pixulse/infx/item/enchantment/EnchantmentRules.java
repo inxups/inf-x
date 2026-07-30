@@ -3,7 +3,7 @@ package com.pixulse.infx.item.enchantment;
 import net.minecraft.util.RandomSource;
 
 /**
- * Numeric R196 enchantment rules kept independent from the registry and game-event APIs.
+ * Numeric INFX enchantment rules kept independent from the registry and game-event APIs.
  *
  * <p>The original implementation expresses most effects as a fraction of an enchantment's
  * maximum level. Keeping those fractions here prevents registration changes from silently

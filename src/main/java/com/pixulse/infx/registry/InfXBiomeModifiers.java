@@ -16,7 +16,7 @@ public final class InfXBiomeModifiers {
 
     public static final DeferredHolder<
                     MapCodec<? extends BiomeModifier>, MapCodec<SpawnsBiomeModifier>>
-            R196_SPAWNS = SERIALIZERS.register("r196_spawns", () -> SpawnsBiomeModifier.CODEC);
+            INFX_SPAWNS = SERIALIZERS.register("infx_spawns", () -> SpawnsBiomeModifier.CODEC);
 
     private InfXBiomeModifiers() {}
 

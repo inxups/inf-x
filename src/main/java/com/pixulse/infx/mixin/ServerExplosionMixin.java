@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 /**
- * Keeps R196 entity blast reach independent from block power. The public explosion API exposes
+ * Keeps INFX entity blast reach independent from block power. The public explosion API exposes
  * one radius for both, so the entity query/distance local is the smallest viable injection point.
  */
 @Mixin(ServerExplosion.class)

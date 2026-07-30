@@ -1,14 +1,14 @@
 package com.pixulse.infx.data.food;
 
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * R196 food values transcribed from Item, ItemMeat, ItemSeedFood and BlockCake. Modern-only food
- * items use the nearest R196 counterpart rather than a new independent nutrition model.
+ * INFX food values transcribed from Item, ItemMeat, ItemSeedFood and BlockCake. Modern-only food
+ * items use the nearest INFX counterpart rather than a new independent nutrition model.
  */
 public final class FoodProfiles {
     private static final FoodProfile APPLE = mite(2, 1, 1_000, false, false, true);
@@ -76,7 +76,7 @@ public final class FoodProfiles {
 
     public static FoodProfile forStack(ItemStack stack) {
         Item item = stack.getItem();
-        if (item instanceof MiteBucketItem bucket && bucket.contents() == MiteBucketItem.Contents.MILK) {
+        if (item instanceof InfxBucketItem bucket && bucket.contents() == InfxBucketItem.Contents.MILK) {
             return MILK_BUCKET;
         }
         if (item == Items.MILK_BUCKET) return MILK_BUCKET;

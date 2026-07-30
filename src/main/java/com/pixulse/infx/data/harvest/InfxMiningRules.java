@@ -1,0 +1,65 @@
+package com.pixulse.infx.data.harvest;
+
+import com.pixulse.infx.item.EquipmentKey;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.MiningFamily;
+import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+
+/** MITE INFX tool-family and harvest-level checks for InfiniteX equipment. */
+public final class InfxMiningRules {
+    private InfxMiningRules() {}
+
+    public static float destroySpeed(EquipmentKey key, BlockState state) {
+        if (!canHarvest(key, state)) {
+            return 1.0F;
+        }
+        float speed = key.miningSpeed();
+        if (isAxeFamily(key.type()) && state.is(InfXBlockTags.AXE_HALF_SPEED)) {
+            speed *= 0.5F;
+        }
+        return speed;
+    }
+
+    public static boolean canHarvest(EquipmentKey key, BlockState state) {
+        return isEffective(key, state) && harvestLevel(key.material()) >= HarvestRequirements.requiredLevel(state);
+    }
+
+    public static boolean isEffective(EquipmentKey key, BlockState state) {
+        MiningFamily family = key.type().miningFamily();
+        if (family == MiningFamily.NONE || state.is(InfXBlockTags.NO_EFFECTIVE_TOOL)) {
+            return false;
+        }
+        if (family == MiningFamily.HOE && state.is(Blocks.CLAY)) {
+            return false;
+        }
+        if (family == MiningFamily.SCYTHE && isRootCrop(state)) {
+            return false;
+        }
+        if (state.is(InfXBlockTags.effectiveWith(family))) {
+            return true;
+        }
+        if (key.type() == EquipmentType.WAR_HAMMER && state.is(InfXBlockTags.WAR_HAMMER_EFFECTIVE)) {
+            return true;
+        }
+        return family == MiningFamily.SHOVEL
+                && key.material().has(InfxMaterial.Flag.METAL)
+                && state.is(InfXBlockTags.METAL_SHOVEL_EFFECTIVE);
+    }
+
+    public static int harvestLevel(InfxMaterial material) {
+        return material.harvestTier().map(HarvestTier::level).orElse(0);
+    }
+
+    private static boolean isRootCrop(BlockState state) {
+        return state.is(Blocks.CARROTS) || state.is(Blocks.POTATOES) || state.is(Blocks.BEETROOTS);
+    }
+
+    private static boolean isAxeFamily(EquipmentType type) {
+        return type == EquipmentType.HATCHET
+                || type == EquipmentType.AXE
+                || type == EquipmentType.BATTLE_AXE;
+    }
+}

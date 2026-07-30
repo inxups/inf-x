@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * Vanilla immediately moves the clock and wakes every player once enough sleepers are present.
- * R196 instead simulates its own sleep ticks, so only the Overworld needs this narrow redirect.
+ * INFX instead simulates its own sleep ticks, so only the Overworld needs this narrow redirect.
  */
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelSleepMixin {

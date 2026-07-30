@@ -52,7 +52,7 @@ class InfXCreativeTabsTest {
                 .map(item -> item.getId().getPath())
                 .collect(Collectors.toSet());
         for (String animal : List.of(
-                "r196_cow", "r196_chicken", "r196_sheep", "r196_pig", "r196_horse", "r196_ocelot", "r196_wolf")) {
+                "infx_cow", "infx_chicken", "infx_sheep", "infx_pig", "infx_horse", "infx_ocelot", "infx_wolf")) {
             assertTrue(eggPaths.contains(animal + "_spawn_egg"), animal);
         }
     }
@@ -68,10 +68,10 @@ class InfXCreativeTabsTest {
                 netherPortal,
                 returnSpawnPortal,
                 infestedNetherrack,
-                InfXBlocks.MITE_WHEAT.getId(),
-                InfXBlocks.MITE_CARROTS.getId(),
-                InfXBlocks.MITE_POTATOES.getId(),
-                InfXBlocks.MITE_BEETROOTS.getId());
+                InfXBlocks.INFX_WHEAT.getId(),
+                InfXBlocks.INFX_CARROTS.getId(),
+                InfXBlocks.INFX_POTATOES.getId(),
+                InfXBlocks.INFX_BEETROOTS.getId());
         Set<Identifier> expectedBlockItems = InfXBlocks.BLOCKS.getEntries().stream()
                 .map(DeferredHolder::getId)
                 .filter(id -> !unobtainableBlocks.contains(id))
@@ -90,10 +90,10 @@ class InfXCreativeTabsTest {
         assertFalse(registeredItems.contains(returnSpawnPortal), "Return-spawn portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(infestedNetherrack), "infested netherrack must remain worldgen-only");
         for (Identifier crop : Set.of(
-                InfXBlocks.MITE_WHEAT.getId(),
-                InfXBlocks.MITE_CARROTS.getId(),
-                InfXBlocks.MITE_POTATOES.getId(),
-                InfXBlocks.MITE_BEETROOTS.getId())) {
+                InfXBlocks.INFX_WHEAT.getId(),
+                InfXBlocks.INFX_CARROTS.getId(),
+                InfXBlocks.INFX_POTATOES.getId(),
+                InfXBlocks.INFX_BEETROOTS.getId())) {
             assertFalse(registeredItems.contains(crop), crop + " must remain seed-placed only");
         }
         assertTrue(InfXItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));

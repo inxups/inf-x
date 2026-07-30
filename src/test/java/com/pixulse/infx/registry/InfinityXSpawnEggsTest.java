@@ -34,8 +34,8 @@ class InfinityXSpawnEggsTest {
         for (var egg : InfXItems.SPAWN_EGGS) {
             Identifier id = egg.getId();
             String path = id.getPath();
-            String texturePath = path.startsWith("r196_")
-                    ? "infx" + path.substring("r196".length())
+            String texturePath = path.startsWith("infx_")
+                    ? "infx" + path.substring("infx".length())
                     : path;
             java.nio.file.Path texture = root.resolve(
                     "src/main/resources/assets/infx/textures/item/" + texturePath + ".png");

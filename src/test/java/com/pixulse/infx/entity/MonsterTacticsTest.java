@@ -4,18 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import net.minecraft.world.entity.EntitySpawnReason;
 import org.junit.jupiter.api.Test;
 
 class MonsterTacticsTest {
     @Test
     void worldAgeRaisesEquipmentTierAndEnchantChance() {
-        assertEquals(MiteMaterial.COPPER, MonsterTactics.maximumGearMaterial(1));
-        assertEquals(MiteMaterial.IRON, MonsterTactics.maximumGearMaterial(32));
-        assertEquals(MiteMaterial.ANCIENT_METAL, MonsterTactics.maximumGearMaterial(64));
-        assertEquals(MiteMaterial.MITHRIL, MonsterTactics.maximumGearMaterial(128));
-        assertEquals(MiteMaterial.ADAMANTIUM, MonsterTactics.maximumGearMaterial(256));
+        assertEquals(InfxMaterial.COPPER, MonsterTactics.maximumGearMaterial(1));
+        assertEquals(InfxMaterial.IRON, MonsterTactics.maximumGearMaterial(32));
+        assertEquals(InfxMaterial.ANCIENT_METAL, MonsterTactics.maximumGearMaterial(64));
+        assertEquals(InfxMaterial.MITHRIL, MonsterTactics.maximumGearMaterial(128));
+        assertEquals(InfxMaterial.ADAMANTIUM, MonsterTactics.maximumGearMaterial(256));
         assertTrue(MonsterTactics.equipmentChance(256) > MonsterTactics.equipmentChance(1));
         assertTrue(MonsterTactics.enchantmentChance(256) > MonsterTactics.enchantmentChance(16));
     }

@@ -1,7 +1,7 @@
 package com.pixulse.infx.recipe;
 
 /**
- * The server-side crafting facts that are needed to apply the MITE R196
+ * The server-side crafting facts that are needed to apply the MITE INFX
  * crafting rules to one recipe match.
  *
  * <p>{@code difficulty} is the unmodified recipe difficulty (the sum of the

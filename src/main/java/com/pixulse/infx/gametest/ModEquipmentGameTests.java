@@ -9,15 +9,15 @@ import com.pixulse.infx.item.equipment.EquipmentBehaviors;
 import com.pixulse.infx.data.harvest.HarvestRequirements;
 import com.pixulse.infx.data.harvest.HarvestTier;
 import com.pixulse.infx.data.harvest.ToolWearCalculator;
-import com.pixulse.infx.item.MiteArrowItem;
-import com.pixulse.infx.item.MiteBowItem;
+import com.pixulse.infx.item.InfxArrowItem;
+import com.pixulse.infx.item.InfxBowItem;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentCategory;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.MiteFishingRodItem;
+import com.pixulse.infx.item.InfxFishingRodItem;
 import com.pixulse.infx.item.MiningFamily;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXDataComponents;
@@ -154,7 +154,7 @@ public final class ModEquipmentGameTests {
             EquipmentKey key = entry.key();
             ItemStack stack = entry.holder().value().getDefaultInstance();
             if (key.durability() > 0) {
-                int expectedDurability = key.material() == MiteMaterial.RUSTED_IRON
+                int expectedDurability = key.material() == InfxMaterial.RUSTED_IRON
                         ? Math.max(1, Math.round(key.durability() * Quality.POOR.durabilityMultiplier()))
                         : key.durability();
                 helper.assertTrue(
@@ -174,11 +174,11 @@ public final class ModEquipmentGameTests {
                 helper.assertTrue(stack.has(DataComponents.EQUIPPABLE), key.path() + " equippable component");
             }
             if (key.type() == EquipmentType.BOW) {
-                helper.assertTrue(stack.getItem() instanceof MiteBowItem, key.path() + " bow class");
+                helper.assertTrue(stack.getItem() instanceof InfxBowItem, key.path() + " bow class");
             } else if (key.type() == EquipmentType.ARROW) {
-                helper.assertTrue(stack.getItem() instanceof MiteArrowItem, key.path() + " arrow class");
+                helper.assertTrue(stack.getItem() instanceof InfxArrowItem, key.path() + " arrow class");
             } else if (key.type() == EquipmentType.FISHING_ROD) {
-                helper.assertTrue(stack.getItem() instanceof MiteFishingRodItem, key.path() + " fishing class");
+                helper.assertTrue(stack.getItem() instanceof InfxFishingRodItem, key.path() + " fishing class");
             }
         }
         helper.succeed();
@@ -198,7 +198,7 @@ public final class ModEquipmentGameTests {
                 axePos,
                 Blocks.OAK_LOG,
                 InfXItems.catalog()
-                        .equipment(MiteMaterial.COPPER, EquipmentType.AXE)
+                        .equipment(InfxMaterial.COPPER, EquipmentType.AXE)
                         .holder()
                         .value());
         helper.assertTrue(helper.getBlockState(axePos).is(Blocks.STRIPPED_OAK_LOG), "axe must strip logs");
@@ -209,7 +209,7 @@ public final class ModEquipmentGameTests {
                 shovelPos,
                 Blocks.GRASS_BLOCK,
                 InfXItems.catalog()
-                        .equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL)
+                        .equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL)
                         .holder()
                         .value());
         helper.assertTrue(helper.getBlockState(shovelPos).is(Blocks.DIRT_PATH), "shovel must create paths");
@@ -220,13 +220,13 @@ public final class ModEquipmentGameTests {
                 hoePos,
                 Blocks.DIRT,
                 InfXItems.catalog()
-                        .equipment(MiteMaterial.COPPER, EquipmentType.HOE)
+                        .equipment(InfxMaterial.COPPER, EquipmentType.HOE)
                         .holder()
                         .value());
         helper.assertTrue(helper.getBlockState(hoePos).is(Blocks.FARMLAND), "hoe must till soil");
 
         Item mattock = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.MATTOCK)
+                .equipment(InfxMaterial.COPPER, EquipmentType.MATTOCK)
                 .holder()
                 .value();
         useOn(helper, player, mattockPos, Blocks.DIRT, mattock);
@@ -235,7 +235,7 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(helper.getBlockState(mattockPos).is(Blocks.FARMLAND), "mattock hoe fallback");
 
         ItemStack scythe = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SCYTHE)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE)
                 .holder()
                 .value()
                 .getDefaultInstance();
@@ -246,7 +246,7 @@ public final class ModEquipmentGameTests {
 
         var sheep = helper.spawn(EntityType.SHEEP, new BlockPos(6, 1, 1));
         ItemStack shears = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SHEARS)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SHEARS)
                 .holder()
                 .value()
                 .getDefaultInstance();
@@ -273,8 +273,8 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(
                 shears.getDamageValue()
                         == shearWearBeforeAttack
-                                + new EquipmentKey(MiteMaterial.COPPER, EquipmentType.SHEARS).attackWear(),
-                "material shears must apply R196 hit wear on left-click");
+                                + new EquipmentKey(InfxMaterial.COPPER, EquipmentType.SHEARS).attackWear(),
+                "material shears must apply INFX hit wear on left-click");
 
         var rightClickTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 3));
         float rightClickHealth = rightClickTarget.getHealth();
@@ -292,7 +292,7 @@ public final class ModEquipmentGameTests {
         rightClickTarget.discard();
 
         ItemStack sword = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SWORD)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
                 .holder()
                 .value()
                 .getDefaultInstance();
@@ -304,12 +304,12 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(zombie.getHealth() < healthBefore, "material sword must deal melee damage");
         helper.assertTrue(
                 sword.getDamageValue()
-                        == new EquipmentKey(MiteMaterial.COPPER, EquipmentType.SWORD).attackWear(),
-                "material sword must apply R196 hit wear exactly once");
+                        == new EquipmentKey(InfxMaterial.COPPER, EquipmentType.SWORD).attackWear(),
+                "material sword must apply INFX hit wear exactly once");
         zombie.discard();
 
         ItemStack blockShears = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SHEARS)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SHEARS)
                 .holder()
                 .value()
                 .getDefaultInstance();
@@ -422,17 +422,17 @@ public final class ModEquipmentGameTests {
     private static void harvestTierCatalog(GameTestHelper helper) {
         Map<HarvestTier, EquipmentKey> representatives = Map.of(
                 HarvestTier.FLINT,
-                new EquipmentKey(MiteMaterial.FLINT, EquipmentType.HATCHET),
+                new EquipmentKey(InfxMaterial.FLINT, EquipmentType.HATCHET),
                 HarvestTier.COPPER,
-                new EquipmentKey(MiteMaterial.COPPER, EquipmentType.PICKAXE),
+                new EquipmentKey(InfxMaterial.COPPER, EquipmentType.PICKAXE),
                 HarvestTier.IRON,
-                new EquipmentKey(MiteMaterial.IRON, EquipmentType.PICKAXE),
+                new EquipmentKey(InfxMaterial.IRON, EquipmentType.PICKAXE),
                 HarvestTier.ANCIENT_METAL,
-                new EquipmentKey(MiteMaterial.ANCIENT_METAL, EquipmentType.PICKAXE),
+                new EquipmentKey(InfxMaterial.ANCIENT_METAL, EquipmentType.PICKAXE),
                 HarvestTier.MITHRIL,
-                new EquipmentKey(MiteMaterial.MITHRIL, EquipmentType.PICKAXE),
+                new EquipmentKey(InfxMaterial.MITHRIL, EquipmentType.PICKAXE),
                 HarvestTier.ADAMANTIUM,
-                new EquipmentKey(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE));
+                new EquipmentKey(InfxMaterial.ADAMANTIUM, EquipmentType.PICKAXE));
 
         representatives.forEach((tier, key) -> {
             ItemStack stack = InfXItems.catalog()
@@ -474,7 +474,7 @@ public final class ModEquipmentGameTests {
         assertHarvestLevel(helper, Blocks.DIAMOND_BLOCK, 5);
         assertHarvestLevel(helper, InfXBlocks.ADAMANTIUM_BLOCK.get(), 6);
 
-        ItemStack pickaxe = equipmentStack(MiteMaterial.IRON, EquipmentType.PICKAXE);
+        ItemStack pickaxe = equipmentStack(InfxMaterial.IRON, EquipmentType.PICKAXE);
         helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.GLOWSTONE.defaultBlockState()),
                 "MITE glass material makes pickaxes effective against glowstone");
         helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.TORCH.defaultBlockState()),
@@ -484,7 +484,7 @@ public final class ModEquipmentGameTests {
         helper.assertFalse(pickaxe.isCorrectToolForDrops(Blocks.ANVIL.defaultBlockState()),
                 "MITE anvil material has no effective tool and relies on portability");
 
-        ItemStack axe = equipmentStack(MiteMaterial.FLINT, EquipmentType.AXE);
+        ItemStack axe = equipmentStack(InfxMaterial.FLINT, EquipmentType.AXE);
         helper.assertTrue(axe.isCorrectToolForDrops(Blocks.SANDSTONE.defaultBlockState()),
                 "axes must harvest the MITE sandstone block");
         helper.assertTrue(axe.isCorrectToolForDrops(Blocks.SANDSTONE_SLAB.defaultBlockState()),
@@ -501,10 +501,10 @@ public final class ModEquipmentGameTests {
                 InfXBlocks.FLINT_WORKBENCH.get().defaultBlockState()),
                 "all tiered workbenches retain their wood-material axe effectiveness");
 
-        ItemStack flintShovel = equipmentStack(MiteMaterial.FLINT, EquipmentType.SHOVEL);
-        ItemStack copperShovel = equipmentStack(MiteMaterial.COPPER, EquipmentType.SHOVEL);
-        ItemStack copperPickaxe = equipmentStack(MiteMaterial.COPPER, EquipmentType.PICKAXE);
-        ItemStack flintAxe = equipmentStack(MiteMaterial.FLINT, EquipmentType.AXE);
+        ItemStack flintShovel = equipmentStack(InfxMaterial.FLINT, EquipmentType.SHOVEL);
+        ItemStack copperShovel = equipmentStack(InfxMaterial.COPPER, EquipmentType.SHOVEL);
+        ItemStack copperPickaxe = equipmentStack(InfxMaterial.COPPER, EquipmentType.PICKAXE);
+        ItemStack flintAxe = equipmentStack(InfxMaterial.FLINT, EquipmentType.AXE);
         BlockState gravel = InfXBlocks.GRAVEL.get().defaultBlockState();
         helper.assertTrue(gravel.requiresCorrectToolForDrops(), "gravel requires a correct tool for drops");
         helper.assertTrue(flintShovel.isCorrectToolForDrops(gravel), "flint shovels must harvest gravel");
@@ -518,18 +518,18 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(flintShovel.isCorrectToolForDrops(Blocks.INFESTED_STONE.defaultBlockState()),
                 "shovels must inherit infested clay effectiveness");
 
-        ItemStack hoe = equipmentStack(MiteMaterial.COPPER, EquipmentType.HOE);
+        ItemStack hoe = equipmentStack(InfxMaterial.COPPER, EquipmentType.HOE);
         helper.assertTrue(hoe.isCorrectToolForDrops(
                 InfXBlocks.SANDSTONE_FURNACE.get().defaultBlockState()),
-                "the R196 sandstone furnace uses hoe-effective sand material");
+                "the INFX sandstone furnace uses hoe-effective sand material");
         helper.assertFalse(hoe.isCorrectToolForDrops(
                 InfXBlocks.CLAY_FURNACE.get().defaultBlockState()),
-                "hoes must remain ineffective against R196 clay material");
+                "hoes must remain ineffective against INFX clay material");
 
-        ItemStack hammer = equipmentStack(MiteMaterial.COPPER, EquipmentType.WAR_HAMMER);
+        ItemStack hammer = equipmentStack(InfxMaterial.COPPER, EquipmentType.WAR_HAMMER);
         helper.assertTrue(hammer.isCorrectToolForDrops(Blocks.CAKE.defaultBlockState()),
                 "war hammers retain their MITE cake override");
-        ItemStack cudgel = equipmentStack(MiteMaterial.WOOD, EquipmentType.CUDGEL);
+        ItemStack cudgel = equipmentStack(InfxMaterial.WOOD, EquipmentType.CUDGEL);
         helper.assertTrue(cudgel.isCorrectToolForDrops(Blocks.CAKE.defaultBlockState()),
                 "wooden cudgels retain their MITE cake effectiveness");
         helper.assertTrue(cudgel.isCorrectToolForDrops(Blocks.GLOWSTONE.defaultBlockState()),
@@ -538,13 +538,13 @@ public final class ModEquipmentGameTests {
                 "wooden cudgels cannot meet full glass level one");
         helper.assertFalse(cudgel.isCorrectToolForDrops(Blocks.ICE.defaultBlockState()),
                 "wooden cudgels cannot meet ice level one");
-        ItemStack scythe = equipmentStack(MiteMaterial.COPPER, EquipmentType.SCYTHE);
+        ItemStack scythe = equipmentStack(InfxMaterial.COPPER, EquipmentType.SCYTHE);
         helper.assertTrue(scythe.isCorrectToolForDrops(Blocks.WHEAT.defaultBlockState()),
                 "scythes must harvest wheat");
         helper.assertFalse(scythe.isCorrectToolForDrops(Blocks.CARROTS.defaultBlockState()),
                 "root crops must remain shovel/hoe work rather than scythe work");
-        ItemStack sword = equipmentStack(MiteMaterial.COPPER, EquipmentType.SWORD);
-        ItemStack shears = equipmentStack(MiteMaterial.COPPER, EquipmentType.SHEARS);
+        ItemStack sword = equipmentStack(InfxMaterial.COPPER, EquipmentType.SWORD);
+        ItemStack shears = equipmentStack(InfxMaterial.COPPER, EquipmentType.SHEARS);
         helper.assertTrue(sword.isCorrectToolForDrops(Blocks.HAY_BLOCK.defaultBlockState()),
                 "swords must inherit MITE plant-material effectiveness");
         helper.assertTrue(shears.isCorrectToolForDrops(Blocks.NETHER_WART.defaultBlockState()),
@@ -575,16 +575,16 @@ public final class ModEquipmentGameTests {
                 block + " expected harvest level " + expected + " but got " + actual);
     }
 
-    private static ItemStack equipmentStack(MiteMaterial material, EquipmentType type) {
+    private static ItemStack equipmentStack(InfxMaterial material, EquipmentType type) {
         return InfXItems.catalog().equipment(material, type).holder().toStack();
     }
 
     private static void materialArrows(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         Vec3 position = player.position();
-        for (MiteMaterial material : EquipmentType.ARROW.allowedMaterials()) {
+        for (InfxMaterial material : EquipmentType.ARROW.allowedMaterials()) {
             EquipmentKey key = new EquipmentKey(material, EquipmentType.ARROW);
-            MiteArrowItem item = (MiteArrowItem) InfXItems.catalog()
+            InfxArrowItem item = (InfxArrowItem) InfXItems.catalog()
                     .equipment(material, EquipmentType.ARROW)
                     .holder()
                     .value();
@@ -630,15 +630,15 @@ public final class ModEquipmentGameTests {
                     key.path() + " infinite arrow never becomes recoverable");
         }
 
-        MiteArrowItem flint = (MiteArrowItem) InfXItems.catalog()
-                .equipment(MiteMaterial.FLINT, EquipmentType.ARROW)
+        InfxArrowItem flint = (InfxArrowItem) InfXItems.catalog()
+                .equipment(InfxMaterial.FLINT, EquipmentType.ARROW)
                 .holder()
                 .value();
         AbstractArrow entityArrow = (AbstractArrow) flint.asProjectile(
                 helper.getLevel(), position, flint.getDefaultInstance(), Direction.NORTH);
         long recoveringSeed = 0L;
         while (RandomSource.create(recoveringSeed).nextFloat()
-                >= EquipmentBehaviors.recoveryChance(MiteMaterial.FLINT)) {
+                >= EquipmentBehaviors.recoveryChance(InfxMaterial.FLINT)) {
             recoveringSeed++;
         }
         entityArrow.getRandom().setSeed(recoveringSeed);
@@ -668,12 +668,12 @@ public final class ModEquipmentGameTests {
     private static void materialBows(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         Item silverArrow = InfXItems.catalog()
-                .equipment(MiteMaterial.SILVER, EquipmentType.ARROW)
+                .equipment(InfxMaterial.SILVER, EquipmentType.ARROW)
                 .holder()
                 .value();
-        for (MiteMaterial material :
-                List.of(MiteMaterial.WOOD, MiteMaterial.ANCIENT_METAL, MiteMaterial.MITHRIL)) {
-            MiteBowItem bowItem = (MiteBowItem) InfXItems.catalog()
+        for (InfxMaterial material :
+                List.of(InfxMaterial.WOOD, InfxMaterial.ANCIENT_METAL, InfxMaterial.MITHRIL)) {
+            InfxBowItem bowItem = (InfxBowItem) InfXItems.catalog()
                     .equipment(material, EquipmentType.BOW)
                     .holder()
                     .value();
@@ -707,8 +707,8 @@ public final class ModEquipmentGameTests {
 
     private static void fishingRods(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        for (MiteMaterial material : List.of(MiteMaterial.FLINT, MiteMaterial.IRON, MiteMaterial.ADAMANTIUM)) {
-            MiteFishingRodItem rod = (MiteFishingRodItem) InfXItems.catalog()
+        for (InfxMaterial material : List.of(InfxMaterial.FLINT, InfxMaterial.IRON, InfxMaterial.ADAMANTIUM)) {
+            InfxFishingRodItem rod = (InfxFishingRodItem) InfXItems.catalog()
                     .equipment(material, EquipmentType.FISHING_ROD)
                     .holder()
                     .value();
@@ -729,13 +729,13 @@ public final class ModEquipmentGameTests {
 
     private static void armorAndHorseArmor(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
-        equipSet(helper, player, MiteMaterial.MITHRIL, EquipmentType.platePieces());
+        equipSet(helper, player, InfxMaterial.MITHRIL, EquipmentType.platePieces());
         player.doTick();
         double plateArmor = player.getAttributeValue(Attributes.ARMOR);
         helper.assertTrue(
                 Math.abs(plateArmor - 9.0) < 1.0E-6,
                 "mithril plate must sum to 9, got " + plateArmor);
-        equipSet(helper, player, MiteMaterial.MITHRIL, EquipmentType.chainPieces());
+        equipSet(helper, player, InfxMaterial.MITHRIL, EquipmentType.chainPieces());
         player.doTick();
         double chainArmor = player.getAttributeValue(Attributes.ARMOR);
         helper.assertTrue(
@@ -744,7 +744,7 @@ public final class ModEquipmentGameTests {
 
         var horse = helper.spawn(EntityType.HORSE, new BlockPos(6, 1, 1));
         EquipmentKey horseKey =
-                new EquipmentKey(MiteMaterial.ADAMANTIUM, EquipmentType.HORSE_ARMOR);
+                new EquipmentKey(InfxMaterial.ADAMANTIUM, EquipmentType.HORSE_ARMOR);
         ItemStack horseArmor = InfXItems.catalog()
                 .equipment(horseKey.material(), horseKey.type())
                 .holder()
@@ -768,12 +768,12 @@ public final class ModEquipmentGameTests {
     }
 
     private static void horseArmorLoot(GameTestHelper helper) {
-        Map<String, Set<MiteMaterial>> expected = Map.of(
-                "simple_dungeon", Set.of(MiteMaterial.COPPER, MiteMaterial.GOLD, MiteMaterial.IRON),
-                "nether_bridge", Set.of(MiteMaterial.COPPER, MiteMaterial.GOLD, MiteMaterial.IRON),
-                "desert_pyramid", Set.of(MiteMaterial.SILVER, MiteMaterial.GOLD, MiteMaterial.IRON),
-                "jungle_temple", Set.of(MiteMaterial.SILVER, MiteMaterial.GOLD, MiteMaterial.IRON),
-                "stronghold_corridor", Set.of(MiteMaterial.COPPER, MiteMaterial.IRON));
+        Map<String, Set<InfxMaterial>> expected = Map.of(
+                "simple_dungeon", Set.of(InfxMaterial.COPPER, InfxMaterial.GOLD, InfxMaterial.IRON),
+                "nether_bridge", Set.of(InfxMaterial.COPPER, InfxMaterial.GOLD, InfxMaterial.IRON),
+                "desert_pyramid", Set.of(InfxMaterial.SILVER, InfxMaterial.GOLD, InfxMaterial.IRON),
+                "jungle_temple", Set.of(InfxMaterial.SILVER, InfxMaterial.GOLD, InfxMaterial.IRON),
+                "stronghold_corridor", Set.of(InfxMaterial.COPPER, InfxMaterial.IRON));
         LootParams params = new LootParams.Builder(helper.getLevel())
                 .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(Vec3.ZERO))
                 .create(LootContextParamSets.CHEST);
@@ -782,10 +782,10 @@ public final class ModEquipmentGameTests {
                     Registries.LOOT_TABLE,
                     Identifier.withDefaultNamespace("chests/" + structure.getKey()));
             LootTable table = helper.getLevel().getServer().reloadableRegistries().getLootTable(key);
-            Set<MiteMaterial> found = new HashSet<>();
+            Set<InfxMaterial> found = new HashSet<>();
             for (long seed = 0; seed < 2000 && !found.equals(structure.getValue()); seed++) {
                 for (ItemStack stack : table.getRandomItems(params, seed)) {
-                    for (MiteMaterial material : structure.getValue()) {
+                    for (InfxMaterial material : structure.getValue()) {
                         if (stack.is(InfXItems.catalog()
                                 .equipment(material, EquipmentType.HORSE_ARMOR)
                                 .holder()
@@ -797,7 +797,7 @@ public final class ModEquipmentGameTests {
             }
             helper.assertTrue(
                     found.equals(structure.getValue()),
-                    structure.getKey() + " must expose exactly its R196 horse armor set, found " + found);
+                    structure.getKey() + " must expose exactly its INFX horse armor set, found " + found);
         }
         helper.succeed();
     }
@@ -805,7 +805,7 @@ public final class ModEquipmentGameTests {
     private static void equipSet(
             GameTestHelper helper,
             ServerPlayer player,
-            MiteMaterial material,
+            InfxMaterial material,
             List<EquipmentType> pieces) {
         for (EquipmentSlot slot :
                 List.of(EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {

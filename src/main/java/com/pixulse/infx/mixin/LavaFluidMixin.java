@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Restores R196's source-lava fire-elemental spawn hook at the vanilla random-tick boundary. */
+/** Restores INFX's source-lava fire-elemental spawn hook at the vanilla random-tick boundary. */
 @Mixin(LavaFluid.class)
 public abstract class LavaFluidMixin {
     @Inject(method = "randomTick", at = @At("HEAD"))

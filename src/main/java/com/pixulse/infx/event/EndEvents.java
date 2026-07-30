@@ -6,7 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -17,7 +17,7 @@ import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
-/** Restores the survival End chain and R196 crystal/dragon constraints. */
+/** Restores the survival End chain and INFX crystal/dragon constraints. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class EndEvents {
     private EndEvents() {}
@@ -41,7 +41,7 @@ public final class EndEvents {
     public static boolean hasAdamantiumCrystalTool(Player player) {
         var entry = InfXItems.catalog().equipment(player.getMainHandItem());
         return entry != null
-                && entry.key().material() == MiteMaterial.ADAMANTIUM
+                && entry.key().material() == InfxMaterial.ADAMANTIUM
                 && (entry.key().type() == EquipmentType.PICKAXE
                         || entry.key().type() == EquipmentType.WAR_HAMMER);
     }

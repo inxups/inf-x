@@ -2,7 +2,7 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 import net.minecraft.client.data.models.EquipmentAssetProvider;
@@ -21,10 +21,10 @@ final class ModEquipmentAssetProvider extends EquipmentAssetProvider {
     @Override
     protected void registerModels(
             @NonNull BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output) {
-        Arrays.stream(MiteMaterial.values())
+        Arrays.stream(InfxMaterial.values())
                 .filter(EquipmentType.HELMET::allows)
                 .forEach(material -> registerPlate(output, material));
-        Arrays.stream(MiteMaterial.values())
+        Arrays.stream(InfxMaterial.values())
                 .filter(EquipmentType.CHAINMAIL_HELMET::allows)
                 .forEach(material -> output.accept(
                         chainAssetKey(material),
@@ -35,10 +35,10 @@ final class ModEquipmentAssetProvider extends EquipmentAssetProvider {
 
     private static void registerPlate(
             BiConsumer<ResourceKey<EquipmentAsset>, EquipmentClientInfo> output,
-            MiteMaterial material) {
+            InfxMaterial material) {
         EquipmentClientInfo.Builder builder = EquipmentClientInfo.builder()
-                .addHumanoidLayers(InfiniteX.id(material.path()), material == MiteMaterial.LEATHER);
-        if (material == MiteMaterial.LEATHER) {
+                .addHumanoidLayers(InfiniteX.id(material.path()), material == InfxMaterial.LEATHER);
+        if (material == InfxMaterial.LEATHER) {
             builder.addHumanoidLayers(InfiniteX.id("leather_overlay"), false);
         }
         if (EquipmentType.HORSE_ARMOR.allows(material)) {
@@ -49,11 +49,11 @@ final class ModEquipmentAssetProvider extends EquipmentAssetProvider {
         output.accept(plateAssetKey(material), builder.build());
     }
 
-    private static ResourceKey<EquipmentAsset> plateAssetKey(MiteMaterial material) {
+    private static ResourceKey<EquipmentAsset> plateAssetKey(InfxMaterial material) {
         return ResourceKey.create(EquipmentAssets.ROOT_ID, InfiniteX.id(material.path()));
     }
 
-    private static ResourceKey<EquipmentAsset> chainAssetKey(MiteMaterial material) {
+    private static ResourceKey<EquipmentAsset> chainAssetKey(InfxMaterial material) {
         return ResourceKey.create(
                 EquipmentAssets.ROOT_ID, InfiniteX.id(material.path() + "_chainmail"));
     }

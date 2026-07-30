@@ -17,7 +17,7 @@ public final class Enchantments {
                 .orElse(0);
     }
 
-    /** R196 reads every armor enchantment as the highest equipped level, never as a sum. */
+    /** INFX reads every armor enchantment as the highest equipped level, never as a sum. */
     public static int maxArmorLevel(LivingEntity entity, ResourceKey<Enchantment> key) {
         int result = 0;
         for (EquipmentSlot slot : new EquipmentSlot[]{

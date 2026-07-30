@@ -17,7 +17,7 @@ import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-/** Server-authoritative livestock manure cycles from R196. */
+/** Server-authoritative livestock manure cycles from INFX. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ManureEvents {
     private static final String COUNTDOWN_TAG = "infx_manure_countdown";
@@ -46,7 +46,7 @@ public final class ManureEvents {
         data.putInt(COUNTDOWN_TAG, countdown);
     }
 
-    /** Prefer class checks so R196 replacements (subclasses) share MITE manure periods. */
+    /** Prefer class checks so INFX replacements (subclasses) share MITE manure periods. */
     static int interval(Entity entity) {
         if (entity instanceof AbstractCow) {
             return 24_000;

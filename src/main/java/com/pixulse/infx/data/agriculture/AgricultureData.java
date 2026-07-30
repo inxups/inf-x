@@ -19,7 +19,7 @@ public final class AgricultureData extends SavedData {
                     POSITION_TIMES.optionalFieldOf("artificial_logs", Map.of()).forGetter(data -> data.artificialLogs))
             .apply(instance, AgricultureData::new));
     public static final SavedDataType<AgricultureData> TYPE = new SavedDataType<>(
-            InfiniteX.id("r196_agriculture"), AgricultureData::new, CODEC);
+            InfiniteX.id("infx_agriculture"), AgricultureData::new, CODEC);
 
     private final Map<String, Long> fertile;
     private final Map<String, Long> artificialLogs;

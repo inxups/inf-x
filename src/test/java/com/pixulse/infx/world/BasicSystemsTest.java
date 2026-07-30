@@ -3,7 +3,7 @@ package com.pixulse.infx.world;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.pixulse.infx.event.SafeEvents;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.HashSet;
 import net.minecraft.util.RandomSource;
@@ -41,12 +41,12 @@ class BasicSystemsTest {
 
     @Test
     void safeOwnershipUsesMitePortabilityAndNumericHarvestLevels() {
-        assertTrue(SafeEvents.mayBreak(MiteMaterial.COPPER, true, null));
-        assertFalse(SafeEvents.mayBreak(MiteMaterial.COPPER, false, MiteMaterial.COPPER));
-        assertFalse(SafeEvents.mayBreak(MiteMaterial.COPPER, false, MiteMaterial.SILVER));
-        assertTrue(SafeEvents.mayBreak(MiteMaterial.COPPER, false, MiteMaterial.IRON));
-        assertTrue(SafeEvents.mayBreak(MiteMaterial.MITHRIL, false, MiteMaterial.ADAMANTIUM));
-        assertFalse(SafeEvents.mayBreak(MiteMaterial.ADAMANTIUM, false, MiteMaterial.ADAMANTIUM));
+        assertTrue(SafeEvents.mayBreak(InfxMaterial.COPPER, true, null));
+        assertFalse(SafeEvents.mayBreak(InfxMaterial.COPPER, false, InfxMaterial.COPPER));
+        assertFalse(SafeEvents.mayBreak(InfxMaterial.COPPER, false, InfxMaterial.SILVER));
+        assertTrue(SafeEvents.mayBreak(InfxMaterial.COPPER, false, InfxMaterial.IRON));
+        assertTrue(SafeEvents.mayBreak(InfxMaterial.MITHRIL, false, InfxMaterial.ADAMANTIUM));
+        assertFalse(SafeEvents.mayBreak(InfxMaterial.ADAMANTIUM, false, InfxMaterial.ADAMANTIUM));
     }
 
     @Test
@@ -56,8 +56,8 @@ class BasicSystemsTest {
 
     @Test
     void allTwentyTwoEnchantmentsAreDeclared() {
-        assertEquals(22, InfXEnchantments.R196.size());
-        assertEquals(22, InfXEnchantments.R196.stream().distinct().count());
+        assertEquals(22, InfXEnchantments.INFX.size());
+        assertEquals(22, InfXEnchantments.INFX.stream().distinct().count());
     }
 
     @Test

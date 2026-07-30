@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * FishingHook exposes no event before its lure timer is chosen. R196 baiting changes that timer
+ * FishingHook exposes no event before its lure timer is chosen. INFX baiting changes that timer
  * by 10% per level, so this scoped redirect changes only the lure-delay random roll.
  */
 @Mixin(FishingHook.class)

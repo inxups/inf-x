@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import java.util.List;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -22,7 +22,7 @@ public abstract class EnchantmentScreenMixin {
                     target = "Lnet/minecraft/client/player/LocalPlayer;experienceLevel:I"))
     private int infx$compareRawExperience(LocalPlayer player) {
         EnchantmentMenu menu = ((EnchantmentScreen) (Object) this).getMenu();
-        return menu instanceof MiteEnchantmentMenu ? player.totalExperience : player.experienceLevel;
+        return menu instanceof InfxEnchantmentMenu ? player.totalExperience : player.experienceLevel;
     }
 
     @Redirect(
@@ -32,7 +32,7 @@ public abstract class EnchantmentScreenMixin {
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;setComponentTooltipForNextFrame(Lnet/minecraft/client/gui/Font;Ljava/util/List;II)V"))
     private void infx$hideMiteEnchantmentTooltip(
             GuiGraphicsExtractor graphics, Font font, List<Component> tooltip, int mouseX, int mouseY) {
-        if (!(((EnchantmentScreen) (Object) this).getMenu() instanceof MiteEnchantmentMenu)) {
+        if (!(((EnchantmentScreen) (Object) this).getMenu() instanceof InfxEnchantmentMenu)) {
             graphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
         }
     }

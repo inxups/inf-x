@@ -45,8 +45,8 @@ class MonsterRosterTest {
         assertEquals(53, InfXEntityTypes.ALL.size());
         assertEquals(53, InfXEntityTypes.names().size());
         assertTrue(replacements.containsAll(Set.of(
-                "r196_bat", "r196_cow", "r196_chicken", "r196_sheep", "r196_pig", "r196_horse", "r196_ocelot", "r196_wolf",
-                "r196_cod", "r196_salmon", "r196_pufferfish", "r196_tropical_fish")));
+                "infx_bat", "infx_cow", "infx_chicken", "infx_sheep", "infx_pig", "infx_horse", "infx_ocelot", "infx_wolf",
+                "infx_cod", "infx_salmon", "infx_pufferfish", "infx_tropical_fish")));
     }
 
     @Test

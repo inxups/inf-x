@@ -4,15 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.pixulse.infx.entity.MiteBat;
-import com.pixulse.infx.entity.MiteCreeper;
+import com.pixulse.infx.entity.InfxBat;
+import com.pixulse.infx.entity.InfxCreeper;
 import com.pixulse.infx.entity.EarthElemental;
-import com.pixulse.infx.entity.MiteSilverfish;
-import com.pixulse.infx.entity.MiteSkeleton;
-import com.pixulse.infx.entity.MiteSlime;
-import com.pixulse.infx.entity.MiteSpider;
-import com.pixulse.infx.entity.MiteWolf;
-import com.pixulse.infx.entity.MiteZombie;
+import com.pixulse.infx.entity.InfxSilverfish;
+import com.pixulse.infx.entity.InfxSkeleton;
+import com.pixulse.infx.entity.InfxSlime;
+import com.pixulse.infx.entity.InfxSpider;
+import com.pixulse.infx.entity.InfxWolf;
+import com.pixulse.infx.entity.InfxZombie;
 import org.junit.jupiter.api.Test;
 
 class EntityRenderersTest {
@@ -85,19 +85,19 @@ class EntityRenderersTest {
     void gelatinousVariantsUseTheirMatchingMiteEntityTextures() {
         assertEquals(
                 "infx:textures/entity/slime/slime.png",
-                EntityRenderers.SlimeTexture.textureFor(MiteSlime.Variant.SLIME).toString());
+                EntityRenderers.SlimeTexture.textureFor(InfxSlime.Variant.SLIME).toString());
         assertEquals(
                 "infx:textures/entity/slime/jelly.png",
-                EntityRenderers.SlimeTexture.textureFor(MiteSlime.Variant.JELLY).toString());
+                EntityRenderers.SlimeTexture.textureFor(InfxSlime.Variant.JELLY).toString());
         assertEquals(
                 "infx:textures/entity/slime/blob.png",
-                EntityRenderers.SlimeTexture.textureFor(MiteSlime.Variant.BLOB).toString());
+                EntityRenderers.SlimeTexture.textureFor(InfxSlime.Variant.BLOB).toString());
         assertEquals(
                 "infx:textures/entity/slime/ooze.png",
-                EntityRenderers.SlimeTexture.textureFor(MiteSlime.Variant.OOZE).toString());
+                EntityRenderers.SlimeTexture.textureFor(InfxSlime.Variant.OOZE).toString());
         assertEquals(
                 "infx:textures/entity/slime/pudding.png",
-                EntityRenderers.SlimeTexture.textureFor(MiteSlime.Variant.PUDDING).toString());
+                EntityRenderers.SlimeTexture.textureFor(InfxSlime.Variant.PUDDING).toString());
         assertEquals(
                 "infx:textures/entity/slime/magmacube.png",
                 EntityRenderers.MagmaCubeTexture.texture().toString());
@@ -105,7 +105,7 @@ class EntityRenderersTest {
 
     /**
      * Vanilla SlimeRenderer owns an outer layer that unconditionally binds
-     * minecraft:textures/entity/slime/slime.png. The R196 renderer must own both layers so the
+     * minecraft:textures/entity/slime/slime.png. The INFX renderer must own both layers so the
      * supplied MITE sheet is applied consistently.
      */
     @Test
@@ -124,85 +124,85 @@ class EntityRenderersTest {
                 InvisibleStalkerRenderer.modelTint());
         assertEquals(
                 "infx:textures/entity/ghoul.png",
-                EntityRenderers.ZombieTexture.textureFor(MiteZombie.Variant.GHOUL).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.GHOUL).toString());
         assertEquals(
                 "infx:textures/entity/shadow.png",
-                EntityRenderers.ZombieTexture.textureFor(MiteZombie.Variant.SHADOW).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.SHADOW).toString());
         assertEquals(
                 "infx:textures/entity/wight.png",
-                EntityRenderers.ZombieTexture.textureFor(MiteZombie.Variant.WIGHT).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.WIGHT).toString());
         assertEquals(
                 "infx:textures/entity/zombie/revenant.png",
-                EntityRenderers.ZombieTexture.textureFor(MiteZombie.Variant.REVENANT).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.REVENANT).toString());
         assertEquals(
                 "infx:textures/entity/zombie/zombie_villager.png",
                 EntityRenderers.ZombieTexture.villagerTexture().toString());
         assertEquals(
                 "infx:textures/entity/skeleton/longdead.png",
-                EntityRenderers.SkeletonTexture.textureFor(MiteSkeleton.Variant.LONGDEAD).toString());
+                EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.LONGDEAD).toString());
         assertEquals(
                 "infx:textures/entity/skeleton/bone_lord.png",
-                EntityRenderers.SkeletonTexture.textureFor(MiteSkeleton.Variant.BONE_LORD).toString());
+                EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.BONE_LORD).toString());
         assertEquals(
                 "infx:textures/entity/skeleton/longdead_guardian.png",
-                EntityRenderers.SkeletonTexture.textureFor(MiteSkeleton.Variant.ANCIENT_BONE_LORD)
+                EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.ANCIENT_BONE_LORD)
                         .toString());
         assertEquals(
                 "infx:textures/entity/spider/black_widow.png",
-                EntityRenderers.SpiderTexture.textureFor(MiteSpider.Variant.BLACK_WIDOW).toString());
+                EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.BLACK_WIDOW).toString());
         assertEquals(
                 "infx:textures/entity/spider/demon_spider.png",
-                EntityRenderers.SpiderTexture.textureFor(MiteSpider.Variant.DEMON).toString());
+                EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.DEMON).toString());
         assertEquals(
                 "infx:textures/entity/spider/wood_spider.png",
-                EntityRenderers.SpiderTexture.textureFor(MiteSpider.Variant.WOOD).toString());
+                EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.WOOD).toString());
         assertEquals(
                 "infx:textures/entity/spider/phase_spider.png",
-                EntityRenderers.SpiderTexture.textureFor(MiteSpider.Variant.PHASE).toString());
+                EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.PHASE).toString());
         assertEquals(
                 "infx:textures/entity/spider/cave_spider.png",
-                EntityRenderers.SpiderTexture.textureFor(MiteSpider.Variant.CAVE_SPIDER).toString());
+                EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.CAVE_SPIDER).toString());
         assertEquals(
                 "infx:textures/entity/creeper/infernal_creeper.png",
-                EntityRenderers.CreeperTexture.textureFor(MiteCreeper.Variant.INFERNAL).toString());
+                EntityRenderers.CreeperTexture.textureFor(InfxCreeper.Variant.INFERNAL).toString());
         assertEquals(
                 "infx:textures/entity/fire_elemental.png",
                 EntityRenderers.FireElementalTexture.texture().toString());
         assertEquals(
                 "infx:textures/entity/silverfish/netherspawn.png",
-                EntityRenderers.SilverfishTexture.textureFor(MiteSilverfish.Variant.NETHERSPAWN)
+                EntityRenderers.SilverfishTexture.textureFor(InfxSilverfish.Variant.NETHERSPAWN)
                         .toString());
         assertEquals(
                 "infx:textures/entity/silverfish/copperspine.png",
-                EntityRenderers.SilverfishTexture.textureFor(MiteSilverfish.Variant.COPPERSPINE)
+                EntityRenderers.SilverfishTexture.textureFor(InfxSilverfish.Variant.COPPERSPINE)
                         .toString());
         assertEquals(
                 "infx:textures/entity/silverfish/hoary.png",
-                EntityRenderers.SilverfishTexture.textureFor(MiteSilverfish.Variant.HOARY).toString());
+                EntityRenderers.SilverfishTexture.textureFor(InfxSilverfish.Variant.HOARY).toString());
         assertEquals(
                 "infx:textures/entity/bat.png",
-                EntityRenderers.BatTexture.textureFor(MiteBat.Variant.NORMAL).toString());
+                EntityRenderers.BatTexture.textureFor(InfxBat.Variant.NORMAL).toString());
         assertEquals(
                 "infx:textures/entity/bat/vampire.png",
-                EntityRenderers.BatTexture.textureFor(MiteBat.Variant.VAMPIRE).toString());
+                EntityRenderers.BatTexture.textureFor(InfxBat.Variant.VAMPIRE).toString());
         assertEquals(
                 "infx:textures/entity/bat/nightwing.png",
-                EntityRenderers.BatTexture.textureFor(MiteBat.Variant.NIGHTWING).toString());
+                EntityRenderers.BatTexture.textureFor(InfxBat.Variant.NIGHTWING).toString());
         assertEquals(
                 "infx:textures/entity/hellhound/hellhound.png",
-                EntityRenderers.WolfTexture.textureFor(MiteWolf.Variant.HELLHOUND, false, false)
+                EntityRenderers.WolfTexture.textureFor(InfxWolf.Variant.HELLHOUND, false, false)
                         .toString());
         assertEquals(
                 "infx:textures/entity/dire_wolf/neutral.png",
-                EntityRenderers.WolfTexture.textureFor(MiteWolf.Variant.DIRE_WOLF, false, false)
+                EntityRenderers.WolfTexture.textureFor(InfxWolf.Variant.DIRE_WOLF, false, false)
                         .toString());
         assertEquals(
                 "infx:textures/entity/dire_wolf/tame.png",
-                EntityRenderers.WolfTexture.textureFor(MiteWolf.Variant.DIRE_WOLF, true, false)
+                EntityRenderers.WolfTexture.textureFor(InfxWolf.Variant.DIRE_WOLF, true, false)
                         .toString());
         assertEquals(
                 "infx:textures/entity/dire_wolf/angry.png",
-                EntityRenderers.WolfTexture.textureFor(MiteWolf.Variant.DIRE_WOLF, false, true)
+                EntityRenderers.WolfTexture.textureFor(InfxWolf.Variant.DIRE_WOLF, false, true)
                         .toString());
     }
 
@@ -265,7 +265,7 @@ class EntityRenderersTest {
     void baseMonstersBindOnlyTheAuditedMiteDivergences() {
         assertEquals(
                 "infx:textures/entity/spider/spider.png",
-                EntityRenderers.SpiderTexture.textureFor(MiteSpider.Variant.SPIDER).toString());
+                EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.SPIDER).toString());
         assertEquals(
                 "infx:textures/entity/blaze.png", EntityRenderers.BlazeTexture.texture().toString());
         assertEquals(
@@ -282,10 +282,10 @@ class EntityRenderersTest {
                 EntityRenderers.ZombiePigmanTexture.babyTexture().toString());
         assertEquals(
                 "minecraft:textures/entity/zombie/zombie.png",
-                EntityRenderers.ZombieTexture.textureFor(MiteZombie.Variant.ZOMBIE).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.ZOMBIE).toString());
         assertEquals(
                 "minecraft:textures/entity/creeper/creeper.png",
-                EntityRenderers.CreeperTexture.textureFor(MiteCreeper.Variant.CREEPER).toString());
+                EntityRenderers.CreeperTexture.textureFor(InfxCreeper.Variant.CREEPER).toString());
     }
 
     /** 26.2 renders babies with BabyZombieModel's chibi UV sheet, never the adult layout. */
@@ -293,18 +293,18 @@ class EntityRenderersTest {
     void zombieLineBabiesUseDerivedBabyUvSheets() {
         assertEquals(
                 "infx:textures/entity/ghoul_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(MiteZombie.Variant.GHOUL).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.GHOUL).toString());
         assertEquals(
                 "infx:textures/entity/shadow_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(MiteZombie.Variant.SHADOW).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.SHADOW).toString());
         assertEquals(
                 "infx:textures/entity/wight_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(MiteZombie.Variant.WIGHT).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.WIGHT).toString());
         assertEquals(
                 "infx:textures/entity/zombie/revenant_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(MiteZombie.Variant.REVENANT).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.REVENANT).toString());
         assertEquals(
                 "minecraft:textures/entity/zombie/zombie_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(MiteZombie.Variant.ZOMBIE).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.ZOMBIE).toString());
     }
 }

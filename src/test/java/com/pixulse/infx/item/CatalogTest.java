@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 
@@ -27,7 +27,7 @@ class CatalogTest {
 
     private static List<String> goldenPaths() throws IOException, URISyntaxException {
         return Files.readAllLines(
-                Path.of(CatalogTest.class.getResource("/r196/catalog-paths.txt").toURI()), UTF_8);
+                Path.of(CatalogTest.class.getResource("/infx/catalog-paths.txt").toURI()), UTF_8);
     }
 
     @Test
@@ -64,43 +64,43 @@ class CatalogTest {
         assertSame(InfXItems.ADAMANTIUM_NUGGET, catalog().raw("adamantium_nugget").holder());
         assertSame(
                 InfXItems.FLINT_HATCHET,
-                catalog().equipment(MiteMaterial.FLINT, EquipmentType.HATCHET).holder());
+                catalog().equipment(InfxMaterial.FLINT, EquipmentType.HATCHET).holder());
         assertSame(
                 InfXItems.FLINT_SHOVEL,
-                catalog().equipment(MiteMaterial.FLINT, EquipmentType.SHOVEL).holder());
+                catalog().equipment(InfxMaterial.FLINT, EquipmentType.SHOVEL).holder());
         assertSame(
                 InfXItems.FLINT_AXE,
-                catalog().equipment(MiteMaterial.FLINT, EquipmentType.AXE).holder());
+                catalog().equipment(InfxMaterial.FLINT, EquipmentType.AXE).holder());
         assertSame(
                 InfXItems.COPPER_PICKAXE,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE).holder());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).holder());
         assertSame(
                 InfXItems.COPPER_SHOVEL,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL).holder());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL).holder());
         assertSame(
                 InfXItems.COPPER_AXE,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.AXE).holder());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.AXE).holder());
         assertSame(
                 InfXItems.COPPER_HOE,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.HOE).holder());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.HOE).holder());
         assertSame(
                 InfXItems.COPPER_SWORD,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.SWORD).holder());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.SWORD).holder());
         assertSame(
                 InfXItems.IRON_PICKAXE,
-                catalog().equipment(MiteMaterial.IRON, EquipmentType.PICKAXE).holder());
+                catalog().equipment(InfxMaterial.IRON, EquipmentType.PICKAXE).holder());
         assertSame(
                 InfXItems.IRON_SHOVEL,
-                catalog().equipment(MiteMaterial.IRON, EquipmentType.SHOVEL).holder());
+                catalog().equipment(InfxMaterial.IRON, EquipmentType.SHOVEL).holder());
         assertSame(
                 InfXItems.IRON_AXE,
-                catalog().equipment(MiteMaterial.IRON, EquipmentType.AXE).holder());
+                catalog().equipment(InfxMaterial.IRON, EquipmentType.AXE).holder());
         assertSame(
                 InfXItems.IRON_HOE,
-                catalog().equipment(MiteMaterial.IRON, EquipmentType.HOE).holder());
+                catalog().equipment(InfxMaterial.IRON, EquipmentType.HOE).holder());
         assertSame(
                 InfXItems.IRON_SWORD,
-                catalog().equipment(MiteMaterial.IRON, EquipmentType.SWORD).holder());
+                catalog().equipment(InfxMaterial.IRON, EquipmentType.SWORD).holder());
     }
 
     @Test
@@ -110,7 +110,7 @@ class CatalogTest {
         assertTrue(raw.getMessage().contains("iron_coin"));
         IllegalArgumentException equipment = assertThrows(
                 IllegalArgumentException.class,
-                () -> catalog().equipment(MiteMaterial.WOOD, EquipmentType.PICKAXE));
+                () -> catalog().equipment(InfxMaterial.WOOD, EquipmentType.PICKAXE));
         assertTrue(equipment.getMessage().contains("wood_pickaxe"));
         assertFalse(catalog().entries().stream().anyMatch(entry -> entry.path().contains("diamond_helmet")));
         assertFalse(catalog().entries().stream().anyMatch(entry -> entry.path().endsWith("_frags")));
@@ -119,24 +119,24 @@ class CatalogTest {
     @Test
     void specialtyFactoriesAreNotCollapsedToPlainItems() {
         assertEquals(
-                MiteShearsItem.class,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.SHEARS).itemClass());
+                InfxShearsItem.class,
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.SHEARS).itemClass());
         assertEquals(
-                MiteFishingRodItem.class,
-                catalog().equipment(MiteMaterial.FLINT, EquipmentType.FISHING_ROD).itemClass());
+                InfxFishingRodItem.class,
+                catalog().equipment(InfxMaterial.FLINT, EquipmentType.FISHING_ROD).itemClass());
         assertEquals(
                 ToolItem.class,
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE).itemClass());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).itemClass());
     }
 
     @Test
     void projectileFactoriesRetainCatalogIdentity() {
         assertEquals(
-                MiteBowItem.class,
-                catalog().equipment(MiteMaterial.WOOD, EquipmentType.BOW).itemClass());
+                InfxBowItem.class,
+                catalog().equipment(InfxMaterial.WOOD, EquipmentType.BOW).itemClass());
         assertEquals(
-                MiteArrowItem.class,
-                catalog().equipment(MiteMaterial.ADAMANTIUM, EquipmentType.ARROW).itemClass());
+                InfxArrowItem.class,
+                catalog().equipment(InfxMaterial.ADAMANTIUM, EquipmentType.ARROW).itemClass());
     }
 
     @Test
@@ -147,7 +147,7 @@ class CatalogTest {
         assertEquals("adamantium_horse_armor", catalog().equipmentEntries().getLast().path());
         assertEquals(
                 "repair_materials/rusted_iron",
-                InfXItemTags.repairMaterial(MiteMaterial.RUSTED_IRON).location().getPath());
+                InfXItemTags.repairMaterial(InfxMaterial.RUSTED_IRON).location().getPath());
         assertEquals(
                 "equipment/war_hammer",
                 InfXItemTags.equipmentType(EquipmentType.WAR_HAMMER).location().getPath());
@@ -161,25 +161,25 @@ class CatalogTest {
         }
         assertEquals(
                 "InfiniteX Copper Pickaxe",
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE).englishName());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).englishName());
         assertEquals(
                 "InfiniteX 铜镐",
-                catalog().equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE).chineseName());
+                catalog().equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).chineseName());
         assertEquals(
                 "Ancient Metal War Hammer",
-                catalog().equipment(MiteMaterial.ANCIENT_METAL, EquipmentType.WAR_HAMMER).englishName());
+                catalog().equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.WAR_HAMMER).englishName());
         assertEquals(
                 "远古金属锁链胸甲",
-                catalog().equipment(MiteMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_CHESTPLATE).chineseName());
+                catalog().equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_CHESTPLATE).chineseName());
         assertEquals(
                 "Gold Horse Armor",
-                catalog().equipment(MiteMaterial.GOLD, EquipmentType.HORSE_ARMOR).englishName());
-        assertEquals("Bow", catalog().equipment(MiteMaterial.WOOD, EquipmentType.BOW).englishName());
+                catalog().equipment(InfxMaterial.GOLD, EquipmentType.HORSE_ARMOR).englishName());
+        assertEquals("Bow", catalog().equipment(InfxMaterial.WOOD, EquipmentType.BOW).englishName());
         assertEquals(
                 "Fishing Rod",
-                catalog().equipment(MiteMaterial.ADAMANTIUM, EquipmentType.FISHING_ROD).englishName());
+                catalog().equipment(InfxMaterial.ADAMANTIUM, EquipmentType.FISHING_ROD).englishName());
         assertEquals(
                 "钓鱼竿",
-                catalog().equipment(MiteMaterial.FLINT, EquipmentType.FISHING_ROD).chineseName());
+                catalog().equipment(InfxMaterial.FLINT, EquipmentType.FISHING_ROD).chineseName());
     }
 }

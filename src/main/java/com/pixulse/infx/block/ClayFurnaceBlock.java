@@ -5,7 +5,7 @@ import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jspecify.annotations.NonNull;
 
-public final class ClayFurnaceBlock extends MiteFurnaceBlock {
+public final class ClayFurnaceBlock extends InfxFurnaceBlock {
     public static final MapCodec<ClayFurnaceBlock> CODEC = simpleCodec(ClayFurnaceBlock::new);
 
     public ClayFurnaceBlock(BlockBehaviour.Properties properties) {

@@ -8,16 +8,16 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
-import com.pixulse.infx.block.entity.MiteFurnaceBlockEntity;
+import com.pixulse.infx.block.entity.InfxFurnaceBlockEntity;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.CraftingProfile;
-import com.pixulse.infx.recipe.MiteCraftingRules;
+import com.pixulse.infx.recipe.InfxCraftingRules;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.data.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.player.Experience;
@@ -624,7 +624,7 @@ public final class ModGameTests {
                     vanilla.clicked(0, 1, ContainerInput.PICKUP, player);
                     ItemStack qualityPreview = timed.infx$resultContainer().getItem(0);
                     helper.assertTrue(
-                            qualityPreview.is(equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)),
+                            qualityPreview.is(equipment(InfxMaterial.FLINT, EquipmentType.KNIFE)),
                             "right-click must keep the tool crafting result");
                     helper.assertTrue(
                             qualityPreview.get(InfXDataComponents.QUALITY.get()) == Quality.FINE,
@@ -636,7 +636,7 @@ public final class ModGameTests {
                 })
                 .thenWaitUntil(() -> {
                     ItemStack craftedKnife = player.getInventory().getNonEquipmentItems().stream()
-                            .filter(stack -> stack.is(equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)))
+                            .filter(stack -> stack.is(equipment(InfxMaterial.FLINT, EquipmentType.KNIFE)))
                             .findFirst()
                             .orElse(ItemStack.EMPTY);
                     helper.assertTrue(
@@ -681,7 +681,7 @@ public final class ModGameTests {
                 "all original minecraft crafting profiles must be removed");
         for (var holder : loadedCraftingRecipes) {
             try {
-                CraftingProfile profile = MiteCraftingRules.displayProfile(holder.value());
+                CraftingProfile profile = InfxCraftingRules.displayProfile(holder.value());
                 helper.assertTrue(
                         Float.isFinite(profile.difficulty()) && profile.difficulty() > 0.0F,
                         holder.id().identifier() + " must have a finite positive inferred difficulty");
@@ -694,7 +694,7 @@ public final class ModGameTests {
         }
 
         var explicitRecipes = recipeMap.byType(InfXRecipes.CRAFTING.get());
-        helper.assertTrue(!explicitRecipes.isEmpty(), "InfiniteX explicit R196 crafting recipes must be loaded");
+        helper.assertTrue(!explicitRecipes.isEmpty(), "InfiniteX explicit INFX crafting recipes must be loaded");
         for (var holder : explicitRecipes) {
             CraftingProfile profile = CraftingProfile.explicit(
                     holder.value().requiredBench(), holder.value().difficulty());
@@ -1115,7 +1115,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(MiteMaterial.SILVER, EquipmentType.SWORD),
+                equipment(InfxMaterial.SILVER, EquipmentType.SWORD),
                 "silver sword preview");
         clearGrid(copper.infx$craftingContainer());
         fillMetalHoe(copper.infx$craftingContainer(), Items.GOLD_INGOT);
@@ -1125,7 +1125,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(MiteMaterial.GOLD, EquipmentType.HOE),
+                equipment(InfxMaterial.GOLD, EquipmentType.HOE),
                 "gold hoe preview");
 
         player.closeContainer();
@@ -1150,7 +1150,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(MiteMaterial.MITHRIL, EquipmentType.SWORD),
+                equipment(InfxMaterial.MITHRIL, EquipmentType.SWORD),
                 "mithril sword preview");
         clearGrid(mithril.infx$craftingContainer());
         fillMetalSword(mithril.infx$craftingContainer(), InfXItems.ADAMANTIUM_INGOT.get());
@@ -1170,7 +1170,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 adamantium,
-                equipment(MiteMaterial.ADAMANTIUM, EquipmentType.SWORD),
+                equipment(InfxMaterial.ADAMANTIUM, EquipmentType.SWORD),
                 "adamantium sword preview");
 
         removePlayer(player);
@@ -1193,7 +1193,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 hand,
-                equipment(MiteMaterial.OBSIDIAN, EquipmentType.HATCHET),
+                equipment(InfxMaterial.OBSIDIAN, EquipmentType.HATCHET),
                 "obsidian hatchet preview");
         clearGrid(hand.infx$craftingContainer());
 
@@ -1214,7 +1214,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(MiteMaterial.OBSIDIAN, EquipmentType.AXE),
+                equipment(InfxMaterial.OBSIDIAN, EquipmentType.AXE),
                 "obsidian axe preview");
 
         player.closeContainer();
@@ -1231,7 +1231,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(MiteMaterial.SILVER, EquipmentType.SHEARS),
+                equipment(InfxMaterial.SILVER, EquipmentType.SHEARS),
                 "silver shears preview");
 
         player.closeContainer();
@@ -1256,7 +1256,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(MiteMaterial.MITHRIL, EquipmentType.WAR_HAMMER),
+                equipment(InfxMaterial.MITHRIL, EquipmentType.WAR_HAMMER),
                 "mithril war hammer preview");
 
         player.closeContainer();
@@ -1276,7 +1276,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 adamantium,
-                equipment(MiteMaterial.ADAMANTIUM, EquipmentType.SCYTHE),
+                equipment(InfxMaterial.ADAMANTIUM, EquipmentType.SCYTHE),
                 "adamantium scythe preview");
 
         removePlayer(player);
@@ -1299,7 +1299,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 hand,
-                equipment(MiteMaterial.FLINT, EquipmentType.KNIFE),
+                equipment(InfxMaterial.FLINT, EquipmentType.KNIFE),
                 "flint knife preview");
 
         player.closeContainer();
@@ -1320,7 +1320,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(MiteMaterial.WOOD, EquipmentType.BOW),
+                equipment(InfxMaterial.WOOD, EquipmentType.BOW),
                 "wood bow preview");
 
         player.closeContainer();
@@ -1337,7 +1337,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(MiteMaterial.GOLD, EquipmentType.DAGGER),
+                equipment(InfxMaterial.GOLD, EquipmentType.DAGGER),
                 "gold dagger preview");
 
         player.closeContainer();
@@ -1368,7 +1368,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(MiteMaterial.MITHRIL, EquipmentType.ARROW),
+                equipment(InfxMaterial.MITHRIL, EquipmentType.ARROW),
                 "mithril arrow preview");
 
         removePlayer(player);
@@ -1394,7 +1394,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 flint,
-                equipment(MiteMaterial.LEATHER, EquipmentType.HELMET),
+                equipment(InfxMaterial.LEATHER, EquipmentType.HELMET),
                 "leather helmet preview");
         clearGrid(flintGrid);
         for (int slot : List.of(1, 3, 5, 7)) {
@@ -1431,7 +1431,7 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 copper,
-                equipment(MiteMaterial.COPPER, EquipmentType.CHAINMAIL_BOOTS),
+                equipment(InfxMaterial.COPPER, EquipmentType.CHAINMAIL_BOOTS),
                 "copper chainmail boots preview");
 
         player.closeContainer();
@@ -1462,29 +1462,29 @@ public final class ModGameTests {
         assertResult(
                 helper,
                 mithril,
-                equipment(MiteMaterial.MITHRIL, EquipmentType.HELMET),
+                equipment(InfxMaterial.MITHRIL, EquipmentType.HELMET),
                 "mithril helmet preview");
         player.closeContainer();
 
         player.setItemSlot(
                 EquipmentSlot.CHEST,
-                equipment(MiteMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
+                equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper, player, "wear_leather", "wearing leather armor must grant Suiting Up"))
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
-                            equipment(MiteMaterial.COPPER, EquipmentType.HELMET).getDefaultInstance());
+                            equipment(InfxMaterial.COPPER, EquipmentType.HELMET).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.CHEST,
-                            equipment(MiteMaterial.GOLD, EquipmentType.CHESTPLATE).getDefaultInstance());
+                            equipment(InfxMaterial.GOLD, EquipmentType.CHESTPLATE).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.LEGS,
-                            equipment(MiteMaterial.IRON, EquipmentType.LEGGINGS).getDefaultInstance());
+                            equipment(InfxMaterial.IRON, EquipmentType.LEGGINGS).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.FEET,
-                            equipment(MiteMaterial.MITHRIL, EquipmentType.BOOTS).getDefaultInstance());
+                            equipment(InfxMaterial.MITHRIL, EquipmentType.BOOTS).getDefaultInstance());
                 })
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
@@ -1494,16 +1494,16 @@ public final class ModGameTests {
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
-                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.HELMET).getDefaultInstance());
+                            equipment(InfxMaterial.ADAMANTIUM, EquipmentType.HELMET).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.CHEST,
-                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.CHESTPLATE).getDefaultInstance());
+                            equipment(InfxMaterial.ADAMANTIUM, EquipmentType.CHESTPLATE).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.LEGS,
-                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.LEGGINGS).getDefaultInstance());
+                            equipment(InfxMaterial.ADAMANTIUM, EquipmentType.LEGGINGS).getDefaultInstance());
                     player.setItemSlot(
                             EquipmentSlot.FEET,
-                            equipment(MiteMaterial.ADAMANTIUM, EquipmentType.BOOTS).getDefaultInstance());
+                            equipment(InfxMaterial.ADAMANTIUM, EquipmentType.BOOTS).getDefaultInstance());
                 })
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
@@ -1604,8 +1604,8 @@ public final class ModGameTests {
                 .defaultBlockState()
                 .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
         helper.setBlock(FURNACE_POS, clayState);
-        MiteFurnaceBlockEntity[] furnace = {
-            helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class)
+        InfxFurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class)
         };
         ItemStack sandBatch = new ItemStack(Items.SAND, 4);
         helper.assertFalse(
@@ -1645,7 +1645,7 @@ public final class ModGameTests {
                             .defaultBlockState()
                             .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
                     helper.setBlock(FURNACE_POS, sandstoneState);
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class);
 
                     player.openMenu(furnace[0]);
                     helper.assertTrue(
@@ -1725,8 +1725,8 @@ public final class ModGameTests {
                 InfXBlocks.LARGE_CLAY_OVEN.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        MiteFurnaceBlockEntity[] furnace = {
-            helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class)
+        InfxFurnaceBlockEntity[] furnace = {
+            helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class)
         };
 
         helper.assertTrue(
@@ -1754,7 +1754,7 @@ public final class ModGameTests {
                 InfXBlocks.OBSIDIAN_FURNACE.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
+        furnace[0] = helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class);
         helper.assertTrue(
                 furnace[0].canPlaceItem(1, Items.LAVA_BUCKET.getDefaultInstance()),
                 "the obsidian furnace must accept heat-3 lava");
@@ -1778,7 +1778,7 @@ public final class ModGameTests {
                             InfXBlocks.NETHERRACK_FURNACE.get()
                                     .defaultBlockState()
                                     .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, MiteFurnaceBlockEntity.class);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class);
                     helper.assertTrue(
                             furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                             "the netherrack furnace must accept heat-4 blaze rods");
@@ -1850,7 +1850,7 @@ public final class ModGameTests {
     }
 
     private static void assertDifficulty(GameTestHelper helper, Item item, float expected) {
-        float actual = MiteCraftingRules.componentDifficulty(item.getDefaultInstance());
+        float actual = InfxCraftingRules.componentDifficulty(item.getDefaultInstance());
         helper.assertTrue(
                 Math.abs(actual - expected) < 0.001F,
                 item + " component difficulty must be " + expected + ", actual=" + actual);
@@ -1918,7 +1918,7 @@ public final class ModGameTests {
         }
     }
 
-    private static Item equipment(MiteMaterial material, EquipmentType type) {
+    private static Item equipment(InfxMaterial material, EquipmentType type) {
         return InfXItems.catalog().equipment(material, type).holder().get();
     }
 

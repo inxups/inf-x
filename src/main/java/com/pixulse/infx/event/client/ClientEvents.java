@@ -6,14 +6,14 @@ import com.pixulse.infx.screen.gui.MetalAnvilScreen;
 import com.pixulse.infx.screen.gui.TimedWorkbenchScreen;
 import com.pixulse.infx.recipe.InferredTimedCraftingRecipe;
 import com.pixulse.infx.recipe.TimedCraftingRecipe;
-import com.pixulse.infx.entity.MiteBat;
-import com.pixulse.infx.entity.MiteCreeper;
-import com.pixulse.infx.entity.MiteSilverfish;
-import com.pixulse.infx.entity.MiteSkeleton;
-import com.pixulse.infx.entity.MiteSlime;
-import com.pixulse.infx.entity.MiteSpider;
-import com.pixulse.infx.entity.MiteWolf;
-import com.pixulse.infx.entity.MiteZombie;
+import com.pixulse.infx.entity.InfxBat;
+import com.pixulse.infx.entity.InfxCreeper;
+import com.pixulse.infx.entity.InfxSilverfish;
+import com.pixulse.infx.entity.InfxSkeleton;
+import com.pixulse.infx.entity.InfxSlime;
+import com.pixulse.infx.entity.InfxSpider;
+import com.pixulse.infx.entity.InfxWolf;
+import com.pixulse.infx.entity.InfxZombie;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXMenus;
@@ -84,132 +84,132 @@ public final class ClientEvents {
         // World geometry only 鈥?chunk mesh is particle-only (see ModModelProvider).
         event.registerBlockEntityRenderer(InfXBlockEntityTypes.SAFE.get(), SafeRenderer::new);
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_ZOMBIE.get(),
-                context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.ZOMBIE));
+                InfXEntityTypes.INFX_ZOMBIE.get(),
+                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.ZOMBIE));
         event.registerEntityRenderer(InfXEntityTypes.INVISIBLE_STALKER.get(), InvisibleStalkerRenderer::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.GHOUL.get(),
-                context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.GHOUL));
+                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.GHOUL));
         event.registerEntityRenderer(
                 InfXEntityTypes.SHADOW.get(),
-                context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.SHADOW));
+                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.SHADOW));
         event.registerEntityRenderer(
                 InfXEntityTypes.WIGHT.get(),
-                context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.WIGHT));
+                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.WIGHT));
         event.registerEntityRenderer(
                 InfXEntityTypes.REVENANT.get(),
-                context -> new EntityRenderers.ZombieTexture(context, MiteZombie.Variant.REVENANT));
+                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.REVENANT));
 
-        event.registerEntityRenderer(InfXEntityTypes.R196_SKELETON.get(), SkeletonRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_SKELETON.get(), SkeletonRenderer::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.LONGDEAD.get(),
-                context -> new EntityRenderers.SkeletonTexture(context, MiteSkeleton.Variant.LONGDEAD));
+                context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.LONGDEAD));
         event.registerEntityRenderer(
                 InfXEntityTypes.BONE_LORD.get(),
-                context -> new EntityRenderers.SkeletonTexture(context, MiteSkeleton.Variant.BONE_LORD));
+                context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.BONE_LORD));
         event.registerEntityRenderer(
                 InfXEntityTypes.ANCIENT_BONE_LORD.get(),
-                context -> new EntityRenderers.SkeletonTexture(context, MiteSkeleton.Variant.ANCIENT_BONE_LORD));
+                context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.ANCIENT_BONE_LORD));
 
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_SPIDER.get(),
-                context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.SPIDER));
+                InfXEntityTypes.INFX_SPIDER.get(),
+                context -> new EntityRenderers.SpiderTexture(context, InfxSpider.Variant.SPIDER));
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_CAVE_SPIDER.get(),
-                context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.CAVE_SPIDER, 0.5F));
+                InfXEntityTypes.INFX_CAVE_SPIDER.get(),
+                context -> new EntityRenderers.SpiderTexture(context, InfxSpider.Variant.CAVE_SPIDER, 0.5F));
         event.registerEntityRenderer(
                 InfXEntityTypes.BLACK_WIDOW_SPIDER.get(),
-                context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.BLACK_WIDOW, 0.6F));
+                context -> new EntityRenderers.SpiderTexture(context, InfxSpider.Variant.BLACK_WIDOW, 0.6F));
         event.registerEntityRenderer(
                 InfXEntityTypes.DEMON_SPIDER.get(),
-                context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.DEMON));
+                context -> new EntityRenderers.SpiderTexture(context, InfxSpider.Variant.DEMON));
         event.registerEntityRenderer(
                 InfXEntityTypes.WOOD_SPIDER.get(),
-                context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.WOOD, 0.6F));
+                context -> new EntityRenderers.SpiderTexture(context, InfxSpider.Variant.WOOD, 0.6F));
         event.registerEntityRenderer(
                 InfXEntityTypes.PHASE_SPIDER.get(),
-                context -> new EntityRenderers.SpiderTexture(context, MiteSpider.Variant.PHASE, 0.6F));
+                context -> new EntityRenderers.SpiderTexture(context, InfxSpider.Variant.PHASE, 0.6F));
 
-        event.registerEntityRenderer(InfXEntityTypes.R196_CREEPER.get(), CreeperRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_CREEPER.get(), CreeperRenderer::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.INFERNAL_CREEPER.get(),
-                context -> new EntityRenderers.CreeperTexture(context, MiteCreeper.Variant.INFERNAL));
+                context -> new EntityRenderers.CreeperTexture(context, InfxCreeper.Variant.INFERNAL));
 
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_SLIME.get(),
-                context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.SLIME));
+                InfXEntityTypes.INFX_SLIME.get(),
+                context -> new EntityRenderers.SlimeTexture(context, InfxSlime.Variant.SLIME));
         event.registerEntityRenderer(
                 InfXEntityTypes.JELLY.get(),
-                context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.JELLY));
+                context -> new EntityRenderers.SlimeTexture(context, InfxSlime.Variant.JELLY));
         event.registerEntityRenderer(
                 InfXEntityTypes.BLOB.get(),
-                context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.BLOB));
+                context -> new EntityRenderers.SlimeTexture(context, InfxSlime.Variant.BLOB));
         event.registerEntityRenderer(
                 InfXEntityTypes.OOZE.get(),
-                context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.OOZE));
+                context -> new EntityRenderers.SlimeTexture(context, InfxSlime.Variant.OOZE));
         event.registerEntityRenderer(
                 InfXEntityTypes.PUDDING.get(),
-                context -> new EntityRenderers.SlimeTexture(context, MiteSlime.Variant.PUDDING));
+                context -> new EntityRenderers.SlimeTexture(context, InfxSlime.Variant.PUDDING));
         event.registerEntityRenderer(
                 InfXEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
         event.registerEntityRenderer(InfXEntityTypes.MAGMA_CUBE.get(), EntityRenderers.MagmaCubeTexture::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.NETHERSPAWN.get(),
-                context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.NETHERSPAWN));
+                context -> new EntityRenderers.SilverfishTexture(context, InfxSilverfish.Variant.NETHERSPAWN));
         event.registerEntityRenderer(
                 InfXEntityTypes.COPPERSPINE.get(),
-                context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.COPPERSPINE));
+                context -> new EntityRenderers.SilverfishTexture(context, InfxSilverfish.Variant.COPPERSPINE));
         event.registerEntityRenderer(
                 InfXEntityTypes.HOARY_SILVERFISH.get(),
-                context -> new EntityRenderers.SilverfishTexture(context, MiteSilverfish.Variant.HOARY));
+                context -> new EntityRenderers.SilverfishTexture(context, InfxSilverfish.Variant.HOARY));
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_BAT.get(),
-                context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.NORMAL));
+                InfXEntityTypes.INFX_BAT.get(),
+                context -> new EntityRenderers.BatTexture(context, InfxBat.Variant.NORMAL));
         event.registerEntityRenderer(
                 InfXEntityTypes.VAMPIRE_BAT.get(),
-                context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.VAMPIRE));
+                context -> new EntityRenderers.BatTexture(context, InfxBat.Variant.VAMPIRE));
         event.registerEntityRenderer(
                 InfXEntityTypes.NIGHTWING.get(),
-                context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.NIGHTWING));
+                context -> new EntityRenderers.BatTexture(context, InfxBat.Variant.NIGHTWING));
         event.registerEntityRenderer(
                 InfXEntityTypes.GIANT_VAMPIRE_BAT.get(),
                 context -> new EntityRenderers.BatTexture(
-                        context, MiteBat.Variant.GIANT_VAMPIRE, InfXEntityTypes.GIANT_VAMPIRE_BAT_SCALE));
+                        context, InfxBat.Variant.GIANT_VAMPIRE, InfXEntityTypes.GIANT_VAMPIRE_BAT_SCALE));
         event.registerEntityRenderer(
                 InfXEntityTypes.HELLHOUND.get(),
-                context -> new EntityRenderers.WolfTexture(context, MiteWolf.Variant.HELLHOUND));
+                context -> new EntityRenderers.WolfTexture(context, InfxWolf.Variant.HELLHOUND));
         event.registerEntityRenderer(
                 InfXEntityTypes.DIRE_WOLF.get(),
-                context -> new EntityRenderers.WolfTexture(context, MiteWolf.Variant.DIRE_WOLF));
+                context -> new EntityRenderers.WolfTexture(context, InfxWolf.Variant.DIRE_WOLF));
         event.registerEntityRenderer(InfXEntityTypes.FIRE_ELEMENTAL.get(), EntityRenderers.FireElementalTexture::new);
         event.registerEntityRenderer(InfXEntityTypes.EARTH_ELEMENTAL.get(), EarthElementalRenderer::new);
         event.registerEntityRenderer(InfXEntityTypes.CLAY_GOLEM.get(), EarthElementalRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_ENDERMAN.get(), EndermanRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_ENDERMAN.get(), EndermanRenderer::new);
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_SQUID.get(),
+                InfXEntityTypes.INFX_SQUID.get(),
                 context -> new SquidRenderer<>(
                         context,
                         new SquidModel(context.bakeLayer(ModelLayers.SQUID)),
                         new SquidModel(context.bakeLayer(ModelLayers.SQUID_BABY))));
-        event.registerEntityRenderer(InfXEntityTypes.R196_COD.get(), CodRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_SALMON.get(), SalmonRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_PUFFERFISH.get(), PufferfishRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_TROPICAL_FISH.get(), TropicalFishRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_WITCH.get(), WitchRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_COD.get(), CodRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_SALMON.get(), SalmonRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_PUFFERFISH.get(), PufferfishRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_TROPICAL_FISH.get(), TropicalFishRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_WITCH.get(), WitchRenderer::new);
         // MITE zombie pigmen keep the humanoid zombie model instead of the modern piglin model.
         event.registerEntityRenderer(
-                InfXEntityTypes.R196_ZOMBIFIED_PIGLIN.get(), EntityRenderers.ZombiePigmanTexture::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_BLAZE.get(), EntityRenderers.BlazeTexture::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_GHAST.get(), EntityRenderers.GhastTexture::new);
+                InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get(), EntityRenderers.ZombiePigmanTexture::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_BLAZE.get(), EntityRenderers.BlazeTexture::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_GHAST.get(), EntityRenderers.GhastTexture::new);
 
-        // R196 livestock: vanilla models; sick skins when !isWell (MITE).
-        event.registerEntityRenderer(InfXEntityTypes.R196_COW.get(), EntityRenderers.CowTexture::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_CHICKEN.get(), EntityRenderers.ChickenTexture::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_SHEEP.get(), EntityRenderers.SheepTexture::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_PIG.get(), EntityRenderers.PigTexture::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_HORSE.get(), HorseRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_OCELOT.get(), OcelotRenderer::new);
-        event.registerEntityRenderer(InfXEntityTypes.R196_WOLF.get(), WolfRenderer::new);
+        // INFX livestock: vanilla models; sick skins when !isWell (MITE).
+        event.registerEntityRenderer(InfXEntityTypes.INFX_COW.get(), EntityRenderers.CowTexture::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_CHICKEN.get(), EntityRenderers.ChickenTexture::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_SHEEP.get(), EntityRenderers.SheepTexture::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_PIG.get(), EntityRenderers.PigTexture::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_HORSE.get(), HorseRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_OCELOT.get(), OcelotRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_WOLF.get(), WolfRenderer::new);
     }
 
     /**

@@ -1,10 +1,10 @@
 package com.pixulse.infx.util;
 
-import com.pixulse.infx.item.MiteBucketItem;
-import com.pixulse.infx.item.MiteMobBucketItem;
-import com.pixulse.infx.item.MiteSolidBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
+import com.pixulse.infx.item.InfxMobBucketItem;
+import com.pixulse.infx.item.InfxSolidBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -17,41 +17,41 @@ public final class BucketHelper {
     private BucketHelper() {}
 
     public static boolean isR196WaterBucket(ItemStack stack) {
-        return stack.getItem() instanceof MiteBucketItem bucket
-                && bucket.contents() == MiteBucketItem.Contents.WATER;
+        return stack.getItem() instanceof InfxBucketItem bucket
+                && bucket.contents() == InfxBucketItem.Contents.WATER;
     }
 
     public static boolean isR196EmptyBucket(ItemStack stack) {
-        return stack.getItem() instanceof MiteBucketItem bucket
-                && bucket.contents() == MiteBucketItem.Contents.EMPTY;
+        return stack.getItem() instanceof InfxBucketItem bucket
+                && bucket.contents() == InfxBucketItem.Contents.EMPTY;
     }
 
-    public static @Nullable MiteMaterial materialOf(ItemStack stack) {
-        if (stack.getItem() instanceof MiteBucketItem bucket) {
+    public static @Nullable InfxMaterial materialOf(ItemStack stack) {
+        if (stack.getItem() instanceof InfxBucketItem bucket) {
             return bucket.material();
         }
-        if (stack.getItem() instanceof MiteMobBucketItem mob) {
+        if (stack.getItem() instanceof InfxMobBucketItem mob) {
             return mob.material();
         }
-        if (stack.getItem() instanceof MiteSolidBucketItem solid) {
+        if (stack.getItem() instanceof InfxSolidBucketItem solid) {
             return solid.material();
         }
         return null;
     }
 
-    public static ItemStack emptyBucket(MiteMaterial material) {
-        return InfXItems.bucket(material, MiteBucketItem.Contents.EMPTY).toStack();
+    public static ItemStack emptyBucket(InfxMaterial material) {
+        return InfXItems.bucket(material, InfxBucketItem.Contents.EMPTY).toStack();
     }
 
-    public static ItemStack waterBucket(MiteMaterial material) {
-        return InfXItems.bucket(material, MiteBucketItem.Contents.WATER).toStack();
+    public static ItemStack waterBucket(InfxMaterial material) {
+        return InfXItems.bucket(material, InfxBucketItem.Contents.WATER).toStack();
     }
 
-    public static ItemStack mobBucket(MiteMaterial material, MobBucketKind kind) {
+    public static ItemStack mobBucket(InfxMaterial material, MobBucketKind kind) {
         return InfXItems.mobBucket(material, kind).toStack();
     }
 
-    public static ItemStack mobBucket(MiteMaterial material, EntityType<?> type) {
+    public static ItemStack mobBucket(InfxMaterial material, EntityType<?> type) {
         MobBucketKind kind = MobBucketKind.of(type);
         if (kind == null) {
             return ItemStack.EMPTY;
@@ -59,7 +59,7 @@ public final class BucketHelper {
         return mobBucket(material, kind);
     }
 
-    public static ItemStack powderSnowBucket(MiteMaterial material) {
+    public static ItemStack powderSnowBucket(InfxMaterial material) {
         return InfXItems.powderSnowBucket(material).toStack();
     }
 
@@ -67,13 +67,13 @@ public final class BucketHelper {
         if (player.hasInfiniteMaterials()) {
             return filled.getItem();
         }
-        if (filled.getItem() instanceof MiteMobBucketItem mob) {
+        if (filled.getItem() instanceof InfxMobBucketItem mob) {
             return mob.emptyBucket();
         }
-        if (filled.getItem() instanceof MiteSolidBucketItem solid) {
+        if (filled.getItem() instanceof InfxSolidBucketItem solid) {
             return solid.emptyBucket();
         }
-        if (filled.getItem() instanceof MiteBucketItem bucket) {
+        if (filled.getItem() instanceof InfxBucketItem bucket) {
             return bucket.emptyBucket();
         }
         return Items.BUCKET;

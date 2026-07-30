@@ -1,7 +1,7 @@
 package com.pixulse.infx.data.furnace;
 
-import com.pixulse.infx.block.MiteFurnaceBlock;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.block.InfxFurnaceBlock;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,7 +24,7 @@ public final class FurnaceHeatPolicy {
         if (state.is(Blocks.FURNACE)) {
             return HEAT_COAL;
         }
-        if (state.getBlock() instanceof MiteFurnaceBlock furnace) {
+        if (state.getBlock() instanceof InfxFurnaceBlock furnace) {
             return furnace.maximumHeat();
         }
         return 0;
@@ -38,8 +38,8 @@ public final class FurnaceHeatPolicy {
             return HEAT_BLAZE;
         }
         if (fuel.is(Items.LAVA_BUCKET)
-                || fuel.getItem() instanceof MiteBucketItem bucket
-                        && bucket.contents() == MiteBucketItem.Contents.LAVA) {
+                || fuel.getItem() instanceof InfxBucketItem bucket
+                        && bucket.contents() == InfxBucketItem.Contents.LAVA) {
             return HEAT_LAVA;
         }
         if (fuel.is(InfXItemTags.FURNACE_FUELS_HEAT_2)) {

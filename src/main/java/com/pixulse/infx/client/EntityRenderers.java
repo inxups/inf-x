@@ -2,15 +2,15 @@ package com.pixulse.infx.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.entity.MiteBat;
-import com.pixulse.infx.entity.MiteCreeper;
+import com.pixulse.infx.entity.InfxBat;
+import com.pixulse.infx.entity.InfxCreeper;
 import com.pixulse.infx.entity.Livestock;
-import com.pixulse.infx.entity.MiteSilverfish;
-import com.pixulse.infx.entity.MiteSkeleton;
-import com.pixulse.infx.entity.MiteSlime;
-import com.pixulse.infx.entity.MiteSpider;
-import com.pixulse.infx.entity.MiteWolf;
-import com.pixulse.infx.entity.MiteZombie;
+import com.pixulse.infx.entity.InfxSilverfish;
+import com.pixulse.infx.entity.InfxSkeleton;
+import com.pixulse.infx.entity.InfxSlime;
+import com.pixulse.infx.entity.InfxSpider;
+import com.pixulse.infx.entity.InfxWolf;
+import com.pixulse.infx.entity.InfxZombie;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.monster.slime.SlimeModel;
@@ -57,7 +57,7 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Vanilla-model renderers that bind authorized MITE entity textures for R196 variants.
+ * Vanilla-model renderers that bind authorized MITE entity textures for INFX variants.
  *
  * <p>Base monsters keep vanilla texture ids wherever the authorized MITE pack is pixel-identical
  * to vanilla 26.2 (zombie, skeleton, creeper + armor, enderman + eyes, witch, spider eyes). Only
@@ -97,7 +97,7 @@ public final class EntityRenderers {
                 (net.minecraft.world.entity.monster.zombie.Zombie entity, ZombieRenderState state) ->
                         state.setRenderData(
                                 VILLAGER_ZOMBIE,
-                                entity instanceof MiteZombie zombie && zombie.isVillagerZombie()));
+                                entity instanceof InfxZombie zombie && zombie.isVillagerZombie()));
     }
 
     private static void extractWell(Animal animal, LivingEntityRenderState state) {
@@ -214,11 +214,11 @@ public final class EntityRenderers {
     }
 
     public static final class ZombieTexture extends ZombieRenderer {
-        private final MiteZombie.Variant variant;
+        private final InfxZombie.Variant variant;
         private final Identifier texture;
         private final Identifier babyTexture;
 
-        public ZombieTexture(EntityRendererProvider.Context context, MiteZombie.Variant variant) {
+        public ZombieTexture(EntityRendererProvider.Context context, InfxZombie.Variant variant) {
             super(context);
             this.variant = variant;
             this.texture = textureFor(variant);
@@ -227,13 +227,13 @@ public final class EntityRenderers {
 
         @Override
         public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
-            if (variant == MiteZombie.Variant.ZOMBIE && Boolean.TRUE.equals(state.getRenderData(VILLAGER_ZOMBIE))) {
+            if (variant == InfxZombie.Variant.ZOMBIE && Boolean.TRUE.equals(state.getRenderData(VILLAGER_ZOMBIE))) {
                 return villagerTexture();
             }
             return state.isBaby ? babyTexture : texture;
         }
 
-        static Identifier textureFor(MiteZombie.Variant variant) {
+        static Identifier textureFor(InfxZombie.Variant variant) {
             return switch (variant) {
                 case GHOUL -> mite("textures/entity/ghoul.png");
                 case SHADOW -> mite("textures/entity/shadow.png");
@@ -246,7 +246,7 @@ public final class EntityRenderers {
         /**
          * 26.2 babies render with BabyZombieModel's own UV sheet, so adult sheets cannot be reused.
          */
-        static Identifier babyTextureFor(MiteZombie.Variant variant) {
+        static Identifier babyTextureFor(InfxZombie.Variant variant) {
             return switch (variant) {
                 case GHOUL -> mite("textures/entity/ghoul_baby.png");
                 case SHADOW -> mite("textures/entity/shadow_baby.png");
@@ -287,7 +287,7 @@ public final class EntityRenderers {
     public static final class SkeletonTexture extends SkeletonRenderer {
         private final Identifier texture;
 
-        public SkeletonTexture(EntityRendererProvider.Context context, MiteSkeleton.Variant variant) {
+        public SkeletonTexture(EntityRendererProvider.Context context, InfxSkeleton.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
         }
@@ -297,7 +297,7 @@ public final class EntityRenderers {
             return texture;
         }
 
-        static Identifier textureFor(MiteSkeleton.Variant variant) {
+        static Identifier textureFor(InfxSkeleton.Variant variant) {
             return switch (variant) {
                 case LONGDEAD -> mite("textures/entity/skeleton/longdead.png");
                 case BONE_LORD -> mite("textures/entity/skeleton/bone_lord.png");
@@ -307,15 +307,15 @@ public final class EntityRenderers {
         }
     }
 
-    public static final class SpiderTexture extends SpiderRenderer<MiteSpider> {
+    public static final class SpiderTexture extends SpiderRenderer<InfxSpider> {
         private final Identifier texture;
         private final float renderScale;
 
-        public SpiderTexture(EntityRendererProvider.Context context, MiteSpider.Variant variant) {
+        public SpiderTexture(EntityRendererProvider.Context context, InfxSpider.Variant variant) {
             this(context, variant, 1.0F);
         }
 
-        public SpiderTexture(EntityRendererProvider.Context context, MiteSpider.Variant variant, float renderScale) {
+        public SpiderTexture(EntityRendererProvider.Context context, InfxSpider.Variant variant, float renderScale) {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
@@ -327,12 +327,12 @@ public final class EntityRenderers {
         }
 
         @Override
-        public void extractRenderState(MiteSpider entity, @NonNull LivingEntityRenderState state, float partialTicks) {
+        public void extractRenderState(InfxSpider entity, @NonNull LivingEntityRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
             state.scale *= renderScale;
         }
 
-        static Identifier textureFor(MiteSpider.Variant variant) {
+        static Identifier textureFor(InfxSpider.Variant variant) {
             return switch (variant) {
                 case CAVE_SPIDER -> mite("textures/entity/spider/cave_spider.png");
                 case BLACK_WIDOW -> mite("textures/entity/spider/black_widow.png");
@@ -347,7 +347,7 @@ public final class EntityRenderers {
     public static final class CreeperTexture extends CreeperRenderer {
         private final Identifier texture;
 
-        public CreeperTexture(EntityRendererProvider.Context context, MiteCreeper.Variant variant) {
+        public CreeperTexture(EntityRendererProvider.Context context, InfxCreeper.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
         }
@@ -357,7 +357,7 @@ public final class EntityRenderers {
             return texture;
         }
 
-        static Identifier textureFor(MiteCreeper.Variant variant) {
+        static Identifier textureFor(InfxCreeper.Variant variant) {
             return switch (variant) {
                 case INFERNAL -> mite("textures/entity/creeper/infernal_creeper.png");
                 case CREEPER -> Identifier.withDefaultNamespace("textures/entity/creeper/creeper.png");
@@ -370,13 +370,13 @@ public final class EntityRenderers {
      * renderer overrides {@link #getTextureLocation(SlimeRenderState)}. Rebuild the small renderer
      * with a texture-aware outer layer so both shells use the authorized MITE sheet.
      */
-    public static final class SlimeTexture extends MobRenderer<MiteSlime, SlimeRenderState, SlimeModel> {
+    public static final class SlimeTexture extends MobRenderer<InfxSlime, SlimeRenderState, SlimeModel> {
         private final Identifier texture;
 
-        public SlimeTexture(EntityRendererProvider.Context context, MiteSlime.Variant variant) {
+        public SlimeTexture(EntityRendererProvider.Context context, InfxSlime.Variant variant) {
             super(context, new SlimeModel(context.bakeLayer(ModelLayers.SLIME)), 0.25F);
             this.texture = textureFor(variant);
-            addLayer(new MiteSlimeOuterLayer(this, context.getModelSet(), texture));
+            addLayer(new InfxSlimeOuterLayer(this, context.getModelSet(), texture));
         }
 
         @Override
@@ -405,13 +405,13 @@ public final class EntityRenderers {
         }
 
         @Override
-        public void extractRenderState(MiteSlime entity, SlimeRenderState state, float partialTicks) {
+        public void extractRenderState(InfxSlime entity, SlimeRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
             state.squish = Mth.lerp(partialTicks, entity.oSquish, entity.squish);
             state.size = entity.getSize();
         }
 
-        static Identifier textureFor(MiteSlime.Variant variant) {
+        static Identifier textureFor(InfxSlime.Variant variant) {
             return switch (variant) {
                 case SLIME -> mite("textures/entity/slime/slime.png");
                 case JELLY -> mite("textures/entity/slime/jelly.png");
@@ -425,11 +425,11 @@ public final class EntityRenderers {
     /**
      * Texture-aware replacement for the outer shell hard-coded by the vanilla SlimeRenderer.
      */
-    private static final class MiteSlimeOuterLayer extends RenderLayer<SlimeRenderState, SlimeModel> {
+    private static final class InfxSlimeOuterLayer extends RenderLayer<SlimeRenderState, SlimeModel> {
         private final SlimeModel model;
         private final Identifier texture;
 
-        private MiteSlimeOuterLayer(
+        private InfxSlimeOuterLayer(
                 RenderLayerParent<SlimeRenderState, SlimeModel> renderer,
                 EntityModelSet modelSet,
                 Identifier texture) {
@@ -492,7 +492,7 @@ public final class EntityRenderers {
     public static final class SilverfishTexture extends SilverfishRenderer {
         private final Identifier texture;
 
-        public SilverfishTexture(EntityRendererProvider.Context context, MiteSilverfish.Variant variant) {
+        public SilverfishTexture(EntityRendererProvider.Context context, InfxSilverfish.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
         }
@@ -502,7 +502,7 @@ public final class EntityRenderers {
             return texture;
         }
 
-        static Identifier textureFor(MiteSilverfish.Variant variant) {
+        static Identifier textureFor(InfxSilverfish.Variant variant) {
             return switch (variant) {
                 case NETHERSPAWN -> mite("textures/entity/silverfish/netherspawn.png");
                 case COPPERSPINE -> mite("textures/entity/silverfish/copperspine.png");
@@ -515,11 +515,11 @@ public final class EntityRenderers {
         private final Identifier texture;
         private final float renderScale;
 
-        public BatTexture(EntityRendererProvider.Context context, MiteBat.Variant variant) {
+        public BatTexture(EntityRendererProvider.Context context, InfxBat.Variant variant) {
             this(context, variant, 1.0F);
         }
 
-        public BatTexture(EntityRendererProvider.Context context, MiteBat.Variant variant, float renderScale) {
+        public BatTexture(EntityRendererProvider.Context context, InfxBat.Variant variant, float renderScale) {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
@@ -536,7 +536,7 @@ public final class EntityRenderers {
             state.scale *= renderScale;
         }
 
-        static Identifier textureFor(MiteBat.Variant variant) {
+        static Identifier textureFor(InfxBat.Variant variant) {
             return switch (variant) {
                 case NORMAL -> mite("textures/entity/bat.png");
                 case VAMPIRE, GIANT_VAMPIRE -> mite("textures/entity/bat/vampire.png");
@@ -550,7 +550,7 @@ public final class EntityRenderers {
         private final Identifier tame;
         private final Identifier angry;
 
-        public WolfTexture(EntityRendererProvider.Context context, MiteWolf.Variant variant) {
+        public WolfTexture(EntityRendererProvider.Context context, InfxWolf.Variant variant) {
             super(context);
             this.wild = textureFor(variant, false, false);
             this.tame = textureFor(variant, true, false);
@@ -560,10 +560,10 @@ public final class EntityRenderers {
         @Override
         public void extractRenderState(@NonNull Wolf entity, @NonNull WolfRenderState state, float partialTicks) {
             super.extractRenderState(entity, state, partialTicks);
-            if (!(entity instanceof MiteWolf wolf)) {
+            if (!(entity instanceof InfxWolf wolf)) {
                 return;
             }
-            if (wolf.variant() == MiteWolf.Variant.HELLHOUND) {
+            if (wolf.variant() == InfxWolf.Variant.HELLHOUND) {
                 state.texture = wild;
                 return;
             }
@@ -576,8 +576,8 @@ public final class EntityRenderers {
             }
         }
 
-        static Identifier textureFor(MiteWolf.Variant variant, boolean tame, boolean angry) {
-            if (variant == MiteWolf.Variant.HELLHOUND) {
+        static Identifier textureFor(InfxWolf.Variant variant, boolean tame, boolean angry) {
+            if (variant == InfxWolf.Variant.HELLHOUND) {
                 return mite("textures/entity/hellhound/hellhound.png");
             }
             if (tame) {

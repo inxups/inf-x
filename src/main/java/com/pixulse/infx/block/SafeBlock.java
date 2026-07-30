@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,14 +32,14 @@ public final class SafeBlock extends BarrelBlock {
     /** MITE strongbox bounds: 1–15 on X/Z, 0–14 on Y. */
     private static final VoxelShape SHAPE = Shapes.box(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
 
-    private final MiteMaterial material;
+    private final InfxMaterial material;
 
-    public SafeBlock(MiteMaterial material, BlockBehaviour.Properties properties) {
+    public SafeBlock(InfxMaterial material, BlockBehaviour.Properties properties) {
         super(properties);
         this.material = material;
     }
 
-    public MiteMaterial material() {
+    public InfxMaterial material() {
         return material;
     }
 

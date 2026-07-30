@@ -1,7 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.effect.MiteMobEffect;
+import com.pixulse.infx.effect.InfxMobEffect;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -16,13 +16,13 @@ public final class InfXMobEffects {
             DeferredRegister.create(Registries.MOB_EFFECT, InfiniteX.MOD_ID);
 
     public static final DeferredHolder<MobEffect, MobEffect> MALNUTRITION =
-            EFFECTS.register("malnutrition", () -> new MiteMobEffect(MobEffectCategory.HARMFUL, 0x8B7B3E));
+            EFFECTS.register("malnutrition", () -> new InfxMobEffect(MobEffectCategory.HARMFUL, 0x8B7B3E));
     public static final DeferredHolder<MobEffect, MobEffect> WITCH_CURSE =
-            EFFECTS.register("witch_curse", () -> new MiteMobEffect(MobEffectCategory.HARMFUL, 0x52265F));
+            EFFECTS.register("witch_curse", () -> new InfxMobEffect(MobEffectCategory.HARMFUL, 0x52265F));
     public static final DeferredHolder<MobEffect, MobEffect> INSULIN_RESISTANCE =
-            EFFECTS.register("insulin_resistance", () -> new MiteMobEffect(MobEffectCategory.HARMFUL, 0xC28B42));
+            EFFECTS.register("insulin_resistance", () -> new InfxMobEffect(MobEffectCategory.HARMFUL, 0xC28B42));
     public static final DeferredHolder<MobEffect, MobEffect> PARALYSIS =
-            EFFECTS.register("paralysis", () -> new MiteMobEffect(MobEffectCategory.HARMFUL, 0x59606B)
+            EFFECTS.register("paralysis", () -> new InfxMobEffect(MobEffectCategory.HARMFUL, 0x59606B)
                     .addAttributeModifier(
                             Attributes.MOVEMENT_SPEED,
                             InfiniteX.id("paralysis_speed"),

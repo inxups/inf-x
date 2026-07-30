@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.RawItem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,15 +19,15 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class EquipmentTypeTest {
-    private static final Set<MiteMaterial> METALS = EnumSet.of(
-            MiteMaterial.COPPER,
-            MiteMaterial.SILVER,
-            MiteMaterial.GOLD,
-            MiteMaterial.RUSTED_IRON,
-            MiteMaterial.IRON,
-            MiteMaterial.ANCIENT_METAL,
-            MiteMaterial.MITHRIL,
-            MiteMaterial.ADAMANTIUM);
+    private static final Set<InfxMaterial> METALS = EnumSet.of(
+            InfxMaterial.COPPER,
+            InfxMaterial.SILVER,
+            InfxMaterial.GOLD,
+            InfxMaterial.RUSTED_IRON,
+            InfxMaterial.IRON,
+            InfxMaterial.ANCIENT_METAL,
+            InfxMaterial.MITHRIL,
+            InfxMaterial.ADAMANTIUM);
 
     @Test
     void matrixHasExactCategoryCounts() {
@@ -45,7 +45,7 @@ class EquipmentTypeTest {
     @Test
     void goldenCatalogMatchesRawAndEquipmentDefinitionOrder() throws Exception {
         List<String> golden = Files.readAllLines(
-                Path.of(EquipmentTypeTest.class.getResource("/r196/catalog-paths.txt").toURI()), UTF_8);
+                Path.of(EquipmentTypeTest.class.getResource("/infx/catalog-paths.txt").toURI()), UTF_8);
         List<String> actual = Stream.concat(
                         Arrays.stream(RawItem.values()).map(RawItem::path),
                         EquipmentKey.all().stream().map(EquipmentKey::path))
@@ -57,32 +57,32 @@ class EquipmentTypeTest {
     void representativeAllowedSetsMatchTheApprovedMatrix() {
         assertEquals(METALS, EquipmentType.PICKAXE.allowedMaterials());
         assertEquals(
-                EnumSet.of(MiteMaterial.FLINT, MiteMaterial.OBSIDIAN),
+                EnumSet.of(InfxMaterial.FLINT, InfxMaterial.OBSIDIAN),
                 EquipmentType.KNIFE.allowedMaterials());
         assertEquals(
-                EnumSet.of(MiteMaterial.WOOD, MiteMaterial.ANCIENT_METAL, MiteMaterial.MITHRIL),
+                EnumSet.of(InfxMaterial.WOOD, InfxMaterial.ANCIENT_METAL, InfxMaterial.MITHRIL),
                 EquipmentType.BOW.allowedMaterials());
         assertEquals(
                 EnumSet.of(
-                        MiteMaterial.LEATHER,
-                        MiteMaterial.COPPER,
-                        MiteMaterial.SILVER,
-                        MiteMaterial.GOLD,
-                        MiteMaterial.RUSTED_IRON,
-                        MiteMaterial.IRON,
-                        MiteMaterial.ANCIENT_METAL,
-                        MiteMaterial.MITHRIL,
-                        MiteMaterial.ADAMANTIUM),
+                        InfxMaterial.LEATHER,
+                        InfxMaterial.COPPER,
+                        InfxMaterial.SILVER,
+                        InfxMaterial.GOLD,
+                        InfxMaterial.RUSTED_IRON,
+                        InfxMaterial.IRON,
+                        InfxMaterial.ANCIENT_METAL,
+                        InfxMaterial.MITHRIL,
+                        InfxMaterial.ADAMANTIUM),
                 EquipmentType.HELMET.allowedMaterials());
-        assertFalse(EquipmentType.HORSE_ARMOR.allows(MiteMaterial.RUSTED_IRON));
-        assertFalse(EquipmentType.FISHING_ROD.allows(MiteMaterial.RUSTED_IRON));
+        assertFalse(EquipmentType.HORSE_ARMOR.allows(InfxMaterial.RUSTED_IRON));
+        assertFalse(EquipmentType.FISHING_ROD.allows(InfxMaterial.RUSTED_IRON));
     }
 
     @Test
     void illegalKeysFailWithTheOffendingCombination() {
         IllegalArgumentException error = assertThrows(
                 IllegalArgumentException.class,
-                () -> new EquipmentKey(MiteMaterial.WOOD, EquipmentType.PICKAXE));
+                () -> new EquipmentKey(InfxMaterial.WOOD, EquipmentType.PICKAXE));
         assertTrue(error.getMessage().contains("wood_pickaxe"));
     }
 

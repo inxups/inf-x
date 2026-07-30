@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-/** Persistent and synchronized R196 player metabolism state stored by {@code SURVIVAL}. */
+/** Persistent and synchronized INFX player metabolism state stored by {@code SURVIVAL}. */
 public record SurvivalData(
         double satiation,
         double nutrition,
@@ -252,9 +252,9 @@ public record SurvivalData(
     }
 
     /**
-     * R196 permits exhaustive movement while either Satiation or Nutrition still has energy.
+     * INFX permits exhaustive movement while either Satiation or Nutrition still has energy.
      * The modern vanilla sprint gate only sees a fixed FoodData threshold, so this is the
-     * authoritative check for the two independent R196 energy layers.
+     * authoritative check for the two independent INFX energy layers.
      */
     public boolean hasFoodEnergy() {
         return satiation > 0.0001D || nutrition > 0.0001D;

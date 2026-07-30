@@ -1,7 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponents;
@@ -29,10 +29,10 @@ public final class ItemProperties {
     private ItemProperties() {}
 
     public static Item.Properties forEquipment(EquipmentKey key, Item.Properties properties) {
-        if (key.material().has(MiteMaterial.Flag.LAVA_SAFE)) {
+        if (key.material().has(InfxMaterial.Flag.LAVA_SAFE)) {
             properties.fireResistant();
         }
-        if (key.material() == MiteMaterial.RUSTED_IRON
+        if (key.material() == InfxMaterial.RUSTED_IRON
                 && key.durability() > 0) {
             properties.component(InfXDataComponents.QUALITY.get(), Quality.POOR);
         }
@@ -154,7 +154,7 @@ public final class ItemProperties {
     }
 
     private static Item.Properties commonDamageable(EquipmentKey key, Item.Properties properties) {
-        int durability = key.material() == MiteMaterial.RUSTED_IRON
+        int durability = key.material() == InfxMaterial.RUSTED_IRON
                 ? Math.max(1, Math.round(key.durability() * Quality.POOR.durabilityMultiplier()))
                 : key.durability();
         properties.durability(durability).repairable(InfXItemTags.repairMaterial(key.material()));

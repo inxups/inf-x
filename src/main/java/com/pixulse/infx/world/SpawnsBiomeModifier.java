@@ -18,7 +18,7 @@ import net.neoforged.neoforge.common.world.MobSpawnSettingsBuilder;
 import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 import org.jspecify.annotations.NonNull;
 
-/** Atomically replaces modern biome spawn lists with the R196 ecology. */
+/** Atomically replaces modern biome spawn lists with the INFX ecology. */
 public final class SpawnsBiomeModifier implements BiomeModifier {
     public static final MapCodec<SpawnsBiomeModifier> CODEC = MapCodec.unit(SpawnsBiomeModifier::new);
 
@@ -101,7 +101,7 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
     }
 
     private static void addOverworldSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
-        add(spawns, InfXEntityTypes.R196_BAT.get(), 100, 8, 8);
+        add(spawns, InfXEntityTypes.INFX_BAT.get(), 100, 8, 8);
         add(spawns, InfXEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
         add(spawns, InfXEntityTypes.NIGHTWING.get(), 4, 1, 4);
         if (biome.is(Biomes.MUSHROOM_FIELDS)) return;
@@ -136,60 +136,60 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
         addFishSpawns(biome, spawns);
 
         if (!isAny(biome, ANIMAL_BIOMES)) return;
-        add(spawns, InfXEntityTypes.R196_SHEEP.get(), 10, 1, 1);
-        add(spawns, InfXEntityTypes.R196_PIG.get(), 10, 1, 1);
-        add(spawns, InfXEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
-        add(spawns, InfXEntityTypes.R196_COW.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.INFX_SHEEP.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.INFX_PIG.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.INFX_CHICKEN.get(), 10, 1, 1);
+        add(spawns, InfXEntityTypes.INFX_COW.get(), 10, 1, 1);
         if (biome.is(BiomeTags.IS_FOREST) && !isAny(biome, SNOW_BIOMES)) {
-            add(spawns, InfXEntityTypes.R196_WOLF.get(), 10, 1, 3);
+            add(spawns, InfXEntityTypes.INFX_WOLF.get(), 10, 1, 3);
         }
         if (biome.is(BiomeTags.IS_TAIGA)) {
-            add(spawns, InfXEntityTypes.R196_WOLF.get(), 10, 1, 3);
+            add(spawns, InfXEntityTypes.INFX_WOLF.get(), 10, 1, 3);
             add(spawns, InfXEntityTypes.DIRE_WOLF.get(), 5, 1, 3);
         }
         if (isAny(biome, SNOW_BIOMES)) {
-            add(spawns, InfXEntityTypes.R196_WOLF.get(), 4, 1, 3);
+            add(spawns, InfXEntityTypes.INFX_WOLF.get(), 4, 1, 3);
             add(spawns, InfXEntityTypes.DIRE_WOLF.get(), 1, 1, 3);
         }
-        if (isAny(biome, PLAINS)) add(spawns, InfXEntityTypes.R196_HORSE.get(), 5, 1, 2);
+        if (isAny(biome, PLAINS)) add(spawns, InfXEntityTypes.INFX_HORSE.get(), 5, 1, 2);
         if (isAny(biome, JUNGLES)) {
-            add(spawns, InfXEntityTypes.R196_OCELOT.get(), 10, 1, 1);
-            add(spawns, InfXEntityTypes.R196_CHICKEN.get(), 10, 1, 1);
+            add(spawns, InfXEntityTypes.INFX_OCELOT.get(), 10, 1, 1);
+            add(spawns, InfXEntityTypes.INFX_CHICKEN.get(), 10, 1, 1);
         }
     }
 
     /** Mirrors vanilla fish habitats while every natural entry uses the InfiniteX entity type. */
     private static void addFishSpawns(Holder<Biome> biome, MobSpawnSettingsBuilder spawns) {
         if (biome.is(BiomeTags.IS_RIVER)) {
-            add(spawns, InfXEntityTypes.R196_SALMON.get(), 5, 1, 5);
+            add(spawns, InfXEntityTypes.INFX_SALMON.get(), 5, 1, 5);
             return;
         }
         if (biome.is(Biomes.LUSH_CAVES) || biome.is(Biomes.MANGROVE_SWAMP)) {
-            add(spawns, InfXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            add(spawns, InfXEntityTypes.INFX_TROPICAL_FISH.get(), 25, 8, 8);
             return;
         }
         if (biome.is(Biomes.WARM_OCEAN)) {
-            add(spawns, InfXEntityTypes.R196_PUFFERFISH.get(), 15, 1, 3);
-            add(spawns, InfXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            add(spawns, InfXEntityTypes.INFX_PUFFERFISH.get(), 15, 1, 3);
+            add(spawns, InfXEntityTypes.INFX_TROPICAL_FISH.get(), 25, 8, 8);
             return;
         }
         if (isAny(biome, LUKEWARM_OCEANS)) {
-            add(spawns, InfXEntityTypes.R196_COD.get(), biome.is(Biomes.DEEP_LUKEWARM_OCEAN) ? 8 : 15, 3, 6);
-            add(spawns, InfXEntityTypes.R196_PUFFERFISH.get(), 5, 1, 3);
-            add(spawns, InfXEntityTypes.R196_TROPICAL_FISH.get(), 25, 8, 8);
+            add(spawns, InfXEntityTypes.INFX_COD.get(), biome.is(Biomes.DEEP_LUKEWARM_OCEAN) ? 8 : 15, 3, 6);
+            add(spawns, InfXEntityTypes.INFX_PUFFERFISH.get(), 5, 1, 3);
+            add(spawns, InfXEntityTypes.INFX_TROPICAL_FISH.get(), 25, 8, 8);
             return;
         }
         if (isAny(biome, COLD_OCEANS)) {
-            add(spawns, InfXEntityTypes.R196_COD.get(), 15, 3, 6);
-            add(spawns, InfXEntityTypes.R196_SALMON.get(), 15, 1, 5);
+            add(spawns, InfXEntityTypes.INFX_COD.get(), 15, 3, 6);
+            add(spawns, InfXEntityTypes.INFX_SALMON.get(), 15, 1, 5);
             return;
         }
         if (isAny(biome, FROZEN_OCEANS)) {
-            add(spawns, InfXEntityTypes.R196_SALMON.get(), 15, 1, 5);
+            add(spawns, InfXEntityTypes.INFX_SALMON.get(), 15, 1, 5);
             return;
         }
         if (isAny(biome, NORMAL_OCEANS)) {
-            add(spawns, InfXEntityTypes.R196_COD.get(), 10, 3, 6);
+            add(spawns, InfXEntityTypes.INFX_COD.get(), 10, 3, 6);
         }
     }
 
@@ -210,6 +210,6 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
 
     @Override
     public @NonNull MapCodec<? extends BiomeModifier> codec() {
-        return InfXBiomeModifiers.R196_SPAWNS.get();
+        return InfXBiomeModifiers.INFX_SPAWNS.get();
     }
 }

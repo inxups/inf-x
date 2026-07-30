@@ -5,11 +5,11 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
-import com.pixulse.infx.entity.MiteSkeleton;
-import com.pixulse.infx.entity.MiteZombie;
-import com.pixulse.infx.entity.MiteZombifiedPiglin;
+import com.pixulse.infx.entity.InfxSkeleton;
+import com.pixulse.infx.entity.InfxZombie;
+import com.pixulse.infx.entity.InfxZombifiedPiglin;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
 import net.minecraft.server.level.ServerLevel;
@@ -46,9 +46,9 @@ public final class RustedIronSources {
         // MITE only arms plain zombies this way: the zombie variants spawn bare (the revenant
         // brings its fixed kit) and pig zombies carry their golden weapon instead.
         if (event.getEntity() instanceof Zombie zombie
-                && !(zombie instanceof MiteZombifiedPiglin)
-                && !(zombie instanceof MiteZombie r196
-                        && r196.variant() != MiteZombie.Variant.ZOMBIE)) {
+                && !(zombie instanceof InfxZombifiedPiglin)
+                && !(zombie instanceof InfxZombie r196
+                        && r196.variant() != InfxZombie.Variant.ZOMBIE)) {
             equipZombie(zombie);
         }
     }
@@ -77,11 +77,11 @@ public final class RustedIronSources {
         }
         // MITE: skeletons shed nextInt(2) rusted arrows; longdead shed an ancient-metal arrow
         // one time in six.
-        MiteMaterial material = MiteMaterial.RUSTED_IRON;
+        InfxMaterial material = InfxMaterial.RUSTED_IRON;
         int count;
-        if (skeleton instanceof MiteSkeleton r196
-                && r196.variant() == MiteSkeleton.Variant.LONGDEAD) {
-            material = MiteMaterial.ANCIENT_METAL;
+        if (skeleton instanceof InfxSkeleton r196
+                && r196.variant() == InfxSkeleton.Variant.LONGDEAD) {
+            material = InfxMaterial.ANCIENT_METAL;
             count = skeleton.getRandom().nextInt(6) == 0 ? 1 : 0;
         } else {
             count = skeleton.getRandom().nextInt(2);
@@ -96,6 +96,6 @@ public final class RustedIronSources {
     }
 
     private static ItemStack equipment(EquipmentType type) {
-        return InfXItems.catalog().equipment(MiteMaterial.RUSTED_IRON, type).holder().toStack();
+        return InfXItems.catalog().equipment(InfxMaterial.RUSTED_IRON, type).holder().toStack();
     }
 }

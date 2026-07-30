@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.data.food.SurvivalRules;
 
-/** R196 debug-profile, sleep and scaled-food interfaces (all custom hotkeys removed). */
+/** INFX debug-profile, sleep and scaled-food interfaces (all custom hotkeys removed). */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class ClientControls {
 

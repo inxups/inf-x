@@ -27,7 +27,7 @@ import org.jspecify.annotations.NonNull;
  * MITE fire elemental: melee, fireproof, lava-healing, and only vulnerable to water, snowballs,
  * and non-fire enchanted weapons — not a blaze fireball clone.
  */
-public final class FireElemental extends Blaze implements MiteMob {
+public final class FireElemental extends Blaze implements InfxMob {
     private static final int WATER_TICK_INTERVAL = 40;
     private static final float LAVA_HEAL_AMOUNT = 4.0F;
     private static final float WATER_DAMAGE = 1.0F;

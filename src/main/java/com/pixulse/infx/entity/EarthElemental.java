@@ -49,12 +49,12 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * MITE R196 earth elemental with a material body selected from its spawn surface.
+ * MITE INFX earth elemental with a material body selected from its spawn surface.
  *
  * <p>Stone, obsidian, netherrack and end-stone bodies each have normal and magma states. The
  * related {@link ClayGolem} uses the two clay states in the same synced form field.
  */
-public class EarthElemental extends Monster implements MiteMob {
+public class EarthElemental extends Monster implements InfxMob {
     private static final EntityDataAccessor<Byte> DATA_FORM =
             SynchedEntityData.defineId(EarthElemental.class, EntityDataSerializers.BYTE);
 
@@ -105,9 +105,9 @@ public class EarthElemental extends Monster implements MiteMob {
         // Lets the ground navigator route through a closed wooden door so the dedicated MITE
         // breaking goal receives a path node instead of treating the door as an unreachable wall.
         getNavigation().setCanOpenDoors(true);
-        goalSelector.addGoal(0, new MiteEarthFloatGoal(this));
-        goalSelector.addGoal(1, new MiteEarthBreakDoorGoal(this));
-        goalSelector.addGoal(1, new MiteEarthDigGoal(this));
+        goalSelector.addGoal(0, new InfxEarthFloatGoal(this));
+        goalSelector.addGoal(1, new InfxEarthBreakDoorGoal(this));
+        goalSelector.addGoal(1, new InfxEarthDigGoal(this));
         goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, true));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -117,7 +117,7 @@ public class EarthElemental extends Monster implements MiteMob {
         targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Villager.class, false));
     }
 
-    /** The four natural R196 mineral bodies. Clay is handled by the separate clay-golem class. */
+    /** The four natural INFX mineral bodies. Clay is handled by the separate clay-golem class. */
     public enum Form {
         STONE_NORMAL(0, Blocks.STONE, 2, false, false),
         STONE_MAGMA(1, Blocks.STONE, 2, true, false),

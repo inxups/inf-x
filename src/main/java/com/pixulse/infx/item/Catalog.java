@@ -1,6 +1,6 @@
 package com.pixulse.infx.item;
 
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.RawItem;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -68,13 +68,13 @@ public final class Catalog {
                                     ? new ManureItem(properties)
                                     : new Item(properties),
                     properties -> definition.material()
-                                    .filter(material -> material.has(MiteMaterial.Flag.LAVA_SAFE))
+                                    .filter(material -> material.has(InfxMaterial.Flag.LAVA_SAFE))
                                     .isPresent()
                             ? properties.fireResistant()
                             : properties);
             RawEntry entry = new RawEntry(definition, holder);
             if (rawByPath.put(entry.path(), entry) != null) {
-                throw new IllegalStateException("Duplicate R196 raw item: " + entry.path());
+                throw new IllegalStateException("Duplicate INFX raw item: " + entry.path());
             }
             rawEntries.add(entry);
         }
@@ -82,7 +82,7 @@ public final class Catalog {
         for (EquipmentKey key : EquipmentKey.all()) {
             EquipmentEntry entry = registerEquipment(items, key);
             if (equipmentByKey.put(key, entry) != null) {
-                throw new IllegalStateException("Duplicate R196 equipment: " + key.path());
+                throw new IllegalStateException("Duplicate INFX equipment: " + key.path());
             }
             equipmentEntries.add(entry);
         }
@@ -98,32 +98,32 @@ public final class Catalog {
                 yield new EquipmentEntry(key, holder, Item.class);
             }
             case SHEARS -> {
-                DeferredItem<MiteShearsItem> holder = items.registerItem(
+                DeferredItem<InfxShearsItem> holder = items.registerItem(
                         key.path(),
-                        properties -> new MiteShearsItem(key, properties),
+                        properties -> new InfxShearsItem(key, properties),
                         properties -> ItemProperties.forEquipment(key, properties));
-                yield new EquipmentEntry(key, holder, MiteShearsItem.class);
+                yield new EquipmentEntry(key, holder, InfxShearsItem.class);
             }
             case FISHING_ROD -> {
-                DeferredItem<MiteFishingRodItem> holder = items.registerItem(
+                DeferredItem<InfxFishingRodItem> holder = items.registerItem(
                         key.path(),
-                        properties -> new MiteFishingRodItem(key, properties),
+                        properties -> new InfxFishingRodItem(key, properties),
                         properties -> ItemProperties.forEquipment(key, properties));
-                yield new EquipmentEntry(key, holder, MiteFishingRodItem.class);
+                yield new EquipmentEntry(key, holder, InfxFishingRodItem.class);
             }
             case BOW -> {
-                DeferredItem<MiteBowItem> holder = items.registerItem(
+                DeferredItem<InfxBowItem> holder = items.registerItem(
                         key.path(),
-                        properties -> new MiteBowItem(key, properties),
+                        properties -> new InfxBowItem(key, properties),
                         properties -> ItemProperties.forEquipment(key, properties));
-                yield new EquipmentEntry(key, holder, MiteBowItem.class);
+                yield new EquipmentEntry(key, holder, InfxBowItem.class);
             }
             case ARROW -> {
-                DeferredItem<MiteArrowItem> holder = items.registerItem(
+                DeferredItem<InfxArrowItem> holder = items.registerItem(
                         key.path(),
-                        properties -> new MiteArrowItem(key, properties),
+                        properties -> new InfxArrowItem(key, properties),
                         properties -> ItemProperties.forEquipment(key, properties));
-                yield new EquipmentEntry(key, holder, MiteArrowItem.class);
+                yield new EquipmentEntry(key, holder, InfxArrowItem.class);
             }
             case ORDINARY -> {
                 DeferredItem<ToolItem> holder = items.registerItem(
@@ -168,19 +168,19 @@ public final class Catalog {
     public RawEntry raw(String path) {
         RawEntry entry = rawByPath.get(path);
         if (entry == null) {
-            throw new IllegalArgumentException("Missing R196 raw item: " + path);
+            throw new IllegalArgumentException("Missing INFX raw item: " + path);
         }
         return entry;
     }
 
-    public EquipmentEntry equipment(MiteMaterial material, EquipmentType type) {
+    public EquipmentEntry equipment(InfxMaterial material, EquipmentType type) {
         String path = material.path() + "_" + type.path();
         if (!type.allows(material)) {
-            throw new IllegalArgumentException("Missing R196 equipment: " + path);
+            throw new IllegalArgumentException("Missing INFX equipment: " + path);
         }
         EquipmentEntry entry = equipmentByKey.get(new EquipmentKey(material, type));
         if (entry == null) {
-            throw new IllegalArgumentException("Missing R196 equipment: " + path);
+            throw new IllegalArgumentException("Missing INFX equipment: " + path);
         }
         return entry;
     }
@@ -188,7 +188,7 @@ public final class Catalog {
     public Item reusedRaw(String path) {
         Item item = reusedRaw.get(path);
         if (item == null) {
-            throw new IllegalArgumentException("Missing reused R196 raw item: " + path);
+            throw new IllegalArgumentException("Missing reused INFX raw item: " + path);
         }
         return item;
     }

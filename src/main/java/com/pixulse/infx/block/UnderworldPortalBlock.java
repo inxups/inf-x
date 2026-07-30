@@ -1,6 +1,6 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.event.UnderworldPortalEvents;
@@ -29,7 +29,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** The dedicated two-way surface between the Overworld and the Underworld. */
-public final class UnderworldPortalBlock extends MitePortalBlock {
+public final class UnderworldPortalBlock extends InfxPortalBlock {
     public static final BooleanProperty RUNE_GATE = BooleanProperty.create("rune_gate");
 
     public UnderworldPortalBlock(BlockBehaviour.Properties properties) {
@@ -49,7 +49,7 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
             BlockPos entry = player.portalProcess.getEntryPosition();
             if (hasRuneGate(level, entry)
                     || UnderworldPortalEvents.portalTypeFor(level, entry) == PortalType.RETURN_SPAWN) {
-                return MITE_RUNEGATE_ENTRY_TICKS;
+                return INFX_RUNEGATE_ENTRY_TICKS;
             }
         }
         return super.getPortalTransitionTime(level, entity);
@@ -98,7 +98,7 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
         int signature = 0;
         for (RuneEntry entry : runes) signature = signature << 4 | entry.state().getValue(RuneStoneBlock.RUNE);
         return Optional.of(new RuneGate(
-                adamantium ? MiteMaterial.ADAMANTIUM : MiteMaterial.MITHRIL,
+                adamantium ? InfxMaterial.ADAMANTIUM : InfxMaterial.MITHRIL,
                 signature));
     }
 
@@ -142,13 +142,13 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
     }
 
     public static Vec3 runeDestinationOffset(
-            MiteMaterial material, int signature, int orientationGroup, int attempt) {
+            InfxMaterial material, int signature, int orientationGroup, int attempt) {
         long mixed = mix64(Integer.toUnsignedLong(signature)
                 ^ (long) orientationGroup * 0x9E3779B97F4A7C15L
                 ^ (long) attempt * 0xD1B54A32D192ED03L
-                ^ (material == MiteMaterial.ADAMANTIUM ? 0x94D049BB133111EBL : 0x369DEA0F31A53F85L));
-        double minimum = material == MiteMaterial.ADAMANTIUM ? 20_000.0 : 2_500.0;
-        double span = material == MiteMaterial.ADAMANTIUM ? 20_000.0 : 2_500.0;
+                ^ (material == InfxMaterial.ADAMANTIUM ? 0x94D049BB133111EBL : 0x369DEA0F31A53F85L));
+        double minimum = material == InfxMaterial.ADAMANTIUM ? 20_000.0 : 2_500.0;
+        double span = material == InfxMaterial.ADAMANTIUM ? 20_000.0 : 2_500.0;
         double unit = ((mixed >>> 11) & ((1L << 53) - 1)) / (double) (1L << 53);
         double radius = minimum + span * unit;
         double angle = Math.floorMod(mixed >>> 32, 65_536L) / 65_536.0 * Math.PI * 2.0;
@@ -185,5 +185,5 @@ public final class UnderworldPortalBlock extends MitePortalBlock {
 
     private record RuneEntry(BlockPos pos, BlockState state) {}
 
-    private record RuneGate(MiteMaterial material, int signature) {}
+    private record RuneGate(InfxMaterial material, int signature) {}
 }
