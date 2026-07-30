@@ -146,6 +146,11 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("sgravel_disk"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SGRAVEL_GRAVEL_DISK_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("sgravel_gravel_disk"));
+    // Keep these distinct from mountain disks to avoid cross-biome feature-order cycles.
+    private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_RIVER_SGRAVEL_DISK_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_disk"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_RIVER_SGRAVEL_GRAVEL_DISK_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_gravel_disk"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
@@ -164,6 +169,10 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("sgravel_disk"));
     private static final ResourceKey<PlacedFeature> SGRAVEL_GRAVEL_DISK_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("sgravel_gravel_disk"));
+    private static final ResourceKey<PlacedFeature> SHORE_RIVER_SGRAVEL_DISK_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("shore_river_sgravel_disk"));
+    private static final ResourceKey<PlacedFeature> SHORE_RIVER_SGRAVEL_GRAVEL_DISK_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("shore_river_sgravel_gravel_disk"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
@@ -329,6 +338,24 @@ public final class ModWorldGen {
                                 BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)),
                                 UniformInt.of(2, 5),
                                 2)));
+        context.register(
+                SHORE_RIVER_SGRAVEL_DISK_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.DISK,
+                        new DiskConfiguration(
+                                BlockStateProvider.simple(InfXBlocks.GRAVEL.get()),
+                                BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)),
+                                UniformInt.of(2, 6),
+                                2)));
+        context.register(
+                SHORE_RIVER_SGRAVEL_GRAVEL_DISK_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.DISK,
+                        new DiskConfiguration(
+                                BlockStateProvider.simple(InfXBlocks.GRAVEL.get()),
+                                BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)),
+                                UniformInt.of(2, 5),
+                                2)));
         registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, InfXBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
     }
 
@@ -416,6 +443,25 @@ public final class ModWorldGen {
                 SGRAVEL_GRAVEL_DISK_PLACED,
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(SGRAVEL_GRAVEL_DISK_CONFIGURED),
+                        List.of(
+                                InSquarePlacement.spread(),
+                                PlacementUtils.HEIGHTMAP_TOP_SOLID,
+                                BlockPredicateFilter.forPredicate(BlockPredicate.matchesFluids(Fluids.WATER)),
+                                BiomeFilter.biome())));
+        context.register(
+                SHORE_RIVER_SGRAVEL_DISK_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(SHORE_RIVER_SGRAVEL_DISK_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(3),
+                                InSquarePlacement.spread(),
+                                PlacementUtils.HEIGHTMAP_TOP_SOLID,
+                                BlockPredicateFilter.forPredicate(BlockPredicate.matchesFluids(Fluids.WATER)),
+                                BiomeFilter.biome())));
+        context.register(
+                SHORE_RIVER_SGRAVEL_GRAVEL_DISK_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(SHORE_RIVER_SGRAVEL_GRAVEL_DISK_CONFIGURED),
                         List.of(
                                 InSquarePlacement.spread(),
                                 PlacementUtils.HEIGHTMAP_TOP_SOLID,
@@ -1075,8 +1121,8 @@ public final class ModWorldGen {
                 new BiomeModifiers.AddFeaturesBiomeModifier(
                         shoreRiverSgravelBiomes,
                         HolderSet.direct(
-                                placedFeatures.getOrThrow(SGRAVEL_DISK_PLACED),
-                                placedFeatures.getOrThrow(SGRAVEL_GRAVEL_DISK_PLACED)),
+                                placedFeatures.getOrThrow(SHORE_RIVER_SGRAVEL_DISK_PLACED),
+                                placedFeatures.getOrThrow(SHORE_RIVER_SGRAVEL_GRAVEL_DISK_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES));
         context.register(
                 REMOVE_JUNGLE_MELONS,

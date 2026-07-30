@@ -1248,10 +1248,20 @@ class GeneratedResourceTest {
 
     @Test
     void shoreAndRiverBiomesUseSgravelForSoftDisksAndTerrain() throws Exception {
+        JsonObject sandConfigured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/shore_river_sgravel_disk.json"));
+        JsonObject gravelConfigured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/shore_river_sgravel_gravel_disk.json"));
+        JsonObject sandPlaced = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/shore_river_sgravel_disk.json"));
+        JsonObject gravelPlaced = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/shore_river_sgravel_gravel_disk.json"));
         JsonObject removed = json(GENERATED.resolve(
                 "data/infx/neoforge/biome_modifier/replace_shore_river_soft_disks.json"));
         JsonObject added = json(GENERATED.resolve(
                 "data/infx/neoforge/biome_modifier/add_shore_river_sgravel_disks.json"));
+        JsonObject sandDiskConfig = sandConfigured.getAsJsonObject("config");
+        JsonObject gravelDiskConfig = gravelConfigured.getAsJsonObject("config");
         Set<String> expectedBiomes = Set.of(
                 "minecraft:stony_shore",
                 "minecraft:river",
@@ -1274,11 +1284,39 @@ class GeneratedResourceTest {
 
         assertAll(
                 "shore and river sgravel disks",
+                () -> assertEquals("minecraft:disk", sandConfigured.get("type").getAsString()),
+                () -> assertEquals("minecraft:disk", gravelConfigured.get("type").getAsString()),
+                () -> assertEquals("infx:sgravel", sandDiskConfig
+                        .getAsJsonObject("state_provider")
+                        .getAsJsonObject("state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals("infx:sgravel", gravelDiskConfig
+                        .getAsJsonObject("state_provider")
+                        .getAsJsonObject("state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals(6, sandDiskConfig
+                        .getAsJsonObject("radius")
+                        .get("max_inclusive")
+                        .getAsInt()),
+                () -> assertEquals(5, gravelDiskConfig
+                        .getAsJsonObject("radius")
+                        .get("max_inclusive")
+                        .getAsInt()),
+                () -> assertEquals("infx:shore_river_sgravel_disk", sandPlaced
+                        .get("feature")
+                        .getAsString()),
+                () -> assertEquals("infx:shore_river_sgravel_gravel_disk", gravelPlaced
+                        .get("feature")
+                        .getAsString()),
                 () -> assertEquals("neoforge:remove_features", removed.get("type").getAsString()),
                 () -> assertEquals("neoforge:add_features", added.get("type").getAsString()),
                 () -> assertEquals(Set.of("minecraft:disk_sand", "minecraft:disk_gravel"), removedFeatures),
                 () -> assertEquals("underground_ores", removed.get("steps").getAsString()),
-                () -> assertEquals(Set.of("infx:sgravel_disk", "infx:sgravel_gravel_disk"), addedFeatures),
+                () -> assertEquals(
+                        Set.of("infx:shore_river_sgravel_disk", "infx:shore_river_sgravel_gravel_disk"),
+                        addedFeatures),
                 () -> assertEquals("underground_ores", added.get("step").getAsString()),
                 () -> assertEquals(expectedBiomes, removedBiomes),
                 () -> assertEquals(expectedBiomes, addedBiomes));
