@@ -50,6 +50,7 @@
     "DebugScreenOverlayMixin",
     "EnchantmentScreenMixin",
     "GuiExperienceMixin",
+    "InventoryScreenMixin",
     "WorldCreationUiStateMixin"
   ],
   "injectors": {
