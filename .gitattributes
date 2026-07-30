@@ -9,3 +9,6 @@ src/main/resources/assets/infx/textures/block/core.png.mcmeta binary
 
 # Preserve the authorized animated rune-gate metadata byte-for-byte (the source uses CRLF).
 src/main/resources/assets/infx/textures/block/runegate.png.mcmeta binary
+
+# Preserve the authorized animated Nether portal metadata byte-for-byte (the source uses CRLF).
+src/main/resources/assets/infx/textures/block/nether_portal.png.mcmeta binary

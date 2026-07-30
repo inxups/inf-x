@@ -340,7 +340,7 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateRedNetherPortal(BlockModelGenerators blockModels) {
-        Material portal = new Material(Identifier.withDefaultNamespace("block/nether_portal"));
+        Material portal = new Material(InfiniteX.id("block/nether_portal"));
         TextureMapping textures = new TextureMapping()
                 .put(TextureSlot.PARTICLE, portal)
                 .put(PORTAL, portal);

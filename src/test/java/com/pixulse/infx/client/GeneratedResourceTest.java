@@ -206,10 +206,14 @@ class GeneratedResourceTest {
             JsonObject model = json(GENERATED.resolve("assets/infx/models/block/nether_portal_" + orientation + ".json"));
             JsonObject template = json(STATIC.resolve(
                     "assets/infx/models/block/template_red_nether_portal_" + orientation + ".json"));
+            JsonObject textures = model.getAsJsonObject("textures");
 
-            assertEquals(
-                    "infx:block/template_red_nether_portal_" + orientation,
-                    model.get("parent").getAsString());
+            assertAll(
+                    () -> assertEquals(
+                            "infx:block/template_red_nether_portal_" + orientation,
+                            model.get("parent").getAsString()),
+                    () -> assertEquals("infx:block/nether_portal", textures.get("portal").getAsString()),
+                    () -> assertEquals("infx:block/nether_portal", textures.get("particle").getAsString()));
             template.getAsJsonArray("elements")
                     .get(0)
                     .getAsJsonObject()
@@ -2532,6 +2536,8 @@ class GeneratedResourceTest {
                 "textures/block/runestones/(mithril|adamantium)/(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.png")));
         assertTrue(destinations.remove("textures/block/runegate.png"));
         assertTrue(destinations.remove("textures/block/runegate.png.mcmeta"));
+        assertTrue(destinations.remove("textures/block/nether_portal.png"));
+        assertTrue(destinations.remove("textures/block/nether_portal.png.mcmeta"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/item/(flour|water_bowl|dough|salad|blueberries|blueberry_porridge|milk_bowl|cereal_porridge"
                         + "|chocolate|pumpkin_soup|cream_of_mushroom_soup|onion|vegetable_soup"
