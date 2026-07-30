@@ -144,6 +144,8 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("blueberry_bush_patch"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SGRAVEL_DISK_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("sgravel_disk"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> SGRAVEL_GRAVEL_DISK_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("sgravel_gravel_disk"));
     public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
@@ -160,6 +162,8 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("blueberry_bush_patch"));
     private static final ResourceKey<PlacedFeature> SGRAVEL_DISK_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("sgravel_disk"));
+    private static final ResourceKey<PlacedFeature> SGRAVEL_GRAVEL_DISK_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("sgravel_gravel_disk"));
     public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
@@ -174,10 +178,10 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
     private static final ResourceKey<BiomeModifier> ADD_BLUEBERRY_BUSH =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_blueberry_bush"));
-    private static final ResourceKey<BiomeModifier> ADD_SGRAVEL_DISK =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_sgravel_disk"));
-    private static final ResourceKey<BiomeModifier> REMOVE_MOUNTAIN_SAND =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_mountain_sand"));
+    private static final ResourceKey<BiomeModifier> ADD_MOUNTAIN_SGRAVEL_DISKS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_mountain_sgravel_disks"));
+    private static final ResourceKey<BiomeModifier> REPLACE_MOUNTAIN_SOFT_DISKS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("replace_mountain_soft_disks"));
     private static final ResourceKey<BiomeModifier> REMOVE_JUNGLE_MELONS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_jungle_melons"));
     private static final ResourceKey<BiomeModifier> R196_SPAWNS =
@@ -312,6 +316,15 @@ public final class ModWorldGen {
                                 BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)),
                                 UniformInt.of(2, 6),
                                 2)));
+        context.register(
+                SGRAVEL_GRAVEL_DISK_CONFIGURED,
+                new ConfiguredFeature<>(
+                        Feature.DISK,
+                        new DiskConfiguration(
+                                BlockStateProvider.simple(InfXBlocks.GRAVEL.get()),
+                                BlockPredicate.matchesBlocks(List.of(Blocks.DIRT, Blocks.GRASS_BLOCK)),
+                                UniformInt.of(2, 5),
+                                2)));
         registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, InfXBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
     }
 
@@ -391,6 +404,15 @@ public final class ModWorldGen {
                         configuredFeatures.getOrThrow(SGRAVEL_DISK_CONFIGURED),
                         List.of(
                                 CountPlacement.of(3),
+                                InSquarePlacement.spread(),
+                                PlacementUtils.HEIGHTMAP_TOP_SOLID,
+                                BlockPredicateFilter.forPredicate(BlockPredicate.matchesFluids(Fluids.WATER)),
+                                BiomeFilter.biome())));
+        context.register(
+                SGRAVEL_GRAVEL_DISK_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(SGRAVEL_GRAVEL_DISK_CONFIGURED),
+                        List.of(
                                 InSquarePlacement.spread(),
                                 PlacementUtils.HEIGHTMAP_TOP_SOLID,
                                 BlockPredicateFilter.forPredicate(BlockPredicate.matchesFluids(Fluids.WATER)),
@@ -829,13 +851,43 @@ public final class ModWorldGen {
                         vanilla.defaultBlock(),
                         vanilla.defaultFluid(),
                         withRaisedOverworldFloor(vanilla.noiseRouter()),
-                        vanilla.surfaceRule(),
+                        withMountainSgravelSurface(vanilla.surfaceRule()),
                         vanilla.spawnTarget(),
                         vanilla.seaLevel(),
                         false,
                         vanilla.aquifersEnabled(),
                         vanilla.oreVeinsEnabled(),
                         vanilla.useLegacyRandomSource()));
+    }
+
+    /**
+     * Replaces only the gravel branches of vanilla's windswept-gravelly-hills
+     * surface rule. The biome modifier below handles its placed soft disks;
+     * those modifiers cannot change terrain produced by {@link SurfaceRules}.
+     */
+    private static SurfaceRules.RuleSource withMountainSgravelSurface(SurfaceRules.RuleSource vanilla) {
+        SurfaceRules.RuleSource sgravel = SurfaceRules.state(InfXBlocks.GRAVEL.get().defaultBlockState());
+        SurfaceRules.RuleSource sgravelWhenNotOnCeiling = SurfaceRules.ifTrue(
+                SurfaceRules.not(SurfaceRules.ON_CEILING), sgravel);
+        SurfaceRules.RuleSource gravelBranches = SurfaceRules.sequence(
+                SurfaceRules.ifTrue(surfaceNoiseAbove(2.0), sgravelWhenNotOnCeiling),
+                SurfaceRules.ifTrue(SurfaceRules.not(surfaceNoiseAbove(-1.0)), sgravelWhenNotOnCeiling));
+        SurfaceRules.RuleSource windsweptGravellyHillsReplacement = SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(Biomes.WINDSWEPT_GRAVELLY_HILLS),
+                SurfaceRules.sequence(
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.ON_FLOOR,
+                                SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(-1, 0), gravelBranches)),
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.waterStartCheck(-6, -1),
+                                SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, gravelBranches))));
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), windsweptGravellyHillsReplacement),
+                vanilla);
+    }
+
+    private static SurfaceRules.ConditionSource surfaceNoiseAbove(double threshold) {
+        return SurfaceRules.noiseCondition(Noises.SURFACE, threshold / 8.25, Double.MAX_VALUE);
     }
 
     private static NoiseRouter withRaisedOverworldFloor(NoiseRouter vanilla) {
@@ -933,20 +985,24 @@ public final class ModWorldGen {
                                 biomes.getOrThrow(Biomes.OLD_GROWTH_BIRCH_FOREST)),
                         HolderSet.direct(placedFeatures.getOrThrow(BLUEBERRY_BUSH_PLACED)),
                         GenerationStep.Decoration.VEGETAL_DECORATION));
-        HolderSet<Biome> mountainSandBiomes = HolderSet.direct(
+        HolderSet<Biome> mountainSgravelBiomes = HolderSet.direct(
                 biomes.getOrThrow(Biomes.STONY_PEAKS),
                 biomes.getOrThrow(Biomes.WINDSWEPT_GRAVELLY_HILLS));
         context.register(
-                REMOVE_MOUNTAIN_SAND,
+                REPLACE_MOUNTAIN_SOFT_DISKS,
                 new BiomeModifiers.RemoveFeaturesBiomeModifier(
-                        mountainSandBiomes,
-                        HolderSet.direct(placedFeatures.getOrThrow(MiscOverworldPlacements.DISK_SAND)),
+                        mountainSgravelBiomes,
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(MiscOverworldPlacements.DISK_SAND),
+                                placedFeatures.getOrThrow(MiscOverworldPlacements.DISK_GRAVEL)),
                         Set.of(GenerationStep.Decoration.UNDERGROUND_ORES)));
         context.register(
-                ADD_SGRAVEL_DISK,
+                ADD_MOUNTAIN_SGRAVEL_DISKS,
                 new BiomeModifiers.AddFeaturesBiomeModifier(
-                        mountainSandBiomes,
-                        HolderSet.direct(placedFeatures.getOrThrow(SGRAVEL_DISK_PLACED)),
+                        mountainSgravelBiomes,
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(SGRAVEL_DISK_PLACED),
+                                placedFeatures.getOrThrow(SGRAVEL_GRAVEL_DISK_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES));
         context.register(
                 REMOVE_JUNGLE_MELONS,
