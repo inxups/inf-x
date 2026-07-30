@@ -27,6 +27,7 @@ public final class ModDataGenerators {
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.EN_US));
         event.createProvider(output -> new ModLanguageProvider(output, ModLanguageProvider.Locale.ZH_CN));
         event.createProvider(ModModelProvider::new);
+        event.createProvider(ModParticleDescriptionProvider::new);
         event.createProvider(ModEquipmentAssetProvider::new);
         event.createProvider(ModRecipeProvider.Runner::new);
         event.createProvider(DisabledVanillaRecipesProvider::new);
