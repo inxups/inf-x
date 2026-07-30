@@ -113,14 +113,15 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 public final class ModWorldGen {
     private static final int OVERWORLD_MIN_Y = -16;
     private static final int OVERWORLD_HEIGHT = 336;
-    private static final int UNDERWORLD_MIN_Y = -192;
-    private static final int UNDERWORLD_HEIGHT = 512;
-    private static final int UNDERWORLD_FIRST_CAVE_MIN_Y = 128;
-    private static final int UNDERWORLD_FIRST_CAVE_END_Y = 216;
-    private static final int UNDERWORLD_SEPARATOR_END_Y = 226;
-    private static final int UNDERWORLD_ROOF_START_Y = 296;
-    private static final int UNDERWORLD_TOP_Y = UNDERWORLD_MIN_Y + UNDERWORLD_HEIGHT - 1;
-    private static final int UNDERWORLD_SEA_LEVEL = 140;
+    private static final int UNDERWORLD_MIN_Y = Underworld.MIN_Y;
+    private static final int UNDERWORLD_HEIGHT = Underworld.HEIGHT;
+    // Keep the 192-block cave stack aligned with the ceiling when the dimension height changes.
+    private static final int UNDERWORLD_FIRST_CAVE_MIN_Y = Underworld.MAX_Y_EXCLUSIVE - 192;
+    private static final int UNDERWORLD_FIRST_CAVE_END_Y = UNDERWORLD_FIRST_CAVE_MIN_Y + 88;
+    private static final int UNDERWORLD_SEPARATOR_END_Y = UNDERWORLD_FIRST_CAVE_MIN_Y + 98;
+    private static final int UNDERWORLD_ROOF_START_Y = UNDERWORLD_FIRST_CAVE_MIN_Y + 168;
+    private static final int UNDERWORLD_TOP_Y = Underworld.MAX_Y_EXCLUSIVE - 1;
+    private static final int UNDERWORLD_SEA_LEVEL = UNDERWORLD_FIRST_CAVE_MIN_Y + 12;
     private static final int MITE_R196_PROFILE_FIRST_SAMPLE = 4;
     private static final int MITE_R196_PROFILE_LAST_SAMPLE = 12;
     private static final double MITE_R196_PROFILE_FREQUENCY = Math.PI * 6.0 / 17.0;
@@ -948,13 +949,28 @@ public final class ModWorldGen {
 
         // Morph the cave fields across a broad window so an opening never changes style on one Y plane.
         DensityFunction caveMorph = naturalTransition(
-                noises, 204, 242, Noises.CAVE_LAYER, 0.07, 0.18);
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 76,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 114,
+                Noises.CAVE_LAYER,
+                0.07,
+                0.18);
         DensityFunction blendedCaves = DensityFunctions.lerp(caveMorph, firstCave, upperCave);
 
         DensityFunction entranceRise = naturalTransition(
-                noises, 196, 208, Noises.SPAGHETTI_2D, 0.12, 0.24);
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 68,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 80,
+                Noises.SPAGHETTI_2D,
+                0.12,
+                0.24);
         DensityFunction entranceRelease = naturalTransition(
-                noises, 238, 250, Noises.PILLAR, 0.10, 0.22);
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 110,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 122,
+                Noises.PILLAR,
+                0.10,
+                0.22);
         DensityFunction entranceFall = DensityFunctions.add(
                 DensityFunctions.constant(1.0),
                 DensityFunctions.mul(DensityFunctions.constant(-1.0), entranceRelease));
@@ -966,12 +982,22 @@ public final class ModWorldGen {
 
         // Two noisy signed surfaces form a variable-thickness rock band; ravines and tunnels cut through both.
         DensityFunction separatorFloor = naturalTransition(
-                noises, 204, 222, Noises.PILLAR, 0.09, 0.40);
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 76,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 94,
+                Noises.PILLAR,
+                0.09,
+                0.40);
         DensityFunction separatorFloorDensity = DensityFunctions.add(
                 DensityFunctions.mul(DensityFunctions.constant(2.0), separatorFloor),
                 DensityFunctions.constant(-1.0));
         DensityFunction separatorCeiling = naturalTransition(
-                noises, 222, 242, Noises.SPAGHETTI_2D, 0.08, 0.40);
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 94,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 114,
+                Noises.SPAGHETTI_2D,
+                0.08,
+                0.40);
         DensityFunction separatorCeilingDensity = DensityFunctions.add(
                 DensityFunctions.constant(1.0),
                 DensityFunctions.mul(DensityFunctions.constant(-2.0), separatorCeiling));
@@ -982,9 +1008,14 @@ public final class ModWorldGen {
                 cavesWithEntrances,
                 DensityFunctions.min(separatorBand, entrances));
 
-        // Positive density is stone; the first cave opens gradually without carving below Y=128.
+        // Positive density is stone; the first cave opens gradually above the lower strata.
         DensityFunction solidToCaves = naturalTransition(
-                noises, UNDERWORLD_FIRST_CAVE_MIN_Y - 1, 136, Noises.PILLAR, 0.09, 0.18);
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y - 1,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 8,
+                Noises.PILLAR,
+                0.09,
+                0.18);
         DensityFunction layeredTerrain = DensityFunctions.lerp(solidToCaves, 1.0, caveLayers);
         DensityFunction roofClosure = DensityFunctions.yClampedGradient(
                 UNDERWORLD_ROOF_START_Y,
@@ -1017,7 +1048,7 @@ public final class ModWorldGen {
         /*
          * R196's 17-point profile has cubic stone caps at both ends. The adjacent
          * InfiniteX strata already close this shorter layer, so stretch the central
-         * cavern samples (4 through 12) across Y=128..216 and retain their values.
+         * cavern samples (4 through 12) across the first cave layer and retain their values.
          */
         int sampleCount = MITE_R196_PROFILE_LAST_SAMPLE - MITE_R196_PROFILE_FIRST_SAMPLE;
         DensityFunction y = DensityFunctions.yClampedGradient(

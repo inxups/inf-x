@@ -1,6 +1,5 @@
 package com.pixulse.infx.world;
 
-import com.pixulse.infx.registry.InfXBlocks;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.BlockPos;
@@ -9,13 +8,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 
 /**
- * MITE R196's Underworld mantle and bedrock pass, adapted to InfiniteX's taller dimension.
+ * MITE R196's internal Underworld bedrock pass, adapted to InfiniteX's fixed world boundaries.
  *
  * <p>The original pass runs after terrain generation, so it cannot be expressed by a 26.2 surface rule:
- * both boundary thickness and the four bedrock strata depend on per-column random values and
- * legacy octave noise.</p>
+ * its three internal bedrock strata depend on per-column random values and legacy octave noise. The
+ * legacy boundary random sequence is retained while planning those strata, then the world edges are
+ * overwritten with the configured fixed bedrock thickness.</p>
  */
 public final class MiteUnderworldStrata {
+    static final int BOUNDARY_BEDROCK_THICKNESS = 5;
     static final int LEGACY_TERRAIN_START_Y = 120;
     static final int FOUNDATION_WORLD_Y = 0;
     private static final int LEGACY_FOUNDATION_ANCHOR_Y = 3;
@@ -26,7 +27,6 @@ public final class MiteUnderworldStrata {
     private static final int COLUMN_COUNT = CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH;
     private static final int LOWER_STRATA_CELL_COUNT = COLUMN_COUNT * LEGACY_TERRAIN_START_Y;
     private static final byte NONE = 0;
-    private static final byte MANTLE = 1;
     private static final byte FOUNDATION = 2;
     private static final byte BEDROCK = 3;
     private static final ConcurrentHashMap<Long, MiteLegacyStrataNoise> NOISES_BY_WORLD_SEED =
@@ -52,9 +52,7 @@ public final class MiteUnderworldStrata {
                     if (replacement == NONE || replacement == FOUNDATION) continue;
                     chunk.setBlockState(
                             blockPos.set(blockX, minY + relativeY, blockZ),
-                            replacement == MANTLE
-                                    ? InfXBlocks.MANTLE.get().defaultBlockState()
-                                    : Blocks.BEDROCK.defaultBlockState());
+                            Blocks.BEDROCK.defaultBlockState());
                 }
 
                 int foundationHeight = plan.foundationHeightAt(localX, localZ);
@@ -65,10 +63,18 @@ public final class MiteUnderworldStrata {
                             blockPos.set(blockX, foundationY, blockZ), Blocks.BEDROCK.defaultBlockState());
                 }
 
-                int thickness = plan.boundaryThicknessAt(localX, localZ);
-                for (int offset = 0; offset < thickness && offset < height; offset++) {
+                // Override MITE's variable outer mantle/ceiling after preserving its internal strata plan.
+                int lowerBoundaryTopY = Math.min(topY, minY + BOUNDARY_BEDROCK_THICKNESS - 1);
+                for (int boundaryY = minY; boundaryY <= lowerBoundaryTopY; boundaryY++) {
                     chunk.setBlockState(
-                            blockPos.set(blockX, topY - offset, blockZ),
+                            blockPos.set(blockX, boundaryY, blockZ),
+                            Blocks.BEDROCK.defaultBlockState());
+                }
+
+                int upperBoundaryBottomY = Math.max(minY, topY - BOUNDARY_BEDROCK_THICKNESS + 1);
+                for (int boundaryY = upperBoundaryBottomY; boundaryY <= topY; boundaryY++) {
+                    chunk.setBlockState(
+                            blockPos.set(blockX, boundaryY, blockZ),
                             Blocks.BEDROCK.defaultBlockState());
                 }
             }
@@ -87,32 +93,36 @@ public final class MiteUnderworldStrata {
         for (int localX = 0; localX < CHUNK_SIDE_LENGTH; localX++) {
             for (int localZ = 0; localZ < CHUNK_SIDE_LENGTH; localZ++) {
                 int column = columnIndex(localX, localZ);
-                int thickness = columnRandom.nextInt(3) + 1;
-                plan.setBoundaryThickness(localX, localZ, thickness);
+                int legacyBoundaryThickness = columnRandom.nextInt(3) + 1;
                 double foundationWidth = foundationWidth(column, strataNoise);
                 plan.setFoundationHeight(localX, localZ, foundationHeight(foundationWidth));
 
                 for (int relativeY = 0; relativeY < LEGACY_TERRAIN_START_Y; relativeY++) {
-                    if (relativeY < thickness) {
-                        plan.setReplacement(localX, localZ, relativeY, MANTLE);
-                    } else {
-                        plan.setReplacement(
-                                localX,
-                                localZ,
-                                relativeY,
-                                lowerStrataReplacement(
-                                        relativeY,
-                                        column,
-                                        foundationWidth,
-                                        strataNoise,
-                                        noiseSet.chanceIn2,
-                                        chanceIndex));
-                    }
+                    if (relativeY < legacyBoundaryThickness) continue;
+                    plan.setReplacement(
+                            localX,
+                            localZ,
+                            relativeY,
+                            lowerStrataReplacement(
+                                    relativeY,
+                                    column,
+                                    foundationWidth,
+                                    strataNoise,
+                                    noiseSet.chanceIn2,
+                                    chanceIndex));
                 }
                 ensureInternalSheetCenters(plan, localX, localZ);
             }
         }
         return plan;
+    }
+
+    static boolean isBoundaryBedrock(int minY, int height, int worldY) {
+        int topY = minY + height - 1;
+        return worldY >= minY
+                && worldY <= topY
+                && (worldY < minY + BOUNDARY_BEDROCK_THICKNESS
+                        || worldY > topY - BOUNDARY_BEDROCK_THICKNESS);
     }
 
     /** Prevents a non-positive noise width from removing an entire internal stratum. */
@@ -218,12 +228,7 @@ public final class MiteUnderworldStrata {
 
     static final class StrataPlan {
         private final byte[] replacements = new byte[LOWER_STRATA_CELL_COUNT];
-        private final byte[] boundaryThicknesses = new byte[COLUMN_COUNT];
         private final int[] foundationHeights = new int[COLUMN_COUNT];
-
-        int boundaryThicknessAt(int localX, int localZ) {
-            return this.boundaryThicknesses[columnIndex(localX, localZ)];
-        }
 
         int foundationHeightAt(int localX, int localZ) {
             return this.foundationHeights[columnIndex(localX, localZ)];
@@ -234,12 +239,6 @@ public final class MiteUnderworldStrata {
                     && worldY < FOUNDATION_WORLD_Y + this.foundationHeightAt(localX, localZ);
         }
 
-        boolean hasMantleAt(int localX, int localZ, int relativeY) {
-            return relativeY >= 0
-                    && relativeY < LEGACY_TERRAIN_START_Y
-                    && this.replacementAt(localX, localZ, relativeY) == MANTLE;
-        }
-
         boolean hasBedrockAt(int localX, int localZ, int relativeY) {
             return relativeY >= 0
                     && relativeY < LEGACY_TERRAIN_START_Y
@@ -248,10 +247,6 @@ public final class MiteUnderworldStrata {
 
         private byte replacementAt(int localX, int localZ, int relativeY) {
             return this.replacements[replacementIndex(localX, localZ, relativeY)];
-        }
-
-        private void setBoundaryThickness(int localX, int localZ, int thickness) {
-            this.boundaryThicknesses[columnIndex(localX, localZ)] = (byte) thickness;
         }
 
         private void setFoundationHeight(int localX, int localZ, int height) {
