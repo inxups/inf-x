@@ -138,18 +138,7 @@ class GeneratedResourceTest {
         JsonObject infestedNetherrack = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/infx_infested_netherrack.json"));
         JsonObject underworld = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
-        String underworldMonsters = underworld
-                .getAsJsonObject("spawners")
-                .get("monster")
-                .toString();
-        String underworldAmbient = underworld
-                .getAsJsonObject("spawners")
-                .get("ambient")
-                .toString();
-        String underworldWater = underworld
-                .getAsJsonObject("spawners")
-                .get("water_creature")
-                .toString();
+        JsonObject underworldSpawners = underworld.getAsJsonObject("spawners");
 
         assertAll(
                 "INFX spawn tables",
@@ -158,17 +147,10 @@ class GeneratedResourceTest {
                 () -> assertTrue(infestedNetherrack.toString().contains("infx:infested_netherrack")),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/blockstates/infested_netherrack.json"))),
-                () -> assertFalse(underworldMonsters.contains("minecraft:zombie")),
-                () -> assertFalse(underworldMonsters.contains("minecraft:skeleton")),
-                () -> assertFalse(underworldMonsters.contains("minecraft:slime")),
-                () -> assertFalse(underworldMonsters.contains("infx:fire_elemental")),
-                () -> assertFalse(underworldMonsters.contains("infx:hoary_silverfish")),
-                () -> assertFalse(underworldMonsters.contains("infx:wood_spider")),
-                () -> assertTrue(underworldAmbient.contains("infx:infx_bat")),
-                () -> assertTrue(underworldAmbient.contains("infx:vampire_bat")),
-                () -> assertTrue(underworldAmbient.contains("infx:nightwing")),
-                () -> assertFalse(underworldAmbient.contains("infx:giant_vampire_bat")),
-                () -> assertTrue(underworldWater.contains("minecraft:squid")));
+                () -> assertTrue(
+                        underworldSpawners.entrySet().stream()
+                                .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
+                        "Underworld spawn tables must be empty"));
     }
 
     @Test
@@ -1668,7 +1650,10 @@ class GeneratedResourceTest {
                 () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
-                () -> assertTrue(biome.toString().contains("minecraft:cave_spider")),
+                () -> assertTrue(
+                        biome.getAsJsonObject("spawners").entrySet().stream()
+                                .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
+                        "Underworld spawn tables must be empty"),
                 () -> assertTrue(underworldFeatures.isEmpty()),
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
@@ -1708,7 +1693,6 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void overworldStopsAtMinusSixteenAndRetainsVanillaMineshafts() throws Exception {
     void overworldStopsAtMinusSixteenAndLeavesUndergroundStructuresUnassigned() throws Exception {
         JsonObject dimensionType = json(GENERATED.resolve("data/minecraft/dimension_type/overworld.json"));
         assertAll(
