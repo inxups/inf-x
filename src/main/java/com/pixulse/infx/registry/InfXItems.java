@@ -82,6 +82,7 @@ public final class InfXItems {
                     .component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
+    public static final DeferredItem<BlockItem> GRAVEL = ITEMS.registerSimpleBlockItem(InfXBlocks.GRAVEL);
     public static final DeferredItem<BlockItem> NETHER_GRAVEL = ITEMS.registerSimpleBlockItem(InfXBlocks.NETHER_GRAVEL);
     public static final DeferredItem<BlockItem> WITHERWOOD = ITEMS.registerSimpleBlockItem(InfXBlocks.WITHERWOOD);
     public static final DeferredItem<BlockItem> BLUEBERRY_BUSH =
@@ -89,7 +90,7 @@ public final class InfXItems {
     public static final DeferredItem<BlockItem> CORE = ITEMS.registerSimpleBlockItem(InfXBlocks.CORE);
     public static final DeferredItem<BlockItem> SNOW_SLAB = ITEMS.registerSimpleBlockItem(InfXBlocks.SNOW_SLAB);
     public static final List<DeferredItem<BlockItem>> FULLTEXT_BLOCKS =
-            List.of(NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
+            List.of(GRAVEL, NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
     public static final List<DeferredItem<BlockItem>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
     public static final DeferredItem<BlockItem> EMERALD_ENCHANTING_TABLE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.EMERALD_ENCHANTING_TABLE);

@@ -1621,9 +1621,9 @@ class GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the R196 bat egg, and
-        // the bottle model add one item definition and model each.
-        assertEquals(445, jsonCount(GENERATED.resolve("assets/infx/items")));
+        // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the R196 bat egg, and the
+        // bottle model add one item definition and model each; gravel adds one block item definition.
+        assertEquals(446, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(516, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -2004,6 +2004,7 @@ class GeneratedResourceTest {
                         + "|beetroot/(?:[0-3]|blighted/[0-3]|dead/[0-3]))\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/emerald_enchanting_table_(side|top)\\.png")));
+        assertTrue(destinations.remove("textures/block/gravel.png"));
         assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));
@@ -2146,6 +2147,7 @@ class GeneratedResourceTest {
                 () -> assertTrue(levels.get(1).contains("#c:glass_blocks")),
                 () -> assertTrue(levels.get(1).contains("#minecraft:terracotta")),
                 () -> assertTrue(levels.get(1).contains("#c:sandstone/slabs")),
+                () -> assertTrue(levels.get(1).contains("infx:gravel")),
                 () -> assertFalse(levels.get(1).contains("#c:sandstone/stairs")),
                 () -> assertTrue(levels.get(2).contains("infx:silver_ore")),
                 () -> assertTrue(levels.get(3).contains("minecraft:copper_bulb")),
@@ -2162,6 +2164,7 @@ class GeneratedResourceTest {
         Set<String> pickaxe = tagValues("effective_tool/pickaxe");
         Set<String> axe = tagValues("effective_tool/axe");
         Set<String> shovel = tagValues("effective_tool/shovel");
+        Set<String> vanillaShovel = tagValuesAt("minecraft", "block/mineable/shovel");
         Set<String> hoe = tagValues("effective_tool/hoe");
         Set<String> cudgel = tagValues("effective_tool/cudgel");
         Set<String> sword = tagValues("effective_tool/sword");
@@ -2179,6 +2182,7 @@ class GeneratedResourceTest {
                 () -> assertFalse(axe.contains("#c:sandstone/stairs")),
                 () -> assertTrue(axe.contains("#minecraft:terracotta")),
                 () -> assertTrue(shovel.contains("#c:glass_panes")),
+                () -> assertTrue(vanillaShovel.contains("infx:gravel")),
                 () -> assertTrue(shovel.contains("infx:infested_netherrack")),
                 () -> assertTrue(hoe.contains("#minecraft:mineable/shovel")),
                 () -> assertTrue(hoe.contains("infx:sandstone_furnace")),
@@ -2195,7 +2199,11 @@ class GeneratedResourceTest {
     }
 
     private static Set<String> tagValues(String path) throws IOException {
-        JsonObject tag = json(GENERATED.resolve("data/infx/tags/block/" + path + ".json"));
+        return tagValuesAt("infx", "block/" + path);
+    }
+
+    private static Set<String> tagValuesAt(String namespace, String path) throws IOException {
+        JsonObject tag = json(GENERATED.resolve("data/" + namespace + "/tags/" + path + ".json"));
         return tag.getAsJsonArray("values").asList().stream()
                 .map(value -> value.isJsonObject()
                         ? value.getAsJsonObject().get("id").getAsString()

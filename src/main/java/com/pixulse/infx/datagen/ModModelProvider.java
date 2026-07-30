@@ -157,6 +157,7 @@ final class ModModelProvider extends ModelProvider {
                 InfXBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
         generateBlueberryBush(blockModels);
         InfXBlocks.MITE_CROPS.forEach(crop -> generateMiteCrop(blockModels, crop.value()));
+        blockModels.createTrivialCube(InfXBlocks.GRAVEL.value());
         blockModels.createTrivialCube(InfXBlocks.NETHER_GRAVEL.value());
         blockModels.createTrivialCube(InfXBlocks.CORE.value());
         blockModels.createTrivialBlock(

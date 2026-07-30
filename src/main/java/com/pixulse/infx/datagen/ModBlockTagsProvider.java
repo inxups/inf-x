@@ -157,7 +157,8 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         InfXBlocks.ENCHANTING_TABLES.forEach(table -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(table.getKey()));
         InfXBlocks.METAL_SAFES.forEach(safe -> tag(BlockTags.MINEABLE_WITH_PICKAXE).add(safe.getKey()));
         InfXBlocks.WORKBENCHES.forEach(workbench -> tag(BlockTags.MINEABLE_WITH_AXE).add(workbench.getKey()));
-        tag(BlockTags.MINEABLE_WITH_SHOVEL).add(InfXBlocks.NETHER_GRAVEL.getKey());
+        tag(BlockTags.MINEABLE_WITH_SHOVEL)
+                .add(InfXBlocks.GRAVEL.getKey(), InfXBlocks.NETHER_GRAVEL.getKey());
     }
 
     private void addEffectiveToolTags() {
@@ -443,6 +444,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.MANGROVE_ROOTS),
                         blockKey(Blocks.MUDDY_MANGROVE_ROOTS),
                         blockKey(Blocks.PACKED_MUD),
+                        InfXBlocks.GRAVEL.getKey(),
                         InfXBlocks.HARDENED_CLAY_FURNACE.getKey());
         addMatching(level1, id -> isMudBrick(id) || isGlazedTerracotta(id));
 
