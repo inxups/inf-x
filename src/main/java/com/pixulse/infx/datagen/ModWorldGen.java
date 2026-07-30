@@ -182,6 +182,10 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_mountain_sgravel_disks"));
     private static final ResourceKey<BiomeModifier> REPLACE_MOUNTAIN_SOFT_DISKS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("replace_mountain_soft_disks"));
+    private static final ResourceKey<BiomeModifier> ADD_SHORE_RIVER_SGRAVEL_DISKS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_shore_river_sgravel_disks"));
+    private static final ResourceKey<BiomeModifier> REPLACE_SHORE_RIVER_SOFT_DISKS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("replace_shore_river_soft_disks"));
     private static final ResourceKey<BiomeModifier> REMOVE_JUNGLE_MELONS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_jungle_melons"));
     private static final ResourceKey<BiomeModifier> R196_SPAWNS =
@@ -851,7 +855,7 @@ public final class ModWorldGen {
                         vanilla.defaultBlock(),
                         vanilla.defaultFluid(),
                         withRaisedOverworldFloor(vanilla.noiseRouter()),
-                        withMountainSgravelSurface(vanilla.surfaceRule()),
+                        withSgravelSurface(vanilla.surfaceRule()),
                         vanilla.spawnTarget(),
                         vanilla.seaLevel(),
                         false,
@@ -861,18 +865,30 @@ public final class ModWorldGen {
     }
 
     /**
-     * Replaces only the gravel branches of vanilla's windswept-gravelly-hills
-     * surface rule. The biome modifier below handles its placed soft disks;
-     * those modifiers cannot change terrain produced by {@link SurfaceRules}.
+     * Replaces the targeted vanilla gravel surface-rule branches. Biome modifiers
+     * separately handle their placed soft disks; those modifiers cannot change
+     * terrain produced by {@link SurfaceRules}.
      */
-    private static SurfaceRules.RuleSource withMountainSgravelSurface(SurfaceRules.RuleSource vanilla) {
+    private static SurfaceRules.RuleSource withSgravelSurface(SurfaceRules.RuleSource vanilla) {
         SurfaceRules.RuleSource sgravel = SurfaceRules.state(InfXBlocks.GRAVEL.get().defaultBlockState());
         SurfaceRules.RuleSource sgravelWhenNotOnCeiling = SurfaceRules.ifTrue(
                 SurfaceRules.not(SurfaceRules.ON_CEILING), sgravel);
+        SurfaceRules.ConditionSource abovePreliminarySurface = SurfaceRules.abovePreliminarySurface();
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(
+                        abovePreliminarySurface,
+                        windsweptGravellyHillsSgravelRule(sgravelWhenNotOnCeiling)),
+                SurfaceRules.ifTrue(abovePreliminarySurface, stonyShoreSgravelRule(sgravelWhenNotOnCeiling)),
+                SurfaceRules.ifTrue(abovePreliminarySurface, waterfrontGravelFallbackRule(sgravelWhenNotOnCeiling)),
+                vanilla);
+    }
+
+    private static SurfaceRules.RuleSource windsweptGravellyHillsSgravelRule(
+            SurfaceRules.RuleSource sgravelWhenNotOnCeiling) {
         SurfaceRules.RuleSource gravelBranches = SurfaceRules.sequence(
                 SurfaceRules.ifTrue(surfaceNoiseAbove(2.0), sgravelWhenNotOnCeiling),
                 SurfaceRules.ifTrue(SurfaceRules.not(surfaceNoiseAbove(-1.0)), sgravelWhenNotOnCeiling));
-        SurfaceRules.RuleSource windsweptGravellyHillsReplacement = SurfaceRules.ifTrue(
+        return SurfaceRules.ifTrue(
                 SurfaceRules.isBiome(Biomes.WINDSWEPT_GRAVELLY_HILLS),
                 SurfaceRules.sequence(
                         SurfaceRules.ifTrue(
@@ -881,9 +897,44 @@ public final class ModWorldGen {
                         SurfaceRules.ifTrue(
                                 SurfaceRules.waterStartCheck(-6, -1),
                                 SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, gravelBranches))));
-        return SurfaceRules.sequence(
-                SurfaceRules.ifTrue(SurfaceRules.abovePreliminarySurface(), windsweptGravellyHillsReplacement),
-                vanilla);
+    }
+
+    private static SurfaceRules.RuleSource stonyShoreSgravelRule(SurfaceRules.RuleSource sgravelWhenNotOnCeiling) {
+        SurfaceRules.RuleSource gravelPatch = SurfaceRules.ifTrue(
+                SurfaceRules.noiseCondition(Noises.GRAVEL, -0.05, 0.05), sgravelWhenNotOnCeiling);
+        return SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(Biomes.STONY_SHORE),
+                SurfaceRules.sequence(
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.ON_FLOOR,
+                                SurfaceRules.ifTrue(SurfaceRules.waterBlockCheck(-1, 0), gravelPatch)),
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.waterStartCheck(-6, -1),
+                                SurfaceRules.ifTrue(SurfaceRules.UNDER_FLOOR, gravelPatch))));
+    }
+
+    /** Matches the vanilla final gravel fallback only when no biome under-surface rule applies. */
+    private static SurfaceRules.RuleSource waterfrontGravelFallbackRule(
+            SurfaceRules.RuleSource sgravelWhenNotOnCeiling) {
+        SurfaceRules.ConditionSource notUnderwater = SurfaceRules.waterBlockCheck(-1, 0);
+        SurfaceRules.ConditionSource notUnderDeepWater = SurfaceRules.waterStartCheck(-6, -1);
+        return SurfaceRules.ifTrue(
+                SurfaceRules.isBiome(
+                        Biomes.STONY_SHORE,
+                        Biomes.RIVER,
+                        Biomes.FROZEN_RIVER,
+                        RiverBiomes.DESERT_RIVER,
+                        RiverBiomes.JUNGLE_RIVER,
+                        RiverBiomes.SWAMP_RIVER),
+                SurfaceRules.ifTrue(
+                        SurfaceRules.ON_FLOOR,
+                        SurfaceRules.ifTrue(
+                                SurfaceRules.not(notUnderwater),
+                                SurfaceRules.sequence(
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.not(notUnderDeepWater), sgravelWhenNotOnCeiling),
+                                        SurfaceRules.ifTrue(
+                                                SurfaceRules.not(SurfaceRules.UNDER_FLOOR), sgravelWhenNotOnCeiling)))));
     }
 
     private static SurfaceRules.ConditionSource surfaceNoiseAbove(double threshold) {
@@ -1000,6 +1051,29 @@ public final class ModWorldGen {
                 ADD_MOUNTAIN_SGRAVEL_DISKS,
                 new BiomeModifiers.AddFeaturesBiomeModifier(
                         mountainSgravelBiomes,
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(SGRAVEL_DISK_PLACED),
+                                placedFeatures.getOrThrow(SGRAVEL_GRAVEL_DISK_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES));
+        HolderSet<Biome> shoreRiverSgravelBiomes = HolderSet.direct(
+                biomes.getOrThrow(Biomes.STONY_SHORE),
+                biomes.getOrThrow(Biomes.RIVER),
+                biomes.getOrThrow(Biomes.FROZEN_RIVER),
+                biomes.getOrThrow(RiverBiomes.DESERT_RIVER),
+                biomes.getOrThrow(RiverBiomes.JUNGLE_RIVER),
+                biomes.getOrThrow(RiverBiomes.SWAMP_RIVER));
+        context.register(
+                REPLACE_SHORE_RIVER_SOFT_DISKS,
+                new BiomeModifiers.RemoveFeaturesBiomeModifier(
+                        shoreRiverSgravelBiomes,
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(MiscOverworldPlacements.DISK_SAND),
+                                placedFeatures.getOrThrow(MiscOverworldPlacements.DISK_GRAVEL)),
+                        Set.of(GenerationStep.Decoration.UNDERGROUND_ORES)));
+        context.register(
+                ADD_SHORE_RIVER_SGRAVEL_DISKS,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        shoreRiverSgravelBiomes,
                         HolderSet.direct(
                                 placedFeatures.getOrThrow(SGRAVEL_DISK_PLACED),
                                 placedFeatures.getOrThrow(SGRAVEL_GRAVEL_DISK_PLACED)),
