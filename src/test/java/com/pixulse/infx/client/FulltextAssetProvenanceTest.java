@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class FulltextAssetProvenanceTest {
     private static final Path ROOT = findProjectRoot();
     private static final Path ASSETS = ROOT.resolve("src/main/resources/assets/infx");
-    private static final Path MANIFEST = ASSETS.resolve("mite_fulltext_manifest.tsv");
+    private static final Path MANIFEST = ASSETS.resolve("infx_fulltext_manifest.tsv");
 
     @Test
     void allAuthorizedFulltextAssetsAreUniqueReadableAndHashPinned() throws Exception {

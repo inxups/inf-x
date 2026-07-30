@@ -25,7 +25,7 @@ SRC_26 = Path(os.environ.get(
 TMP_26_ROOT = ROOT / "build/tmp/mite-26.2-textures"
 TMP_26 = TMP_26_ROOT / "assets/minecraft/textures/entity"
 OUT = ROOT / "src/main/resources/assets/infx/textures/entity"
-MANIFEST = ROOT / "src/main/resources/assets/infx/mite_texture_manifest.tsv"
+MANIFEST = ROOT / "src/main/resources/assets/infx/infx_texture_manifest.tsv"
 
 
 def decode_rgba(path: Path):

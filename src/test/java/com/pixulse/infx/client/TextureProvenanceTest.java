@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class TextureProvenanceTest {
     private static final Path ROOT = findProjectRoot();
     private static final Path ASSETS = ROOT.resolve("src/main/resources/assets/infx");
-    private static final Path MANIFEST = ASSETS.resolve("mite_texture_manifest.tsv");
+    private static final Path MANIFEST = ASSETS.resolve("infx_texture_manifest.tsv");
 
     private static Path findProjectRoot() {
         Path current = Path.of("").toAbsolutePath();

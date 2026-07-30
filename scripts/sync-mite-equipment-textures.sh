@@ -7,7 +7,7 @@ SOURCE_TEXTURES="${2:-$ROOT/codex/reference/mite-src/assets/minecraft/textures}"
 ITF_REBORN_TEXTURES="${3:-${ITF_REBORN_TEXTURES:-/Users/inxups/Downloads/ITF-Reborn-R196/src/main/resources/assets/miteitfrb/textures}}"
 ASSET_ROOT="$ROOT/src/main/resources/assets/infx"
 DEST_TEXTURES="$ASSET_ROOT/textures"
-MANIFEST="$ASSET_ROOT/mite_texture_manifest.tsv"
+MANIFEST="$ASSET_ROOT/infx_texture_manifest.tsv"
 ROWS="$(mktemp)"
 PREVIOUS_ROWS="$(mktemp)"
 trap 'rm -f "$ROWS" "$PREVIOUS_ROWS" "$MANIFEST.tmp"' EXIT

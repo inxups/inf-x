@@ -204,7 +204,7 @@ final class ModModelProvider extends ModelProvider {
         InfXItems.R196_RECORDS.forEach(record ->
                 itemModels.generateFlatItem(record.value(), ModelTemplates.FLAT_ITEM));
         generateGelatinousSphereModels(itemModels);
-        InfXItems.SPAWN_EGGS.forEach(egg -> itemModels.generateFlatItem(egg.value(), ModelTemplates.FLAT_ITEM));
+        InfXItems.SPAWN_EGGS.forEach(egg -> generateSpawnEggModel(itemModels, egg.value()));
         itemModels.generateFlatItem(InfXItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateR196FoodModels(itemModels);
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
@@ -510,6 +510,21 @@ final class ModModelProvider extends ModelProvider {
                         new FishingRodCast(),
                         ItemModelUtils.plainModel(castId),
                         ItemModelUtils.plainModel(normalId)));
+    }
+
+    private static void generateSpawnEggModel(ItemModelGenerators itemModels, Item egg) {
+        String path = BuiltInRegistries.ITEM.getKey(egg).getPath();
+        if (!path.startsWith("r196_")) {
+            itemModels.generateFlatItem(egg, ModelTemplates.FLAT_ITEM);
+            return;
+        }
+        Identifier model = ModelLocationUtils.getModelLocation(egg);
+        ModelTemplates.FLAT_ITEM.create(
+                model,
+                TextureMapping.layer0(new Material(
+                        InfiniteX.id("item/infx" + path.substring("r196".length())))),
+                itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(egg, ItemModelUtils.plainModel(model));
     }
 
     private static void generateMaterialBow(

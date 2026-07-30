@@ -2393,7 +2393,7 @@ class GeneratedResourceTest {
     @Test
     void manifestHasOnlyCatalogOrApprovedDerivedTextures() throws Exception {
         Set<String> destinations = new HashSet<>();
-        for (String line : Files.readAllLines(STATIC.resolve("assets/infx/mite_texture_manifest.tsv"), UTF_8)
+        for (String line : Files.readAllLines(STATIC.resolve("assets/infx/infx_texture_manifest.tsv"), UTF_8)
                 .stream()
                 .skip(1)
                 .toList()) {
