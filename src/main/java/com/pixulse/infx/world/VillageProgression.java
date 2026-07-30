@@ -19,14 +19,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.ChunkEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-/** Day/tool village gate plus R164's villager-free, withered farms. */
+/** Village milestone tracking plus R164's villager-free, withered farms. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class VillageProgression {
     public static final long VILLAGE_DAY = 60L;
-    private static volatile boolean generationUnlocked;
 
     private VillageProgression() {}
 
@@ -43,33 +40,19 @@ public final class VillageProgression {
             return;
         }
         WorldData.get(level).markIronToolCrafted();
-        refresh(level);
-    }
-
-    @SubscribeEvent
-    public static void onServerTick(ServerTickEvent.Post event) {
-        if (event.getServer().getTickCount() % 20 == 0) refresh(event.getServer().overworld());
-    }
-
-    @SubscribeEvent
-    public static void onServerAboutToStart(ServerAboutToStartEvent event) {
-        generationUnlocked = false;
-    }
-
-    private static void refresh(ServerLevel level) {
-        generationUnlocked = day(level) >= VILLAGE_DAY && WorldData.get(level).ironToolCrafted();
+        StructureGenerationGates.refresh(level);
     }
 
     public static boolean generationUnlocked() {
-        return generationUnlocked;
+        return StructureGenerationGates.isUnlocked(StructureGenerationGates.VILLAGE_RULE);
     }
 
     public static boolean generationUnlocked(ServerLevel level) {
-        return day(level) >= VILLAGE_DAY && WorldData.get(level).ironToolCrafted();
+        return StructureGenerationGates.isUnlocked(StructureGenerationGates.VILLAGE_RULE, level);
     }
 
     public static long day(ServerLevel level) {
-        return Math.max(1L, level.getOverworldClockTime() / 24_000L + 1L);
+        return StructureGenerationGates.day(level);
     }
 
     @SubscribeEvent

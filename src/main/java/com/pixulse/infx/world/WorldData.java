@@ -15,7 +15,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
- * World-wide R196 progression: first achievements, village gate and unique books.
+ * World-wide R196 progression: first achievements, structure gates and unique books.
  */
 public final class WorldData extends SavedData {
     private static final Codec<Map<String, FirstCompletion>> COMPLETIONS = Codec.unboundedMap(Codec.STRING, FirstCompletion.CODEC);

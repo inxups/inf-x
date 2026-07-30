@@ -4,7 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.world.VillageProgression;
+import com.pixulse.infx.world.StructureGenerationGates;
 import com.pixulse.infx.world.WorldData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +22,7 @@ public final class AchievementEvents {
         if (!id.getNamespace().equals(InfiniteX.MOD_ID) || !id.getPath().startsWith("progression/")) return;
         String path = id.getPath().substring("progression/".length());
         WorldData data = WorldData.get(player.level());
-        long day = VillageProgression.day(player.level());
+        long day = StructureGenerationGates.day(player.level());
         if (data.recordFirst(path, player.getScoreboardName(), day)) {
             player.level().getServer().getPlayerList().broadcastSystemMessage(
                     Component.translatable(
@@ -33,5 +33,6 @@ public final class AchievementEvents {
                     false);
         }
         if (path.equals("the_end2")) data.markEndConquered();
+        StructureGenerationGates.refresh(player.level());
     }
 }

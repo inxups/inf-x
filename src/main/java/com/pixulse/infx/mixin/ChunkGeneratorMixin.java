@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin;
 
-import com.pixulse.infx.world.VillageProgression;
+import com.pixulse.infx.world.StructureGenerationGates;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.SectionPos;
 import net.minecraft.resources.ResourceKey;
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ChunkGenerator.class)
 abstract class ChunkGeneratorMixin {
     @Inject(method = "tryGenerateStructure", at = @At("HEAD"), cancellable = true)
-    private void infx$gateVillages(
+    private void infx$applyStructureGenerationGates(
             StructureSet.StructureSelectionEntry selected,
             StructureManager structureManager,
             RegistryAccess registryAccess,
@@ -33,10 +33,6 @@ abstract class ChunkGeneratorMixin {
             SectionPos sectionPos,
             ResourceKey<Level> level,
             CallbackInfoReturnable<Boolean> callback) {
-        if (!level.equals(Level.OVERWORLD) || VillageProgression.generationUnlocked()) return;
-        boolean village = selected.structure().unwrapKey()
-                .map(key -> key.identifier().getPath().startsWith("village_"))
-                .orElse(false);
-        if (village) callback.setReturnValue(false);
+        if (!StructureGenerationGates.allows(level, selected.structure())) callback.setReturnValue(false);
     }
 }
