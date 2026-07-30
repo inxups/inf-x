@@ -107,7 +107,7 @@ public final class SurvivalEvents {
         }
     }
 
-    /** Builds the fixed, guaranteed status-effect payload used by R196 foods. */
+    /** Builds the fixed, guaranteed status-effect payload used by INFX foods. */
     private static Consumable foodWithEffects(MobEffectInstance... effects) {
         return Consumables.defaultFood()
                 .onConsume(new ApplyStatusEffectsConsumeEffect(java.util.List.of(effects)))
@@ -147,7 +147,7 @@ public final class SurvivalEvents {
         applyFood(player, event.getItem());
     }
 
-    /** Applies an R196 food profile, or re-mirrors FoodData when the item has no profile. */
+    /** Applies an INFX food profile, or re-mirrors FoodData when the item has no profile. */
     public static void applyFood(ServerPlayer player, ItemStack stack) {
         FoodProfile food = FoodProfiles.forStack(stack);
         if (food.isEmpty()) {
@@ -191,11 +191,11 @@ public final class SurvivalEvents {
     }
 
     /**
-     * Advances the player-only part of one R196 sleep tick without advancing the surrounding
+     * Advances the player-only part of one INFX sleep tick without advancing the surrounding
      * world. Bed fast-forward calls this once per skipped clock tick so hunger, nutrient decay,
      * starvation and the fourfold bed recovery rate retain their normal ordering.
      *
-     * @return whether the player still has either R196 food-energy layer available
+     * @return whether the player still has either INFX food-energy layer available
      */
     public static boolean tickSleepingMetabolism(ServerPlayer player) {
         if (!hasActiveMetabolism(player)) return true;

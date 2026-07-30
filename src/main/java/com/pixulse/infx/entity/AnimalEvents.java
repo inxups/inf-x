@@ -17,7 +17,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 /**
- * Residual global animal hooks that are not owned by R196 replacement entity classes
+ * Residual global animal hooks that are not owned by INFX replacement entity classes
  * (e.g. iron golem drop rewrite and livestock panic after a completed hit).
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
@@ -57,16 +57,16 @@ public final class AnimalEvents {
     }
 
     private static boolean isLivestockMeat(Animal animal, ItemStack stack) {
-        if (animal instanceof MiteCow) {
+        if (animal instanceof InfxCow) {
             return stack.is(Items.BEEF) || stack.is(Items.COOKED_BEEF);
         }
-        if (animal instanceof MiteChicken) {
+        if (animal instanceof InfxChicken) {
             return stack.is(Items.CHICKEN) || stack.is(Items.COOKED_CHICKEN);
         }
-        if (animal instanceof MitePig) {
+        if (animal instanceof InfxPig) {
             return stack.is(Items.PORKCHOP) || stack.is(Items.COOKED_PORKCHOP);
         }
-        if (animal instanceof MiteSheep) {
+        if (animal instanceof InfxSheep) {
             return stack.is(Items.MUTTON) || stack.is(Items.COOKED_MUTTON);
         }
         return false;

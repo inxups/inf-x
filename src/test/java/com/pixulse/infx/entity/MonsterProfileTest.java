@@ -30,34 +30,34 @@ class MonsterProfileTest {
 
     @Test
     void combatProfilesMatchTheR196SourceAttributes() {
-        assertStats(MiteZombie.attributes(MiteZombie.Variant.ZOMBIE), 20.0, 40.0, 0.23, 5.0);
-        assertStats(MiteZombie.attributes(MiteZombie.Variant.INVISIBLE_STALKER), 20.0, 40.0, 0.23, 4.0);
-        assertStats(MiteZombie.attributes(MiteZombie.Variant.GHOUL), 20.0, 40.0, 0.28, 5.0);
-        assertStats(MiteZombie.attributes(MiteZombie.Variant.SHADOW), 20.0, 40.0, 0.23, 5.0);
-        assertStats(MiteZombie.attributes(MiteZombie.Variant.WIGHT), 20.0, 40.0, 0.25, 5.0);
-        assertStats(MiteZombie.attributes(MiteZombie.Variant.REVENANT), 30.0, 40.0, 0.26, 7.0);
-        for (MiteZombie.Variant variant : MiteZombie.Variant.values()) {
-            assertEquals(0.0, stats(MiteZombie.attributes(variant)).getBaseValue(Attributes.ARMOR), EPSILON);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.ZOMBIE), 20.0, 40.0, 0.23, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.INVISIBLE_STALKER), 20.0, 40.0, 0.23, 4.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.GHOUL), 20.0, 40.0, 0.28, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.SHADOW), 20.0, 40.0, 0.23, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.WIGHT), 20.0, 40.0, 0.25, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.REVENANT), 30.0, 40.0, 0.26, 7.0);
+        for (InfxZombie.Variant variant : InfxZombie.Variant.values()) {
+            assertEquals(0.0, stats(InfxZombie.attributes(variant)).getBaseValue(Attributes.ARMOR), EPSILON);
         }
 
-        assertStats(MiteSkeleton.attributes(MiteSkeleton.Variant.SKELETON), 6.0, 32.0, 0.30, 4.0);
-        assertStats(MiteSkeleton.attributes(MiteSkeleton.Variant.LONGDEAD), 12.0, 40.0, 0.29, 6.0);
-        assertStats(MiteSkeleton.attributes(MiteSkeleton.Variant.BONE_LORD), 20.0, 40.0, 0.26, 5.0);
-        assertStats(MiteSkeleton.attributes(MiteSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 40.0, 0.27, 8.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 32.0, 0.30, 4.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD), 12.0, 40.0, 0.29, 6.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.BONE_LORD), 20.0, 40.0, 0.26, 5.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 40.0, 0.27, 8.0);
 
-        assertStats(MiteSpider.attributes(MiteSpider.Variant.SPIDER), 12.0, 28.0, 0.375, 4.0);
-        assertStats(MiteSpider.attributes(MiteSpider.Variant.CAVE_SPIDER), 16.0, 28.0, 0.375, 4.0);
-        assertStats(MiteSpider.attributes(MiteSpider.Variant.BLACK_WIDOW), 6.0, 28.0, 0.30, 1.0);
-        assertStats(MiteSpider.attributes(MiteSpider.Variant.DEMON), 18.0, 28.0, 0.375, 5.0);
-        assertStats(MiteSpider.attributes(MiteSpider.Variant.WOOD), 6.0, 28.0, 0.30, 1.0);
-        assertStats(MiteSpider.attributes(MiteSpider.Variant.PHASE), 6.0, 28.0, 0.30, 3.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.SPIDER), 12.0, 28.0, 0.375, 4.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.CAVE_SPIDER), 16.0, 28.0, 0.375, 4.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.BLACK_WIDOW), 6.0, 28.0, 0.30, 1.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.DEMON), 18.0, 28.0, 0.375, 5.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.WOOD), 6.0, 28.0, 0.30, 1.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.PHASE), 6.0, 28.0, 0.30, 3.0);
 
-        assertStats(MiteCreeper.attributes(MiteCreeper.Variant.CREEPER), 20.0, 32.0, 0.25, 2.0);
-        assertStats(MiteCreeper.attributes(MiteCreeper.Variant.INFERNAL), 20.0, 32.0, 0.25, 2.0);
-        assertEquals(2.0, stats(MiteCreeper.attributes(MiteCreeper.Variant.INFERNAL))
+        assertStats(InfxCreeper.attributes(InfxCreeper.Variant.CREEPER), 20.0, 32.0, 0.25, 2.0);
+        assertStats(InfxCreeper.attributes(InfxCreeper.Variant.INFERNAL), 20.0, 32.0, 0.25, 2.0);
+        assertEquals(2.0, stats(InfxCreeper.attributes(InfxCreeper.Variant.INFERNAL))
                 .getBaseValue(Attributes.ARMOR), EPSILON);
 
-        assertStats(MiteSilverfish.attributes(), 8.0, 32.0, 0.25, 3.0);
+        assertStats(InfxSilverfish.attributes(), 8.0, 32.0, 0.25, 3.0);
         assertStats(FireElemental.attributes(), 20.0, 40.0, 0.25, 5.0);
         assertStats(EarthElemental.attributes(), 30.0, 20.0, 0.20, 12.0);
         AttributeSupplier earthElemental = stats(EarthElemental.attributes());
@@ -67,32 +67,32 @@ class MonsterProfileTest {
         AttributeSupplier clayGolem = stats(ClayGolem.attributes());
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
-        assertStats(MiteEnderman.attributes(), 40.0, 64.0, 0.30, 10.0);
-        assertEquals(6.5, MiteEnderman.chasingMovementSpeed(0.30), EPSILON);
-        assertStats(MiteWitch.attributes(), 26.0, 32.0, 0.25, 2.0);
-        assertStats(MiteZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
-        assertEquals(0.0, stats(MiteZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
-        assertEquals(0.28, MiteZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
+        assertStats(InfxEnderman.attributes(), 40.0, 64.0, 0.30, 10.0);
+        assertEquals(6.5, InfxEnderman.chasingMovementSpeed(0.30), EPSILON);
+        assertStats(InfxWitch.attributes(), 26.0, 32.0, 0.25, 2.0);
+        assertStats(InfxZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
+        assertEquals(0.0, stats(InfxZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
+        assertEquals(0.28, InfxZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
 
-        assertEquals(0, MiteSpider.initialWebCount(MiteSpider.Variant.SPIDER, 0));
-        assertEquals(2, MiteSpider.initialWebCount(MiteSpider.Variant.SPIDER, 3));
-        assertEquals(3, MiteSpider.initialWebCount(MiteSpider.Variant.CAVE_SPIDER, 3));
-        assertEquals(3, MiteSpider.initialWebCount(MiteSpider.Variant.DEMON, 3));
-        assertEquals(2, MiteSpider.initialWebCount(MiteSpider.Variant.BLACK_WIDOW, 3));
-        assertEquals(0, MiteSpider.initialWebCount(MiteSpider.Variant.PHASE, 3));
-        assertEquals(500, MiteSpider.webThrowInterval(MiteSpider.Variant.SPIDER));
-        assertEquals(500, MiteSpider.webThrowInterval(MiteSpider.Variant.WOOD));
-        assertEquals(200, MiteSpider.webThrowInterval(MiteSpider.Variant.CAVE_SPIDER));
-        assertEquals(200, MiteSpider.webThrowInterval(MiteSpider.Variant.DEMON));
-        assertTrue(MiteSpider.shouldThrowWebAtTick(MiteSpider.Variant.SPIDER, 0, 0));
-        assertFalse(MiteSpider.shouldThrowWebAtTick(MiteSpider.Variant.SPIDER, 0, 1));
-        assertTrue(MiteSpider.shouldThrowWebAtTick(MiteSpider.Variant.CAVE_SPIDER, 153, 1));
-        assertTrue(MiteSpider.canPhaseChaseAcrossVerticalDistance(2.0));
-        assertTrue(MiteSpider.canPhaseChaseAcrossVerticalDistance(-2.0));
-        assertFalse(MiteSpider.canPhaseChaseAcrossVerticalDistance(2.001));
-        assertFalse(MiteSpider.canPhaseChaseAcrossVerticalDistance(-2.001));
+        assertEquals(0, InfxSpider.initialWebCount(InfxSpider.Variant.SPIDER, 0));
+        assertEquals(2, InfxSpider.initialWebCount(InfxSpider.Variant.SPIDER, 3));
+        assertEquals(3, InfxSpider.initialWebCount(InfxSpider.Variant.CAVE_SPIDER, 3));
+        assertEquals(3, InfxSpider.initialWebCount(InfxSpider.Variant.DEMON, 3));
+        assertEquals(2, InfxSpider.initialWebCount(InfxSpider.Variant.BLACK_WIDOW, 3));
+        assertEquals(0, InfxSpider.initialWebCount(InfxSpider.Variant.PHASE, 3));
+        assertEquals(500, InfxSpider.webThrowInterval(InfxSpider.Variant.SPIDER));
+        assertEquals(500, InfxSpider.webThrowInterval(InfxSpider.Variant.WOOD));
+        assertEquals(200, InfxSpider.webThrowInterval(InfxSpider.Variant.CAVE_SPIDER));
+        assertEquals(200, InfxSpider.webThrowInterval(InfxSpider.Variant.DEMON));
+        assertTrue(InfxSpider.shouldThrowWebAtTick(InfxSpider.Variant.SPIDER, 0, 0));
+        assertFalse(InfxSpider.shouldThrowWebAtTick(InfxSpider.Variant.SPIDER, 0, 1));
+        assertTrue(InfxSpider.shouldThrowWebAtTick(InfxSpider.Variant.CAVE_SPIDER, 153, 1));
+        assertTrue(InfxSpider.canPhaseChaseAcrossVerticalDistance(2.0));
+        assertTrue(InfxSpider.canPhaseChaseAcrossVerticalDistance(-2.0));
+        assertFalse(InfxSpider.canPhaseChaseAcrossVerticalDistance(2.001));
+        assertFalse(InfxSpider.canPhaseChaseAcrossVerticalDistance(-2.001));
 
-        AttributeSupplier blaze = stats(MiteBlaze.attributes());
+        AttributeSupplier blaze = stats(InfxBlaze.attributes());
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(0.23, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(6.0, blaze.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
@@ -100,116 +100,116 @@ class MonsterProfileTest {
 
     @Test
     void creeperSwellAndPowderRollsMatchR196() {
-        assertEquals(4.5, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.CREEPER, false, 1.0F), EPSILON);
-        assertEquals(9.0, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.CREEPER, false, 0.99F), EPSILON);
-        assertEquals(16.0, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.CREEPER, true, 1.0F), EPSILON);
-        assertEquals(9.0, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.INFERNAL, false, 1.0F), EPSILON);
-        assertEquals(18.0, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.INFERNAL, false, 0.99F), EPSILON);
-        assertEquals(32.0, MiteCreeper.swellStartDistanceSqr(MiteCreeper.Variant.INFERNAL, true, 1.0F), EPSILON);
-        assertEquals(16.0, MiteCreeper.swellContinueDistanceSqr(MiteCreeper.Variant.CREEPER, 1.0F), EPSILON);
-        assertEquals(40.0, MiteCreeper.swellContinueDistanceSqr(MiteCreeper.Variant.CREEPER, 0.0F), EPSILON);
-        assertEquals(36.0, MiteCreeper.swellContinueDistanceSqr(MiteCreeper.Variant.INFERNAL, 1.0F), EPSILON);
-        assertEquals(90.0, MiteCreeper.swellContinueDistanceSqr(MiteCreeper.Variant.INFERNAL, 0.4F), EPSILON);
-        assertEquals(90.0, MiteCreeper.swellContinueDistanceSqr(MiteCreeper.Variant.INFERNAL, 0.0F), EPSILON);
+        assertEquals(4.5, InfxCreeper.swellStartDistanceSqr(InfxCreeper.Variant.CREEPER, false, 1.0F), EPSILON);
+        assertEquals(9.0, InfxCreeper.swellStartDistanceSqr(InfxCreeper.Variant.CREEPER, false, 0.99F), EPSILON);
+        assertEquals(16.0, InfxCreeper.swellStartDistanceSqr(InfxCreeper.Variant.CREEPER, true, 1.0F), EPSILON);
+        assertEquals(9.0, InfxCreeper.swellStartDistanceSqr(InfxCreeper.Variant.INFERNAL, false, 1.0F), EPSILON);
+        assertEquals(18.0, InfxCreeper.swellStartDistanceSqr(InfxCreeper.Variant.INFERNAL, false, 0.99F), EPSILON);
+        assertEquals(32.0, InfxCreeper.swellStartDistanceSqr(InfxCreeper.Variant.INFERNAL, true, 1.0F), EPSILON);
+        assertEquals(16.0, InfxCreeper.swellContinueDistanceSqr(InfxCreeper.Variant.CREEPER, 1.0F), EPSILON);
+        assertEquals(40.0, InfxCreeper.swellContinueDistanceSqr(InfxCreeper.Variant.CREEPER, 0.0F), EPSILON);
+        assertEquals(36.0, InfxCreeper.swellContinueDistanceSqr(InfxCreeper.Variant.INFERNAL, 1.0F), EPSILON);
+        assertEquals(90.0, InfxCreeper.swellContinueDistanceSqr(InfxCreeper.Variant.INFERNAL, 0.4F), EPSILON);
+        assertEquals(90.0, InfxCreeper.swellContinueDistanceSqr(InfxCreeper.Variant.INFERNAL, 0.0F), EPSILON);
 
-        assertEquals(0, MiteCreeper.infernalPowderDropCount(0, 0, 0, true, 0));
-        assertEquals(2, MiteCreeper.infernalPowderDropCount(0, 2, 0, true, 0));
-        assertEquals(4, MiteCreeper.infernalPowderDropCount(3, 0, 1, true, 0));
-        assertEquals(1, MiteCreeper.infernalPowderDropCount(3, 0, 0, false, 2));
-        assertTrue(MiteCreeper.shouldDropInfernalPowder(true, 2));
-        assertTrue(MiteCreeper.shouldDropInfernalPowder(false, 0));
-        assertFalse(MiteCreeper.shouldDropInfernalPowder(false, 1));
+        assertEquals(0, InfxCreeper.infernalPowderDropCount(0, 0, 0, true, 0));
+        assertEquals(2, InfxCreeper.infernalPowderDropCount(0, 2, 0, true, 0));
+        assertEquals(4, InfxCreeper.infernalPowderDropCount(3, 0, 1, true, 0));
+        assertEquals(1, InfxCreeper.infernalPowderDropCount(3, 0, 0, false, 2));
+        assertTrue(InfxCreeper.shouldDropInfernalPowder(true, 2));
+        assertTrue(InfxCreeper.shouldDropInfernalPowder(false, 0));
+        assertFalse(InfxCreeper.shouldDropInfernalPowder(false, 1));
     }
 
     @Test
     void infernalCreepersCanBreakStoneButOrdinaryCreepersCannot() {
-        assertTrue(MonsterEvents.isCreeperTerrainProtected(MiteCreeper.Variant.CREEPER, 1.5F));
-        assertTrue(MonsterEvents.isCreeperTerrainProtected(MiteCreeper.Variant.CREEPER, 3.0F));
-        assertFalse(MonsterEvents.isCreeperTerrainProtected(MiteCreeper.Variant.INFERNAL, 1.5F));
-        assertFalse(MonsterEvents.isCreeperTerrainProtected(MiteCreeper.Variant.INFERNAL, 3.0F));
-        assertTrue(MonsterEvents.isCreeperTerrainProtected(MiteCreeper.Variant.INFERNAL, -1.0F));
+        assertTrue(MonsterEvents.isCreeperTerrainProtected(InfxCreeper.Variant.CREEPER, 1.5F));
+        assertTrue(MonsterEvents.isCreeperTerrainProtected(InfxCreeper.Variant.CREEPER, 3.0F));
+        assertFalse(MonsterEvents.isCreeperTerrainProtected(InfxCreeper.Variant.INFERNAL, 1.5F));
+        assertFalse(MonsterEvents.isCreeperTerrainProtected(InfxCreeper.Variant.INFERNAL, 3.0F));
+        assertTrue(MonsterEvents.isCreeperTerrainProtected(InfxCreeper.Variant.INFERNAL, -1.0F));
     }
 
     @Test
     void invisibleStalkerDoesNotInheritZombieOnlyRules() {
-        assertTrue(MiteZombie.breaksDoors(MiteZombie.Variant.INVISIBLE_STALKER));
-        assertFalse(MiteZombie.burnsInSunlight(MiteZombie.Variant.INVISIBLE_STALKER));
-        assertFalse(MiteZombie.zombifiesVillagers(MiteZombie.Variant.INVISIBLE_STALKER));
-        assertFalse(MiteZombie.targetsAnimals(MiteZombie.Variant.INVISIBLE_STALKER));
-        assertTrue(MiteZombie.targetsAnimals(MiteZombie.Variant.ZOMBIE));
+        assertTrue(InfxZombie.breaksDoors(InfxZombie.Variant.INVISIBLE_STALKER));
+        assertFalse(InfxZombie.burnsInSunlight(InfxZombie.Variant.INVISIBLE_STALKER));
+        assertFalse(InfxZombie.zombifiesVillagers(InfxZombie.Variant.INVISIBLE_STALKER));
+        assertFalse(InfxZombie.targetsAnimals(InfxZombie.Variant.INVISIBLE_STALKER));
+        assertTrue(InfxZombie.targetsAnimals(InfxZombie.Variant.ZOMBIE));
     }
 
     @Test
     void endermanValuablesMatchR196PearlAwareness() {
-        assertTrue(MiteEnderman.isPearlLike(Items.ENDER_PEARL));
-        assertTrue(MiteEnderman.isPearlLike(Items.ENDER_EYE));
-        assertFalse(MiteEnderman.isPearlLike(Items.DIAMOND));
+        assertTrue(InfxEnderman.isPearlLike(Items.ENDER_PEARL));
+        assertTrue(InfxEnderman.isPearlLike(Items.ENDER_EYE));
+        assertFalse(InfxEnderman.isPearlLike(Items.DIAMOND));
     }
 
     @Test
     void nonstandardMobProfilesKeepTheirR196Limits() {
-        AttributeSupplier slime = stats(MiteSlime.attributes());
-        AttributeSupplier magmaCube = stats(MiteMagmaCube.attributes());
-        AttributeSupplier squid = stats(MiteSquid.attributes());
+        AttributeSupplier slime = stats(InfxSlime.attributes());
+        AttributeSupplier magmaCube = stats(InfxMagmaCube.attributes());
+        AttributeSupplier squid = stats(InfxSquid.attributes());
 
         assertEquals(16.0, slime.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
-        for (MiteSlime.Variant variant : MiteSlime.Variant.values()) {
-            double expectedSpeed = variant == MiteSlime.Variant.OOZE ? 0.05 : 0.30;
-            assertEquals(expectedSpeed, stats(MiteSlime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
+        for (InfxSlime.Variant variant : InfxSlime.Variant.values()) {
+            double expectedSpeed = variant == InfxSlime.Variant.OOZE ? 0.05 : 0.30;
+            assertEquals(expectedSpeed, stats(InfxSlime.attributes(variant)).getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         }
-        assertEquals(0.30, MiteSlime.movementSpeedForSize(1), EPSILON);
-        assertEquals(0.40, MiteSlime.movementSpeedForSize(2), EPSILON);
-        assertEquals(0.60, MiteSlime.movementSpeedForSize(4), EPSILON);
-        assertEquals(0.05, MiteSlime.movementSpeedFor(MiteSlime.Variant.OOZE, 1), EPSILON);
-        assertEquals(0.05, MiteSlime.movementSpeedFor(MiteSlime.Variant.OOZE, 2), EPSILON);
-        assertTrue(MiteSlime.usesCrawlAi(MiteSlime.Variant.OOZE));
-        assertFalse(MiteSlime.usesCrawlAi(MiteSlime.Variant.SLIME));
-        assertEquals(1.0, MiteSlime.attackDamageForSize(MiteSlime.Variant.SLIME, 1), EPSILON);
-        assertEquals(4.0, MiteSlime.attackDamageForSize(MiteSlime.Variant.JELLY, 2), EPSILON);
-        assertEquals(6.0, MiteSlime.attackDamageForSize(MiteSlime.Variant.BLOB, 2), EPSILON);
-        assertEquals(6.0, MiteSlime.attackDamageForSize(MiteSlime.Variant.OOZE, 2), EPSILON);
-        assertEquals(8.0, MiteSlime.attackDamageForSize(MiteSlime.Variant.PUDDING, 2), EPSILON);
-        assertEquals(32.0, stats(MiteSlime.attributes(MiteSlime.Variant.OOZE))
+        assertEquals(0.30, InfxSlime.movementSpeedForSize(1), EPSILON);
+        assertEquals(0.40, InfxSlime.movementSpeedForSize(2), EPSILON);
+        assertEquals(0.60, InfxSlime.movementSpeedForSize(4), EPSILON);
+        assertEquals(0.05, InfxSlime.movementSpeedFor(InfxSlime.Variant.OOZE, 1), EPSILON);
+        assertEquals(0.05, InfxSlime.movementSpeedFor(InfxSlime.Variant.OOZE, 2), EPSILON);
+        assertTrue(InfxSlime.usesCrawlAi(InfxSlime.Variant.OOZE));
+        assertFalse(InfxSlime.usesCrawlAi(InfxSlime.Variant.SLIME));
+        assertEquals(1.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.SLIME, 1), EPSILON);
+        assertEquals(4.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.JELLY, 2), EPSILON);
+        assertEquals(6.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.BLOB, 2), EPSILON);
+        assertEquals(6.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.OOZE, 2), EPSILON);
+        assertEquals(8.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.PUDDING, 2), EPSILON);
+        assertEquals(32.0, stats(InfxSlime.attributes(InfxSlime.Variant.OOZE))
                 .getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
-        assertEquals(1, MiteSlime.experienceForSize(MiteSlime.Variant.SLIME, 1));
-        assertEquals(4, MiteSlime.experienceForSize(MiteSlime.Variant.JELLY, 2));
-        assertEquals(9, MiteSlime.experienceForSize(MiteSlime.Variant.BLOB, 3));
-        assertEquals(8, MiteSlime.experienceForSize(MiteSlime.Variant.OOZE, 2));
-        assertEquals(10, MiteSlime.experienceForSize(MiteSlime.Variant.PUDDING, 2));
+        assertEquals(1, InfxSlime.experienceForSize(InfxSlime.Variant.SLIME, 1));
+        assertEquals(4, InfxSlime.experienceForSize(InfxSlime.Variant.JELLY, 2));
+        assertEquals(9, InfxSlime.experienceForSize(InfxSlime.Variant.BLOB, 3));
+        assertEquals(8, InfxSlime.experienceForSize(InfxSlime.Variant.OOZE, 2));
+        assertEquals(10, InfxSlime.experienceForSize(InfxSlime.Variant.PUDDING, 2));
         assertEquals(16.0, magmaCube.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(0.20, magmaCube.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
-        assertEquals(2.0, MiteMagmaCube.attackDamageForSize(1), EPSILON);
-        assertEquals(8.0, MiteMagmaCube.attackDamageForSize(4), EPSILON);
-        assertEquals(2.0, MiteMagmaCube.armorForSize(1), EPSILON);
-        assertEquals(8.0, MiteMagmaCube.armorForSize(4), EPSILON);
-        assertEquals(0.20, MiteMagmaCube.movementSpeedForSize(1), EPSILON);
-        assertEquals(0.20, MiteMagmaCube.movementSpeedForSize(4), EPSILON);
+        assertEquals(2.0, InfxMagmaCube.attackDamageForSize(1), EPSILON);
+        assertEquals(8.0, InfxMagmaCube.attackDamageForSize(4), EPSILON);
+        assertEquals(2.0, InfxMagmaCube.armorForSize(1), EPSILON);
+        assertEquals(8.0, InfxMagmaCube.armorForSize(4), EPSILON);
+        assertEquals(0.20, InfxMagmaCube.movementSpeedForSize(1), EPSILON);
+        assertEquals(0.20, InfxMagmaCube.movementSpeedForSize(4), EPSILON);
         assertEquals(10.0, squid.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(16.0, squid.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertFalse(squid.hasAttribute(Attributes.ATTACK_DAMAGE));
-        assertEquals(3.0, stats(MiteCod.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
-        assertEquals(3.0, stats(MiteSalmon.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
-        assertEquals(3.0, stats(MitePufferfish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
-        assertEquals(3.0, stats(MiteTropicalFish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(InfxCod.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(InfxSalmon.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(InfxPufferfish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
+        assertEquals(3.0, stats(InfxTropicalFish.attributes()).getBaseValue(Attributes.MAX_HEALTH), EPSILON);
 
-        AttributeSupplier normalBat = stats(MiteBat.attributes(MiteBat.Variant.NORMAL));
+        AttributeSupplier normalBat = stats(InfxBat.attributes(InfxBat.Variant.NORMAL));
         assertEquals(3.0, normalBat.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertFalse(normalBat.hasAttribute(Attributes.ATTACK_DAMAGE));
-        assertFalse(Enemy.class.isAssignableFrom(MiteBat.class));
-        assertEquals(1.25F, MiteBat.nightwingDimmingAfterSilverCoverage(0.0F), 1.0E-6F);
-        assertEquals(0.625F, MiteBat.nightwingDimmingAfterSilverCoverage(1.0F), 1.0E-6F);
-        assertBat(MiteBat.Variant.VAMPIRE, 3.0, 1.0);
-        assertBat(MiteBat.Variant.NIGHTWING, 3.0, 1.0);
-        assertBat(MiteBat.Variant.GIANT_VAMPIRE, 6.0, 2.0);
+        assertFalse(Enemy.class.isAssignableFrom(InfxBat.class));
+        assertEquals(1.25F, InfxBat.nightwingDimmingAfterSilverCoverage(0.0F), 1.0E-6F);
+        assertEquals(0.625F, InfxBat.nightwingDimmingAfterSilverCoverage(1.0F), 1.0E-6F);
+        assertBat(InfxBat.Variant.VAMPIRE, 3.0, 1.0);
+        assertBat(InfxBat.Variant.NIGHTWING, 3.0, 1.0);
+        assertBat(InfxBat.Variant.GIANT_VAMPIRE, 6.0, 2.0);
 
-        assertStats(MiteWolf.attributes(MiteWolf.Variant.HELLHOUND), 20.0, 16.0, 0.40, 4.0);
-        assertStats(MiteWolf.attributes(MiteWolf.Variant.DIRE_WOLF), 16.0, 16.0, 0.40, 5.0);
-        assertEquals(24.0, MiteWolf.maximumHealth(MiteWolf.Variant.DIRE_WOLF, true), EPSILON);
-        assertEquals(32.0, MiteWolf.followRange(MiteWolf.Variant.DIRE_WOLF, true), EPSILON);
-        assertEquals(20.0, MiteWolf.maximumHealth(MiteWolf.Variant.HELLHOUND, true), EPSILON);
-        assertEquals(16.0, MiteWolf.followRange(MiteWolf.Variant.HELLHOUND, true), EPSILON);
+        assertStats(InfxWolf.attributes(InfxWolf.Variant.HELLHOUND), 20.0, 16.0, 0.40, 4.0);
+        assertStats(InfxWolf.attributes(InfxWolf.Variant.DIRE_WOLF), 16.0, 16.0, 0.40, 5.0);
+        assertEquals(24.0, InfxWolf.maximumHealth(InfxWolf.Variant.DIRE_WOLF, true), EPSILON);
+        assertEquals(32.0, InfxWolf.followRange(InfxWolf.Variant.DIRE_WOLF, true), EPSILON);
+        assertEquals(20.0, InfxWolf.maximumHealth(InfxWolf.Variant.HELLHOUND, true), EPSILON);
+        assertEquals(16.0, InfxWolf.followRange(InfxWolf.Variant.HELLHOUND, true), EPSILON);
 
-        AttributeSupplier ghast = stats(MiteGhast.attributes());
+        AttributeSupplier ghast = stats(InfxGhast.attributes());
         assertEquals(10.0, ghast.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(100.0, ghast.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
     }
@@ -219,33 +219,33 @@ class MonsterProfileTest {
         assertFalse(FireElemental.shouldApplyWaterAttrition(40, false));
         assertFalse(FireElemental.shouldApplyWaterAttrition(39, true));
         assertTrue(FireElemental.shouldApplyWaterAttrition(40, true));
-        assertEquals(20, MiteBat.attackCooldownTicks());
-        assertEquals(1_200, MiteBat.feedCooldownTicks());
+        assertEquals(20, InfxBat.attackCooldownTicks());
+        assertEquals(1_200, InfxBat.feedCooldownTicks());
     }
 
     @Test
     void villagerZombieRareDropsUseTheMiteVillagerRate() {
-        assertEquals(0.025F, MiteZombie.rareDropChance(MiteZombie.Variant.ZOMBIE, false, 0), EPSILON);
-        assertEquals(0.035F, MiteZombie.rareDropChance(MiteZombie.Variant.ZOMBIE, false, 1), EPSILON);
-        assertEquals(0.10F, MiteZombie.rareDropChance(MiteZombie.Variant.ZOMBIE, true, 0), EPSILON);
-        assertEquals(0.14F, MiteZombie.rareDropChance(MiteZombie.Variant.ZOMBIE, true, 1), EPSILON);
-        assertEquals(0.14F, MiteZombie.rareDropChance(MiteZombie.Variant.REVENANT, false, 1), EPSILON);
+        assertEquals(0.025F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, false, 0), EPSILON);
+        assertEquals(0.035F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, false, 1), EPSILON);
+        assertEquals(0.10F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, true, 0), EPSILON);
+        assertEquals(0.14F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, true, 1), EPSILON);
+        assertEquals(0.14F, InfxZombie.rareDropChance(InfxZombie.Variant.REVENANT, false, 1), EPSILON);
     }
 
     @Test
     void grayOozeUsesCrawlGoalsAndCannotJumpFromGround() throws NoSuchMethodException {
-        assertEquals(MiteSlime.class, MiteSlime.class.getDeclaredMethod("registerGoals").getDeclaringClass());
-        assertEquals(MiteSlime.class, MiteSlime.class.getDeclaredMethod("jumpFromGround").getDeclaringClass());
+        assertEquals(InfxSlime.class, InfxSlime.class.getDeclaredMethod("registerGoals").getDeclaringClass());
+        assertEquals(InfxSlime.class, InfxSlime.class.getDeclaredMethod("jumpFromGround").getDeclaringClass());
     }
 
     @Test
     void netherspawnExplosionKeepsTheMiteProtectedTerrain() {
-        assertTrue(MiteSilverfish.isNetherspawnExplosionProtected(Blocks.NETHERRACK.defaultBlockState()));
-        assertTrue(MiteSilverfish.isNetherspawnExplosionProtected(Blocks.NETHER_QUARTZ_ORE.defaultBlockState()));
-        assertTrue(MiteSilverfish.isNetherspawnExplosionProtected(Blocks.NETHER_GOLD_ORE.defaultBlockState()));
-        assertTrue(MiteSilverfish.isNetherspawnExplosionProtected(Blocks.GOLD_ORE.defaultBlockState()));
-        assertTrue(MiteSilverfish.isNetherspawnExplosionProtected(Blocks.DEEPSLATE_GOLD_ORE.defaultBlockState()));
-        assertFalse(MiteSilverfish.isNetherspawnExplosionProtected(Blocks.DIRT.defaultBlockState()));
+        assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.NETHERRACK.defaultBlockState()));
+        assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.NETHER_QUARTZ_ORE.defaultBlockState()));
+        assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.NETHER_GOLD_ORE.defaultBlockState()));
+        assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.GOLD_ORE.defaultBlockState()));
+        assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.DEEPSLATE_GOLD_ORE.defaultBlockState()));
+        assertFalse(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.DIRT.defaultBlockState()));
     }
 
     @Test
@@ -258,24 +258,24 @@ class MonsterProfileTest {
 
         Set<String> checked = new HashSet<>();
         assertDimensions(entities, checked, 0.6F, 1.8F,
-                "r196_zombie", "r196_skeleton", "r196_creeper", "r196_witch", "r196_zombified_piglin",
-                "r196_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
+                "infx_zombie", "infx_skeleton", "infx_creeper", "infx_witch", "infx_zombified_piglin",
+                "infx_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
                 "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
                 "clay_golem");
-        assertDimensions(entities, checked, 1.4F, 0.9F, "r196_spider", "demon_spider");
-        assertDimensions(entities, checked, 0.98F, 0.63F, "r196_cave_spider");
+        assertDimensions(entities, checked, 1.4F, 0.9F, "infx_spider", "demon_spider");
+        assertDimensions(entities, checked, 0.98F, 0.63F, "infx_cave_spider");
         assertDimensions(entities, checked, 0.84F, 0.54F, "black_widow_spider", "wood_spider", "phase_spider");
         assertDimensions(entities, checked, 0.5F, 0.5F,
-                "r196_slime", "jelly", "blob", "ooze", "pudding", "magma_cube");
-        assertDimensions(entities, checked, 0.6F, 2.9F, "r196_enderman");
-        assertDimensions(entities, checked, 0.95F, 0.95F, "r196_squid");
-        assertDimensions(entities, checked, 0.5F, 0.3F, "r196_cod");
-        assertDimensions(entities, checked, 0.7F, 0.4F, "r196_salmon");
-        assertDimensions(entities, checked, 0.7F, 0.7F, "r196_pufferfish");
-        assertDimensions(entities, checked, 0.5F, 0.4F, "r196_tropical_fish");
-        assertDimensions(entities, checked, 4.0F, 4.0F, "r196_ghast");
+                "infx_slime", "jelly", "blob", "ooze", "pudding", "magma_cube");
+        assertDimensions(entities, checked, 0.6F, 2.9F, "infx_enderman");
+        assertDimensions(entities, checked, 0.95F, 0.95F, "infx_squid");
+        assertDimensions(entities, checked, 0.5F, 0.3F, "infx_cod");
+        assertDimensions(entities, checked, 0.7F, 0.4F, "infx_salmon");
+        assertDimensions(entities, checked, 0.7F, 0.7F, "infx_pufferfish");
+        assertDimensions(entities, checked, 0.5F, 0.4F, "infx_tropical_fish");
+        assertDimensions(entities, checked, 4.0F, 4.0F, "infx_ghast");
         assertDimensions(entities, checked, 0.3F, 0.7F, "netherspawn", "copperspine", "hoary_silverfish");
-        assertDimensions(entities, checked, 0.5F, 0.9F, "r196_bat", "vampire_bat", "nightwing");
+        assertDimensions(entities, checked, 0.5F, 0.9F, "infx_bat", "vampire_bat", "nightwing");
         assertDimensions(entities, checked, 0.75F, 1.35F, "giant_vampire_bat");
         InfXEntityTypes.EntityName vampireBat = entities.get("vampire_bat");
         InfXEntityTypes.EntityName giantVampireBat = entities.get("giant_vampire_bat");
@@ -283,18 +283,18 @@ class MonsterProfileTest {
                 giantVampireBat.width() > vampireBat.width() && giantVampireBat.height() > vampireBat.height(),
                 "giant vampire bat must remain larger than a vampire bat");
         assertDimensions(entities, checked, 0.6F, 0.8F, "hellhound", "dire_wolf");
-        assertDimensions(entities, checked, 0.9F, 1.4F, "r196_cow");
-        assertDimensions(entities, checked, 0.4F, 0.7F, "r196_chicken");
-        assertDimensions(entities, checked, 0.9F, 1.3F, "r196_sheep");
-        assertDimensions(entities, checked, 0.9F, 0.9F, "r196_pig");
-        assertDimensions(entities, checked, 1.3964844F, 1.6F, "r196_horse");
-        assertDimensions(entities, checked, 0.6F, 0.7F, "r196_ocelot");
-        assertDimensions(entities, checked, 0.7F, 0.8F, "r196_wolf");
+        assertDimensions(entities, checked, 0.9F, 1.4F, "infx_cow");
+        assertDimensions(entities, checked, 0.4F, 0.7F, "infx_chicken");
+        assertDimensions(entities, checked, 0.9F, 1.3F, "infx_sheep");
+        assertDimensions(entities, checked, 0.9F, 0.9F, "infx_pig");
+        assertDimensions(entities, checked, 1.3964844F, 1.6F, "infx_horse");
+        assertDimensions(entities, checked, 0.6F, 0.7F, "infx_ocelot");
+        assertDimensions(entities, checked, 0.7F, 0.8F, "infx_wolf");
         assertEquals(entities.keySet(), checked);
     }
 
-    private static void assertBat(MiteBat.Variant variant, double health, double attack) {
-        AttributeSupplier attributes = stats(MiteBat.attributes(variant));
+    private static void assertBat(InfxBat.Variant variant, double health, double attack) {
+        AttributeSupplier attributes = stats(InfxBat.attributes(variant));
         assertEquals(health, attributes.getBaseValue(Attributes.MAX_HEALTH), EPSILON);
         assertEquals(16.0, attributes.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(attack, attributes.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
@@ -329,22 +329,22 @@ class MonsterProfileTest {
 
     private static Map<String, Names> expectedNames() {
         Map<String, Names> names = new HashMap<>();
-        add(names, "r196_zombie", "Zombie", "僵尸");
-        add(names, "r196_skeleton", "Skeleton", "骷髅");
-        add(names, "r196_spider", "Spider", "蜘蛛");
-        add(names, "r196_cave_spider", "Cave Spider", "洞穴蜘蛛");
-        add(names, "r196_creeper", "Creeper", "苦力怕");
-        add(names, "r196_slime", "Slime", "史莱姆");
-        add(names, "r196_enderman", "Enderman", "末影人");
-        add(names, "r196_squid", "Squid", "鱿鱼");
-        add(names, "r196_cod", "Cod", "鳕鱼");
-        add(names, "r196_salmon", "Salmon", "鲑鱼");
-        add(names, "r196_pufferfish", "Pufferfish", "河豚");
-        add(names, "r196_tropical_fish", "Tropical Fish", "热带鱼");
-        add(names, "r196_witch", "Witch", "女巫");
-        add(names, "r196_zombified_piglin", "Zombie Pigman", "僵尸猪人");
-        add(names, "r196_blaze", "Blaze", "烈焰人");
-        add(names, "r196_ghast", "Ghast", "恶魂");
+        add(names, "infx_zombie", "Zombie", "僵尸");
+        add(names, "infx_skeleton", "Skeleton", "骷髅");
+        add(names, "infx_spider", "Spider", "蜘蛛");
+        add(names, "infx_cave_spider", "Cave Spider", "洞穴蜘蛛");
+        add(names, "infx_creeper", "Creeper", "苦力怕");
+        add(names, "infx_slime", "Slime", "史莱姆");
+        add(names, "infx_enderman", "Enderman", "末影人");
+        add(names, "infx_squid", "Squid", "鱿鱼");
+        add(names, "infx_cod", "Cod", "鳕鱼");
+        add(names, "infx_salmon", "Salmon", "鲑鱼");
+        add(names, "infx_pufferfish", "Pufferfish", "河豚");
+        add(names, "infx_tropical_fish", "Tropical Fish", "热带鱼");
+        add(names, "infx_witch", "Witch", "女巫");
+        add(names, "infx_zombified_piglin", "Zombie Pigman", "僵尸猪人");
+        add(names, "infx_blaze", "Blaze", "烈焰人");
+        add(names, "infx_ghast", "Ghast", "恶魂");
         add(names, "invisible_stalker", "Invisible Stalker", "影子潜伏者");
         add(names, "ghoul", "Ghoul", "食尸鬼");
         add(names, "shadow", "Shadow", "黑色食尸鬼");
@@ -369,19 +369,19 @@ class MonsterProfileTest {
         add(names, "netherspawn", "Netherspawn", "爆炸蠹虫");
         add(names, "copperspine", "Copperspine", "铜毒蠹虫");
         add(names, "hoary_silverfish", "Hoary Silverfish", "白化蠹虫");
-        add(names, "r196_bat", "Bat", "蝙蝠");
+        add(names, "infx_bat", "Bat", "蝙蝠");
         add(names, "vampire_bat", "Vampire Bat", "吸血蝙蝠");
         add(names, "nightwing", "Nightwing", "暗影蝙蝠");
         add(names, "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠");
         add(names, "hellhound", "Hellhound", "地狱犬");
         add(names, "dire_wolf", "Dire Wolf", "惧狼");
-        add(names, "r196_cow", "Cow", "牛");
-        add(names, "r196_chicken", "Chicken", "鸡");
-        add(names, "r196_sheep", "Sheep", "羊");
-        add(names, "r196_pig", "Pig", "猪");
-        add(names, "r196_horse", "Horse", "马");
-        add(names, "r196_ocelot", "Ocelot", "豹猫");
-        add(names, "r196_wolf", "Wolf", "狼");
+        add(names, "infx_cow", "Cow", "牛");
+        add(names, "infx_chicken", "Chicken", "鸡");
+        add(names, "infx_sheep", "Sheep", "羊");
+        add(names, "infx_pig", "Pig", "猪");
+        add(names, "infx_horse", "Horse", "马");
+        add(names, "infx_ocelot", "Ocelot", "豹猫");
+        add(names, "infx_wolf", "Wolf", "狼");
         return names;
     }
 

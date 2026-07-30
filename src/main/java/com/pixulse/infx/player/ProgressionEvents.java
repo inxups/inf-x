@@ -8,7 +8,7 @@ import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.CreationBooks;
 import net.minecraft.advancements.AdvancementHolder;
@@ -94,7 +94,7 @@ public final class ProgressionEvents {
         }
         var entry = InfXItems.catalog().equipment(crafted);
         if (entry != null
-                && entry.key().material() == MiteMaterial.ADAMANTIUM
+                && entry.key().material() == InfxMaterial.ADAMANTIUM
                 && (entry.key().type() == EquipmentType.PICKAXE
                         || entry.key().type() == EquipmentType.WAR_HAMMER)) {
             award(player, "crystal_breaker", "crafted_crystal_tool");
@@ -134,7 +134,7 @@ public final class ProgressionEvents {
         if (event.getEntity() instanceof Enemy) award(player, "kill_enemy", "killed_enemy");
         if (event.getSource().getDirectEntity() instanceof AbstractArrow
                 && (event.getEntity().getType() == EntityType.SKELETON
-                        || event.getEntity().getType() == InfXEntityTypes.R196_SKELETON.get())) {
+                        || event.getEntity().getType() == InfXEntityTypes.INFX_SKELETON.get())) {
             double dx = player.getX() - event.getEntity().getX();
             double dz = player.getZ() - event.getEntity().getZ();
             if (dx * dx + dz * dz >= 2_500.0) {
@@ -142,7 +142,7 @@ public final class ProgressionEvents {
             }
         }
         if ((event.getEntity().getType() == EntityType.GHAST
-                        || event.getEntity().getType() == InfXEntityTypes.R196_GHAST.get())
+                        || event.getEntity().getType() == InfXEntityTypes.INFX_GHAST.get())
                 && event.getSource().getDirectEntity() instanceof LargeFireball fireball
                 && fireball.getOwner() == player) {
             award(player, "ghast", "reflected_fireball_kill");
@@ -220,7 +220,7 @@ public final class ProgressionEvents {
                 || event.getFrom().equals(Underworld.LEVEL)
                 || event.getTo().equals(Level.NETHER)
                 || event.getFrom().equals(Level.NETHER)) {
-            award(player, "portal", "changed_r196_dimension");
+            award(player, "portal", "changed_infx_dimension");
         }
     }
 

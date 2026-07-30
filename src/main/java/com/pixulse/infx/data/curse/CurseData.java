@@ -21,7 +21,7 @@ public final class CurseData extends SavedData {
             .apply(instance, CurseData::new));
 
     public static final SavedDataType<CurseData> TYPE = new SavedDataType<>(
-            InfiniteX.id("r196_witch_curses"), CurseData::new, CODEC);
+            InfiniteX.id("infx_witch_curses"), CurseData::new, CODEC);
 
     private final Map<String, Entry> entries;
 

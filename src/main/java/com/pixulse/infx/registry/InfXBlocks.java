@@ -4,8 +4,8 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.AdamantiumWorkbenchBlock;
 import com.pixulse.infx.block.AncientMetalWorkbenchBlock;
 import com.pixulse.infx.block.BlueberryBushBlock;
-import com.pixulse.infx.block.MiteCropBlock;
-import com.pixulse.infx.block.MiteCropType;
+import com.pixulse.infx.block.InfxCropBlock;
+import com.pixulse.infx.block.InfxCropType;
 import com.pixulse.infx.block.CopperWorkbenchBlock;
 import com.pixulse.infx.block.ClayFurnaceBlock;
 import com.pixulse.infx.block.FlintWorkbenchBlock;
@@ -17,20 +17,20 @@ import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.NetherrackFurnaceBlock;
 import com.pixulse.infx.block.ObsidianFurnaceBlock;
 import com.pixulse.infx.block.ObsidianWorkbenchBlock;
-import com.pixulse.infx.block.MitePortalBlock;
-import com.pixulse.infx.block.MiteFurnaceBlock;
+import com.pixulse.infx.block.InfxPortalBlock;
+import com.pixulse.infx.block.InfxFurnaceBlock;
 import com.pixulse.infx.block.SandstoneFurnaceBlock;
 import com.pixulse.infx.block.SilverWorkbenchBlock;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.block.MiteEnchantingTableBlock;
+import com.pixulse.infx.block.InfxEnchantingTableBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.WitherwoodBlock;
-import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import com.pixulse.infx.recipe.BenchTier;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.List;
 import java.util.Map;
 
@@ -118,12 +118,12 @@ public final class InfXBlocks {
                     .strength(0.05F)
                     .sound(SoundType.GRASS)
                     .offsetType(Block.OffsetType.XZ));
-    public static final DeferredBlock<MiteCropBlock> MITE_WHEAT = miteCrop(MiteCropType.WHEAT);
-    public static final DeferredBlock<MiteCropBlock> MITE_CARROTS = miteCrop(MiteCropType.CARROTS);
-    public static final DeferredBlock<MiteCropBlock> MITE_POTATOES = miteCrop(MiteCropType.POTATOES);
-    public static final DeferredBlock<MiteCropBlock> MITE_BEETROOTS = miteCrop(MiteCropType.BEETROOTS);
-    public static final List<DeferredBlock<MiteCropBlock>> MITE_CROPS =
-            List.of(MITE_WHEAT, MITE_CARROTS, MITE_POTATOES, MITE_BEETROOTS);
+    public static final DeferredBlock<InfxCropBlock> INFX_WHEAT = infxCrop(InfxCropType.WHEAT);
+    public static final DeferredBlock<InfxCropBlock> INFX_CARROTS = infxCrop(InfxCropType.CARROTS);
+    public static final DeferredBlock<InfxCropBlock> INFX_POTATOES = infxCrop(InfxCropType.POTATOES);
+    public static final DeferredBlock<InfxCropBlock> INFX_BEETROOTS = infxCrop(InfxCropType.BEETROOTS);
+    public static final List<DeferredBlock<InfxCropBlock>> INFX_CROPS =
+            List.of(INFX_WHEAT, INFX_CARROTS, INFX_POTATOES, INFX_BEETROOTS);
     public static final DeferredBlock<Block> CORE = BLOCKS.registerSimpleBlock(
             "core",
             properties -> properties
@@ -140,19 +140,19 @@ public final class InfXBlocks {
                     .sound(SoundType.SNOW));
     public static final List<DeferredBlock<? extends Block>> FULLTEXT_BLOCKS =
             List.of(GRAVEL, NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
-    public static final List<DeferredBlock<? extends Block>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
+    public static final List<DeferredBlock<? extends Block>> INFX_RECIPE_BLOCKS = List.of(SNOW_SLAB);
 
     public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(
             "underworld_portal",
             UnderworldPortalBlock::new,
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
-    public static final DeferredBlock<MitePortalBlock> NETHER_PORTAL = BLOCKS.registerBlock(
+    public static final DeferredBlock<InfxPortalBlock> NETHER_PORTAL = BLOCKS.registerBlock(
             "nether_portal",
-            properties -> new MitePortalBlock(MitePortalBlock.PortalType.NETHER, properties),
+            properties -> new InfxPortalBlock(InfxPortalBlock.PortalType.NETHER, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
-    public static final DeferredBlock<MitePortalBlock> RETURN_SPAWN_PORTAL = BLOCKS.registerBlock(
+    public static final DeferredBlock<InfxPortalBlock> RETURN_SPAWN_PORTAL = BLOCKS.registerBlock(
             "return_spawn_portal",
-            properties -> new MitePortalBlock(MitePortalBlock.PortalType.RETURN_SPAWN, properties),
+            properties -> new InfxPortalBlock(InfxPortalBlock.PortalType.RETURN_SPAWN, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
 
     public static final DeferredBlock<Block> MANTLE = BLOCKS.registerSimpleBlock(
@@ -181,24 +181,24 @@ public final class InfXBlocks {
     public static final List<DeferredBlock<? extends Block>> WORLD_BLOCKS =
             List.of(MANTLE, MITHRIL_RUNE_STONE, ADAMANTIUM_RUNE_STONE);
 
-    public static final DeferredBlock<MiteEnchantingTableBlock> EMERALD_ENCHANTING_TABLE = BLOCKS.registerBlock(
+    public static final DeferredBlock<InfxEnchantingTableBlock> EMERALD_ENCHANTING_TABLE = BLOCKS.registerBlock(
             "emerald_enchanting_table",
-            properties -> new MiteEnchantingTableBlock(MiteEnchantmentMenu.Kind.EMERALD, properties),
+            properties -> new InfxEnchantingTableBlock(InfxEnchantmentMenu.Kind.EMERALD, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE));
-    public static final DeferredBlock<MiteEnchantingTableBlock> DIAMOND_ENCHANTING_TABLE = BLOCKS.registerBlock(
+    public static final DeferredBlock<InfxEnchantingTableBlock> DIAMOND_ENCHANTING_TABLE = BLOCKS.registerBlock(
             "diamond_enchanting_table",
-            properties -> new MiteEnchantingTableBlock(MiteEnchantmentMenu.Kind.DIAMOND, properties),
+            properties -> new InfxEnchantingTableBlock(InfxEnchantmentMenu.Kind.DIAMOND, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.ENCHANTING_TABLE));
-    public static final List<DeferredBlock<MiteEnchantingTableBlock>> ENCHANTING_TABLES =
+    public static final List<DeferredBlock<InfxEnchantingTableBlock>> ENCHANTING_TABLES =
             List.of(EMERALD_ENCHANTING_TABLE, DIAMOND_ENCHANTING_TABLE);
 
-    public static final DeferredBlock<SafeBlock> COPPER_SAFE = metalSafe(MiteMaterial.COPPER, MapColor.COLOR_ORANGE, 4.0F);
-    public static final DeferredBlock<SafeBlock> SILVER_SAFE = metalSafe(MiteMaterial.SILVER, MapColor.METAL, 5.0F);
-    public static final DeferredBlock<SafeBlock> GOLD_SAFE = metalSafe(MiteMaterial.GOLD, MapColor.GOLD, 5.0F);
-    public static final DeferredBlock<SafeBlock> IRON_SAFE = metalSafe(MiteMaterial.IRON, MapColor.METAL, 6.0F);
-    public static final DeferredBlock<SafeBlock> ANCIENT_METAL_SAFE = metalSafe(MiteMaterial.ANCIENT_METAL, MapColor.COLOR_BROWN, 8.0F);
-    public static final DeferredBlock<SafeBlock> MITHRIL_SAFE = metalSafe(MiteMaterial.MITHRIL, MapColor.DIAMOND, 12.0F);
-    public static final DeferredBlock<SafeBlock> ADAMANTIUM_SAFE = metalSafe(MiteMaterial.ADAMANTIUM, MapColor.EMERALD, 50.0F);
+    public static final DeferredBlock<SafeBlock> COPPER_SAFE = metalSafe(InfxMaterial.COPPER, MapColor.COLOR_ORANGE, 4.0F);
+    public static final DeferredBlock<SafeBlock> SILVER_SAFE = metalSafe(InfxMaterial.SILVER, MapColor.METAL, 5.0F);
+    public static final DeferredBlock<SafeBlock> GOLD_SAFE = metalSafe(InfxMaterial.GOLD, MapColor.GOLD, 5.0F);
+    public static final DeferredBlock<SafeBlock> IRON_SAFE = metalSafe(InfxMaterial.IRON, MapColor.METAL, 6.0F);
+    public static final DeferredBlock<SafeBlock> ANCIENT_METAL_SAFE = metalSafe(InfxMaterial.ANCIENT_METAL, MapColor.COLOR_BROWN, 8.0F);
+    public static final DeferredBlock<SafeBlock> MITHRIL_SAFE = metalSafe(InfxMaterial.MITHRIL, MapColor.DIAMOND, 12.0F);
+    public static final DeferredBlock<SafeBlock> ADAMANTIUM_SAFE = metalSafe(InfxMaterial.ADAMANTIUM, MapColor.EMERALD, 50.0F);
     public static final List<DeferredBlock<SafeBlock>> METAL_SAFES = List.of(
             COPPER_SAFE, SILVER_SAFE, GOLD_SAFE, IRON_SAFE, ANCIENT_METAL_SAFE, MITHRIL_SAFE, ADAMANTIUM_SAFE);
 
@@ -212,15 +212,15 @@ public final class InfXBlocks {
     public static final List<DeferredBlock<Block>> METAL_STORAGE_BLOCKS =
             List.of(SILVER_BLOCK, ANCIENT_METAL_BLOCK, MITHRIL_BLOCK, ADAMANTIUM_BLOCK);
 
-    public static final DeferredBlock<MetalAnvilBlock> COPPER_ANVIL = metalAnvil(MiteMaterial.COPPER, MapColor.COLOR_ORANGE);
-    public static final DeferredBlock<MetalAnvilBlock> SILVER_ANVIL = metalAnvil(MiteMaterial.SILVER, MapColor.METAL);
-    public static final DeferredBlock<MetalAnvilBlock> GOLD_ANVIL = metalAnvil(MiteMaterial.GOLD, MapColor.GOLD);
-    public static final DeferredBlock<MetalAnvilBlock> IRON_ANVIL = metalAnvil(MiteMaterial.IRON, MapColor.METAL);
+    public static final DeferredBlock<MetalAnvilBlock> COPPER_ANVIL = metalAnvil(InfxMaterial.COPPER, MapColor.COLOR_ORANGE);
+    public static final DeferredBlock<MetalAnvilBlock> SILVER_ANVIL = metalAnvil(InfxMaterial.SILVER, MapColor.METAL);
+    public static final DeferredBlock<MetalAnvilBlock> GOLD_ANVIL = metalAnvil(InfxMaterial.GOLD, MapColor.GOLD);
+    public static final DeferredBlock<MetalAnvilBlock> IRON_ANVIL = metalAnvil(InfxMaterial.IRON, MapColor.METAL);
     public static final DeferredBlock<MetalAnvilBlock> ANCIENT_METAL_ANVIL =
-            metalAnvil(MiteMaterial.ANCIENT_METAL, MapColor.COLOR_BROWN);
-    public static final DeferredBlock<MetalAnvilBlock> MITHRIL_ANVIL = metalAnvil(MiteMaterial.MITHRIL, MapColor.DIAMOND);
+            metalAnvil(InfxMaterial.ANCIENT_METAL, MapColor.COLOR_BROWN);
+    public static final DeferredBlock<MetalAnvilBlock> MITHRIL_ANVIL = metalAnvil(InfxMaterial.MITHRIL, MapColor.DIAMOND);
     public static final DeferredBlock<MetalAnvilBlock> ADAMANTIUM_ANVIL =
-            metalAnvil(MiteMaterial.ADAMANTIUM, MapColor.EMERALD);
+            metalAnvil(InfxMaterial.ADAMANTIUM, MapColor.EMERALD);
     public static final List<DeferredBlock<MetalAnvilBlock>> METAL_ANVILS = List.of(
             COPPER_ANVIL,
             SILVER_ANVIL,
@@ -229,7 +229,7 @@ public final class InfXBlocks {
             ANCIENT_METAL_ANVIL,
             MITHRIL_ANVIL,
             ADAMANTIUM_ANVIL);
-    private static final Map<MiteMaterial, DeferredBlock<MetalAnvilBlock>> METAL_ANVIL_BY_MATERIAL =
+    private static final Map<InfxMaterial, DeferredBlock<MetalAnvilBlock>> METAL_ANVIL_BY_MATERIAL =
             createMetalAnvilMap();
 
     public static final DeferredBlock<ClayFurnaceBlock> CLAY_FURNACE = BLOCKS.registerBlock(
@@ -290,7 +290,7 @@ public final class InfXBlocks {
                     .requiresCorrectToolForDrops()
                     .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
 
-    public static final List<DeferredBlock<? extends MiteFurnaceBlock>> FURNACES =
+    public static final List<DeferredBlock<? extends InfxFurnaceBlock>> FURNACES =
             List.of(
                     CLAY_FURNACE,
                     LARGE_CLAY_OVEN,
@@ -373,26 +373,26 @@ public final class InfXBlocks {
                         .requiresCorrectToolForDrops());
     }
 
-    private static DeferredBlock<MiteCropBlock> miteCrop(MiteCropType type) {
+    private static DeferredBlock<InfxCropBlock> infxCrop(InfxCropType type) {
         return BLOCKS.registerBlock(
-                "mite_" + type.registryName(),
-                properties -> new MiteCropBlock(type, properties),
+                "infx_" + type.registryName(),
+                properties -> new InfxCropBlock(type, properties),
                 properties -> properties.ofFullCopy(type.vanillaBlock()).randomTicks());
     }
 
-    private static DeferredBlock<SafeBlock> metalSafe(MiteMaterial material, MapColor color, float strength) {
+    private static DeferredBlock<SafeBlock> metalSafe(InfxMaterial material, MapColor color, float strength) {
         return BLOCKS.registerBlock(
                 material.path() + "_safe",
                 properties -> new SafeBlock(material, properties),
                 properties -> properties
                         .mapColor(color)
-                        .strength(strength, material == MiteMaterial.ADAMANTIUM ? 3_600.0F : strength * 8.0F)
+                        .strength(strength, material == InfxMaterial.ADAMANTIUM ? 3_600.0F : strength * 8.0F)
                         .sound(SoundType.METAL)
                         .requiresCorrectToolForDrops()
                         .noOcclusion());
     }
 
-    private static DeferredBlock<MetalAnvilBlock> metalAnvil(MiteMaterial material, MapColor color) {
+    private static DeferredBlock<MetalAnvilBlock> metalAnvil(InfxMaterial material, MapColor color) {
         return BLOCKS.registerBlock(
                 material.path() + "_anvil",
                 properties -> new MetalAnvilBlock(material, properties),
@@ -404,18 +404,18 @@ public final class InfXBlocks {
                         .noOcclusion());
     }
 
-    private static Map<MiteMaterial, DeferredBlock<MetalAnvilBlock>> createMetalAnvilMap() {
+    private static Map<InfxMaterial, DeferredBlock<MetalAnvilBlock>> createMetalAnvilMap() {
         return Map.of(
-                MiteMaterial.COPPER, COPPER_ANVIL,
-                MiteMaterial.SILVER, SILVER_ANVIL,
-                MiteMaterial.GOLD, GOLD_ANVIL,
-                MiteMaterial.IRON, IRON_ANVIL,
-                MiteMaterial.ANCIENT_METAL, ANCIENT_METAL_ANVIL,
-                MiteMaterial.MITHRIL, MITHRIL_ANVIL,
-                MiteMaterial.ADAMANTIUM, ADAMANTIUM_ANVIL);
+                InfxMaterial.COPPER, COPPER_ANVIL,
+                InfxMaterial.SILVER, SILVER_ANVIL,
+                InfxMaterial.GOLD, GOLD_ANVIL,
+                InfxMaterial.IRON, IRON_ANVIL,
+                InfxMaterial.ANCIENT_METAL, ANCIENT_METAL_ANVIL,
+                InfxMaterial.MITHRIL, MITHRIL_ANVIL,
+                InfxMaterial.ADAMANTIUM, ADAMANTIUM_ANVIL);
     }
 
-    public static DeferredBlock<MetalAnvilBlock> metalAnvil(MiteMaterial material) {
+    public static DeferredBlock<MetalAnvilBlock> metalAnvil(InfxMaterial material) {
         DeferredBlock<MetalAnvilBlock> anvil = METAL_ANVIL_BY_MATERIAL.get(material);
         if (anvil == null) {
             throw new IllegalArgumentException("No metal anvil for " + material);
@@ -423,11 +423,11 @@ public final class InfXBlocks {
         return anvil;
     }
 
-    public static MiteCropBlock miteCropForVanilla(Block block) {
-        if (block == Blocks.WHEAT) return MITE_WHEAT.value();
-        if (block == Blocks.CARROTS) return MITE_CARROTS.value();
-        if (block == Blocks.POTATOES) return MITE_POTATOES.value();
-        return block == Blocks.BEETROOTS ? MITE_BEETROOTS.value() : null;
+    public static InfxCropBlock infxCropForVanilla(Block block) {
+        if (block == Blocks.WHEAT) return INFX_WHEAT.value();
+        if (block == Blocks.CARROTS) return INFX_CARROTS.value();
+        if (block == Blocks.POTATOES) return INFX_POTATOES.value();
+        return block == Blocks.BEETROOTS ? INFX_BEETROOTS.value() : null;
     }
 
     public static DeferredBlock<? extends TieredWorkbenchBlock> workbench(BenchTier tier) {

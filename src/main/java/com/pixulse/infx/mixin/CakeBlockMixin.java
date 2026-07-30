@@ -20,12 +20,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * CakeBlock hard-codes slice count and feeds FoodData directly, with no item-use event for R196
+ * CakeBlock hard-codes slice count and feeds FoodData directly, with no item-use event for INFX
  * nutrition. Adjust servings and bridge successful bites into the dual energy layers.
  */
 @Mixin(CakeBlock.class)
 abstract class CakeBlockMixin {
-    /** CakeBlock otherwise calls only Player#canEat and loses R196's nutrient-deficit exception. */
+    /** CakeBlock otherwise calls only Player#canEat and loses INFX's nutrient-deficit exception. */
     @Redirect(
             method = "eat",
             at = @At(

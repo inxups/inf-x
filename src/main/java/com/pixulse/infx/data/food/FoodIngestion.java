@@ -6,7 +6,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-/** R196's food-specific ingestion gate, separate from modern Player#canEat(boolean). */
+/** INFX's food-specific ingestion gate, separate from modern Player#canEat(boolean). */
 public final class FoodIngestion {
     private FoodIngestion() {}
 
@@ -25,8 +25,8 @@ public final class FoodIngestion {
     }
 
     /**
-     * Mirrors EntityPlayer#canIngest for an R196 food profile. Protein and phytonutrient deficits
-     * take priority over energy fullness; essential fats intentionally do not, as in R196.
+     * Mirrors EntityPlayer#canIngest for an INFX food profile. Protein and phytonutrient deficits
+     * take priority over energy fullness; essential fats intentionally do not, as in INFX.
      */
     public static boolean canIngest(SurvivalData data, double foodCap, FoodProfile food) {
         if (food.isEmpty()) return false;

@@ -1,10 +1,10 @@
 package com.pixulse.infx.item.equipment;
 
 import com.pixulse.infx.entity.GelatinousCubeRules;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -17,16 +17,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/** R196 item damage rules shared by gelatinous cubes, their projectiles, and dropped items. */
+/** INFX item damage rules shared by gelatinous cubes, their projectiles, and dropped items. */
 public final class CorrosionRules {
     private static final float TOOL_DAMAGE_SCALE = 100.0F;
     private static final float ARMOR_DAMAGE_SCALE = 2.0F;
 
     private CorrosionRules() {}
 
-    public static boolean isHarmedBy(MiteMaterial material, CorrosionType type) {
+    public static boolean isHarmedBy(InfxMaterial material, CorrosionType type) {
         return switch (type) {
-            case PEPSIN -> material == MiteMaterial.LEATHER;
+            case PEPSIN -> material == InfxMaterial.LEATHER;
             case ACID -> switch (material) {
                 case FLINT, OBSIDIAN, GOLD, MITHRIL -> false;
                 default -> true;
@@ -47,7 +47,7 @@ public final class CorrosionRules {
         if (raw != null && raw.definition().material().isPresent()) {
             return isHarmedBy(raw.definition().material().orElseThrow(), type);
         }
-        if (stack.getItem() instanceof MiteBucketItem bucket) {
+        if (stack.getItem() instanceof InfxBucketItem bucket) {
             return isHarmedBy(bucket.material(), type);
         }
 

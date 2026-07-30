@@ -30,7 +30,7 @@ public record InferredTimedCraftingRecipe(CraftingProfile profile, CraftingRecip
     }
 
     public static InferredTimedCraftingRecipe of(CraftingRecipe recipe) {
-        return new InferredTimedCraftingRecipe(MiteCraftingRules.displayProfile(recipe), recipe);
+        return new InferredTimedCraftingRecipe(InfxCraftingRules.displayProfile(recipe), recipe);
     }
 
     @Override

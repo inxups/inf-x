@@ -13,7 +13,7 @@ class SkeletonRangedAttackTest {
 
     @Test
     void rangedAimUsesMiteDistanceCurveAndIgnoresVerticalMotion() {
-        MiteSkeleton.MiteRangedAim aim = MiteSkeleton.calculateMiteRangedAim(
+        InfxSkeleton.InfxRangedAim aim = InfxSkeleton.calculateMiteRangedAim(
                 0.0, 0.0, 10.0, 0.0, new Vec3(0.2, 99.0, -0.1), Vec3.ZERO, 0.5F);
 
         assertEquals(7.585776F, aim.leadTicks(), EPSILON);
@@ -24,7 +24,7 @@ class SkeletonRangedAttackTest {
 
     @Test
     void rangedAimFallsBackPerAxisForInvalidKnownPlayerMotion() {
-        MiteSkeleton.MiteRangedAim aim = MiteSkeleton.calculateMiteRangedAim(
+        InfxSkeleton.InfxRangedAim aim = InfxSkeleton.calculateMiteRangedAim(
                 0.0,
                 0.0,
                 10.0,
@@ -39,35 +39,35 @@ class SkeletonRangedAttackTest {
 
     @Test
     void verticalCorrectionKeepsMiteRangeAndElevationRules() {
-        assertEquals(-0.0475, MiteSkeleton.miteVerticalCorrection(100.0, 5.0), EPSILON);
-        assertEquals(0.10765625, MiteSkeleton.miteVerticalCorrection(625.0, 5.0), EPSILON);
-        assertEquals(0.09, MiteSkeleton.miteVerticalCorrection(400.0, 9.0), EPSILON);
+        assertEquals(-0.0475, InfxSkeleton.miteVerticalCorrection(100.0, 5.0), EPSILON);
+        assertEquals(0.10765625, InfxSkeleton.miteVerticalCorrection(625.0, 5.0), EPSILON);
+        assertEquals(0.09, InfxSkeleton.miteVerticalCorrection(400.0, 9.0), EPSILON);
     }
 
     @Test
     void skeletonUncertaintyIncludesMiteMultiplier() {
-        assertEquals(21.0F, MiteSkeleton.miteArrowInaccuracy(0));
-        assertEquals(9.0F, MiteSkeleton.miteArrowInaccuracy(2));
-        assertEquals(3.0F, MiteSkeleton.miteArrowInaccuracy(3));
+        assertEquals(21.0F, InfxSkeleton.miteArrowInaccuracy(0));
+        assertEquals(9.0F, InfxSkeleton.miteArrowInaccuracy(2));
+        assertEquals(3.0F, InfxSkeleton.miteArrowInaccuracy(3));
     }
 
     @Test
     void tunedSkeletonArrowUsesFasterAndFlatterBallistics() {
-        assertEquals(1.8F, MiteSkeleton.skeletonArrowSpeed());
-        assertEquals(0.04D, MiteSkeleton.skeletonArrowGravity(), EPSILON);
-        assertEquals(0.01D, MiteSkeleton.skeletonArrowGravityCompensation(), EPSILON);
+        assertEquals(1.8F, InfxSkeleton.skeletonArrowSpeed());
+        assertEquals(0.04D, InfxSkeleton.skeletonArrowGravity(), EPSILON);
+        assertEquals(0.01D, InfxSkeleton.skeletonArrowGravityCompensation(), EPSILON);
     }
 
     @Test
     void ballisticInterceptMatchesTheModernArrowPhysicsForAMovingTarget() {
-        MiteSkeleton.BallisticAim aim = MiteSkeleton.calculateBallisticIntercept(20.0, 0.0, 0.0, 0.2, 0.0);
+        InfxSkeleton.BallisticAim aim = InfxSkeleton.calculateBallisticIntercept(20.0, 0.0, 0.0, 0.2, 0.0);
         assertNotNull(aim);
         double travelScale = (1.0 - Math.pow(0.99F, aim.flightTicks())) / (1.0 - 0.99F);
-        double verticalDrop = MiteSkeleton.skeletonArrowGravity() / (1.0 - 0.99F) * (aim.flightTicks() - travelScale);
+        double verticalDrop = InfxSkeleton.skeletonArrowGravity() / (1.0 - 0.99F) * (aim.flightTicks() - travelScale);
 
         assertEquals(13.571206, aim.flightTicks(), 1.0E-5);
         assertEquals(
-                MiteSkeleton.skeletonArrowSpeed() * MiteSkeleton.skeletonArrowSpeed(),
+                InfxSkeleton.skeletonArrowSpeed() * InfxSkeleton.skeletonArrowSpeed(),
                 aim.x() * aim.x() + aim.y() * aim.y() + aim.z() * aim.z(),
                 1.0E-5);
         assertEquals(20.0 + 0.2 * aim.flightTicks(), aim.x() * travelScale, 1.0E-5);
@@ -77,12 +77,12 @@ class SkeletonRangedAttackTest {
 
     @Test
     void ballisticInterceptFallsBackWhenNoLowArcCanReachTheTarget() {
-        assertNull(MiteSkeleton.calculateBallisticIntercept(10.0, 100.0, 0.0, 0.0, 0.0));
+        assertNull(InfxSkeleton.calculateBallisticIntercept(10.0, 100.0, 0.0, 0.0, 0.0));
     }
 
     @Test
     void ballisticInterceptLeadsLateralMotion() {
-        MiteSkeleton.BallisticAim aim = MiteSkeleton.calculateBallisticIntercept(20.0, 0.0, 0.0, 0.0, 0.2);
+        InfxSkeleton.BallisticAim aim = InfxSkeleton.calculateBallisticIntercept(20.0, 0.0, 0.0, 0.0, 0.2);
         assertNotNull(aim);
         double travelScale = (1.0 - Math.pow(0.99F, aim.flightTicks())) / (1.0 - 0.99F);
 

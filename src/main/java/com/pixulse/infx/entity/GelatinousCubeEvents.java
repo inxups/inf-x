@@ -20,7 +20,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-/** Server-side contact, item corrosion, and loot rules for R196 gelatinous cubes. */
+/** Server-side contact, item corrosion, and loot rules for INFX gelatinous cubes. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class GelatinousCubeEvents {
     private static final int CONTACT_INTERVAL = 20;
@@ -29,7 +29,7 @@ public final class GelatinousCubeEvents {
 
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof MiteSlime slime)
+        if (!(event.getEntity() instanceof InfxSlime slime)
                 || !(slime.level() instanceof ServerLevel level)
                 || slime.tickCount % CONTACT_INTERVAL != 0) {
             return;
@@ -42,7 +42,7 @@ public final class GelatinousCubeEvents {
         }
     }
 
-    private static void dissolveTouchedBlocks(ServerLevel level, MiteSlime slime) {
+    private static void dissolveTouchedBlocks(ServerLevel level, InfxSlime slime) {
         CorrosionType type = slime.variant().corrosionType();
         boolean playedGrassCorrosionSound = false;
         for (BlockPos pos : BlockPos.betweenClosed(slime.getBoundingBox().inflate(0.01))) {
@@ -77,13 +77,13 @@ public final class GelatinousCubeEvents {
                 2.6F + (random.nextFloat() - random.nextFloat()) * 0.8F);
     }
 
-    private static void dissolveTouchedItems(ServerLevel level, MiteSlime slime) {
+    private static void dissolveTouchedItems(ServerLevel level, InfxSlime slime) {
         for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, slime.getBoundingBox())) {
             CorrosionRules.damageItemEntity(item, slime.variant().corrosionType(), 1.0F);
         }
     }
 
-    private static void seekDissolvableItem(ServerLevel level, MiteSlime slime) {
+    private static void seekDissolvableItem(ServerLevel level, InfxSlime slime) {
         level.getEntitiesOfClass(
                         ItemEntity.class,
                         slime.getBoundingBox().inflate(8.0),
@@ -95,7 +95,7 @@ public final class GelatinousCubeEvents {
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
-                || !(event.getEntity() instanceof MiteSlime slime)
+                || !(event.getEntity() instanceof InfxSlime slime)
                 || !(event.getSource().getEntity() instanceof ServerPlayer player)
                 || event.getSource().getDirectEntity() != player) {
             return;
@@ -106,7 +106,7 @@ public final class GelatinousCubeEvents {
 
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
-        if (!(event.getEntity() instanceof MiteSlime slime) || !(slime.level() instanceof ServerLevel level)) {
+        if (!(event.getEntity() instanceof InfxSlime slime) || !(slime.level() instanceof ServerLevel level)) {
             return;
         }
         event.getDrops().clear();

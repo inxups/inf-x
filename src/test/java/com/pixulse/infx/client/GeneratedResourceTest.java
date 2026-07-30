@@ -14,7 +14,7 @@ import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
@@ -118,7 +118,7 @@ class GeneratedResourceTest {
 
     @Test
     void materialShearsAreSilkTouchEnchantable() throws Exception {
-        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/r196_silk_touch.json"));
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/infx_silk_touch.json"));
         Set<String> values = tag.getAsJsonArray("values").asList().stream()
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toSet());
@@ -132,11 +132,11 @@ class GeneratedResourceTest {
     @Test
     void r196SpawnTablesUseCorrectPoolsAndSources() throws Exception {
         JsonObject modifier = json(GENERATED.resolve(
-                "data/infx/neoforge/biome_modifier/r196_spawns.json"));
+                "data/infx/neoforge/biome_modifier/infx_spawns.json"));
         JsonObject infestedStone = json(GENERATED.resolve(
-                "data/infx/worldgen/configured_feature/r196_infested_stone.json"));
+                "data/infx/worldgen/configured_feature/infx_infested_stone.json"));
         JsonObject infestedNetherrack = json(GENERATED.resolve(
-                "data/infx/worldgen/configured_feature/r196_infested_netherrack.json"));
+                "data/infx/worldgen/configured_feature/infx_infested_netherrack.json"));
         JsonObject underworld = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         String underworldMonsters = underworld
                 .getAsJsonObject("spawners")
@@ -152,8 +152,8 @@ class GeneratedResourceTest {
                 .toString();
 
         assertAll(
-                "R196 spawn tables",
-                () -> assertEquals("infx:r196_spawns", modifier.get("type").getAsString()),
+                "INFX spawn tables",
+                () -> assertEquals("infx:infx_spawns", modifier.get("type").getAsString()),
                 () -> assertTrue(infestedStone.toString().contains("minecraft:infested_stone")),
                 () -> assertTrue(infestedNetherrack.toString().contains("infx:infested_netherrack")),
                 () -> assertTrue(Files.isRegularFile(
@@ -164,7 +164,7 @@ class GeneratedResourceTest {
                 () -> assertFalse(underworldMonsters.contains("infx:fire_elemental")),
                 () -> assertFalse(underworldMonsters.contains("infx:hoary_silverfish")),
                 () -> assertFalse(underworldMonsters.contains("infx:wood_spider")),
-                () -> assertTrue(underworldAmbient.contains("infx:r196_bat")),
+                () -> assertTrue(underworldAmbient.contains("infx:infx_bat")),
                 () -> assertTrue(underworldAmbient.contains("infx:vampire_bat")),
                 () -> assertTrue(underworldAmbient.contains("infx:nightwing")),
                 () -> assertFalse(underworldAmbient.contains("infx:giant_vampire_bat")),
@@ -173,7 +173,7 @@ class GeneratedResourceTest {
 
     @Test
     void r196EndermanPearlLootUsesLooting() throws Exception {
-        JsonObject table = json(GENERATED.resolve("data/infx/loot_table/entities/r196_enderman.json"));
+        JsonObject table = json(GENERATED.resolve("data/infx/loot_table/entities/infx_enderman.json"));
         JsonObject entry = table.getAsJsonArray("pools")
                 .get(0)
                 .getAsJsonObject()
@@ -185,7 +185,7 @@ class GeneratedResourceTest {
                         .map(JsonElement::getAsJsonObject)
                         .anyMatch(function -> function.get("function").getAsString().equals("minecraft:enchanted_count_increase")
                                 && function.get("enchantment").getAsString().equals("minecraft:looting")),
-                "R196 ender pearl drops must retain MITE's Looting count increase");
+                "INFX ender pearl drops must retain MITE's Looting count increase");
     }
 
     @Test
@@ -293,13 +293,13 @@ class GeneratedResourceTest {
         });
         InfXEntityTypes.names().forEach(entity ->
                 assertLanguageKey(english, chinese, "entity.infx." + entity.path()));
-        Stream.concat(InfXEnchantments.R196.stream(), Stream.of(InfXEnchantments.CLUMSINESS))
+        Stream.concat(InfXEnchantments.INFX.stream(), Stream.of(InfXEnchantments.CLUMSINESS))
                 .forEach(enchantment -> assertLanguageKey(
                         english, chinese, "enchantment.infx." + enchantment.identifier().getPath()));
         for (String effect : List.of("malnutrition", "witch_curse", "insulin_resistance", "paralysis")) {
             assertLanguageKey(english, chinese, "effect.infx." + effect);
         }
-        for (MiteMaterial material : MiteMaterial.values()) {
+        for (InfxMaterial material : InfxMaterial.values()) {
             assertLanguageKey(english, chinese, "material.infx." + material.path());
         }
         for (Quality quality : Quality.values()) {
@@ -1673,7 +1673,7 @@ class GeneratedResourceTest {
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/density_function/mite_r196_first_cave.json"))),
+                        "data/infx/worldgen/density_function/infx_first_cave.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/configured_carver/underworld_cave.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
@@ -2029,7 +2029,7 @@ class GeneratedResourceTest {
         JsonObject obsidian = json(GENERATED.resolve("data/infx/recipe/obsidian_furnace.json"));
         JsonObject netherrack = json(GENERATED.resolve("data/infx/recipe/netherrack_furnace.json"));
         assertAll(
-                "R196 furnace crafting",
+                "INFX furnace crafting",
                 () -> assertEquals("hand", clay.get("required_bench").getAsString()),
                 () -> assertEquals(320.0F, clay.get("difficulty").getAsFloat()),
                 () -> assertEquals("flint", sandstone.get("required_bench").getAsString()),
@@ -2044,7 +2044,7 @@ class GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the R196 bat egg, and the
+        // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the INFX bat egg, and the
         // bottle model add one item definition and model each; gravel adds one block item definition.
         assertEquals(446, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(516, jsonCount(GENERATED.resolve("assets/infx/models/item")));

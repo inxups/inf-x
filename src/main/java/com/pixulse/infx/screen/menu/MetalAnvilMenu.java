@@ -2,7 +2,7 @@ package com.pixulse.infx.screen.menu;
 
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.item.repair.RepairPlan;
 import net.minecraft.core.BlockPos;
@@ -27,13 +27,13 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
             .withResultSlot(2, 134, 47)
             .build();
 
-    private final MiteMaterial anvilMaterial;
+    private final InfxMaterial anvilMaterial;
     private final Block expectedBlock;
 
     private MetalAnvilMenu(
             int containerId,
             Inventory inventory,
-            MiteMaterial anvilMaterial,
+            InfxMaterial anvilMaterial,
             ContainerLevelAccess access,
             Block expectedBlock) {
         super(InfXMenus.METAL_ANVIL.get(), containerId, inventory, access, SLOTS);
@@ -44,7 +44,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
     public static MetalAnvilMenu server(
             int containerId,
             Inventory inventory,
-            MiteMaterial material,
+            InfxMaterial material,
             ContainerLevelAccess access,
             Block expectedBlock) {
         return new MetalAnvilMenu(containerId, inventory, material, access, expectedBlock);
@@ -53,8 +53,8 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
     public static MetalAnvilMenu client(
             int containerId, Inventory inventory, RegistryFriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
-        int materialId = Math.clamp(buffer.readVarInt(), 0, MiteMaterial.values().length - 1);
-        MiteMaterial material = MiteMaterial.values()[materialId];
+        int materialId = Math.clamp(buffer.readVarInt(), 0, InfxMaterial.values().length - 1);
+        InfxMaterial material = InfxMaterial.values()[materialId];
         Block block = inventory.player.level().getBlockState(pos).getBlock();
         return new MetalAnvilMenu(
                 containerId,
@@ -64,7 +64,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
                 block);
     }
 
-    public MiteMaterial anvilMaterial() {
+    public InfxMaterial anvilMaterial() {
         return anvilMaterial;
     }
 

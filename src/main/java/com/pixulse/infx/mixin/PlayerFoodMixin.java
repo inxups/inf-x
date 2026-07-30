@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Bridges vanilla FoodData gates to R196's independent energy layers and level-scaled cap. */
+/** Bridges vanilla FoodData gates to INFX's independent energy layers and level-scaled cap. */
 @Mixin(Player.class)
 abstract class PlayerFoodMixin {
     @Inject(method = "canEat", at = @At("HEAD"), cancellable = true)
@@ -19,7 +19,7 @@ abstract class PlayerFoodMixin {
         callback.setReturnValue(ignoreHunger || survival.satiation() < cap || survival.nutrition() < cap);
     }
 
-    /** R196 requires Nutrition for sprinting; Satiation alone only powers other actions. */
+    /** INFX requires Nutrition for sprinting; Satiation alone only powers other actions. */
     @Inject(method = "hasEnoughFoodToDoExhaustiveManoeuvres", at = @At("HEAD"), cancellable = true)
     private void infx$useR196EnergyForExhaustiveManoeuvres(CallbackInfoReturnable<Boolean> callback) {
         Player player = (Player) (Object) this;

@@ -2,7 +2,7 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.*;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 
@@ -29,16 +29,16 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
     @Override
     protected void addTags(HolderLookup.@NonNull Provider registries) {
         tag(InfXItemTags.BINDINGS).add(itemKey(Items.STRING)).add(InfXItems.SINEW.getKey());
-        tag(InfXItemTags.R196_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
+        tag(InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
         tag(InfXItemTags.FURNACE_FUELS_HEAT_2)
                 .add(itemKey(Items.COAL))
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));
         var waterBuckets = tag(InfXItemTags.WATER_BUCKETS).add(itemKey(Items.WATER_BUCKET));
         var milkBuckets = tag(InfXItemTags.MILK_BUCKETS).add(itemKey(Items.MILK_BUCKET));
-        for (MiteMaterial material : InfXItems.BUCKET_MATERIALS) {
-            waterBuckets.add(InfXItems.bucket(material, MiteBucketItem.Contents.WATER)
+        for (InfxMaterial material : InfXItems.BUCKET_MATERIALS) {
+            waterBuckets.add(InfXItems.bucket(material, InfxBucketItem.Contents.WATER)
                     .getKey());
-            milkBuckets.add(InfXItems.bucket(material, MiteBucketItem.Contents.MILK)
+            milkBuckets.add(InfXItems.bucket(material, InfxBucketItem.Contents.MILK)
                     .getKey());
         }
         tag(InfXItemTags.SMELTING_INPUTS_HEAT_2)
@@ -117,8 +117,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                         InfXItems.ICE_CREAM.getKey(),
                         InfXItems.WORM.getKey(),
                         InfXItems.COOKED_WORM.getKey());
-        for (MiteMaterial material : InfXItems.BUCKET_MATERIALS) {
-            animalProducts.add(InfXItems.bucket(material, MiteBucketItem.Contents.MILK)
+        for (InfxMaterial material : InfXItems.BUCKET_MATERIALS) {
+            animalProducts.add(InfXItems.bucket(material, InfxBucketItem.Contents.MILK)
                     .getKey());
         }
 
@@ -186,14 +186,14 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 InfXItems.VEGETABLE_SOUP.getKey(),
                 InfXItems.CREAM_OF_VEGETABLE_SOUP.getKey(),
                 InfXItems.CHICKEN_SOUP.getKey());
-        for (MiteMaterial material : InfXItems.BUCKET_MATERIALS) {
-            drinks.add(InfXItems.bucket(material, MiteBucketItem.Contents.MILK)
+        for (InfxMaterial material : InfXItems.BUCKET_MATERIALS) {
+            drinks.add(InfXItems.bucket(material, InfxBucketItem.Contents.MILK)
                     .getKey());
         }
     }
 
     private void addRepairTags() {
-        for (MiteMaterial material : MiteMaterial.values()) {
+        for (InfxMaterial material : InfxMaterial.values()) {
             TagAppender<ResourceKey<Item>, Item> repairs = tag(InfXItemTags.repairMaterial(material));
             switch (material) {
                 case LEATHER -> repairs.add(itemKey(Items.LEATHER));
@@ -264,75 +264,75 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
 
     private void addR196EnchantmentTags(Catalog.EquipmentEntry entry) {
         EquipmentType type = entry.key().type();
-        MiteMaterial material = entry.key().material();
+        InfxMaterial material = entry.key().material();
         if (isDurabilityEnchantable(type, material)) {
-            add(InfXItemTags.R196_DURABILITY_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_DURABILITY_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.SWORD) {
-            add(InfXItemTags.R196_DISARMING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_DISARMING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.KNIFE || type == EquipmentType.DAGGER) {
-            add(InfXItemTags.R196_BUTCHERING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_BUTCHERING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
-            add(InfXItemTags.R196_STUNNING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_STUNNING_ENCHANTABLE, entry);
         }
         if ((type == EquipmentType.SWORD || type == EquipmentType.SCYTHE)
-                && material != MiteMaterial.SILVER
-                && material != MiteMaterial.MITHRIL) {
-            add(InfXItemTags.R196_VAMPIRISM_ENCHANTABLE, entry);
+                && material != InfxMaterial.SILVER
+                && material != InfxMaterial.MITHRIL) {
+            add(InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.SWORD
                 || type == EquipmentType.BATTLE_AXE
                 || type == EquipmentType.SCYTHE) {
-            add(InfXItemTags.R196_SLAUGHTER_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_SLAUGHTER_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.BATTLE_AXE) {
-            add(InfXItemTags.R196_CLEAVING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_CLEAVING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.HOE
                 || type == EquipmentType.MATTOCK
                 || type == EquipmentType.SCYTHE) {
-            add(InfXItemTags.R196_HARVESTING_ENCHANTABLE, entry);
-            add(InfXItemTags.R196_FERTILITY_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_HARVESTING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_FERTILITY_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.PICKAXE) {
-            add(InfXItemTags.R196_PENETRATION_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_PENETRATION_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.AXE || type == EquipmentType.BATTLE_AXE) {
-            add(InfXItemTags.R196_TREE_FELLING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_TREE_FELLING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.PICKAXE || type == EquipmentType.SHOVEL) {
-            add(InfXItemTags.R196_FORTUNE_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_FORTUNE_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.LEGGINGS || type == EquipmentType.CHAINMAIL_LEGGINGS) {
-            add(InfXItemTags.R196_FREE_MOVEMENT_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_FREE_MOVEMENT_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CHESTPLATE || type == EquipmentType.CHAINMAIL_CHESTPLATE) {
-            add(InfXItemTags.R196_CHEST_ARMOR_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_CHEST_ARMOR_ENCHANTABLE, entry);
         }
         addVanillaMiteEnchantmentTags(entry, type, material);
     }
 
     /** Item targets for the vanilla-derived MITE enchantments, following MITE's class checks. */
     private void addVanillaMiteEnchantmentTags(
-            Catalog.EquipmentEntry entry, EquipmentType type, MiteMaterial material) {
+            Catalog.EquipmentEntry entry, EquipmentType type, InfxMaterial material) {
         // MITE ItemKnife extends ItemDagger extends ItemSword, so "instanceof ItemSword"
         // checks (bane of arthropods, fire aspect, looting) cover all three.
         boolean swordFamily = type == EquipmentType.SWORD
                 || type == EquipmentType.DAGGER
                 || type == EquipmentType.KNIFE;
         if (swordFamily) {
-            add(InfXItemTags.R196_SWORD_FAMILY_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_SWORD_FAMILY_ENCHANTABLE, entry);
         }
         if (swordFamily || type == EquipmentType.CUDGEL) {
-            add(InfXItemTags.R196_LOOTING_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_LOOTING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.WAR_HAMMER) {
-            add(InfXItemTags.R196_SMITE_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_SMITE_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
-            add(InfXItemTags.R196_KNOCKBACK_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_KNOCKBACK_ENCHANTABLE, entry);
         }
         // MITE efficiency: pickaxe class (war hammers excluded), the axe family, shovels
         // (mattock extends ItemShovel) and hoes.
@@ -343,7 +343,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.SHOVEL
                 || type == EquipmentType.MATTOCK
                 || type == EquipmentType.HOE) {
-            add(InfXItemTags.R196_EFFICIENCY_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_EFFICIENCY_ENCHANTABLE, entry);
         }
         // MITE silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
         if (type == EquipmentType.PICKAXE
@@ -351,20 +351,20 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.SHEARS
                 || type == EquipmentType.KNIFE
                 || type == EquipmentType.DAGGER) {
-            add(InfXItemTags.R196_SILK_TOUCH_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.CHESTPLATE) {
-            add(InfXItemTags.R196_THORNS_ENCHANTABLE, entry);
+            add(InfXItemTags.INFX_THORNS_ENCHANTABLE, entry);
         }
         if ((type == EquipmentType.CHESTPLATE || type == EquipmentType.LEGGINGS)
-                && material.has(MiteMaterial.Flag.METAL)) {
-            add(InfXItemTags.R196_SOLID_METAL_TORSO_ENCHANTABLE, entry);
+                && material.has(InfxMaterial.Flag.METAL)) {
+            add(InfXItemTags.INFX_SOLID_METAL_TORSO_ENCHANTABLE, entry);
         }
     }
 
-    private static boolean isDurabilityEnchantable(EquipmentType type, MiteMaterial material) {
+    private static boolean isDurabilityEnchantable(EquipmentType type, InfxMaterial material) {
         if (type.armorForm() == EquipmentType.ArmorForm.PLATE
-                && material.has(MiteMaterial.Flag.METAL)) {
+                && material.has(InfxMaterial.Flag.METAL)) {
             return true;
         }
         return switch (type) {

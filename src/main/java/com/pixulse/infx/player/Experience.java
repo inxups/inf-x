@@ -2,7 +2,7 @@ package com.pixulse.infx.player;
 
 import net.minecraft.world.entity.player.Player;
 
-/** Pure R196 experience-curve and debt calculations. */
+/** Pure INFX experience-curve and debt calculations. */
 public final class Experience {
     public static final int MAX_DISPLAY_LEVEL = 200;
     public static final int MAX_DEBT_LEVEL = 40;
@@ -98,7 +98,7 @@ public final class Experience {
     }
 
     /**
-     * R196 {@code EnumLevelBonus.HARVESTING}/{@code CRAFTING}: {@code level × 0.02},
+     * INFX {@code EnumLevelBonus.HARVESTING}/{@code CRAFTING}: {@code level × 0.02},
      * including negative debt levels.
      */
     public static float harvestOrCraftLevelBonus(int level) {
@@ -106,7 +106,7 @@ public final class Experience {
     }
 
     /**
-     * R196 {@code EnumLevelBonus.MELEE_DAMAGE}: {@code level × 0.005} while positive,
+     * INFX {@code EnumLevelBonus.MELEE_DAMAGE}: {@code level × 0.005} while positive,
      * otherwise the same {@code level × 0.02} debt penalty as harvest/craft.
      */
     public static float meleeLevelBonus(int level) {

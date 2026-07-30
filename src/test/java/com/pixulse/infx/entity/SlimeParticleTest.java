@@ -8,15 +8,15 @@ import org.junit.jupiter.api.Test;
 class SlimeParticleTest {
     @Test
     void r196SlimeOverridesVanillaGreenLandingParticle() throws NoSuchMethodException {
-        assertEquals(MiteSlime.class, MiteSlime.class.getDeclaredMethod("getParticleType").getDeclaringClass());
+        assertEquals(InfxSlime.class, InfxSlime.class.getDeclaredMethod("getParticleType").getDeclaringClass());
     }
 
     @Test
     void gelatinousVariantsUseTheirMatchingMiteLandingParticleColors() {
-        assertEquals(GelatinousSphereItem.Color.GREEN, MiteSlime.Variant.SLIME.landingParticleColor());
-        assertEquals(GelatinousSphereItem.Color.OCHRE, MiteSlime.Variant.JELLY.landingParticleColor());
-        assertEquals(GelatinousSphereItem.Color.CRIMSON, MiteSlime.Variant.BLOB.landingParticleColor());
-        assertEquals(GelatinousSphereItem.Color.GRAY, MiteSlime.Variant.OOZE.landingParticleColor());
-        assertEquals(GelatinousSphereItem.Color.BLACK, MiteSlime.Variant.PUDDING.landingParticleColor());
+        assertEquals(GelatinousSphereItem.Color.GREEN, InfxSlime.Variant.SLIME.landingParticleColor());
+        assertEquals(GelatinousSphereItem.Color.OCHRE, InfxSlime.Variant.JELLY.landingParticleColor());
+        assertEquals(GelatinousSphereItem.Color.CRIMSON, InfxSlime.Variant.BLOB.landingParticleColor());
+        assertEquals(GelatinousSphereItem.Color.GRAY, InfxSlime.Variant.OOZE.landingParticleColor());
+        assertEquals(GelatinousSphereItem.Color.BLACK, InfxSlime.Variant.PUDDING.landingParticleColor());
     }
 }

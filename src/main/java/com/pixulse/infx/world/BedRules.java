@@ -1,6 +1,6 @@
 package com.pixulse.infx.world;
 
-/** Time boundaries used by MITE R196's cooperative bed fast-forward. */
+/** Time boundaries used by MITE INFX's cooperative bed fast-forward. */
 public final class BedRules {
     public static final int DAY_LENGTH = 24_000;
     public static final int ADJUSTED_TIME_OFFSET = 6_000;
@@ -13,18 +13,18 @@ public final class BedRules {
 
     private BedRules() {}
 
-    /** Converts the vanilla 06:00-origin clock into R196's midnight-origin display clock. */
+    /** Converts the vanilla 06:00-origin clock into INFX's midnight-origin display clock. */
     public static long adjustedTime(long overworldClockTime) {
         return Math.floorMod(overworldClockTime + ADJUSTED_TIME_OFFSET, DAY_LENGTH);
     }
 
-    /** R196 permits collective fast-forward from 21:00 until, but not including, 04:00. */
+    /** INFX permits collective fast-forward from 21:00 until, but not including, 04:00. */
     public static boolean isFastForwardWindow(long overworldClockTime) {
         long adjusted = adjustedTime(overworldClockTime);
         return adjusted >= SLEEP_START || adjusted < LAST_FAST_FORWARD_TICK;
     }
 
-    /** Returns the number of clock ticks to the next R196 05:00 sunrise. */
+    /** Returns the number of clock ticks to the next INFX 05:00 sunrise. */
     public static int ticksUntilSunrise(long overworldClockTime) {
         long adjusted = adjustedTime(overworldClockTime);
         long remaining = SUNRISE - adjusted;

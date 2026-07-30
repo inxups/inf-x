@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier;
 import org.jspecify.annotations.NonNull;
 
 /**
- * R196 material-body renderer shared by ordinary earth elementals and clay golems.
+ * INFX material-body renderer shared by ordinary earth elementals and clay golems.
  */
 public final class EarthElementalRenderer<T extends EarthElemental> extends MobRenderer<T, EarthElementalRenderState, EarthElementalModel> {
     private static final Identifier STONE_NORMAL = texture("stone/earth_elemental_stone.png");

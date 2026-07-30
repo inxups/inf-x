@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** EggItem hard-codes throwing; R196 gives eating priority while food is needed. */
+/** EggItem hard-codes throwing; INFX gives eating priority while food is needed. */
 @Mixin(EggItem.class)
 abstract class EggItemMixin {
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)

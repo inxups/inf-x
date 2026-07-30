@@ -1,7 +1,7 @@
 package com.pixulse.infx.event;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.block.MiteCropBlock;
+import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXBlocks;
@@ -39,13 +39,13 @@ public final class AgricultureEvents {
             return;
         }
 
-        MiteCropBlock replacement = InfXBlocks.miteCropForVanilla(event.getState().getBlock());
+        InfxCropBlock replacement = InfXBlocks.infxCropForVanilla(event.getState().getBlock());
         if (replacement != null) {
             level.setBlock(event.getPos(), replacement.stateFromVanilla(event.getState()), Block.UPDATE_CLIENTS);
             event.setResult(CropGrowEvent.Pre.Result.DO_NOT_GROW);
             return;
         }
-        if (event.getState().getBlock() instanceof MiteCropBlock) {
+        if (event.getState().getBlock() instanceof InfxCropBlock) {
             return;
         }
         if (event.getState().is(Blocks.SUGAR_CANE)) {
@@ -69,7 +69,7 @@ public final class AgricultureEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) {
             return;
         }
-        MiteCropBlock replacement = InfXBlocks.miteCropForVanilla(event.getState().getBlock());
+        InfxCropBlock replacement = InfXBlocks.infxCropForVanilla(event.getState().getBlock());
         if (replacement == null) {
             return;
         }
@@ -119,7 +119,7 @@ public final class AgricultureEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         BlockState placed = event.getPlacedBlock();
         BlockPos pos = event.getPos();
-        MiteCropBlock replacement = InfXBlocks.miteCropForVanilla(placed.getBlock());
+        InfxCropBlock replacement = InfXBlocks.infxCropForVanilla(placed.getBlock());
         if (replacement != null) {
             level.setBlock(pos, replacement.stateFromVanilla(placed), Block.UPDATE_CLIENTS);
             return;

@@ -1,6 +1,6 @@
 package com.pixulse.infx.data.curse;
 
-import com.pixulse.infx.entity.MiteWitch;
+import com.pixulse.infx.entity.InfxWitch;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXMobEffects;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
@@ -30,7 +30,7 @@ public final class CurseManager {
 
     private CurseManager() {}
 
-    public static boolean addPending(ServerPlayer player, MiteWitch witch, CurseType type) {
+    public static boolean addPending(ServerPlayer player, InfxWitch witch, CurseType type) {
         MinecraftServer server = player.level().getServer();
         long realization = server.overworld().getGameTime() + REALIZATION_DELAY;
         return witch.isAlive() && CurseData.get(server)

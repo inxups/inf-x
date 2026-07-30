@@ -15,7 +15,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
- * World-wide R196 progression: first achievements, structure gates and unique books.
+ * World-wide INFX progression: first achievements, structure gates and unique books.
  */
 public final class WorldData extends SavedData {
     private static final Codec<Map<String, FirstCompletion>> COMPLETIONS = Codec.unboundedMap(Codec.STRING, FirstCompletion.CODEC);
@@ -27,7 +27,7 @@ public final class WorldData extends SavedData {
                     Codec.BOOL.optionalFieldOf("end_conquered", false).forGetter(data -> data.endConquered))
             .apply(instance, WorldData::new));
     public static final SavedDataType<WorldData> TYPE = new SavedDataType<>(
-            InfiniteX.id("r196_world_progress"), WorldData::new, CODEC);
+            InfiniteX.id("infx_world_progress"), WorldData::new, CODEC);
 
     private final Map<String, FirstCompletion> firstCompletions;
     private int creationBookMask;

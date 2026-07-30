@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/** Dispatches persisted R196 bucket source decay through Minecraft's scheduled fluid ticks. */
+/** Dispatches persisted INFX bucket source decay through Minecraft's scheduled fluid ticks. */
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelFluidTickMixin {
     // Scheduled fluid ticks expose no public per-tick callback. This injection only consumes a tick

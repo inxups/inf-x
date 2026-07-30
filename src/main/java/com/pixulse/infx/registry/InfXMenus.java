@@ -4,7 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.screen.menu.MetalAnvilMenu;
-import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import java.util.List;
 
 import net.minecraft.core.registries.Registries;
@@ -23,25 +23,25 @@ public final class InfXMenus {
             "metal_anvil",
             () -> IMenuTypeExtension.create(MetalAnvilMenu::client));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<MiteEnchantmentMenu>> EMERALD_ENCHANTING =
+    public static final DeferredHolder<MenuType<?>, MenuType<InfxEnchantmentMenu>> EMERALD_ENCHANTING =
             MENUS.register(
                     "emerald_enchanting",
                     () -> IMenuTypeExtension.create((containerId, inventory, buffer) ->
-                            new MiteEnchantmentMenu(
+                            new InfxEnchantmentMenu(
                                     containerId,
                                     inventory,
                                     ContainerLevelAccess.NULL,
-                                    MiteEnchantmentMenu.Kind.EMERALD)));
+                                    InfxEnchantmentMenu.Kind.EMERALD)));
 
-    public static final DeferredHolder<MenuType<?>, MenuType<MiteEnchantmentMenu>> DIAMOND_ENCHANTING =
+    public static final DeferredHolder<MenuType<?>, MenuType<InfxEnchantmentMenu>> DIAMOND_ENCHANTING =
             MENUS.register(
                     "diamond_enchanting",
                     () -> IMenuTypeExtension.create((containerId, inventory, buffer) ->
-                            new MiteEnchantmentMenu(
+                            new InfxEnchantmentMenu(
                                     containerId,
                                     inventory,
                                     ContainerLevelAccess.NULL,
-                                    MiteEnchantmentMenu.Kind.DIAMOND)));
+                                    InfxEnchantmentMenu.Kind.DIAMOND)));
 
     public static final DeferredHolder<MenuType<?>, MenuType<TimedWorkbenchMenu>> FLINT_WORKBENCH = MENUS.register(
             "flint_workbench",

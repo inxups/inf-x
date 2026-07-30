@@ -34,12 +34,12 @@ class MonsterEventsTest {
 
     @Test
     void worldSpawnReplacementMapsEveryVanillaFishToItsR196Entity() {
-        assertEquals(InfXEntityTypes.R196_BAT.get(), MonsterEvents.replacementFor(EntityType.BAT));
-        assertEquals(InfXEntityTypes.R196_COD.get(), MonsterEvents.replacementFor(EntityType.COD));
-        assertEquals(InfXEntityTypes.R196_SALMON.get(), MonsterEvents.replacementFor(EntityType.SALMON));
-        assertEquals(InfXEntityTypes.R196_PUFFERFISH.get(), MonsterEvents.replacementFor(EntityType.PUFFERFISH));
+        assertEquals(InfXEntityTypes.INFX_BAT.get(), MonsterEvents.replacementFor(EntityType.BAT));
+        assertEquals(InfXEntityTypes.INFX_COD.get(), MonsterEvents.replacementFor(EntityType.COD));
+        assertEquals(InfXEntityTypes.INFX_SALMON.get(), MonsterEvents.replacementFor(EntityType.SALMON));
+        assertEquals(InfXEntityTypes.INFX_PUFFERFISH.get(), MonsterEvents.replacementFor(EntityType.PUFFERFISH));
         assertEquals(
-                InfXEntityTypes.R196_TROPICAL_FISH.get(),
+                InfXEntityTypes.INFX_TROPICAL_FISH.get(),
                 MonsterEvents.replacementFor(EntityType.TROPICAL_FISH));
     }
 

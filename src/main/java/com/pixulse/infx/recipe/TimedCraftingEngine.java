@@ -339,7 +339,7 @@ public final class TimedCraftingEngine {
         static CraftingMatch vanilla(
                 RecipeHolder<CraftingRecipe> holder,
                 CraftingInput input) {
-            return new CraftingMatch(holder, MiteCraftingRules.profile(holder.value(), input));
+            return new CraftingMatch(holder, InfxCraftingRules.profile(holder.value(), input));
         }
 
         boolean matches(CraftingInput input, ServerLevel level) {

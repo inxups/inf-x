@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 
-/** Survival sources for R196 foods that are not represented by modern vanilla crops. */
+/** Survival sources for INFX foods that are not represented by modern vanilla crops. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class FoodSourceEvents {
     private FoodSourceEvents() {}

@@ -7,9 +7,9 @@ import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
-import com.pixulse.infx.data.harvest.MiteMiningRules;
+import com.pixulse.infx.data.harvest.InfxMiningRules;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +33,7 @@ public final class SafeEvents {
                 || !(event.getPlayer() instanceof ServerPlayer player)
                 || player.hasInfiniteMaterials()) return;
         boolean owner = isOwner(event.getLevel().getBlockEntity(event.getPos()), player);
-        MiteMaterial toolMaterial = toolMaterial(player.getMainHandItem());
+        InfxMaterial toolMaterial = toolMaterial(player.getMainHandItem());
         if (!mayBreak(safe.material(), owner, toolMaterial)) {
             event.setCanceled(true);
             event.setNotifyClient(true);
@@ -96,7 +96,7 @@ public final class SafeEvents {
         return blockEntity instanceof SafeBlockEntity safe && safe.isPortableTo(player);
     }
 
-    private static MiteMaterial toolMaterial(ItemStack tool) {
+    private static InfxMaterial toolMaterial(ItemStack tool) {
         var equipment = InfXItems.catalog().equipment(tool);
         if (equipment == null
                 || equipment.key().type() != EquipmentType.PICKAXE
@@ -106,12 +106,12 @@ public final class SafeEvents {
         return equipment.key().material();
     }
 
-    public static boolean mayBreak(MiteMaterial safe, boolean owner, MiteMaterial tool) {
+    public static boolean mayBreak(InfxMaterial safe, boolean owner, InfxMaterial tool) {
         if (owner) {
             return true;
         }
-        int requiredLevel = MiteMiningRules.harvestLevel(safe) + 1;
-        return tool != null && MiteMiningRules.harvestLevel(tool) >= requiredLevel;
+        int requiredLevel = InfxMiningRules.harvestLevel(safe) + 1;
+        return tool != null && InfxMiningRules.harvestLevel(tool) >= requiredLevel;
     }
 
 }

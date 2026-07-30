@@ -37,7 +37,7 @@ import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
-/** MITE R196 stack limits for block inventory objects and their modern structural equivalents. */
+/** MITE INFX stack limits for block inventory objects and their modern structural equivalents. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class BlockStackLimits {
     private static final int DEFAULT_BLOCK_LIMIT = 4;
@@ -89,7 +89,7 @@ public final class BlockStackLimits {
     }
 
     private static int sourceLimit(Item item, Block block, String path) {
-        // BlockFurnace/BlockAnvil and the standalone ItemDoor/ItemBed use one slot in R196.
+        // BlockFurnace/BlockAnvil and the standalone ItemDoor/ItemBed use one slot in INFX.
         if (block instanceof AbstractFurnaceBlock
                 || block instanceof AnvilBlock
                 || block instanceof MetalAnvilBlock
@@ -98,7 +98,7 @@ public final class BlockStackLimits {
             return 1;
         }
         // ItemBlock inherits these overrides from BlockPane, BlockSapling and BlockTorch;
-        // signs, skulls and ItemReed-backed placers retain Item's R196 default of sixteen.
+        // signs, skulls and ItemReed-backed placers retain Item's INFX default of sixteen.
         if (STANDALONE_SIXTEEN.contains(item)
                 || block instanceof IronBarsBlock
                 || block instanceof SaplingBlock
@@ -107,7 +107,7 @@ public final class BlockStackLimits {
                 || block instanceof AbstractSkullBlock) {
             return 16;
         }
-        // These are the R196 eight-stack block subclasses plus the explicit cake item override.
+        // These are the INFX eight-stack block subclasses plus the explicit cake item override.
         if (STANDALONE_EIGHT.contains(item)
                 || path.endsWith("_planks")
                 || path.endsWith("_wool")

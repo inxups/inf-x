@@ -5,7 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.Explosion;
 
-/** Internal mapping for R196 explosions whose entity radius differs from their block power. */
+/** Internal mapping for INFX explosions whose entity radius differs from their block power. */
 public final class ExplosionRanges {
     static final double CREEPER_ENTITY_RADIUS = 4.4;
     static final double INFERNAL_CREEPER_ENTITY_RADIUS = 8.8;
@@ -19,21 +19,21 @@ public final class ExplosionRanges {
     }
 
     static OptionalDouble entityRadius(Entity source) {
-        if (source instanceof MiteCreeper creeper) {
+        if (source instanceof InfxCreeper creeper) {
             return OptionalDouble.of(creeperEntityRadius(creeper.variant(), creeper.isPowered()));
         }
-        if (source instanceof MiteSilverfish silverfish
-                && silverfish.variant() == MiteSilverfish.Variant.NETHERSPAWN) {
+        if (source instanceof InfxSilverfish silverfish
+                && silverfish.variant() == InfxSilverfish.Variant.NETHERSPAWN) {
             return OptionalDouble.of(NETHERSPAWN_ENTITY_RADIUS);
         }
-        if (source instanceof LargeFireball fireball && fireball.getOwner() instanceof MiteGhast) {
+        if (source instanceof LargeFireball fireball && fireball.getOwner() instanceof InfxGhast) {
             return OptionalDouble.of(GHAST_FIREBALL_ENTITY_RADIUS);
         }
         return OptionalDouble.empty();
     }
 
-    static double creeperEntityRadius(MiteCreeper.Variant variant, boolean powered) {
-        double radius = variant == MiteCreeper.Variant.INFERNAL
+    static double creeperEntityRadius(InfxCreeper.Variant variant, boolean powered) {
+        double radius = variant == InfxCreeper.Variant.INFERNAL
                 ? INFERNAL_CREEPER_ENTITY_RADIUS
                 : CREEPER_ENTITY_RADIUS;
         return powered ? radius * 2.0 : radius;

@@ -2,7 +2,7 @@ package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.data.harvest.ToolWearCalculator;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -10,12 +10,12 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.equipment.EquipmentAsset;
 import net.minecraft.world.item.equipment.EquipmentAssets;
 
-public record EquipmentKey(MiteMaterial material, EquipmentType type) {
+public record EquipmentKey(InfxMaterial material, EquipmentType type) {
     public EquipmentKey {
         Objects.requireNonNull(material, "material");
         Objects.requireNonNull(type, "type");
         if (!type.allows(material)) {
-            throw new IllegalArgumentException("Illegal R196 equipment key: " + material.path() + "_" + type.path());
+            throw new IllegalArgumentException("Illegal INFX equipment key: " + material.path() + "_" + type.path());
         }
     }
 
@@ -33,7 +33,7 @@ public record EquipmentKey(MiteMaterial material, EquipmentType type) {
             };
         }
         if (type == EquipmentType.FISHING_ROD) {
-            return (int) (2.0F * material.durabilityMultiplier()) + (material == MiteMaterial.FLINT ? 1 : 0);
+            return (int) (2.0F * material.durabilityMultiplier()) + (material == InfxMaterial.FLINT ? 1 : 0);
         }
         if (type.armorForm() == EquipmentType.ArmorForm.PLATE) {
             return (int) (type.durabilityComponents() * material.durabilityMultiplier() * 2.0F);
@@ -77,13 +77,13 @@ public record EquipmentKey(MiteMaterial material, EquipmentType type) {
     }
 
     public String englishName() {
-        if (material == MiteMaterial.COPPER && type == EquipmentType.PICKAXE) {
+        if (material == InfxMaterial.COPPER && type == EquipmentType.PICKAXE) {
             return "InfiniteX Copper Pickaxe";
         }
         if (type == EquipmentType.FISHING_ROD) {
             return "Fishing Rod";
         }
-        if (material == MiteMaterial.WOOD && type == EquipmentType.BOW) {
+        if (material == InfxMaterial.WOOD && type == EquipmentType.BOW) {
             return "Bow";
         }
         String materialName = type.armorForm() == EquipmentType.ArmorForm.HORSE
@@ -93,19 +93,19 @@ public record EquipmentKey(MiteMaterial material, EquipmentType type) {
     }
 
     public String chineseName() {
-        if (material == MiteMaterial.COPPER && type == EquipmentType.PICKAXE) {
+        if (material == InfxMaterial.COPPER && type == EquipmentType.PICKAXE) {
             return "InfiniteX 铜镐";
         }
         if (type == EquipmentType.FISHING_ROD) {
             return "钓鱼竿";
         }
-        if (material == MiteMaterial.WOOD && type == EquipmentType.BOW) {
+        if (material == InfxMaterial.WOOD && type == EquipmentType.BOW) {
             return "弓";
         }
-        if (material == MiteMaterial.WOOD && type == EquipmentType.CUDGEL) {
+        if (material == InfxMaterial.WOOD && type == EquipmentType.CUDGEL) {
             return "短木棒";
         }
-        if (material == MiteMaterial.WOOD && type == EquipmentType.CLUB) {
+        if (material == InfxMaterial.WOOD && type == EquipmentType.CLUB) {
             return "木棒";
         }
         return material.chinesePrefix() + type.chineseSuffix();
@@ -129,7 +129,7 @@ public record EquipmentKey(MiteMaterial material, EquipmentType type) {
     }
 
     private static final class Holder {
-        private static final List<EquipmentKey> ALL = Arrays.stream(MiteMaterial.values())
+        private static final List<EquipmentKey> ALL = Arrays.stream(InfxMaterial.values())
                 .flatMap(material -> Arrays.stream(EquipmentType.values())
                         .filter(type -> type.allows(material))
                         .map(type -> new EquipmentKey(material, type)))

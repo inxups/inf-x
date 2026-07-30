@@ -23,7 +23,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.NonNull;
 
-/** Throwable counterpart to an R196 gelatinous sphere item. */
+/** Throwable counterpart to an INFX gelatinous sphere item. */
 public final class GelatinousSphere extends ThrowableItemProjectile {
     public GelatinousSphere(EntityType<? extends GelatinousSphere> type, Level level) {
         super(type, level);

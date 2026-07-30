@@ -19,7 +19,7 @@ public final class ServerRules {
         MinecraftServer server = event.getServer();
         if (!server.isDedicatedServer()) return;
         if (server.getTickCount() % PERFORMANCE_INTERVAL == 0) {
-            InfiniteX.LOGGER.info("R196 performance: {}", ServerMetrics.formatLoad(server));
+            InfiniteX.LOGGER.info("INFX performance: {}", ServerMetrics.formatLoad(server));
         }
     }
 }

@@ -35,10 +35,10 @@ class InfXEnchantmentsTest {
                 Map.entry(InfXEnchantments.ENDURANCE, expected(InfXEnchantments.Rarity.UNCOMMON, 10)),
                 Map.entry(InfXEnchantments.PROTECTION, expected(InfXEnchantments.Rarity.COMMON, 10)));
 
-        assertEquals(22, InfXEnchantments.R196.size());
+        assertEquals(22, InfXEnchantments.INFX.size());
         assertEquals(22, expected.size());
         assertEquals(39, InfXEnchantments.ALL.size());
-        for (ResourceKey<Enchantment> key : InfXEnchantments.R196) {
+        for (ResourceKey<Enchantment> key : InfXEnchantments.INFX) {
             InfXEnchantments.EnchantmentProfile actual = InfXEnchantments.profile(key);
             ExpectedProfile profile = expected.get(key);
             assertEquals(profile.rarity(), actual.rarity(), key.identifier().toString());
@@ -50,7 +50,7 @@ class InfXEnchantmentsTest {
 
     @Test
     void profileCostsUseTheMiteDifficultyWindow() {
-        for (ResourceKey<Enchantment> key : InfXEnchantments.R196) {
+        for (ResourceKey<Enchantment> key : InfXEnchantments.INFX) {
             InfXEnchantments.EnchantmentProfile profile = InfXEnchantments.profile(key);
             for (int level = 1; level <= 5; level++) {
                 int expectedMinimum = Math.max(profile.difficulty() - 10, 0)
@@ -95,7 +95,7 @@ class InfXEnchantmentsTest {
         }
     }
 
-    /** R196 registers one rare piercing enchantment that only renames itself on axes. */
+    /** INFX registers one rare piercing enchantment that only renames itself on axes. */
     @Test
     void cleavingSharesPenetrationsPiercingProfile() {
         assertEquals(

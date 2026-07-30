@@ -1,10 +1,10 @@
 package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.MobBucketKind;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEntityTypes;
@@ -420,7 +420,7 @@ final class ModLanguageProvider extends LanguageProvider {
         CURSE_DESCRIPTIONS.forEach((path, descriptions) ->
                 add("curse.infx." + path + ".desc", descriptions[locale == Locale.EN_US ? 0 : 1]));
         for (var material : InfXItems.BUCKET_MATERIALS) {
-            for (var contents : MiteBucketItem.Contents.values()) {
+            for (var contents : InfxBucketItem.Contents.values()) {
                 String englishContents = switch (contents) {
                     case EMPTY -> "";
                     case WATER -> " Water";
@@ -461,10 +461,10 @@ final class ModLanguageProvider extends LanguageProvider {
         addRecord("legends", "Legends");
         add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
         add("block.infx.blueberry_bush", locale == Locale.EN_US ? "Blueberry Bush" : "蓝莓丛");
-        add("block.infx.mite_wheat", locale == Locale.EN_US ? "Wheat Crop" : "小麦作物");
-        add("block.infx.mite_carrots", locale == Locale.EN_US ? "Carrot Crop" : "胡萝卜作物");
-        add("block.infx.mite_potatoes", locale == Locale.EN_US ? "Potato Crop" : "马铃薯作物");
-        add("block.infx.mite_beetroots", locale == Locale.EN_US ? "Beetroot Crop" : "甜菜根作物");
+        add("block.infx.infx_wheat", locale == Locale.EN_US ? "Wheat Crop" : "小麦作物");
+        add("block.infx.infx_carrots", locale == Locale.EN_US ? "Carrot Crop" : "胡萝卜作物");
+        add("block.infx.infx_potatoes", locale == Locale.EN_US ? "Potato Crop" : "马铃薯作物");
+        add("block.infx.infx_beetroots", locale == Locale.EN_US ? "Beetroot Crop" : "甜菜根作物");
         add("block.infx.sgravel", locale == Locale.EN_US ? "Gravel" : "砾石");
         add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");
@@ -490,8 +490,8 @@ final class ModLanguageProvider extends LanguageProvider {
             add(
                     "advancements.infx." + path + ".description",
                     locale == Locale.EN_US
-                            ? "Complete the R196 requirement: " + name
-                            : "完成 R196 条件：" + name);
+                            ? "Complete the INFX requirement: " + name
+                            : "完成 INFX 条件：" + name);
         });
         for (var anvil : InfXBlocks.METAL_ANVILS) {
             String material = anvil.get().material().path();
@@ -544,8 +544,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "Beds can only be used in the Overworld"
                 : "床只能在主世界使用");
         add("message.infx.creative_disabled", locale == Locale.EN_US
-                ? "Creative mode is disabled in R196 survival worlds"
-                : "R196 生存世界禁止创造模式");
+                ? "Creative mode is disabled in INFX survival worlds"
+                : "INFX 生存世界禁止创造模式");
         add("menu.infx.test_mode", locale == Locale.EN_US ? "INFX TEST MODE" : "INFX测试模式");
         add("menu.infx.test_mode.online_disabled", locale == Locale.EN_US
                 ? "Multiplayer and Realms are disabled while InfiniteX test mode is active"
@@ -605,13 +605,13 @@ final class ModLanguageProvider extends LanguageProvider {
             };
             add("quality.infx." + quality.getSerializedName(), locale == Locale.EN_US ? english : chinese);
         }
-        for (MiteMaterial material : MiteMaterial.values()) {
+        for (InfxMaterial material : InfxMaterial.values()) {
             add(
                     "material.infx." + material.path(),
                     locale == Locale.EN_US ? material.englishNoun() : material.chinesePrefix());
         }
         add("tooltip.infx.material", locale == Locale.EN_US ? "Material: %s" : "材料：%s");
-        add("tooltip.infx.damage", locale == Locale.EN_US ? "R196 damage: %s" : "R196 伤害：%s");
+        add("tooltip.infx.damage", locale == Locale.EN_US ? "INFX damage: %s" : "INFX 伤害：%s");
         add("tooltip.infx.reach", locale == Locale.EN_US ? "Melee reach: %s blocks" : "近战距离：%s 格");
         add("tooltip.infx.protection", locale == Locale.EN_US ? "Fixed protection: %s" : "固定防护：%s");
         add("tooltip.infx.repair", locale == Locale.EN_US ? "Repair with %s nuggets" : "使用%s粒修理");

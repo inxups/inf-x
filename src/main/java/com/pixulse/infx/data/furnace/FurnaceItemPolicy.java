@@ -1,6 +1,6 @@
 package com.pixulse.infx.data.furnace;
 
-import com.pixulse.infx.block.MiteFurnaceBlock;
+import com.pixulse.infx.block.InfxFurnaceBlock;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BoatItem;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +19,7 @@ public final class FurnaceItemPolicy {
     private FurnaceItemPolicy() {}
 
     public static boolean acceptsLargeItems(BlockState state) {
-        return !(state.getBlock() instanceof MiteFurnaceBlock furnace) || furnace.acceptsLargeItems();
+        return !(state.getBlock() instanceof InfxFurnaceBlock furnace) || furnace.acceptsLargeItems();
     }
 
     public static boolean canPlaceItem(BlockState state, ItemStack stack) {

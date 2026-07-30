@@ -4,25 +4,25 @@ import com.pixulse.infx.item.EquipmentCategory;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-/** Pure, server-rechecked repair calculation for R196 metal anvils. */
+/** Pure, server-rechecked repair calculation for INFX metal anvils. */
 public record RepairPlan(ItemStack output, int materialsUsed, int durabilityRestored, int anvilDamage) {
     public static final RepairPlan EMPTY = new RepairPlan(ItemStack.EMPTY, 0, 0, 0);
 
     public static RepairPlan create(
-            MiteMaterial anvilMaterial, ItemStack damaged, ItemStack consumable) {
+            InfxMaterial anvilMaterial, ItemStack damaged, ItemStack consumable) {
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(damaged);
         if (entry == null || damaged.getCount() != 1 || !damaged.isDamaged() || consumable.isEmpty()) {
             return EMPTY;
         }
         EquipmentKey key = entry.key();
         if (!supports(key.type())
-                || !key.material().has(MiteMaterial.Flag.METAL)
+                || !key.material().has(InfxMaterial.Flag.METAL)
                 || anvilMaterial.durabilityMultiplier() < key.material().durabilityMultiplier()
                 || consumable.getItem() != repairItem(key.material())) {
             return EMPTY;
@@ -104,7 +104,7 @@ public record RepairPlan(ItemStack output, int materialsUsed, int durabilityRest
                 || item == InfXItems.ADAMANTIUM_NUGGET.get();
     }
 
-    public static Item repairItem(MiteMaterial material) {
+    public static Item repairItem(InfxMaterial material) {
         return switch (material) {
             case COPPER -> Items.COPPER_NUGGET;
             case SILVER -> InfXItems.SILVER_NUGGET.get();

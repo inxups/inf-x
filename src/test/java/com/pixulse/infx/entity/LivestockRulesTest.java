@@ -54,11 +54,11 @@ class LivestockRulesTest {
 
     @Test
     void unhealthyAdultChickenCannotLayAnEggOnTheNextTick() {
-        assertTrue(MiteChicken.shouldDelayEgg(true, false, false, 1));
-        assertFalse(MiteChicken.shouldDelayEgg(true, false, true, 1));
-        assertFalse(MiteChicken.shouldDelayEgg(false, false, false, 1));
-        assertFalse(MiteChicken.shouldDelayEgg(true, true, false, 1));
-        assertFalse(MiteChicken.shouldDelayEgg(true, false, false, 2));
+        assertTrue(InfxChicken.shouldDelayEgg(true, false, false, 1));
+        assertFalse(InfxChicken.shouldDelayEgg(true, false, true, 1));
+        assertFalse(InfxChicken.shouldDelayEgg(false, false, false, 1));
+        assertFalse(InfxChicken.shouldDelayEgg(true, true, false, 1));
+        assertFalse(InfxChicken.shouldDelayEgg(true, false, false, 2));
     }
 
     @Test

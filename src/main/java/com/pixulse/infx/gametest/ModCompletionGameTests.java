@@ -13,21 +13,21 @@ import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
-import com.pixulse.infx.entity.MiteChicken;
+import com.pixulse.infx.entity.InfxChicken;
 import com.pixulse.infx.item.equipment.EquipmentBehaviors;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.entity.Livestock;
-import com.pixulse.infx.item.MiteArrowItem;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxArrowItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.screen.menu.MetalAnvilMenu;
-import com.pixulse.infx.screen.menu.MiteEnchantmentMenu;
+import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXCreativeTabs;
@@ -159,47 +159,47 @@ public final class ModCompletionGameTests {
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
     private static final List<String> NAMES = List.of(
-            "r196_special_behaviors",
-            "r196_quality_coin",
-            "r196_metal_anvil",
-            "r196_underworld",
-            "r196_portals",
-            "r196_livestock",
-            "r196_gravel_loot",
-            "r196_hopper_xp",
-            "r196_survival_core",
-            "r196_sprinting_nutrition",
-            "r196_survival_modes",
-            "r196_behavior_hunger",
-            "r196_safe_enchanting",
-            "r196_enchantment_drops",
-            "r196_creative_tabs",
-            "r196_block_stack_limits",
-            "r196_bucket_mechanics",
-            "r196_swim_physics",
-            "r196_fulltext_systems");
+            "infx_special_behaviors",
+            "infx_quality_coin",
+            "infx_metal_anvil",
+            "infx_underworld",
+            "infx_portals",
+            "infx_livestock",
+            "infx_gravel_loot",
+            "infx_hopper_xp",
+            "infx_survival_core",
+            "infx_sprinting_nutrition",
+            "infx_survival_modes",
+            "infx_behavior_hunger",
+            "infx_safe_enchanting",
+            "infx_enchantment_drops",
+            "infx_creative_tabs",
+            "infx_block_stack_limits",
+            "infx_bucket_mechanics",
+            "infx_swim_physics",
+            "infx_fulltext_systems");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
-        FUNCTIONS.register("r196_special_behaviors", () -> ModCompletionGameTests::specialBehaviors);
-        FUNCTIONS.register("r196_quality_coin", () -> ModCompletionGameTests::qualityAndCoin);
-        FUNCTIONS.register("r196_metal_anvil", () -> ModCompletionGameTests::metalAnvil);
-        FUNCTIONS.register("r196_underworld", () -> ModCompletionGameTests::underworld);
-        FUNCTIONS.register("r196_portals", () -> ModCompletionGameTests::portals);
-        FUNCTIONS.register("r196_livestock", () -> ModCompletionGameTests::livestock);
-        FUNCTIONS.register("r196_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
-        FUNCTIONS.register("r196_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
-        FUNCTIONS.register("r196_survival_core", () -> ModCompletionGameTests::survivalCore);
-        FUNCTIONS.register("r196_sprinting_nutrition", () -> ModCompletionGameTests::sprintingNutrition);
-        FUNCTIONS.register("r196_survival_modes", () -> ModCompletionGameTests::survivalModes);
-        FUNCTIONS.register("r196_behavior_hunger", () -> ModCompletionGameTests::behaviorHunger);
-        FUNCTIONS.register("r196_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
-        FUNCTIONS.register("r196_enchantment_drops", () -> ModCompletionGameTests::enchantmentDrops);
-        FUNCTIONS.register("r196_creative_tabs", () -> ModCompletionGameTests::creativeTabs);
-        FUNCTIONS.register("r196_block_stack_limits", () -> ModCompletionGameTests::blockStackLimits);
-        FUNCTIONS.register("r196_bucket_mechanics", () -> ModCompletionGameTests::bucketMechanics);
-        FUNCTIONS.register("r196_swim_physics", () -> ModCompletionGameTests::swimPhysics);
-        FUNCTIONS.register("r196_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
+        FUNCTIONS.register("infx_special_behaviors", () -> ModCompletionGameTests::specialBehaviors);
+        FUNCTIONS.register("infx_quality_coin", () -> ModCompletionGameTests::qualityAndCoin);
+        FUNCTIONS.register("infx_metal_anvil", () -> ModCompletionGameTests::metalAnvil);
+        FUNCTIONS.register("infx_underworld", () -> ModCompletionGameTests::underworld);
+        FUNCTIONS.register("infx_portals", () -> ModCompletionGameTests::portals);
+        FUNCTIONS.register("infx_livestock", () -> ModCompletionGameTests::livestock);
+        FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
+        FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
+        FUNCTIONS.register("infx_survival_core", () -> ModCompletionGameTests::survivalCore);
+        FUNCTIONS.register("infx_sprinting_nutrition", () -> ModCompletionGameTests::sprintingNutrition);
+        FUNCTIONS.register("infx_survival_modes", () -> ModCompletionGameTests::survivalModes);
+        FUNCTIONS.register("infx_behavior_hunger", () -> ModCompletionGameTests::behaviorHunger);
+        FUNCTIONS.register("infx_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
+        FUNCTIONS.register("infx_enchantment_drops", () -> ModCompletionGameTests::enchantmentDrops);
+        FUNCTIONS.register("infx_creative_tabs", () -> ModCompletionGameTests::creativeTabs);
+        FUNCTIONS.register("infx_block_stack_limits", () -> ModCompletionGameTests::blockStackLimits);
+        FUNCTIONS.register("infx_bucket_mechanics", () -> ModCompletionGameTests::bucketMechanics);
+        FUNCTIONS.register("infx_swim_physics", () -> ModCompletionGameTests::swimPhysics);
+        FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
     }
 
     private ModCompletionGameTests() {}
@@ -211,7 +211,7 @@ public final class ModCompletionGameTests {
     @SubscribeEvent
     public static void registerTests(RegisterGameTestsEvent event) {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
-                InfiniteX.id("r196_completion"), new TestEnvironmentDefinition.AllOf());
+                InfiniteX.id("infx_completion"), new TestEnvironmentDefinition.AllOf());
         for (String name : NAMES) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
@@ -233,7 +233,7 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
         ItemStack silverSword = InfXItems.catalog()
-                .equipment(MiteMaterial.SILVER, EquipmentType.SWORD)
+                .equipment(InfxMaterial.SILVER, EquipmentType.SWORD)
                 .holder()
                 .toStack();
         player.setItemInHand(InteractionHand.MAIN_HAND, silverSword);
@@ -249,8 +249,8 @@ public final class ModCompletionGameTests {
         cow.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
         helper.assertTrue(Math.abs((before - cow.getHealth()) - 4.0F) < .001F, "silver melee must not boost normal targets");
 
-        MiteArrowItem silverArrow = (MiteArrowItem) InfXItems.catalog()
-                .equipment(MiteMaterial.SILVER, EquipmentType.ARROW)
+        InfxArrowItem silverArrow = (InfxArrowItem) InfXItems.catalog()
+                .equipment(InfxMaterial.SILVER, EquipmentType.ARROW)
                 .holder()
                 .get();
         AbstractArrow projectile = silverArrow.createArrow(level, silverArrow.getDefaultInstance(), player, null);
@@ -263,12 +263,12 @@ public final class ModCompletionGameTests {
         for (var entry : InfXItems.catalog().equipmentEntries()) {
             helper.assertTrue(
                     entry.holder().toStack().has(DataComponents.DAMAGE_RESISTANT)
-                            == (entry.key().material() == MiteMaterial.ADAMANTIUM),
+                            == (entry.key().material() == InfxMaterial.ADAMANTIUM),
                     entry.path() + " fire resistance boundary");
         }
         for (var entry : InfXItems.catalog().rawEntries()) {
             boolean expected = entry.definition().material()
-                    .map(material -> material == MiteMaterial.ADAMANTIUM)
+                    .map(material -> material == InfxMaterial.ADAMANTIUM)
                     .orElse(false);
             helper.assertTrue(
                     entry.holder().toStack().has(DataComponents.DAMAGE_RESISTANT) == expected,
@@ -298,7 +298,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(EquipmentBehaviors.armorDurabilityFactor(50, 100) == 1.0F, "half durability protection");
         helper.assertTrue(EquipmentBehaviors.armorDurabilityFactor(99, 100) < .03F, "critical durability protection");
         ItemStack fullChestplate = InfXItems.catalog()
-                .equipment(MiteMaterial.IRON, EquipmentType.CHESTPLATE)
+                .equipment(InfxMaterial.IRON, EquipmentType.CHESTPLATE)
                 .holder()
                 .toStack();
         player.setItemSlot(EquipmentSlot.CHEST, fullChestplate);
@@ -344,7 +344,7 @@ public final class ModCompletionGameTests {
         ItemStack qualityPreview = crafting.infx$resultContainer().getItem(0);
         helper.assertTrue(
                 qualityPreview.is(InfXItems.catalog()
-                        .equipment(MiteMaterial.FLINT, EquipmentType.KNIFE)
+                        .equipment(InfxMaterial.FLINT, EquipmentType.KNIFE)
                         .holder()),
                 "quality selection keeps the matched crafting result");
         helper.assertTrue(
@@ -386,7 +386,7 @@ public final class ModCompletionGameTests {
         MetalAnvilMenu menu = MetalAnvilMenu.server(
                 77,
                 player.getInventory(),
-                MiteMaterial.IRON,
+                InfxMaterial.IRON,
                 ContainerLevelAccess.create(helper.getLevel(), absolute),
                 block);
         ItemStack damaged = InfXItems.IRON_PICKAXE.toStack();
@@ -422,7 +422,7 @@ public final class ModCompletionGameTests {
 
         int beforeRodRepair = entity.damage();
         ItemStack fishingRod = InfXItems.catalog()
-                .equipment(MiteMaterial.IRON, EquipmentType.FISHING_ROD)
+                .equipment(InfxMaterial.IRON, EquipmentType.FISHING_ROD)
                 .holder()
                 .toStack();
         fishingRod.setDamageValue(10);
@@ -433,7 +433,7 @@ public final class ModCompletionGameTests {
         menu.getSlot(2).onTake(player, repairedRod);
         helper.assertTrue(
                 entity.damage() == beforeRodRepair + 10 * 22,
-                "metal fishing rod uses R196 anvil wear scaling");
+                "metal fishing rod uses INFX anvil wear scaling");
 
         entity.addDamage(helper.getLevel(), block.maximumDamage() / 2);
         helper.assertTrue(helper.getBlockState(relative).getValue(MetalAnvilBlock.DAMAGE_STAGE) == 1, "50% anvil damage stage");
@@ -664,8 +664,8 @@ public final class ModCompletionGameTests {
     private static void livestock(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
-        Cow cow = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(2, 2, 8));
-        helper.assertTrue(cow.getMaxHealth() == 20.0F, "R196 cows must have twenty health");
+        Cow cow = helper.spawn(InfXEntityTypes.INFX_COW.get(), new BlockPos(2, 2, 8));
+        helper.assertTrue(cow.getMaxHealth() == 20.0F, "INFX cows must have twenty health");
         helper.setBlock(new BlockPos(3, 1, 8), Blocks.WATER);
         ItemEntity wheat = new ItemEntity(
                 level, cow.getX(), cow.getY(), cow.getZ(), new ItemStack(Items.WHEAT));
@@ -679,7 +679,7 @@ public final class ModCompletionGameTests {
         interactAt(player, cow);
         helper.assertTrue(player.getMainHandItem().is(Items.BUCKET), "a second same-day milk bucket must be denied");
 
-        Cow bowlCow = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(1, 2, 8));
+        Cow bowlCow = helper.spawn(InfXEntityTypes.INFX_COW.get(), new BlockPos(1, 2, 8));
         setLivestockWellness(bowlCow, 1.0F, 1.0F, 1.0F);
         for (int bowl = 0; bowl < 4; bowl++) {
             player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BOWL));
@@ -709,7 +709,7 @@ public final class ModCompletionGameTests {
                 "unwell MITE livestock keep leather but lose their meat yield");
         setLivestockWellness(cow, 1.0F, 1.0F, 1.0F);
 
-        Sheep sheep = helper.spawn(InfXEntityTypes.R196_SHEEP.get(), new BlockPos(4, 2, 8));
+        Sheep sheep = helper.spawn(InfXEntityTypes.INFX_SHEEP.get(), new BlockPos(4, 2, 8));
         setLivestockWellness(sheep, 0.24F, 1.0F, 1.0F);
         helper.assertTrue(sheep.readyForShearing(), "MITE wool is gated by shearing state, not wellness");
         setLivestockWellness(sheep, 1.0F, 1.0F, 1.0F);
@@ -718,8 +718,8 @@ public final class ModCompletionGameTests {
         helper.assertTrue(sheep.isSheared(), "fire damage must strip sheep wool");
         sheep.discard();
 
-        Pig pig = helper.spawn(InfXEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 8));
-        helper.assertTrue(Livestock.isWell(pig), "R196 pigs must initialize their synced isWell flag");
+        Pig pig = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(5, 2, 8));
+        helper.assertTrue(Livestock.isWell(pig), "INFX pigs must initialize their synced isWell flag");
         level.setBlockAndUpdate(pig.blockPosition().below(2), Blocks.STONE.defaultBlockState());
         level.setBlockAndUpdate(pig.blockPosition().below(), Blocks.GRASS_BLOCK.defaultBlockState());
         setLivestockWellness(pig, 0.2F, 1.0F, 1.0F);
@@ -728,7 +728,7 @@ public final class ModCompletionGameTests {
                 "grass beneath livestock must improve the MITE food meter without a dropped breeding item");
 
         helper.setBlock(new BlockPos(5, 1, 6), Blocks.STONE);
-        Pig feedingPig = helper.spawn(InfXEntityTypes.R196_PIG.get(), new BlockPos(5, 2, 6));
+        Pig feedingPig = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(5, 2, 6));
         feedingPig.goalSelector.removeAllGoals(goal -> true);
         feedingPig.setAge(6_000);
         setLivestockWellness(feedingPig, 0.2F, 1.0F, 1.0F);
@@ -754,7 +754,7 @@ public final class ModCompletionGameTests {
             }
         }
         BlockPos chickenPos = new BlockPos(6, 2, 8);
-        MiteChicken chicken = helper.spawn(InfXEntityTypes.R196_CHICKEN.get(), chickenPos);
+        InfxChicken chicken = helper.spawn(InfXEntityTypes.INFX_CHICKEN.get(), chickenPos);
         chicken.setAge(0);
         setLivestockWellness(chicken, 1.0F, 1.0F, 1.0F);
         chicken.getPersistentData().putLong("infx_chicken_next_feather", level.getGameTime() - 1L);
@@ -770,8 +770,8 @@ public final class ModCompletionGameTests {
         // Keep the panic assertion on settled animals with a deterministic open floor.
         BlockPos panicSourcePos = new BlockPos(8, 2, 9);
         BlockPos panickedChickenPos = new BlockPos(9, 2, 9);
-        Cow panicSource = helper.spawn(InfXEntityTypes.R196_COW.get(), panicSourcePos);
-        Chicken panickedChicken = helper.spawn(InfXEntityTypes.R196_CHICKEN.get(), panickedChickenPos);
+        Cow panicSource = helper.spawn(InfXEntityTypes.INFX_COW.get(), panicSourcePos);
+        Chicken panickedChicken = helper.spawn(InfXEntityTypes.INFX_CHICKEN.get(), panickedChickenPos);
         panicSource.goalSelector.removeAllGoals(goal -> true);
         panicSource.setDeltaMovement(Vec3.ZERO);
         panicSource.setOnGround(true);
@@ -795,7 +795,7 @@ public final class ModCompletionGameTests {
         helper.setBlock(grass.below(2), Blocks.STONE);
         helper.setBlock(grass.below(), Blocks.GRASS_BLOCK);
         helper.setBlock(grass, Blocks.SHORT_GRASS);
-        Cow foodSeeker = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(8, 2, 3));
+        Cow foodSeeker = helper.spawn(InfXEntityTypes.INFX_COW.get(), new BlockPos(8, 2, 3));
         foodSeeker.goalSelector.removeAllGoals(goal -> true);
         foodSeeker.setDeltaMovement(Vec3.ZERO);
         foodSeeker.setOnGround(true);
@@ -822,7 +822,7 @@ public final class ModCompletionGameTests {
                 Livestock.update(level, foodSeeker).food() > foodBeforeUpdate,
                 "grass-seeking livestock must improve its food meter at the selected source");
 
-        Cow seeker = helper.spawn(InfXEntityTypes.R196_COW.get(), new BlockPos(8, 2, 4));
+        Cow seeker = helper.spawn(InfXEntityTypes.INFX_COW.get(), new BlockPos(8, 2, 4));
         // Keep the manually exercised goal in sole control. The production goal
         // is registered on join and can otherwise reach the water before this
         // assertion gets a chance to inspect its selected navigation target.
@@ -846,7 +846,7 @@ public final class ModCompletionGameTests {
                     helper.assertTrue(
                             chicken.goalSelector.getAvailableGoals().stream().anyMatch(
                                     goal -> goal.getGoal() instanceof Livestock.LivestockPanicGoal),
-                            "R196 livestock must install a goal that consumes the panic signal");
+                            "INFX livestock must install a goal that consumes the panic signal");
                     boolean wellBeforePanic = Livestock.isWell(panickedChicken);
                     helper.assertTrue(
                             panicSource.hurtServer(level, level.damageSources().playerAttack(player), 1.0F),
@@ -856,7 +856,7 @@ public final class ModCompletionGameTests {
                             "panic must not alter MITE food, water, or freedom");
                     helper.assertTrue(
                             Livestock.isPanicked(panicSource, level.getGameTime()),
-                            "a successfully attacked R196 livestock animal must enter panic");
+                            "a successfully attacked INFX livestock animal must enter panic");
                     helper.assertTrue(
                             Livestock.isPanicked(panickedChicken, level.getGameTime()),
                             "nearby settled livestock must receive the panic signal");
@@ -996,11 +996,11 @@ public final class ModCompletionGameTests {
         FoodProfile bread = FoodProfiles.forStack(Items.BREAD.getDefaultInstance());
         helper.assertTrue(
                 bread.satiation() == 8.0D && bread.nutrition() == 2.0D && bread.protein() == 0,
-                "bread must keep the R196 8/2 energy value without animal nutrients");
+                "bread must keep the INFX 8/2 energy value without animal nutrients");
         FoodProfile wheatSeeds = FoodProfiles.forStack(Items.WHEAT_SEEDS.getDefaultInstance());
         helper.assertTrue(
                 wheatSeeds.essentialFats() == 2_000 && wheatSeeds.nutrition() == 0.0D,
-                "wheat seeds retain R196's independent essential-fat bonus");
+                "wheat seeds retain INFX's independent essential-fat bonus");
         FoodProfile driedKelp = FoodProfiles.forStack(Items.DRIED_KELP.getDefaultInstance());
         helper.assertTrue(
                 driedKelp.satiation() == 0.0D && driedKelp.nutrition() == 1.0D,
@@ -1010,19 +1010,19 @@ public final class ModCompletionGameTests {
                 redMushroomEffects.stream().anyMatch(effect -> effect.is(MobEffects.POISON)
                         && effect.getDuration() == 200
                         && effect.getAmplifier() == 0),
-                "red mushroom must apply R196 poison I for 200 ticks");
+                "red mushroom must apply INFX poison I for 200 ticks");
         helper.assertTrue(
                 redMushroomEffects.stream().anyMatch(effect -> effect.is(MobEffects.NAUSEA)
                         && effect.getDuration() == 1_200
                         && effect.getAmplifier() == 4),
-                "red mushroom must apply R196 nausea V for 1200 ticks");
+                "red mushroom must apply INFX nausea V for 1200 ticks");
         var goldenAppleEffects = consumeStatusEffects(Items.GOLDEN_APPLE.getDefaultInstance());
         helper.assertTrue(
                 goldenAppleEffects.size() == 1
                         && goldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.REGENERATION)
                                 && effect.getDuration() == 1_200
                                 && effect.getAmplifier() == 0),
-                "golden apple must apply only R196 regeneration I for 1200 ticks");
+                "golden apple must apply only INFX regeneration I for 1200 ticks");
         var enchantedGoldenAppleEffects = consumeStatusEffects(Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance());
         helper.assertTrue(
                 enchantedGoldenAppleEffects.size() == 3
@@ -1035,7 +1035,7 @@ public final class ModCompletionGameTests {
                         && enchantedGoldenAppleEffects.stream().anyMatch(effect -> effect.is(MobEffects.FIRE_RESISTANCE)
                                 && effect.getDuration() == 1_200
                                 && effect.getAmplifier() == 0),
-                "enchanted golden apple must use only the three R196 1200-tick effects");
+                "enchanted golden apple must use only the three INFX 1200-tick effects");
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 0, 1, 1, 0, 0));
         helper.assertTrue(
                 FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.EGG.getDefaultInstance())),
@@ -1047,10 +1047,10 @@ public final class ModCompletionGameTests {
         var appleConsumable = Items.APPLE.getDefaultInstance().get(DataComponents.CONSUMABLE);
         helper.assertTrue(
                 eggConsumable != null && eggConsumable.canConsume(player, Items.EGG.getDefaultInstance()),
-                "Consumable gate must permit a curative R196 food at full energy");
+                "Consumable gate must permit a curative INFX food at full energy");
         helper.assertFalse(
                 appleConsumable != null && appleConsumable.canConsume(player, Items.APPLE.getDefaultInstance()),
-                "Consumable gate must reject a non-curative R196 food at full energy");
+                "Consumable gate must reject a non-curative INFX food at full energy");
 
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 0, 1, 1, 1, 96_000, 0));
         SurvivalEvents.applyFood(player, Items.APPLE.getDefaultInstance());
@@ -1058,7 +1058,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 diabeticApple.satiation() == 1.0D && diabeticApple.insulinResponse() == 100_800,
                 "moderate insulin resistance must reduce sugary satiation while retaining its response");
-        helper.assertTrue(player.hasEffect(MobEffects.NAUSEA), "sugary food must apply R196 insulin nausea");
+        helper.assertTrue(player.hasEffect(MobEffects.NAUSEA), "sugary food must apply INFX insulin nausea");
         player.removeEffect(MobEffects.NAUSEA);
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 8, 1, 1, 1, 0, 0));
         helper.assertTrue(player.canEat(false), "depleted satiation permits eating even when nutrition is full");
@@ -1067,7 +1067,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 Items.SUGAR.getDefaultInstance().has(DataComponents.FOOD)
                         && Items.SUGAR.getDefaultInstance().has(DataComponents.CONSUMABLE),
-                "small R196 foods are directly edible");
+                "small INFX foods are directly edible");
 
         ItemStack waterBowl = InfXItems.WATER_BOWL.toStack();
         var waterBowlConsumable = waterBowl.get(DataComponents.CONSUMABLE);
@@ -1104,7 +1104,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 player.getFoodData().getFoodLevel() == 2
                         && Math.abs(player.getFoodData().getSaturationLevel() - 8.0F) < 0.001F,
-                "vanilla FoodData tick must not mutate R196 energy layers");
+                "vanilla FoodData tick must not mutate INFX energy layers");
         removePlayer(player);
         helper.succeed();
     }
@@ -1149,7 +1149,7 @@ public final class ModCompletionGameTests {
                 .thenExecuteAfter(40, () -> {
                     helper.assertTrue(
                             player.getData(InfXAttachments.SURVIVAL).equals(frozen),
-                            "spectator mode must freeze R196 energy and nutrient metabolism");
+                            "spectator mode must freeze INFX energy and nutrient metabolism");
                     player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
                 })
                 .thenExecuteAfter(40, () -> {
@@ -1169,7 +1169,7 @@ public final class ModCompletionGameTests {
         resetBehaviorHunger(player);
         player.awardStat(Stats.CUSTOM.get(Stats.WALK_ONE_CM), 100);
         NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0025D, "walking one block uses the R196 distance cost");
+        assertBehaviorHunger(helper, player, 0.0025D, "walking one block uses the INFX distance cost");
 
         resetBehaviorHunger(player);
         player.awardStat(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM), 100);
@@ -1196,23 +1196,23 @@ public final class ModCompletionGameTests {
         resetBehaviorHunger(player);
         player.setSprinting(false);
         NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
-        assertBehaviorHunger(helper, player, 0.05D, "a normal jump uses the R196 one-off cost");
+        assertBehaviorHunger(helper, player, 0.05D, "a normal jump uses the INFX one-off cost");
         resetBehaviorHunger(player);
         player.setSprinting(true);
         NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
-        assertBehaviorHunger(helper, player, 0.2D, "a sprint jump uses the larger R196 cost");
+        assertBehaviorHunger(helper, player, 0.2D, "a sprint jump uses the larger INFX cost");
         player.setSprinting(false);
 
         Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 2, 1));
         resetBehaviorHunger(player);
         NeoForge.EVENT_BUS.post(new AttackEntityEvent(player, cow));
-        assertBehaviorHunger(helper, player, 0.075D, "attacking uses the R196 endurance action cost");
+        assertBehaviorHunger(helper, player, 0.075D, "attacking uses the INFX endurance action cost");
 
         BlockPos miningRelative = new BlockPos(2, 2, 1);
         BlockPos miningPos = helper.absolutePos(miningRelative);
         helper.setBlock(miningRelative, Blocks.STONE);
         player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
+                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
         helper.assertTrue(player.isWithinBlockInteractionRange(miningPos, 1.0D), "mining target is in interaction range");
@@ -1257,7 +1257,7 @@ public final class ModCompletionGameTests {
                 "an unharvestable block click does not continue mining metabolism");
 
         player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL)
                 .holder()
                 .toStack());
         helper.setBlock(miningRelative, Blocks.STONE);
@@ -1273,7 +1273,7 @@ public final class ModCompletionGameTests {
                 "a wrong-tool mining input does not start mining metabolism");
 
         player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
+                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack());
         helper.setBlock(miningRelative, InfXBlocks.ADAMANTIUM_BLOCK.get());
@@ -1321,7 +1321,7 @@ public final class ModCompletionGameTests {
         resetBehaviorHunger(player);
         NeoForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(
                 snapshot, Blocks.COBBLESTONE.defaultBlockState(), player));
-        assertBehaviorHunger(helper, player, 0.375D, "placing stone uses its hardness-based R196 cost");
+        assertBehaviorHunger(helper, player, 0.375D, "placing stone uses its hardness-based INFX cost");
 
         helper.setBlock(placeRelative, Blocks.DIRT);
         player.setItemInHand(InteractionHand.MAIN_HAND, Items.WOODEN_HOE.getDefaultInstance());
@@ -1361,7 +1361,7 @@ public final class ModCompletionGameTests {
         resetBehaviorHunger(player);
         DamageContainer damage = new DamageContainer(helper.getLevel().damageSources().cactus(), 1.0F);
         NeoForge.EVENT_BUS.post(new LivingDamageEvent.Post(player, damage));
-        assertBehaviorHunger(helper, player, 0.075D, "armor-applicable damage uses the R196 damage cost");
+        assertBehaviorHunger(helper, player, 0.075D, "armor-applicable damage uses the INFX damage cost");
 
         helper.setBlock(miningRelative, Blocks.AIR);
         helper.setBlock(placeRelative, Blocks.AIR);
@@ -1413,7 +1413,7 @@ public final class ModCompletionGameTests {
         safe.setOwner(owner);
         visitor.gameMode.changeGameModeForPlayer(net.minecraft.world.level.GameType.SURVIVAL);
         visitor.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.SILVER, EquipmentType.PICKAXE).holder().toStack());
+                .equipment(InfxMaterial.SILVER, EquipmentType.PICKAXE).holder().toStack());
         helper.assertFalse(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
                 "a foreign copper safe rejects another level-two metal");
         visitor.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.IRON_PICKAXE.toStack());
@@ -1422,7 +1422,7 @@ public final class ModCompletionGameTests {
         visitor.experienceLevel = 0;
         float safeHardness = helper.getBlockState(safePos)
                 .getDestroySpeed(helper.getLevel(), helper.absolutePos(safePos));
-        float expectedVisitorProgress = new EquipmentKey(MiteMaterial.IRON, EquipmentType.PICKAXE)
+        float expectedVisitorProgress = new EquipmentKey(InfxMaterial.IRON, EquipmentType.PICKAXE)
                         .miningSpeed()
                 / safeHardness
                 / 512.0F;
@@ -1484,13 +1484,13 @@ public final class ModCompletionGameTests {
                 }
             }
         }
-        helper.assertTrue(MiteEnchantmentMenu.bookshelfCount(helper.getLevel(), table) == 24,
-                "R196 enchanting structure counts twenty-four shelves");
-        MiteEnchantmentMenu menu = new MiteEnchantmentMenu(
+        helper.assertTrue(InfxEnchantmentMenu.bookshelfCount(helper.getLevel(), table) == 24,
+                "INFX enchanting structure counts twenty-four shelves");
+        InfxEnchantmentMenu menu = new InfxEnchantmentMenu(
                 1,
                 owner.getInventory(),
                 ContainerLevelAccess.create(helper.getLevel(), table),
-                MiteEnchantmentMenu.Kind.DIAMOND);
+                InfxEnchantmentMenu.Kind.DIAMOND);
         helper.assertTrue(menu.getType() == InfXMenus.DIAMOND_ENCHANTING.get(),
                 "diamond table synchronizes its custom client menu type");
         helper.assertTrue(menu.getSlot(1).mayPlace(Items.DIAMOND.getDefaultInstance()),
@@ -1498,10 +1498,10 @@ public final class ModCompletionGameTests {
         helper.assertFalse(menu.getSlot(1).mayPlace(Items.EMERALD.getDefaultInstance()),
                 "diamond table rejects emeralds");
         helper.assertFalse(menu.getSlot(1).mayPlace(Items.LAPIS_LAZULI.getDefaultInstance()),
-                "R196 tables reject vanilla lapis fuel");
+                "INFX tables reject vanilla lapis fuel");
 
         ItemStack copperTool = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
+                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
         menu.getSlot(0).setByPlayer(copperTool);
@@ -1509,7 +1509,7 @@ public final class ModCompletionGameTests {
                 "a full diamond table must reduce copper's 30 enchantability to 53 effective power");
 
         ItemStack mithrilTool = InfXItems.catalog()
-                .equipment(MiteMaterial.MITHRIL, EquipmentType.PICKAXE)
+                .equipment(InfxMaterial.MITHRIL, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
         menu.getSlot(0).setByPlayer(mithrilTool.copy());
@@ -1542,18 +1542,18 @@ public final class ModCompletionGameTests {
                 "books must use MITE's fixed enchantability of 30 instead of vanilla's value of one");
 
         helper.setBlock(tableRelative, InfXBlocks.EMERALD_ENCHANTING_TABLE.get());
-        MiteEnchantmentMenu emeraldMenu = new MiteEnchantmentMenu(
+        InfxEnchantmentMenu emeraldMenu = new InfxEnchantmentMenu(
                 2,
                 owner.getInventory(),
                 ContainerLevelAccess.create(helper.getLevel(), table),
-                MiteEnchantmentMenu.Kind.EMERALD);
+                InfxEnchantmentMenu.Kind.EMERALD);
         emeraldMenu.getSlot(0).setByPlayer(mithrilTool.copy());
         helper.assertTrue(emeraldMenu.costs[2] == EnchantmentRules.experienceCost(50),
                 "the same mithril tool must be limited to 50 power at a full emerald table");
 
         helper.setBlock(tableRelative, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
         ItemStack enchantingTool = InfXItems.catalog()
-                .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE)
+                .equipment(InfxMaterial.ADAMANTIUM, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
         menu.getSlot(0).setByPlayer(enchantingTool);
@@ -1599,7 +1599,7 @@ public final class ModCompletionGameTests {
                 Items.EMERALD,
                 "emerald golden-apple conversion");
         owner.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(MiteMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder().toStack());
+                .equipment(InfxMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder().toStack());
         helper.assertTrue(EndEvents.hasAdamantiumCrystalTool(owner),
                 "adamantium pickaxe meets crystal gate");
         removePlayer(visitor);
@@ -1627,7 +1627,7 @@ public final class ModCompletionGameTests {
             var actual = enchantments.getOrThrow(source);
             helper.assertTrue(
                     actual.size() == expected.size(),
-                    source.location() + " has exactly 39 R196 and vanilla MITE entries");
+                    source.location() + " has exactly 39 INFX and vanilla MITE entries");
             helper.assertTrue(actual.stream().allMatch(expected::contains), source.location() + " excludes modern entries");
         }
         for (ResourceKey<Enchantment> key : InfXEnchantments.ALL) {
@@ -1653,7 +1653,7 @@ public final class ModCompletionGameTests {
     private static void assertConversionOptions(
             GameTestHelper helper,
             ServerPlayer player,
-            MiteEnchantmentMenu menu,
+            InfxEnchantmentMenu menu,
             ItemStack input,
             Item result,
             Item currency,
@@ -1676,7 +1676,7 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         ItemStack butcheringTool = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SWORD)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
                 .holder()
                 .toStack();
         butcheringTool.enchant(enchantments.getOrThrow(InfXEnchantments.BUTCHERING), 3);
@@ -1713,12 +1713,12 @@ public final class ModCompletionGameTests {
                 "spider");
 
         ItemStack harvestingScythe = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SCYTHE)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE)
                 .holder()
                 .toStack();
         harvestingScythe.enchant(enchantments.getOrThrow(InfXEnchantments.HARVESTING), 5);
         ItemStack harvestingShovel = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.SHOVEL)
+                .equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL)
                 .holder()
                 .toStack();
         harvestingShovel.enchant(enchantments.getOrThrow(InfXEnchantments.HARVESTING), 5);
@@ -1744,7 +1744,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(itemCount(mutableNonCropDrops, Items.NETHER_WART) == 1, "harvesting does not multiply nether wart");
 
         ItemStack fortuneTool = InfXItems.catalog()
-                .equipment(MiteMaterial.COPPER, EquipmentType.PICKAXE)
+                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
                 .holder()
                 .toStack();
         fortuneTool.enchant(enchantments.getOrThrow(InfXEnchantments.FORTUNE), 3);
@@ -2059,7 +2059,7 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         var level = helper.getLevel();
         helper.assertTrue(
-                InfXItems.R196_BUCKETS.size() == 35,
+                InfXItems.INFX_BUCKETS.size() == 35,
                 "seven materials expose five registered bucket variants");
         helper.assertTrue(
                 InfXBlocks.NETHER_GRAVEL.get() instanceof net.minecraft.world.level.block.FallingBlock,
@@ -2073,8 +2073,8 @@ public final class ModCompletionGameTests {
                             ResourceKey.create(Registries.BIOME, InfiniteX.id(river))),
                     river + " is registered");
         }
-        for (ItemStack record : InfXItems.R196_RECORDS.stream().map(DeferredItem::toStack).toList()) {
-            helper.assertTrue(record.has(DataComponents.JUKEBOX_PLAYABLE), "R196 record is jukebox-playable");
+        for (ItemStack record : InfXItems.INFX_RECORDS.stream().map(DeferredItem::toStack).toList()) {
+            helper.assertTrue(record.has(DataComponents.JUKEBOX_PLAYABLE), "INFX record is jukebox-playable");
         }
 
         BlockPos bush = new BlockPos(6, 2, 6);
@@ -2144,21 +2144,21 @@ public final class ModCompletionGameTests {
 
         player.setItemInHand(
                 InteractionHand.MAIN_HAND,
-                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).toStack());
+                InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.LAVA).toStack());
         helper.setBlock(new BlockPos(1, 1, 1), Blocks.STONE);
         helper.setBlock(new BlockPos(1, 2, 1), Blocks.WATER);
         helper.setBlock(new BlockPos(1, 3, 1), Blocks.WATER);
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
                         player.getMainHandItem().is(InfXItems.bucket(
-                                MiteMaterial.IRON, MiteBucketItem.Contents.STONE)),
+                                InfxMaterial.IRON, InfxBucketItem.Contents.STONE)),
                         "an immersed lava bucket solidifies without changing material"))
                 .thenExecute(() -> player.setItemInHand(
                         InteractionHand.MAIN_HAND,
-                        InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.MILK).toStack()))
+                        InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.MILK).toStack()))
                 .thenWaitUntil(() -> helper.assertTrue(
                         player.getMainHandItem().is(InfXItems.bucket(
-                                MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY)),
+                                InfxMaterial.IRON, InfxBucketItem.Contents.EMPTY)),
                         "an immersed milk bucket leaks into its matching empty bucket"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
@@ -2288,20 +2288,20 @@ public final class ModCompletionGameTests {
     private static void bucketMechanics(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         ServerLevel level = helper.getLevel();
-        Item emptyIron = InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY).value();
+        Item emptyIron = InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.EMPTY).value();
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(emptyIron),
                 "the empty bucket registers its own dispenser behavior");
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(
-                        InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value()),
+                        InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.WATER).value()),
                 "the water bucket registers its own dispenser behavior");
         helper.assertTrue(
-                DispenserBlock.DISPENSER_REGISTRY.containsKey(InfXItems.powderSnowBucket(MiteMaterial.IRON).value()),
+                DispenserBlock.DISPENSER_REGISTRY.containsKey(InfXItems.powderSnowBucket(InfxMaterial.IRON).value()),
                 "the powder-snow bucket registers its own dispenser behavior");
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(
-                        InfXItems.mobBucket(MiteMaterial.IRON, MobBucketKind.COD).value()),
+                        InfXItems.mobBucket(InfxMaterial.IRON, MobBucketKind.COD).value()),
                 "the mob bucket registers its own dispenser behavior");
 
         // MITE ItemBucket: scooping leaves the liquid cell in place unless Ctrl is held.
@@ -2313,7 +2313,7 @@ public final class ModCompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         helper.assertTrue(
-                player.getMainHandItem().is(InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
+                player.getMainHandItem().is(InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.WATER)),
                 "scooping water yields the same-material water bucket");
         helper.assertBlockPresent(Blocks.WATER, water);
 
@@ -2329,7 +2329,7 @@ public final class ModCompletionGameTests {
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         player.getPersistentData().remove(Network.CTRL_USE);
         helper.assertTrue(
-                player.getMainHandItem().is(InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
+                player.getMainHandItem().is(InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.WATER)),
                 "a Ctrl scoop still fills the bucket");
         helper.assertBlockPresent(Blocks.AIR, water);
 
@@ -2341,7 +2341,7 @@ public final class ModCompletionGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         helper.assertTrue(
-                player.getMainHandItem().is(InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER)),
+                player.getMainHandItem().is(InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.WATER)),
                 "flowing water fills the same-material bucket");
         helper.assertTrue(
                 helper.getBlockState(flowingWater).is(Blocks.WATER)
@@ -2353,10 +2353,10 @@ public final class ModCompletionGameTests {
         helper.setBlock(paidSource.below(), Blocks.STONE);
         helper.setBlock(paidSource, Blocks.AIR);
         aimDownAt(helper, player, paidSource.above());
-        player.giveExperiencePoints(MiteBucketItem.SOURCE_EXPERIENCE_COST);
+        player.giveExperiencePoints(InfxBucketItem.SOURCE_EXPERIENCE_COST);
         int experienceBefore = player.totalExperience;
-        MiteBucketItem waterBucket =
-                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
+        InfxBucketItem waterBucket =
+                InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.WATER).value();
         player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());
         EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
         while (playerChannel.readOutbound() != null) {}
@@ -2366,7 +2366,7 @@ public final class ModCompletionGameTests {
                 helper.getBlockState(paidSource).getFluidState().isSource(),
                 "Ctrl source placement leaves a permanent source cell");
         helper.assertTrue(
-                player.totalExperience == experienceBefore - MiteBucketItem.SOURCE_EXPERIENCE_COST,
+                player.totalExperience == experienceBefore - InfxBucketItem.SOURCE_EXPERIENCE_COST,
                 "Ctrl source placement spends 100 XP");
         boolean receivedBucketSound = false;
         Object outbound;
@@ -2383,9 +2383,9 @@ public final class ModCompletionGameTests {
 
     private static void bucketFluidInteractions(GameTestHelper helper, ServerPlayer player, ServerLevel level) {
         BucketItem waterBucket =
-                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.WATER).value();
+                InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.WATER).value();
         BucketItem lavaBucket =
-                InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.LAVA).value();
+                InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.LAVA).value();
 
         // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
         BlockPos fire = helper.absolutePos(new BlockPos(4, 2, 2));
@@ -2436,7 +2436,7 @@ public final class ModCompletionGameTests {
                 "an unpaid pour queues the MITE degrade");
 
         helper.startSequence()
-                .thenExecuteAfter(MiteBucketItem.WATER_DECAY_DELAY + 1, () -> helper.assertFalse(
+                .thenExecuteAfter(InfxBucketItem.WATER_DECAY_DELAY + 1, () -> helper.assertFalse(
                         level.getFluidState(poured).isSource(),
                         "the queued degrade turns the unpaid source into flowing water"))
                 .thenExecute(() -> bucketEntityInteractions(helper, player, level, waterBucket))
@@ -2446,10 +2446,10 @@ public final class ModCompletionGameTests {
 
     private static void bucketEntityInteractions(
             GameTestHelper helper, ServerPlayer player, ServerLevel level, BucketItem waterBucket) {
-        Item emptyIron = InfXItems.bucket(MiteMaterial.IRON, MiteBucketItem.Contents.EMPTY).value();
+        Item emptyIron = InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.EMPTY).value();
 
         // MITE ItemVessel#tryEntityInteraction: water satisfies a thirsty animal and spends the vessel.
-        var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.R196_COW.get(), new BlockPos(4, 2, 6));
+        var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_COW.get(), new BlockPos(4, 2, 6));
         setLivestockWellness(cow, 1.0F, 0.2F, 1.0F);
         helper.assertTrue(
                 Livestock.isThirsty(cow, level.getGameTime()), "the cow must start out thirsty");
@@ -2478,12 +2478,12 @@ public final class ModCompletionGameTests {
         level.addFreshEntity(nearbyDrop);
         player.getPersistentData()
                 .putLong(
-                        MiteBucketItem.MELT_PICKUP_BLOCK,
-                        level.getGameTime() + MiteBucketItem.MELT_PICKUP_DELAY);
+                        InfxBucketItem.MELT_PICKUP_BLOCK,
+                        level.getGameTime() + InfxBucketItem.MELT_PICKUP_DELAY);
         nearbyDrop.playerTouch(player);
         helper.assertFalse(
                 nearbyDrop.isRemoved(), "a player cannot immediately pick up an item after a bucket melts");
-        player.getPersistentData().remove(MiteBucketItem.MELT_PICKUP_BLOCK);
+        player.getPersistentData().remove(InfxBucketItem.MELT_PICKUP_BLOCK);
         nearbyDrop.playerTouch(player);
         helper.assertTrue(nearbyDrop.isRemoved(), "item pickup resumes after the bucket melt grace expires");
     }

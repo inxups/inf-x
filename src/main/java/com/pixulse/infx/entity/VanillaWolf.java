@@ -17,7 +17,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * R196 vanilla-wolf replacement (separate from hellhound/dire wolf).
+ * INFX vanilla-wolf replacement (separate from hellhound/dire wolf).
  * Reuses 26.2 wolf model/textures; blood/blue moon rules apply via moon events.
  */
 public final class VanillaWolf extends Wolf {
@@ -77,6 +77,6 @@ public final class VanillaWolf extends Wolf {
 
     @Override
     public @Nullable Wolf getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        return InfXEntityTypes.R196_WOLF.get().create(level, EntitySpawnReason.BREEDING);
+        return InfXEntityTypes.INFX_WOLF.get().create(level, EntitySpawnReason.BREEDING);
     }
 }

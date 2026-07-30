@@ -14,11 +14,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 
-/** R196 block strength, environmental multipliers and 512-unit mining progress. */
+/** INFX block strength, environmental multipliers and 512-unit mining progress. */
 public final class HarvestSpeedRules {
     static final float MODERN_CORRECT_TOOL_DIVISOR = 30.0F;
     static final float MODERN_INCORRECT_TOOL_DIVISOR = 100.0F;
-    static final float MITE_PROGRESS_DIVISOR = 512.0F;
+    static final float INFX_PROGRESS_DIVISOR = 512.0F;
     static final float PORTABLE_STRENGTH_PER_HARDNESS = 4.0F;
 
     private HarvestSpeedRules() {}
@@ -58,7 +58,7 @@ public final class HarvestSpeedRules {
     }
 
     public static float toModernBreakSpeed(float miteStrength) {
-        return miteStrength * MODERN_CORRECT_TOOL_DIVISOR / MITE_PROGRESS_DIVISOR;
+        return miteStrength * MODERN_CORRECT_TOOL_DIVISOR / INFX_PROGRESS_DIVISOR;
     }
 
     public static float portableStrength(float hardness, float contextMultiplier) {

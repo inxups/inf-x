@@ -14,7 +14,7 @@ import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
 import org.jspecify.annotations.NonNull;
 
-/** Removes vanilla paths that bypass the R196 material and crafting progression. */
+/** Removes vanilla paths that bypass the INFX material and crafting progression. */
 public final class ModernProgressionLootFilter extends LootModifier {
     private static final Set<String> FORBIDDEN_EXACT = Set.of(
             "raw_copper",

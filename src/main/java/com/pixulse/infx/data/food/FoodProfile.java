@@ -1,7 +1,7 @@
 package com.pixulse.infx.data.food;
 
 /**
- * R196 food metadata. Long-term nutrient quantities are derived from the source item's Nutrition
+ * INFX food metadata. Long-term nutrient quantities are derived from the source item's Nutrition
  * value and nutrient flags, while sugar content is kept separate from its insulin response.
  */
 public record FoodProfile(
@@ -23,7 +23,7 @@ public record FoodProfile(
         }
     }
 
-    /** Creates a profile from the R196 Item#setFoodValue inputs. */
+    /** Creates a profile from the INFX Item#setFoodValue inputs. */
     public static FoodProfile mite(
             double satiation,
             double nutrition,
@@ -42,7 +42,7 @@ public record FoodProfile(
                 false);
     }
 
-    /** Creates an R196 profile with an item-specific nutrient bonus, such as wheat seeds. */
+    /** Creates an INFX profile with an item-specific nutrient bonus, such as wheat seeds. */
     public static FoodProfile mite(
             double satiation,
             double nutrition,

@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import org.jspecify.annotations.NonNull;
 
-/** A rune-stone item whose selected R196 rune is stored as block-state item data. */
+/** A rune-stone item whose selected INFX rune is stored as block-state item data. */
 public final class RuneStoneItem extends BlockItem {
     public RuneStoneItem(Block block, Properties properties) {
         super(block, properties);

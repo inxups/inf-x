@@ -12,8 +12,8 @@ public final class ShearsEvents {
 
     @SubscribeEvent
     public static void preventLeftClickBlockBreaking(BreakBlockEvent event) {
-        if (event.getPlayer().getMainHandItem().getItem() instanceof MiteShearsItem
-                && !MiteShearsItem.isRightClickShearing(event.getLevel(), event.getPos())) {
+        if (event.getPlayer().getMainHandItem().getItem() instanceof InfxShearsItem
+                && !InfxShearsItem.isRightClickShearing(event.getLevel(), event.getPos())) {
             event.setCanceled(true);
             event.setNotifyClient(true);
         }

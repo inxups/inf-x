@@ -21,7 +21,7 @@ public final class CraftingTimeCalculator {
     }
 
     /**
-     * Applies the exact R196 order: quality-adjusted base period, optional
+     * Applies the exact INFX order: quality-adjusted base period, optional
      * Clumsiness doubling, then level/workbench division, then the 25-tick
      * floor.  In particular, Clumsiness does not incorrectly raise the final
      * floor to 50 ticks.
@@ -36,8 +36,8 @@ public final class CraftingTimeCalculator {
             throw new NullPointerException("benchTier");
         }
         double divisor = 1.0D
-                + MiteCraftingRules.levelModifier(experienceLevel)
-                + MiteCraftingRules.benchModifier(benchTier, materialGated);
+                + InfxCraftingRules.levelModifier(experienceLevel)
+                + InfxCraftingRules.benchModifier(benchTier, materialGated);
         if (!Double.isFinite(divisor) || divisor <= 0.0D) {
             throw new IllegalArgumentException("crafting speed divisor must be positive");
         }

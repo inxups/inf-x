@@ -6,7 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,7 +39,7 @@ import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.level.block.CreateFluidSourceEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
-/** Loose terrain, explosion conversion, falling impact and R196 fluid restrictions. */
+/** Loose terrain, explosion conversion, falling impact and INFX fluid restrictions. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class PhysicsEvents {
     private static boolean updatingGravity;
@@ -88,9 +88,9 @@ public final class PhysicsEvents {
     /** MITE EntityItem.spentTickInWater: lava solidifies; other vessels fill with water. */
     private static void wetDroppedBucket(ItemEntity entity) {
         ItemStack stack = entity.getItem();
-        if (stack.getItem() instanceof MiteBucketItem bucket) {
-            if (bucket.contents() == MiteBucketItem.Contents.LAVA) {
-                entity.setItem(InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
+        if (stack.getItem() instanceof InfxBucketItem bucket) {
+            if (bucket.contents() == InfxBucketItem.Contents.LAVA) {
+                entity.setItem(InfXItems.bucket(bucket.material(), InfxBucketItem.Contents.STONE)
                         .toStack(stack.getCount()));
                 entity.level()
                         .playSound(
@@ -100,9 +100,9 @@ public final class PhysicsEvents {
                                 SoundSource.BLOCKS,
                                 0.5F,
                                 1.0F);
-            } else if (bucket.contents() != MiteBucketItem.Contents.STONE
-                    && bucket.contents() != MiteBucketItem.Contents.WATER) {
-                entity.setItem(InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.WATER)
+            } else if (bucket.contents() != InfxBucketItem.Contents.STONE
+                    && bucket.contents() != InfxBucketItem.Contents.WATER) {
+                entity.setItem(InfXItems.bucket(bucket.material(), InfxBucketItem.Contents.WATER)
                         .toStack(stack.getCount()));
             }
             return;
@@ -225,17 +225,17 @@ public final class PhysicsEvents {
         if (!eyesInWater(player) || player.tickCount % 20 != 0) return;
         for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.getItem() instanceof MiteBucketItem bucket
-                    && bucket.contents() == MiteBucketItem.Contents.LAVA) {
+            if (stack.getItem() instanceof InfxBucketItem bucket
+                    && bucket.contents() == InfxBucketItem.Contents.LAVA) {
                 player.getInventory().setItem(
                         slot,
-                        InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.STONE)
+                        InfXItems.bucket(bucket.material(), InfxBucketItem.Contents.STONE)
                                 .toStack(stack.getCount()));
-            } else if (stack.getItem() instanceof MiteBucketItem bucket
-                    && bucket.contents() == MiteBucketItem.Contents.MILK) {
+            } else if (stack.getItem() instanceof InfxBucketItem bucket
+                    && bucket.contents() == InfxBucketItem.Contents.MILK) {
                 player.getInventory().setItem(
                         slot,
-                        InfXItems.bucket(bucket.material(), MiteBucketItem.Contents.EMPTY)
+                        InfXItems.bucket(bucket.material(), InfxBucketItem.Contents.EMPTY)
                                 .toStack(stack.getCount()));
             } else if (stack.is(Items.LAVA_BUCKET)) {
                 player.getInventory().setItem(slot, new ItemStack(Items.OBSIDIAN, stack.getCount()));

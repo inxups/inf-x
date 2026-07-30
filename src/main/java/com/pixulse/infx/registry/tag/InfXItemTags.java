@@ -3,7 +3,7 @@ package com.pixulse.infx.registry.tag;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.data.harvest.HarvestTier;
 import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -16,28 +16,28 @@ public final class InfXItemTags {
     public static final TagKey<Item> SMELTING_INPUTS_HEAT_2 = create("smelting_inputs/heat_2");
     public static final TagKey<Item> SMELTING_INPUTS_HEAT_3 = create("smelting_inputs/heat_3");
     public static final TagKey<Item> SMELTING_INPUTS_HEAT_4 = create("smelting_inputs/heat_4");
-    public static final TagKey<Item> R196_DURABILITY_ENCHANTABLE = enchantable("r196_durability");
-    public static final TagKey<Item> R196_DISARMING_ENCHANTABLE = enchantable("r196_disarming");
-    public static final TagKey<Item> R196_BUTCHERING_ENCHANTABLE = enchantable("r196_butchering");
-    public static final TagKey<Item> R196_STUNNING_ENCHANTABLE = enchantable("r196_stunning");
-    public static final TagKey<Item> R196_VAMPIRISM_ENCHANTABLE = enchantable("r196_vampirism");
-    public static final TagKey<Item> R196_SLAUGHTER_ENCHANTABLE = enchantable("r196_slaughter");
-    public static final TagKey<Item> R196_CLEAVING_ENCHANTABLE = enchantable("r196_cleaving");
-    public static final TagKey<Item> R196_HARVESTING_ENCHANTABLE = enchantable("r196_harvesting");
-    public static final TagKey<Item> R196_PENETRATION_ENCHANTABLE = enchantable("r196_penetration");
-    public static final TagKey<Item> R196_FERTILITY_ENCHANTABLE = enchantable("r196_fertility");
-    public static final TagKey<Item> R196_TREE_FELLING_ENCHANTABLE = enchantable("r196_tree_felling");
-    public static final TagKey<Item> R196_FORTUNE_ENCHANTABLE = enchantable("r196_fortune");
-    public static final TagKey<Item> R196_FREE_MOVEMENT_ENCHANTABLE = enchantable("r196_free_movement");
-    public static final TagKey<Item> R196_CHEST_ARMOR_ENCHANTABLE = enchantable("r196_chest_armor");
-    public static final TagKey<Item> R196_SWORD_FAMILY_ENCHANTABLE = enchantable("r196_sword_family");
-    public static final TagKey<Item> R196_SMITE_ENCHANTABLE = enchantable("r196_smite");
-    public static final TagKey<Item> R196_KNOCKBACK_ENCHANTABLE = enchantable("r196_knockback");
-    public static final TagKey<Item> R196_LOOTING_ENCHANTABLE = enchantable("r196_looting");
-    public static final TagKey<Item> R196_EFFICIENCY_ENCHANTABLE = enchantable("r196_efficiency");
-    public static final TagKey<Item> R196_SILK_TOUCH_ENCHANTABLE = enchantable("r196_silk_touch");
-    public static final TagKey<Item> R196_THORNS_ENCHANTABLE = enchantable("r196_thorns");
-    public static final TagKey<Item> R196_SOLID_METAL_TORSO_ENCHANTABLE = enchantable("r196_solid_metal_torso");
+    public static final TagKey<Item> INFX_DURABILITY_ENCHANTABLE = enchantable("infx_durability");
+    public static final TagKey<Item> INFX_DISARMING_ENCHANTABLE = enchantable("infx_disarming");
+    public static final TagKey<Item> INFX_BUTCHERING_ENCHANTABLE = enchantable("infx_butchering");
+    public static final TagKey<Item> INFX_STUNNING_ENCHANTABLE = enchantable("infx_stunning");
+    public static final TagKey<Item> INFX_VAMPIRISM_ENCHANTABLE = enchantable("infx_vampirism");
+    public static final TagKey<Item> INFX_SLAUGHTER_ENCHANTABLE = enchantable("infx_slaughter");
+    public static final TagKey<Item> INFX_CLEAVING_ENCHANTABLE = enchantable("infx_cleaving");
+    public static final TagKey<Item> INFX_HARVESTING_ENCHANTABLE = enchantable("infx_harvesting");
+    public static final TagKey<Item> INFX_PENETRATION_ENCHANTABLE = enchantable("infx_penetration");
+    public static final TagKey<Item> INFX_FERTILITY_ENCHANTABLE = enchantable("infx_fertility");
+    public static final TagKey<Item> INFX_TREE_FELLING_ENCHANTABLE = enchantable("infx_tree_felling");
+    public static final TagKey<Item> INFX_FORTUNE_ENCHANTABLE = enchantable("infx_fortune");
+    public static final TagKey<Item> INFX_FREE_MOVEMENT_ENCHANTABLE = enchantable("infx_free_movement");
+    public static final TagKey<Item> INFX_CHEST_ARMOR_ENCHANTABLE = enchantable("infx_chest_armor");
+    public static final TagKey<Item> INFX_SWORD_FAMILY_ENCHANTABLE = enchantable("infx_sword_family");
+    public static final TagKey<Item> INFX_SMITE_ENCHANTABLE = enchantable("infx_smite");
+    public static final TagKey<Item> INFX_KNOCKBACK_ENCHANTABLE = enchantable("infx_knockback");
+    public static final TagKey<Item> INFX_LOOTING_ENCHANTABLE = enchantable("infx_looting");
+    public static final TagKey<Item> INFX_EFFICIENCY_ENCHANTABLE = enchantable("infx_efficiency");
+    public static final TagKey<Item> INFX_SILK_TOUCH_ENCHANTABLE = enchantable("infx_silk_touch");
+    public static final TagKey<Item> INFX_THORNS_ENCHANTABLE = enchantable("infx_thorns");
+    public static final TagKey<Item> INFX_SOLID_METAL_TORSO_ENCHANTABLE = enchantable("infx_solid_metal_torso");
     public static final TagKey<Item> GELATINOUS_SPHERES = create("gelatinous_spheres");
     public static final TagKey<Item> CURSE_ANIMAL_PRODUCTS = create("curse/animal_products");
     public static final TagKey<Item> CURSE_PLANT_PRODUCTS = create("curse/plant_products");
@@ -50,11 +50,11 @@ public final class InfXItemTags {
         return create("tool_tier/" + tier.path());
     }
 
-    public static TagKey<Item> repairMaterial(MiteMaterial material) {
+    public static TagKey<Item> repairMaterial(InfxMaterial material) {
         return create("repair_materials/" + material.path());
     }
 
-    public static TagKey<Item> material(MiteMaterial material) {
+    public static TagKey<Item> material(InfxMaterial material) {
         return create("materials/" + material.path());
     }
 

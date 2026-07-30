@@ -36,7 +36,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 
 /**
- * The 22 R196 enchantments, the 17 vanilla-derived MITE enchantments re-registered under their
+ * The 22 INFX enchantments, the 17 vanilla-derived MITE enchantments re-registered under their
  * {@code minecraft:} ids with MITE profiles, and the crafting-only clumsiness curse.
  */
 public final class InfXEnchantments {
@@ -66,7 +66,7 @@ public final class InfXEnchantments {
 
     /**
      * MITE enchantments that survive in 26.2 under their vanilla ids. Their definitions are
-     * overridden via datagen so acquisition follows the same MITE table rules as the R196 set.
+     * overridden via datagen so acquisition follows the same MITE table rules as the INFX set.
      */
     public static final ResourceKey<Enchantment> VANILLA_FIRE_PROTECTION = vanillaKey("fire_protection");
     public static final ResourceKey<Enchantment> VANILLA_FEATHER_FALLING = vanillaKey("feather_falling");
@@ -86,7 +86,7 @@ public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> VANILLA_PUNCH = vanillaKey("punch");
     public static final ResourceKey<Enchantment> VANILLA_FLAME = vanillaKey("flame");
 
-    public static final List<ResourceKey<Enchantment>> R196 = List.of(
+    public static final List<ResourceKey<Enchantment>> INFX = List.of(
             DURABILITY, DISARMING, QUICKNESS, PRECISION, POISONING, BUTCHERING, STUNNING,
             VAMPIRISM, RECOVERY, SLAUGHTER, CLEAVING, HARVESTING, PENETRATION, BAITING,
             FERTILITY, TREE_FELLING, FORTUNE, FREE_MOVEMENT, REGENERATION, SPEED,
@@ -99,11 +99,11 @@ public final class InfXEnchantments {
             VANILLA_FIRE_ASPECT, VANILLA_LOOTING, VANILLA_EFFICIENCY, VANILLA_SILK_TOUCH,
             VANILLA_POWER, VANILLA_PUNCH, VANILLA_FLAME);
 
-    /** Every enchantment served by the R196 tables, trades, loot and mob equipment. */
+    /** Every enchantment served by the INFX tables, trades, loot and mob equipment. */
     public static final List<ResourceKey<Enchantment>> ALL =
-            Stream.concat(R196.stream(), VANILLA_R196.stream()).toList();
+            Stream.concat(INFX.stream(), VANILLA_R196.stream()).toList();
 
-    private static final Map<ResourceKey<Enchantment>, EnchantmentProfile> R196_PROFILES = Map.ofEntries(
+    private static final Map<ResourceKey<Enchantment>, EnchantmentProfile> INFX_PROFILES = Map.ofEntries(
             Map.entry(DURABILITY, profile(Rarity.UNCOMMON, 10)),
             Map.entry(DISARMING, profile(Rarity.RARE, 10)),
             Map.entry(QUICKNESS, profile(Rarity.UNCOMMON, 10)),
@@ -114,7 +114,7 @@ public final class InfXEnchantments {
             Map.entry(VAMPIRISM, profile(Rarity.EPIC, 20)),
             Map.entry(RECOVERY, profile(Rarity.UNCOMMON, 10)),
             Map.entry(SLAUGHTER, profile(Rarity.COMMON, 10)),
-            // R196 exposes cleaving and penetration as one rare piercing enchantment that merely
+            // INFX exposes cleaving and penetration as one rare piercing enchantment that merely
             // renames itself on axes, so the split registration must keep the rare weight.
             Map.entry(CLEAVING, profile(Rarity.RARE, 10)),
             Map.entry(HARVESTING, profile(Rarity.UNCOMMON, 10)),
@@ -159,9 +159,9 @@ public final class InfXEnchantments {
     public static void bootstrap(BootstrapContext<Enchantment> context) {
         HolderGetter<Item> items = context.lookup(Registries.ITEM);
         HolderGetter<Enchantment> enchantments = context.lookup(Registries.ENCHANTMENT);
-        register(context, items, enchantments, DURABILITY, InfXItemTags.R196_DURABILITY_ENCHANTABLE,
+        register(context, items, enchantments, DURABILITY, InfXItemTags.INFX_DURABILITY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.ANY);
-        register(context, items, enchantments, DISARMING, InfXItemTags.R196_DISARMING_ENCHANTABLE,
+        register(context, items, enchantments, DISARMING, InfXItemTags.INFX_DISARMING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, QUICKNESS, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
@@ -169,37 +169,37 @@ public final class InfXEnchantments {
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, POISONING, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, BUTCHERING, InfXItemTags.R196_BUTCHERING_ENCHANTABLE,
+        register(context, items, enchantments, BUTCHERING, InfXItemTags.INFX_BUTCHERING_ENCHANTABLE,
                 EnchantmentRules.BUTCHERING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, STUNNING, InfXItemTags.R196_STUNNING_ENCHANTABLE,
+        register(context, items, enchantments, STUNNING, InfXItemTags.INFX_STUNNING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, VAMPIRISM, InfXItemTags.R196_VAMPIRISM_ENCHANTABLE,
+        register(context, items, enchantments, VAMPIRISM, InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, RECOVERY, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, SLAUGHTER, InfXItemTags.R196_SLAUGHTER_ENCHANTABLE,
+        register(context, items, enchantments, SLAUGHTER, InfXItemTags.INFX_SLAUGHTER_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, CLEAVING, InfXItemTags.R196_CLEAVING_ENCHANTABLE,
+        register(context, items, enchantments, CLEAVING, InfXItemTags.INFX_CLEAVING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, HARVESTING, InfXItemTags.R196_HARVESTING_ENCHANTABLE,
+        register(context, items, enchantments, HARVESTING, InfXItemTags.INFX_HARVESTING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, PENETRATION, InfXItemTags.R196_PENETRATION_ENCHANTABLE,
+        register(context, items, enchantments, PENETRATION, InfXItemTags.INFX_PENETRATION_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, BAITING, ItemTags.FISHING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, FERTILITY, InfXItemTags.R196_FERTILITY_ENCHANTABLE,
+        register(context, items, enchantments, FERTILITY, InfXItemTags.INFX_FERTILITY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, TREE_FELLING, InfXItemTags.R196_TREE_FELLING_ENCHANTABLE,
+        register(context, items, enchantments, TREE_FELLING, InfXItemTags.INFX_TREE_FELLING_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, FORTUNE, InfXItemTags.R196_FORTUNE_ENCHANTABLE,
+        register(context, items, enchantments, FORTUNE, InfXItemTags.INFX_FORTUNE_ENCHANTABLE,
                 EnchantmentRules.FORTUNE_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, FREE_MOVEMENT, InfXItemTags.R196_FREE_MOVEMENT_ENCHANTABLE,
+        register(context, items, enchantments, FREE_MOVEMENT, InfXItemTags.INFX_FREE_MOVEMENT_ENCHANTABLE,
                 EnchantmentRules.FREE_MOVEMENT_MAX_LEVEL, EquipmentSlotGroup.LEGS);
-        register(context, items, enchantments, REGENERATION, InfXItemTags.R196_CHEST_ARMOR_ENCHANTABLE,
+        register(context, items, enchantments, REGENERATION, InfXItemTags.INFX_CHEST_ARMOR_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.CHEST);
         register(context, items, enchantments, SPEED, ItemTags.FOOT_ARMOR_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.FEET);
-        register(context, items, enchantments, ENDURANCE, InfXItemTags.R196_CHEST_ARMOR_ENCHANTABLE,
+        register(context, items, enchantments, ENDURANCE, InfXItemTags.INFX_CHEST_ARMOR_ENCHANTABLE,
                 EnchantmentRules.ENDURANCE_MAX_LEVEL, EquipmentSlotGroup.CHEST);
         register(context, items, enchantments, PROTECTION, ItemTags.ARMOR_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
@@ -210,7 +210,7 @@ public final class InfXEnchantments {
     /**
      * Re-registers the vanilla-derived MITE enchantments with MITE rarity, difficulty windows,
      * level caps and item targets. Effects that MITE computes in armor, damage or drop code are
-     * implemented in the R196 event pipeline instead of as data components.
+     * implemented in the INFX event pipeline instead of as data components.
      */
     private static void bootstrapVanilla(
             BootstrapContext<Enchantment> context,
@@ -228,7 +228,7 @@ public final class InfXEnchantments {
                                 AttributeModifier.Operation.ADD_MULTIPLIED_BASE)));
         register(context, items, enchantments, VANILLA_FEATHER_FALLING, ItemTags.FOOT_ARMOR_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.FEET);
-        register(context, items, enchantments, VANILLA_BLAST_PROTECTION, InfXItemTags.R196_SOLID_METAL_TORSO_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_BLAST_PROTECTION, InfXItemTags.INFX_SOLID_METAL_TORSO_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.ATTRIBUTES,
@@ -237,7 +237,7 @@ public final class InfXEnchantments {
                                 Attributes.EXPLOSION_KNOCKBACK_RESISTANCE,
                                 LevelBasedValue.perLevel(EnchantmentRules.BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL),
                                 AttributeModifier.Operation.ADD_VALUE)));
-        register(context, items, enchantments, VANILLA_PROJECTILE_PROTECTION, InfXItemTags.R196_SOLID_METAL_TORSO_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_PROJECTILE_PROTECTION, InfXItemTags.INFX_SOLID_METAL_TORSO_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
         register(context, items, enchantments, VANILLA_RESPIRATION, ItemTags.HEAD_ARMOR_ENCHANTABLE,
                 EnchantmentRules.RESPIRATION_MAX_LEVEL, EquipmentSlotGroup.HEAD,
@@ -257,9 +257,9 @@ public final class InfXEnchantments {
                                 Attributes.SUBMERGED_MINING_SPEED,
                                 LevelBasedValue.perLevel(4.0F),
                                 AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL)));
-        register(context, items, enchantments, VANILLA_THORNS, InfXItemTags.R196_THORNS_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_THORNS, InfXItemTags.INFX_THORNS_ENCHANTABLE,
                 EnchantmentRules.THORNS_MAX_LEVEL, EquipmentSlotGroup.CHEST);
-        register(context, items, enchantments, VANILLA_SMITE, InfXItemTags.R196_SMITE_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_SMITE, InfXItemTags.INFX_SMITE_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.DAMAGE,
@@ -269,7 +269,7 @@ public final class InfXEnchantments {
                                 LootContext.EntityTarget.THIS,
                                 EntityPredicate.Builder.entity().entityType(
                                         EntityTypePredicate.of(entityTypes, EntityTypeTags.SENSITIVE_TO_SMITE)))));
-        register(context, items, enchantments, VANILLA_BANE_OF_ARTHROPODS, InfXItemTags.R196_SWORD_FAMILY_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_BANE_OF_ARTHROPODS, InfXItemTags.INFX_SWORD_FAMILY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.DAMAGE,
@@ -279,12 +279,12 @@ public final class InfXEnchantments {
                                 LootContext.EntityTarget.THIS,
                                 EntityPredicate.Builder.entity().entityType(
                                         EntityTypePredicate.of(entityTypes, EntityTypeTags.SENSITIVE_TO_BANE_OF_ARTHROPODS)))));
-        register(context, items, enchantments, VANILLA_KNOCKBACK, InfXItemTags.R196_KNOCKBACK_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_KNOCKBACK, InfXItemTags.INFX_KNOCKBACK_ENCHANTABLE,
                 EnchantmentRules.KNOCKBACK_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.KNOCKBACK,
                         new AddValue(LevelBasedValue.perLevel(1.0F))));
-        register(context, items, enchantments, VANILLA_FIRE_ASPECT, InfXItemTags.R196_SWORD_FAMILY_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_FIRE_ASPECT, InfXItemTags.INFX_SWORD_FAMILY_ENCHANTABLE,
                 EnchantmentRules.KNOCKBACK_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.POST_ATTACK,
@@ -295,9 +295,9 @@ public final class InfXEnchantments {
                         new Ignite(LevelBasedValue.constant(1.0F)),
                         net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition.hasDamageSource(
                                 DamageSourcePredicate.Builder.damageType().isDirect(true))));
-        register(context, items, enchantments, VANILLA_LOOTING, InfXItemTags.R196_LOOTING_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_LOOTING, InfXItemTags.INFX_LOOTING_ENCHANTABLE,
                 EnchantmentRules.LOOTING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, VANILLA_EFFICIENCY, InfXItemTags.R196_EFFICIENCY_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_EFFICIENCY, InfXItemTags.INFX_EFFICIENCY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.ATTRIBUTES,
@@ -306,7 +306,7 @@ public final class InfXEnchantments {
                                 Attributes.MINING_EFFICIENCY,
                                 new LevelBasedValue.LevelsSquared(1.0F),
                                 AttributeModifier.Operation.ADD_VALUE)));
-        register(context, items, enchantments, VANILLA_SILK_TOUCH, InfXItemTags.R196_SILK_TOUCH_ENCHANTABLE,
+        register(context, items, enchantments, VANILLA_SILK_TOUCH, InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE,
                 1, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, VANILLA_POWER, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
@@ -332,9 +332,9 @@ public final class InfXEnchantments {
     }
 
     public static EnchantmentProfile profile(ResourceKey<Enchantment> key) {
-        EnchantmentProfile profile = R196_PROFILES.get(key);
+        EnchantmentProfile profile = INFX_PROFILES.get(key);
         if (profile == null) {
-            throw new IllegalArgumentException("Not an R196 enchantment: " + key.identifier());
+            throw new IllegalArgumentException("Not an INFX enchantment: " + key.identifier());
         }
         return profile;
     }

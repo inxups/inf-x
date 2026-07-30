@@ -22,7 +22,7 @@ import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-/** Server-side R196 lunar spawn, weather, sleep, fishing and taming rules. */
+/** Server-side INFX lunar spawn, weather, sleep, fishing and taming rules. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class MoonEvents {
     private MoonEvents() {}

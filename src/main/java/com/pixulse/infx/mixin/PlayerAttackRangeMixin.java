@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Separates R196's 1.5-block empty-hand attack reach from its 2.5-block entity interaction reach. */
+/** Separates INFX's 1.5-block empty-hand attack reach from its 2.5-block entity interaction reach. */
 @Mixin(LivingEntity.class)
 public abstract class PlayerAttackRangeMixin {
     @Inject(method = "getAttackRangeWith", at = @At("HEAD"), cancellable = true)

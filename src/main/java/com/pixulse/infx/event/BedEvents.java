@@ -47,7 +47,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerSetSpawnEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-/** R196 bed entry checks, sustained rest, cooperative fast-forward and sleep ambushes. */
+/** INFX bed entry checks, sustained rest, cooperative fast-forward and sleep ambushes. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class BedEvents {
     private static final double BED_HORIZONTAL_HOSTILE_RANGE = 8.0D;
@@ -86,7 +86,7 @@ public final class BedEvents {
 
     /**
      * Modern ServerPlayer writes a bed respawn before CanPlayerSleepEvent has decided whether
-     * R196's additional checks pass. Delay that one write and apply it only after a successful
+     * INFX's additional checks pass. Delay that one write and apply it only after a successful
      * bed entry, so a poisoned or exposed player cannot accidentally claim the bed.
      */
     @SubscribeEvent
@@ -141,7 +141,7 @@ public final class BedEvents {
             player.sendOverlayMessage(Component.translatable("message.infx.bed.wake_mobs"));
             return;
         }
-        // Override the modern daytime-only BedRule; R196 permits resting at any hour.
+        // Override the modern daytime-only BedRule; INFX permits resting at any hour.
         event.setContinueSleeping(true);
     }
 
@@ -241,7 +241,7 @@ public final class BedEvents {
             for (int y = minimumY; y <= maximumY; y++) {
                 BlockPos pos = new BlockPos(x, y, z);
                 if (!isAmbushSpawnPosition(level, pos)) continue;
-                var zombie = InfXEntityTypes.R196_ZOMBIE.get().create(level, EntitySpawnReason.EVENT);
+                var zombie = InfXEntityTypes.INFX_ZOMBIE.get().create(level, EntitySpawnReason.EVENT);
                 if (zombie == null) return null;
                 zombie.snapTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
                 zombie.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.EVENT, null);

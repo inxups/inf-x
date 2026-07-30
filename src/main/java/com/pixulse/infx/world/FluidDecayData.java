@@ -28,7 +28,7 @@ public final class FluidDecayData extends SavedData {
                     DUE_TIMES.optionalFieldOf("lava", Map.of()).forGetter(data -> data.lava))
             .apply(instance, FluidDecayData::new));
     public static final SavedDataType<FluidDecayData> TYPE =
-            new SavedDataType<>(InfiniteX.id("r196_fluid_decay"), FluidDecayData::new, CODEC);
+            new SavedDataType<>(InfiniteX.id("infx_fluid_decay"), FluidDecayData::new, CODEC);
 
     private final Map<String, Long> water;
     private final Map<String, Long> lava;
@@ -68,7 +68,7 @@ public final class FluidDecayData extends SavedData {
         return water.size() + lava.size();
     }
 
-    /** Handles an original scheduled fluid tick when it belongs to an unpaid R196 bucket pour. */
+    /** Handles an original scheduled fluid tick when it belongs to an unpaid INFX bucket pour. */
     public static boolean handleScheduledTick(ServerLevel level, BlockPos pos, Fluid scheduledFluid) {
         FluidDecayData data = level.getDataStorage().get(TYPE);
         if (data == null) {

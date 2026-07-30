@@ -18,7 +18,7 @@ public record CurseStatus(int typeId, boolean known) {
 
     public CurseStatus {
         if (typeId < 0 || typeId > CurseType.values().length) {
-            throw new IllegalArgumentException("Unknown R196 curse id: " + typeId);
+            throw new IllegalArgumentException("Unknown INFX curse id: " + typeId);
         }
         if (typeId == 0) known = false;
     }

@@ -18,12 +18,12 @@ import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
-/** MITE R196's ordinary stick and bone item behavior. */
+/** MITE INFX's ordinary stick and bone item behavior. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StickBoneItems {
     static final int STICK_STACK_LIMIT = 32;
-    private static final float MITE_MELEE_REACH = 2.0F;
-    private static final float MITE_CREATIVE_MELEE_REACH = 5.0F;
+    private static final float INFX_MELEE_REACH = 2.0F;
+    private static final float INFX_CREATIVE_MELEE_REACH = 5.0F;
     private static final int STICK_BREAK_DENOMINATOR = 50;
     private static final int BONE_BREAK_DENOMINATOR = 100;
 
@@ -83,9 +83,9 @@ public final class StickBoneItems {
     static AttackRange meleeAttackRange() {
         return new AttackRange(
                 0.0F,
-                MITE_MELEE_REACH,
+                INFX_MELEE_REACH,
                 0.0F,
-                MITE_CREATIVE_MELEE_REACH,
+                INFX_CREATIVE_MELEE_REACH,
                 0.0F,
                 1.0F);
     }

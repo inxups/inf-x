@@ -123,10 +123,10 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_lapis_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_EMERALD_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_emerald_ore"));
-    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_STONE_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_stone"));
-    private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_NETHERRACK_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> INFX_INFESTED_STONE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("infx_infested_stone"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> INFX_INFESTED_NETHERRACK_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("infx_infested_netherrack"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> WITHERWOOD_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("witherwood_patch"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> BLUEBERRY_BUSH_CONFIGURED =
@@ -164,10 +164,10 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_lapis_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_EMERALD_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_emerald_ore"));
-    private static final ResourceKey<PlacedFeature> R196_INFESTED_STONE_PLACED =
-            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_stone"));
-    private static final ResourceKey<PlacedFeature> R196_INFESTED_NETHERRACK_PLACED =
-            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_netherrack"));
+    private static final ResourceKey<PlacedFeature> INFX_INFESTED_STONE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("infx_infested_stone"));
+    private static final ResourceKey<PlacedFeature> INFX_INFESTED_NETHERRACK_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("infx_infested_netherrack"));
     private static final ResourceKey<PlacedFeature> WITHERWOOD_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("witherwood_patch"));
     private static final ResourceKey<PlacedFeature> BLUEBERRY_BUSH_PLACED =
@@ -195,9 +195,9 @@ public final class ModWorldGen {
     private static final ResourceKey<BiomeModifier> ADD_OVERWORLD_EMERALD_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_overworld_emerald_ore"));
     private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_STONE =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_stone"));
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_infx_infested_stone"));
     private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_NETHERRACK =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_netherrack"));
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_infx_infested_netherrack"));
     private static final ResourceKey<BiomeModifier> ADD_WITHERWOOD =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_witherwood"));
     private static final ResourceKey<BiomeModifier> ADD_BLUEBERRY_BUSH =
@@ -212,8 +212,8 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("replace_shore_river_soft_disks"));
     private static final ResourceKey<BiomeModifier> REMOVE_JUNGLE_MELONS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_jungle_melons"));
-    private static final ResourceKey<BiomeModifier> R196_SPAWNS =
-            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("r196_spawns"));
+    private static final ResourceKey<BiomeModifier> INFX_SPAWNS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("infx_spawns"));
 
     private ModWorldGen() {}
 
@@ -313,7 +313,7 @@ public final class ModWorldGen {
                 Blocks.DEEPSLATE_EMERALD_ORE.defaultBlockState(),
                 1);
         context.register(
-                R196_INFESTED_STONE_CONFIGURED,
+                INFX_INFESTED_STONE_CONFIGURED,
                 new ConfiguredFeature<>(
                         Feature.ORE,
                         new OreConfiguration(
@@ -321,7 +321,7 @@ public final class ModWorldGen {
                                 Blocks.INFESTED_STONE.defaultBlockState(),
                                 3)));
         context.register(
-                R196_INFESTED_NETHERRACK_CONFIGURED,
+                INFX_INFESTED_NETHERRACK_CONFIGURED,
                 new ConfiguredFeature<>(
                         Feature.ORE,
                         new OreConfiguration(
@@ -486,9 +486,9 @@ public final class ModWorldGen {
                 RarityFilter.onAverageOnceEvery(2),
                 UniformHeight.of(VerticalAnchor.absolute(48), VerticalAnchor.absolute(128)));
         context.register(
-                R196_INFESTED_STONE_PLACED,
+                INFX_INFESTED_STONE_PLACED,
                 new PlacedFeature(
-                        configuredFeatures.getOrThrow(R196_INFESTED_STONE_CONFIGURED),
+                        configuredFeatures.getOrThrow(INFX_INFESTED_STONE_CONFIGURED),
                         List.of(
                                 CountPlacement.of(1),
                                 InSquarePlacement.spread(),
@@ -496,9 +496,9 @@ public final class ModWorldGen {
                                         VerticalAnchor.absolute(0), VerticalAnchor.belowTop(0)),
                                 BiomeFilter.biome())));
         context.register(
-                R196_INFESTED_NETHERRACK_PLACED,
+                INFX_INFESTED_NETHERRACK_PLACED,
                 new PlacedFeature(
-                        configuredFeatures.getOrThrow(R196_INFESTED_NETHERRACK_CONFIGURED),
+                        configuredFeatures.getOrThrow(INFX_INFESTED_NETHERRACK_CONFIGURED),
                         List.of(
                                 CountPlacement.of(UniformInt.of(2, 8)),
                                 InSquarePlacement.spread(),
@@ -618,7 +618,7 @@ public final class ModWorldGen {
         addSpawn(mobs, EntityType.CREEPER, 100, 1, 2);
         addSpawn(mobs, EntityType.ENDERMAN, 10, 1, 4);
         addSpawn(mobs, EntityType.CAVE_SPIDER, 40, 1, 2);
-        addSpawn(mobs, InfXEntityTypes.R196_BAT.get(), 100, 8, 8);
+        addSpawn(mobs, InfXEntityTypes.INFX_BAT.get(), 100, 8, 8);
         addSpawn(mobs, EntityType.SQUID, 10, 4, 4);
         addUnderworldR196Spawns(mobs);
 
@@ -956,12 +956,12 @@ public final class ModWorldGen {
                 biomes,
                 placedFeatures,
                 ADD_R196_INFESTED_STONE,
-                R196_INFESTED_STONE_PLACED);
+                INFX_INFESTED_STONE_PLACED);
         context.register(
                 ADD_R196_INFESTED_NETHERRACK,
                 new BiomeModifiers.AddFeaturesBiomeModifier(
                         biomes.getOrThrow(BiomeTags.IS_NETHER),
-                        HolderSet.direct(placedFeatures.getOrThrow(R196_INFESTED_NETHERRACK_PLACED)),
+                        HolderSet.direct(placedFeatures.getOrThrow(INFX_INFESTED_NETHERRACK_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES));
         context.register(
                 ADD_WITHERWOOD,
@@ -1032,7 +1032,7 @@ public final class ModWorldGen {
                                 placedFeatures.getOrThrow(VegetationPlacements.PATCH_MELON),
                                 placedFeatures.getOrThrow(VegetationPlacements.PATCH_MELON_SPARSE)),
                         Set.of(GenerationStep.Decoration.VEGETAL_DECORATION)));
-        registerR196SpawnModifiers(context);
+        registerInfxSpawnModifiers(context);
     }
 
     private static void registerOverworldOreModifier(
@@ -1080,8 +1080,8 @@ public final class ModWorldGen {
                         Set.of(GenerationStep.Decoration.UNDERGROUND_ORES)));
     }
 
-    private static void registerR196SpawnModifiers(BootstrapContext<BiomeModifier> context) {
-        context.register(R196_SPAWNS, new SpawnsBiomeModifier());
+    private static void registerInfxSpawnModifiers(BootstrapContext<BiomeModifier> context) {
+        context.register(INFX_SPAWNS, new SpawnsBiomeModifier());
     }
 
     private static void addUnderworldR196Spawns(MobSpawnSettings.Builder mobs) {

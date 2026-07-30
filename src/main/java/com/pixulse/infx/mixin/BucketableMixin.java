@@ -1,9 +1,9 @@
 package com.pixulse.infx.mixin;
 
 import com.pixulse.infx.util.BucketHelper;
-import com.pixulse.infx.item.MiteBucketItem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.MobBucketKind;
-import com.pixulse.infx.item.material.MiteMaterial;
+import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.Optional;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Vanilla {@link Bucketable} only accepts {@code Items.WATER_BUCKET}. R196 water buckets must also
+ * Vanilla {@link Bucketable} only accepts {@code Items.WATER_BUCKET}. INFX water buckets must also
  * capture fish/axolotl/tadpole while preserving the bucket material.
  */
 @Mixin(Bucketable.class)
@@ -34,8 +34,8 @@ interface BucketableMixin {
             T pickupEntity,
             CallbackInfoReturnable<Optional<InteractionResult>> callback) {
         ItemStack held = player.getItemInHand(hand);
-        if (!(held.getItem() instanceof MiteBucketItem bucket)
-                || bucket.contents() != MiteBucketItem.Contents.WATER
+        if (!(held.getItem() instanceof InfxBucketItem bucket)
+                || bucket.contents() != InfxBucketItem.Contents.WATER
                 || !pickupEntity.isAlive()) {
             return;
         }
@@ -43,7 +43,7 @@ interface BucketableMixin {
         if (kind == null) {
             return;
         }
-        MiteMaterial material = bucket.material();
+        InfxMaterial material = bucket.material();
         pickupEntity.playSound(pickupEntity.getPickupSound(), 1.0F, 1.0F);
         ItemStack filled = BucketHelper.mobBucket(material, kind);
         pickupEntity.saveToBucketTag(filled);

@@ -28,7 +28,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-/** Server-authoritative R196 level progression, bonuses, death debt and auto-respawn. */
+/** Server-authoritative INFX level progression, bonuses, death debt and auto-respawn. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class PlayerProgressionEvents {
     private static final String DEATH_TOTAL = "infx_r196_death_total";

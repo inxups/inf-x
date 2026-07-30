@@ -11,7 +11,7 @@ import net.minecraft.gametest.framework.GameTestServer;
 import net.minecraft.world.level.GameType;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
-/** Prevents normal R196 survival worlds from being switched into creative mode. */
+/** Prevents normal INFX survival worlds from being switched into creative mode. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class CreativeRestriction {
     private CreativeRestriction() {}

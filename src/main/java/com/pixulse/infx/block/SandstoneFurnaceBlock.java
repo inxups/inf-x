@@ -5,7 +5,7 @@ import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.jspecify.annotations.NonNull;
 
-public final class SandstoneFurnaceBlock extends MiteFurnaceBlock {
+public final class SandstoneFurnaceBlock extends InfxFurnaceBlock {
     public static final MapCodec<SandstoneFurnaceBlock> CODEC = simpleCodec(SandstoneFurnaceBlock::new);
 
     public SandstoneFurnaceBlock(BlockBehaviour.Properties properties) {

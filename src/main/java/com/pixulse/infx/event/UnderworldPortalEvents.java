@@ -6,8 +6,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
-import com.pixulse.infx.block.MitePortalBlock;
-import com.pixulse.infx.block.MitePortalBlock.PortalType;
+import com.pixulse.infx.block.InfxPortalBlock;
+import com.pixulse.infx.block.InfxPortalBlock.PortalType;
 import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.registry.InfXBlocks;
 import java.util.ArrayDeque;
@@ -132,7 +132,7 @@ public final class UnderworldPortalEvents {
         return false;
     }
 
-    public static MitePortalBlock portalBlock(PortalType portalType) {
+    public static InfxPortalBlock portalBlock(PortalType portalType) {
         return switch (portalType) {
             case UNDERWORLD -> InfXBlocks.UNDERWORLD_PORTAL.get();
             case NETHER -> InfXBlocks.NETHER_PORTAL.get();

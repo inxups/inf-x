@@ -6,7 +6,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 
 /**
- * The persistent non-average R196 quality states.
+ * The persistent non-average INFX quality states.
  *
  * <p>Average quality is represented by an absent data component so existing
  * stacks and third-party recipe outputs remain backward compatible.</p>

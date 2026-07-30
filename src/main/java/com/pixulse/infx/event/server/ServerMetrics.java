@@ -9,7 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 
-/** Live server counters used by R196 performance logging and diagnostic commands. */
+/** Live server counters used by INFX performance logging and diagnostic commands. */
 public final class ServerMetrics {
     private ServerMetrics() {}
 

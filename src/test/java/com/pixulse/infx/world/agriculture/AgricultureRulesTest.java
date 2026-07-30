@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.block.MiteCropBlock;
-import com.pixulse.infx.block.MiteCropType;
+import com.pixulse.infx.block.InfxCropBlock;
+import com.pixulse.infx.block.InfxCropType;
 import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.event.AgricultureEvents;
 import net.minecraft.core.BlockPos;
@@ -14,35 +14,35 @@ import org.junit.jupiter.api.Test;
 class AgricultureRulesTest {
     @Test
     void miteClimateAndTickIntervalFollowGrowingPlantRules() {
-        assertEquals(1.0F, MiteCropBlock.temperatureGrowthRateModifier(0.8F));
-        assertEquals(1.0F, MiteCropBlock.temperatureGrowthRateModifier(1.2F));
-        assertEquals(0.2F, MiteCropBlock.temperatureGrowthRateModifier(0.0F), 1.0E-6F);
-        assertEquals(0.0F, MiteCropBlock.temperatureGrowthRateModifier(-0.2F));
-        assertEquals(1.5F, MiteCropBlock.blightChanceModifier(1.1F, true));
-        assertEquals(0.0F, MiteCropBlock.blightChanceModifier(2.2F, false));
-        assertEquals(26, MiteCropBlock.growthTickInterval(1.0F));
-        assertEquals(Integer.MAX_VALUE, MiteCropBlock.growthTickInterval(0.0F));
+        assertEquals(1.0F, InfxCropBlock.temperatureGrowthRateModifier(0.8F));
+        assertEquals(1.0F, InfxCropBlock.temperatureGrowthRateModifier(1.2F));
+        assertEquals(0.2F, InfxCropBlock.temperatureGrowthRateModifier(0.0F), 1.0E-6F);
+        assertEquals(0.0F, InfxCropBlock.temperatureGrowthRateModifier(-0.2F));
+        assertEquals(1.5F, InfxCropBlock.blightChanceModifier(1.1F, true));
+        assertEquals(0.0F, InfxCropBlock.blightChanceModifier(2.2F, false));
+        assertEquals(26, InfxCropBlock.growthTickInterval(1.0F));
+        assertEquals(Integer.MAX_VALUE, InfxCropBlock.growthTickInterval(0.0F));
     }
 
     @Test
     void cropTexturesUseMiteStageMappings() {
-        assertEquals(8, MiteCropType.WHEAT.textureStages());
-        assertEquals(7, MiteCropType.WHEAT.deadTextureStages());
-        assertEquals(0, MiteCropType.CARROTS.textureStage(0));
-        assertEquals(0, MiteCropType.CARROTS.textureStage(1));
-        assertEquals(1, MiteCropType.CARROTS.textureStage(3));
-        assertEquals(2, MiteCropType.CARROTS.textureStage(6));
-        assertEquals(3, MiteCropType.CARROTS.textureStage(7));
-        assertEquals(2, MiteCropType.POTATOES.deadTextureStage(7));
-        assertEquals(7, MiteCropType.BEETROOTS.maxAge());
-        assertEquals(0, MiteCropType.BEETROOTS.textureStage(1));
-        assertEquals(1, MiteCropType.BEETROOTS.textureStage(3));
-        assertEquals(2, MiteCropType.BEETROOTS.textureStage(6));
-        assertEquals(3, MiteCropType.BEETROOTS.deadTextureStage(7));
-        assertEquals(4, MiteCropType.BEETROOTS.ageFromVanilla(2));
-        assertEquals(7, MiteCropType.BEETROOTS.ageFromVanilla(3));
-        assertEquals(0.25F, MiteCropType.CARROTS.bonusYieldChance());
-        assertEquals(0.5F, MiteCropType.BEETROOTS.bonusYieldChance());
+        assertEquals(8, InfxCropType.WHEAT.textureStages());
+        assertEquals(7, InfxCropType.WHEAT.deadTextureStages());
+        assertEquals(0, InfxCropType.CARROTS.textureStage(0));
+        assertEquals(0, InfxCropType.CARROTS.textureStage(1));
+        assertEquals(1, InfxCropType.CARROTS.textureStage(3));
+        assertEquals(2, InfxCropType.CARROTS.textureStage(6));
+        assertEquals(3, InfxCropType.CARROTS.textureStage(7));
+        assertEquals(2, InfxCropType.POTATOES.deadTextureStage(7));
+        assertEquals(7, InfxCropType.BEETROOTS.maxAge());
+        assertEquals(0, InfxCropType.BEETROOTS.textureStage(1));
+        assertEquals(1, InfxCropType.BEETROOTS.textureStage(3));
+        assertEquals(2, InfxCropType.BEETROOTS.textureStage(6));
+        assertEquals(3, InfxCropType.BEETROOTS.deadTextureStage(7));
+        assertEquals(4, InfxCropType.BEETROOTS.ageFromVanilla(2));
+        assertEquals(7, InfxCropType.BEETROOTS.ageFromVanilla(3));
+        assertEquals(0.25F, InfxCropType.CARROTS.bonusYieldChance());
+        assertEquals(0.5F, InfxCropType.BEETROOTS.bonusYieldChance());
     }
 
     @Test

@@ -15,7 +15,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 
-/** Selects table enchantments with R196's unbounded-strength rules. */
+/** Selects table enchantments with INFX's unbounded-strength rules. */
 public final class EnchantmentSelector {
     private static final int FOLLOW_UP_ENCHANTMENT_COST = 5;
     private static final int MAX_ENCHANTMENTS_PER_OPTION = 3;

@@ -9,7 +9,7 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.util.Mth;
 
 /**
- * R196's 64x32 ModelInvisibleStalker geometry and its permanently raised-arm animation.
+ * INFX's 64x32 ModelInvisibleStalker geometry and its permanently raised-arm animation.
  *
  * <p>The old model was otherwise the normal biped layout, so the modern humanoid mesh keeps the
  * authored MITE UV placement while this override reproduces its distinctive arm pose.
