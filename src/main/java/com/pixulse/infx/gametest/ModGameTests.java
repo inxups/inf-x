@@ -47,7 +47,9 @@ import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.protocol.BundlePacket;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.ClientboundSetPlayerInventoryPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
@@ -484,6 +486,8 @@ public final class ModGameTests {
         helper.assertTrue(menu.infx$craftingState().isRunning(), "left click must start timed crafting");
         helper.assertTrue(countItem(player.getInventory(), InfXItems.SINEW.get()) == 0, "result click must not craft immediately");
         helper.assertTrue(menu.infx$craftingContainer().getItem(0).getCount() == 1, "input must remain until completion");
+        EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
+        while (playerChannel.readOutbound() != null) {}
 
         int[] pausedProgress = new int[1];
         helper.startSequence()
@@ -514,11 +518,37 @@ public final class ModGameTests {
                         countItem(player.getInventory(), InfXItems.SINEW.get()) == 4,
                         "completion must place four sinew in the inventory"))
                 .thenExecute(() -> {
+                    playerChannel.runPendingTasks();
+                    playerChannel.flushOutbound();
+                    boolean receivedInventoryUpdate = false;
+                    Object outbound;
+                    while ((outbound = playerChannel.readOutbound()) != null) {
+                        if (containsInventoryUpdate(outbound, InfXItems.SINEW.get(), 4)) {
+                            receivedInventoryUpdate = true;
+                        }
+                    }
+                    helper.assertTrue(
+                            receivedInventoryUpdate,
+                            "completion must synchronize the crafted result to the client inventory");
                     helper.assertTrue(menu.infx$craftingContainer().getItem(0).isEmpty(), "completion must consume leather");
                     helper.assertFalse(menu.infx$craftingState().isRunning(), "exhausted ingredients must stop repetition");
                     removePlayer(player);
                 })
                 .thenSucceed();
+    }
+
+    private static boolean containsInventoryUpdate(Object outbound, Item item, int count) {
+        if (outbound instanceof ClientboundSetPlayerInventoryPacket packet) {
+            return packet.contents().is(item) && packet.contents().getCount() == count;
+        }
+        if (outbound instanceof BundlePacket<?> bundle) {
+            for (Object subPacket : bundle.subPackets()) {
+                if (containsInventoryUpdate(subPacket, item, count)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static void vanillaRecipeRemoval(GameTestHelper helper) {
