@@ -173,7 +173,8 @@ public final class ClientEvents {
                 context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.NIGHTWING));
         event.registerEntityRenderer(
                 InfXEntityTypes.GIANT_VAMPIRE_BAT.get(),
-                context -> new EntityRenderers.BatTexture(context, MiteBat.Variant.GIANT_VAMPIRE, 2.0F));
+                context -> new EntityRenderers.BatTexture(
+                        context, MiteBat.Variant.GIANT_VAMPIRE, InfXEntityTypes.GIANT_VAMPIRE_BAT_SCALE));
         event.registerEntityRenderer(
                 InfXEntityTypes.HELLHOUND.get(),
                 context -> new EntityRenderers.WolfTexture(context, MiteWolf.Variant.HELLHOUND));

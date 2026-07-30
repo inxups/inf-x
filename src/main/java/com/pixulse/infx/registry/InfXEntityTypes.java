@@ -42,6 +42,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Entity type registry for original-mob replacements and the 29-item R196 roster. */
 public final class InfXEntityTypes {
+    public static final float GIANT_VAMPIRE_BAT_SCALE = 1.5F;
     public static final DeferredRegister.Entities ENTITIES = DeferredRegister.createEntities(InfiniteX.MOD_ID);
     private static final List<EntityName> NAMES = new ArrayList<>();
 
@@ -160,7 +161,8 @@ public final class InfXEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<MiteBat>> NIGHTWING = register(
             "nightwing", "Nightwing", "暗影蝙蝠", MiteBat::new, MobCategory.AMBIENT, 0.5F, 0.9F, true, true);
     public static final DeferredHolder<EntityType<?>, EntityType<MiteBat>> GIANT_VAMPIRE_BAT = register(
-            "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", MiteBat::new, MobCategory.AMBIENT, 1.0F, 1.8F, false, true);
+            "giant_vampire_bat", "Giant Vampire Bat", "吸血巨蝠", MiteBat::new, MobCategory.AMBIENT,
+            0.5F * GIANT_VAMPIRE_BAT_SCALE, 0.9F * GIANT_VAMPIRE_BAT_SCALE, false, true);
 
     public static final DeferredHolder<EntityType<?>, EntityType<MiteWolf>> HELLHOUND = register(
             "hellhound", "Hellhound", "地狱犬", MiteWolf::new, 0.6F, 0.8F, true);

@@ -268,7 +268,12 @@ class MonsterProfileTest {
         assertDimensions(entities, checked, 4.0F, 4.0F, "r196_ghast");
         assertDimensions(entities, checked, 0.3F, 0.7F, "netherspawn", "copperspine", "hoary_silverfish");
         assertDimensions(entities, checked, 0.5F, 0.9F, "r196_bat", "vampire_bat", "nightwing");
-        assertDimensions(entities, checked, 1.0F, 1.8F, "giant_vampire_bat");
+        assertDimensions(entities, checked, 0.75F, 1.35F, "giant_vampire_bat");
+        InfXEntityTypes.EntityName vampireBat = entities.get("vampire_bat");
+        InfXEntityTypes.EntityName giantVampireBat = entities.get("giant_vampire_bat");
+        assertTrue(
+                giantVampireBat.width() > vampireBat.width() && giantVampireBat.height() > vampireBat.height(),
+                "giant vampire bat must remain larger than a vampire bat");
         assertDimensions(entities, checked, 0.6F, 0.8F, "hellhound", "dire_wolf");
         assertDimensions(entities, checked, 0.9F, 1.4F, "r196_cow");
         assertDimensions(entities, checked, 0.4F, 0.7F, "r196_chicken");
