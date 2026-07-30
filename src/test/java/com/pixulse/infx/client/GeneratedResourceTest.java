@@ -1812,7 +1812,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void overworldStopsAtMinusSixteenAndMovesUndergroundStructuresToUnderworld() throws Exception {
+    void overworldStopsAtMinusSixteenAndRetainsVanillaMineshafts() throws Exception {
         JsonObject dimensionType = json(GENERATED.resolve("data/minecraft/dimension_type/overworld.json"));
         assertAll(
                 "Overworld build height",
@@ -1846,8 +1846,6 @@ class GeneratedResourceTest {
         for (String structure : List.of(
                 "ancient_city",
                 "buried_treasure",
-                "mineshaft",
-                "mineshaft_mesa",
                 "trail_ruins",
                 "trial_chambers")) {
             JsonObject tag = json(GENERATED.resolve(
@@ -1859,6 +1857,12 @@ class GeneratedResourceTest {
                     () -> assertEquals(
                             "infx:underworld",
                             tag.getAsJsonArray("values").get(0).getAsString()));
+        }
+        for (String structure : List.of("mineshaft", "mineshaft_mesa")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve(
+                            "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json")),
+                    structure + " must retain its vanilla Overworld distribution");
         }
 
         JsonObject stronghold = json(GENERATED.resolve(

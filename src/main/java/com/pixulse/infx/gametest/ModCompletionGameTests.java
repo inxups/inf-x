@@ -468,8 +468,6 @@ public final class ModCompletionGameTests {
         for (var tag : List.of(
                 BiomeTags.HAS_ANCIENT_CITY,
                 BiomeTags.HAS_BURIED_TREASURE,
-                BiomeTags.HAS_MINESHAFT,
-                BiomeTags.HAS_MINESHAFT_MESA,
                 BiomeTags.HAS_TRAIL_RUINS,
                 BiomeTags.HAS_TRIAL_CHAMBERS)) {
             var structureBiomes = biomes.getOrThrow(tag);
@@ -477,6 +475,12 @@ public final class ModCompletionGameTests {
             helper.assertTrue(
                     structureBiomes.contains(underworldBiome),
                     tag.location() + " includes the Underworld biome");
+        }
+        for (var tag : List.of(BiomeTags.HAS_MINESHAFT, BiomeTags.HAS_MINESHAFT_MESA)) {
+            var structureBiomes = biomes.getOrThrow(tag);
+            helper.assertTrue(
+                    !structureBiomes.contains(underworldBiome),
+                    tag.location() + " excludes the Underworld biome");
         }
         helper.assertTrue(
                 biomes.getOrThrow(BiomeTags.HAS_STRONGHOLD).size() > 0,
