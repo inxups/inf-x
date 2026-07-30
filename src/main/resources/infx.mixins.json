@@ -12,7 +12,6 @@
     "ChunkGeneratorMixin",
     "CoalExperienceDropMixin",
     "ConsumableMixin",
-    "NoiseBasedChunkGeneratorMixin",
     "CraftingMenuMixin",
     "DifficultyInstanceMixin",
     "DifficultyInvoker",
