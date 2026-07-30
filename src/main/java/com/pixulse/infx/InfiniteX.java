@@ -57,7 +57,7 @@ public final class InfiniteX {
         ModCompletionGameTests.register(modBus);
         ModMonsterGameTests.register(modBus);
         if (InfiniteXTestMode.isEnabled()) {
-            LOGGER.warn("InfiniteX test mode is active; development overrides are enabled and online play is disabled");
+            LOGGER.warn("InfiniteX test mode is active; development overrides and vanilla server administration are enabled");
         }
     }
 

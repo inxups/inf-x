@@ -1,31 +1,43 @@
 package com.pixulse.infx.network;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.item.InfxBucketItem;
+import com.pixulse.infx.server.ServerTestModePolicy;
 import com.pixulse.infx.world.RunegateTeleportation;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import org.jspecify.annotations.NonNull;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class Network {
     public static final String FORCE_EGG_THROW = "infx_force_egg_throw";
     public static final String CTRL_USE = "infx_ctrl_use";
+    public static final String TEST_MODE_MISMATCH_KEY = "disconnect.infx.test_mode_mismatch";
+    private static final String PROTOCOL_VERSION = "3";
 
     private Network() {}
 
     @SubscribeEvent
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
-        event.registrar("2")
+        event.registrar(PROTOCOL_VERSION)
+                .configurationBidirectional(
+                        TestModePayload.TYPE,
+                        TestModePayload.STREAM_CODEC,
+                        Network::handleServerTestMode,
+                        Network::handleClientTestMode)
                 .playToServer(EggThrowPayload.TYPE, EggThrowPayload.STREAM_CODEC, (payload, context) -> {
                     if (!(context.player() instanceof ServerPlayer player)) return;
                     InteractionHand hand = payload.offhand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
@@ -58,6 +70,46 @@ public final class Network {
                         })
                 .playToClient(RunegateStartPayload.TYPE, RunegateStartPayload.STREAM_CODEC)
                 .playToClient(RunegateFinishedPayload.TYPE, RunegateFinishedPayload.STREAM_CODEC);
+    }
+
+    @SubscribeEvent
+    public static void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
+        event.register(new TestModeConfigurationTask(InfiniteXTestMode.isEnabled()));
+    }
+
+    static boolean testModesMatch(boolean serverTestMode, boolean clientTestMode) {
+        return ServerTestModePolicy.modesMatch(serverTestMode, clientTestMode);
+    }
+
+    private static void handleServerTestMode(TestModePayload payload, IPayloadContext context) {
+        handleServerTestMode(InfiniteXTestMode.isEnabled(), payload, context);
+    }
+
+    static void handleServerTestMode(boolean serverTestMode, TestModePayload payload, IPayloadContext context) {
+        if (!testModesMatch(serverTestMode, payload.testMode())) {
+            context.disconnect(Component.translatable(TEST_MODE_MISMATCH_KEY));
+            return;
+        }
+        context.finishCurrentTask(TestModeConfigurationTask.TYPE);
+    }
+
+    private static void handleClientTestMode(TestModePayload payload, IPayloadContext context) {
+        handleClientTestMode(InfiniteXTestMode.isEnabled(), context);
+    }
+
+    static void handleClientTestMode(boolean clientTestMode, IPayloadContext context) {
+        context.reply(new TestModePayload(clientTestMode));
+    }
+
+    public record TestModePayload(boolean testMode) implements CustomPacketPayload {
+        public static final Type<TestModePayload> TYPE = new Type<>(InfiniteX.id("test_mode"));
+        public static final StreamCodec<FriendlyByteBuf, TestModePayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.BOOL, TestModePayload::testMode, TestModePayload::new);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
     }
 
     public record EggThrowPayload(boolean offhand) implements CustomPacketPayload {
