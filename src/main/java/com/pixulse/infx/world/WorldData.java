@@ -7,10 +7,8 @@ import com.pixulse.infx.InfiniteX;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -20,20 +18,13 @@ import net.minecraft.world.level.saveddata.SavedDataType;
  * World-wide INFX progression: first achievements, structure gates and unique books.
  */
 public final class WorldData extends SavedData {
-    public static final long MANSION_EXPERIENCE_REQUIREMENT = 100_000L;
-
     private static final Codec<Map<String, FirstCompletion>> COMPLETIONS = Codec.unboundedMap(Codec.STRING, FirstCompletion.CODEC);
-    private static final Codec<Map<String, Long>> MANSION_EXPERIENCE = Codec.unboundedMap(Codec.STRING, Codec.LONG);
     private static final Codec<WorldData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     COMPLETIONS.optionalFieldOf("first_completions", Map.of()).forGetter(data -> data.firstCompletions),
                     Codec.INT.optionalFieldOf("creation_book_mask", 0).forGetter(data -> data.creationBookMask),
                     Codec.STRING.listOf().optionalFieldOf("creation_book_components", java.util.List.of()).forGetter(data -> java.util.List.copyOf(data.creationBookComponents)),
                     Codec.BOOL.optionalFieldOf("iron_tool_crafted", false).forGetter(data -> data.ironToolCrafted),
                     Codec.BOOL.optionalFieldOf("end_conquered", false).forGetter(data -> data.endConquered),
-                    MANSION_EXPERIENCE.optionalFieldOf("mansion_experience_by_player", Map.of())
-                            .forGetter(data -> Map.copyOf(data.mansionExperienceByPlayer)),
-                    Codec.BOOL.optionalFieldOf("mansion_experience_earned", false)
-                            .forGetter(data -> data.mansionExperienceEarned),
                     Codec.BOOL.optionalFieldOf("nether_entered", false).forGetter(data -> data.netherEntered),
                     Codec.BOOL.optionalFieldOf("nether_fortress_entered", false)
                             .forGetter(data -> data.netherFortressEntered),
@@ -48,14 +39,12 @@ public final class WorldData extends SavedData {
     private final Set<String> creationBookComponents;
     private boolean ironToolCrafted;
     private boolean endConquered;
-    private final Map<String, Long> mansionExperienceByPlayer;
-    private boolean mansionExperienceEarned;
     private boolean netherEntered;
     private boolean netherFortressEntered;
     private boolean monumentGuardianKilled;
 
     public WorldData() {
-        this(Map.of(), 0, java.util.List.of(), false, false, Map.of(), false, false, false, false);
+        this(Map.of(), 0, java.util.List.of(), false, false, false, false, false);
     }
 
     private WorldData(
@@ -64,8 +53,6 @@ public final class WorldData extends SavedData {
             java.util.List<String> creationBookComponents,
             boolean ironToolCrafted,
             boolean endConquered,
-            Map<String, Long> mansionExperienceByPlayer,
-            boolean mansionExperienceEarned,
             boolean netherEntered,
             boolean netherFortressEntered,
             boolean monumentGuardianKilled) {
@@ -74,8 +61,6 @@ public final class WorldData extends SavedData {
         this.creationBookComponents = new HashSet<>(creationBookComponents);
         this.ironToolCrafted = ironToolCrafted;
         this.endConquered = endConquered;
-        this.mansionExperienceByPlayer = new HashMap<>(mansionExperienceByPlayer);
-        this.mansionExperienceEarned = mansionExperienceEarned;
         this.netherEntered = netherEntered;
         this.netherFortressEntered = netherFortressEntered;
         this.monumentGuardianKilled = monumentGuardianKilled;
@@ -149,23 +134,6 @@ public final class WorldData extends SavedData {
         }
     }
 
-    public boolean mansionExperienceEarned() {
-        return mansionExperienceEarned;
-    }
-
-    /** Records positive XP earned by one player without pooling progress between players. */
-    public synchronized boolean recordMansionExperienceGain(UUID player, long amount) {
-        if (amount <= 0L || mansionExperienceEarned) return false;
-        long previous = mansionExperience(player);
-        return updateMansionExperience(player, previous + Math.min(amount, MANSION_EXPERIENCE_REQUIREMENT - previous));
-    }
-
-    /** Reconciles a pre-existing player's current XP without double-counting later logins. */
-    public synchronized boolean observeMansionExperience(UUID player, long totalExperience) {
-        if (totalExperience <= 0L || mansionExperienceEarned) return false;
-        return updateMansionExperience(player, Math.max(mansionExperience(player), totalExperience));
-    }
-
     public boolean netherEntered() {
         return netherEntered;
     }
@@ -197,26 +165,6 @@ public final class WorldData extends SavedData {
         monumentGuardianKilled = true;
         setDirty();
         return true;
-    }
-
-    private boolean updateMansionExperience(UUID player, long candidate) {
-        Objects.requireNonNull(player, "player");
-        long previous = mansionExperience(player);
-        long updated = Math.min(MANSION_EXPERIENCE_REQUIREMENT, Math.max(previous, candidate));
-        if (updated == previous) return false;
-        mansionExperienceByPlayer.put(player.toString(), updated);
-        if (updated >= MANSION_EXPERIENCE_REQUIREMENT) {
-            mansionExperienceEarned = true;
-            mansionExperienceByPlayer.clear();
-        }
-        setDirty();
-        return mansionExperienceEarned;
-    }
-
-    private long mansionExperience(UUID player) {
-        Objects.requireNonNull(player, "player");
-        long value = mansionExperienceByPlayer.getOrDefault(player.toString(), 0L);
-        return Math.max(0L, Math.min(MANSION_EXPERIENCE_REQUIREMENT, value));
     }
 
     public record FirstCompletion(String player, long day) {

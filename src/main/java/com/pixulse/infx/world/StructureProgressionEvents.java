@@ -18,20 +18,6 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 public final class StructureProgressionEvents {
     private StructureProgressionEvents() {}
 
-    /** Called by the custom XP pipeline after it applies a player's actual point delta. */
-    public static void recordExperienceGain(ServerPlayer player, long amount) {
-        if (WorldData.get(player.level()).recordMansionExperienceGain(player.getUUID(), amount)) {
-            StructureGenerationGates.refresh(player.level());
-        }
-    }
-
-    /** Preserves progress for players who already held XP before this gate was introduced. */
-    public static void observeExperience(ServerPlayer player) {
-        if (WorldData.get(player.level()).observeMansionExperience(player.getUUID(), player.totalExperience)) {
-            StructureGenerationGates.refresh(player.level());
-        }
-    }
-
     @SubscribeEvent
     public static void onDimensionChanged(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player) || !event.getTo().equals(Level.NETHER)) return;
