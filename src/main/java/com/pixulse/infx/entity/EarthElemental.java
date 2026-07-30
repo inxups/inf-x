@@ -36,7 +36,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.Snowball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
@@ -47,10 +46,8 @@ import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /**
  * MITE R196 earth elemental with a material body selected from its spawn surface.
@@ -62,9 +59,11 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
     private static final EntityDataAccessor<Byte> DATA_FORM =
             SynchedEntityData.defineId(EarthElemental.class, EntityDataSerializers.BYTE);
 
-    private static final String DIG_POS = "infx_earth_elemental_dig_pos";
-    private static final String DIG_PROGRESS = "infx_earth_elemental_dig_progress";
-    private static final String DIG_COOLOFF = "infx_earth_elemental_dig_cooloff";
+    static final String DIG_POS = "infx_earth_elemental_dig_pos";
+    static final String DIG_PROGRESS = "infx_earth_elemental_dig_progress";
+    static final String DIG_COOLOFF = "infx_earth_elemental_dig_cooloff";
+    static final String DIG_PAUSE = "infx_earth_elemental_dig_pause";
+    static final int INITIAL_DIG_COOLOFF = 40;
     private static final int MAGMA_THRESHOLD = 100;
     private static final int MAGMA_MAX_HEAT = 1000;
 
@@ -110,6 +109,7 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
         getNavigation().setCanOpenDoors(true);
         goalSelector.addGoal(0, new MiteEarthFloatGoal(this));
         goalSelector.addGoal(1, new MiteEarthBreakDoorGoal(this));
+        goalSelector.addGoal(1, new MiteEarthDigGoal(this));
         goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.0, true));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
@@ -411,7 +411,6 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
         super.aiStep();
         if (level() instanceof ServerLevel level) {
             tickMiteEnvironment(level);
-            tickMiteDigging(level);
         }
     }
 
@@ -562,55 +561,11 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
         return false;
     }
 
-    private void tickMiteDigging(ServerLevel level) {
-        LivingEntity target = getTarget();
-        if (target == null || !target.isAlive() || !level.getGameRules().get(GameRules.MOB_GRIEFING)) {
-            stopDigging(level);
-            return;
+    boolean canDestroyMiteBlock(ServerLevel level, BlockPos pos) {
+        int footY = blockPosition().getY();
+        if (pos.getY() < footY || pos.getY() > footY + 1) {
+            return false;
         }
-        BlockHitResult hit = level.clip(new ClipContext(
-                getEyePosition(), target.getEyePosition(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
-        if (hit.getType() != HitResult.Type.BLOCK) {
-            stopDigging(level);
-            return;
-        }
-        BlockPos pos = hit.getBlockPos();
-        if (Vec3.atCenterOf(pos).distanceToSqr(position()) > 3.25 || !canDestroyMiteBlock(level, pos)) {
-            stopDigging(level);
-            return;
-        }
-
-        var data = getPersistentData();
-        long encoded = pos.asLong();
-        if (data.getLong(DIG_POS).orElse(Long.MIN_VALUE) != encoded) {
-            stopDigging(level);
-            data.putLong(DIG_POS, encoded);
-            data.putInt(DIG_PROGRESS, -1);
-            data.putInt(DIG_COOLOFF, 40);
-        }
-        int cooloff = data.getIntOr(DIG_COOLOFF, 40);
-        if (cooloff > 0) {
-            data.putInt(DIG_COOLOFF, cooloff - 1);
-            return;
-        }
-
-        BlockState state = level.getBlockState(pos);
-        int progress = data.getIntOr(DIG_PROGRESS, -1) + 1;
-        if (progress >= 10) {
-            level.destroyBlock(pos, true, this);
-            level.destroyBlockProgress(getId(), pos, -1);
-            data.remove(DIG_POS);
-            data.remove(DIG_PROGRESS);
-            data.remove(DIG_COOLOFF);
-            return;
-        }
-        swing(InteractionHand.MAIN_HAND);
-        data.putInt(DIG_PROGRESS, progress);
-        data.putInt(DIG_COOLOFF, blockDigCooloff(state, pos));
-        level.destroyBlockProgress(getId(), pos, progress);
-    }
-
-    private boolean canDestroyMiteBlock(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()
                 || !state.getFluidState().isEmpty()
@@ -622,21 +577,40 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
                 && net.neoforged.neoforge.common.CommonHooks.canEntityDestroy(level, pos, this);
     }
 
-    private int blockDigCooloff(BlockState state, BlockPos pos) {
+    int blockDigCooloff(BlockState state, BlockPos pos) {
         float hardness = Math.max(0.0F, state.getDestroySpeed(level(), pos));
-        int divisor = isNormalClay() ? 4 : isHardenedClay() ? 6 : 8;
-        int cooloff = Math.max(1, (int) (300.0F * hardness) / divisor);
-        return isBloodMoonFrenzied() ? Math.max(1, cooloff / 2) : cooloff;
+        int cooloff = (int) (300.0F * hardness);
+        if (isBloodMoonFrenzied()) {
+            cooloff /= 2;
+        }
+        return cooloff / (isNormalClay() ? 4 : isHardenedClay() ? 6 : 8);
     }
 
-    private boolean isBloodMoonFrenzied() {
+    boolean isBloodMoonFrenzied() {
         return level() instanceof ServerLevel level
                 && level.dimension() == Level.OVERWORLD
                 && MoonPhase.at(level) == MoonPhase.BLOOD
                 && Math.floorMod(level.getOverworldClockTime(), 24_000L) >= 12_000L;
     }
 
-    private void stopDigging(ServerLevel level) {
+    @Nullable BlockPos miteDiggingPosition() {
+        long encoded = getPersistentData().getLong(DIG_POS).orElse(Long.MIN_VALUE);
+        return encoded == Long.MIN_VALUE ? null : BlockPos.of(encoded);
+    }
+
+    void beginMiteDigging(ServerLevel level, BlockPos pos, int cooloff, int pause) {
+        BlockPos previous = miteDiggingPosition();
+        if (previous != null && !previous.equals(pos)) {
+            level.destroyBlockProgress(getId(), previous, -1);
+        }
+        var data = getPersistentData();
+        data.putLong(DIG_POS, pos.asLong());
+        data.putInt(DIG_PROGRESS, -1);
+        data.putInt(DIG_COOLOFF, Math.max(0, cooloff));
+        data.putInt(DIG_PAUSE, Math.max(0, pause));
+    }
+
+    void stopMiteDigging(ServerLevel level) {
         var data = getPersistentData();
         long encoded = data.getLong(DIG_POS).orElse(Long.MIN_VALUE);
         if (encoded != Long.MIN_VALUE) {
@@ -645,10 +619,11 @@ public class EarthElemental extends IronGolem implements Enemy, MiteMob {
         data.remove(DIG_POS);
         data.remove(DIG_PROGRESS);
         data.remove(DIG_COOLOFF);
+        data.remove(DIG_PAUSE);
     }
 
     public boolean isMiteDigging() {
-        return getPersistentData().getIntOr(DIG_PROGRESS, -1) >= 0;
+        return miteDiggingPosition() != null;
     }
 
     public int doorBreakTicks(boolean woodenDoor) {
