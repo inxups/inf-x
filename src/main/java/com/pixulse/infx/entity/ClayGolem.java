@@ -2,7 +2,7 @@ package com.pixulse.infx.entity;
 
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 
 /**
@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
  * heat machinery. Fire and lava permanently harden it rather than creating a magma state.
  */
 public final class ClayGolem extends EarthElemental {
-    public ClayGolem(EntityType<? extends IronGolem> type, Level level) {
+    public ClayGolem(EntityType<? extends Monster> type, Level level) {
         super(type, level);
         setForm(Form.CLAY_NORMAL);
     }
