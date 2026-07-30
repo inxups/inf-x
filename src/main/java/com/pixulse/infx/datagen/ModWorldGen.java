@@ -84,6 +84,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.heightproviders.BiasedToBottomHeight;
+import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
@@ -91,6 +92,7 @@ import net.minecraft.world.level.levelgen.placement.CountPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.HeightmapPlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
+import net.minecraft.world.level.levelgen.placement.PlacementModifier;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 import net.minecraft.world.level.levelgen.placement.RandomOffsetPlacement;
 import net.minecraft.world.level.levelgen.placement.RarityFilter;
@@ -134,6 +136,26 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_canyon"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COAL_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_coal_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COPPER_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_copper_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_IRON_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_iron_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_SILVER_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_silver_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_GOLD_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_gold_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_MITHRIL_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_mithril_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_REDSTONE_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_redstone_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_DIAMOND_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_diamond_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_LAPIS_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_lapis_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_EMERALD_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_emerald_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_STONE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("r196_infested_stone"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> R196_INFESTED_NETHERRACK_CONFIGURED =
@@ -161,6 +183,26 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
     private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("mithril_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_COAL_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_coal_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_COPPER_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_copper_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_IRON_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_iron_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_SILVER_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_silver_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_GOLD_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_gold_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_MITHRIL_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_mithril_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_REDSTONE_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_redstone_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_DIAMOND_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_diamond_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_LAPIS_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_lapis_ore"));
+    private static final ResourceKey<PlacedFeature> OVERWORLD_EMERALD_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_emerald_ore"));
     private static final ResourceKey<PlacedFeature> R196_INFESTED_STONE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("r196_infested_stone"));
     private static final ResourceKey<PlacedFeature> R196_INFESTED_NETHERRACK_PLACED =
@@ -187,6 +229,12 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_mithril_ore"));
+    private static final ResourceKey<BiomeModifier> REMOVE_OVERWORLD_RESOURCE_ORES =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_overworld_resource_ores"));
+    private static final ResourceKey<BiomeModifier> ADD_OVERWORLD_RESOURCE_ORES =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_overworld_resource_ores"));
+    private static final ResourceKey<BiomeModifier> ADD_OVERWORLD_EMERALD_ORE =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_overworld_emerald_ore"));
     private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_STONE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_r196_infested_stone"));
     private static final ResourceKey<BiomeModifier> ADD_R196_INFESTED_NETHERRACK =
@@ -300,6 +348,66 @@ public final class ModWorldGen {
                                 33)));
         registerConfiguredOre(context, SILVER_ORE_CONFIGURED, InfXBlocks.SILVER_ORE.get().defaultBlockState(), 6);
         registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, InfXBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_COAL_ORE_CONFIGURED,
+                Blocks.COAL_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_COAL_ORE.defaultBlockState(),
+                12);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_COPPER_ORE_CONFIGURED,
+                Blocks.COPPER_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_COPPER_ORE.defaultBlockState(),
+                6);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_IRON_ORE_CONFIGURED,
+                Blocks.IRON_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_IRON_ORE.defaultBlockState(),
+                6);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_SILVER_ORE_CONFIGURED,
+                InfXBlocks.SILVER_ORE.get().defaultBlockState(),
+                InfXBlocks.DEEPSLATE_SILVER_ORE.get().defaultBlockState(),
+                6);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_GOLD_ORE_CONFIGURED,
+                Blocks.GOLD_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_GOLD_ORE.defaultBlockState(),
+                4);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_MITHRIL_ORE_CONFIGURED,
+                InfXBlocks.MITHRIL_ORE.get().defaultBlockState(),
+                InfXBlocks.DEEPSLATE_MITHRIL_ORE.get().defaultBlockState(),
+                3);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_REDSTONE_ORE_CONFIGURED,
+                Blocks.REDSTONE_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_REDSTONE_ORE.defaultBlockState(),
+                5);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_DIAMOND_ORE_CONFIGURED,
+                Blocks.DIAMOND_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState(),
+                3);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_LAPIS_ORE_CONFIGURED,
+                Blocks.LAPIS_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_LAPIS_ORE.defaultBlockState(),
+                3);
+        registerOverworldConfiguredOre(
+                context,
+                OVERWORLD_EMERALD_ORE_CONFIGURED,
+                Blocks.EMERALD_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_EMERALD_ORE.defaultBlockState(),
+                1);
         context.register(
                 R196_INFESTED_STONE_CONFIGURED,
                 new ConfiguredFeature<>(
@@ -397,11 +505,100 @@ public final class ModWorldGen {
                                 size)));
     }
 
+    private static void registerOverworldConfiguredOre(
+            BootstrapContext<ConfiguredFeature<?, ?>> context,
+            ResourceKey<ConfiguredFeature<?, ?>> key,
+            BlockState stoneState,
+            BlockState deepslateState,
+            int size) {
+        context.register(
+                key,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(
+                                List.of(
+                                        OreConfiguration.target(
+                                                new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES), stoneState),
+                                        OreConfiguration.target(
+                                                new TagMatchTest(BlockTags.DEEPSLATE_ORE_REPLACEABLES), deepslateState)),
+                                size)));
+    }
+
     private static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
         HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures =
                 context.lookup(Registries.CONFIGURED_FEATURE);
         registerPlacedOre(context, configuredFeatures, SILVER_ORE_CONFIGURED, SILVER_ORE_PLACED, 96);
         registerPlacedOre(context, configuredFeatures, MITHRIL_ORE_CONFIGURED, MITHRIL_ORE_PLACED, 32);
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_COAL_ORE_CONFIGURED,
+                OVERWORLD_COAL_ORE_PLACED,
+                CountPlacement.of(4),
+                UniformHeight.of(VerticalAnchor.absolute(32), VerticalAnchor.absolute(160)));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_COPPER_ORE_CONFIGURED,
+                OVERWORLD_COPPER_ORE_PLACED,
+                CountPlacement.of(3),
+                UniformHeight.of(VerticalAnchor.absolute(-8), VerticalAnchor.absolute(96)));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_IRON_ORE_CONFIGURED,
+                OVERWORLD_IRON_ORE_PLACED,
+                CountPlacement.of(4),
+                BiasedToBottomHeight.of(VerticalAnchor.absolute(-8), VerticalAnchor.absolute(80), 1));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_SILVER_ORE_CONFIGURED,
+                OVERWORLD_SILVER_ORE_PLACED,
+                RarityFilter.onAverageOnceEvery(2),
+                BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(64), 1));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_GOLD_ORE_CONFIGURED,
+                OVERWORLD_GOLD_ORE_PLACED,
+                CountPlacement.of(1),
+                BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(40), 1));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_MITHRIL_ORE_CONFIGURED,
+                OVERWORLD_MITHRIL_ORE_PLACED,
+                RarityFilter.onAverageOnceEvery(4),
+                BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(8), 1));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_REDSTONE_ORE_CONFIGURED,
+                OVERWORLD_REDSTONE_ORE_PLACED,
+                RarityFilter.onAverageOnceEvery(2),
+                BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(16), 1));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_DIAMOND_ORE_CONFIGURED,
+                OVERWORLD_DIAMOND_ORE_PLACED,
+                RarityFilter.onAverageOnceEvery(4),
+                BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(4), 1));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_LAPIS_ORE_CONFIGURED,
+                OVERWORLD_LAPIS_ORE_PLACED,
+                RarityFilter.onAverageOnceEvery(4),
+                UniformHeight.of(VerticalAnchor.absolute(8), VerticalAnchor.absolute(32)));
+        registerPlacedOverworldOre(
+                context,
+                configuredFeatures,
+                OVERWORLD_EMERALD_ORE_CONFIGURED,
+                OVERWORLD_EMERALD_ORE_PLACED,
+                RarityFilter.onAverageOnceEvery(2),
+                UniformHeight.of(VerticalAnchor.absolute(48), VerticalAnchor.absolute(128)));
         context.register(
                 R196_INFESTED_STONE_PLACED,
                 new PlacedFeature(
@@ -955,7 +1152,7 @@ public final class ModWorldGen {
                         vanilla.seaLevel(),
                         false,
                         vanilla.aquifersEnabled(),
-                        vanilla.oreVeinsEnabled(),
+                        false,
                         vanilla.useLegacyRandomSource()));
     }
 
@@ -1098,12 +1295,52 @@ public final class ModWorldGen {
                                 BiomeFilter.biome())));
     }
 
+    private static void registerPlacedOverworldOre(
+            BootstrapContext<PlacedFeature> context,
+            HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures,
+            ResourceKey<ConfiguredFeature<?, ?>> configuredKey,
+            ResourceKey<PlacedFeature> placedKey,
+            PlacementModifier frequency,
+            HeightProvider height) {
+        context.register(
+                placedKey,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(configuredKey),
+                        List.of(
+                                frequency,
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.of(height),
+                                BiomeFilter.biome())));
+    }
+
     private static void bootstrapBiomeModifiers(BootstrapContext<BiomeModifier> context) {
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
         HolderGetter<ConfiguredWorldCarver<?>> carvers = context.lookup(Registries.CONFIGURED_CARVER);
-        registerOverworldOreModifier(context, biomes, placedFeatures, ADD_SILVER_ORE, SILVER_ORE_PLACED);
-        registerOverworldOreModifier(context, biomes, placedFeatures, ADD_MITHRIL_ORE, MITHRIL_ORE_PLACED);
+        registerOverworldResourceOreRemoval(context, biomes, placedFeatures);
+        context.register(
+                ADD_OVERWORLD_RESOURCE_ORES,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(OVERWORLD_COAL_ORE_PLACED),
+                                placedFeatures.getOrThrow(OVERWORLD_COPPER_ORE_PLACED),
+                                placedFeatures.getOrThrow(OVERWORLD_IRON_ORE_PLACED),
+                                placedFeatures.getOrThrow(OVERWORLD_GOLD_ORE_PLACED),
+                                placedFeatures.getOrThrow(OVERWORLD_REDSTONE_ORE_PLACED),
+                                placedFeatures.getOrThrow(OVERWORLD_DIAMOND_ORE_PLACED),
+                                placedFeatures.getOrThrow(OVERWORLD_LAPIS_ORE_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES));
+        registerOverworldOreModifier(
+                context, biomes, placedFeatures, ADD_SILVER_ORE, OVERWORLD_SILVER_ORE_PLACED);
+        registerOverworldOreModifier(
+                context, biomes, placedFeatures, ADD_MITHRIL_ORE, OVERWORLD_MITHRIL_ORE_PLACED);
+        context.register(
+                ADD_OVERWORLD_EMERALD_ORE,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_MOUNTAIN),
+                        HolderSet.direct(placedFeatures.getOrThrow(OVERWORLD_EMERALD_ORE_PLACED)),
+                        GenerationStep.Decoration.UNDERGROUND_ORES));
         registerOverworldOreModifier(
                 context,
                 biomes,
@@ -1200,6 +1437,37 @@ public final class ModWorldGen {
                         biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
                         HolderSet.direct(placedFeatures.getOrThrow(placedKey)),
                         GenerationStep.Decoration.UNDERGROUND_ORES));
+    }
+
+    private static void registerOverworldResourceOreRemoval(
+            BootstrapContext<BiomeModifier> context,
+            HolderGetter<Biome> biomes,
+            HolderGetter<PlacedFeature> placedFeatures) {
+        context.register(
+                REMOVE_OVERWORLD_RESOURCE_ORES,
+                new BiomeModifiers.RemoveFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(
+                                placedFeatures.getOrThrow(OrePlacements.ORE_COAL_UPPER),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_COAL_LOWER),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_IRON_UPPER),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_IRON_MIDDLE),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_IRON_SMALL),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_GOLD_EXTRA),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_GOLD),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_GOLD_LOWER),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_REDSTONE),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_REDSTONE_LOWER),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_DIAMOND),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_DIAMOND_MEDIUM),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_DIAMOND_LARGE),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_DIAMOND_BURIED),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_LAPIS),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_LAPIS_BURIED),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_COPPER),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_COPPER_LARGE),
+                                placedFeatures.getOrThrow(OrePlacements.ORE_EMERALD)),
+                        Set.of(GenerationStep.Decoration.UNDERGROUND_ORES)));
     }
 
     private static void registerR196SpawnModifiers(BootstrapContext<BiomeModifier> context) {
