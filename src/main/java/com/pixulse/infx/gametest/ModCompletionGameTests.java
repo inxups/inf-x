@@ -471,10 +471,9 @@ public final class ModCompletionGameTests {
                 BiomeTags.HAS_TRAIL_RUINS,
                 BiomeTags.HAS_TRIAL_CHAMBERS)) {
             var structureBiomes = biomes.getOrThrow(tag);
-            helper.assertTrue(structureBiomes.size() == 1, tag.location() + " only targets the Underworld");
             helper.assertTrue(
-                    structureBiomes.contains(underworldBiome),
-                    tag.location() + " includes the Underworld biome");
+                    !structureBiomes.contains(underworldBiome),
+                    tag.location() + " excludes the empty Underworld biome");
         }
         for (var tag : List.of(BiomeTags.HAS_MINESHAFT, BiomeTags.HAS_MINESHAFT_MESA)) {
             var structureBiomes = biomes.getOrThrow(tag);
