@@ -60,7 +60,7 @@ public final class UnderworldPortalBlock extends InfxPortalBlock {
             ServerLevel currentLevel, @NonNull Entity entity, @NonNull BlockPos portalEntryPos) {
         Optional<RuneGate> runeGate = findRuneGate(currentLevel, portalEntryPos);
         if (runeGate.isPresent()) {
-            TeleportTransition transition = runeTransition(currentLevel, entity, runeGate.get());
+            TeleportTransition transition = runeTransition(currentLevel, entity, portalEntryPos, runeGate.get());
             if (entity instanceof ServerPlayer player && RunegateTeleportation.start(player, transition)) {
                 return null;
             }
@@ -106,16 +106,18 @@ public final class UnderworldPortalBlock extends InfxPortalBlock {
         return findRuneGate(level, portal).isPresent();
     }
 
-    private static TeleportTransition runeTransition(ServerLevel level, Entity entity, RuneGate gate) {
+    private static TeleportTransition runeTransition(
+            ServerLevel level, Entity entity, BlockPos portalEntryPos, RuneGate gate) {
         int orientationGroup = switch (entity.getDirection()) {
             case WEST, SOUTH -> 1;
             default -> 0;
         };
         BlockPos destination = null;
         for (int attempt = 0; attempt < 5; attempt++) {
-            Vec3 offset = runeDestinationOffset(gate.material(), gate.signature(), orientationGroup, attempt);
-            int x = Math.clamp((int) Math.round(offset.x), -29_999_000, 29_999_000);
-            int z = Math.clamp((int) Math.round(offset.z), -29_999_000, 29_999_000);
+            BlockPos offsetDestination = runeDestinationPosition(
+                    portalEntryPos, gate.material(), gate.signature(), orientationGroup, attempt);
+            int x = offsetDestination.getX();
+            int z = offsetDestination.getZ();
             int y = level.dimension().equals(Level.OVERWORLD)
                     ? level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z)
                     : entity.blockPosition().getY();
@@ -139,6 +141,19 @@ public final class UnderworldPortalBlock extends InfxPortalBlock {
                 entity.getYRot(),
                 entity.getXRot(),
                 post);
+    }
+
+    /** Adds a rune gate's deterministic offset to its entry instead of treating it as an absolute position. */
+    public static BlockPos runeDestinationPosition(
+            BlockPos portalEntry,
+            InfxMaterial material,
+            int signature,
+            int orientationGroup,
+            int attempt) {
+        Vec3 offset = runeDestinationOffset(material, signature, orientationGroup, attempt);
+        int x = Math.clamp(portalEntry.getX() + (int) Math.round(offset.x), -29_999_000, 29_999_000);
+        int z = Math.clamp(portalEntry.getZ() + (int) Math.round(offset.z), -29_999_000, 29_999_000);
+        return new BlockPos(x, portalEntry.getY(), z);
     }
 
     public static Vec3 runeDestinationOffset(
