@@ -1247,6 +1247,98 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void shoreAndRiverBiomesUseSgravelForSoftDisksAndTerrain() throws Exception {
+        JsonObject removed = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/replace_shore_river_soft_disks.json"));
+        JsonObject added = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/add_shore_river_sgravel_disks.json"));
+        Set<String> expectedBiomes = Set.of(
+                "minecraft:stony_shore",
+                "minecraft:river",
+                "minecraft:frozen_river",
+                "infx:desert_river",
+                "infx:jungle_river",
+                "infx:swamp_river");
+        Set<String> removedBiomes = removed.getAsJsonArray("biomes").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> addedBiomes = added.getAsJsonArray("biomes").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> removedFeatures = removed.getAsJsonArray("features").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> addedFeatures = added.getAsJsonArray("features").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+
+        assertAll(
+                "shore and river sgravel disks",
+                () -> assertEquals("neoforge:remove_features", removed.get("type").getAsString()),
+                () -> assertEquals("neoforge:add_features", added.get("type").getAsString()),
+                () -> assertEquals(Set.of("minecraft:disk_sand", "minecraft:disk_gravel"), removedFeatures),
+                () -> assertEquals("underground_ores", removed.get("steps").getAsString()),
+                () -> assertEquals(Set.of("infx:sgravel_disk", "infx:sgravel_gravel_disk"), addedFeatures),
+                () -> assertEquals("underground_ores", added.get("step").getAsString()),
+                () -> assertEquals(expectedBiomes, removedBiomes),
+                () -> assertEquals(expectedBiomes, addedBiomes));
+
+        for (String noiseSettings : List.of("overworld", "large_biomes", "amplified")) {
+            JsonObject surfaceRule = json(GENERATED.resolve(
+                    "data/minecraft/worldgen/noise_settings/" + noiseSettings + ".json"))
+                    .getAsJsonObject("surface_rule");
+            JsonArray sequence = surfaceRule.getAsJsonArray("sequence");
+            JsonObject stonyShoreReplacement = sequence.get(1).getAsJsonObject();
+            JsonObject stonyShoreBiomeRule = stonyShoreReplacement.getAsJsonObject("then_run");
+            JsonObject waterfrontReplacement = sequence.get(2).getAsJsonObject();
+            JsonObject waterfrontBiomeRule = waterfrontReplacement.getAsJsonObject("then_run");
+            Set<String> stonyShoreStates = new HashSet<>();
+            Set<String> waterfrontStates = new HashSet<>();
+            visit(stonyShoreReplacement, (key, value) -> {
+                if ("Name".equals(key)) stonyShoreStates.add(value);
+            });
+            visit(waterfrontReplacement, (key, value) -> {
+                if ("Name".equals(key)) waterfrontStates.add(value);
+            });
+
+            assertAll(
+                    noiseSettings + " shore and river terrain sgravel",
+                    () -> assertEquals("minecraft:condition", stonyShoreReplacement
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals("minecraft:above_preliminary_surface", stonyShoreReplacement
+                            .getAsJsonObject("if_true")
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals(
+                            Set.of("minecraft:stony_shore"),
+                            stonyShoreBiomeRule.getAsJsonObject("if_true")
+                                    .getAsJsonArray("biome_is")
+                                    .asList()
+                                    .stream()
+                                    .map(JsonElement::getAsString)
+                                    .collect(Collectors.toSet())),
+                    () -> assertEquals(Set.of("infx:sgravel"), stonyShoreStates),
+                    () -> assertEquals("minecraft:condition", waterfrontReplacement
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals("minecraft:above_preliminary_surface", waterfrontReplacement
+                            .getAsJsonObject("if_true")
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals(
+                            expectedBiomes,
+                            waterfrontBiomeRule.getAsJsonObject("if_true")
+                                    .getAsJsonArray("biome_is")
+                                    .asList()
+                                    .stream()
+                                    .map(JsonElement::getAsString)
+                                    .collect(Collectors.toSet())),
+                    () -> assertEquals(Set.of("infx:sgravel"), waterfrontStates));
+        }
+    }
+
+    @Test
     void underworldDataKeepsDimensionTerrainOreAndDungeonProgression() throws Exception {
         JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
         JsonObject generator = dimension.getAsJsonObject("generator");
