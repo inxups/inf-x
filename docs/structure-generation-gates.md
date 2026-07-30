@@ -12,7 +12,7 @@
 | --- | --- | --- | --- |
 | `infx:village` | 主世界 | `#minecraft:village` | 生存第 60 天或之后，且全世界已制作铁级工具 |
 | `infx:pillager_outpost` | 主世界 | `minecraft:pillager_outpost` | 与村庄相同：第 60 天且已制作铁级工具 |
-| `infx:mansion` | 主世界 | `minecraft:mansion` | 任意一名玩家累计获得 100,000 点经验 |
+| `infx:mansion` | 主世界 | `minecraft:mansion` | 任意一名在线玩家当前经验达到 100,000 点 |
 | `infx:monument` | 主世界 | `minecraft:monument` | 任意玩家进入过任意下界要塞 |
 | `infx:overworld_ruined_portals` | 主世界 | `#minecraft:ruined_portal` | 任意玩家进入过下界；下界残破传送门不受此规则影响 |
 | `infx:shipwreck` | 主世界 | `#minecraft:shipwreck` | 任意玩家击杀过一只守卫者 |
@@ -90,7 +90,7 @@ Conditions.allOf(
 
 - `IRON_TOOL_CRAFTED`
 - `END_CONQUERED`
-- `MANSION_EXPERIENCE_EARNED`：单个玩家累计获得至少 100,000 点正经验；经验消费、死亡或其他玩家的经验不会倒退或合并该进度。
+- `MANSION_EXPERIENCE_HELD`：任意在线玩家当前经验不少于 100,000 点；当不再有任何玩家满足该条件时（例如持有者消费经验、默认死亡或离线），府邸会重新锁定。
 - `NETHER_ENTERED`
 - `NETHER_FORTRESS_ENTERED`
 - `MONUMENT_GUARDIAN_KILLED`
@@ -110,7 +110,7 @@ StructureGenerationGates.allows(dimension, candidateStructure)
 3. 每个服务器 tick 结束时刷新一次。
 4. 服务器停止时再次清空为全锁定状态。
 
-任何会立刻改变解锁状态的服务器线程逻辑，都应在更新 `WorldData` 后调用 `StructureGenerationGates.refresh(level)`；村庄的铁级工具制作事件就是现有示例。即使未主动刷新，下一次服务器 tick 也会发布新快照。
+任何会立刻改变解锁状态的服务器线程逻辑，都应在更新进度或玩家当前经验后调用 `StructureGenerationGates.refresh(level)`；村庄的铁级工具制作事件和玩家经验变更事件都是现有示例。即使未主动刷新，下一次服务器 tick 也会发布新快照。府邸的当前经验门槛不写入 `WorldData`，而是在每次刷新时读取在线玩家的经验总值。
 
 新条件需要持久化世界状态时，按以下顺序扩展：
 

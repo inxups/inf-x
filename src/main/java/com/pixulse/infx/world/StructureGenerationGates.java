@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -33,6 +34,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StructureGenerationGates {
+    public static final int MANSION_EXPERIENCE_REQUIREMENT = 100_000;
     public static final Identifier VILLAGE_RULE = InfiniteX.id("village");
     public static final Identifier PILLAGER_OUTPOST_RULE = InfiniteX.id("pillager_outpost");
     public static final Identifier MANSION_RULE = InfiniteX.id("mansion");
@@ -60,7 +62,7 @@ public final class StructureGenerationGates {
                     MANSION_RULE,
                     Set.of(Level.OVERWORLD),
                     StructureSelector.key(BuiltinStructures.WOODLAND_MANSION),
-                    Conditions.milestone(WorldMilestone.MANSION_EXPERIENCE_EARNED)),
+                    Conditions.milestone(WorldMilestone.MANSION_EXPERIENCE_HELD)),
             new StructureGate(
                     MONUMENT_RULE,
                     Set.of(Level.OVERWORLD),
@@ -173,11 +175,23 @@ public final class StructureGenerationGates {
         EnumSet<WorldMilestone> milestones = EnumSet.noneOf(WorldMilestone.class);
         if (data.ironToolCrafted()) milestones.add(WorldMilestone.IRON_TOOL_CRAFTED);
         if (data.endConquered()) milestones.add(WorldMilestone.END_CONQUERED);
-        if (data.mansionExperienceEarned()) milestones.add(WorldMilestone.MANSION_EXPERIENCE_EARNED);
+        if (hasMansionExperience(level.getServer().getPlayerList().getPlayers().stream()
+                .filter(player -> player.isAlive())
+                .mapToInt(player -> player.totalExperience))) {
+            milestones.add(WorldMilestone.MANSION_EXPERIENCE_HELD);
+        }
         if (data.netherEntered()) milestones.add(WorldMilestone.NETHER_ENTERED);
         if (data.netherFortressEntered()) milestones.add(WorldMilestone.NETHER_FORTRESS_ENTERED);
         if (data.monumentGuardianKilled()) milestones.add(WorldMilestone.MONUMENT_GUARDIAN_KILLED);
         return new WorldProgressSnapshot(day(level), milestones, data.firstCompletions().keySet());
+    }
+
+    static boolean hasMansionExperience(int totalExperience) {
+        return totalExperience >= MANSION_EXPERIENCE_REQUIREMENT;
+    }
+
+    static boolean hasMansionExperience(IntStream totalExperiences) {
+        return totalExperiences.anyMatch(StructureGenerationGates::hasMansionExperience);
     }
 
     /** A single named rule, scoped to dimensions and a structure ID or tag selector. */
@@ -265,17 +279,17 @@ public final class StructureGenerationGates {
         }
     }
 
-    /** Shared persistent world milestones exposed to structure-gate conditions. */
+    /** Shared world-progress milestones exposed to structure-gate conditions. */
     public enum WorldMilestone {
         IRON_TOOL_CRAFTED,
         END_CONQUERED,
-        MANSION_EXPERIENCE_EARNED,
+        MANSION_EXPERIENCE_HELD,
         NETHER_ENTERED,
         NETHER_FORTRESS_ENTERED,
         MONUMENT_GUARDIAN_KILLED
     }
 
-    /** Immutable, thread-safe projection of the parts of {@link WorldData} used by gates. */
+    /** Immutable, thread-safe projection of world data and player state used by gates. */
     public record WorldProgressSnapshot(
             long day,
             Set<WorldMilestone> milestones,

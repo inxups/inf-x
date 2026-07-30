@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
@@ -109,7 +110,7 @@ class StructureGenerationGatesTest {
         assertTrue(StructureGenerationGates.allows(
                 Level.OVERWORLD,
                 holder(MANSION),
-                progress(1L, StructureGenerationGates.WorldMilestone.MANSION_EXPERIENCE_EARNED),
+                progress(1L, StructureGenerationGates.WorldMilestone.MANSION_EXPERIENCE_HELD),
                 StructureGenerationGates.rules()));
 
         assertFalse(StructureGenerationGates.allows(
@@ -156,6 +157,16 @@ class StructureGenerationGatesTest {
                     progress(1L, StructureGenerationGates.WorldMilestone.MONUMENT_GUARDIAN_KILLED),
                     StructureGenerationGates.rules()));
         }
+    }
+
+    @Test
+    void mansionGateRequiresAnOnlinePlayerToCurrentlyHoldOneHundredThousandExperience() {
+        int threshold = StructureGenerationGates.MANSION_EXPERIENCE_REQUIREMENT;
+
+        assertFalse(StructureGenerationGates.hasMansionExperience(IntStream.of(threshold - 1, 1)));
+        assertTrue(StructureGenerationGates.hasMansionExperience(IntStream.of(threshold)));
+        assertTrue(StructureGenerationGates.hasMansionExperience(IntStream.of(threshold + 1)));
+        assertFalse(StructureGenerationGates.hasMansionExperience(IntStream.of(threshold - 1)));
     }
 
     @Test

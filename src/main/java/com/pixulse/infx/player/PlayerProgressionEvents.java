@@ -11,7 +11,7 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.event.SurvivalEvents;
-import com.pixulse.infx.world.StructureProgressionEvents;
+import com.pixulse.infx.world.StructureGenerationGates;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -54,22 +54,20 @@ public final class PlayerProgressionEvents {
 
     @SubscribeEvent
     public static void onExperienceChange(PlayerXpEvent.XpChange event) {
-        int totalBefore = event.getEntity().totalExperience;
         event.setCanceled(true);
         Experience.add(event.getEntity(), event.getAmount());
         if (event.getEntity() instanceof ServerPlayer player) {
-            StructureProgressionEvents.recordExperienceGain(player, (long) player.totalExperience - totalBefore);
+            StructureGenerationGates.refresh(player.level());
         }
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     @SubscribeEvent
     public static void onLevelChange(PlayerXpEvent.LevelChange event) {
-        int totalBefore = event.getEntity().totalExperience;
         event.setCanceled(true);
         Experience.addLevels(event.getEntity(), event.getLevels());
         if (event.getEntity() instanceof ServerPlayer player) {
-            StructureProgressionEvents.recordExperienceGain(player, (long) player.totalExperience - totalBefore);
+            StructureGenerationGates.refresh(player.level());
         }
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
@@ -78,7 +76,7 @@ public final class PlayerProgressionEvents {
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
         if (event.getEntity() instanceof ServerPlayer player) {
-            StructureProgressionEvents.observeExperience(player);
+            StructureGenerationGates.refresh(player.level());
         }
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
@@ -89,6 +87,7 @@ public final class PlayerProgressionEvents {
                 || keepsExperienceOnDeath(event.getEntity())
                 || event.getOriginal().isSpectator()) {
             Experience.setTotal(event.getEntity(), event.getOriginal().totalExperience);
+            refreshStructureGates(event.getEntity());
             SurvivalEvents.recalculatePlayerLimits(event.getEntity());
             return;
         }
@@ -96,6 +95,7 @@ public final class PlayerProgressionEvents {
                 .getInt(DEATH_TOTAL)
                 .orElse(event.getOriginal().totalExperience);
         Experience.setTotal(event.getEntity(), Experience.deathTotal(previous));
+        refreshStructureGates(event.getEntity());
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
@@ -121,6 +121,12 @@ public final class PlayerProgressionEvents {
     private static boolean keepsExperienceOnDeath(Player player) {
         return player.level() instanceof ServerLevel serverLevel
                 && serverLevel.getGameRules().get(GameRules.KEEP_INVENTORY);
+    }
+
+    private static void refreshStructureGates(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            StructureGenerationGates.refresh(serverPlayer.level());
+        }
     }
 
     @SubscribeEvent
