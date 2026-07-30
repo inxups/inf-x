@@ -87,6 +87,10 @@ public final class InfXBlocks {
             ADAMANTIUM_ORE,
             DEEPSLATE_ADAMANTIUM_ORE);
 
+    public static final DeferredBlock<ColoredFallingBlock> GRAVEL = BLOCKS.registerBlock(
+            "gravel",
+            properties -> new ColoredFallingBlock(new ColorRGBA(0xFF808080), properties),
+            properties -> properties.ofFullCopy(Blocks.GRAVEL).requiresCorrectToolForDrops());
     public static final DeferredBlock<ColoredFallingBlock> NETHER_GRAVEL = BLOCKS.registerBlock(
             "nether_gravel",
             properties -> new ColoredFallingBlock(new ColorRGBA(0xFF6B5548), properties),
@@ -135,7 +139,7 @@ public final class InfXBlocks {
                     .strength(0.2F)
                     .sound(SoundType.SNOW));
     public static final List<DeferredBlock<? extends Block>> FULLTEXT_BLOCKS =
-            List.of(NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
+            List.of(GRAVEL, NETHER_GRAVEL, WITHERWOOD, BLUEBERRY_BUSH, CORE);
     public static final List<DeferredBlock<? extends Block>> MITE_RECIPE_BLOCKS = List.of(SNOW_SLAB);
 
     public static final DeferredBlock<UnderworldPortalBlock> UNDERWORLD_PORTAL = BLOCKS.registerBlock(

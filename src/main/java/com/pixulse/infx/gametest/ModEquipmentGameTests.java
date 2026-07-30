@@ -458,6 +458,7 @@ public final class ModEquipmentGameTests {
         assertHarvestLevel(helper, Blocks.INFESTED_STONE, 0);
         assertHarvestLevel(helper, InfXBlocks.INFESTED_NETHERRACK.get(), 0);
         assertHarvestLevel(helper, Blocks.OAK_LOG, 1);
+        assertHarvestLevel(helper, InfXBlocks.GRAVEL.get(), 1);
         assertHarvestLevel(helper, Blocks.TERRACOTTA, 1);
         assertHarvestLevel(helper, Blocks.SANDSTONE_SLAB, 1);
         assertHarvestLevel(helper, Blocks.STONE, 2);
@@ -502,6 +503,14 @@ public final class ModEquipmentGameTests {
 
         ItemStack flintShovel = equipmentStack(MiteMaterial.FLINT, EquipmentType.SHOVEL);
         ItemStack copperShovel = equipmentStack(MiteMaterial.COPPER, EquipmentType.SHOVEL);
+        ItemStack copperPickaxe = equipmentStack(MiteMaterial.COPPER, EquipmentType.PICKAXE);
+        ItemStack flintAxe = equipmentStack(MiteMaterial.FLINT, EquipmentType.AXE);
+        BlockState gravel = InfXBlocks.GRAVEL.get().defaultBlockState();
+        helper.assertTrue(gravel.requiresCorrectToolForDrops(), "gravel requires a correct tool for drops");
+        helper.assertTrue(flintShovel.isCorrectToolForDrops(gravel), "flint shovels must harvest gravel");
+        helper.assertTrue(copperShovel.isCorrectToolForDrops(gravel), "higher-tier shovels must harvest gravel");
+        helper.assertFalse(copperPickaxe.isCorrectToolForDrops(gravel), "pickaxes must not harvest gravel");
+        helper.assertFalse(flintAxe.isCorrectToolForDrops(gravel), "axes must not harvest gravel");
         helper.assertFalse(flintShovel.isCorrectToolForDrops(Blocks.GLASS.defaultBlockState()),
                 "non-metal shovels must not harvest full glass");
         helper.assertTrue(copperShovel.isCorrectToolForDrops(Blocks.GLASS.defaultBlockState()),

@@ -26,8 +26,8 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        // 399 baseline + 42 mob buckets + 7 powder-snow buckets + 4 fish spawn eggs, clay golem and bat eggs.
-        assertEquals(454, registered.size());
+        // 400 baseline + 42 mob buckets + 7 powder-snow buckets + 4 fish spawn eggs, clay golem and bat eggs.
+        assertEquals(455, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -35,7 +35,7 @@ class InfXCreativeTabsTest {
     @Test
     void categorySizesMatchTheCreativeInventoryDesign() {
         Map<InfXCreativeTabs.Category, Integer> expected = Map.of(
-                InfXCreativeTabs.Category.BLOCKS, 49,
+                InfXCreativeTabs.Category.BLOCKS, 50,
                 InfXCreativeTabs.Category.INGREDIENTS, 31,
                 InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
                 InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
@@ -83,7 +83,7 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        assertEquals(57, InfXBlocks.BLOCKS.getEntries().size());
+        assertEquals(58, InfXBlocks.BLOCKS.getEntries().size());
         assertEquals(expectedBlockItems, creativeBlocks);
         assertFalse(registeredItems.contains(underworldPortal), "Underworld portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(netherPortal), "Nether portal must remain without a BlockItem");

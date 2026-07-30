@@ -46,6 +46,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         InfXBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
         InfXBlocks.METAL_SAFES.forEach(safe -> dropSelf(safe.get()));
         add(InfXBlocks.SNOW_SLAB.get(), createSlabItemTable(InfXBlocks.SNOW_SLAB.get()));
+        dropSelf(InfXBlocks.GRAVEL.get());
         dropSelf(InfXBlocks.NETHER_GRAVEL.get());
         dropSelf(InfXBlocks.WITHERWOOD.get());
         add(InfXBlocks.BLUEBERRY_BUSH.get(), blueberryBushDrops(InfXBlocks.BLUEBERRY_BUSH.get()));
