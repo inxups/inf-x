@@ -32,6 +32,19 @@ import org.junit.jupiter.api.Test;
 class StructureGenerationGatesTest {
     private static final ResourceKey<Structure> VILLAGE = BuiltinStructures.VILLAGE_PLAINS;
     private static final ResourceKey<Structure> OUTPOST = BuiltinStructures.PILLAGER_OUTPOST;
+    private static final ResourceKey<Structure> MANSION = BuiltinStructures.WOODLAND_MANSION;
+    private static final ResourceKey<Structure> MONUMENT = BuiltinStructures.OCEAN_MONUMENT;
+    private static final ResourceKey<Structure> RUINED_PORTAL = BuiltinStructures.RUINED_PORTAL_STANDARD;
+    private static final ResourceKey<Structure> RUINED_PORTAL_DESERT = BuiltinStructures.RUINED_PORTAL_DESERT;
+    private static final ResourceKey<Structure> RUINED_PORTAL_JUNGLE = BuiltinStructures.RUINED_PORTAL_JUNGLE;
+    private static final ResourceKey<Structure> RUINED_PORTAL_MOUNTAIN = BuiltinStructures.RUINED_PORTAL_MOUNTAIN;
+    private static final ResourceKey<Structure> RUINED_PORTAL_OCEAN = BuiltinStructures.RUINED_PORTAL_OCEAN;
+    private static final ResourceKey<Structure> RUINED_PORTAL_SWAMP = BuiltinStructures.RUINED_PORTAL_SWAMP;
+    private static final ResourceKey<Structure> RUINED_PORTAL_NETHER = BuiltinStructures.RUINED_PORTAL_NETHER;
+    private static final ResourceKey<Structure> SHIPWRECK = BuiltinStructures.SHIPWRECK;
+    private static final ResourceKey<Structure> SHIPWRECK_BEACHED = BuiltinStructures.SHIPWRECK_BEACHED;
+    private static final ResourceKey<Structure> ANCIENT_CITY = BuiltinStructures.ANCIENT_CITY;
+    private static final ResourceKey<Structure> TRIAL_CHAMBERS = BuiltinStructures.TRIAL_CHAMBERS;
     private static final TagKey<Structure> TEST_TAG =
             TagKey.create(Registries.STRUCTURE, InfiniteX.id("test_structure_gate"));
 
@@ -54,6 +67,95 @@ class StructureGenerationGatesTest {
                 village,
                 progress(VillageProgression.VILLAGE_DAY, StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED),
                 StructureGenerationGates.rules()));
+    }
+
+    @Test
+    void ancientCityAndTrialChambersArePermanentlySuppressedInTheOverworld() {
+        StructureGenerationGates.WorldProgressSnapshot fullyUnlocked = progress(
+                Long.MAX_VALUE,
+                StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED,
+                StructureGenerationGates.WorldMilestone.END_CONQUERED);
+
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD, holder(ANCIENT_CITY), fullyUnlocked, StructureGenerationGates.rules()));
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD, holder(TRIAL_CHAMBERS), fullyUnlocked, StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.NETHER, holder(ANCIENT_CITY), fullyUnlocked, StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.NETHER, holder(TRIAL_CHAMBERS), fullyUnlocked, StructureGenerationGates.rules()));
+    }
+
+    @Test
+    void progressionGatesRequireTheirSpecifiedWorldMilestones() {
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD,
+                holder(OUTPOST),
+                progress(VillageProgression.VILLAGE_DAY - 1L, StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED),
+                StructureGenerationGates.rules()));
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD,
+                holder(OUTPOST),
+                progress(VillageProgression.VILLAGE_DAY),
+                StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.OVERWORLD,
+                holder(OUTPOST),
+                progress(VillageProgression.VILLAGE_DAY, StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED),
+                StructureGenerationGates.rules()));
+
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD, holder(MANSION), progress(1L), StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.OVERWORLD,
+                holder(MANSION),
+                progress(1L, StructureGenerationGates.WorldMilestone.MANSION_EXPERIENCE_EARNED),
+                StructureGenerationGates.rules()));
+
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD, holder(MONUMENT), progress(1L), StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.OVERWORLD,
+                holder(MONUMENT),
+                progress(1L, StructureGenerationGates.WorldMilestone.NETHER_FORTRESS_ENTERED),
+                StructureGenerationGates.rules()));
+
+        for (ResourceKey<Structure> portal : List.of(
+                RUINED_PORTAL,
+                RUINED_PORTAL_DESERT,
+                RUINED_PORTAL_JUNGLE,
+                RUINED_PORTAL_MOUNTAIN,
+                RUINED_PORTAL_OCEAN,
+                RUINED_PORTAL_SWAMP)) {
+            assertFalse(StructureGenerationGates.allows(
+                    Level.OVERWORLD,
+                    holder(portal, StructureTags.RUINED_PORTAL),
+                    progress(1L),
+                    StructureGenerationGates.rules()));
+            assertTrue(StructureGenerationGates.allows(
+                    Level.OVERWORLD,
+                    holder(portal, StructureTags.RUINED_PORTAL),
+                    progress(1L, StructureGenerationGates.WorldMilestone.NETHER_ENTERED),
+                    StructureGenerationGates.rules()));
+        }
+        assertTrue(StructureGenerationGates.allows(
+                Level.NETHER,
+                holder(RUINED_PORTAL_NETHER, StructureTags.RUINED_PORTAL),
+                progress(1L),
+                StructureGenerationGates.rules()));
+
+        for (ResourceKey<Structure> shipwreck : List.of(SHIPWRECK, SHIPWRECK_BEACHED)) {
+            assertFalse(StructureGenerationGates.allows(
+                    Level.OVERWORLD,
+                    holder(shipwreck, StructureTags.SHIPWRECK),
+                    progress(1L),
+                    StructureGenerationGates.rules()));
+            assertTrue(StructureGenerationGates.allows(
+                    Level.OVERWORLD,
+                    holder(shipwreck, StructureTags.SHIPWRECK),
+                    progress(1L, StructureGenerationGates.WorldMilestone.MONUMENT_GUARDIAN_KILLED),
+                    StructureGenerationGates.rules()));
+        }
     }
 
     @Test

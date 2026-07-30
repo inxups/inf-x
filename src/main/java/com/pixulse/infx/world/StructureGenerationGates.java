@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,15 +34,58 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StructureGenerationGates {
     public static final Identifier VILLAGE_RULE = InfiniteX.id("village");
+    public static final Identifier PILLAGER_OUTPOST_RULE = InfiniteX.id("pillager_outpost");
+    public static final Identifier MANSION_RULE = InfiniteX.id("mansion");
+    public static final Identifier MONUMENT_RULE = InfiniteX.id("monument");
+    public static final Identifier OVERWORLD_RUINED_PORTALS_RULE = InfiniteX.id("overworld_ruined_portals");
+    public static final Identifier SHIPWRECK_RULE = InfiniteX.id("shipwreck");
+    public static final Identifier ANCIENT_CITY_RULE = InfiniteX.id("ancient_city");
+    public static final Identifier TRIAL_CHAMBERS_RULE = InfiniteX.id("trial_chambers");
 
+    private static final GateCondition VILLAGE_REQUIREMENTS = Conditions.allOf(
+            Conditions.afterDay(VillageProgression.VILLAGE_DAY),
+            Conditions.milestone(WorldMilestone.IRON_TOOL_CRAFTED));
     private static final List<StructureGate> RULES = List.of(
             new StructureGate(
                     VILLAGE_RULE,
                     Set.of(Level.OVERWORLD),
                     StructureSelector.tag(StructureTags.VILLAGE),
-                    Conditions.allOf(
-                            Conditions.afterDay(VillageProgression.VILLAGE_DAY),
-                            Conditions.milestone(WorldMilestone.IRON_TOOL_CRAFTED))));
+                    VILLAGE_REQUIREMENTS),
+            new StructureGate(
+                    PILLAGER_OUTPOST_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.PILLAGER_OUTPOST),
+                    VILLAGE_REQUIREMENTS),
+            new StructureGate(
+                    MANSION_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.WOODLAND_MANSION),
+                    Conditions.milestone(WorldMilestone.MANSION_EXPERIENCE_EARNED)),
+            new StructureGate(
+                    MONUMENT_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.OCEAN_MONUMENT),
+                    Conditions.milestone(WorldMilestone.NETHER_FORTRESS_ENTERED)),
+            new StructureGate(
+                    OVERWORLD_RUINED_PORTALS_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.tag(StructureTags.RUINED_PORTAL),
+                    Conditions.milestone(WorldMilestone.NETHER_ENTERED)),
+            new StructureGate(
+                    SHIPWRECK_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.tag(StructureTags.SHIPWRECK),
+                    Conditions.milestone(WorldMilestone.MONUMENT_GUARDIAN_KILLED)),
+            new StructureGate(
+                    ANCIENT_CITY_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.ANCIENT_CITY),
+                    Conditions.never()),
+            new StructureGate(
+                    TRIAL_CHAMBERS_RULE,
+                    Set.of(Level.OVERWORLD),
+                    StructureSelector.key(BuiltinStructures.TRIAL_CHAMBERS),
+                    Conditions.never()));
     private static final Map<Identifier, StructureGate> RULES_BY_ID = RULES.stream()
             .collect(Collectors.toUnmodifiableMap(StructureGate::id, Function.identity()));
 
@@ -129,6 +173,10 @@ public final class StructureGenerationGates {
         EnumSet<WorldMilestone> milestones = EnumSet.noneOf(WorldMilestone.class);
         if (data.ironToolCrafted()) milestones.add(WorldMilestone.IRON_TOOL_CRAFTED);
         if (data.endConquered()) milestones.add(WorldMilestone.END_CONQUERED);
+        if (data.mansionExperienceEarned()) milestones.add(WorldMilestone.MANSION_EXPERIENCE_EARNED);
+        if (data.netherEntered()) milestones.add(WorldMilestone.NETHER_ENTERED);
+        if (data.netherFortressEntered()) milestones.add(WorldMilestone.NETHER_FORTRESS_ENTERED);
+        if (data.monumentGuardianKilled()) milestones.add(WorldMilestone.MONUMENT_GUARDIAN_KILLED);
         return new WorldProgressSnapshot(day(level), milestones, data.firstCompletions().keySet());
     }
 
@@ -175,7 +223,14 @@ public final class StructureGenerationGates {
 
     /** Built-in, composable conditions for structure generation rules. */
     public static final class Conditions {
+        private static final GateCondition NEVER = progress -> false;
+
         private Conditions() {}
+
+        /** A condition used to permanently suppress a structure's future generation. */
+        public static GateCondition never() {
+            return NEVER;
+        }
 
         public static GateCondition afterDay(long day) {
             if (day < 1L) throw new IllegalArgumentException("Minimum day must be positive");
@@ -213,7 +268,11 @@ public final class StructureGenerationGates {
     /** Shared persistent world milestones exposed to structure-gate conditions. */
     public enum WorldMilestone {
         IRON_TOOL_CRAFTED,
-        END_CONQUERED
+        END_CONQUERED,
+        MANSION_EXPERIENCE_EARNED,
+        NETHER_ENTERED,
+        NETHER_FORTRESS_ENTERED,
+        MONUMENT_GUARDIAN_KILLED
     }
 
     /** Immutable, thread-safe projection of the parts of {@link WorldData} used by gates. */

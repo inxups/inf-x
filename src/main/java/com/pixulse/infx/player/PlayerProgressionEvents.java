@@ -11,6 +11,7 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.event.SurvivalEvents;
+import com.pixulse.infx.world.StructureProgressionEvents;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,21 +54,32 @@ public final class PlayerProgressionEvents {
 
     @SubscribeEvent
     public static void onExperienceChange(PlayerXpEvent.XpChange event) {
+        int totalBefore = event.getEntity().totalExperience;
         event.setCanceled(true);
         Experience.add(event.getEntity(), event.getAmount());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            StructureProgressionEvents.recordExperienceGain(player, (long) player.totalExperience - totalBefore);
+        }
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     @SubscribeEvent
     public static void onLevelChange(PlayerXpEvent.LevelChange event) {
+        int totalBefore = event.getEntity().totalExperience;
         event.setCanceled(true);
         Experience.addLevels(event.getEntity(), event.getLevels());
+        if (event.getEntity() instanceof ServerPlayer player) {
+            StructureProgressionEvents.recordExperienceGain(player, (long) player.totalExperience - totalBefore);
+        }
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
     @SubscribeEvent
     public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
         Experience.setTotal(event.getEntity(), event.getEntity().totalExperience);
+        if (event.getEntity() instanceof ServerPlayer player) {
+            StructureProgressionEvents.observeExperience(player);
+        }
         SurvivalEvents.recalculatePlayerLimits(event.getEntity());
     }
 
