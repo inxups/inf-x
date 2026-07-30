@@ -71,12 +71,21 @@ public final class InfXBlocks {
                     .strength(4.0F)
                     .sound(SoundType.STONE)
                     .requiresCorrectToolForDrops());
+    public static final DeferredBlock<Block> DEEPSLATE_SILVER_ORE = deepslateOre("deepslate_silver_ore");
+    public static final DeferredBlock<Block> DEEPSLATE_MITHRIL_ORE = deepslateOre("deepslate_mithril_ore");
+    public static final DeferredBlock<Block> DEEPSLATE_ADAMANTIUM_ORE = deepslateOre("deepslate_adamantium_ore");
     public static final DeferredBlock<InfestedBlock> INFESTED_NETHERRACK = BLOCKS.registerBlock(
             "infested_netherrack",
             properties -> new InfestedBlock(net.minecraft.world.level.block.Blocks.NETHERRACK, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHERRACK));
 
-    public static final List<DeferredBlock<Block>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
+    public static final List<DeferredBlock<Block>> ORES = List.of(
+            SILVER_ORE,
+            DEEPSLATE_SILVER_ORE,
+            MITHRIL_ORE,
+            DEEPSLATE_MITHRIL_ORE,
+            ADAMANTIUM_ORE,
+            DEEPSLATE_ADAMANTIUM_ORE);
 
     public static final DeferredBlock<ColoredFallingBlock> NETHER_GRAVEL = BLOCKS.registerBlock(
             "nether_gravel",
@@ -343,6 +352,12 @@ public final class InfXBlocks {
             OBSIDIAN_WORKBENCH);
 
     private InfXBlocks() {}
+
+    private static DeferredBlock<Block> deepslateOre(String name) {
+        return BLOCKS.registerSimpleBlock(
+                name,
+                properties -> properties.ofFullCopy(Blocks.DEEPSLATE).requiresCorrectToolForDrops());
+    }
 
     private static DeferredBlock<Block> metalStorageBlock(String name, MapColor color, float strength) {
         return BLOCKS.registerSimpleBlock(

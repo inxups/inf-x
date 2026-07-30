@@ -1044,6 +1044,7 @@ class GeneratedResourceTest {
                 () -> assertTrue(heatTwoInputs.contains("minecraft:nether_quartz_ore")),
                 () -> assertTrue(heatTwoInputs.contains("minecraft:sandstone")),
                 () -> assertTrue(heatTwoInputs.contains("infx:silver_ore")),
+                () -> assertTrue(heatTwoInputs.contains("infx:deepslate_silver_ore")),
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
                         "data/infx/recipe/silver_ingot_from_smelting_silver_ore.json"))));
     }
@@ -1052,7 +1053,13 @@ class GeneratedResourceTest {
     void miteOresHaveCompleteResourcesAndProgressionData() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
-        for (String ore : List.of("silver_ore", "mithril_ore", "adamantium_ore")) {
+        for (String ore : List.of(
+                "silver_ore",
+                "deepslate_silver_ore",
+                "mithril_ore",
+                "deepslate_mithril_ore",
+                "adamantium_ore",
+                "deepslate_adamantium_ore")) {
             assertAll(
                     ore,
                     () -> assertTrue(Files.isRegularFile(
@@ -1074,7 +1081,9 @@ class GeneratedResourceTest {
         assertAll(
                 "high-heat smelting",
                 () -> assertTrue(heatThreeInputs.contains("infx:mithril_ore")),
+                () -> assertTrue(heatThreeInputs.contains("infx:deepslate_mithril_ore")),
                 () -> assertTrue(heatFourInputs.contains("infx:adamantium_ore")),
+                () -> assertTrue(heatFourInputs.contains("infx:deepslate_adamantium_ore")),
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
                         "data/infx/recipe/mithril_ingot_from_smelting_mithril_ore.json"))),
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
@@ -1612,9 +1621,9 @@ class GeneratedResourceTest {
 
     @Test
     void generatedCountsAreExact() throws Exception {
-        // Four replacement fish spawn eggs, the clay-golem egg, the R196 bat egg, and the bottle model add one
-        // item definition and model each.
-        assertEquals(442, jsonCount(GENERATED.resolve("assets/infx/items")));
+        // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the R196 bat egg, and
+        // the bottle model add one item definition and model each.
+        assertEquals(445, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(516, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
@@ -1982,8 +1991,11 @@ class GeneratedResourceTest {
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(clay|hardened_clay|sandstone|obsidian|netherrack)_furnace_(front|front_on|side|top)\\.png")));
         assertTrue(destinations.remove("textures/block/silver_ore.png"));
+        assertTrue(destinations.remove("textures/block/deepslate_silver_ore.png"));
         assertTrue(destinations.remove("textures/block/mithril_ore.png"));
+        assertTrue(destinations.remove("textures/block/deepslate_mithril_ore.png"));
         assertTrue(destinations.remove("textures/block/adamantium_ore.png"));
+        assertTrue(destinations.remove("textures/block/deepslate_adamantium_ore.png"));
         assertTrue(destinations.removeIf(path -> path.matches("textures/block/blueberry_bush(_picked)?\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/crops/(wheat/(?:[0-7]|blighted/[0-7]|dead/[0-6])"
