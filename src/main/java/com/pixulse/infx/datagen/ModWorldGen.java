@@ -4,7 +4,6 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
-import com.pixulse.infx.world.InfXShiftedYDensityFunction;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;
@@ -91,7 +90,6 @@ import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
-import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.timeline.Timeline;
 import net.neoforged.neoforge.common.world.BiomeModifier;
@@ -103,12 +101,6 @@ public final class ModWorldGen {
     private static final int OVERWORLD_HEIGHT = 336;
     private static final int UNDERWORLD_MIN_Y = Underworld.MIN_Y;
     private static final int UNDERWORLD_HEIGHT = Underworld.HEIGHT;
-    private static final int MITE_TERRAIN_SAMPLE_COUNT = 17;
-    private static final int MITE_TERRAIN_CELL_HEIGHT = 8;
-    private static final int MITE_TOP_SLIDE_START_SAMPLE = 13;
-    private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
-    private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
-            ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COAL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COPPER_ORE_CONFIGURED =
@@ -228,7 +220,6 @@ public final class ModWorldGen {
                 .add(Registries.ENCHANTMENT, InfXEnchantments::bootstrap)
                 .add(Registries.JUKEBOX_SONG, InfXJukeboxSongs::bootstrap)
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
-                .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
@@ -248,10 +239,6 @@ public final class ModWorldGen {
                                 3,
                                 128,
                                 context.lookup(Registries.BIOME).getOrThrow(BiomeTags.STRONGHOLD_BIASED_TO))));
-    }
-
-    private static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
-        context.register(UNDERWORLD_TERRAIN, underworldTerrainDensity());
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -744,18 +731,16 @@ public final class ModWorldGen {
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.OVERWORLD, false, false);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.LARGE_BIOMES, false, true);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.AMPLIFIED, true, false);
-        DensityFunction underworldTerrain = new DensityFunctions.HolderHolder(
-                context.lookup(Registries.DENSITY_FUNCTION).getOrThrow(UNDERWORLD_TERRAIN));
         context.register(
                 Underworld.NOISE,
                 new NoiseGeneratorSettings(
                         NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
-                        underworldNoiseRouter(underworldTerrain),
+                        underworldNoiseRouter(),
                         underworldSurfaceRule(),
                         List.of(),
-                        Underworld.WATER_LEVEL,
+                        Underworld.SEA_LEVEL,
                         false,
                         false,
                         false,
@@ -763,83 +748,13 @@ public final class ModWorldGen {
     }
 
     public static NoiseRouter underworldNoiseRouter() {
-        return underworldNoiseRouter(underworldTerrainDensity());
-    }
-
-    private static NoiseRouter underworldNoiseRouter(DensityFunction finalDensity) {
-        return withFinalDensity(NoiseRouterData.none(), finalDensity);
-    }
-
-    private static DensityFunction underworldTerrainDensity() {
-        DensityFunction legacyNetherNoise = new InfXShiftedYDensityFunction(
-                BlendedNoise.createUnseeded(0.25, 0.375, 80.0, 60.0, 8.0),
-                Underworld.TERRAIN_MIN_Y);
-        DensityFunction scaledNoise = DensityFunctions.mul(
-                DensityFunctions.constant(128.0), legacyNetherNoise);
-        DensityFunction rawDensity = DensityFunctions.add(
-                scaledNoise,
-                DensityFunctions.mul(
-                        DensityFunctions.constant(-1.0), miteTerrainVerticalProfile()));
-
-        int topSlideStartY = Underworld.TERRAIN_MIN_Y
-                + MITE_TOP_SLIDE_START_SAMPLE * MITE_TERRAIN_CELL_HEIGHT;
-        DensityFunction topSlide = DensityFunctions.yClampedGradient(
-                topSlideStartY,
-                Underworld.TERRAIN_MAX_Y_EXCLUSIVE,
-                0.0,
-                1.0);
-        DensityFunction shiftedTerrain = DensityFunctions.lerp(
-                topSlide, rawDensity, DensityFunctions.constant(-10.0));
-        DensityFunction interpolatedTerrain =
-                DensityFunctions.interpolated(shiftedTerrain).clamp(-1.0, 1.0);
-
-        DensityFunction y = absoluteUnderworldY();
-        return DensityFunctions.rangeChoice(
-                y,
-                Underworld.TERRAIN_MIN_Y,
-                Underworld.TERRAIN_MAX_Y_EXCLUSIVE,
-                interpolatedTerrain,
-                DensityFunctions.constant(1.0));
-    }
-
-    private static DensityFunction miteTerrainVerticalProfile() {
-        DensityFunction y = absoluteUnderworldY();
-        DensityFunction profile = DensityFunctions.constant(
-                miteTerrainProfileValue(MITE_TERRAIN_SAMPLE_COUNT - 1));
-        for (int sample = MITE_TERRAIN_SAMPLE_COUNT - 2; sample >= 0; sample--) {
-            int fromY = Underworld.TERRAIN_MIN_Y + sample * MITE_TERRAIN_CELL_HEIGHT;
-            int toY = fromY + MITE_TERRAIN_CELL_HEIGHT;
-            DensityFunction segment = DensityFunctions.yClampedGradient(
-                    fromY,
-                    toY,
-                    miteTerrainProfileValue(sample),
-                    miteTerrainProfileValue(sample + 1));
-            profile = DensityFunctions.rangeChoice(y, fromY, toY, segment, profile);
-        }
-        return profile;
-    }
-
-    private static double miteTerrainProfileValue(int sample) {
-        double value = Math.cos(sample * MITE_PROFILE_FREQUENCY) * 2.0;
-        int edgeDistance = Math.min(sample, MITE_TERRAIN_SAMPLE_COUNT - 1 - sample);
-        if (edgeDistance < 4) {
-            int capDepth = 4 - edgeDistance;
-            value -= capDepth * capDepth * capDepth * 10.0;
-        }
-        return value;
-    }
-
-    private static DensityFunction absoluteUnderworldY() {
-        return DensityFunctions.yClampedGradient(
-                Underworld.MIN_Y,
-                Underworld.MAX_Y_EXCLUSIVE,
-                Underworld.MIN_Y,
-                Underworld.MAX_Y_EXCLUSIVE);
+        return withFinalDensity(NoiseRouterData.none(), DensityFunctions.constant(1.0));
     }
 
     private static SurfaceRules.RuleSource underworldSurfaceRule() {
         SurfaceRules.RuleSource core = SurfaceRules.state(InfXBlocks.CORE.get().defaultBlockState());
         SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
+        SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
         return SurfaceRules.sequence(
                 SurfaceRules.ifTrue(
                         SurfaceRules.verticalGradient(
@@ -853,6 +768,10 @@ public final class ModWorldGen {
                                 VerticalAnchor.belowTop(Underworld.BOUNDARY_MAX_THICKNESS),
                                 VerticalAnchor.top())),
                         bedrock),
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(
+                                VerticalAnchor.absolute(Underworld.DEEPSLATE_MAX_Y_EXCLUSIVE), 0)),
+                        deepslate),
                 SurfaceRules.state(Blocks.STONE.defaultBlockState()));
     }
 
