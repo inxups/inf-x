@@ -52,6 +52,7 @@
     "EnchantmentScreenMixin",
     "GuiExperienceMixin",
     "InventoryScreenMixin",
+    "MinecraftMiningInputMixin",
     "WorldCreationUiStateMixin"
   ],
   "injectors": {
