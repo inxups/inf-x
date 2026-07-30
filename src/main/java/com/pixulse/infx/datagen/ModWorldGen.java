@@ -4,6 +4,8 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
+import com.pixulse.infx.world.InfXUnderworldBedrockStrata;
+import com.pixulse.infx.world.InfXUnderworldChunkGenerator;
 import com.pixulse.infx.world.InfXShiftedYDensityFunction;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
@@ -228,6 +230,7 @@ public final class ModWorldGen {
                 .add(Registries.ENCHANTMENT, InfXEnchantments::bootstrap)
                 .add(Registries.JUKEBOX_SONG, InfXJukeboxSongs::bootstrap)
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
+                .add(Registries.NOISE, InfXUnderworldBedrockStrata::bootstrapNoiseParameters)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
@@ -999,7 +1002,7 @@ public final class ModWorldGen {
                 Underworld.STEM,
                 new LevelStem(
                         context.lookup(Registries.DIMENSION_TYPE).getOrThrow(Underworld.TYPE),
-                        new NoiseBasedChunkGenerator(
+                        new InfXUnderworldChunkGenerator(
                                 new FixedBiomeSource(context.lookup(Registries.BIOME).getOrThrow(Underworld.BIOME)),
                                 context.lookup(Registries.NOISE_SETTINGS).getOrThrow(Underworld.NOISE))));
     }

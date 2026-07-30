@@ -19,6 +19,12 @@ public final class Underworld {
     public static final int TERRAIN_HEIGHT = TERRAIN_MAX_Y_EXCLUSIVE - TERRAIN_MIN_Y;
     public static final int WATER_LEVEL = 144;
     public static final int BOUNDARY_MAX_THICKNESS = 5;
+    public static final int INTERNAL_BEDROCK_MIN_Y = MIN_Y;
+    public static final int INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE = DEEPSLATE_MAX_Y_EXCLUSIVE;
+    public static final int BEDROCK_STRATUM_ONE_CENTER_Y = -120;
+    public static final int BEDROCK_STRATUM_TWO_CENTER_Y = -72;
+    public static final int BEDROCK_STRATUM_THREE_CENTER_Y = -16;
+    public static final int BEDROCK_STRATUM_FOUR_CENTER_Y = 99;
     public static final ResourceKey<Level> LEVEL = ResourceKey.create(Registries.DIMENSION, InfiniteX.id("underworld"));
     public static final ResourceKey<LevelStem> STEM = ResourceKey.create(Registries.LEVEL_STEM, InfiniteX.id("underworld"));
     public static final ResourceKey<DimensionType> TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, InfiniteX.id("underworld"));
