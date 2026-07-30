@@ -257,6 +257,8 @@ for material in mithril adamantium; do
 done
 sync resource-pack blocks/runegate.png block/runegate.png
 sync resource-pack blocks/runegate.png.mcmeta block/runegate.png.mcmeta
+sync resource-pack blocks/mantle.png block/mantle.png
+sync resource-pack blocks/mantle.png.mcmeta block/mantle.png.mcmeta
 sync resource-pack blocks/portal_nether.png block/nether_portal.png
 sync resource-pack blocks/portal_nether.png.mcmeta block/nether_portal.png.mcmeta
 
@@ -385,7 +387,7 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 636 ]] || { echo "Expected 636 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 638 ]] || { echo "Expected 638 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   {
