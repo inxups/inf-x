@@ -2,7 +2,6 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
-import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
 import com.pixulse.infx.world.Underworld;
@@ -37,7 +36,6 @@ import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -613,15 +611,6 @@ public final class ModWorldGen {
         context.register(
                 RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
-        MobSpawnSettings.Builder mobs = new MobSpawnSettings.Builder();
-        addSpawn(mobs, EntityType.SPIDER, 80, 1, 2);
-        addSpawn(mobs, EntityType.CREEPER, 100, 1, 2);
-        addSpawn(mobs, EntityType.ENDERMAN, 10, 1, 4);
-        addSpawn(mobs, EntityType.CAVE_SPIDER, 40, 1, 2);
-        addSpawn(mobs, InfXEntityTypes.INFX_BAT.get(), 100, 8, 8);
-        addSpawn(mobs, EntityType.SQUID, 10, 4, 4);
-        addUnderworldR196Spawns(mobs);
-
         // Keep the initial Underworld baseline free of carvers and placed features.
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
 
@@ -636,7 +625,7 @@ public final class ModWorldGen {
                                 .build())
                         .setAttribute(EnvironmentAttributes.FOG_COLOR, 1_710_619)
                         .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
-                        .mobSpawnSettings(mobs.build())
+                        .mobSpawnSettings(new MobSpawnSettings.Builder().build())
                         .generationSettings(generation.build())
                         .build());
     }
@@ -1082,34 +1071,6 @@ public final class ModWorldGen {
 
     private static void registerInfxSpawnModifiers(BootstrapContext<BiomeModifier> context) {
         context.register(INFX_SPAWNS, new SpawnsBiomeModifier());
-    }
-
-    private static void addUnderworldR196Spawns(MobSpawnSettings.Builder mobs) {
-        addSpawn(mobs, InfXEntityTypes.VAMPIRE_BAT.get(), 20, 8, 8);
-        addSpawn(mobs, InfXEntityTypes.NIGHTWING.get(), 4, 1, 4);
-        addSpawn(mobs, InfXEntityTypes.WIGHT.get(), 10, 1, 1);
-        addSpawn(mobs, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
-        addSpawn(mobs, InfXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
-        addSpawn(mobs, InfXEntityTypes.HELLHOUND.get(), 10, 1, 2);
-        addSpawn(mobs, InfXEntityTypes.SHADOW.get(), 10, 1, 1);
-        addSpawn(mobs, InfXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
-        addSpawn(mobs, InfXEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
-        addSpawn(mobs, InfXEntityTypes.JELLY.get(), 30, 1, 4);
-        addSpawn(mobs, InfXEntityTypes.BLOB.get(), 30, 1, 4);
-        addSpawn(mobs, InfXEntityTypes.OOZE.get(), 20, 1, 4);
-        addSpawn(mobs, InfXEntityTypes.PUDDING.get(), 30, 1, 4);
-        addSpawn(mobs, InfXEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
-        addSpawn(mobs, InfXEntityTypes.LONGDEAD.get(), 40, 1, 2);
-        addSpawn(mobs, InfXEntityTypes.ANCIENT_BONE_LORD.get(), 5, 1, 1);
-    }
-
-    private static void addSpawn(
-            MobSpawnSettings.Builder mobs,
-            net.minecraft.world.entity.EntityType<?> type,
-            int weight,
-            int minimum,
-            int maximum) {
-        mobs.addSpawn(type.getCategory(), weight, new MobSpawnSettings.SpawnerData(type, minimum, maximum));
     }
 
 }
