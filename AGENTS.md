@@ -26,6 +26,7 @@
 - 修改 Minecraft 或 NeoForge 原有行为时优先使用最小范围的 Mixin，并说明注入原因。
 - 添加属于mite的新方块或者新物品自动从 ‘mite-resource-pack’寻找材质
 - 添加指令以/infx xxx xxx 格式
+- 修改原版世界结构生成规则,参考 ‘docs/structure-generation-gates.md’
 - 找不到 Minecraft 源码时，先检查 Gradle 下载的 sources JAR 或 NeoForge 附带源码；只有访问级别受限时才使用 Access Transformer。
 
 ## 资源与数据生成
