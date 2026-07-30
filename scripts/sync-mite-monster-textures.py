@@ -33,7 +33,7 @@ MITE = Path(
 )
 ASSETS = ROOT / "src/main/resources/assets/infx"
 OUT = ASSETS / "textures/entity"
-MANIFEST = ASSETS / "mite_texture_manifest.tsv"
+MANIFEST = ASSETS / "infx_texture_manifest.tsv"
 
 
 def decode_rgba(path: Path):
@@ -253,7 +253,7 @@ BABIES = [
 # Both MITE earth-elemental entries use the approved clay egg art. Keeping this in the sync
 # script means the newly registered clay golem cannot lose its item icon after an asset refresh.
 SPAWN_EGGS = [
-    ("item/vampire_bat_spawn_egg.png", "textures/item/r196_bat_spawn_egg.png"),
+    ("item/vampire_bat_spawn_egg.png", "textures/item/infx_bat_spawn_egg.png"),
     ("item/spawn_egg/spawn_egg_earth_element_clay.png", "textures/item/earth_elemental_spawn_egg.png"),
     ("item/spawn_egg/spawn_egg_earth_element_clay.png", "textures/item/clay_golem_spawn_egg.png"),
 ]

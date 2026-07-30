@@ -33,8 +33,12 @@ class InfinityXSpawnEggsTest {
         assertNotNull(root, "project root");
         for (var egg : InfXItems.SPAWN_EGGS) {
             Identifier id = egg.getId();
+            String path = id.getPath();
+            String texturePath = path.startsWith("r196_")
+                    ? "infx" + path.substring("r196".length())
+                    : path;
             java.nio.file.Path texture = root.resolve(
-                    "src/main/resources/assets/infx/textures/item/" + id.getPath() + ".png");
+                    "src/main/resources/assets/infx/textures/item/" + texturePath + ".png");
             assertTrue(java.nio.file.Files.isRegularFile(texture), texture.toString());
         }
     }

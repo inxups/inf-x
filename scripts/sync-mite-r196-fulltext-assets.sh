@@ -5,7 +5,7 @@ project_root="$(cd "$(dirname "$0")/.." && pwd)"
 reference_root="${MITE_REFERENCE_ROOT:-/Users/inxups/IdeaProjects/mc/inf-x/codex/reference/mite-resource-pack/assets/minecraft}"
 mite_client_assets_root="${MITE_CLIENT_ASSETS_ROOT:-/Users/inxups/mc/mite/MITE-R196-FMLv3.4.2/.minecraft/assets/virtual/legacy}"
 asset_root="$project_root/src/main/resources/assets/infx"
-manifest="$asset_root/mite_fulltext_manifest.tsv"
+manifest="$asset_root/infx_fulltext_manifest.tsv"
 
 if [[ ! -d "$reference_root" ]]; then
   echo "Missing authorized MITE resource pack: $reference_root" >&2
