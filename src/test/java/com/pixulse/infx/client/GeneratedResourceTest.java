@@ -1249,6 +1249,28 @@ class GeneratedResourceTest {
                 () -> assertEquals("infx:overworld_silver_ore", silver.get("features").getAsString()),
                 () -> assertEquals("infx:overworld_mithril_ore", mithril.get("features").getAsString()));
 
+        JsonObject underworldSilver = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/silver_ore.json"));
+        JsonObject underworldMithril = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/mithril_ore.json"));
+        assertAll(
+                "underworld silver and mithril remain on their existing features",
+                () -> assertEquals("infx:silver_ore", underworldSilver.get("feature").getAsString()),
+                () -> assertEquals("infx:mithril_ore", underworldMithril.get("feature").getAsString()),
+                () -> assertEquals(96, underworldSilver.getAsJsonArray("placement")
+                        .get(2)
+                        .getAsJsonObject()
+                        .getAsJsonObject("height")
+                        .getAsJsonObject("max_inclusive")
+                        .get("absolute")
+                        .getAsInt()),
+                () -> assertEquals(32, underworldMithril.getAsJsonArray("placement")
+                        .get(2)
+                        .getAsJsonObject()
+                        .getAsJsonObject("height")
+                        .getAsJsonObject("max_inclusive")
+                        .get("absolute")
+                        .getAsInt()));
     }
 
     @Test
@@ -1617,7 +1639,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void underworldDataUsesAnEmptyStoneGenerationBaseline() throws Exception {
+    void underworldDataKeepsDimensionTerrainOreAndDungeonProgression() throws Exception {
         JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
         JsonObject generator = dimension.getAsJsonObject("generator");
         JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
@@ -1630,10 +1652,25 @@ class GeneratedResourceTest {
                 .flatMap(step -> step.getAsJsonArray().asList().stream())
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toSet());
+        JsonObject miteDensity = json(GENERATED.resolve(
+                "data/infx/worldgen/density_function/mite_r196_first_cave.json"));
         JsonObject noiseShape = noise.getAsJsonObject("noise");
-        JsonElement finalDensity = noise.getAsJsonObject("noise_router").get("final_density");
+        JsonObject finalDensity = noise.getAsJsonObject("noise_router").getAsJsonObject("final_density");
+        JsonObject miteShape = miteDensity.getAsJsonObject("input").getAsJsonObject("argument");
+        JsonObject scaledMiteTerrain = miteShape.getAsJsonObject("argument1");
+        JsonObject legacyBlendedNoise = scaledMiteTerrain.getAsJsonObject("argument2");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
-        String mixinConfig = Files.readString(STATIC.resolve("infx.mixins.json"));
+        var surfaceSequence = surfaceRule.getAsJsonArray("sequence");
+        JsonObject deepslateRule = surfaceSequence.get(0).getAsJsonObject();
+        JsonObject deepslateCutoff = deepslateRule
+                .getAsJsonObject("if_true")
+                .getAsJsonObject("invert");
+        Set<String> terrainNoises = new HashSet<>();
+        visit(finalDensity, (key, value) -> {
+            if (key.equals("noise")) {
+                terrainNoises.add(value);
+            }
+        });
         assertAll(
                 "Underworld dimension",
                 () -> assertEquals("infx:underworld", dimension.get("type").getAsString()),
@@ -1653,45 +1690,112 @@ class GeneratedResourceTest {
                 () -> assertFalse(dimensionType.get("has_skylight").getAsBoolean()),
                 () -> assertEquals("minecraft:stone", noise.getAsJsonObject("default_block").get("Name").getAsString()),
                 () -> assertEquals("minecraft:water", noise.getAsJsonObject("default_fluid").get("Name").getAsString()),
-                () -> assertEquals(0, noise.get("sea_level").getAsInt()),
+                () -> assertEquals(12, noise.get("sea_level").getAsInt()),
                 () -> assertFalse(noise.get("aquifers_enabled").getAsBoolean()),
-                () -> assertFalse(noise.get("ore_veins_enabled").getAsBoolean()),
                 () -> assertEquals(-128, noiseShape.get("min_y").getAsInt()),
                 () -> assertEquals(320, noiseShape.get("height").getAsInt()),
-                () -> assertTrue(finalDensity.isJsonPrimitive()),
-                () -> assertEquals(1.0, finalDensity.getAsDouble()),
-                () -> assertEquals("minecraft:block", surfaceRule.get("type").getAsString()),
-                () -> assertEquals("minecraft:stone", surfaceRule
+                () -> assertEquals("minecraft:clamp", finalDensity.get("type").getAsString()),
+                () -> assertEquals(-1.0, finalDensity.get("min").getAsDouble()),
+                () -> assertEquals(1.0, finalDensity.get("max").getAsDouble()),
+                () -> assertTrue(hasGradient(finalDensity, -1, 8, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 68, 80, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 76, 94, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 76, 114, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 94, 114, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 110, 122, 0.0, 1.0)),
+                () -> assertTrue(hasGradient(finalDensity, 168, 191, -1.0, 1.0)),
+                () -> assertTrue(finalDensity.toString().contains("infx:mite_r196_first_cave")),
+                () -> assertEquals("minecraft:clamp", miteDensity.get("type").getAsString()),
+                () -> assertEquals("minecraft:interpolated", miteDensity
+                        .getAsJsonObject("input")
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:mul", scaledMiteTerrain.get("type").getAsString()),
+                () -> assertEquals(128.0, scaledMiteTerrain.get("argument1").getAsDouble()),
+                () -> assertEquals("minecraft:old_blended_noise", legacyBlendedNoise.get("type").getAsString()),
+                () -> assertEquals(0.25, legacyBlendedNoise.get("xz_scale").getAsDouble()),
+                () -> assertEquals(0.375, legacyBlendedNoise.get("y_scale").getAsDouble()),
+                () -> assertEquals(80.0, legacyBlendedNoise.get("xz_factor").getAsDouble()),
+                () -> assertEquals(60.0, legacyBlendedNoise.get("y_factor").getAsDouble()),
+                () -> assertEquals(8.0, legacyBlendedNoise.get("smear_scale_multiplier").getAsDouble()),
+                () -> assertTrue(hasGradient(
+                        miteDensity,
+                        0,
+                        11,
+                        Math.cos(4.0 * Math.PI * 6.0 / 17.0) * 2.0,
+                        Math.cos(5.0 * Math.PI * 6.0 / 17.0) * 2.0)),
+                () -> assertTrue(hasGradient(
+                        miteDensity,
+                        44,
+                        55,
+                        Math.cos(8.0 * Math.PI * 6.0 / 17.0) * 2.0,
+                        Math.cos(9.0 * Math.PI * 6.0 / 17.0) * 2.0)),
+                () -> assertTrue(hasGradient(
+                        miteDensity,
+                        77,
+                        88,
+                        Math.cos(11.0 * Math.PI * 6.0 / 17.0) * 2.0,
+                        Math.cos(12.0 * Math.PI * 6.0 / 17.0) * 2.0)),
+                () -> assertEquals(Set.of(
+                        "minecraft:cave_cheese",
+                        "minecraft:cave_entrance",
+                        "minecraft:cave_layer",
+                        "minecraft:pillar",
+                        "minecraft:spaghetti_2d",
+                        "minecraft:spaghetti_3d_1",
+                        "minecraft:spaghetti_3d_2"), terrainNoises),
+                () -> assertTrue(finalDensity.toString().contains("minecraft:interpolated")),
+                () -> assertEquals(1, surfaceSequence.size()),
+                () -> assertEquals("minecraft:y_above", deepslateCutoff.get("type").getAsString()),
+                () -> assertEquals(0, deepslateCutoff
+                        .getAsJsonObject("anchor")
+                        .get("absolute")
+                        .getAsInt()),
+                () -> assertEquals("minecraft:deepslate", deepslateRule
+                        .getAsJsonObject("then_run")
                         .getAsJsonObject("result_state")
                         .get("Name")
                         .getAsString()),
                 () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:monster_room")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:monster_room_deep")),
+                () -> assertFalse(underworldFeatures.contains("minecraft:lake_lava_underground")),
+                () -> assertFalse(underworldFeatures.contains("minecraft:lake_lava_surface")),
+                () -> assertFalse(underworldFeatures.contains("minecraft:ore_dirt")),
+                () -> assertFalse(underworldFeatures.stream().anyMatch(feature -> feature.contains("ore_coal"))),
+                () -> assertFalse(underworldFeatures.stream().anyMatch(feature -> feature.contains("mushroom"))),
+                () -> assertTrue(underworldFeatures.contains("minecraft:ore_gravel")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:ore_iron_upper")),
+                () -> assertTrue(underworldFeatures.contains("minecraft:glow_lichen")),
                 () -> assertTrue(biome.toString().contains("minecraft:cave_spider")),
-                () -> assertTrue(underworldFeatures.isEmpty()),
-                () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
-                () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
+                () -> assertTrue(underworldFeatures.contains("infx:silver_ore")),
+                () -> assertTrue(underworldFeatures.contains("infx:mithril_ore")),
+                () -> assertTrue(underworldFeatures.contains("infx:underworld_adamantium_ore")),
+                () -> assertFalse(underworldFeatures.contains("infx:underworld_mantle_basin")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/density_function/mite_r196_first_cave.json"))),
+                        "data/infx/worldgen/configured_feature/underworld_mantle_basin.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_carver/underworld_cave.json"))),
+                        "data/infx/worldgen/placed_feature/underworld_mantle_basin.json"))));
+
+        JsonObject configured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"));
+        JsonObject configuredConfig = configured.getAsJsonObject("config");
+        JsonObject placed = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"));
+        String placedContents = placed.toString();
+        assertAll(
+                "Underworld adamantium",
+                () -> assertEquals(3, configuredConfig.get("size").getAsInt()),
+                () -> assertTrue(configured.toString().contains("infx:adamantium_ore")),
+                () -> assertEquals("infx:underworld_adamantium_ore", placed.get("feature").getAsString()),
+                () -> assertTrue(placedContents.contains("\"count\":8")),
+                () -> assertTrue(placedContents.contains("minecraft:biased_to_bottom")),
+                () -> assertTrue(placedContents.contains("\"absolute\":0")),
+                () -> assertTrue(placedContents.contains("\"absolute\":136")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_carver/underworld_cave_extra_underground.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_carver/underworld_canyon.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_feature/silver_ore.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_feature/mithril_ore.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/placed_feature/silver_ore.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/placed_feature/mithril_ore.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"))));
+                        "data/infx/neoforge/biome_modifier/add_adamantium_ore.json"))));
 
         JsonObject dungeon = json(GENERATED.resolve("data/infx/loot_table/chests/underworld_dungeon.json"));
         JsonObject dungeonPool = dungeon.getAsJsonArray("pools").get(0).getAsJsonObject();
@@ -1708,7 +1812,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void overworldStopsAtMinusSixteenAndLeavesUndergroundStructuresUnassigned() throws Exception {
+    void overworldStopsAtMinusSixteenAndMovesUndergroundStructuresToUnderworld() throws Exception {
         JsonObject dimensionType = json(GENERATED.resolve("data/minecraft/dimension_type/overworld.json"));
         assertAll(
                 "Overworld build height",
@@ -1746,10 +1850,15 @@ class GeneratedResourceTest {
                 "mineshaft_mesa",
                 "trail_ruins",
                 "trial_chambers")) {
-            assertFalse(
-                    Files.exists(GENERATED.resolve(
-                            "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json")),
-                    structure + " must not target the empty Underworld biome");
+            JsonObject tag = json(GENERATED.resolve(
+                    "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json"));
+            assertAll(
+                    structure,
+                    () -> assertTrue(tag.get("replace").getAsBoolean()),
+                    () -> assertEquals(1, tag.getAsJsonArray("values").size()),
+                    () -> assertEquals(
+                            "infx:underworld",
+                            tag.getAsJsonArray("values").get(0).getAsString()));
         }
 
         JsonObject stronghold = json(GENERATED.resolve(
@@ -2725,6 +2834,40 @@ class GeneratedResourceTest {
                 key,
                 () -> assertTrue(english.has(key), "missing en_us"),
                 () -> assertTrue(chinese.has(key), "missing zh_cn"));
+    }
+
+    private static boolean hasGradient(
+            JsonElement element,
+            int fromY,
+            int toY,
+            double fromValue,
+            double toValue) {
+        if (element.isJsonArray()) {
+            for (JsonElement child : element.getAsJsonArray()) {
+                if (hasGradient(child, fromY, toY, fromValue, toValue)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        if (!element.isJsonObject()) {
+            return false;
+        }
+        JsonObject object = element.getAsJsonObject();
+        if (object.has("type")
+                && object.get("type").getAsString().equals("minecraft:y_clamped_gradient")
+                && object.get("from_y").getAsInt() == fromY
+                && object.get("to_y").getAsInt() == toY
+                && Math.abs(object.get("from_value").getAsDouble() - fromValue) < 1.0E-12
+                && Math.abs(object.get("to_value").getAsDouble() - toValue) < 1.0E-12) {
+            return true;
+        }
+        for (var entry : object.entrySet()) {
+            if (hasGradient(entry.getValue(), fromY, toY, fromValue, toValue)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static Path findProjectRoot() {

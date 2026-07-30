@@ -473,9 +473,10 @@ public final class ModCompletionGameTests {
                 BiomeTags.HAS_TRAIL_RUINS,
                 BiomeTags.HAS_TRIAL_CHAMBERS)) {
             var structureBiomes = biomes.getOrThrow(tag);
+            helper.assertTrue(structureBiomes.size() == 1, tag.location() + " only targets the Underworld");
             helper.assertTrue(
-                    !structureBiomes.contains(underworldBiome),
-                    tag.location() + " excludes the empty Underworld biome");
+                    structureBiomes.contains(underworldBiome),
+                    tag.location() + " includes the Underworld biome");
         }
         helper.assertTrue(
                 biomes.getOrThrow(BiomeTags.HAS_STRONGHOLD).size() > 0,

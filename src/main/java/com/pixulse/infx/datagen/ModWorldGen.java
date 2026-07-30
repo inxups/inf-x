@@ -5,6 +5,7 @@ import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
+import com.pixulse.infx.registry.tag.InfXBlockTags;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;
@@ -17,7 +18,9 @@ import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BiomeDefaultFeatures;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -29,6 +32,9 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.valueproviders.TrapezoidFloat;
+import net.minecraft.util.valueproviders.UniformFloat;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.attribute.AmbientSounds;
 import net.minecraft.world.attribute.BackgroundMusic;
@@ -64,7 +70,11 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
+import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
+import net.minecraft.world.level.levelgen.carver.CanyonCarverConfiguration;
+import net.minecraft.world.level.levelgen.carver.CaveCarverConfiguration;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
+import net.minecraft.world.level.levelgen.carver.WorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -92,6 +102,8 @@ import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.timeline.Timeline;
 import net.neoforged.neoforge.common.world.BiomeModifier;
@@ -103,6 +115,28 @@ public final class ModWorldGen {
     private static final int OVERWORLD_HEIGHT = 336;
     private static final int UNDERWORLD_MIN_Y = Underworld.MIN_Y;
     private static final int UNDERWORLD_HEIGHT = Underworld.HEIGHT;
+    // Keep the 192-block cave stack aligned with the ceiling when the dimension height changes.
+    private static final int UNDERWORLD_FIRST_CAVE_MIN_Y = Underworld.MAX_Y_EXCLUSIVE - 192;
+    private static final int UNDERWORLD_FIRST_CAVE_END_Y = UNDERWORLD_FIRST_CAVE_MIN_Y + 88;
+    private static final int UNDERWORLD_SEPARATOR_END_Y = UNDERWORLD_FIRST_CAVE_MIN_Y + 98;
+    private static final int UNDERWORLD_ROOF_START_Y = UNDERWORLD_FIRST_CAVE_MIN_Y + 168;
+    private static final int UNDERWORLD_TOP_Y = Underworld.MAX_Y_EXCLUSIVE - 1;
+    private static final int UNDERWORLD_SEA_LEVEL = UNDERWORLD_FIRST_CAVE_MIN_Y + 12;
+    private static final int MITE_R196_PROFILE_FIRST_SAMPLE = 4;
+    private static final int MITE_R196_PROFILE_LAST_SAMPLE = 12;
+    private static final double MITE_R196_PROFILE_FREQUENCY = Math.PI * 6.0 / 17.0;
+    private static final ResourceKey<DensityFunction> MITE_R196_FIRST_CAVE =
+            ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("mite_r196_first_cave"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> SILVER_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("silver_ore"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CAVE =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_cave"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CAVE_EXTRA_UNDERGROUND =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_cave_extra_underground"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_CANYON =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_canyon"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> MITHRIL_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("mithril_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COAL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COPPER_ORE_CONFIGURED =
@@ -144,6 +178,12 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_gravel_disk"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_RIVER_SGRAVEL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_ore"));
+    public static final ResourceKey<ConfiguredFeature<?, ?>> ADAMANTIUM_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
+    private static final ResourceKey<PlacedFeature> SILVER_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("silver_ore"));
+    private static final ResourceKey<PlacedFeature> MITHRIL_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("mithril_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COAL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COPPER_ORE_PLACED =
@@ -184,6 +224,8 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("shore_river_sgravel_gravel_disk"));
     private static final ResourceKey<PlacedFeature> SHORE_RIVER_SGRAVEL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("shore_river_sgravel_ore"));
+    public static final ResourceKey<PlacedFeature> ADAMANTIUM_ORE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
@@ -222,6 +264,8 @@ public final class ModWorldGen {
                 .add(Registries.ENCHANTMENT, InfXEnchantments::bootstrap)
                 .add(Registries.JUKEBOX_SONG, InfXJukeboxSongs::bootstrap)
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
+                .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
+                .add(Registries.CONFIGURED_CARVER, ModWorldGen::bootstrapConfiguredCarvers)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
@@ -243,6 +287,57 @@ public final class ModWorldGen {
                                 context.lookup(Registries.BIOME).getOrThrow(BiomeTags.STRONGHOLD_BIASED_TO))));
     }
 
+    private static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
+        context.register(MITE_R196_FIRST_CAVE, underworldFirstCave());
+    }
+
+    private static void bootstrapConfiguredCarvers(BootstrapContext<ConfiguredWorldCarver<?>> context) {
+        HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
+        HolderSet<Block> underworldReplaceables =
+                blocks.getOrThrow(InfXBlockTags.UNDERWORLD_CARVER_REPLACEABLES);
+        context.register(
+                UNDERWORLD_CAVE,
+                WorldCarver.CAVE.configured(new CaveCarverConfiguration(
+                        0.15F,
+                        UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(180)),
+                        UniformFloat.of(0.1F, 0.9F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.CRIMSON_BUTTON.defaultBlockState()),
+                        underworldReplaceables,
+                        UniformFloat.of(0.7F, 1.4F),
+                        UniformFloat.of(0.8F, 1.3F),
+                        UniformFloat.of(-1.0F, -0.4F))));
+        context.register(
+                UNDERWORLD_CAVE_EXTRA_UNDERGROUND,
+                WorldCarver.CAVE.configured(new CaveCarverConfiguration(
+                        0.07F,
+                        UniformHeight.of(VerticalAnchor.aboveBottom(8), VerticalAnchor.absolute(47)),
+                        UniformFloat.of(0.1F, 0.9F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.OAK_BUTTON.defaultBlockState()),
+                        underworldReplaceables,
+                        UniformFloat.of(0.7F, 1.4F),
+                        UniformFloat.of(0.8F, 1.3F),
+                        UniformFloat.of(-1.0F, -0.4F))));
+        context.register(
+                UNDERWORLD_CANYON,
+                WorldCarver.CANYON.configured(new CanyonCarverConfiguration(
+                        0.01F,
+                        UniformHeight.of(VerticalAnchor.absolute(10), VerticalAnchor.absolute(67)),
+                        ConstantFloat.of(3.0F),
+                        VerticalAnchor.aboveBottom(8),
+                        CarverDebugSettings.of(false, Blocks.WARPED_BUTTON.defaultBlockState()),
+                        underworldReplaceables,
+                        UniformFloat.of(-0.125F, 0.125F),
+                        new CanyonCarverConfiguration.CanyonShapeConfiguration(
+                                UniformFloat.of(0.75F, 1.0F),
+                                TrapezoidFloat.of(0.0F, 6.0F, 2.0F),
+                                3,
+                                UniformFloat.of(0.75F, 1.0F),
+                                1.0F,
+                                0.0F))));
+    }
+
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         context.register(
                 OreFeatures.ORE_GRAVEL_NETHER,
@@ -252,6 +347,8 @@ public final class ModWorldGen {
                                 new BlockMatchTest(Blocks.NETHERRACK),
                                 InfXBlocks.NETHER_GRAVEL.get().defaultBlockState(),
                                 33)));
+        registerConfiguredOre(context, SILVER_ORE_CONFIGURED, InfXBlocks.SILVER_ORE.get().defaultBlockState(), 6);
+        registerConfiguredOre(context, MITHRIL_ORE_CONFIGURED, InfXBlocks.MITHRIL_ORE.get().defaultBlockState(), 3);
         registerOverworldConfiguredOre(
                 context,
                 OVERWORLD_COAL_ORE_CONFIGURED,
@@ -378,6 +475,7 @@ public final class ModWorldGen {
                                 2)));
         registerSgravelOre(context, MOUNTAIN_SGRAVEL_ORE_CONFIGURED);
         registerSgravelOre(context, SHORE_RIVER_SGRAVEL_ORE_CONFIGURED);
+        registerConfiguredOre(context, ADAMANTIUM_ORE_CONFIGURED, InfXBlocks.ADAMANTIUM_ORE.get().defaultBlockState(), 3);
     }
 
     private static void registerSgravelOre(
@@ -391,6 +489,21 @@ public final class ModWorldGen {
                                 new TagMatchTest(BlockTags.BASE_STONE_OVERWORLD),
                                 InfXBlocks.GRAVEL.get().defaultBlockState(),
                                 33)));
+    }
+
+    private static void registerConfiguredOre(
+            BootstrapContext<ConfiguredFeature<?, ?>> context,
+            ResourceKey<ConfiguredFeature<?, ?>> key,
+            BlockState state,
+            int size) {
+        context.register(
+                key,
+                new ConfiguredFeature<>(
+                        Feature.ORE,
+                        new OreConfiguration(
+                                new TagMatchTest(BlockTags.STONE_ORE_REPLACEABLES),
+                                state,
+                                size)));
     }
 
     private static void registerOverworldConfiguredOre(
@@ -415,6 +528,8 @@ public final class ModWorldGen {
     private static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
         HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures =
                 context.lookup(Registries.CONFIGURED_FEATURE);
+        registerPlacedOre(context, configuredFeatures, SILVER_ORE_CONFIGURED, SILVER_ORE_PLACED, 96);
+        registerPlacedOre(context, configuredFeatures, MITHRIL_ORE_CONFIGURED, MITHRIL_ORE_PLACED, 32);
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
@@ -583,6 +698,16 @@ public final class ModWorldGen {
                 configuredFeatures,
                 SHORE_RIVER_SGRAVEL_ORE_CONFIGURED,
                 SHORE_RIVER_SGRAVEL_ORE_PLACED);
+        context.register(
+                ADAMANTIUM_ORE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(ADAMANTIUM_ORE_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(8),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.of(BiasedToBottomHeight.of(
+                                        VerticalAnchor.absolute(0), VerticalAnchor.absolute(136), 1)),
+                                BiomeFilter.biome())));
     }
 
     private static void registerSgravelOrePlacement(
@@ -622,8 +747,14 @@ public final class ModWorldGen {
         addSpawn(mobs, EntityType.SQUID, 10, 4, 4);
         addUnderworldR196Spawns(mobs);
 
-        // Keep the initial Underworld baseline free of carvers and placed features.
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
+        addUnderworldCarvers(generation);
+        BiomeDefaultFeatures.addDefaultMonsterRoom(generation);
+        addUnderworldUndergroundVariety(generation);
+        addUnderworldOres(generation);
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(SILVER_ORE_PLACED));
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(MITHRIL_ORE_PLACED));
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, placed.getOrThrow(ADAMANTIUM_ORE_PLACED));
 
         context.register(
                 Underworld.BIOME,
@@ -639,6 +770,51 @@ public final class ModWorldGen {
                         .mobSpawnSettings(mobs.build())
                         .generationSettings(generation.build())
                         .build());
+    }
+
+    private static void addUnderworldCarvers(BiomeGenerationSettings.Builder generation) {
+        // Keep the Overworld cave shapes without its two lava-lake placements.
+        generation.addCarver(UNDERWORLD_CAVE);
+        generation.addCarver(UNDERWORLD_CAVE_EXTRA_UNDERGROUND);
+        generation.addCarver(UNDERWORLD_CANYON);
+    }
+
+    private static void addUnderworldUndergroundVariety(BiomeGenerationSettings.Builder generation) {
+        // This is the vanilla underground-variety list with ORE_DIRT deliberately omitted.
+        for (ResourceKey<PlacedFeature> feature : List.of(
+                OrePlacements.ORE_GRAVEL,
+                OrePlacements.ORE_GRANITE_UPPER,
+                OrePlacements.ORE_GRANITE_LOWER,
+                OrePlacements.ORE_DIORITE_UPPER,
+                OrePlacements.ORE_DIORITE_LOWER,
+                OrePlacements.ORE_ANDESITE_UPPER,
+                OrePlacements.ORE_ANDESITE_LOWER,
+                OrePlacements.ORE_TUFF)) {
+            generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, feature);
+        }
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
+    }
+
+    private static void addUnderworldOres(BiomeGenerationSettings.Builder generation) {
+        // Preserve the remaining vanilla mineral progression without either coal placement.
+        for (ResourceKey<PlacedFeature> feature : List.of(
+                OrePlacements.ORE_IRON_UPPER,
+                OrePlacements.ORE_IRON_MIDDLE,
+                OrePlacements.ORE_IRON_SMALL,
+                OrePlacements.ORE_GOLD,
+                OrePlacements.ORE_GOLD_LOWER,
+                OrePlacements.ORE_REDSTONE,
+                OrePlacements.ORE_REDSTONE_LOWER,
+                OrePlacements.ORE_DIAMOND,
+                OrePlacements.ORE_DIAMOND_MEDIUM,
+                OrePlacements.ORE_DIAMOND_LARGE,
+                OrePlacements.ORE_DIAMOND_BURIED,
+                OrePlacements.ORE_LAPIS,
+                OrePlacements.ORE_LAPIS_BURIED,
+                OrePlacements.ORE_COPPER,
+                CavePlacements.UNDERWATER_MAGMA)) {
+            generation.addFeature(GenerationStep.Decoration.UNDERGROUND_ORES, feature);
+        }
     }
 
     private static Biome r196River(
@@ -742,24 +918,251 @@ public final class ModWorldGen {
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.OVERWORLD, false, false);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.LARGE_BIOMES, false, true);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.AMPLIFIED, true, false);
+        HolderGetter<DensityFunction> densityFunctions = context.lookup(Registries.DENSITY_FUNCTION);
+        DensityFunction firstCave = new DensityFunctions.HolderHolder(
+                densityFunctions.getOrThrow(MITE_R196_FIRST_CAVE));
         context.register(
                 Underworld.NOISE,
                 new NoiseGeneratorSettings(
                         NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
-                        underworldNoiseRouter(),
-                        SurfaceRules.state(Blocks.STONE.defaultBlockState()),
+                        underworldNoiseRouter(context.lookup(Registries.NOISE), firstCave),
+                        underworldSurfaceRule(),
                         List.of(),
-                        0,
+                        UNDERWORLD_SEA_LEVEL,
                         false,
                         false,
                         false,
                         true));
     }
 
-    public static NoiseRouter underworldNoiseRouter() {
-        return withFinalDensity(NoiseRouterData.none(), DensityFunctions.constant(1.0));
+    public static NoiseRouter underworldNoiseRouter(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        return underworldNoiseRouter(noises, underworldFirstCave());
+    }
+
+    private static NoiseRouter underworldNoiseRouter(
+            HolderGetter<NormalNoise.NoiseParameters> noises,
+            DensityFunction firstCave) {
+        DensityFunction entrances = underworldEntrances(noises);
+        DensityFunction upperCave = underworldUpperCave(noises);
+
+        // Morph the cave fields across a broad window so an opening never changes style on one Y plane.
+        DensityFunction caveMorph = naturalTransition(
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 76,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 114,
+                Noises.CAVE_LAYER,
+                0.07,
+                0.18);
+        DensityFunction blendedCaves = DensityFunctions.lerp(caveMorph, firstCave, upperCave);
+
+        DensityFunction entranceRise = naturalTransition(
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 68,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 80,
+                Noises.SPAGHETTI_2D,
+                0.12,
+                0.24);
+        DensityFunction entranceRelease = naturalTransition(
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 110,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 122,
+                Noises.PILLAR,
+                0.10,
+                0.22);
+        DensityFunction entranceFall = DensityFunctions.add(
+                DensityFunctions.constant(1.0),
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), entranceRelease));
+        DensityFunction entranceWindow = DensityFunctions.min(entranceRise, entranceFall);
+        DensityFunction cavesWithEntrances = DensityFunctions.lerp(
+                entranceWindow,
+                blendedCaves,
+                DensityFunctions.min(blendedCaves, entrances));
+
+        // Two noisy signed surfaces form a variable-thickness rock band; ravines and tunnels cut through both.
+        DensityFunction separatorFloor = naturalTransition(
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 76,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 94,
+                Noises.PILLAR,
+                0.09,
+                0.40);
+        DensityFunction separatorFloorDensity = DensityFunctions.add(
+                DensityFunctions.mul(DensityFunctions.constant(2.0), separatorFloor),
+                DensityFunctions.constant(-1.0));
+        DensityFunction separatorCeiling = naturalTransition(
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 94,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 114,
+                Noises.SPAGHETTI_2D,
+                0.08,
+                0.40);
+        DensityFunction separatorCeilingDensity = DensityFunctions.add(
+                DensityFunctions.constant(1.0),
+                DensityFunctions.mul(DensityFunctions.constant(-2.0), separatorCeiling));
+        DensityFunction separatorBand = DensityFunctions.min(
+                separatorFloorDensity,
+                separatorCeilingDensity);
+        DensityFunction caveLayers = DensityFunctions.max(
+                cavesWithEntrances,
+                DensityFunctions.min(separatorBand, entrances));
+
+        // Positive density is stone; the first cave opens gradually above the lower strata.
+        DensityFunction solidToCaves = naturalTransition(
+                noises,
+                UNDERWORLD_FIRST_CAVE_MIN_Y - 1,
+                UNDERWORLD_FIRST_CAVE_MIN_Y + 8,
+                Noises.PILLAR,
+                0.09,
+                0.18);
+        DensityFunction layeredTerrain = DensityFunctions.lerp(solidToCaves, 1.0, caveLayers);
+        DensityFunction roofClosure = DensityFunctions.yClampedGradient(
+                UNDERWORLD_ROOF_START_Y,
+                UNDERWORLD_TOP_Y,
+                -1.0,
+                1.0);
+        DensityFunction finalDensity = DensityFunctions.max(layeredTerrain, roofClosure).clamp(-1.0, 1.0);
+        return withFinalDensity(NoiseRouterData.none(), finalDensity);
+    }
+
+    private static DensityFunction underworldFirstCave() {
+        /*
+         * MITE 1.6.4 R196 ChunkProviderUnderworld builds its cavern terrain from the
+         * same three legacy octave stacks represented by BlendedNoise: two 16-octave
+         * limit fields selected by an 8-octave main field. These five parameters are
+         * the block-space form of MITE's 684.412/2053.236 and /80,/60 scales.
+         */
+        DensityFunction miteTerrain = BlendedNoise.createUnseeded(0.25, 0.375, 80.0, 60.0, 8.0);
+        DensityFunction scaledTerrain = DensityFunctions.mul(
+                DensityFunctions.constant(128.0),
+                miteTerrain);
+        DensityFunction verticalProfile = miteR196CavernProfile();
+        DensityFunction cavernDensity = DensityFunctions.add(
+                scaledTerrain,
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), verticalProfile));
+        return DensityFunctions.interpolated(cavernDensity).clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction miteR196CavernProfile() {
+        /*
+         * R196's 17-point profile has cubic stone caps at both ends. The adjacent
+         * InfiniteX strata already close this shorter layer, so stretch the central
+         * cavern samples (4 through 12) across the first cave layer and retain their values.
+         */
+        int sampleCount = MITE_R196_PROFILE_LAST_SAMPLE - MITE_R196_PROFILE_FIRST_SAMPLE;
+        DensityFunction y = DensityFunctions.yClampedGradient(
+                UNDERWORLD_FIRST_CAVE_MIN_Y,
+                UNDERWORLD_FIRST_CAVE_END_Y,
+                UNDERWORLD_FIRST_CAVE_MIN_Y,
+                UNDERWORLD_FIRST_CAVE_END_Y);
+        DensityFunction profile = DensityFunctions.constant(miteR196ProfileValue(MITE_R196_PROFILE_LAST_SAMPLE));
+        for (int sample = MITE_R196_PROFILE_LAST_SAMPLE - 1;
+                sample >= MITE_R196_PROFILE_FIRST_SAMPLE;
+                sample--) {
+            int segment = sample - MITE_R196_PROFILE_FIRST_SAMPLE;
+            int fromY = UNDERWORLD_FIRST_CAVE_MIN_Y
+                    + (UNDERWORLD_FIRST_CAVE_END_Y - UNDERWORLD_FIRST_CAVE_MIN_Y) * segment / sampleCount;
+            int toY = UNDERWORLD_FIRST_CAVE_MIN_Y
+                    + (UNDERWORLD_FIRST_CAVE_END_Y - UNDERWORLD_FIRST_CAVE_MIN_Y) * (segment + 1) / sampleCount;
+            DensityFunction slope = DensityFunctions.yClampedGradient(
+                    fromY,
+                    toY,
+                    miteR196ProfileValue(sample),
+                    miteR196ProfileValue(sample + 1));
+            profile = DensityFunctions.rangeChoice(y, fromY, toY, slope, profile);
+        }
+        return profile;
+    }
+
+    private static double miteR196ProfileValue(int sample) {
+        return Math.cos(sample * MITE_R196_PROFILE_FREQUENCY) * 2.0;
+    }
+
+    private static DensityFunction underworldEntrances(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        DensityFunction ravines = airPassage(
+                DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_ENTRANCE), 0.45, 0.40),
+                0.03);
+        DensityFunction tunnelA = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_1), 0.85, 0.45);
+        DensityFunction tunnelB = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_2), 0.85, 0.45);
+        DensityFunction tunnels = DensityFunctions.add(
+                DensityFunctions.max(tunnelA.abs(), tunnelB.abs()),
+                DensityFunctions.constant(-0.045));
+        return DensityFunctions.interpolated(DensityFunctions.min(ravines, tunnels))
+                .clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction naturalTransition(
+            HolderGetter<NormalNoise.NoiseParameters> noises,
+            int fromY,
+            int toY,
+            ResourceKey<NormalNoise.NoiseParameters> roughnessNoise,
+            double xzScale,
+            double roughness) {
+        // The triangular envelope keeps the horizontal displacement at zero outside the transition window.
+        DensityFunction progress = DensityFunctions.yClampedGradient(fromY, toY, 0.0, 1.0);
+        DensityFunction remaining = DensityFunctions.add(
+                DensityFunctions.constant(1.0),
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), progress));
+        DensityFunction envelope = DensityFunctions.mul(
+                DensityFunctions.constant(2.0),
+                DensityFunctions.min(progress, remaining));
+        DensityFunction horizontalRoughness = DensityFunctions.flatCache(DensityFunctions.shiftedNoise2d(
+                DensityFunctions.zero(),
+                DensityFunctions.zero(),
+                xzScale,
+                noises.getOrThrow(roughnessNoise)));
+        DensityFunction perturbation = DensityFunctions.mul(
+                envelope,
+                DensityFunctions.mul(DensityFunctions.constant(roughness), horizontalRoughness));
+        return DensityFunctions.add(progress, perturbation).clamp(0.0, 1.0);
+    }
+
+    private static DensityFunction underworldUpperCave(HolderGetter<NormalNoise.NoiseParameters> noises) {
+        DensityFunction compactChambers = DensityFunctions.add(
+                DensityFunctions.add(
+                        DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_CHEESE), 1.35, 0.95),
+                        DensityFunctions.constant(0.22)),
+                DensityFunctions.mul(
+                        DensityFunctions.noise(noises.getOrThrow(Noises.CAVE_LAYER), 1.8, 2.4),
+                        DensityFunctions.constant(0.18)));
+        DensityFunction stonePartitions = stoneBand(
+                DensityFunctions.shiftedNoise2d(
+                        DensityFunctions.zero(),
+                        DensityFunctions.zero(),
+                        0.8,
+                        noises.getOrThrow(Noises.SPAGHETTI_2D)),
+                0.055);
+        DensityFunction tunnelA = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_1), 1.4, 1.1);
+        DensityFunction tunnelB = DensityFunctions.noise(
+                noises.getOrThrow(Noises.SPAGHETTI_3D_2), 1.4, 1.1);
+        DensityFunction tunnels = DensityFunctions.add(
+                DensityFunctions.max(tunnelA.abs(), tunnelB.abs()),
+                DensityFunctions.constant(-0.06));
+        DensityFunction partitionedChambers = DensityFunctions.max(compactChambers, stonePartitions);
+        return DensityFunctions.interpolated(DensityFunctions.min(partitionedChambers, tunnels))
+                .clamp(-1.0, 1.0);
+    }
+
+    private static DensityFunction stoneBand(DensityFunction noise, double halfWidth) {
+        return DensityFunctions.add(
+                DensityFunctions.constant(halfWidth),
+                DensityFunctions.mul(DensityFunctions.constant(-1.0), noise.abs()));
+    }
+
+    private static DensityFunction airPassage(DensityFunction noise, double halfWidth) {
+        return DensityFunctions.add(noise.abs(), DensityFunctions.constant(-halfWidth));
+    }
+
+    private static SurfaceRules.RuleSource underworldSurfaceRule() {
+        SurfaceRules.RuleSource deepslate = SurfaceRules.state(Blocks.DEEPSLATE.defaultBlockState());
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(0), 0)),
+                        deepslate));
     }
 
     private static void registerOverworldNoiseSettings(
@@ -903,6 +1306,24 @@ public final class ModWorldGen {
                         new NoiseBasedChunkGenerator(
                                 new FixedBiomeSource(context.lookup(Registries.BIOME).getOrThrow(Underworld.BIOME)),
                                 context.lookup(Registries.NOISE_SETTINGS).getOrThrow(Underworld.NOISE))));
+    }
+
+    private static void registerPlacedOre(
+            BootstrapContext<PlacedFeature> context,
+            HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures,
+            ResourceKey<ConfiguredFeature<?, ?>> configuredKey,
+            ResourceKey<PlacedFeature> placedKey,
+            int maximumY) {
+        context.register(
+                placedKey,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(configuredKey),
+                        List.of(
+                                CountPlacement.of(1),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.of(BiasedToBottomHeight.of(
+                                        VerticalAnchor.absolute(0), VerticalAnchor.absolute(maximumY), 1)),
+                                BiomeFilter.biome())));
     }
 
     private static void registerPlacedOverworldOre(

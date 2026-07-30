@@ -33,6 +33,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         addPortableBlocks();
         addHarvestLevels();
         addMiteCropTags();
+        addWorldgenTags();
         addGelatinousCubeTags();
         addCurseTags();
     }
@@ -78,6 +79,12 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.LILY_PAD),
                         blockKey(Blocks.SEAGRASS),
                         blockKey(Blocks.TALL_SEAGRASS));
+    }
+
+    private void addWorldgenTags() {
+        tag(InfXBlockTags.UNDERWORLD_CARVER_REPLACEABLES)
+                .addTag(BlockTags.OVERWORLD_CARVER_REPLACEABLES)
+                .add(blockKey(Blocks.BEDROCK));
     }
 
     private void addGelatinousCubeTags() {
