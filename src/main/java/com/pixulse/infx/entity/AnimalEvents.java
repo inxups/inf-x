@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 /**
  * Residual global animal hooks that are not owned by R196 replacement entity classes
@@ -22,6 +23,13 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AnimalEvents {
     private AnimalEvents() {}
+
+    @SubscribeEvent
+    public static void onExperienceDrop(LivingExperienceDropEvent event) {
+        if (event.getEntity() instanceof Animal) {
+            event.setDroppedExperience(0);
+        }
+    }
 
     @SubscribeEvent
     public static void onDamaged(LivingDamageEvent.Post event) {
