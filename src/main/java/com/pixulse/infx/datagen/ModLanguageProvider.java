@@ -547,9 +547,12 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "Creative mode is disabled in INFX survival worlds"
                 : "INFX 生存世界禁止创造模式");
         add("menu.infx.test_mode", locale == Locale.EN_US ? "INFX TEST MODE" : "INFX测试模式");
-        add("menu.infx.test_mode.online_disabled", locale == Locale.EN_US
-                ? "Multiplayer and Realms are disabled while InfiniteX test mode is active"
-                : "InfiniteX 测试模式下禁用多人游戏和 Realms");
+        add("disconnect.infx.test_mode_mismatch", locale == Locale.EN_US
+                ? "InfiniteX test mode must match the server"
+                : "InfiniteX 测试模式必须与服务端一致");
+        add("message.infx.server_management_disabled", locale == Locale.EN_US
+                ? "Server management commands are disabled outside InfiniteX test mode"
+                : "非 InfiniteX 测试模式下禁用服务端管理命令");
         add("message.infx.world_first", locale == Locale.EN_US
                 ? "%s was first to earn %s on day %s"
                 : "%s 首个完成 %s（第 %s 天）");

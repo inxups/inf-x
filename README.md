@@ -8,7 +8,11 @@ InfiniteX 是一个不太简单的Mod。
 
 
 ## 开发
-开发时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用 test 模式。
+开发时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用 test 模式。测试模式保留原版 OP、
+`ops.json`、本地控制台、RCON 与 JSON-RPC；客户端只能连接到使用相同测试模式的服务端。
+
+普通模式下所有玩家均不具有 OP 权限，新建专用服不会自动生成空 `ops.json`，且本地控制台命令、
+RCON 与 JSON-RPC 均被禁用。
 
 ## 其他
 部分材质来自YF101,qf
