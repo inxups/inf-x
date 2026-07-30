@@ -45,8 +45,20 @@ public final class InfXItems {
             ITEMS.registerSimpleBlockItem(InfXBlocks.MITHRIL_ORE);
     public static final DeferredItem<BlockItem> ADAMANTIUM_ORE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.ADAMANTIUM_ORE, Item.Properties::fireResistant);
+    public static final DeferredItem<BlockItem> DEEPSLATE_SILVER_ORE =
+            ITEMS.registerSimpleBlockItem(InfXBlocks.DEEPSLATE_SILVER_ORE);
+    public static final DeferredItem<BlockItem> DEEPSLATE_MITHRIL_ORE =
+            ITEMS.registerSimpleBlockItem(InfXBlocks.DEEPSLATE_MITHRIL_ORE);
+    public static final DeferredItem<BlockItem> DEEPSLATE_ADAMANTIUM_ORE = ITEMS.registerSimpleBlockItem(
+            InfXBlocks.DEEPSLATE_ADAMANTIUM_ORE, Item.Properties::fireResistant);
 
-    public static final List<DeferredItem<BlockItem>> ORES = List.of(SILVER_ORE, MITHRIL_ORE, ADAMANTIUM_ORE);
+    public static final List<DeferredItem<BlockItem>> ORES = List.of(
+            SILVER_ORE,
+            DEEPSLATE_SILVER_ORE,
+            MITHRIL_ORE,
+            DEEPSLATE_MITHRIL_ORE,
+            ADAMANTIUM_ORE,
+            DEEPSLATE_ADAMANTIUM_ORE);
 
     public static final DeferredItem<BlockItem> SILVER_BLOCK = ITEMS.registerSimpleBlockItem(InfXBlocks.SILVER_BLOCK);
     public static final DeferredItem<BlockItem> ANCIENT_METAL_BLOCK =

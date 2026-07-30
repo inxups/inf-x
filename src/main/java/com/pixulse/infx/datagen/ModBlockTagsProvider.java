@@ -141,8 +141,11 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                 .add(InfXBlocks.OBSIDIAN_FURNACE.getKey())
                 .add(InfXBlocks.NETHERRACK_FURNACE.getKey())
                 .add(InfXBlocks.SILVER_ORE.getKey())
+                .add(InfXBlocks.DEEPSLATE_SILVER_ORE.getKey())
                 .add(InfXBlocks.MITHRIL_ORE.getKey())
+                .add(InfXBlocks.DEEPSLATE_MITHRIL_ORE.getKey())
                 .add(InfXBlocks.ADAMANTIUM_ORE.getKey())
+                .add(InfXBlocks.DEEPSLATE_ADAMANTIUM_ORE.getKey())
                 .add(InfXBlocks.SILVER_BLOCK.getKey())
                 .add(InfXBlocks.ANCIENT_METAL_BLOCK.getKey())
                 .add(InfXBlocks.MITHRIL_BLOCK.getKey())
@@ -446,6 +449,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         tag(InfXBlockTags.requiredLevel(2))
                 .add(
                         InfXBlocks.SILVER_ORE.getKey(),
+                        InfXBlocks.DEEPSLATE_SILVER_ORE.getKey(),
                         InfXBlocks.NETHERRACK_FURNACE.getKey());
 
         TagAppender<ResourceKey<Block>, Block> level3 = tag(InfXBlockTags.requiredLevel(3))
@@ -473,6 +477,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.HOPPER),
                         blockKey(Blocks.HEAVY_CORE),
                         InfXBlocks.MITHRIL_ORE.getKey(),
+                        InfXBlocks.DEEPSLATE_MITHRIL_ORE.getKey(),
                         InfXBlocks.SILVER_BLOCK.getKey(),
                         InfXBlocks.MITHRIL_RUNE_STONE.getKey(),
                         InfXBlocks.ADAMANTIUM_RUNE_STONE.getKey(),
@@ -491,6 +496,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.ANCIENT_DEBRIS),
                         blockKey(Blocks.LODESTONE),
                         InfXBlocks.ADAMANTIUM_ORE.getKey(),
+                        InfXBlocks.DEEPSLATE_ADAMANTIUM_ORE.getKey(),
                         InfXBlocks.ANCIENT_METAL_BLOCK.getKey(),
                         InfXBlocks.IRON_SAFE.getKey(),
                         InfXBlocks.ANCIENT_METAL_SAFE.getKey());

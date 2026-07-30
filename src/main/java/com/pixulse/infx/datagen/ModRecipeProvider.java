@@ -507,7 +507,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_sandstone", has(Blocks.SANDSTONE))
                 .save(output, recipeKey("sandstone_to_glass"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfXBlocks.SILVER_ORE),
+                        Ingredient.of(InfXBlocks.SILVER_ORE, InfXBlocks.DEEPSLATE_SILVER_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.SILVER_INGOT,
@@ -516,7 +516,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_silver_ore", has(InfXBlocks.SILVER_ORE))
                 .save(output, recipeKey("silver_ingot_from_smelting_silver_ore"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfXBlocks.MITHRIL_ORE),
+                        Ingredient.of(InfXBlocks.MITHRIL_ORE, InfXBlocks.DEEPSLATE_MITHRIL_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.MITHRIL_INGOT,
@@ -525,7 +525,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_mithril_ore", has(InfXBlocks.MITHRIL_ORE))
                 .save(output, recipeKey("mithril_ingot_from_smelting_mithril_ore"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfXBlocks.ADAMANTIUM_ORE),
+                        Ingredient.of(InfXBlocks.ADAMANTIUM_ORE, InfXBlocks.DEEPSLATE_ADAMANTIUM_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.ADAMANTIUM_INGOT,
