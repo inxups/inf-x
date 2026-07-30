@@ -838,11 +838,21 @@ public final class ModWorldGen {
     }
 
     private static SurfaceRules.RuleSource underworldSurfaceRule() {
-        SurfaceRules.RuleSource mantle = SurfaceRules.state(InfXBlocks.MANTLE.get().defaultBlockState());
-        // yBlockCheck is inclusive upward, so its inverse selects only the lowest build layer.
+        SurfaceRules.RuleSource core = SurfaceRules.state(InfXBlocks.CORE.get().defaultBlockState());
+        SurfaceRules.RuleSource bedrock = SurfaceRules.state(Blocks.BEDROCK.defaultBlockState());
         return SurfaceRules.sequence(
                 SurfaceRules.ifTrue(
-                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(1), 0)), mantle),
+                        SurfaceRules.verticalGradient(
+                                "infx:underworld_core",
+                                VerticalAnchor.bottom(),
+                                VerticalAnchor.aboveBottom(Underworld.BOUNDARY_MAX_THICKNESS)),
+                        core),
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.verticalGradient(
+                                "infx:underworld_bedrock_roof",
+                                VerticalAnchor.belowTop(Underworld.BOUNDARY_MAX_THICKNESS),
+                                VerticalAnchor.top())),
+                        bedrock),
                 SurfaceRules.state(Blocks.STONE.defaultBlockState()));
     }
 

@@ -1618,7 +1618,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void underworldDataUsesShiftedMiteTerrainWithAMantleFloor() throws Exception {
+    void underworldDataUsesShiftedMiteTerrainWithRandomCoreAndBedrockBoundaries() throws Exception {
         JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
         JsonObject generator = dimension.getAsJsonObject("generator");
         JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
@@ -1641,12 +1641,18 @@ class GeneratedResourceTest {
         JsonObject interpolatedTerrain = terrainInRange.getAsJsonObject("input");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
         JsonArray surfaceRules = surfaceRule.getAsJsonArray("sequence");
-        JsonObject mantleRule = surfaceRules.get(0).getAsJsonObject();
-        JsonObject mantleCondition = mantleRule.getAsJsonObject("if_true");
-        JsonObject mantleYCheck = mantleCondition.getAsJsonObject("invert");
-        JsonObject mantleAnchor = mantleYCheck.getAsJsonObject("anchor");
-        JsonObject mantleState = mantleRule.getAsJsonObject("then_run").getAsJsonObject("result_state");
-        JsonObject stoneState = surfaceRules.get(1).getAsJsonObject().getAsJsonObject("result_state");
+        JsonObject coreRule = surfaceRules.get(0).getAsJsonObject();
+        JsonObject coreGradient = coreRule.getAsJsonObject("if_true");
+        JsonObject coreTrueAnchor = coreGradient.getAsJsonObject("true_at_and_below");
+        JsonObject coreFalseAnchor = coreGradient.getAsJsonObject("false_at_and_above");
+        JsonObject coreState = coreRule.getAsJsonObject("then_run").getAsJsonObject("result_state");
+        JsonObject bedrockRule = surfaceRules.get(1).getAsJsonObject();
+        JsonObject bedrockCondition = bedrockRule.getAsJsonObject("if_true");
+        JsonObject bedrockGradient = bedrockCondition.getAsJsonObject("invert");
+        JsonObject bedrockTrueAnchor = bedrockGradient.getAsJsonObject("true_at_and_below");
+        JsonObject bedrockFalseAnchor = bedrockGradient.getAsJsonObject("false_at_and_above");
+        JsonObject bedrockState = bedrockRule.getAsJsonObject("then_run").getAsJsonObject("result_state");
+        JsonObject stoneState = surfaceRules.get(2).getAsJsonObject().getAsJsonObject("result_state");
         String mixinConfig = Files.readString(STATIC.resolve("infx.mixins.json"));
         assertMiteUnderworldProfile(terrain);
         assertAll(
@@ -1691,14 +1697,20 @@ class GeneratedResourceTest {
                 () -> assertEquals(8.0, blendedNoise.get("smear_scale_multiplier").getAsDouble()),
                 () -> assertTrue(hasGradient(terrain, 224, 248, 0.0, 1.0)),
                 () -> assertEquals("minecraft:sequence", surfaceRule.get("type").getAsString()),
-                () -> assertEquals(2, surfaceRules.size()),
-                () -> assertEquals("minecraft:condition", mantleRule.get("type").getAsString()),
-                () -> assertEquals("minecraft:not", mantleCondition.get("type").getAsString()),
-                () -> assertEquals("minecraft:y_above", mantleYCheck.get("type").getAsString()),
-                () -> assertEquals(1, mantleAnchor.get("above_bottom").getAsInt()),
-                () -> assertEquals(0, mantleYCheck.get("surface_depth_multiplier").getAsInt()),
-                () -> assertFalse(mantleYCheck.get("add_stone_depth").getAsBoolean()),
-                () -> assertEquals("infx:mantle", mantleState.get("Name").getAsString()),
+                () -> assertEquals(3, surfaceRules.size()),
+                () -> assertEquals("minecraft:condition", coreRule.get("type").getAsString()),
+                () -> assertEquals("minecraft:vertical_gradient", coreGradient.get("type").getAsString()),
+                () -> assertEquals("infx:underworld_core", coreGradient.get("random_name").getAsString()),
+                () -> assertEquals(0, coreTrueAnchor.get("above_bottom").getAsInt()),
+                () -> assertEquals(5, coreFalseAnchor.get("above_bottom").getAsInt()),
+                () -> assertEquals("infx:core", coreState.get("Name").getAsString()),
+                () -> assertEquals("minecraft:condition", bedrockRule.get("type").getAsString()),
+                () -> assertEquals("minecraft:not", bedrockCondition.get("type").getAsString()),
+                () -> assertEquals("minecraft:vertical_gradient", bedrockGradient.get("type").getAsString()),
+                () -> assertEquals("infx:underworld_bedrock_roof", bedrockGradient.get("random_name").getAsString()),
+                () -> assertEquals(5, bedrockTrueAnchor.get("below_top").getAsInt()),
+                () -> assertEquals(0, bedrockFalseAnchor.get("below_top").getAsInt()),
+                () -> assertEquals("minecraft:bedrock", bedrockState.get("Name").getAsString()),
                 () -> assertEquals("minecraft:stone", stoneState.get("Name").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),

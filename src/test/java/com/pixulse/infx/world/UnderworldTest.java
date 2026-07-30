@@ -15,6 +15,7 @@ class UnderworldTest {
         assertEquals(248, Underworld.TERRAIN_MAX_Y_EXCLUSIVE);
         assertEquals(128, Underworld.TERRAIN_HEIGHT);
         assertEquals(144, Underworld.WATER_LEVEL);
+        assertEquals(5, Underworld.BOUNDARY_MAX_THICKNESS);
     }
 
     @Test
