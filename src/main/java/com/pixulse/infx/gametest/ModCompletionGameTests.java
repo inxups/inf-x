@@ -437,6 +437,24 @@ public final class ModCompletionGameTests {
 
         entity.addDamage(helper.getLevel(), block.maximumDamage() / 2);
         helper.assertTrue(helper.getBlockState(relative).getValue(MetalAnvilBlock.DAMAGE_STAGE) == 1, "50% anvil damage stage");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        float handRecoveryProgress = helper.getBlockState(relative)
+                .getDestroyProgress(player, helper.getLevel(), absolute);
+        helper.assertTrue(
+                Math.abs(handRecoveryProgress - 1.0F / 128.0F) < 1.0E-6F,
+                "portable metal anvils retain their 128-tick hand recovery speed");
+        int recoveryDamage = entity.damage();
+        helper.assertTrue(player.gameMode.destroyBlock(absolute), "a metal anvil can be recovered by hand");
+        List<ItemEntity> recoveredAnvils = helper.getLevel().getEntities(
+                EntityType.ITEM,
+                new AABB(absolute).inflate(2.0),
+                candidate -> candidate.getItem().is(block.asItem()));
+        helper.assertTrue(recoveredAnvils.size() == 1,
+                "hand recovery returns the metal anvil item instead of deleting it");
+        helper.assertTrue(recoveredAnvils.getFirst().getItem().getDamageValue() == recoveryDamage,
+                "hand recovery preserves metal anvil damage");
+        recoveredAnvils.forEach(ItemEntity::discard);
         removePlayer(player);
         helper.succeed();
     }
@@ -1227,7 +1245,7 @@ public final class ModCompletionGameTests {
                 player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
         NeoForge.EVENT_BUS.post(unrestrictedMiningStart);
         helper.assertFalse(unrestrictedMiningStart.isCanceled(),
-                "mining input validation remains delegated to vanilla");
+                "a positive-progress mining input remains delegated to vanilla");
         assertBehaviorHunger(helper, player, 0.0025D,
                 "an unrestricted block click starts mining metabolism");
         player.tickCount++;
@@ -1236,6 +1254,28 @@ public final class ModCompletionGameTests {
                 "an unrestricted mining session continues charging per tick");
         NeoForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickBlock(
                 player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.STOP));
+
+        helper.setBlock(miningRelative, InfXBlocks.CORE.get());
+        resetBehaviorHunger(player);
+        PlayerInteractEvent.LeftClickBlock noProgressMiningStart = new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(noProgressMiningStart);
+        helper.assertTrue(noProgressMiningStart.isCanceled(),
+                "server mining input with no destroy progress is rejected as an empty swing");
+        assertBehaviorHunger(helper, player, 0.0D,
+                "a rejected no-progress mining input does not start mining metabolism");
+        player.tickCount++;
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0D,
+                "a rejected no-progress mining input does not continue mining metabolism");
+
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        PlayerInteractEvent.LeftClickBlock creativeCoreMiningStart = new PlayerInteractEvent.LeftClickBlock(
+                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
+        NeoForge.EVENT_BUS.post(creativeCoreMiningStart);
+        helper.assertFalse(creativeCoreMiningStart.isCanceled(),
+                "creative players retain their no-progress mining bypass");
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
 
         BlockPos placeRelative = new BlockPos(2, 2, 2);
         BlockPos placePos = helper.absolutePos(placeRelative);

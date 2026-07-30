@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
+import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
@@ -14,12 +15,35 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.jspecify.annotations.Nullable;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class HarvestEvents {
     private HarvestEvents() {}
+
+    /** Rejects server mining starts that cannot make any block-destroy progress. */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void rejectServerMiningWithoutProgress(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getLevel().isClientSide()
+                || event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) {
+            return;
+        }
+        Player player = event.getEntity();
+        BlockPos pos = event.getPos();
+        if (!hasDestroyProgress(player, event.getLevel().getBlockState(pos), pos)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** Metal anvils are portable MITE blocks: hand recovery must produce the anvil item. */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void allowMetalAnvilHandHarvest(PlayerEvent.HarvestCheck event) {
+        if (event.getTargetBlock().getBlock() instanceof MetalAnvilBlock) {
+            event.setCanHarvest(true);
+        }
+    }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void applyBreakSpeedRules(PlayerEvent.BreakSpeed event) {
@@ -38,9 +62,21 @@ public final class HarvestEvents {
             speed = HarvestSpeedRules.compensatePortableHandSpeed(
                     speed,
                     state.requiresCorrectToolForDrops(),
-                    player.hasCorrectToolForDrops(state));
+                    hasHarvestCapability(player, state, pos));
         }
         event.setNewSpeed(speed);
+    }
+
+    public static boolean hasDestroyProgress(Player player, BlockState state, BlockPos pos) {
+        return !state.isAir()
+                && (player.getAbilities().instabuild
+                        || state.getDestroyProgress(player, player.level(), pos) > 0.0F);
+    }
+
+    private static boolean hasHarvestCapability(Player player, BlockState state, @Nullable BlockPos pos) {
+        return pos == null
+                ? player.hasCorrectToolForDrops(state)
+                : player.hasCorrectToolForDrops(state, player.level(), pos);
     }
 
     private static boolean isPortable(Player player, BlockState state, @Nullable BlockPos pos) {
