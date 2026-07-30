@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -1110,6 +1111,77 @@ class GeneratedResourceTest {
                 () -> assertTrue(placedFeature.contains("\"absolute\": 32")),
                 () -> assertTrue(Files.isRegularFile(GENERATED.resolve(
                         "data/infx/neoforge/biome_modifier/add_mithril_ore.json"))));
+    }
+
+    @Test
+    void mountainBiomesUseSgravelForSurfaceDisks() throws Exception {
+        JsonObject configured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/sgravel_disk.json"));
+        JsonObject placed = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/sgravel_disk.json"));
+        JsonObject removed = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/remove_mountain_sand.json"));
+        JsonObject added = json(GENERATED.resolve(
+                "data/infx/neoforge/biome_modifier/add_sgravel_disk.json"));
+        JsonObject diskConfig = configured.getAsJsonObject("config");
+        JsonObject stateProvider = diskConfig.getAsJsonObject("state_provider");
+        JsonObject radius = diskConfig.getAsJsonObject("radius");
+        JsonArray placement = placed.getAsJsonArray("placement");
+        Set<String> expectedBiomes = Set.of(
+                "minecraft:stony_peaks",
+                "minecraft:windswept_gravelly_hills");
+        Set<String> removedBiomes = removed.getAsJsonArray("biomes").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> addedBiomes = added.getAsJsonArray("biomes").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> targets = diskConfig.getAsJsonObject("target")
+                .getAsJsonArray("blocks")
+                .asList()
+                .stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+
+        assertAll(
+                "mountain sgravel disks",
+                () -> assertEquals("minecraft:disk", configured.get("type").getAsString()),
+                () -> assertEquals("infx:sgravel", stateProvider
+                        .getAsJsonObject("state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals(2, diskConfig.get("half_height").getAsInt()),
+                () -> assertEquals(2, radius.get("min_inclusive").getAsInt()),
+                () -> assertEquals(6, radius.get("max_inclusive").getAsInt()),
+                () -> assertEquals(Set.of("minecraft:dirt", "minecraft:grass_block"), targets),
+                () -> assertEquals("infx:sgravel_disk", placed.get("feature").getAsString()),
+                () -> assertEquals("minecraft:count", placement.get(0)
+                        .getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals(3, placement.get(0)
+                        .getAsJsonObject()
+                        .get("count")
+                        .getAsInt()),
+                () -> assertEquals("minecraft:heightmap", placement.get(2)
+                        .getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("OCEAN_FLOOR_WG", placement.get(2)
+                        .getAsJsonObject()
+                        .get("heightmap")
+                        .getAsString()),
+                () -> assertEquals("minecraft:matching_fluids", placement.get(3)
+                        .getAsJsonObject()
+                        .getAsJsonObject("predicate")
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:disk_sand", removed.get("features").getAsString()),
+                () -> assertEquals("underground_ores", removed.get("steps").getAsString()),
+                () -> assertEquals("infx:sgravel_disk", added.get("features").getAsString()),
+                () -> assertEquals("underground_ores", added.get("step").getAsString()),
+                () -> assertEquals(expectedBiomes, removedBiomes),
+                () -> assertEquals(expectedBiomes, addedBiomes));
     }
 
     @Test
