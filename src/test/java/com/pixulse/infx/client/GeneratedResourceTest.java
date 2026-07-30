@@ -93,6 +93,24 @@ class GeneratedResourceTest {
         }
     }
 
+    @Test
+    void portalParticlesReuseVanillaPortalSprites() throws Exception {
+        List<String> expected = List.of(
+                "minecraft:generic_0",
+                "minecraft:generic_1",
+                "minecraft:generic_2",
+                "minecraft:generic_3",
+                "minecraft:generic_4",
+                "minecraft:generic_5",
+                "minecraft:generic_6",
+                "minecraft:generic_7");
+        for (String particle : List.of("nether_portal", "runegate")) {
+            JsonArray textures = json(GENERATED.resolve("assets/infx/particles/" + particle + ".json"))
+                    .getAsJsonArray("textures");
+            assertEquals(expected, textures.asList().stream().map(JsonElement::getAsString).toList());
+        }
+    }
+
     /** The vanilla-id overrides must carry MITE weights, level caps and self-exclusivity. */
     @Test
     void vanillaEnchantmentOverridesUseMiteDefinitions() throws Exception {
