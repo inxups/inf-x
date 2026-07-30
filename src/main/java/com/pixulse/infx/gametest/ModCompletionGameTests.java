@@ -496,7 +496,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(transition.newLevel() == helper.getLevel(), "spawn route stays in the Overworld");
 
         BlockPos frameBase = helper.absolutePos(new BlockPos(14, 0, 14));
-        frameBase = new BlockPos(frameBase.getX(), helper.getLevel().getMinY() + 1, frameBase.getZ());
+        frameBase = new BlockPos(frameBase.getX(), helper.getLevel().getMinY() + 6, frameBase.getZ());
         BlockPos eligibleOrigin = buildObsidianFrame(helper, frameBase, true);
         PortalShape eligibleShape = PortalShape.findEmptyPortalShape(
                         helper.getLevel(), eligibleOrigin, Direction.Axis.X)
@@ -514,8 +514,29 @@ public final class ModCompletionGameTests {
                         == null,
                 "bottom portal fails safely when the GameTest harness has no Underworld level");
 
-        BlockPos raisedBase = frameBase.offset(6, 1, 0);
-        BlockPos ineligibleOrigin = buildObsidianFrame(helper, raisedBase, false);
+        BlockPos wideOrigin = buildObsidianFrame(
+                helper,
+                frameBase.offset(-8, 0, 0),
+                4,
+                5,
+                Blocks.BEDROCK.defaultBlockState());
+        PortalShape wideShape = PortalShape.findEmptyPortalShape(helper.getLevel(), wideOrigin, Direction.Axis.X)
+                .orElseThrow();
+        helper.assertTrue(
+                UnderworldPortalEvents.tryCreateUnderworldPortal(helper.getLevel(), wideOrigin, wideShape),
+                "wide bottom-bedrock frame becomes an Underworld portal");
+        helper.assertTrue(
+                countPortalSurfaces(
+                                helper,
+                                InfXBlocks.UNDERWORLD_PORTAL.get(),
+                                wideOrigin,
+                                wideOrigin.offset(3, 4, 0))
+                        == 20,
+                "wide frame keeps every portal face");
+
+        BlockPos raisedBase = frameBase.offset(6, 3, 0);
+        BlockPos ineligibleOrigin = buildObsidianFrame(
+                helper, raisedBase, 2, 3, Blocks.BEDROCK.defaultBlockState());
         PortalShape ineligibleShape = PortalShape.findEmptyPortalShape(
                         helper.getLevel(), ineligibleOrigin, Direction.Axis.X)
                 .orElseThrow();
@@ -533,6 +554,40 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 helper.getLevel().getBlockState(ineligibleOrigin).is(Blocks.NETHER_PORTAL),
                 "legacy faces can be recreated for migration coverage");
+
+        BlockPos mantleOrigin = buildObsidianFrame(
+                helper,
+                frameBase.offset(0, 0, 6),
+                2,
+                3,
+                InfXBlocks.MANTLE.get().defaultBlockState());
+        PortalShape mantleShape = PortalShape.findEmptyPortalShape(helper.getLevel(), mantleOrigin, Direction.Axis.X)
+                .orElseThrow();
+        mantleShape.createPortalBlocks(helper.getLevel());
+        helper.assertTrue(
+                UnderworldPortalEvents.frameTouchesMantle(helper.getLevel(), mantleOrigin),
+                "bottom mantle support qualifies an Underworld frame for the Nether route");
+        UnderworldPortalEvents.clearConnectedPortal(helper.getLevel(), mantleOrigin);
+
+        BlockPos raisedMantleOrigin = buildObsidianFrame(
+                helper,
+                frameBase.offset(6, 3, 6),
+                2,
+                3,
+                InfXBlocks.MANTLE.get().defaultBlockState());
+        PortalShape raisedMantleShape = PortalShape.findEmptyPortalShape(
+                        helper.getLevel(), raisedMantleOrigin, Direction.Axis.X)
+                .orElseThrow();
+        raisedMantleShape.createPortalBlocks(helper.getLevel());
+        helper.assertFalse(
+                UnderworldPortalEvents.frameTouchesMantle(helper.getLevel(), raisedMantleOrigin),
+                "mantle support above the bottom gate range must not open the Nether route");
+        UnderworldPortalEvents.clearConnectedPortal(helper.getLevel(), raisedMantleOrigin);
+        helper.assertTrue(
+                UnderworldPortalEvents.portalTypeFor(Underworld.LEVEL, false, true)
+                        == InfXBlocks.NETHER_PORTAL.get().portalType(),
+                "bottom mantle frames route from the Underworld to the Nether");
+
         BlockPos migratedReturnArrival = InfXBlocks.RETURN_SPAWN_PORTAL.get()
                 .findOrCreateArrivalPortal(helper.getLevel(), ineligibleOrigin);
         helper.assertTrue(
@@ -567,6 +622,23 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 hasAdjacentPortal(helper, reusedArrival, InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "reused arrival remains beside the existing Underworld portal");
+
+        BlockPos wideArrival = InfXBlocks.UNDERWORLD_PORTAL.get()
+                .createArrivalPortal(helper.getLevel(), arrival.offset(0, 0, 10), Direction.Axis.Z, 4, 5);
+        helper.assertTrue(
+                countPortalSurfaces(
+                                helper,
+                                InfXBlocks.UNDERWORLD_PORTAL.get(),
+                                wideArrival.relative(Direction.WEST),
+                                wideArrival.relative(Direction.WEST).offset(0, 4, 3))
+                        == 20,
+                "wide arrival portal preserves its requested surface area");
+        helper.assertTrue(
+                helper.getLevel()
+                                .getBlockState(wideArrival.relative(Direction.WEST))
+                                .getValue(UnderworldPortalBlock.AXIS)
+                        == Direction.Axis.Z,
+                "wide arrival portal preserves its requested axis");
 
         BlockPos netherArrival = InfXBlocks.NETHER_PORTAL.get()
                 .createArrivalPortal(helper.getLevel(), arrival.offset(12, 0, 0));
@@ -2495,18 +2567,35 @@ public final class ModCompletionGameTests {
     }
 
     private static BlockPos buildObsidianFrame(GameTestHelper helper, BlockPos base, boolean addBedrock) {
-        for (int x = 0; x < 4; x++) {
-            if (addBedrock) {
-                helper.getLevel().setBlock(base.offset(x, -1, 0), Blocks.BEDROCK.defaultBlockState(), 3);
+        return buildObsidianFrame(
+                helper,
+                base,
+                2,
+                3,
+                addBedrock ? Blocks.BEDROCK.defaultBlockState() : null);
+    }
+
+    private static BlockPos buildObsidianFrame(
+            GameTestHelper helper,
+            BlockPos base,
+            int interiorWidth,
+            int interiorHeight,
+            BlockState supportBlock) {
+        for (int x = 0; x <= interiorWidth + 1; x++) {
+            if (supportBlock != null) {
+                helper.getLevel().setBlock(base.offset(x, -1, 0), supportBlock, 3);
             }
             helper.getLevel().setBlock(base.offset(x, 0, 0), Blocks.OBSIDIAN.defaultBlockState(), 3);
-            helper.getLevel().setBlock(base.offset(x, 4, 0), Blocks.OBSIDIAN.defaultBlockState(), 3);
+            helper.getLevel().setBlock(
+                    base.offset(x, interiorHeight + 1, 0), Blocks.OBSIDIAN.defaultBlockState(), 3);
         }
-        for (int y = 1; y < 4; y++) {
+        for (int y = 1; y <= interiorHeight; y++) {
             helper.getLevel().setBlock(base.offset(0, y, 0), Blocks.OBSIDIAN.defaultBlockState(), 3);
-            helper.getLevel().setBlock(base.offset(3, y, 0), Blocks.OBSIDIAN.defaultBlockState(), 3);
-            helper.getLevel().setBlock(base.offset(1, y, 0), Blocks.AIR.defaultBlockState(), 3);
-            helper.getLevel().setBlock(base.offset(2, y, 0), Blocks.AIR.defaultBlockState(), 3);
+            helper.getLevel().setBlock(
+                    base.offset(interiorWidth + 1, y, 0), Blocks.OBSIDIAN.defaultBlockState(), 3);
+            for (int x = 1; x <= interiorWidth; x++) {
+                helper.getLevel().setBlock(base.offset(x, y, 0), Blocks.AIR.defaultBlockState(), 3);
+            }
         }
         return base.offset(1, 1, 0);
     }
