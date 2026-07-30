@@ -398,6 +398,12 @@ public class EarthElemental extends Monster implements MiteMob {
         return SoundEvents.IRON_GOLEM_HURT;
     }
 
+    /** MITE's {@code mob.irongolem.death} maps to the modern iron-golem death sound. */
+    @Override
+    protected @NonNull SoundEvent getDeathSound() {
+        return SoundEvents.IRON_GOLEM_DEATH;
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
