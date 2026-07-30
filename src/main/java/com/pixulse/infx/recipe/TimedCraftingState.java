@@ -6,6 +6,7 @@ public final class TimedCraftingState {
     private String activeRecipeId = "";
     private int progressTicks;
     private int requiredTicks;
+    private int cycleSequence;
     private boolean running;
 
     public boolean start(String recipeId, int ticks) {
@@ -40,6 +41,7 @@ public final class TimedCraftingState {
         progressTicks++;
         if (progressTicks >= requiredTicks) {
             progressTicks = 0;
+            cycleSequence++;
             return TickResult.COMPLETED;
         }
         return TickResult.PROGRESSED;
@@ -62,6 +64,10 @@ public final class TimedCraftingState {
 
     public int requiredTicks() {
         return requiredTicks;
+    }
+
+    public int cycleSequence() {
+        return cycleSequence;
     }
 
     public boolean isRunning() {
