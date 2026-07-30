@@ -229,10 +229,7 @@ public final class TimedCraftingEngine {
         }
 
         consumeInputsAndReturnContainers(player, craftSlots, positioned, remaining);
-        CraftingOutputDistributor.giveOrDrop(
-                output,
-                player.getInventory()::add,
-                stack -> player.drop(stack, false));
+        player.getInventory().placeItemBackInInventory(output);
 
         boolean stillSameRecipe = refreshResult(timedMenu, player, true)
                 && findRecipe(timedMenu, player.level())
