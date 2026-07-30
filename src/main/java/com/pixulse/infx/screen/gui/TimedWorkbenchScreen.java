@@ -15,6 +15,10 @@ public final class TimedWorkbenchScreen extends AbstractContainerScreen<TimedWor
             Identifier.withDefaultNamespace("textures/gui/container/crafting_table.png");
     private static final Identifier PROGRESS =
             Identifier.withDefaultNamespace("container/furnace/burn_progress");
+    // burn_progress has a one-pixel blank leading column; x=89 aligns its white
+    // arrow pixels with the gray arrow in crafting_table.png at x=90.
+    private static final int PROGRESS_X = 89;
+    private static final int PROGRESS_Y = 35;
 
     public TimedWorkbenchScreen(TimedWorkbenchMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -49,8 +53,8 @@ public final class TimedWorkbenchScreen extends AbstractContainerScreen<TimedWor
                     16,
                     0,
                     0,
-                    leftPos + 90,
-                    topPos + 35,
+                    leftPos + PROGRESS_X,
+                    topPos + PROGRESS_Y,
                     progressWidth,
                     16);
         }
