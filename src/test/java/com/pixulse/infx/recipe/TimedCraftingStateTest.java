@@ -55,6 +55,18 @@ class TimedCraftingStateTest {
         assertTrue(state.isRunning());
         assertEquals(0, state.progressTicks());
         assertEquals("infx:test", state.activeRecipeId());
+        assertEquals(1, state.cycleSequence());
+    }
+
+    @Test
+    void resetPreservesCycleSequenceForClientCompletionAnimation() {
+        TimedCraftingState state = runningState(1);
+        state.tick("infx:test", true, true, true);
+
+        state.reset();
+
+        assertReset(state);
+        assertEquals(1, state.cycleSequence());
     }
 
     @Test
