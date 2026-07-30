@@ -32,6 +32,8 @@ import org.junit.jupiter.api.Test;
 class StructureGenerationGatesTest {
     private static final ResourceKey<Structure> VILLAGE = BuiltinStructures.VILLAGE_PLAINS;
     private static final ResourceKey<Structure> OUTPOST = BuiltinStructures.PILLAGER_OUTPOST;
+    private static final ResourceKey<Structure> ANCIENT_CITY = BuiltinStructures.ANCIENT_CITY;
+    private static final ResourceKey<Structure> TRIAL_CHAMBERS = BuiltinStructures.TRIAL_CHAMBERS;
     private static final TagKey<Structure> TEST_TAG =
             TagKey.create(Registries.STRUCTURE, InfiniteX.id("test_structure_gate"));
 
@@ -54,6 +56,23 @@ class StructureGenerationGatesTest {
                 village,
                 progress(VillageProgression.VILLAGE_DAY, StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED),
                 StructureGenerationGates.rules()));
+    }
+
+    @Test
+    void ancientCityAndTrialChambersArePermanentlySuppressedInTheOverworld() {
+        StructureGenerationGates.WorldProgressSnapshot fullyUnlocked = progress(
+                Long.MAX_VALUE,
+                StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED,
+                StructureGenerationGates.WorldMilestone.END_CONQUERED);
+
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD, holder(ANCIENT_CITY), fullyUnlocked, StructureGenerationGates.rules()));
+        assertFalse(StructureGenerationGates.allows(
+                Level.OVERWORLD, holder(TRIAL_CHAMBERS), fullyUnlocked, StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.NETHER, holder(ANCIENT_CITY), fullyUnlocked, StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Level.NETHER, holder(TRIAL_CHAMBERS), fullyUnlocked, StructureGenerationGates.rules()));
     }
 
     @Test

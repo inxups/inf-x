@@ -1,16 +1,18 @@
 # 结构生成解锁框架
 
-`StructureGenerationGates` 为需要世界进度才能生成的结构提供集中式 Java DSL。它目前承载村庄解锁规则，也可以复用于其他原版或模组结构。
+`StructureGenerationGates` 为需要世界进度才能生成的结构提供集中式 Java DSL。它目前承载村庄解锁规则以及永久禁用的原版结构，也可以复用于其他原版或模组结构。
 
 框架只控制候选结构能否在新生成的区块中开始生成；不会修改已有区块，也不会在条件达成后回填此前被跳过的结构。
 
 ## 当前规则
 
-村庄是首条内置规则：
+当前内置规则如下：
 
 | 规则 ID | 维度 | 结构选择器 | 解锁条件 |
 | --- | --- | --- | --- |
 | `infx:village` | 主世界 | `#minecraft:village` | 生存第 60 天或之后，且全世界已制作铁级工具 |
+| `infx:ancient_city` | 主世界 | `minecraft:ancient_city` | 永不解锁 |
+| `infx:trial_chambers` | 主世界 | `minecraft:trial_chambers` | 永不解锁 |
 
 实现位于 [`StructureGenerationGates.java`](../src/main/java/com/pixulse/infx/world/StructureGenerationGates.java)。村庄的铁级工具检测、农田枯萎和保险箱后处理仍位于 [`VillageProgression.java`](../src/main/java/com/pixulse/infx/world/VillageProgression.java)。`/infx villages` 仍可查询该规则的状态。
 
@@ -63,6 +65,7 @@ StructureSelector.tag(StructureTags.VILLAGE)
 | API | 通过条件 |
 | --- | --- |
 | `afterDay(day)` | 世界天数达到 `day` |
+| `never()` | 永不通过；用于永久禁用结构 |
 | `milestone(milestone)` | 世界里程碑已完成 |
 | `firstCompletion(key)` | 世界首次完成记录中存在 `key` |
 | `allOf(a, b, ...)` | 每个子条件都通过 |
