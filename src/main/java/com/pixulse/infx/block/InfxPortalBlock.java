@@ -1,6 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXParticles;
 import com.pixulse.infx.registry.InfXPoiTypes;
 import com.pixulse.infx.world.RunegateTeleportation;
 import com.pixulse.infx.world.Underworld;
@@ -13,8 +14,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
@@ -57,6 +62,56 @@ public class InfxPortalBlock extends NetherPortalBlock {
 
     public PortalType portalType() {
         return portalType;
+    }
+
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        ParticleOptions particle = portalParticle(state);
+        if (particle == ParticleTypes.PORTAL) {
+            super.animateTick(state, level, pos, random);
+            return;
+        }
+
+        if (random.nextInt(100) == 0) {
+            level.playLocalSound(
+                    pos.getX() + 0.5D,
+                    pos.getY() + 0.5D,
+                    pos.getZ() + 0.5D,
+                    SoundEvents.PORTAL_AMBIENT,
+                    SoundSource.BLOCKS,
+                    0.5F,
+                    random.nextFloat() * 0.4F + 0.8F,
+                    false);
+        }
+
+        for (int count = 0; count < 4; count++) {
+            double x = pos.getX() + random.nextDouble();
+            double y = pos.getY() + random.nextDouble();
+            double z = pos.getZ() + random.nextDouble();
+            double xd = (random.nextFloat() - 0.5F) * 0.5D;
+            double yd = (random.nextFloat() - 0.5F) * 0.5D;
+            double zd = (random.nextFloat() - 0.5F) * 0.5D;
+            int direction = random.nextInt(2) * 2 - 1;
+
+            if (level.getBlockState(pos.west()).is(this) || level.getBlockState(pos.east()).is(this)) {
+                z = pos.getZ() + 0.5D + 0.25D * direction;
+                zd = random.nextFloat() * 2.0F * direction;
+            } else {
+                x = pos.getX() + 0.5D + 0.25D * direction;
+                xd = random.nextFloat() * 2.0F * direction;
+            }
+
+            level.addParticle(particle, x, y, z, xd, yd, zd);
+        }
+    }
+
+    /** Selects the particle family without changing vanilla portal particle motion. */
+    protected ParticleOptions portalParticle(BlockState state) {
+        return switch (portalType) {
+            case UNDERWORLD -> ParticleTypes.PORTAL;
+            case NETHER -> InfXParticles.NETHER_PORTAL.get();
+            case RETURN_SPAWN -> InfXParticles.RUNEGATE.get();
+        };
     }
 
     @Override
