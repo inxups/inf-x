@@ -34,6 +34,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -586,6 +587,25 @@ public final class ModMonsterGameTests {
                 .toList();
     }
 
+    private static Goal startEarthDigGoal(EarthElemental elemental) {
+        Goal digGoal = elemental.goalSelector.getAvailableGoals().stream()
+                .map(candidate -> candidate.getGoal())
+                .filter(candidate -> candidate.getClass().getSimpleName().equals("MiteEarthDigGoal"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Earth elemental is missing its dig goal"));
+        for (long seed = 0; seed < 10_000; seed++) {
+            elemental.getRandom().setSeed(seed);
+            if (elemental.getRandom().nextInt(20) == 0) {
+                elemental.getRandom().setSeed(seed);
+                if (digGoal.canUse()) {
+                    digGoal.start();
+                    return digGoal;
+                }
+            }
+        }
+        throw new IllegalStateException("Could not start an earth-elemental dig attempt");
+    }
+
     private static void assertEarthForm(
             GameTestHelper helper,
             EarthElemental elemental,
@@ -735,6 +755,22 @@ public final class ModMonsterGameTests {
                 clay.form() == EarthElemental.Form.CLAY_HARDENED && !clay.isMagma()
                         && clay.doorBreakTicks(true) == 320 && !clay.quench(level),
                 "heated clay must harden permanently without entering a magma state");
+
+        BlockPos siegeEarthPos = new BlockPos(12, 1, 1);
+        BlockPos siegeTargetPos = new BlockPos(13, 3, 1);
+        BlockPos siegeSupport = siegeTargetPos.below();
+        helper.setBlock(siegeEarthPos.below(), Blocks.STONE);
+        helper.setBlock(siegeSupport, Blocks.GLASS);
+        var siegeEarth = helper.spawn(InfXEntityTypes.EARTH_ELEMENTAL.get(), siegeEarthPos);
+        var siegeTarget = helper.spawnWithNoFreeWill(EntityType.COW, siegeTargetPos);
+        siegeEarth.setTarget(siegeTarget);
+        Goal siegeDigGoal = startEarthDigGoal(siegeEarth);
+        for (int tick = 0; tick < 180 && !helper.getBlockState(siegeSupport).isAir(); tick++) {
+            siegeDigGoal.tick();
+        }
+        helper.assertTrue(
+                helper.getBlockState(siegeSupport).isAir(),
+                "earth elementals must dig an elevated target's support even when its eye ray passes above it");
 
         var fire = helper.spawnWithNoFreeWill(InfXEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 1));
         before = fire.getHealth();
