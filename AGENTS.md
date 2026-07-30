@@ -9,6 +9,10 @@
 - mite/MITE 指的是 1.6.4-MITE(src = codex/reference/mite-src)
 - infx 指的是本26.1.2项目
 
+## 命名规则
+- 当重写某原版注册时,以InfX为开头(java源码文件或注册)
+- 写入mixin方法,方法名无需额外附加(如 r196,mite,infx)
+
 ## Git 工作流
 
 - 凡需要修改仓库的任务，必须使用独立 Git worktree 和 `codex/<任务名>` 分支。
