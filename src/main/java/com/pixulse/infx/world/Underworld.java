@@ -10,8 +10,8 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
 public final class Underworld {
-    public static final int MIN_Y = -128;
-    public static final int MAX_Y_EXCLUSIVE = 192;
+    public static final int MIN_Y = 0;
+    public static final int MAX_Y_EXCLUSIVE = 256;
     public static final int HEIGHT = MAX_Y_EXCLUSIVE - MIN_Y;
     public static final ResourceKey<Level> LEVEL = ResourceKey.create(Registries.DIMENSION, InfiniteX.id("underworld"));
     public static final ResourceKey<LevelStem> STEM = ResourceKey.create(Registries.LEVEL_STEM, InfiniteX.id("underworld"));

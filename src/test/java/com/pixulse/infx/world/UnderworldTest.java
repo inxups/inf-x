@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 class UnderworldTest {
     @Test
     void verticalRangeEndsAtTheConfiguredExclusiveUpperBoundary() {
-        assertEquals(-128, Underworld.MIN_Y);
-        assertEquals(192, Underworld.MAX_Y_EXCLUSIVE);
-        assertEquals(320, Underworld.HEIGHT);
+        assertEquals(0, Underworld.MIN_Y);
+        assertEquals(256, Underworld.MAX_Y_EXCLUSIVE);
+        assertEquals(256, Underworld.HEIGHT);
     }
 
     @Test

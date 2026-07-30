@@ -1599,7 +1599,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void underworldDataUsesAnEmptyStoneGenerationBaseline() throws Exception {
+    void underworldDataUsesAStoneBaselineWithAMantleFloor() throws Exception {
         JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
         JsonObject generator = dimension.getAsJsonObject("generator");
         JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
@@ -1615,6 +1615,13 @@ class GeneratedResourceTest {
         JsonObject noiseShape = noise.getAsJsonObject("noise");
         JsonElement finalDensity = noise.getAsJsonObject("noise_router").get("final_density");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
+        JsonArray surfaceRules = surfaceRule.getAsJsonArray("sequence");
+        JsonObject mantleRule = surfaceRules.get(0).getAsJsonObject();
+        JsonObject mantleCondition = mantleRule.getAsJsonObject("if_true");
+        JsonObject mantleYCheck = mantleCondition.getAsJsonObject("invert");
+        JsonObject mantleAnchor = mantleYCheck.getAsJsonObject("anchor");
+        JsonObject mantleState = mantleRule.getAsJsonObject("then_run").getAsJsonObject("result_state");
+        JsonObject stoneState = surfaceRules.get(1).getAsJsonObject().getAsJsonObject("result_state");
         String mixinConfig = Files.readString(STATIC.resolve("infx.mixins.json"));
         assertAll(
                 "Underworld dimension",
@@ -1624,11 +1631,11 @@ class GeneratedResourceTest {
                         "infx:underworld",
                         generator.getAsJsonObject("biome_source").get("biome").getAsString()),
                 () -> assertEquals("infx:underworld", generator.get("settings").getAsString()),
-                () -> assertEquals(-128, dimensionType.get("min_y").getAsInt()),
-                () -> assertEquals(320, dimensionType.get("height").getAsInt()),
-                () -> assertEquals(320, dimensionType.get("logical_height").getAsInt()),
+                () -> assertEquals(0, dimensionType.get("min_y").getAsInt()),
+                () -> assertEquals(256, dimensionType.get("height").getAsInt()),
+                () -> assertEquals(256, dimensionType.get("logical_height").getAsInt()),
                 () -> assertEquals(
-                        192,
+                        256,
                         dimensionType.get("min_y").getAsInt()
                                 + dimensionType.get("height").getAsInt()),
                 () -> assertTrue(dimensionType.get("has_ceiling").getAsBoolean()),
@@ -1638,15 +1645,20 @@ class GeneratedResourceTest {
                 () -> assertEquals(0, noise.get("sea_level").getAsInt()),
                 () -> assertFalse(noise.get("aquifers_enabled").getAsBoolean()),
                 () -> assertFalse(noise.get("ore_veins_enabled").getAsBoolean()),
-                () -> assertEquals(-128, noiseShape.get("min_y").getAsInt()),
-                () -> assertEquals(320, noiseShape.get("height").getAsInt()),
+                () -> assertEquals(0, noiseShape.get("min_y").getAsInt()),
+                () -> assertEquals(256, noiseShape.get("height").getAsInt()),
                 () -> assertTrue(finalDensity.isJsonPrimitive()),
                 () -> assertEquals(1.0, finalDensity.getAsDouble()),
-                () -> assertEquals("minecraft:block", surfaceRule.get("type").getAsString()),
-                () -> assertEquals("minecraft:stone", surfaceRule
-                        .getAsJsonObject("result_state")
-                        .get("Name")
-                        .getAsString()),
+                () -> assertEquals("minecraft:sequence", surfaceRule.get("type").getAsString()),
+                () -> assertEquals(2, surfaceRules.size()),
+                () -> assertEquals("minecraft:condition", mantleRule.get("type").getAsString()),
+                () -> assertEquals("minecraft:not", mantleCondition.get("type").getAsString()),
+                () -> assertEquals("minecraft:y_above", mantleYCheck.get("type").getAsString()),
+                () -> assertEquals(1, mantleAnchor.get("above_bottom").getAsInt()),
+                () -> assertEquals(0, mantleYCheck.get("surface_depth_multiplier").getAsInt()),
+                () -> assertFalse(mantleYCheck.get("add_stone_depth").getAsBoolean()),
+                () -> assertEquals("infx:mantle", mantleState.get("Name").getAsString()),
+                () -> assertEquals("minecraft:stone", stoneState.get("Name").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
