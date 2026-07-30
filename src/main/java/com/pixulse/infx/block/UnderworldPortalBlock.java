@@ -3,6 +3,7 @@ package com.pixulse.infx.block;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXParticles;
 import com.pixulse.infx.event.UnderworldPortalEvents;
 import com.pixulse.infx.world.RunegateTeleportation;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BiomeTags;
@@ -53,6 +55,11 @@ public final class UnderworldPortalBlock extends InfxPortalBlock {
             }
         }
         return super.getPortalTransitionTime(level, entity);
+    }
+
+    @Override
+    protected ParticleOptions portalParticle(BlockState state) {
+        return state.getValue(RUNE_GATE) ? InfXParticles.RUNEGATE.get() : super.portalParticle(state);
     }
 
     @Override
