@@ -25,7 +25,7 @@ class PortalColorsTest {
     void runegateUsesTheRequestedDimensionPalette() {
         assertEquals(0x359FFF, RunegateColors.rgbFor(Level.OVERWORLD));
         assertEquals(0x4401B4, RunegateColors.rgbFor(Underworld.LEVEL));
-        assertEquals(0x000000, RunegateColors.rgbFor(Level.NETHER));
+        assertEquals(0xBE250B, RunegateColors.rgbFor(Level.NETHER));
         assertEquals(0xFFFFFF, RunegateColors.rgbFor(Level.END));
     }
 

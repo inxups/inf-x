@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 final class RunegateColors {
     static final int OVERWORLD_RGB = 0x359FFF;
     static final int UNDERWORLD_RGB = 0x4401B4;
-    static final int NETHER_RGB = 0x000000;
+    static final int NETHER_RGB = 0xBE250B;
     static final int FALLBACK_RGB = 0xFFFFFF;
 
     private RunegateColors() {}
