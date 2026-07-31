@@ -35,7 +35,8 @@ public final class InfXUnderworldBrownMushroomFeature extends Feature<NoneFeatur
                 minX + random.nextInt(CHUNK_SIZE) + CHUNK_OFFSET,
                 Underworld.TERRAIN_MIN_Y + random.nextInt(Underworld.TERRAIN_HEIGHT),
                 minZ + random.nextInt(CHUNK_SIZE) + CHUNK_OFFSET);
-        if (context.level().getBiome(mushroomPos).is(Underworld.LUSH_BIOME)) {
+        if (InfXUnderworldBiomeAccess.isLushBiome(
+                context.level(), mushroomPos.getX(), mushroomPos.getY(), mushroomPos.getZ())) {
             return false;
         }
 

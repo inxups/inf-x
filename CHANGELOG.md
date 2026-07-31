@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 修复地下世界装饰区块读取崩溃
+
+- 菌丝 post 和棕色蘑菇装饰现在通过生成器的未缓存噪声生物群系采样判断繁茂区，不再从 `WorldGenRegion` 读取邻区块，避免新区块生成阶段触发 `Requested chunk unavailable during world generation`。
+
 ### 添加地下世界深暗之域
 
 - 地下世界现在按世界种子低频噪声划分为普通区、繁茂区和深暗区，比例约为 94%、5% 和 1%，并保持垂直方向一致。
