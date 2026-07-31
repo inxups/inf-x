@@ -7,6 +7,7 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.HashSet;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,19 @@ class BasicSystemsTest {
         assertFalse(MoonPhase.BLOOD.allowsSleep());
         assertEquals(MoonPhase.BLUE, MoonPhase.atDay(128));
         assertEquals(MoonPhase.PHANTOM, MoonPhase.atDay(120));
+    }
+
+    @Test
+    void visualMoonTimelineAndNightWindowMatchMiteCalendar() {
+        assertEquals(net.minecraft.world.level.MoonPhase.WANING_GIBBOUS, MoonPhase.visualPhaseAtTime(0));
+        assertEquals(net.minecraft.world.level.MoonPhase.NEW_MOON, MoonPhase.visualPhaseAtTime(72_000));
+        assertEquals(net.minecraft.world.level.MoonPhase.FULL_MOON, MoonPhase.visualPhaseAtTime(168_000));
+        assertTrue(MoonPhase.isOverworld(Level.OVERWORLD));
+        assertFalse(MoonPhase.isOverworld(Level.NETHER));
+        assertFalse(MoonPhase.isNightTime(12_999));
+        assertTrue(MoonPhase.isNightTime(13_000));
+        assertTrue(MoonPhase.isNightTime(23_000));
+        assertFalse(MoonPhase.isNightTime(23_001));
     }
 
     @Test

@@ -35,7 +35,7 @@ public final class MoonEvents {
         }
         MobCategory category = event.getEntity().getType().getCategory();
         if (category == MobCategory.CREATURE) {
-            if (MoonPhase.at(level) != MoonPhase.BLUE || level.getGameTime() % 400L != 0L) {
+            if (!MoonPhase.BLUE.isActiveInOverworldAtNight(level) || level.getGameTime() % 400L != 0L) {
                 event.setSpawnCancelled(true);
             }
             return;
@@ -48,13 +48,13 @@ public final class MoonEvents {
             return;
         }
         if (!(event.getEntity() instanceof Enemy)) return;
-        if (level.dimension() != Level.OVERWORLD) {
+        if (!MoonPhase.isOverworld(level)) {
             if (level.getRandom().nextInt(4) != 0) event.setSpawnCancelled(true);
             return;
         }
         MoonPhase phase = MoonPhase.at(level);
-        if (!isDay(level) && level.canSeeSky(event.getEntity().blockPosition())) {
-            if (phase == MoonPhase.BLUE
+        if (MoonPhase.isNight(level) && level.canSeeSky(event.getEntity().blockPosition())) {
+            if (MoonPhase.BLUE.isActiveInOverworldAtNight(level)
                     || level.getRandom().nextInt(phase.outdoorHostileSpawnDenominator()) != 0) {
                 event.setSpawnCancelled(true);
             }
@@ -64,14 +64,15 @@ public final class MoonEvents {
     @SubscribeEvent
     public static void tickLevel(LevelTickEvent.Post event) {
         if (!(event.getLevel() instanceof ServerLevel level)
-                || level.dimension() != Level.OVERWORLD
+                || !MoonPhase.isOverworld(level)
                 || level.getGameTime() % 200 != 0) {
             return;
         }
-        MoonPhase phase = MoonPhase.at(level);
-        if (phase == MoonPhase.BLUE) {
+        if (MoonPhase.BLUE.isActiveInOverworld(level)) {
             setWeather(level, false, false);
-        } else if (phase == MoonPhase.BLOOD && isDay(level)) {
+        } else if (MoonPhase.BLOOD.isActiveInOverworld(level) && !MoonPhase.isNight(level)) {
+            // This is the existing lunar weather cue. MITE's deterministic WeatherEvent scheduler
+            // also owns forecasts, wind, and event merging, so it is intentionally out of scope here.
             setWeather(level, true, true);
         }
     }
@@ -79,9 +80,13 @@ public final class MoonEvents {
     @SubscribeEvent
     public static void modifyFishing(ItemFishedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
-        MoonPhase phase = MoonPhase.at(player.level());
+        // ItemFishedEvent is raised after vanilla has chosen the catch. Keep this as a scoped
+        // INFX loot bonus; strict MITE fishing would need to replace FishingHook's bite timing.
+        MoonPhase phase = MoonPhase.isOverworld(player.level())
+                ? MoonPhase.at(player.level())
+                : MoonPhase.NORMAL;
         double multiplier = phase.fishingMultiplier();
-        long time = Math.floorMod(player.level().getOverworldClockTime(), 24_000L);
+        long time = Math.floorMod(player.level().getOverworldClockTime(), MoonPhase.DAY_TICKS);
         if (time < 2_000L || time > 11_000L && time < 14_000L) multiplier *= 1.5D;
         if (player.level().isRainingAt(event.getHookEntity().blockPosition())) multiplier *= 1.5D;
         if (multiplier > 1.0D && !event.getDrops().isEmpty()
@@ -106,10 +111,11 @@ public final class MoonEvents {
                 || !(event.getAnimal() instanceof Wolf)) {
             return;
         }
-        MoonPhase phase = MoonPhase.at(level);
-        if (phase == MoonPhase.BLOOD && level.getRandom().nextFloat() < 0.75F) {
+        boolean bloodMoonNight = MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        boolean blueMoonNight = MoonPhase.BLUE.isActiveInOverworldAtNight(level);
+        if (bloodMoonNight && level.getRandom().nextFloat() < 0.75F) {
             event.setCanceled(true);
-        } else if (phase != MoonPhase.BLUE && level.getRandom().nextFloat() < 0.25F) {
+        } else if (!blueMoonNight && level.getRandom().nextFloat() < 0.25F) {
             event.setCanceled(true);
         }
     }
@@ -119,7 +125,7 @@ public final class MoonEvents {
         if (!(event.getEntity() instanceof Wolf wolf)
                 || wolf.isTame()
                 || !(wolf.level() instanceof ServerLevel level)
-                || MoonPhase.at(level) != MoonPhase.BLOOD
+                || !MoonPhase.BLOOD.isActiveInOverworldAtNight(level)
                 || wolf.tickCount % 20 != 0) {
             return;
         }
@@ -127,14 +133,15 @@ public final class MoonEvents {
         if (target != null && !target.isCreative() && !target.isSpectator()) wolf.setTarget(target);
     }
 
-    public static boolean isFoggy(long overworldClockTime) {
-        long day = Math.max(1L, overworldClockTime / 24_000L + 1L);
-        long time = Math.floorMod(overworldClockTime, 24_000L);
-        return (day % 9L == 0L && time < 8_000L) || MoonPhase.atDay(day) == MoonPhase.PHANTOM;
+    public static boolean isFoggy(Level level) {
+        return MoonPhase.isOverworld(level) && isFoggy(level.getOverworldClockTime());
     }
 
-    private static boolean isDay(ServerLevel level) {
-        return Math.floorMod(level.getOverworldClockTime(), 24_000L) < 12_000L;
+    public static boolean isFoggy(long overworldClockTime) {
+        long day = MoonPhase.dayAt(overworldClockTime);
+        long time = Math.floorMod(overworldClockTime, MoonPhase.DAY_TICKS);
+        return (day % 9L == 0L && time < 8_000L)
+                || MoonPhase.atDay(day) == MoonPhase.PHANTOM && MoonPhase.isNightTime(overworldClockTime);
     }
 
     private static void setWeather(ServerLevel level, boolean raining, boolean thundering) {

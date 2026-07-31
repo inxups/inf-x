@@ -585,10 +585,7 @@ public class EarthElemental extends Monster implements InfxMob {
     }
 
     boolean isBloodMoonFrenzied() {
-        return level() instanceof ServerLevel level
-                && level.dimension() == Level.OVERWORLD
-                && MoonPhase.at(level) == MoonPhase.BLOOD
-                && Math.floorMod(level.getOverworldClockTime(), 24_000L) >= 12_000L;
+        return level() instanceof ServerLevel level && MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
     }
 
     @Nullable BlockPos miteDiggingPosition() {

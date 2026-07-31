@@ -50,7 +50,7 @@ public final class InfxSquid extends Squid implements InfxMob {
             return;
         }
         // MITE squid keep the peace on blue-moon nights.
-        if (MoonPhase.at(level) == MoonPhase.BLUE) {
+        if (MoonPhase.BLUE.isActiveInOverworldAtNight(level)) {
             return;
         }
         LivingEntity target = nearestPrey(level);
@@ -137,13 +137,13 @@ public final class InfxSquid extends Squid implements InfxMob {
     }
 
     private static boolean canPreyUpon(ServerLevel level, LivingEntity candidate) {
-        if (MoonPhase.at(level) == MoonPhase.BLUE) {
+        if (MoonPhase.BLUE.isActiveInOverworldAtNight(level)) {
             return false;
         }
         if (candidate instanceof Player player) {
             return !player.isCreative()
                     && !player.isSpectator()
-                    && (!(player.getVehicle() instanceof AbstractBoat) || !isDay(level))
+                    && (!(player.getVehicle() instanceof AbstractBoat) || MoonPhase.isNight(level))
                     && !isPlayerNotInOrAboveDeepWater(player);
         }
         // MITE's Entity#isTrueAnimal accepts land animals but explicitly excludes hellhounds.
@@ -183,7 +183,4 @@ public final class InfxSquid extends Squid implements InfxMob {
                 && !level.getFluidState(position.below()).is(FluidTags.WATER);
     }
 
-    private static boolean isDay(ServerLevel level) {
-        return Math.floorMod(level.getOverworldClockTime(), 24_000L) < 12_000L;
-    }
 }

@@ -152,7 +152,7 @@ public final class BedEvents {
         if (players.isEmpty() || !allDeeplySleepingInBeds(players)) return;
         if (!BedRules.isFastForwardWindow(level.getOverworldClockTime())) return;
         // Blood moons block the skip itself, but players remain in bed and retain the normal rest benefits.
-        if (!MoonPhase.at(level).allowsSleep()) return;
+        if (MoonPhase.BLOOD.isActiveInOverworldAtNight(level)) return;
         if (!level.getGameRules().get(GameRules.ADVANCE_TIME)) {
             wakeSleepingPlayers(players);
             return;

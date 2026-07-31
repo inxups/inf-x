@@ -10,6 +10,7 @@ import com.pixulse.infx.world.InfXUnderworldBedrockStrata;
 import com.pixulse.infx.world.InfXUnderworldBiomeSource;
 import com.pixulse.infx.world.InfXUnderworldChunkGenerator;
 import com.pixulse.infx.world.InfXShiftedYDensityFunction;
+import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;
@@ -42,6 +43,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.EasingType;
 import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -50,6 +52,7 @@ import net.minecraft.world.attribute.BackgroundMusic;
 import net.minecraft.world.attribute.BedRule;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
+import net.minecraft.world.attribute.modifier.FloatModifier;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.entity.EntityType;
@@ -121,6 +124,7 @@ import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.timeline.Timeline;
+import net.minecraft.world.timeline.Timelines;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -359,10 +363,43 @@ public final class ModWorldGen {
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
+                .add(Registries.TIMELINE, ModWorldGen::bootstrapTimelines)
                 .add(Registries.DIMENSION_TYPE, ModWorldGen::bootstrapDimensionTypes)
                 .add(Registries.NOISE_SETTINGS, ModWorldGen::bootstrapNoiseSettings)
                 .add(Registries.LEVEL_STEM, ModWorldGen::bootstrapLevelStems)
                 .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModWorldGen::bootstrapBiomeModifiers);
+    }
+
+    /**
+     * Replaces the 26.1 moon timeline so its data-driven sprite starts at MITE's day-one
+     * waning-gibbous phase rather than vanilla's full moon.  Keep the surface-slime track in the
+     * same override: it derives from the rendered phase in vanilla and must not drift a day apart.
+     */
+    private static void bootstrapTimelines(BootstrapContext<Timeline> context) {
+        HolderGetter<WorldClock> clocks = context.lookup(Registries.WORLD_CLOCK);
+        int periodTicks = Math.toIntExact(MoonPhase.DAY_TICKS * MoonPhase.BASE_CYCLE_DAYS);
+        Timeline.Builder moon = Timeline.builder(clocks.getOrThrow(WorldClocks.OVERWORLD))
+                .setPeriodTicks(periodTicks)
+                .addTrack(EnvironmentAttributes.MOON_PHASE, track -> {
+                    for (int day = 0; day < MoonPhase.BASE_CYCLE_DAYS; day++) {
+                        int ticks = Math.toIntExact(day * MoonPhase.DAY_TICKS);
+                        track.addKeyframe(ticks, MoonPhase.visualPhaseAtTime(ticks));
+                    }
+                })
+                .addModifierTrack(
+                        EnvironmentAttributes.SURFACE_SLIME_SPAWN_CHANCE,
+                        FloatModifier.MAXIMUM,
+                        track -> {
+                            track.setEasing(EasingType.CONSTANT);
+                            for (int day = 0; day < MoonPhase.BASE_CYCLE_DAYS; day++) {
+                                int ticks = Math.toIntExact(day * MoonPhase.DAY_TICKS);
+                                var phase = MoonPhase.visualPhaseAtTime(ticks);
+                                track.addKeyframe(
+                                        ticks,
+                                        DimensionType.MOON_BRIGHTNESS_PER_PHASE[phase.index()] * 0.5F);
+                            }
+                        });
+        context.register(Timelines.MOON, moon.build());
     }
 
     private static void bootstrapStructures(BootstrapContext<Structure> context) {

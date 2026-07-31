@@ -2455,6 +2455,40 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void moonTimelineUsesMiteDayOnePhaseOrder() throws Exception {
+        JsonObject timeline = json(GENERATED.resolve("data/minecraft/timeline/moon.json"));
+        JsonArray keyframes = timeline
+                .getAsJsonObject("tracks")
+                .getAsJsonObject("minecraft:visual/moon_phase")
+                .getAsJsonArray("keyframes");
+        List<String> phases = keyframes.asList().stream()
+                .map(JsonElement::getAsJsonObject)
+                .map(frame -> frame.get("value").getAsString())
+                .toList();
+        List<Integer> ticks = keyframes.asList().stream()
+                .map(JsonElement::getAsJsonObject)
+                .map(frame -> frame.get("ticks").getAsInt())
+                .toList();
+
+        assertAll(
+                "MITE moon timeline",
+                () -> assertEquals("minecraft:overworld", timeline.get("clock").getAsString()),
+                () -> assertEquals(192_000, timeline.get("period_ticks").getAsInt()),
+                () -> assertEquals(List.of(0, 24_000, 48_000, 72_000, 96_000, 120_000, 144_000, 168_000), ticks),
+                () -> assertEquals(
+                        List.of(
+                                "waning_gibbous",
+                                "third_quarter",
+                                "waning_crescent",
+                                "new_moon",
+                                "waxing_crescent",
+                                "first_quarter",
+                                "waxing_gibbous",
+                                "full_moon"),
+                        phases));
+    }
+
+    @Test
     void metalAnvilsAndTheirComponentsKeepR196ResourcesAndDifficulties() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -3211,6 +3245,7 @@ class GeneratedResourceTest {
         assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.remove("textures/block/mantle.png"));
         assertTrue(destinations.remove("textures/block/mantle.png.mcmeta"));
+        assertTrue(destinations.removeIf(path -> path.matches("textures/environment/celestial/moon_(halo|ring)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(silver|ancient_metal|mithril|adamantium)_block\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(

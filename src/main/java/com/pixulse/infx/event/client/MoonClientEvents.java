@@ -17,7 +17,7 @@ public final class MoonClientEvents {
     @SubscribeEvent
     public static void renderFog(ViewportEvent.RenderFog event) {
         var level = Minecraft.getInstance().level;
-        if (level != null && MoonEvents.isFoggy(level.getOverworldClockTime())) {
+        if (level != null && MoonEvents.isFoggy(level)) {
             event.setNearPlaneDistance(Math.min(event.getNearPlaneDistance(), 8.0F));
             event.setFarPlaneDistance(Math.min(event.getFarPlaneDistance(), 48.0F));
         }
@@ -27,7 +27,8 @@ public final class MoonClientEvents {
     public static void fogColor(ViewportEvent.ComputeFogColor event) {
         var level = Minecraft.getInstance().level;
         if (level == null) return;
-        MoonPhase phase = MoonPhase.atTime(level.getOverworldClockTime());
+        MoonPhase phase = MoonPhase.at(level);
+        if (!phase.isActiveInOverworldAtNight(level)) return;
         float red = event.getRed();
         float green = event.getGreen();
         float blue = event.getBlue();
