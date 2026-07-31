@@ -1,6 +1,8 @@
 package com.pixulse.infx.item.equipment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.InfxBowItem;
 import com.pixulse.infx.item.material.InfxMaterial;
@@ -8,6 +10,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class BehaviorRulesTest {
+    @Test
+    void extendedTooltipsOnlyAppearInTestMode() {
+        assertTrue(EquipmentBehaviors.shouldAddExtendedTooltips(true));
+        assertFalse(EquipmentBehaviors.shouldAddExtendedTooltips(false));
+    }
+
     @Test
     void allArrowRecoveryRatesMatchR196() {
         Map<InfxMaterial, Float> expected = Map.ofEntries(
