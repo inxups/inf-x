@@ -581,6 +581,26 @@ class GeneratedResourceTest {
                             nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
+        for (String material : List.of("copper", "silver", "gold", "ancient_metal", "mithril", "adamantium")) {
+            String nuggetNamespace = vanillaMetals.contains(material) ? "minecraft" : "infx";
+            JsonObject coinRecipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + material + "_coin_from_nugget.json"));
+            JsonObject nuggetRecipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + material + "_nugget_from_coin.json"));
+            assertAll(
+                    material + " coin conversions",
+                    () -> assertEquals(100.0F, coinRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", coinRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            "infx:" + material + "_coin",
+                            coinRecipe.getAsJsonObject("result").get("id").getAsString()),
+                    () -> assertEquals(25.0F, nuggetRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", nuggetRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            nuggetNamespace + ":" + material + "_nugget",
+                            nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+
         for (String disabled : List.of(
                 "gold_ingot_from_nuggets",
                 "gold_nugget",
