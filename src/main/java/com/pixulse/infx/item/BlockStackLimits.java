@@ -13,6 +13,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.AbstractBannerBlock;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.AnvilBlock;
@@ -104,6 +105,7 @@ public final class BlockStackLimits {
                 || block instanceof SaplingBlock
                 || block instanceof BaseTorchBlock
                 || block instanceof SignBlock
+                || block instanceof AbstractBannerBlock
                 || block instanceof AbstractSkullBlock) {
             return 16;
         }

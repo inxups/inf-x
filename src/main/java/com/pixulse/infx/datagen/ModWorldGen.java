@@ -3,6 +3,7 @@ package com.pixulse.infx.datagen;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXFeatures;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
 import com.pixulse.infx.world.InfXUnderworldBedrockStrata;
@@ -40,6 +41,8 @@ import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.CardinalLighting;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -950,9 +953,38 @@ public final class ModWorldGen {
                                 .build())
                         .setAttribute(EnvironmentAttributes.FOG_COLOR, 1_710_619)
                         .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
-                        .mobSpawnSettings(new MobSpawnSettings.Builder().build())
+                        .mobSpawnSettings(underworldMobSpawns())
                         .generationSettings(generation.build())
                         .build());
+    }
+
+    private static MobSpawnSettings underworldMobSpawns() {
+        MobSpawnSettings.Builder spawns = new MobSpawnSettings.Builder();
+        addUnderworldMonster(spawns, InfXEntityTypes.INFX_SPIDER.get(), 80, 1, 2);
+        addUnderworldMonster(spawns, InfXEntityTypes.INFX_CREEPER.get(), 100, 1, 2);
+        addUnderworldMonster(spawns, InfXEntityTypes.INFX_ENDERMAN.get(), 10, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.WIGHT.get(), 10, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.HELLHOUND.get(), 10, 1, 2);
+        addUnderworldMonster(spawns, InfXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.SHADOW.get(), 10, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.JELLY.get(), 30, 1, 4);
+        addUnderworldMonster(spawns, InfXEntityTypes.BLOB.get(), 30, 1, 4);
+        addUnderworldMonster(spawns, InfXEntityTypes.OOZE.get(), 20, 1, 4);
+        addUnderworldMonster(spawns, InfXEntityTypes.PUDDING.get(), 30, 1, 4);
+        addUnderworldMonster(spawns, InfXEntityTypes.CLAY_GOLEM.get(), 50, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.PHASE_SPIDER.get(), 5, 1, 1);
+        addUnderworldMonster(spawns, InfXEntityTypes.INFX_CAVE_SPIDER.get(), 40, 1, 2);
+        addUnderworldMonster(spawns, InfXEntityTypes.LONGDEAD.get(), 40, 1, 2);
+        addUnderworldMonster(spawns, InfXEntityTypes.ANCIENT_BONE_LORD.get(), 5, 1, 1);
+        return spawns.build();
+    }
+
+    private static void addUnderworldMonster(
+            MobSpawnSettings.Builder spawns, EntityType<?> type, int weight, int minimum, int maximum) {
+        spawns.addSpawn(MobCategory.MONSTER, weight, new MobSpawnSettings.SpawnerData(type, minimum, maximum));
     }
 
     private static void addUnderworldOreFeatures(BiomeGenerationSettings.Builder generation) {

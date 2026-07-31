@@ -178,6 +178,35 @@ class GeneratedResourceTest {
                 "data/infx/worldgen/configured_feature/infx_infested_netherrack.json"));
         JsonObject underworld = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         JsonObject underworldSpawners = underworld.getAsJsonObject("spawners");
+        Map<String, int[]> expectedUnderworldMonsters = Map.ofEntries(
+                Map.entry("infx:infx_spider", new int[] {80, 1, 2}),
+                Map.entry("infx:infx_creeper", new int[] {100, 1, 2}),
+                Map.entry("infx:infx_enderman", new int[] {10, 1, 1}),
+                Map.entry("infx:wight", new int[] {10, 1, 1}),
+                Map.entry("infx:invisible_stalker", new int[] {10, 1, 1}),
+                Map.entry("infx:demon_spider", new int[] {10, 1, 1}),
+                Map.entry("infx:hellhound", new int[] {10, 1, 2}),
+                Map.entry("infx:wood_spider", new int[] {20, 1, 1}),
+                Map.entry("infx:shadow", new int[] {10, 1, 1}),
+                Map.entry("infx:earth_elemental", new int[] {10, 1, 1}),
+                Map.entry("infx:jelly", new int[] {30, 1, 4}),
+                Map.entry("infx:blob", new int[] {30, 1, 4}),
+                Map.entry("infx:ooze", new int[] {20, 1, 4}),
+                Map.entry("infx:pudding", new int[] {30, 1, 4}),
+                Map.entry("infx:clay_golem", new int[] {50, 1, 1}),
+                Map.entry("infx:phase_spider", new int[] {5, 1, 1}),
+                Map.entry("infx:infx_cave_spider", new int[] {40, 1, 2}),
+                Map.entry("infx:longdead", new int[] {40, 1, 2}),
+                Map.entry("infx:ancient_bone_lord", new int[] {5, 1, 1}));
+        Map<String, int[]> actualUnderworldMonsters = new java.util.HashMap<>();
+        for (JsonElement element : underworldSpawners.getAsJsonArray("monster")) {
+            JsonObject entry = element.getAsJsonObject();
+            actualUnderworldMonsters.put(entry.get("type").getAsString(), new int[] {
+                entry.get("weight").getAsInt(),
+                spawnCount(entry, "minCount", "min_count"),
+                spawnCount(entry, "maxCount", "max_count")
+            });
+        }
 
         assertAll(
                 "INFX spawn tables",
@@ -186,10 +215,18 @@ class GeneratedResourceTest {
                 () -> assertTrue(infestedNetherrack.toString().contains("infx:infested_netherrack")),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/blockstates/infested_netherrack.json"))),
+                () -> assertEquals(expectedUnderworldMonsters.keySet(), actualUnderworldMonsters.keySet()),
+                () -> expectedUnderworldMonsters.forEach((type, expected) -> {
+                    int[] actual = actualUnderworldMonsters.get(type);
+                    assertEquals(expected[0], actual[0], type + " weight");
+                    assertEquals(expected[1], actual[1], type + " minimum");
+                    assertEquals(expected[2], actual[2], type + " maximum");
+                }),
                 () -> assertTrue(
                         underworldSpawners.entrySet().stream()
+                                .filter(entry -> !entry.getKey().equals("monster"))
                                 .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
-                        "Underworld spawn tables must be empty"));
+                        "Underworld non-monster spawn tables must remain empty"));
     }
 
     @Test
@@ -1840,10 +1877,15 @@ class GeneratedResourceTest {
                 () -> assertEquals("never", bedRule.get("can_sleep").getAsString()),
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
+                () -> assertEquals(
+                        19,
+                        biome.getAsJsonObject("spawners").getAsJsonArray("monster").size(),
+                        "Underworld monster spawn table"),
                 () -> assertTrue(
                         biome.getAsJsonObject("spawners").entrySet().stream()
+                                .filter(entry -> !entry.getKey().equals("monster"))
                                 .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
-                        "Underworld spawn tables must be empty"),
+                        "Underworld non-monster spawn tables must remain empty"),
                 () -> assertEquals(
                         Set.of(
                                 "infx:underworld_dungeon",
@@ -2461,9 +2503,9 @@ class GeneratedResourceTest {
     @Test
     void generatedCountsAreExact() throws Exception {
         // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the INFX bat egg, and the
-        // bottle model add one item definition and model each; gravel adds one block item definition.
-        assertEquals(446, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(516, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // Longdead Guardian egg add one item definition and model each; gravel adds one block item definition.
+        assertEquals(447, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(517, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -3194,6 +3236,12 @@ class GeneratedResourceTest {
             String heightType,
             int minY,
             int maxY) {}
+
+    private static int spawnCount(JsonObject entry, String preferred, String fallback) {
+        JsonElement value = entry.get(preferred);
+        if (value == null) value = entry.get(fallback);
+        return value.getAsInt();
+    }
 
     private static JsonObject json(Path path) throws IOException {
         try (Reader reader = Files.newBufferedReader(path, UTF_8)) {

@@ -46,7 +46,8 @@ class BlockStackLimitsTest {
                 Items.REPEATER,
                 Items.COMPARATOR,
                 Items.BREWING_STAND,
-                Items.FLOWER_POT);
+                Items.FLOWER_POT,
+                Items.WHITE_BANNER);
         assertLimit(
                 32,
                 Items.DANDELION,

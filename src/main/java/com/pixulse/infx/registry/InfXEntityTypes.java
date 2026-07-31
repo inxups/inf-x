@@ -40,7 +40,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Entity type registry for original-mob replacements and the 29-item INFX roster. */
+/** Entity type registry for original-mob replacements and the 30-item INFX roster. */
 public final class InfXEntityTypes {
     public static final float GIANT_VAMPIRE_BAT_SCALE = 1.5F;
     public static final DeferredRegister.Entities ENTITIES = DeferredRegister.createEntities(InfiniteX.MOD_ID);
@@ -107,6 +107,8 @@ public final class InfXEntityTypes {
 
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> LONGDEAD = register(
             "longdead", "Longdead", "古尸", InfxSkeleton::new, 0.6F, 1.8F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> LONGDEAD_GUARDIAN = register(
+            "longdead_guardian", "Longdead Guardian", "古尸守卫", InfxSkeleton::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> BONE_LORD = register(
             "bone_lord", "Bone Lord", "骷髅领主", InfxSkeleton::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> ANCIENT_BONE_LORD = register(
@@ -177,6 +179,7 @@ public final class InfXEntityTypes {
             WIGHT,
             REVENANT,
             LONGDEAD,
+            LONGDEAD_GUARDIAN,
             BONE_LORD,
             ANCIENT_BONE_LORD,
             BLACK_WIDOW_SPIDER,

@@ -42,6 +42,9 @@ class MonsterProfileTest {
 
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 32.0, 0.30, 4.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD), 12.0, 40.0, 0.29, 6.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN), 24.0, 40.0, 0.29, 8.0);
+        assertEquals(2.0, stats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN))
+                .getBaseValue(Attributes.ARMOR), EPSILON);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.BONE_LORD), 20.0, 40.0, 0.26, 5.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 40.0, 0.27, 8.0);
 
@@ -260,7 +263,7 @@ class MonsterProfileTest {
         assertDimensions(entities, checked, 0.6F, 1.8F,
                 "infx_zombie", "infx_skeleton", "infx_creeper", "infx_witch", "infx_zombified_piglin",
                 "infx_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
-                "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
+                "longdead_guardian", "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
                 "clay_golem");
         assertDimensions(entities, checked, 1.4F, 0.9F, "infx_spider", "demon_spider");
         assertDimensions(entities, checked, 0.98F, 0.63F, "infx_cave_spider");
@@ -351,6 +354,7 @@ class MonsterProfileTest {
         add(names, "wight", "Wight", "尸妖");
         add(names, "revenant", "Revenant", "亡魂");
         add(names, "longdead", "Longdead", "古尸");
+        add(names, "longdead_guardian", "Longdead Guardian", "古尸守卫");
         add(names, "bone_lord", "Bone Lord", "骷髅领主");
         add(names, "ancient_bone_lord", "Ancient Bone Lord", "远古骷髅领主");
         add(names, "black_widow_spider", "Black Widow Spider", "黑寡妇蜘蛛");

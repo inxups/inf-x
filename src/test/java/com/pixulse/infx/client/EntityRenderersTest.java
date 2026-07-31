@@ -141,6 +141,9 @@ class EntityRenderersTest {
                 "infx:textures/entity/skeleton/longdead.png",
                 EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.LONGDEAD).toString());
         assertEquals(
+                "infx:textures/entity/skeleton/longdead_guardian.png",
+                EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.LONGDEAD_GUARDIAN).toString());
+        assertEquals(
                 "infx:textures/entity/skeleton/bone_lord.png",
                 EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.BONE_LORD).toString());
         assertEquals(
