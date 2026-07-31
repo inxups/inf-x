@@ -1821,6 +1821,9 @@ class GeneratedResourceTest {
         JsonArray underworldDecorationFeatures = biome.getAsJsonArray("features")
                 .get(GenerationStep.Decoration.UNDERGROUND_DECORATION.ordinal())
                 .getAsJsonArray();
+        JsonArray underworldVegetalFeatures = biome.getAsJsonArray("features")
+                .get(GenerationStep.Decoration.VEGETAL_DECORATION.ordinal())
+                .getAsJsonArray();
         JsonObject configuredDungeon = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_dungeon.json"));
         JsonObject placedDungeon = json(GENERATED.resolve(
@@ -1939,7 +1942,14 @@ class GeneratedResourceTest {
                                 "infx:underworld_gravel_full",
                                 "infx:underworld_mycelium",
                                 "infx:underworld_brown_mushroom",
-                                "infx:underworld_liquid_source"),
+                                "infx:underworld_liquid_source",
+                                "infx:underworld_lush_caves_ceiling_vegetation",
+                                "infx:underworld_cave_vines",
+                                "infx:underworld_lush_caves_clay",
+                                "infx:underworld_lush_caves_vegetation",
+                                "infx:underworld_rooted_azalea_tree",
+                                "infx:underworld_spore_blossom",
+                                "infx:underworld_classic_vines"),
                         underworldFeatures),
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
@@ -2051,6 +2061,81 @@ class GeneratedResourceTest {
                             .getAsString()),
                     () -> assertEquals(1, placement.get(0).getAsJsonObject().get("count").getAsInt()),
                     () -> assertEquals("minecraft:biome", placement.get(1).getAsJsonObject()
+                            .get("type")
+                            .getAsString()));
+        }
+
+        List<String> lushFeatureIds = List.of(
+                "underworld_lush_caves_ceiling_vegetation",
+                "underworld_cave_vines",
+                "underworld_lush_caves_clay",
+                "underworld_lush_caves_vegetation",
+                "underworld_rooted_azalea_tree",
+                "underworld_spore_blossom",
+                "underworld_classic_vines");
+        assertEquals(
+                lushFeatureIds.stream().map(id -> "infx:" + id).toList(),
+                underworldVegetalFeatures.asList().stream().map(JsonElement::getAsString).toList());
+        Map<String, String> lushConfiguredFeatures = Map.ofEntries(
+                Map.entry("underworld_lush_caves_ceiling_vegetation", "minecraft:moss_patch_ceiling"),
+                Map.entry("underworld_cave_vines", "minecraft:cave_vine"),
+                Map.entry("underworld_lush_caves_clay", "minecraft:lush_caves_clay"),
+                Map.entry("underworld_lush_caves_vegetation", "minecraft:moss_patch"),
+                Map.entry("underworld_rooted_azalea_tree", "minecraft:rooted_azalea_tree"),
+                Map.entry("underworld_spore_blossom", "minecraft:spore_blossom"),
+                Map.entry("underworld_classic_vines", "minecraft:vines"));
+        Map<String, Integer> lushCounts = Map.ofEntries(
+                Map.entry("underworld_lush_caves_ceiling_vegetation", 125),
+                Map.entry("underworld_cave_vines", 188),
+                Map.entry("underworld_lush_caves_clay", 62),
+                Map.entry("underworld_lush_caves_vegetation", 125),
+                Map.entry("underworld_rooted_azalea_tree", -1),
+                Map.entry("underworld_spore_blossom", 25),
+                Map.entry("underworld_classic_vines", 256));
+        Set<String> floorScannedLushFeatures = Set.of(
+                "underworld_lush_caves_clay", "underworld_lush_caves_vegetation");
+        for (String featureId : lushFeatureIds) {
+            JsonObject placed = json(GENERATED.resolve(
+                    "data/infx/worldgen/placed_feature/" + featureId + ".json"));
+            JsonArray placement = placed.getAsJsonArray("placement");
+            JsonObject height = placement.get(3).getAsJsonObject().getAsJsonObject("height");
+            int expectedMinimumY = floorScannedLushFeatures.contains(featureId)
+                    ? Underworld.LUSH_CAVES_FLOOR_SCAN_MIN_Y
+                    : Underworld.LUSH_CAVES_MIN_Y;
+            assertAll(
+                    "Underworld lush decoration " + featureId,
+                    () -> assertEquals(lushConfiguredFeatures.get(featureId), placed.get("feature").getAsString()),
+                    () -> assertEquals("infx:underworld_lush_region", placement.get(0).getAsJsonObject()
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals("minecraft:count", placement.get(1).getAsJsonObject()
+                            .get("type")
+                            .getAsString()),
+                    () -> {
+                        if (lushCounts.get(featureId) >= 0) {
+                            assertEquals(lushCounts.get(featureId), placement.get(1).getAsJsonObject()
+                                    .get("count")
+                                    .getAsInt());
+                        } else {
+                            JsonObject count = placement.get(1).getAsJsonObject().getAsJsonObject("count");
+                            assertEquals(1, count.get("min_inclusive").getAsInt());
+                            assertEquals(2, count.get("max_inclusive").getAsInt());
+                        }
+                    },
+                    () -> assertEquals("minecraft:in_square", placement.get(2).getAsJsonObject()
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals("minecraft:height_range", placement.get(3).getAsJsonObject()
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals("minecraft:uniform", height.get("type").getAsString()),
+                    () -> assertEquals(expectedMinimumY, height.getAsJsonObject("min_inclusive")
+                            .get("absolute")
+                            .getAsInt()),
+                    () -> assertEquals(Underworld.LUSH_CAVES_MAX_Y_INCLUSIVE,
+                            height.getAsJsonObject("max_inclusive").get("absolute").getAsInt()),
+                    () -> assertEquals("minecraft:biome", placement.get(placement.size() - 1)
+                            .getAsJsonObject()
                             .get("type")
                             .getAsString()));
         }
