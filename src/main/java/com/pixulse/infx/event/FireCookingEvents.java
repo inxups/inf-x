@@ -1,77 +1,112 @@
 package com.pixulse.infx.event;
 
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-
 import com.pixulse.infx.InfiniteX;
-
 import com.pixulse.infx.registry.InfXItems;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.WeakHashMap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.TriState;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BaseFireBlock;
-import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
+import net.minecraft.world.phys.AABB;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-/** INFX open-fire cooking: raw food cooks, cooked food later burns away. */
+/**
+ * MITE-style open-fire cooking for dropped food.
+ *
+ * <p>Progress is applied only when an item actually receives non-lava fire damage. Raw food turns
+ * into its cooked counterpart at 100 progress; cooked food reaches the same threshold and burns
+ * away. Raw food also schedules MITE's anti-bulk-cooking fire-extinguish check.
+ */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class FireCookingEvents {
-    private static final String COOK_AT = "infx_fire_cook_at";
-    private static final String BURN_AT = "infx_fire_burn_at";
-    private static final String COOKING_XP = "infx_fire_cooking_xp";
-    private static final int MAX_STACKS_PER_FIRE = 16;
-    private static final Map<Item, Item> COOKED = Map.ofEntries(
-            Map.entry(Items.BEEF, Items.COOKED_BEEF),
-            Map.entry(Items.PORKCHOP, Items.COOKED_PORKCHOP),
-            Map.entry(Items.CHICKEN, Items.COOKED_CHICKEN),
-            Map.entry(Items.MUTTON, Items.COOKED_MUTTON),
-            Map.entry(Items.RABBIT, Items.COOKED_RABBIT),
-            Map.entry(Items.COD, Items.COOKED_COD),
-            Map.entry(Items.SALMON, Items.COOKED_SALMON));
+    private static final String COOKING_PROGRESS = "infx_fire_cooking_progress";
+    private static final float COOKING_PROGRESS_REQUIRED = 100.0F;
+    private static final float PROGRESS_PER_DAMAGE = 3.0F;
+    private static final Identifier DOUGH_ID = InfiniteX.id("dough");
+    private static final Identifier WORM_ID = InfiniteX.id("worm");
+    private static final Identifier COOKED_WORM_ID = InfiniteX.id("cooked_worm");
+    private static final Map<Item, CookingResult> RAW_COOKING_RESULTS = Map.of(
+            Items.BEEF, new CookingResult(Items.COOKED_BEEF, 4),
+            Items.PORKCHOP, new CookingResult(Items.COOKED_PORKCHOP, 3),
+            Items.CHICKEN, new CookingResult(Items.COOKED_CHICKEN, 3),
+            Items.MUTTON, new CookingResult(Items.COOKED_MUTTON, 2),
+            Items.COD, new CookingResult(Items.COOKED_COD, 3),
+            Items.SALMON, new CookingResult(Items.COOKED_SALMON, 4),
+            Items.POTATO, new CookingResult(Items.BAKED_POTATO, 0));
+    private static final Map<Item, Integer> COOKED_EXPERIENCE = Map.of(
+            Items.COOKED_BEEF, 4,
+            Items.COOKED_PORKCHOP, 3,
+            Items.COOKED_CHICKEN, 3,
+            Items.COOKED_MUTTON, 2,
+            Items.COOKED_COD, 3,
+            Items.COOKED_SALMON, 4,
+            Items.BAKED_POTATO, 0,
+            Items.BREAD, 0);
+    private static final Map<ServerLevel, NavigableMap<Long, Set<BlockPos>>> EXTINGUISH_CHECKS =
+            new WeakHashMap<>();
 
     private FireCookingEvents() {}
 
-    @SubscribeEvent
-    public static void tickItem(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ItemEntity entity) || entity.level().isClientSide()) return;
+    /**
+     * Applies one real MITE-style fire-damage increment and consumes vanilla item damage when the
+     * stack is an open-fire food. Lava deliberately remains destructive rather than cooking food.
+     */
+    public static boolean handleFireDamage(ServerLevel level, ItemEntity entity, DamageSource source, float damage) {
+        if (!isCookingFireDamage(source) || damage <= 0.0F) return false;
+
         ItemStack stack = entity.getItem();
-        if (!isCookableOrCooked(stack)) return;
-        var data = entity.getPersistentData();
-        if (!entity.isOnFire()) {
-            data.remove(COOK_AT);
-            data.remove(BURN_AT);
-            return;
+        CookingResult result = cookingResult(stack.getItem());
+        if (result != null) {
+            scheduleExtinguishChecks(level, entity);
+            applyCookingProgress(level, entity, stack, result, damage);
+            return true;
         }
-        if (entity.tickCount % 20 == 0 && overcrowded(entity)) {
-            extinguishSupportingFire(entity);
-            return;
+        if (isCooked(stack)) {
+            applyBurningProgress(entity, damage);
+            return true;
         }
-        Item cooked = cookedResult(stack.getItem());
-        if (cooked != null) {
-            int cookAt = data.getInt(COOK_AT).orElse(-1);
-            if (cookAt < 0) {
-                data.putInt(COOK_AT, entity.tickCount + 180 + entity.getRandom().nextInt(61));
-            } else if (entity.tickCount >= cookAt) {
-                int count = stack.getCount();
-                entity.setItem(new ItemStack(cooked, count));
-                data.remove(COOK_AT);
-                data.putInt(BURN_AT, entity.tickCount + 120 + entity.getRandom().nextInt(121));
-                data.putInt(COOKING_XP, cookingExperience(cooked) * count);
+        return false;
+    }
+
+    @SubscribeEvent
+    public static void tickScheduledExtinguishChecks(LevelTickEvent.Post event) {
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
+        NavigableMap<Long, Set<BlockPos>> checks = EXTINGUISH_CHECKS.get(level);
+        if (checks == null || checks.isEmpty()) return;
+
+        long gameTime = level.getGameTime();
+        Iterator<Map.Entry<Long, Set<BlockPos>>> iterator = checks.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, Set<BlockPos>> entry = iterator.next();
+            if (entry.getKey() > gameTime) break;
+            for (BlockPos firePos : entry.getValue()) {
+                tryExtinguishForRawFood(level, firePos);
             }
-            return;
+            iterator.remove();
         }
-        int burnAt = data.getInt(BURN_AT).orElse(-1);
-        if (burnAt < 0) {
-            data.putInt(BURN_AT, entity.tickCount + 120 + entity.getRandom().nextInt(121));
-        } else if (entity.tickCount >= burnAt) {
-            entity.discard();
-        }
+        if (checks.isEmpty()) EXTINGUISH_CHECKS.remove(level);
     }
 
     @SubscribeEvent
@@ -82,69 +117,119 @@ public final class FireCookingEvents {
     }
 
     @SubscribeEvent
-    public static void awardCookingExperience(ItemEntityPickupEvent.Post event) {
-        int experience = event.getItemEntity().getPersistentData().getInt(COOKING_XP).orElse(0);
-        if (experience > 0) {
-            event.getPlayer().giveExperiencePoints(experience);
-            event.getItemEntity().getPersistentData().remove(COOKING_XP);
-        }
-    }
-
-    @SubscribeEvent
-    public static void preserveCookingFood(EntityInvulnerabilityCheckEvent event) {
-        if (event.getEntity() instanceof ItemEntity item
-                && isCookableOrCooked(item.getItem())
-                && event.getSource().is(DamageTypeTags.IS_FIRE)) {
-            event.setInvulnerable(true);
-        }
-    }
-
-    @SubscribeEvent
     public static void igniteCookedDrops(LivingDropsEvent event) {
-        if (!event.getSource().is(DamageTypeTags.IS_FIRE)) return;
+        if (!event.getEntity().isOnFire()) return;
         for (ItemEntity drop : event.getDrops()) {
             if (isCooked(drop.getItem())) {
-                drop.igniteForSeconds(12.0F);
-                drop.getPersistentData().putInt(BURN_AT, drop.tickCount + 120 + drop.getRandom().nextInt(121));
-            }
-        }
-    }
-
-    private static boolean overcrowded(ItemEntity entity) {
-        return entity.level().getEntitiesOfClass(
-                        ItemEntity.class,
-                        entity.getBoundingBox().inflate(1.5D),
-                        item -> item.isOnFire() && isCookableOrCooked(item.getItem()))
-                .size() > MAX_STACKS_PER_FIRE;
-    }
-
-    private static void extinguishSupportingFire(ItemEntity entity) {
-        for (var pos : net.minecraft.core.BlockPos.betweenClosed(
-                entity.blockPosition().offset(-1, -1, -1), entity.blockPosition().offset(1, 0, 1))) {
-            if (entity.level().getBlockState(pos).getBlock() instanceof BaseFireBlock) {
-                entity.level().removeBlock(pos, false);
-                break;
+                // MITE transfers 2-8 seconds of the burning victim's fire to its dropped items.
+                drop.igniteForSeconds(2.0F + drop.getRandom().nextInt(7));
             }
         }
     }
 
     public static Item cookedResult(Item raw) {
-        if (raw == InfXItems.WORM.get()) return InfXItems.COOKED_WORM.get();
-        return COOKED.get(raw);
+        CookingResult result = cookingResult(raw);
+        return result == null ? null : result.cooked();
     }
 
     public static boolean isCooked(ItemStack stack) {
-        return stack.is(InfXItems.COOKED_WORM.get()) || COOKED.containsValue(stack.getItem());
+        return isMiteCooked(stack.getItem());
+    }
+
+    static boolean isMiteCooked(Item item) {
+        return COOKED_EXPERIENCE.containsKey(item)
+                || COOKED_WORM_ID.equals(BuiltInRegistries.ITEM.getKey(item));
     }
 
     public static boolean isCookableOrCooked(ItemStack stack) {
-        return cookedResult(stack.getItem()) != null || isCooked(stack);
+        return cookingResult(stack.getItem()) != null || isCooked(stack);
     }
 
     static int cookingExperience(Item cooked) {
-        if (cooked == Items.COOKED_BEEF || cooked == Items.COOKED_SALMON) return 4;
-        if (cooked == Items.COOKED_PORKCHOP || cooked == Items.COOKED_CHICKEN) return 3;
-        if (cooked == Items.COOKED_COD || cooked == Items.COOKED_RABBIT) return 2;
-        return 1;
+        return COOKED_EXPERIENCE.getOrDefault(cooked, 0);
     }
+
+    static float addCookingProgress(float currentProgress, float damage) {
+        return currentProgress + damage * PROGRESS_PER_DAMAGE;
+    }
+
+    static float extinguishChance(int rawFoodCount) {
+        if (rawFoodCount < 2) return 0.0F;
+        if (rawFoodCount >= 7) return 1.0F;
+        return 0.01F * (1 << rawFoodCount);
+    }
+
+    static boolean isCookingFireDamage(DamageSource source) {
+        return source.is(DamageTypeTags.IS_FIRE) && !source.is(DamageTypes.LAVA);
+    }
+
+    private static CookingResult cookingResult(Item raw) {
+        CookingResult vanillaResult = RAW_COOKING_RESULTS.get(raw);
+        if (vanillaResult != null) return vanillaResult;
+
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(raw);
+        if (DOUGH_ID.equals(itemId)) return new CookingResult(Items.BREAD, 0);
+        if (WORM_ID.equals(itemId)) return new CookingResult(InfXItems.COOKED_WORM.get(), 0);
+        return null;
+    }
+
+    private static void applyCookingProgress(
+            ServerLevel level, ItemEntity entity, ItemStack rawStack, CookingResult result, float damage) {
+        float progress = addCookingProgress(entity.getPersistentData().getFloatOr(COOKING_PROGRESS, 0.0F), damage);
+        if (progress < COOKING_PROGRESS_REQUIRED) {
+            entity.getPersistentData().putFloat(COOKING_PROGRESS, progress);
+            return;
+        }
+
+        entity.setItem(new ItemStack(result.cooked(), rawStack.getCount()));
+        entity.getPersistentData().remove(COOKING_PROGRESS);
+        if (result.experience() > 0) {
+            ExperienceOrb.award(level, entity.position(), result.experience() * rawStack.getCount());
+        }
+    }
+
+    private static void applyBurningProgress(ItemEntity entity, float damage) {
+        float progress = addCookingProgress(entity.getPersistentData().getFloatOr(COOKING_PROGRESS, 0.0F), damage);
+        if (progress >= COOKING_PROGRESS_REQUIRED) {
+            entity.discard();
+        } else {
+            entity.getPersistentData().putFloat(COOKING_PROGRESS, progress);
+        }
+    }
+
+    private static void scheduleExtinguishChecks(ServerLevel level, ItemEntity entity) {
+        long dueTick = (level.getGameTime() / 10L + 1L) * 10L;
+        NavigableMap<Long, Set<BlockPos>> checks = EXTINGUISH_CHECKS.computeIfAbsent(level, ignored -> new TreeMap<>());
+        Set<BlockPos> positions = checks.computeIfAbsent(dueTick, ignored -> new HashSet<>());
+        BlockPos itemPos = entity.blockPosition();
+        for (BlockPos pos : BlockPos.betweenClosed(itemPos.offset(-1, 0, -1), itemPos.offset(1, 0, 1))) {
+            if (level.getBlockState(pos).getBlock() instanceof BaseFireBlock) {
+                positions.add(pos.immutable());
+            }
+        }
+    }
+
+    private static void tryExtinguishForRawFood(ServerLevel level, BlockPos firePos) {
+        if (!(level.getBlockState(firePos).getBlock() instanceof BaseFireBlock)) return;
+
+        AABB searchBox = new AABB(
+                firePos.getX() - 0.125D,
+                firePos.getY(),
+                firePos.getZ() - 0.125D,
+                firePos.getX() + 1.125D,
+                firePos.getY() + 1.0D,
+                firePos.getZ() + 1.125D);
+        int rawFoodCount = level.getEntitiesOfClass(
+                        ItemEntity.class, searchBox, item -> cookingResult(item.getItem().getItem()) != null)
+                .stream()
+                .mapToInt(item -> item.getItem().getCount())
+                .sum();
+        float chance = extinguishChance(rawFoodCount);
+        if (chance <= 0.0F || level.getRandom().nextFloat() >= chance) return;
+
+        level.removeBlock(firePos, false);
+        level.playSound(null, firePos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 0.7F);
+    }
+
+    private record CookingResult(Item cooked, int experience) {}
 }

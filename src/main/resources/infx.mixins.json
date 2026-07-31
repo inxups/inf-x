@@ -28,6 +28,7 @@
     "FoodDataMixin",
     "GameTestServerMixin",
     "InventoryMenuMixin",
+    "ItemEntityFireCookingMixin",
     "ItemEntityPickupMixin",
     "ItemStackCurseMixin",
     "LavaFluidMixin",
