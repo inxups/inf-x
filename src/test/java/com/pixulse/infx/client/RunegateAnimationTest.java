@@ -21,7 +21,7 @@ class RunegateAnimationTest {
     void animationUsesMiteDimensionColorsAndOpacity() {
         assertEquals(0x80359FFF, RunegateAnimation.overlayColor(Level.OVERWORLD, 10));
         assertEquals(0xFF4401B4, RunegateAnimation.overlayColor(Underworld.LEVEL, 30));
-        assertEquals(0xFF000000, RunegateAnimation.overlayColor(Level.NETHER, 20));
+        assertEquals(0xFFBE250B, RunegateAnimation.overlayColor(Level.NETHER, 20));
         assertEquals(0xFFFFFFFF, RunegateAnimation.overlayColor(Level.END, 20));
     }
 }
