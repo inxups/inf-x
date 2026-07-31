@@ -1818,6 +1818,10 @@ class GeneratedResourceTest {
         JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
         JsonObject lushBiome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld_lush.json"));
         JsonObject deepDarkBiome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld_deep_dark.json"));
+        JsonObject biomeAttributes = biome.getAsJsonObject("attributes");
+        JsonObject lushBiomeAttributes = lushBiome.getAsJsonObject("attributes");
+        JsonObject deepDarkBiomeAttributes = deepDarkBiome.getAsJsonObject("attributes");
+        JsonObject dimensionAttributes = dimensionType.getAsJsonObject("attributes");
         JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
         JsonObject biomeSource = generator.getAsJsonObject("biome_source");
         Set<String> underworldFeatures = biome.getAsJsonArray("features").asList().stream()
@@ -1882,6 +1886,44 @@ class GeneratedResourceTest {
                                 + dimensionType.get("height").getAsInt()),
                 () -> assertTrue(dimensionType.get("has_ceiling").getAsBoolean()),
                 () -> assertFalse(dimensionType.get("has_skylight").getAsBoolean()),
+                () -> assertEquals(0.05F, dimensionType.get("ambient_light").getAsFloat()),
+                () -> assertEquals(
+                        8.0F,
+                        dimensionAttributes
+                                .get("minecraft:visual/fog_start_distance")
+                                .getAsFloat()),
+                () -> assertEquals(
+                        96.0F,
+                        dimensionAttributes
+                                .get("minecraft:visual/fog_end_distance")
+                                .getAsFloat()),
+                () -> assertEquals("#3f76e4", biome.getAsJsonObject("effects")
+                        .get("water_color")
+                        .getAsString()),
+                () -> assertEquals("#3f76e4", lushBiome.getAsJsonObject("effects")
+                        .get("water_color")
+                        .getAsString()),
+                () -> assertEquals("#3f76e4", deepDarkBiome.getAsJsonObject("effects")
+                        .get("water_color")
+                        .getAsString()),
+                () -> assertEquals(
+                        "#16382d",
+                        biomeAttributes.get("minecraft:visual/fog_color").getAsString()),
+                () -> assertEquals(
+                        "#16382d",
+                        biomeAttributes
+                                .get("minecraft:visual/ambient_light_color")
+                                .getAsString()),
+                () -> assertEquals(
+                        "#6b4630",
+                        lushBiomeAttributes.get("minecraft:visual/fog_color").getAsString()),
+                () -> assertEquals(
+                        "#6b4630",
+                        lushBiomeAttributes
+                                .get("minecraft:visual/ambient_light_color")
+                                .getAsString()),
+                () -> assertFalse(deepDarkBiomeAttributes.has("minecraft:visual/fog_color")),
+                () -> assertFalse(deepDarkBiomeAttributes.has("minecraft:visual/ambient_light_color")),
                 () -> assertEquals("minecraft:stone", noise.getAsJsonObject("default_block").get("Name").getAsString()),
                 () -> assertEquals("minecraft:water", noise.getAsJsonObject("default_fluid").get("Name").getAsString()),
                 () -> assertEquals(144, noise.get("sea_level").getAsInt()),
