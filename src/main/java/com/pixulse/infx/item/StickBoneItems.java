@@ -22,6 +22,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StickBoneItems {
     static final int STICK_STACK_LIMIT = 32;
+    static final int BONE_STACK_LIMIT = 16;
     private static final float INFX_MELEE_REACH = 2.0F;
     private static final float INFX_CREATIVE_MELEE_REACH = 5.0F;
     private static final int STICK_BREAK_DENOMINATOR = 50;
@@ -40,8 +41,11 @@ public final class StickBoneItems {
             components.set(DataComponents.MAX_STACK_SIZE, stackLimit(item, currentLimit));
             components.set(DataComponents.ATTACK_RANGE, meleeAttackRange());
         });
-        event.modify(Items.BONE, (components, context, item) ->
-                components.set(DataComponents.ATTACK_RANGE, meleeAttackRange()));
+        event.modify(Items.BONE, (components, context, item) -> {
+            int currentLimit = components.getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
+            components.set(DataComponents.MAX_STACK_SIZE, stackLimit(item, currentLimit));
+            components.set(DataComponents.ATTACK_RANGE, meleeAttackRange());
+        });
     }
 
     /**
@@ -77,7 +81,9 @@ public final class StickBoneItems {
     }
 
     static int stackLimit(Item item, int currentLimit) {
-        return item == Items.STICK ? STICK_STACK_LIMIT : currentLimit;
+        if (item == Items.STICK) return STICK_STACK_LIMIT;
+        if (item == Items.BONE) return BONE_STACK_LIMIT;
+        return currentLimit;
     }
 
     static AttackRange meleeAttackRange() {

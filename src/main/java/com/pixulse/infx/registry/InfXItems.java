@@ -313,7 +313,7 @@ public final class InfXItems {
     private InfXItems() {}
 
     private static DeferredItem<Item> simple(String path) {
-        return ITEMS.registerItem(path, Item::new);
+        return ITEMS.registerItem(path, Item::new, properties -> properties.stacksTo(16));
     }
 
     private static DeferredItem<Item> drinkContainer(String path) {
@@ -330,10 +330,12 @@ public final class InfXItems {
         return ITEMS.registerItem(
                 path,
                 Item::new,
-                properties -> properties.food(new FoodProperties.Builder()
-                        .nutrition(nutrition)
-                        .saturationModifier(saturation)
-                        .build()));
+                properties -> properties
+                        .stacksTo(16)
+                        .food(new FoodProperties.Builder()
+                                .nutrition(nutrition)
+                                .saturationModifier(saturation)
+                                .build()));
     }
 
     private static DeferredItem<Item> bowlFood(String path, int nutrition, float saturation) {
@@ -452,7 +454,10 @@ public final class InfXItems {
 
     private static DeferredItem<GelatinousSphereItem> gelatinousSphere(
             String path, GelatinousSphereItem.Color color) {
-        return ITEMS.registerItem(path, properties -> new GelatinousSphereItem(color, properties));
+        return ITEMS.registerItem(
+                path,
+                properties -> new GelatinousSphereItem(color, properties),
+                properties -> properties.stacksTo(16));
     }
 
     private static List<DeferredItem<SpawnEggItem>> registerSpawnEggs() {
@@ -462,7 +467,7 @@ public final class InfXItems {
             eggs.add(ITEMS.registerItem(
                     path,
                     SpawnEggItem::new,
-                    properties -> properties.spawnEgg(type.get())));
+                    properties -> properties.stacksTo(16).spawnEgg(type.get())));
         }
         return List.copyOf(eggs);
     }
