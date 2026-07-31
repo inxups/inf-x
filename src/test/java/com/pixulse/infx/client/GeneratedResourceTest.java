@@ -2406,8 +2406,8 @@ class GeneratedResourceTest {
     @Test
     void generatedCountsAreExact() throws Exception {
         // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the INFX bat egg, and the
-        // Longdead Guardian egg add one item definition and model each; gravel adds one block item definition.
-        assertEquals(447, jsonCount(GENERATED.resolve("assets/infx/items")));
+        // Longdead Guardian egg add one item definition and model each; gravel and furnace blocks add item definitions.
+        assertEquals(446, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(517, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }

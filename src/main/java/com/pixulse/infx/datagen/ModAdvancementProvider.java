@@ -437,7 +437,6 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder buildOven = addCraftedRecipeCriteria(
                         child("build_oven", openInventory, InfXBlocks.CLAY_FURNACE),
                         "clay_furnace",
-                        "large_clay_oven",
                         "sandstone_furnace",
                         "hardened_clay_furnace",
                         "cobblestone_furnace",
