@@ -259,6 +259,8 @@ sync resource-pack blocks/runegate.png block/runegate.png
 sync resource-pack blocks/runegate.png.mcmeta block/runegate.png.mcmeta
 sync resource-pack blocks/mantle.png block/mantle.png
 sync resource-pack blocks/mantle.png.mcmeta block/mantle.png.mcmeta
+sync resource-pack blocks/portal.png block/portal.png
+sync resource-pack blocks/portal.png.mcmeta block/portal.png.mcmeta
 sync resource-pack blocks/portal_nether.png block/nether_portal.png
 sync resource-pack blocks/portal_nether.png.mcmeta block/nether_portal.png.mcmeta
 

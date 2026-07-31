@@ -71,6 +71,19 @@ class PortalTopologyTest {
         assertEquals(
                 InfxPortalBlock.PortalRoute.NONE,
                 InfxPortalBlock.routeFor(PortalType.RETURN_SPAWN, Underworld.LEVEL));
+
+        assertEquals(
+                Underworld.LEVEL,
+                InfxPortalBlock.destinationDimension(PortalType.UNDERWORLD, Level.OVERWORLD));
+        assertEquals(
+                Level.OVERWORLD,
+                InfxPortalBlock.destinationDimension(PortalType.UNDERWORLD, Underworld.LEVEL));
+        assertEquals(
+                Level.NETHER,
+                InfxPortalBlock.destinationDimension(PortalType.NETHER, Underworld.LEVEL));
+        assertEquals(
+                Underworld.LEVEL,
+                InfxPortalBlock.destinationDimension(PortalType.NETHER, Level.NETHER));
     }
 
     @Test

@@ -4,14 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXParticles;
-import net.minecraft.core.particles.ParticleTypes;
 import org.junit.jupiter.api.Test;
 
 class InfxPortalParticleTest {
     @Test
     void portalSurfacesUseTheirMiteParticleFamilies() {
         assertSame(
-                ParticleTypes.PORTAL,
+                InfXParticles.UNDERWORLD_PORTAL.get(),
                 InfXBlocks.UNDERWORLD_PORTAL.get().portalParticle(InfXBlocks.UNDERWORLD_PORTAL.get().defaultBlockState()));
         assertSame(
                 InfXParticles.RUNEGATE.get(),

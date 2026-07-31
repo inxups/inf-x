@@ -107,7 +107,7 @@ public class InfxPortalBlock extends NetherPortalBlock {
     /** Selects the particle family without changing vanilla portal particle motion. */
     protected ParticleOptions portalParticle(BlockState state) {
         return switch (portalType) {
-            case UNDERWORLD -> ParticleTypes.PORTAL;
+            case UNDERWORLD -> InfXParticles.UNDERWORLD_PORTAL.get();
             case NETHER -> InfXParticles.NETHER_PORTAL.get();
             case RETURN_SPAWN -> InfXParticles.RUNEGATE.get();
         };
@@ -305,7 +305,7 @@ public class InfxPortalBlock extends NetherPortalBlock {
                 post);
     }
 
-    public static PortalRoute routeFor(PortalType portalType, net.minecraft.resources.ResourceKey<Level> dimension) {
+    public static PortalRoute routeFor(PortalType portalType, ResourceKey<Level> dimension) {
         return switch (portalType) {
             case UNDERWORLD -> {
                 if (dimension.equals(Level.OVERWORLD)) {
@@ -322,6 +322,17 @@ public class InfxPortalBlock extends NetherPortalBlock {
             case RETURN_SPAWN -> dimension.equals(Level.OVERWORLD)
                     ? PortalRoute.OVERWORLD_SPAWN
                     : PortalRoute.NONE;
+        };
+    }
+
+    /** Resolves the dimension reached by a portal family from its current dimension. */
+    public static @Nullable ResourceKey<Level> destinationDimension(
+            PortalType portalType, ResourceKey<Level> currentDimension) {
+        return switch (routeFor(portalType, currentDimension)) {
+            case UNDERWORLD -> Underworld.LEVEL;
+            case OVERWORLD, OVERWORLD_SPAWN -> Level.OVERWORLD;
+            case NETHER -> Level.NETHER;
+            case NONE -> null;
         };
     }
 

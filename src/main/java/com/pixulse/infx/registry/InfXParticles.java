@@ -13,6 +13,8 @@ public final class InfXParticles {
     private static final DeferredRegister<ParticleType<?>> PARTICLES =
             DeferredRegister.create(Registries.PARTICLE_TYPE, InfiniteX.MOD_ID);
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> UNDERWORLD_PORTAL =
+            PARTICLES.register("underworld_portal", InfxSimpleParticleType::new);
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> NETHER_PORTAL =
             PARTICLES.register("nether_portal", InfxSimpleParticleType::new);
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> RUNEGATE =

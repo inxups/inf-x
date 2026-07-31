@@ -13,6 +13,7 @@ final class ModParticleDescriptionProvider extends ParticleDescriptionProvider {
 
     @Override
     protected void addDescriptions() {
+        spriteSet(InfXParticles.UNDERWORLD_PORTAL.get(), Identifier.withDefaultNamespace("generic"), 8, false);
         spriteSet(InfXParticles.NETHER_PORTAL.get(), Identifier.withDefaultNamespace("generic"), 8, false);
         spriteSet(InfXParticles.RUNEGATE.get(), Identifier.withDefaultNamespace("generic"), 8, false);
     }

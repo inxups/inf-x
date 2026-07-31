@@ -106,7 +106,7 @@ class GeneratedResourceTest {
                 "minecraft:generic_5",
                 "minecraft:generic_6",
                 "minecraft:generic_7");
-        for (String particle : List.of("nether_portal", "runegate")) {
+        for (String particle : List.of("underworld_portal", "nether_portal", "runegate")) {
             JsonArray textures = json(GENERATED.resolve("assets/infx/particles/" + particle + ".json"))
                     .getAsJsonArray("textures");
             assertEquals(expected, textures.asList().stream().map(JsonElement::getAsString).toList());
@@ -258,7 +258,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void netherPortalModelsUseRedTintTemplates() throws Exception {
+    void netherPortalModelsUseDestinationTintTemplates() throws Exception {
         for (String orientation : List.of("ns", "ew")) {
             JsonObject model = json(GENERATED.resolve("assets/infx/models/block/nether_portal_" + orientation + ".json"));
             JsonObject template = json(STATIC.resolve(
@@ -269,8 +269,8 @@ class GeneratedResourceTest {
                     () -> assertEquals(
                             "infx:block/template_red_nether_portal_" + orientation,
                             model.get("parent").getAsString()),
-                    () -> assertEquals("infx:block/nether_portal", textures.get("portal").getAsString()),
-                    () -> assertEquals("infx:block/nether_portal", textures.get("particle").getAsString()));
+                    () -> assertEquals("infx:block/portal", textures.get("portal").getAsString()),
+                    () -> assertEquals("infx:block/portal", textures.get("particle").getAsString()));
             template.getAsJsonArray("elements")
                     .get(0)
                     .getAsJsonObject()
@@ -279,7 +279,8 @@ class GeneratedResourceTest {
                     .forEach(face -> assertEquals(
                             0,
                             face.getValue().getAsJsonObject().get("tintindex").getAsInt(),
-                            orientation + " portal face " + face.getKey() + " must use the red tint source"));
+                            orientation + " portal face " + face.getKey()
+                                    + " must use the destination tint source"));
         }
     }
 
@@ -2747,6 +2748,31 @@ class GeneratedResourceTest {
 
         JsonObject portal = json(GENERATED.resolve("assets/infx/blockstates/underworld_portal.json"))
                 .getAsJsonObject("variants");
+        assertEquals("infx:block/underworld_portal_ns",
+                portal.getAsJsonObject("axis=x,rune_gate=false").get("model").getAsString());
+        assertEquals("infx:block/underworld_portal_ew",
+                portal.getAsJsonObject("axis=z,rune_gate=false").get("model").getAsString());
+        for (String orientation : List.of("ns", "ew")) {
+            JsonObject model = json(GENERATED.resolve(
+                    "assets/infx/models/block/underworld_portal_" + orientation + ".json"));
+            JsonObject textures = model.getAsJsonObject("textures");
+            JsonObject template = json(STATIC.resolve(
+                    "assets/infx/models/block/template_tinted_portal_" + orientation + ".json"));
+            assertEquals("infx:block/portal", textures.get("portal").getAsString());
+            assertEquals("infx:block/portal", textures.get("particle").getAsString());
+            assertEquals("infx:block/template_tinted_portal_" + orientation,
+                    model.get("parent").getAsString());
+            template.getAsJsonArray("elements")
+                    .get(0)
+                    .getAsJsonObject()
+                    .getAsJsonObject("faces")
+                    .entrySet()
+                    .forEach(face -> assertEquals(
+                            0,
+                            face.getValue().getAsJsonObject().get("tintindex").getAsInt(),
+                            orientation + " underworld portal face " + face.getKey()
+                                    + " must use the destination tint source"));
+        }
         assertEquals("infx:block/underworld_portal_runegate_ns",
                 portal.getAsJsonObject("axis=x,rune_gate=true").get("model").getAsString());
         assertEquals("infx:block/underworld_portal_runegate_ew",
@@ -3060,6 +3086,8 @@ class GeneratedResourceTest {
                 "textures/block/runestones/(mithril|adamantium)/(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.png")));
         assertTrue(destinations.remove("textures/block/runegate.png"));
         assertTrue(destinations.remove("textures/block/runegate.png.mcmeta"));
+        assertTrue(destinations.remove("textures/block/portal.png"));
+        assertTrue(destinations.remove("textures/block/portal.png.mcmeta"));
         assertTrue(destinations.remove("textures/block/nether_portal.png"));
         assertTrue(destinations.remove("textures/block/nether_portal.png.mcmeta"));
         assertTrue(destinations.removeIf(path -> path.matches(
