@@ -23,8 +23,6 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
     protected void start() {
         add("gravel", new GravelLootModifier(new LootItemCondition[0], 2000));
         add("glass_shards", new GlassShardLootModifier(new LootItemCondition[0], 2000));
-        add("underworld_dungeon", new com.pixulse.infx.loot.UnderworldDungeonLootModifier(
-                new LootItemCondition[0], 1500));
         add("modern_progression_filter", new com.pixulse.infx.loot.ModernProgressionLootFilter(
                 new LootItemCondition[0], 3000));
         add("creation_books", new com.pixulse.infx.loot.CreationBookLootModifier(

@@ -34,6 +34,7 @@ import java.util.regex.MatchResult;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.regex.Pattern;
+import net.minecraft.world.level.levelgen.GenerationStep;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -1653,6 +1654,14 @@ class GeneratedResourceTest {
                 .flatMap(step -> step.getAsJsonArray().asList().stream())
                 .map(JsonElement::getAsString)
                 .collect(Collectors.toSet());
+        JsonArray underworldDungeonFeatures = biome.getAsJsonArray("features")
+                .get(GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal())
+                .getAsJsonArray();
+        JsonObject configuredDungeon = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/underworld_dungeon.json"));
+        JsonObject placedDungeon = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/underworld_dungeon.json"));
+        JsonArray dungeonPlacement = placedDungeon.getAsJsonArray("placement");
         JsonObject noiseShape = noise.getAsJsonObject("noise");
         JsonElement finalDensity = noise.getAsJsonObject("noise_router").get("final_density");
         JsonObject surfaceRule = noise.getAsJsonObject("surface_rule");
@@ -1734,7 +1743,7 @@ class GeneratedResourceTest {
                         biome.getAsJsonObject("spawners").entrySet().stream()
                                 .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
                         "Underworld spawn tables must be empty"),
-                () -> assertTrue(underworldFeatures.isEmpty()),
+                () -> assertEquals(Set.of("infx:underworld_dungeon"), underworldFeatures),
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
@@ -1756,7 +1765,47 @@ class GeneratedResourceTest {
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/placed_feature/mithril_ore.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"))));
+                        "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"))),
+                () -> assertFalse(Files.exists(GENERATED.resolve(
+                        "data/infx/loot_modifiers/underworld_dungeon.json"))));
+
+        JsonObject dungeonOffset = dungeonPlacement.get(2).getAsJsonObject();
+        JsonObject dungeonHeight = dungeonPlacement.get(3).getAsJsonObject().getAsJsonObject("height");
+        assertAll(
+                "Underworld dungeon decoration",
+                () -> assertEquals("infx:underworld_dungeon", configuredDungeon.get("type").getAsString()),
+                () -> assertTrue(configuredDungeon.getAsJsonObject("config").isEmpty()),
+                () -> assertEquals(List.of("infx:underworld_dungeon"), underworldDungeonFeatures.asList().stream()
+                        .map(JsonElement::getAsString)
+                        .toList()),
+                () -> assertEquals(5, dungeonPlacement.size()),
+                () -> assertEquals("minecraft:count", dungeonPlacement.get(0).getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals(16, dungeonPlacement.get(0).getAsJsonObject().get("count").getAsInt()),
+                () -> assertEquals("minecraft:in_square", dungeonPlacement.get(1).getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:random_offset", dungeonOffset.get("type").getAsString()),
+                () -> assertEquals(8, intProviderValue(dungeonOffset.get("xz_spread"))),
+                () -> assertEquals(0, intProviderValue(dungeonOffset.get("y_spread"))),
+                () -> assertEquals("minecraft:height_range", dungeonPlacement.get(3).getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:uniform", dungeonHeight.get("type").getAsString()),
+                () -> assertEquals(
+                        140,
+                        dungeonHeight.getAsJsonObject("min_inclusive")
+                                .get("absolute")
+                                .getAsInt()),
+                () -> assertEquals(
+                        171,
+                        dungeonHeight.getAsJsonObject("max_inclusive")
+                                .get("absolute")
+                                .getAsInt()),
+                () -> assertEquals("minecraft:biome", dungeonPlacement.get(4).getAsJsonObject()
+                        .get("type")
+                        .getAsString()));
 
         for (String strataNoise : List.of(
                 "underworld_bedrock_strata_1a",
@@ -1784,15 +1833,23 @@ class GeneratedResourceTest {
         JsonObject dungeon = json(GENERATED.resolve("data/infx/loot_table/chests/underworld_dungeon.json"));
         JsonObject dungeonPool = dungeon.getAsJsonArray("pools").get(0).getAsJsonObject();
         String dungeonContents = dungeon.toString();
-        JsonObject modifier = json(GENERATED.resolve("data/infx/loot_modifiers/underworld_dungeon.json"));
+        JsonObject emptyDungeonEntry = dungeonPool.getAsJsonArray("entries").get(0).getAsJsonObject();
         assertAll(
                 "Underworld dungeon progression",
                 () -> assertEquals(8.0F, dungeonPool.get("rolls").getAsFloat()),
+                () -> assertEquals("minecraft:empty", emptyDungeonEntry.get("type").getAsString()),
+                () -> assertEquals(54, emptyDungeonEntry.get("weight").getAsInt()),
+                () -> assertEquals(
+                        100,
+                        dungeonPool.getAsJsonArray("entries").asList().stream()
+                                .mapToInt(entry -> {
+                                    JsonObject lootEntry = entry.getAsJsonObject();
+                                    return lootEntry.has("weight") ? lootEntry.get("weight").getAsInt() : 1;
+                                })
+                                .sum()),
                 () -> assertTrue(dungeonContents.contains("infx:ancient_metal_ingot")),
                 () -> assertTrue(dungeonContents.contains("infx:ancient_metal_horse_armor")),
-                () -> assertTrue(dungeonContents.contains("infx:ancient_metal_pickaxe")),
-                () -> assertEquals("infx:underworld_dungeon", modifier.get("type").getAsString()),
-                () -> assertEquals(1500, modifier.get("priority").getAsInt()));
+                () -> assertTrue(dungeonContents.contains("infx:ancient_metal_pickaxe")));
     }
 
     @Test
@@ -2825,6 +2882,13 @@ class GeneratedResourceTest {
         try (Stream<Path> files = Files.walk(root)) {
             return files.filter(path -> path.toString().endsWith(".json")).count();
         }
+    }
+
+    private static int intProviderValue(JsonElement provider) {
+        if (provider.isJsonPrimitive()) {
+            return provider.getAsInt();
+        }
+        return provider.getAsJsonObject().get("value").getAsInt();
     }
 
     private static void visit(JsonElement element, BiConsumer<String, String> strings) {

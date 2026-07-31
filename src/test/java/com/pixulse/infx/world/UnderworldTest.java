@@ -32,5 +32,6 @@ class UnderworldTest {
         assertEquals(InfiniteX.id("underworld"), Underworld.TYPE.identifier());
         assertEquals(InfiniteX.id("underworld"), Underworld.BIOME.identifier());
         assertEquals(InfiniteX.id("underworld"), Underworld.NOISE.identifier());
+        assertEquals(InfiniteX.id("chests/underworld_dungeon"), Underworld.DUNGEON_LOOT.identifier());
     }
 }

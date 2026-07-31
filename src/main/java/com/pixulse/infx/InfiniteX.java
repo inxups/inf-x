@@ -15,6 +15,7 @@ import com.pixulse.infx.registry.InfXChunkGeneratorTypes;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXDensityFunctionTypes;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.InfXFeatures;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXLootModifiers;
 import com.pixulse.infx.registry.InfXRecipes;
@@ -37,6 +38,7 @@ public final class InfiniteX {
         InfXSounds.register(modBus);
         InfXChunkGeneratorTypes.register(modBus);
         InfXDensityFunctionTypes.register(modBus);
+        InfXFeatures.register(modBus);
         InfXBiomeModifiers.register(modBus);
         InfXAttachments.register(modBus);
         InfXParticles.register(modBus);

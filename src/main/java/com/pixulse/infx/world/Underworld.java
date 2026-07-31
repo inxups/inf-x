@@ -8,6 +8,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 public final class Underworld {
     public static final int MIN_Y = -128;
@@ -30,6 +31,8 @@ public final class Underworld {
     public static final ResourceKey<DimensionType> TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, InfiniteX.id("underworld"));
     public static final ResourceKey<Biome> BIOME = ResourceKey.create(Registries.BIOME, InfiniteX.id("underworld"));
     public static final ResourceKey<NoiseGeneratorSettings> NOISE = ResourceKey.create(Registries.NOISE_SETTINGS, InfiniteX.id("underworld"));
+    public static final ResourceKey<LootTable> DUNGEON_LOOT =
+            ResourceKey.create(Registries.LOOT_TABLE, InfiniteX.id("chests/underworld_dungeon"));
 
     private Underworld() {
     }

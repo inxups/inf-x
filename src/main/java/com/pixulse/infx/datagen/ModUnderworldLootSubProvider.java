@@ -1,14 +1,13 @@
 package com.pixulse.infx.datagen;
 
-import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.world.Underworld;
 import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ItemLike;
@@ -21,9 +20,6 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 final class ModUnderworldLootSubProvider implements LootTableSubProvider {
-    static final ResourceKey<LootTable> DUNGEON = ResourceKey.create(
-            Registries.LOOT_TABLE, InfiniteX.id("chests/underworld_dungeon"));
-
     ModUnderworldLootSubProvider(HolderLookup.Provider registries) {}
 
     @Override
@@ -59,7 +55,7 @@ final class ModUnderworldLootSubProvider implements LootTableSubProvider {
                         EquipmentType.CHAINMAIL_LEGGINGS,
                         EquipmentType.CHAINMAIL_BOOTS)
                 .forEach(type -> pool.add(LootItem.lootTableItem(equipment(type)).setWeight(1)));
-        output.accept(DUNGEON, LootTable.lootTable().withPool(pool));
+        output.accept(Underworld.DUNGEON_LOOT, LootTable.lootTable().withPool(pool));
     }
 
     private static ItemLike equipment(EquipmentType type) {

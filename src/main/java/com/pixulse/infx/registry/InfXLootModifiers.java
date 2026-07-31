@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.loot.GravelLootModifier;
 import com.pixulse.infx.loot.GlassShardLootModifier;
-import com.pixulse.infx.loot.UnderworldDungeonLootModifier;
 import com.pixulse.infx.loot.ModernProgressionLootFilter;
 import com.pixulse.infx.loot.CreationBookLootModifier;
 
@@ -24,10 +23,6 @@ public final class InfXLootModifiers {
     public static final DeferredHolder<
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<GlassShardLootModifier>>
             GLASS_SHARDS = SERIALIZERS.register("glass_shards", () -> GlassShardLootModifier.CODEC);
-    public static final DeferredHolder<
-                    MapCodec<? extends IGlobalLootModifier>, MapCodec<UnderworldDungeonLootModifier>>
-            UNDERWORLD_DUNGEON =
-                    SERIALIZERS.register("underworld_dungeon", () -> UnderworldDungeonLootModifier.CODEC);
     public static final DeferredHolder<
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<ModernProgressionLootFilter>>
             MODERN_PROGRESSION_FILTER = SERIALIZERS.register(
