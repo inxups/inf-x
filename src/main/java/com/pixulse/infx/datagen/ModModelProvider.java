@@ -361,7 +361,7 @@ final class ModModelProvider extends ModelProvider {
                 .put(PORTAL, runegate);
         RUNE_GATE_NS_MODEL.create(RUNE_GATE_NS, textures, blockModels.modelOutput);
         RUNE_GATE_EW_MODEL.create(RUNE_GATE_EW, textures, blockModels.modelOutput);
-        Material underworldPortal = new Material(InfiniteX.id("block/portal"));
+        Material underworldPortal = new Material(Identifier.withDefaultNamespace("block/nether_portal"));
         TextureMapping underworldTextures = new TextureMapping()
                 .put(TextureSlot.PARTICLE, underworldPortal)
                 .put(PORTAL, underworldPortal);
@@ -386,7 +386,7 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateRedNetherPortal(BlockModelGenerators blockModels) {
-        Material portal = new Material(InfiniteX.id("block/portal"));
+        Material portal = new Material(InfiniteX.id("block/nether_portal"));
         TextureMapping textures = new TextureMapping()
                 .put(TextureSlot.PARTICLE, portal)
                 .put(PORTAL, portal);
