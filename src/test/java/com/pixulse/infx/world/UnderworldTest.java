@@ -21,6 +21,14 @@ class UnderworldTest {
         assertEquals(16, Underworld.MYCELIUM_POST_CHANCE);
         assertEquals(24, Underworld.MYCELIUM_POST_RADIUS);
         assertEquals(2, Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE);
+        assertEquals(-56, Underworld.LARGE_CAVE_MIN_Y);
+        assertEquals(80, Underworld.LARGE_CAVE_MAX_Y);
+        assertEquals(12, Underworld.LARGE_CAVE_CENTER_Y);
+        assertEquals(96, Underworld.LARGE_CAVE_MAIN_RADIUS);
+        assertEquals(16, Underworld.LARGE_CAVE_MACRO_CHUNK_SIZE);
+        assertEquals(8, Underworld.LARGE_CAVE_MACRO_CENTER_OFFSET);
+        assertEquals(-24, Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y);
+        assertEquals(-8, Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE);
         assertEquals(5, Underworld.BOUNDARY_MAX_THICKNESS);
         assertEquals(-128, Underworld.INTERNAL_BEDROCK_MIN_Y);
         assertEquals(120, Underworld.INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE);
@@ -70,6 +78,8 @@ class UnderworldTest {
         assertEquals(InfiniteX.id("underworld"), Underworld.STEM.identifier());
         assertEquals(InfiniteX.id("underworld"), Underworld.TYPE.identifier());
         assertEquals(InfiniteX.id("underworld"), Underworld.BIOME.identifier());
+        assertEquals(InfiniteX.id("underworld_lush"), Underworld.LUSH_BIOME.identifier());
+        assertEquals(InfiniteX.id("underworld_deep_dark"), Underworld.DEEP_DARK_BIOME.identifier());
         assertEquals(InfiniteX.id("underworld"), Underworld.NOISE.identifier());
         assertEquals(InfiniteX.id("chests/underworld_dungeon"), Underworld.DUNGEON_LOOT.identifier());
     }

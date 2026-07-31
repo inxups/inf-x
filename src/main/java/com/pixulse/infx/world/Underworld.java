@@ -22,13 +22,20 @@ public final class Underworld {
     public static final int LUSH_CAVES_MIN_Y = WATER_LEVEL;
     public static final int LUSH_CAVES_MAX_Y_INCLUSIVE = TERRAIN_MAX_Y_EXCLUSIVE - 1;
     public static final int LUSH_CAVES_FLOOR_SCAN_MIN_Y = LUSH_CAVES_MIN_Y + 12;
-    public static final int LUSH_REGION_CHUNK_SIZE = 4;
-    public static final int LUSH_REGION_ONE_IN = 20;
     public static final int LIQUID_SOURCE_ATTEMPTS_PER_CHUNK = 70;
     public static final int BROWN_MUSHROOM_CHANCE = 4;
     public static final int MYCELIUM_POST_CHANCE = 16;
     public static final int MYCELIUM_POST_RADIUS = 24;
     public static final int MYCELIUM_POST_SEARCH_CHUNK_RANGE = (MYCELIUM_POST_RADIUS - 1) / 16 + 1;
+    public static final int LARGE_CAVE_MIN_Y = -56;
+    public static final int LARGE_CAVE_MAX_Y = 80;
+    public static final int LARGE_CAVE_CENTER_Y = 12;
+    public static final int LARGE_CAVE_MAIN_RADIUS = 96;
+    public static final int LARGE_CAVE_MAIN_VERTICAL_RADIUS = 68;
+    public static final int LARGE_CAVE_MACRO_CHUNK_SIZE = 16;
+    public static final int LARGE_CAVE_MACRO_CENTER_OFFSET = 8;
+    public static final int LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y = -24;
+    public static final int LARGE_CAVE_INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE = -8;
     public static final int BOUNDARY_MAX_THICKNESS = 5;
     public static final int INTERNAL_BEDROCK_MIN_Y = MIN_Y;
     public static final int INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE = DEEPSLATE_MAX_Y_EXCLUSIVE;
@@ -74,6 +81,10 @@ public final class Underworld {
     public static final ResourceKey<LevelStem> STEM = ResourceKey.create(Registries.LEVEL_STEM, InfiniteX.id("underworld"));
     public static final ResourceKey<DimensionType> TYPE = ResourceKey.create(Registries.DIMENSION_TYPE, InfiniteX.id("underworld"));
     public static final ResourceKey<Biome> BIOME = ResourceKey.create(Registries.BIOME, InfiniteX.id("underworld"));
+    public static final ResourceKey<Biome> LUSH_BIOME =
+            ResourceKey.create(Registries.BIOME, InfiniteX.id("underworld_lush"));
+    public static final ResourceKey<Biome> DEEP_DARK_BIOME =
+            ResourceKey.create(Registries.BIOME, InfiniteX.id("underworld_deep_dark"));
     public static final ResourceKey<NoiseGeneratorSettings> NOISE = ResourceKey.create(Registries.NOISE_SETTINGS, InfiniteX.id("underworld"));
     public static final ResourceKey<LootTable> DUNGEON_LOOT =
             ResourceKey.create(Registries.LOOT_TABLE, InfiniteX.id("chests/underworld_dungeon"));

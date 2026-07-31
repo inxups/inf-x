@@ -10,6 +10,8 @@ import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXBiomeModifiers;
+import com.pixulse.infx.registry.InfXBiomeSources;
+import com.pixulse.infx.registry.InfXCarvers;
 import com.pixulse.infx.registry.InfXPoiTypes;
 import com.pixulse.infx.registry.InfXCreativeTabs;
 import com.pixulse.infx.registry.InfXChunkGeneratorTypes;
@@ -24,7 +26,6 @@ import com.pixulse.infx.registry.InfXSounds;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.registry.InfXMobEffects;
 import com.pixulse.infx.registry.InfXParticles;
-import com.pixulse.infx.registry.InfXPlacementModifiers;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -40,8 +41,9 @@ public final class InfiniteX {
         InfXSounds.register(modBus);
         InfXChunkGeneratorTypes.register(modBus);
         InfXDensityFunctionTypes.register(modBus);
+        InfXBiomeSources.register(modBus);
+        InfXCarvers.register(modBus);
         InfXFeatures.register(modBus);
-        InfXPlacementModifiers.register(modBus);
         InfXBiomeModifiers.register(modBus);
         InfXAttachments.register(modBus);
         InfXParticles.register(modBus);

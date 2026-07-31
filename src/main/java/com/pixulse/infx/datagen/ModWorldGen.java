@@ -2,13 +2,14 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.InfXCarvers;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXFeatures;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
 import com.pixulse.infx.world.InfXUnderworldBedrockStrata;
+import com.pixulse.infx.world.InfXUnderworldBiomeSource;
 import com.pixulse.infx.world.InfXUnderworldChunkGenerator;
-import com.pixulse.infx.world.InfXUnderworldLushRegionPlacement;
 import com.pixulse.infx.world.InfXShiftedYDensityFunction;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
@@ -27,6 +28,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
+import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -37,6 +39,7 @@ import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.valueproviders.ConstantFloat;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.attribute.AmbientSounds;
@@ -57,8 +60,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.Biomes;
-import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -74,6 +77,8 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
+import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
+import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.data.worldgen.features.OreFeatures;
@@ -122,6 +127,8 @@ public final class ModWorldGen {
     private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
     private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
+    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_LARGE_CAVE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_large_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_DUNGEON_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_dungeon"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_MYCELIUM_CONFIGURED =
@@ -339,6 +346,7 @@ public final class ModWorldGen {
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
                 .add(Registries.NOISE, InfXUnderworldBedrockStrata::bootstrapNoiseParameters)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
+                .add(Registries.CONFIGURED_CARVER, ModWorldGen::bootstrapConfiguredCarvers)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
@@ -362,6 +370,25 @@ public final class ModWorldGen {
 
     private static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
         context.register(UNDERWORLD_TERRAIN, underworldTerrainDensity());
+    }
+
+    private static void bootstrapConfiguredCarvers(BootstrapContext<ConfiguredWorldCarver<?>> context) {
+        context.register(
+                UNDERWORLD_LARGE_CAVE_CONFIGURED,
+                new ConfiguredWorldCarver<>(
+                        InfXCarvers.UNDERWORLD_LARGE_CAVE.get(),
+                        new CarverConfiguration(
+                                1.0F,
+                                UniformHeight.of(
+                                        VerticalAnchor.absolute(Underworld.LARGE_CAVE_MIN_Y),
+                                        VerticalAnchor.absolute(Underworld.LARGE_CAVE_MAX_Y)),
+                                ConstantFloat.of(1.0F),
+                                VerticalAnchor.absolute(Underworld.LARGE_CAVE_MIN_Y),
+                                CarverDebugSettings.DEFAULT,
+                                HolderSet.direct(
+                                        Blocks.STONE.builtInRegistryHolder(),
+                                        Blocks.DEEPSLATE.builtInRegistryHolder(),
+                                        Blocks.BEDROCK.builtInRegistryHolder()))));
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -1013,7 +1040,6 @@ public final class ModWorldGen {
     private static List<PlacementModifier> underworldLushCavePlacement(
             PlacementModifier count, int minimumY, PlacementModifier... additional) {
         List<PlacementModifier> placement = new ArrayList<>();
-        placement.add(InfXUnderworldLushRegionPlacement.INSTANCE);
         placement.add(count);
         placement.add(InSquarePlacement.spread());
         placement.add(HeightRangePlacement.uniform(
@@ -1052,12 +1078,81 @@ public final class ModWorldGen {
         context.register(
                 RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
+        BiomeGenerationSettings.Builder ordinaryGeneration = underworldCommonGeneration(placed, carvers);
+        addUnderworldFungusFeatures(ordinaryGeneration);
+        addUnderworldLiquidFeature(ordinaryGeneration);
+        BiomeGenerationSettings.Builder lushGeneration = underworldCommonGeneration(placed, carvers);
+        addUnderworldLiquidFeature(lushGeneration);
+        addUnderworldLushFeatures(lushGeneration);
+        BiomeGenerationSettings.Builder deepDarkGeneration = underworldCommonGeneration(placed, carvers);
+        addUnderworldFungusFeatures(deepDarkGeneration);
+        addUnderworldLiquidFeature(deepDarkGeneration);
+        deepDarkGeneration.addCarver(UNDERWORLD_LARGE_CAVE_CONFIGURED);
+        deepDarkGeneration.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_VEIN);
+        deepDarkGeneration.addFeature(
+                GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_PATCH_DEEP_DARK);
+        deepDarkGeneration.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, CavePlacements.GLOW_LICHEN);
+
+        context.register(
+                Underworld.BIOME,
+                new Biome.BiomeBuilder()
+                        .hasPrecipitation(false)
+                        .temperature(0.5F)
+                        .downfall(0.0F)
+                        .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
+                        .setAttribute(EnvironmentAttributes.FOG_COLOR, 1_710_619)
+                        .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
+                        .mobSpawnSettings(underworldMobSpawns())
+                        .generationSettings(ordinaryGeneration.build())
+                        .build());
+        context.register(
+                Underworld.LUSH_BIOME,
+                new Biome.BiomeBuilder()
+                        .hasPrecipitation(false)
+                        .temperature(0.5F)
+                        .downfall(0.0F)
+                        .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
+                        .setAttribute(
+                                EnvironmentAttributes.BACKGROUND_MUSIC,
+                                new BackgroundMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES))
+                        .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
+                        .mobSpawnSettings(underworldMobSpawns())
+                        .generationSettings(lushGeneration.build())
+                        .build());
+        context.register(
+                Underworld.DEEP_DARK_BIOME,
+                new Biome.BiomeBuilder()
+                        .hasPrecipitation(false)
+                        .temperature(0.8F)
+                        .downfall(0.0F)
+                        .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
+                        .setAttribute(
+                                EnvironmentAttributes.BACKGROUND_MUSIC,
+                                new BackgroundMusic(SoundEvents.MUSIC_BIOME_DEEP_DARK))
+                        .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
+                        .mobSpawnSettings(underworldMobSpawns())
+                        .generationSettings(deepDarkGeneration.build())
+                        .build());
+    }
+
+    private static BiomeGenerationSettings.Builder underworldCommonGeneration(
+            HolderGetter<PlacedFeature> placed, HolderGetter<ConfiguredWorldCarver<?>> carvers) {
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, UNDERWORLD_DUNGEON_PLACED);
         addUnderworldOreFeatures(generation);
+        return generation;
+    }
+
+    private static void addUnderworldFungusFeatures(BiomeGenerationSettings.Builder generation) {
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_MYCELIUM_PLACED);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_BROWN_MUSHROOM_PLACED);
+    }
+
+    private static void addUnderworldLiquidFeature(BiomeGenerationSettings.Builder generation) {
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_LIQUID_SOURCE_PLACED);
+    }
+
+    private static void addUnderworldLushFeatures(BiomeGenerationSettings.Builder generation) {
         generation.addFeature(
                 GenerationStep.Decoration.VEGETAL_DECORATION,
                 UNDERWORLD_LUSH_CAVES_CEILING_VEGETATION_PLACED);
@@ -1069,21 +1164,6 @@ public final class ModWorldGen {
         generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_ROOTED_AZALEA_TREE_PLACED);
         generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_SPORE_BLOSSOM_PLACED);
         generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_CLASSIC_VINES_PLACED);
-
-        context.register(
-                Underworld.BIOME,
-                new Biome.BiomeBuilder()
-                        .hasPrecipitation(false)
-                        .temperature(0.5F)
-                        .downfall(0.0F)
-                        .specialEffects(new BiomeSpecialEffects.Builder()
-                                .waterColor(4_159_204)
-                                .build())
-                        .setAttribute(EnvironmentAttributes.FOG_COLOR, 1_710_619)
-                        .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
-                        .mobSpawnSettings(underworldMobSpawns())
-                        .generationSettings(generation.build())
-                        .build());
     }
 
     private static MobSpawnSettings underworldMobSpawns() {
@@ -1249,13 +1329,17 @@ public final class ModWorldGen {
         registerNetherNoiseSettings(context);
         DensityFunction underworldTerrain = new DensityFunctions.HolderHolder(
                 context.lookup(Registries.DENSITY_FUNCTION).getOrThrow(UNDERWORLD_TERRAIN));
+        DensityFunction underworldBiomeTemperature = DensityFunctions.noise(
+                context.lookup(Registries.NOISE).getOrThrow(InfXUnderworldBiomeSource.BIOME_NOISE),
+                InfXUnderworldBiomeSource.XZ_SCALE,
+                InfXUnderworldBiomeSource.Y_SCALE);
         context.register(
                 Underworld.NOISE,
                 new NoiseGeneratorSettings(
                         NoiseSettings.create(UNDERWORLD_MIN_Y, UNDERWORLD_HEIGHT, 1, 2),
                         Blocks.STONE.defaultBlockState(),
                         Blocks.WATER.defaultBlockState(),
-                        underworldNoiseRouter(underworldTerrain),
+                        underworldNoiseRouter(underworldTerrain, underworldBiomeTemperature),
                         underworldSurfaceRule(),
                         List.of(),
                         Underworld.WATER_LEVEL,
@@ -1288,7 +1372,31 @@ public final class ModWorldGen {
     }
 
     private static NoiseRouter underworldNoiseRouter(DensityFunction finalDensity) {
-        return withFinalDensity(NoiseRouterData.none(), finalDensity);
+        return underworldNoiseRouter(finalDensity, DensityFunctions.zero());
+    }
+
+    private static NoiseRouter underworldNoiseRouter(
+            DensityFunction finalDensity, DensityFunction temperature) {
+        return withTemperature(withFinalDensity(NoiseRouterData.none(), finalDensity), temperature);
+    }
+
+    private static NoiseRouter withTemperature(NoiseRouter original, DensityFunction temperature) {
+        return new NoiseRouter(
+                original.barrierNoise(),
+                original.fluidLevelFloodednessNoise(),
+                original.fluidLevelSpreadNoise(),
+                original.lavaNoise(),
+                temperature,
+                original.vegetation(),
+                original.continents(),
+                original.erosion(),
+                original.depth(),
+                original.ridges(),
+                original.preliminarySurfaceLevel(),
+                original.finalDensity(),
+                original.veinToggle(),
+                original.veinRidged(),
+                original.veinGap());
     }
 
     private static DensityFunction underworldTerrainDensity() {
@@ -1532,7 +1640,7 @@ public final class ModWorldGen {
                 new LevelStem(
                         context.lookup(Registries.DIMENSION_TYPE).getOrThrow(Underworld.TYPE),
                         new InfXUnderworldChunkGenerator(
-                                new FixedBiomeSource(context.lookup(Registries.BIOME).getOrThrow(Underworld.BIOME)),
+                                InfXUnderworldBiomeSource.create(context.lookup(Registries.BIOME)),
                                 context.lookup(Registries.NOISE_SETTINGS).getOrThrow(Underworld.NOISE))));
     }
 

@@ -3,6 +3,7 @@ package com.pixulse.infx.world;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
@@ -10,6 +11,8 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -33,6 +36,21 @@ public final class InfXUnderworldChunkGenerator extends NoiseBasedChunkGenerator
     @Override
     protected MapCodec<? extends ChunkGenerator> codec() {
         return CODEC;
+    }
+
+    @Override
+    public int getBaseHeight(
+            int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor, RandomState randomState) {
+        if (type == Heightmap.Types.WORLD_SURFACE_WG && isDeepDarkColumn(x, z, randomState)) {
+            return Underworld.LARGE_CAVE_MIN_Y;
+        }
+        return super.getBaseHeight(x, z, type, heightAccessor, randomState);
+    }
+
+    private boolean isDeepDarkColumn(int x, int z, RandomState randomState) {
+        return this.biomeSource.getNoiseBiome(
+                        QuartPos.fromBlock(x), 0, QuartPos.fromBlock(z), randomState.sampler())
+                .is(Underworld.DEEP_DARK_BIOME);
     }
 
     @Override
