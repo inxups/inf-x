@@ -962,7 +962,6 @@ public final class ModWorldGen {
         MobSpawnSettings.Builder spawns = new MobSpawnSettings.Builder();
         addUnderworldMonster(spawns, InfXEntityTypes.INFX_SPIDER.get(), 80, 1, 2);
         addUnderworldMonster(spawns, InfXEntityTypes.INFX_CREEPER.get(), 100, 1, 2);
-        addUnderworldMonster(spawns, InfXEntityTypes.INFX_SLIME.get(), 100, 1, 4);
         addUnderworldMonster(spawns, InfXEntityTypes.INFX_ENDERMAN.get(), 10, 1, 1);
         addUnderworldMonster(spawns, InfXEntityTypes.WIGHT.get(), 10, 1, 1);
         addUnderworldMonster(spawns, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
