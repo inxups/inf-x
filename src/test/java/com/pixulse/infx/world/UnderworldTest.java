@@ -24,7 +24,7 @@ class UnderworldTest {
         assertEquals(16, Underworld.MYCELIUM_POST_CHANCE);
         assertEquals(24, Underworld.MYCELIUM_POST_RADIUS);
         assertEquals(2, Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE);
-        assertEquals(-20, Underworld.LARGE_CAVE_MIN_Y);
+        assertEquals(0, Underworld.LARGE_CAVE_MIN_Y);
         assertEquals(80, Underworld.LARGE_CAVE_MAX_Y);
         assertEquals(30, Underworld.LARGE_CAVE_CENTER_Y);
         assertEquals(106, Underworld.LARGE_CAVE_MAIN_RADIUS);
@@ -32,7 +32,7 @@ class UnderworldTest {
         assertEquals(124, Underworld.LARGE_CAVE_OUTER_RADIUS);
         assertEquals(8, Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE);
         assertEquals(24, Underworld.ANCIENT_CITY_CENTER_ANCHOR_LOCAL_Y);
-        assertEquals(4, Underworld.ANCIENT_CITY_START_Y);
+        assertEquals(24, Underworld.ANCIENT_CITY_START_Y);
         assertEquals(
                 Underworld.LARGE_CAVE_MIN_Y,
                 Underworld.ANCIENT_CITY_START_Y - Underworld.ANCIENT_CITY_CENTER_ANCHOR_LOCAL_Y);
