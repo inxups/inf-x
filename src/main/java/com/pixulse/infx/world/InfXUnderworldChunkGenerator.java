@@ -1,7 +1,9 @@
 package com.pixulse.infx.world;
 
+import com.google.common.base.Suppliers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
@@ -12,14 +14,17 @@ import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.levelgen.Aquifer;
+import net.minecraft.world.level.levelgen.Beardifier;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
-/** Applies the Underworld's MITE-style internal bedrock after vanilla surface replacement. */
+/** Applies the Underworld's dry lower fluid rule and MITE-style internal bedrock. */
 public final class InfXUnderworldChunkGenerator extends NoiseBasedChunkGenerator {
     public static final MapCodec<InfXUnderworldChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -28,14 +33,28 @@ public final class InfXUnderworldChunkGenerator extends NoiseBasedChunkGenerator
                                     .fieldOf("settings")
                                     .forGetter(InfXUnderworldChunkGenerator::generatorSettings))
                     .apply(instance, instance.stable(InfXUnderworldChunkGenerator::new)));
+    private final Supplier<Aquifer.FluidPicker> fluidPicker;
 
     public InfXUnderworldChunkGenerator(BiomeSource biomeSource, Holder<NoiseGeneratorSettings> settings) {
         super(biomeSource, settings);
+        this.fluidPicker = Suppliers.memoize(() -> InfXUnderworldFluidPicker.create(settings.value()));
     }
 
     @Override
     protected MapCodec<? extends ChunkGenerator> codec() {
         return CODEC;
+    }
+
+    @Override
+    protected NoiseChunk createNoiseChunk(
+            ChunkAccess chunk, StructureManager structureManager, Blender blender, RandomState randomState) {
+        return NoiseChunk.forChunk(
+                chunk,
+                randomState,
+                Beardifier.forStructuresInChunk(structureManager, chunk.getPos()),
+                generatorSettings().value(),
+                this.fluidPicker.get(),
+                blender);
     }
 
     @Override
