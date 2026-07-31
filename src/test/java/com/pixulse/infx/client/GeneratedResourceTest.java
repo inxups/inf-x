@@ -2019,7 +2019,7 @@ class GeneratedResourceTest {
                         ancientCity.get("biomes").getAsString()),
                 () -> assertEquals("minecraft:ancient_city/city_center", ancientCity.get("start_pool").getAsString()),
                 () -> assertEquals("minecraft:city_anchor", ancientCity.get("start_jigsaw_name").getAsString()),
-                () -> assertEquals(4, ancientCity.getAsJsonObject("start_height").get("absolute").getAsInt()),
+                () -> assertEquals(24, ancientCity.getAsJsonObject("start_height").get("absolute").getAsInt()),
                 () -> assertEquals(7, ancientCity.get("size").getAsInt()),
                 () -> assertEquals(116, ancientCity.get("max_distance_from_center").getAsInt()),
                 () -> assertEquals("underground_decoration", ancientCity.get("step").getAsString()),
