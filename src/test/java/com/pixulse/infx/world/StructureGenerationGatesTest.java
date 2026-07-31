@@ -85,6 +85,11 @@ class StructureGenerationGatesTest {
                 Level.NETHER, holder(ANCIENT_CITY), fullyUnlocked, StructureGenerationGates.rules()));
         assertTrue(StructureGenerationGates.allows(
                 Level.NETHER, holder(TRIAL_CHAMBERS), fullyUnlocked, StructureGenerationGates.rules()));
+        assertTrue(StructureGenerationGates.allows(
+                Underworld.LEVEL,
+                holder(Underworld.ANCIENT_CITY),
+                fullyUnlocked,
+                StructureGenerationGates.rules()));
     }
 
     @Test

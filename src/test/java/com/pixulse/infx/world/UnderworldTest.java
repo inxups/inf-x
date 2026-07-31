@@ -30,8 +30,12 @@ class UnderworldTest {
         assertEquals(106, Underworld.LARGE_CAVE_MAIN_RADIUS);
         assertEquals(50, Underworld.LARGE_CAVE_MAIN_VERTICAL_RADIUS);
         assertEquals(124, Underworld.LARGE_CAVE_OUTER_RADIUS);
-        assertEquals(16, Underworld.LARGE_CAVE_MACRO_CHUNK_SIZE);
-        assertEquals(8, Underworld.LARGE_CAVE_MACRO_CENTER_OFFSET);
+        assertEquals(8, Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE);
+        assertEquals(24, Underworld.ANCIENT_CITY_CENTER_ANCHOR_LOCAL_Y);
+        assertEquals(4, Underworld.ANCIENT_CITY_START_Y);
+        assertEquals(
+                Underworld.LARGE_CAVE_MIN_Y,
+                Underworld.ANCIENT_CITY_START_Y - Underworld.ANCIENT_CITY_CENTER_ANCHOR_LOCAL_Y);
         assertEquals(-24, Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y);
         assertEquals(-8, Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE);
         assertEquals(5, Underworld.BOUNDARY_MAX_THICKNESS);
@@ -86,6 +90,8 @@ class UnderworldTest {
         assertEquals(InfiniteX.id("underworld_lush"), Underworld.LUSH_BIOME.identifier());
         assertEquals(InfiniteX.id("underworld_deep_dark"), Underworld.DEEP_DARK_BIOME.identifier());
         assertEquals(InfiniteX.id("underworld"), Underworld.NOISE.identifier());
+        assertEquals(InfiniteX.id("underworld_ancient_city"), Underworld.ANCIENT_CITY.identifier());
+        assertEquals(InfiniteX.id("underworld_ancient_cities"), Underworld.ANCIENT_CITIES.identifier());
         assertEquals(InfiniteX.id("chests/underworld_dungeon"), Underworld.DUNGEON_LOOT.identifier());
     }
 }

@@ -1841,8 +1841,10 @@ class GeneratedResourceTest {
         JsonArray deepDarkVegetalFeatures = featureStep(deepDarkBiome, GenerationStep.Decoration.VEGETAL_DECORATION);
         JsonObject configuredDungeon = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_dungeon.json"));
-        JsonObject configuredLargeCave = json(GENERATED.resolve(
-                "data/infx/worldgen/configured_carver/underworld_large_cave.json"));
+        JsonObject ancientCity = json(GENERATED.resolve(
+                "data/infx/worldgen/structure/underworld_ancient_city.json"));
+        JsonObject ancientCities = json(GENERATED.resolve(
+                "data/infx/worldgen/structure_set/underworld_ancient_cities.json"));
         JsonObject placedDungeon = json(GENERATED.resolve(
                 "data/infx/worldgen/placed_feature/underworld_dungeon.json"));
         JsonArray dungeonPlacement = placedDungeon.getAsJsonArray("placement");
@@ -2010,7 +2012,36 @@ class GeneratedResourceTest {
                         underworldFeatures),
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
                 () -> assertTrue(lushBiome.getAsJsonArray("carvers").isEmpty()),
-                () -> assertEquals("infx:underworld_large_cave", deepDarkBiome.get("carvers").getAsString()),
+                () -> assertTrue(deepDarkBiome.getAsJsonArray("carvers").isEmpty()),
+                () -> assertEquals("minecraft:jigsaw", ancientCity.get("type").getAsString()),
+                () -> assertEquals(
+                        "infx:underworld_deep_dark",
+                        ancientCity.get("biomes").getAsString()),
+                () -> assertEquals("minecraft:ancient_city/city_center", ancientCity.get("start_pool").getAsString()),
+                () -> assertEquals("minecraft:city_anchor", ancientCity.get("start_jigsaw_name").getAsString()),
+                () -> assertEquals(4, ancientCity.getAsJsonObject("start_height").get("absolute").getAsInt()),
+                () -> assertEquals(7, ancientCity.get("size").getAsInt()),
+                () -> assertEquals(116, ancientCity.get("max_distance_from_center").getAsInt()),
+                () -> assertEquals("underground_decoration", ancientCity.get("step").getAsString()),
+                () -> assertEquals("beard_box", ancientCity.get("terrain_adaptation").getAsString()),
+                () -> assertEquals(
+                        "infx:underworld_ancient_city",
+                        ancientCities.getAsJsonArray("structures")
+                                .get(0)
+                                .getAsJsonObject()
+                                .get("structure")
+                                .getAsString()),
+                () -> assertEquals(1, ancientCities.getAsJsonArray("structures")
+                        .get(0)
+                        .getAsJsonObject()
+                        .get("weight")
+                        .getAsInt()),
+                () -> assertEquals("minecraft:random_spread", ancientCities.getAsJsonObject("placement")
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals(24, ancientCities.getAsJsonObject("placement").get("spacing").getAsInt()),
+                () -> assertEquals(8, ancientCities.getAsJsonObject("placement").get("separation").getAsInt()),
+                () -> assertEquals(20083232, ancientCities.getAsJsonObject("placement").get("salt").getAsInt()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/density_function/infx_first_cave.json"))),
@@ -2020,6 +2051,8 @@ class GeneratedResourceTest {
                         "data/infx/worldgen/configured_carver/underworld_cave_extra_underground.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/configured_carver/underworld_canyon.json"))),
+                () -> assertFalse(Files.exists(GENERATED.resolve(
+                        "data/infx/worldgen/configured_carver/underworld_large_cave.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/configured_feature/silver_ore.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
@@ -2057,18 +2090,7 @@ class GeneratedResourceTest {
                         .anyMatch("minecraft:sculk_patch_deep_dark"::equals)),
                 () -> assertEquals(List.of("minecraft:glow_lichen"), deepDarkVegetalFeatures.asList().stream()
                         .map(JsonElement::getAsString)
-                        .toList()),
-                () -> assertEquals("infx:underworld_large_cave", configuredLargeCave.get("type").getAsString()),
-                () -> assertEquals(1.0F, configuredLargeCave.getAsJsonObject("config")
-                        .get("probability").getAsFloat()),
-                () -> assertEquals(-20, configuredLargeCave.getAsJsonObject("config")
-                        .getAsJsonObject("lava_level").get("absolute").getAsInt()),
-                () -> assertEquals(-20, configuredLargeCave.getAsJsonObject("config")
-                        .getAsJsonObject("y").getAsJsonObject("min_inclusive")
-                        .get("absolute").getAsInt()),
-                () -> assertEquals(80, configuredLargeCave.getAsJsonObject("config")
-                        .getAsJsonObject("y").getAsJsonObject("max_inclusive")
-                        .get("absolute").getAsInt()));
+                        .toList()));
 
         JsonObject dungeonOffset = dungeonPlacement.get(2).getAsJsonObject();
         JsonObject dungeonHeight = dungeonPlacement.get(3).getAsJsonObject().getAsJsonObject("height");
@@ -2405,7 +2427,7 @@ class GeneratedResourceTest {
         JsonObject ancientCityTag = json(GENERATED.resolve(
                 "data/minecraft/tags/worldgen/biome/has_structure/ancient_city.json"));
         assertEquals(
-                Set.of("minecraft:deep_dark", "infx:underworld_deep_dark"),
+                Set.of("minecraft:deep_dark"),
                 ancientCityTag.getAsJsonArray("values").asList().stream()
                         .map(JsonElement::getAsString)
                         .collect(Collectors.toSet()));

@@ -8,6 +8,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 public final class Underworld {
@@ -34,8 +36,11 @@ public final class Underworld {
     public static final int LARGE_CAVE_MAIN_RADIUS = 106;
     public static final int LARGE_CAVE_MAIN_VERTICAL_RADIUS = 50;
     public static final int LARGE_CAVE_OUTER_RADIUS = 124;
-    public static final int LARGE_CAVE_MACRO_CHUNK_SIZE = 16;
-    public static final int LARGE_CAVE_MACRO_CENTER_OFFSET = 8;
+    public static final int LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE =
+            (LARGE_CAVE_OUTER_RADIUS + 8) / 16;
+    public static final int ANCIENT_CITY_CENTER_ANCHOR_LOCAL_Y = 24;
+    public static final int ANCIENT_CITY_START_Y =
+            LARGE_CAVE_MIN_Y + ANCIENT_CITY_CENTER_ANCHOR_LOCAL_Y;
     public static final int LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y = -24;
     public static final int LARGE_CAVE_INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE = -8;
     public static final int BOUNDARY_MAX_THICKNESS = 5;
@@ -88,6 +93,10 @@ public final class Underworld {
     public static final ResourceKey<Biome> DEEP_DARK_BIOME =
             ResourceKey.create(Registries.BIOME, InfiniteX.id("underworld_deep_dark"));
     public static final ResourceKey<NoiseGeneratorSettings> NOISE = ResourceKey.create(Registries.NOISE_SETTINGS, InfiniteX.id("underworld"));
+    public static final ResourceKey<Structure> ANCIENT_CITY =
+            ResourceKey.create(Registries.STRUCTURE, InfiniteX.id("underworld_ancient_city"));
+    public static final ResourceKey<StructureSet> ANCIENT_CITIES =
+            ResourceKey.create(Registries.STRUCTURE_SET, InfiniteX.id("underworld_ancient_cities"));
     public static final ResourceKey<LootTable> DUNGEON_LOOT =
             ResourceKey.create(Registries.LOOT_TABLE, InfiniteX.id("chests/underworld_dungeon"));
 

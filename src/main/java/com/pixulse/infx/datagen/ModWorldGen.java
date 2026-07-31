@@ -2,7 +2,6 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
-import com.pixulse.infx.registry.InfXCarvers;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXFeatures;
@@ -15,7 +14,9 @@ import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.HolderGetter;
@@ -25,6 +26,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.AncientCityStructurePieces;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
@@ -34,12 +36,13 @@ import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.data.worldgen.placement.VegetationPlacements;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TimelineTags;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.valueproviders.ConstantFloat;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.util.valueproviders.ConstantInt;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.attribute.AmbientSounds;
@@ -77,8 +80,6 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.Noises;
 import net.minecraft.world.level.levelgen.SurfaceRules;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
-import net.minecraft.world.level.levelgen.carver.CarverDebugSettings;
 import net.minecraft.world.level.levelgen.carver.ConfiguredWorldCarver;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.data.worldgen.features.OreFeatures;
@@ -90,6 +91,7 @@ import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConf
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.heightproviders.BiasedToBottomHeight;
+import net.minecraft.world.level.levelgen.heightproviders.ConstantHeight;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
@@ -107,8 +109,15 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
 import net.minecraft.world.level.levelgen.structure.templatesystem.BlockMatchTest;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructureSets;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
+import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
+import net.minecraft.world.level.levelgen.structure.structures.JigsawStructure;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.timeline.Timeline;
@@ -129,8 +138,6 @@ public final class ModWorldGen {
     private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
     private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
-    private static final ResourceKey<ConfiguredWorldCarver<?>> UNDERWORLD_LARGE_CAVE_CONFIGURED =
-            ResourceKey.create(Registries.CONFIGURED_CARVER, InfiniteX.id("underworld_large_cave"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_DUNGEON_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_dungeon"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_MYCELIUM_CONFIGURED =
@@ -345,10 +352,10 @@ public final class ModWorldGen {
         return new RegistrySetBuilder()
                 .add(Registries.ENCHANTMENT, InfXEnchantments::bootstrap)
                 .add(Registries.JUKEBOX_SONG, InfXJukeboxSongs::bootstrap)
+                .add(Registries.STRUCTURE, ModWorldGen::bootstrapStructures)
                 .add(Registries.STRUCTURE_SET, ModWorldGen::bootstrapStructureSets)
                 .add(Registries.NOISE, InfXUnderworldBedrockStrata::bootstrapNoiseParameters)
                 .add(Registries.DENSITY_FUNCTION, ModWorldGen::bootstrapDensityFunctions)
-                .add(Registries.CONFIGURED_CARVER, ModWorldGen::bootstrapConfiguredCarvers)
                 .add(Registries.CONFIGURED_FEATURE, ModWorldGen::bootstrapConfiguredFeatures)
                 .add(Registries.PLACED_FEATURE, ModWorldGen::bootstrapPlacedFeatures)
                 .add(Registries.BIOME, ModWorldGen::bootstrapBiomes)
@@ -358,7 +365,45 @@ public final class ModWorldGen {
                 .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, ModWorldGen::bootstrapBiomeModifiers);
     }
 
+    private static void bootstrapStructures(BootstrapContext<Structure> context) {
+        HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
+        HolderGetter<StructureTemplatePool> templates = context.lookup(Registries.TEMPLATE_POOL);
+        EnumMap<MobCategory, StructureSpawnOverride> emptySpawns = new EnumMap<>(MobCategory.class);
+        for (MobCategory category : MobCategory.values()) {
+            emptySpawns.put(
+                    category,
+                    new StructureSpawnOverride(
+                            StructureSpawnOverride.BoundingBoxType.STRUCTURE,
+                            WeightedList.of()));
+        }
+
+        context.register(
+                Underworld.ANCIENT_CITY,
+                new JigsawStructure(
+                        new Structure.StructureSettings.Builder(
+                                        HolderSet.direct(biomes.getOrThrow(Underworld.DEEP_DARK_BIOME)))
+                                .spawnOverrides(Map.copyOf(emptySpawns))
+                                .generationStep(GenerationStep.Decoration.UNDERGROUND_DECORATION)
+                                .terrainAdapation(TerrainAdjustment.BEARD_BOX)
+                                .build(),
+                        templates.getOrThrow(AncientCityStructurePieces.START),
+                        Optional.of(Identifier.withDefaultNamespace("city_anchor")),
+                        7,
+                        ConstantHeight.of(VerticalAnchor.absolute(Underworld.ANCIENT_CITY_START_Y)),
+                        false,
+                        Optional.empty(),
+                        new JigsawStructure.MaxDistance(116),
+                        List.of(),
+                        JigsawStructure.DEFAULT_DIMENSION_PADDING,
+                        JigsawStructure.DEFAULT_LIQUID_SETTINGS));
+    }
+
     private static void bootstrapStructureSets(BootstrapContext<StructureSet> context) {
+        context.register(
+                Underworld.ANCIENT_CITIES,
+                new StructureSet(
+                        context.lookup(Registries.STRUCTURE).getOrThrow(Underworld.ANCIENT_CITY),
+                        new RandomSpreadStructurePlacement(24, 8, RandomSpreadType.LINEAR, 20083232)));
         context.register(
                 BuiltinStructureSets.STRONGHOLDS,
                 new StructureSet(
@@ -372,25 +417,6 @@ public final class ModWorldGen {
 
     private static void bootstrapDensityFunctions(BootstrapContext<DensityFunction> context) {
         context.register(UNDERWORLD_TERRAIN, underworldTerrainDensity());
-    }
-
-    private static void bootstrapConfiguredCarvers(BootstrapContext<ConfiguredWorldCarver<?>> context) {
-        context.register(
-                UNDERWORLD_LARGE_CAVE_CONFIGURED,
-                new ConfiguredWorldCarver<>(
-                        InfXCarvers.UNDERWORLD_LARGE_CAVE.get(),
-                        new CarverConfiguration(
-                                1.0F,
-                                UniformHeight.of(
-                                        VerticalAnchor.absolute(Underworld.LARGE_CAVE_MIN_Y),
-                                        VerticalAnchor.absolute(Underworld.LARGE_CAVE_MAX_Y)),
-                                ConstantFloat.of(1.0F),
-                                VerticalAnchor.absolute(Underworld.LARGE_CAVE_MIN_Y),
-                                CarverDebugSettings.DEFAULT,
-                                HolderSet.direct(
-                                        Blocks.STONE.builtInRegistryHolder(),
-                                        Blocks.DEEPSLATE.builtInRegistryHolder(),
-                                        Blocks.BEDROCK.builtInRegistryHolder()))));
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
@@ -1089,7 +1115,6 @@ public final class ModWorldGen {
         BiomeGenerationSettings.Builder deepDarkGeneration = underworldCommonGeneration(placed, carvers);
         addUnderworldFungusFeatures(deepDarkGeneration);
         addUnderworldLiquidFeature(deepDarkGeneration);
-        deepDarkGeneration.addCarver(UNDERWORLD_LARGE_CAVE_CONFIGURED);
         deepDarkGeneration.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_VEIN);
         deepDarkGeneration.addFeature(
                 GenerationStep.Decoration.UNDERGROUND_DECORATION, CavePlacements.SCULK_PATCH_DEEP_DARK);
