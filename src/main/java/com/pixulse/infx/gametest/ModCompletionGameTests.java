@@ -467,6 +467,8 @@ public final class ModCompletionGameTests {
         helper.assertTrue(helper.getLevel().getMinY() == -16, "Overworld bottom is Y=-16");
         var biomes = registries.lookupOrThrow(Registries.BIOME);
         var underworldBiome = biomes.getOrThrow(Underworld.BIOME);
+        var lushUnderworldBiome = biomes.getOrThrow(Underworld.LUSH_BIOME);
+        var deepDarkUnderworldBiome = biomes.getOrThrow(Underworld.DEEP_DARK_BIOME);
         for (var tag : List.of(
                 BiomeTags.HAS_ANCIENT_CITY,
                 BiomeTags.HAS_BURIED_TREASURE,
@@ -477,6 +479,18 @@ public final class ModCompletionGameTests {
                     !structureBiomes.contains(underworldBiome),
                     tag.location() + " excludes the empty Underworld biome");
         }
+        for (var tag : List.of(BiomeTags.HAS_ANCIENT_CITY, BiomeTags.HAS_TRIAL_CHAMBERS)) {
+            var structureBiomes = biomes.getOrThrow(tag);
+            helper.assertTrue(
+                    !structureBiomes.contains(lushUnderworldBiome),
+                    tag.location() + " excludes the lush Underworld biome");
+        }
+        helper.assertTrue(
+                biomes.getOrThrow(BiomeTags.HAS_ANCIENT_CITY).contains(deepDarkUnderworldBiome),
+                "deep-dark Underworld biome enables ancient cities");
+        helper.assertTrue(
+                !biomes.getOrThrow(BiomeTags.HAS_TRIAL_CHAMBERS).contains(deepDarkUnderworldBiome),
+                "deep-dark Underworld biome does not enable trial chambers");
         for (var tag : List.of(BiomeTags.HAS_MINESHAFT, BiomeTags.HAS_MINESHAFT_MESA)) {
             var structureBiomes = biomes.getOrThrow(tag);
             helper.assertTrue(
@@ -488,6 +502,8 @@ public final class ModCompletionGameTests {
                 "stronghold biomes are restored for the End progression chain");
         helper.assertTrue(registries.lookupOrThrow(Registries.DIMENSION_TYPE).containsKey(Underworld.TYPE), "Underworld type registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.BIOME), "Underworld biome registered");
+        helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.LUSH_BIOME), "Lush Underworld biome registered");
+        helper.assertTrue(registries.lookupOrThrow(Registries.BIOME).containsKey(Underworld.DEEP_DARK_BIOME), "Deep-dark Underworld biome registered");
         helper.assertTrue(registries.lookupOrThrow(Registries.NOISE_SETTINGS).containsKey(Underworld.NOISE), "Underworld noise registered");
 
         // The dedicated return-spawn block stays in the Overworld and needs no second dimension.

@@ -1811,7 +1811,10 @@ class GeneratedResourceTest {
                 .getAsJsonObject("attributes")
                 .getAsJsonObject("minecraft:gameplay/bed_rule");
         JsonObject biome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld.json"));
+        JsonObject lushBiome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld_lush.json"));
+        JsonObject deepDarkBiome = json(GENERATED.resolve("data/infx/worldgen/biome/underworld_deep_dark.json"));
         JsonObject noise = json(GENERATED.resolve("data/infx/worldgen/noise_settings/underworld.json"));
+        JsonObject biomeSource = generator.getAsJsonObject("biome_source");
         Set<String> underworldFeatures = biome.getAsJsonArray("features").asList().stream()
                 .flatMap(step -> step.getAsJsonArray().asList().stream())
                 .map(JsonElement::getAsString)
@@ -1822,11 +1825,15 @@ class GeneratedResourceTest {
         JsonArray underworldDecorationFeatures = biome.getAsJsonArray("features")
                 .get(GenerationStep.Decoration.UNDERGROUND_DECORATION.ordinal())
                 .getAsJsonArray();
-        JsonArray underworldVegetalFeatures = biome.getAsJsonArray("features")
-                .get(GenerationStep.Decoration.VEGETAL_DECORATION.ordinal())
-                .getAsJsonArray();
+        JsonArray underworldVegetalFeatures = featureStep(biome, GenerationStep.Decoration.VEGETAL_DECORATION);
+        JsonArray lushVegetalFeatures = featureStep(lushBiome, GenerationStep.Decoration.VEGETAL_DECORATION);
+        JsonArray deepDarkDecorationFeatures = featureStep(
+                deepDarkBiome, GenerationStep.Decoration.UNDERGROUND_DECORATION);
+        JsonArray deepDarkVegetalFeatures = featureStep(deepDarkBiome, GenerationStep.Decoration.VEGETAL_DECORATION);
         JsonObject configuredDungeon = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_dungeon.json"));
+        JsonObject configuredLargeCave = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_carver/underworld_large_cave.json"));
         JsonObject placedDungeon = json(GENERATED.resolve(
                 "data/infx/worldgen/placed_feature/underworld_dungeon.json"));
         JsonArray dungeonPlacement = placedDungeon.getAsJsonArray("placement");
@@ -1856,9 +1863,10 @@ class GeneratedResourceTest {
                 "Underworld dimension",
                 () -> assertEquals("infx:underworld", dimension.get("type").getAsString()),
                 () -> assertEquals("infx:underworld", generator.get("type").getAsString()),
-                () -> assertEquals(
-                        "infx:underworld",
-                        generator.getAsJsonObject("biome_source").get("biome").getAsString()),
+                () -> assertEquals("infx:underworld_biome_source", biomeSource.get("type").getAsString()),
+                () -> assertEquals("infx:underworld", biomeSource.get("ordinary").getAsString()),
+                () -> assertEquals("infx:underworld_lush", biomeSource.get("lush").getAsString()),
+                () -> assertEquals("infx:underworld_deep_dark", biomeSource.get("deep_dark").getAsString()),
                 () -> assertEquals("infx:underworld", generator.get("settings").getAsString()),
                 () -> assertEquals(-128, dimensionType.get("min_y").getAsInt()),
                 () -> assertEquals(384, dimensionType.get("height").getAsInt()),
@@ -1875,6 +1883,14 @@ class GeneratedResourceTest {
                 () -> assertFalse(noise.get("aquifers_enabled").getAsBoolean()),
                 () -> assertFalse(noise.get("ore_veins_enabled").getAsBoolean()),
                 () -> assertTrue(noise.get("legacy_random_source").getAsBoolean()),
+                () -> assertEquals("minecraft:noise", noise.getAsJsonObject("noise_router")
+                        .getAsJsonObject("temperature").get("type").getAsString()),
+                () -> assertEquals("infx:underworld_biome", noise.getAsJsonObject("noise_router")
+                        .getAsJsonObject("temperature").get("noise").getAsString()),
+                () -> assertEquals(1.0 / 64.0, noise.getAsJsonObject("noise_router")
+                        .getAsJsonObject("temperature").get("xz_scale").getAsDouble()),
+                () -> assertEquals(0.0, noise.getAsJsonObject("noise_router")
+                        .getAsJsonObject("temperature").get("y_scale").getAsDouble()),
                 () -> assertEquals(-128, noiseShape.get("min_y").getAsInt()),
                 () -> assertEquals(384, noiseShape.get("height").getAsInt()),
                 () -> assertTrue(finalDensity.isJsonPrimitive()),
@@ -1943,16 +1959,11 @@ class GeneratedResourceTest {
                                 "infx:underworld_gravel_full",
                                 "infx:underworld_mycelium",
                                 "infx:underworld_brown_mushroom",
-                                "infx:underworld_liquid_source",
-                                "infx:underworld_lush_caves_ceiling_vegetation",
-                                "infx:underworld_cave_vines",
-                                "infx:underworld_lush_caves_clay",
-                                "infx:underworld_lush_caves_vegetation",
-                                "infx:underworld_rooted_azalea_tree",
-                                "infx:underworld_spore_blossom",
-                                "infx:underworld_classic_vines"),
+                                "infx:underworld_liquid_source"),
                         underworldFeatures),
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
+                () -> assertTrue(lushBiome.getAsJsonArray("carvers").isEmpty()),
+                () -> assertEquals("infx:underworld_large_cave", deepDarkBiome.get("carvers").getAsString()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/density_function/infx_first_cave.json"))),
@@ -1974,6 +1985,43 @@ class GeneratedResourceTest {
                         "data/infx/neoforge/biome_modifier/add_underworld_ores.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/loot_modifiers/underworld_dungeon.json"))));
+
+        Set<String> lushFeatures = lushBiome.getAsJsonArray("features").asList().stream()
+                .flatMap(step -> step.getAsJsonArray().asList().stream())
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> deepDarkFeatures = deepDarkBiome.getAsJsonArray("features").asList().stream()
+                .flatMap(step -> step.getAsJsonArray().asList().stream())
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        assertAll(
+                "Underworld biome feature partition",
+                () -> assertTrue(lushFeatures.contains("infx:underworld_lush_caves_vegetation")),
+                () -> assertTrue(lushFeatures.contains("infx:underworld_rooted_azalea_tree")),
+                () -> assertFalse(lushFeatures.contains("infx:underworld_mycelium")),
+                () -> assertFalse(lushFeatures.contains("infx:underworld_brown_mushroom")),
+                () -> assertTrue(deepDarkFeatures.contains("infx:underworld_mycelium")),
+                () -> assertTrue(deepDarkFeatures.contains("minecraft:sculk_patch_deep_dark")),
+                () -> assertTrue(deepDarkFeatures.contains("minecraft:sculk_vein")),
+                () -> assertTrue(deepDarkFeatures.contains("minecraft:glow_lichen")),
+                () -> assertFalse(deepDarkFeatures.contains("infx:underworld_lush_caves_vegetation")),
+                () -> assertTrue(deepDarkDecorationFeatures.asList().stream()
+                        .map(JsonElement::getAsString)
+                        .anyMatch("minecraft:sculk_patch_deep_dark"::equals)),
+                () -> assertEquals(List.of("minecraft:glow_lichen"), deepDarkVegetalFeatures.asList().stream()
+                        .map(JsonElement::getAsString)
+                        .toList()),
+                () -> assertEquals("infx:underworld_large_cave", configuredLargeCave.get("type").getAsString()),
+                () -> assertEquals(1.0F, configuredLargeCave.getAsJsonObject("config")
+                        .get("probability").getAsFloat()),
+                () -> assertEquals(-56, configuredLargeCave.getAsJsonObject("config")
+                        .getAsJsonObject("lava_level").get("absolute").getAsInt()),
+                () -> assertEquals(-56, configuredLargeCave.getAsJsonObject("config")
+                        .getAsJsonObject("y").getAsJsonObject("min_inclusive")
+                        .get("absolute").getAsInt()),
+                () -> assertEquals(80, configuredLargeCave.getAsJsonObject("config")
+                        .getAsJsonObject("y").getAsJsonObject("max_inclusive")
+                        .get("absolute").getAsInt()));
 
         JsonObject dungeonOffset = dungeonPlacement.get(2).getAsJsonObject();
         JsonObject dungeonHeight = dungeonPlacement.get(3).getAsJsonObject().getAsJsonObject("height");
@@ -2076,7 +2124,7 @@ class GeneratedResourceTest {
                 "underworld_classic_vines");
         assertEquals(
                 lushFeatureIds.stream().map(id -> "infx:" + id).toList(),
-                underworldVegetalFeatures.asList().stream().map(JsonElement::getAsString).toList());
+                lushVegetalFeatures.asList().stream().map(JsonElement::getAsString).toList());
         Map<String, String> lushConfiguredFeatures = Map.ofEntries(
                 Map.entry("underworld_lush_caves_ceiling_vegetation", "minecraft:moss_patch_ceiling"),
                 Map.entry("underworld_cave_vines", "minecraft:cave_vine"),
@@ -2099,34 +2147,31 @@ class GeneratedResourceTest {
             JsonObject placed = json(GENERATED.resolve(
                     "data/infx/worldgen/placed_feature/" + featureId + ".json"));
             JsonArray placement = placed.getAsJsonArray("placement");
-            JsonObject height = placement.get(3).getAsJsonObject().getAsJsonObject("height");
+            JsonObject height = placement.get(2).getAsJsonObject().getAsJsonObject("height");
             int expectedMinimumY = floorScannedLushFeatures.contains(featureId)
                     ? Underworld.LUSH_CAVES_FLOOR_SCAN_MIN_Y
                     : Underworld.LUSH_CAVES_MIN_Y;
             assertAll(
                     "Underworld lush decoration " + featureId,
                     () -> assertEquals(lushConfiguredFeatures.get(featureId), placed.get("feature").getAsString()),
-                    () -> assertEquals("infx:underworld_lush_region", placement.get(0).getAsJsonObject()
-                            .get("type")
-                            .getAsString()),
-                    () -> assertEquals("minecraft:count", placement.get(1).getAsJsonObject()
+                    () -> assertEquals("minecraft:count", placement.get(0).getAsJsonObject()
                             .get("type")
                             .getAsString()),
                     () -> {
                         if (lushCounts.get(featureId) >= 0) {
-                            assertEquals(lushCounts.get(featureId), placement.get(1).getAsJsonObject()
+                            assertEquals(lushCounts.get(featureId), placement.get(0).getAsJsonObject()
                                     .get("count")
                                     .getAsInt());
                         } else {
-                            JsonObject count = placement.get(1).getAsJsonObject().getAsJsonObject("count");
+                            JsonObject count = placement.get(0).getAsJsonObject().getAsJsonObject("count");
                             assertEquals(1, count.get("min_inclusive").getAsInt());
                             assertEquals(2, count.get("max_inclusive").getAsInt());
                         }
                     },
-                    () -> assertEquals("minecraft:in_square", placement.get(2).getAsJsonObject()
+                    () -> assertEquals("minecraft:in_square", placement.get(1).getAsJsonObject()
                             .get("type")
                             .getAsString()),
-                    () -> assertEquals("minecraft:height_range", placement.get(3).getAsJsonObject()
+                    () -> assertEquals("minecraft:height_range", placement.get(2).getAsJsonObject()
                             .get("type")
                             .getAsString()),
                     () -> assertEquals("minecraft:uniform", height.get("type").getAsString()),
@@ -2310,11 +2355,14 @@ class GeneratedResourceTest {
                             .contains("\"to_y\":8")));
         }
 
-        for (String structure : List.of(
-                "ancient_city",
-                "buried_treasure",
-                "trail_ruins",
-                "trial_chambers")) {
+        JsonObject ancientCityTag = json(GENERATED.resolve(
+                "data/minecraft/tags/worldgen/biome/has_structure/ancient_city.json"));
+        assertEquals(
+                Set.of("minecraft:deep_dark", "infx:underworld_deep_dark"),
+                ancientCityTag.getAsJsonArray("values").asList().stream()
+                        .map(JsonElement::getAsString)
+                        .collect(Collectors.toSet()));
+        for (String structure : List.of("buried_treasure", "trail_ruins", "trial_chambers")) {
             assertFalse(
                     Files.exists(GENERATED.resolve(
                             "data/minecraft/tags/worldgen/biome/has_structure/" + structure + ".json")),
@@ -3468,6 +3516,11 @@ class GeneratedResourceTest {
             return provider.getAsInt();
         }
         return provider.getAsJsonObject().get("value").getAsInt();
+    }
+
+    private static JsonArray featureStep(JsonObject biome, GenerationStep.Decoration step) {
+        JsonArray features = biome.getAsJsonArray("features");
+        return step.ordinal() < features.size() ? features.get(step.ordinal()).getAsJsonArray() : new JsonArray();
     }
 
     private static void visit(JsonElement element, BiConsumer<String, String> strings) {

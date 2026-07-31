@@ -10,6 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import org.jspecify.annotations.NonNull;
 
 /** Moves selected shallow Overworld subterranean structures into the Underworld while retaining vanilla mineshafts. */
@@ -31,5 +32,8 @@ final class ModBiomeTagsProvider extends KeyTagsProvider<Biome> {
                 .add(RiverBiomes.SWAMP_RIVER);
         tag(BiomeTags.IS_JUNGLE).add(RiverBiomes.JUNGLE_RIVER);
         tag(BiomeTags.HAS_STRONGHOLD).addTag(BiomeTags.IS_OVERWORLD);
+        tag(BiomeTags.HAS_ANCIENT_CITY)
+                .add(Biomes.DEEP_DARK)
+                .add(Underworld.DEEP_DARK_BIOME);
     }
 }
