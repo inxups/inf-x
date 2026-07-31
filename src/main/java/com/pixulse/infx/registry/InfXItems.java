@@ -134,8 +134,6 @@ public final class InfXItems {
             ITEMS.registerSimpleBlockItem(InfXBlocks.OBSIDIAN_WORKBENCH);
     public static final DeferredItem<BlockItem> CLAY_FURNACE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
-    public static final DeferredItem<BlockItem> LARGE_CLAY_OVEN =
-            ITEMS.registerSimpleBlockItem(InfXBlocks.LARGE_CLAY_OVEN, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> SANDSTONE_FURNACE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.SANDSTONE_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> HARDENED_CLAY_FURNACE =
@@ -158,7 +156,6 @@ public final class InfXItems {
 
     public static final List<DeferredItem<BlockItem>> FURNACES = List.of(
             CLAY_FURNACE,
-            LARGE_CLAY_OVEN,
             SANDSTONE_FURNACE,
             HARDENED_CLAY_FURNACE,
             OBSIDIAN_FURNACE,

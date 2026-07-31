@@ -1747,39 +1747,12 @@ public final class ModGameTests {
         helper.onEachTick(player::doTick);
         helper.setBlock(
                 FURNACE_POS,
-                InfXBlocks.LARGE_CLAY_OVEN.get()
+                InfXBlocks.OBSIDIAN_FURNACE.get()
                         .defaultBlockState()
                         .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
         InfxFurnaceBlockEntity[] furnace = {
             helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class)
         };
-
-        helper.assertTrue(
-                furnace[0].canPlaceItem(0, new ItemStack(Items.SAND, 4)),
-                "the large clay oven must accept full blocks");
-        helper.assertTrue(
-                furnace[0].canPlaceItem(1, Items.OAK_LOG.getDefaultInstance()),
-                "the large clay oven must accept large heat-1 fuel");
-        helper.assertFalse(
-                furnace[0].canPlaceItem(1, Items.COAL.getDefaultInstance()),
-                "the large clay oven must reject heat-2 coal");
-
-        player.openMenu(furnace[0]);
-        helper.assertTrue(
-                player.containerMenu.getSlot(0).mayPlace(new ItemStack(Items.SAND, 4)),
-                "the large clay oven menu must accept full blocks");
-        helper.assertFalse(
-                player.containerMenu.getSlot(1).mayPlace(Items.COAL.getDefaultInstance()),
-                "the large clay oven menu must enforce its heat-1 ceiling");
-        player.closeContainer();
-
-        helper.setBlock(FURNACE_POS, Blocks.AIR);
-        helper.setBlock(
-                FURNACE_POS,
-                InfXBlocks.OBSIDIAN_FURNACE.get()
-                        .defaultBlockState()
-                        .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH));
-        furnace[0] = helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class);
         helper.assertTrue(
                 furnace[0].canPlaceItem(1, Items.LAVA_BUCKET.getDefaultInstance()),
                 "the obsidian furnace must accept heat-3 lava");
