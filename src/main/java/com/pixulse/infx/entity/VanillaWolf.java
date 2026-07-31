@@ -28,7 +28,7 @@ public final class VanillaWolf extends Wolf {
     public static AttributeSupplier.Builder attributes() {
         return Wolf.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.40)
+                .add(Attributes.MOVEMENT_SPEED, 0.30)
                 .add(Attributes.ATTACK_DAMAGE, 3.0)
                 .add(Attributes.FOLLOW_RANGE, 16.0);
     }
