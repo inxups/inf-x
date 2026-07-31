@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 调整地下世界分区视觉颜色
+
+- 普通地下世界现在使用墨绿色雾色与环境光色，繁茂区使用暖琥珀色；深暗区、水色、雾距和环境光强度保持不变。
+
 ### 修复地下世界装饰区块读取崩溃
 
 - 菌丝 post 和棕色蘑菇装饰现在通过生成器的未缓存噪声生物群系采样判断繁茂区，不再从 `WorldGenRegion` 读取邻区块，避免新区块生成阶段触发 `Requested chunk unavailable during world generation`。
