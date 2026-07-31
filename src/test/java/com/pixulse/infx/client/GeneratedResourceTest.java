@@ -269,8 +269,8 @@ class GeneratedResourceTest {
                     () -> assertEquals(
                             "infx:block/template_red_nether_portal_" + orientation,
                             model.get("parent").getAsString()),
-                    () -> assertEquals("infx:block/portal", textures.get("portal").getAsString()),
-                    () -> assertEquals("infx:block/portal", textures.get("particle").getAsString()));
+                    () -> assertEquals("infx:block/nether_portal", textures.get("portal").getAsString()),
+                    () -> assertEquals("infx:block/nether_portal", textures.get("particle").getAsString()));
             template.getAsJsonArray("elements")
                     .get(0)
                     .getAsJsonObject()
@@ -2758,8 +2758,8 @@ class GeneratedResourceTest {
             JsonObject textures = model.getAsJsonObject("textures");
             JsonObject template = json(STATIC.resolve(
                     "assets/infx/models/block/template_tinted_portal_" + orientation + ".json"));
-            assertEquals("infx:block/portal", textures.get("portal").getAsString());
-            assertEquals("infx:block/portal", textures.get("particle").getAsString());
+            assertEquals("minecraft:block/nether_portal", textures.get("portal").getAsString());
+            assertEquals("minecraft:block/nether_portal", textures.get("particle").getAsString());
             assertEquals("infx:block/template_tinted_portal_" + orientation,
                     model.get("parent").getAsString());
             template.getAsJsonArray("elements")
@@ -3086,8 +3086,6 @@ class GeneratedResourceTest {
                 "textures/block/runestones/(mithril|adamantium)/(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15)\\.png")));
         assertTrue(destinations.remove("textures/block/runegate.png"));
         assertTrue(destinations.remove("textures/block/runegate.png.mcmeta"));
-        assertTrue(destinations.remove("textures/block/portal.png"));
-        assertTrue(destinations.remove("textures/block/portal.png.mcmeta"));
         assertTrue(destinations.remove("textures/block/nether_portal.png"));
         assertTrue(destinations.remove("textures/block/nether_portal.png.mcmeta"));
         assertTrue(destinations.removeIf(path -> path.matches(
