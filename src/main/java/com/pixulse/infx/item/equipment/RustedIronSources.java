@@ -80,7 +80,8 @@ public final class RustedIronSources {
         InfxMaterial material = InfxMaterial.RUSTED_IRON;
         int count;
         if (skeleton instanceof InfxSkeleton r196
-                && r196.variant() == InfxSkeleton.Variant.LONGDEAD) {
+                && (r196.variant() == InfxSkeleton.Variant.LONGDEAD
+                        || r196.variant() == InfxSkeleton.Variant.LONGDEAD_GUARDIAN)) {
             material = InfxMaterial.ANCIENT_METAL;
             count = skeleton.getRandom().nextInt(6) == 0 ? 1 : 0;
         } else {

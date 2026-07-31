@@ -300,6 +300,7 @@ public final class EntityRenderers {
         static Identifier textureFor(InfxSkeleton.Variant variant) {
             return switch (variant) {
                 case LONGDEAD -> mite("textures/entity/skeleton/longdead.png");
+                case LONGDEAD_GUARDIAN -> mite("textures/entity/skeleton/longdead_guardian.png");
                 case BONE_LORD -> mite("textures/entity/skeleton/bone_lord.png");
                 case ANCIENT_BONE_LORD -> mite("textures/entity/skeleton/longdead_guardian.png");
                 case SKELETON -> Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");

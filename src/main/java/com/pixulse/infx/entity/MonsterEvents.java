@@ -12,6 +12,7 @@ import com.pixulse.infx.world.Underworld;
 import java.time.LocalDate;
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -115,7 +116,10 @@ public final class MonsterEvents {
         if (event.getSource().getDirectEntity()
                         instanceof net.minecraft.world.entity.projectile.arrow.AbstractArrow arrow
                 && arrow.getOwner() instanceof InfxSkeleton skeleton) {
-            float floor = skeleton.variant() == InfxSkeleton.Variant.LONGDEAD ? 9.0F : 5.0F;
+            float floor = skeleton.variant() == InfxSkeleton.Variant.LONGDEAD
+                            || skeleton.variant() == InfxSkeleton.Variant.LONGDEAD_GUARDIAN
+                    ? 9.0F
+                    : 5.0F;
             var bow = skeleton.getMainHandItem();
             boolean enchantedBow = !bow.isEmpty() && bow.isEnchanted();
             event.setAmount(enchantedBow ? Math.max(event.getAmount(), floor) : floor);
@@ -173,6 +177,9 @@ public final class MonsterEvents {
 
         event.put(InfXEntityTypes.INFX_SKELETON.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON).build());
         event.put(InfXEntityTypes.LONGDEAD.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD).build());
+        event.put(
+                InfXEntityTypes.LONGDEAD_GUARDIAN.get(),
+                InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN).build());
         event.put(InfXEntityTypes.BONE_LORD.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.BONE_LORD).build());
         event.put(InfXEntityTypes.ANCIENT_BONE_LORD.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD).build());
 
@@ -264,7 +271,20 @@ public final class MonsterEvents {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
-        for (var type : List.of(InfXEntityTypes.LONGDEAD, InfXEntityTypes.BONE_LORD, InfXEntityTypes.ANCIENT_BONE_LORD)) {
+        for (var type : List.of(
+                InfXEntityTypes.LONGDEAD,
+                InfXEntityTypes.LONGDEAD_GUARDIAN,
+                InfXEntityTypes.BONE_LORD,
+                InfXEntityTypes.ANCIENT_BONE_LORD)) {
+            event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                    MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        }
+        for (var type : List.of(
+                InfXEntityTypes.INFX_SPIDER,
+                InfXEntityTypes.INFX_CAVE_SPIDER,
+                InfXEntityTypes.INFX_CREEPER,
+                InfXEntityTypes.INFX_SLIME,
+                InfXEntityTypes.INFX_ENDERMAN)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
@@ -763,6 +783,11 @@ public final class MonsterEvents {
         if (original.getType() == EntityType.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
             return InfXEntityTypes.INFX_WITCH.get();
         }
+        if (original.getType() == InfXEntityTypes.LONGDEAD.get()
+                && shouldReplaceLongdeadWithGuardian(
+                        original.getType(), level.dimension(), original.getSpawnType(), original.getRandom().nextInt(6))) {
+            return InfXEntityTypes.LONGDEAD_GUARDIAN.get();
+        }
         if (isWorldSpawn(original.getSpawnType())) {
             if (original.getType() == EntityType.CREEPER) {
                 int y = original.blockPosition().getY();
@@ -943,6 +968,20 @@ public final class MonsterEvents {
                 || reason == EntitySpawnReason.REINFORCEMENT
                 || reason == EntitySpawnReason.PATROL
                 || reason == EntitySpawnReason.TRIAL_SPAWNER;
+    }
+
+    static boolean shouldReplaceLongdeadWithGuardian(
+            EntityType<?> originalType,
+            ResourceKey<Level> dimension,
+            EntitySpawnReason reason,
+            int roll) {
+        if (roll < 0 || roll >= 6) {
+            throw new IllegalArgumentException("Longdead Guardian roll must be in [0, 6): " + roll);
+        }
+        return originalType == InfXEntityTypes.LONGDEAD.get()
+                && dimension == Underworld.LEVEL
+                && reason == EntitySpawnReason.NATURAL
+                && roll == 0;
     }
 
     @SubscribeEvent

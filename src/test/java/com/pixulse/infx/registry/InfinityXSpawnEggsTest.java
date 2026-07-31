@@ -17,8 +17,8 @@ class InfinityXSpawnEggsTest {
                 .map(item -> item.getId().getPath())
                 .collect(Collectors.toSet());
 
-        assertEquals(53, entityPaths.size());
-        assertEquals(53, eggPaths.size());
+        assertEquals(54, entityPaths.size());
+        assertEquals(54, eggPaths.size());
         for (String path : entityPaths) {
             assertTrue(eggPaths.contains(path + "_spawn_egg"), path);
         }

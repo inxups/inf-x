@@ -26,8 +26,8 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        // 400 baseline + 42 mob buckets + 7 powder-snow buckets + 4 fish spawn eggs, clay golem and bat eggs.
-        assertEquals(455, registered.size());
+        // 400 baseline + 42 mob buckets + 7 powder-snow buckets + 5 additional spawn eggs.
+        assertEquals(456, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -40,7 +40,7 @@ class InfXCreativeTabsTest {
                 InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
                 InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
                 InfXCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113,
-                InfXCreativeTabs.Category.SPAWN_EGGS, 53);
+                InfXCreativeTabs.Category.SPAWN_EGGS, 54);
 
         expected.forEach((category, size) ->
                 assertEquals(size, InfXCreativeTabs.items(category).size(), category.name()));

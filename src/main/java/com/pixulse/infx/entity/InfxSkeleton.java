@@ -32,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** Skeleton replacement plus Longdead and both Bone Lord variants. */
+/** Skeleton replacement plus Longdead, Guardian and both Bone Lord variants. */
 public final class InfxSkeleton extends Skeleton implements InfxMob {
     private static final float ARROW_SPEED = 1.8F;
     private static final double ARROW_AIR_DRAG = 0.99F;
@@ -46,6 +46,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     public enum Variant {
         SKELETON,
         LONGDEAD,
+        LONGDEAD_GUARDIAN,
         BONE_LORD,
         ANCIENT_BONE_LORD
     }
@@ -60,13 +61,14 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         xpReward = switch (variant()) {
             case SKELETON -> xpReward;
             case LONGDEAD, BONE_LORD -> 15;
-            case ANCIENT_BONE_LORD -> 30;
+            case LONGDEAD_GUARDIAN, ANCIENT_BONE_LORD -> 30;
         };
     }
 
     public Variant variant() {
         return switch (EntityVariant.path(this)) {
             case "longdead" -> Variant.LONGDEAD;
+            case "longdead_guardian" -> Variant.LONGDEAD_GUARDIAN;
             case "bone_lord" -> Variant.BONE_LORD;
             case "ancient_bone_lord" -> Variant.ANCIENT_BONE_LORD;
             default -> Variant.SKELETON;
@@ -87,6 +89,12 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                     .add(Attributes.MOVEMENT_SPEED, 0.29)
                     .add(Attributes.ATTACK_DAMAGE, 6.0)
                     .add(Attributes.ARMOR, 1.0);
+            case LONGDEAD_GUARDIAN -> builder
+                    .add(Attributes.MAX_HEALTH, 24.0)
+                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.MOVEMENT_SPEED, 0.29)
+                    .add(Attributes.ATTACK_DAMAGE, 8.0)
+                    .add(Attributes.ARMOR, 2.0);
             case BONE_LORD -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
                     .add(Attributes.FOLLOW_RANGE, 40.0)
@@ -121,14 +129,14 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                 }
             }
             // MITE longdead carry an ancient-metal bow or sword at even odds.
-            case LONGDEAD -> equip(
+            case LONGDEAD, LONGDEAD_GUARDIAN -> equip(
                     InfxMaterial.ANCIENT_METAL,
                     false,
                     random.nextBoolean() ? EquipmentType.BOW : EquipmentType.SWORD);
             case BONE_LORD -> equip(InfxMaterial.RUSTED_IRON, true, lordWeapon(level.getLevel()));
             case ANCIENT_BONE_LORD -> equip(InfxMaterial.ANCIENT_METAL, true, lordWeapon(level.getLevel()));
         }
-        if (variant() == Variant.LONGDEAD) {
+        if (variant() == Variant.LONGDEAD || variant() == Variant.LONGDEAD_GUARDIAN) {
             // MITE longdead drop their armor pieces at a quarter of the usual chance.
             for (EquipmentSlot slot : new EquipmentSlot[] {
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
@@ -194,7 +202,9 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         ItemStack bow = getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof BowItem));
         // MITE skeletons loose rusted-iron arrows; longdead loose ancient-metal arrows.
         ItemStack ammunition = equipment(
-                variant() == Variant.LONGDEAD ? InfxMaterial.ANCIENT_METAL : InfxMaterial.RUSTED_IRON,
+                variant() == Variant.LONGDEAD || variant() == Variant.LONGDEAD_GUARDIAN
+                        ? InfxMaterial.ANCIENT_METAL
+                        : InfxMaterial.RUSTED_IRON,
                 EquipmentType.ARROW);
         AbstractArrow arrow = getArrow(ammunition, power, bow);
         if (bow.getItem() instanceof ProjectileWeaponItem weapon) {
@@ -515,7 +525,9 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     @Override
     protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
-        if ((variant() == Variant.LONGDEAD || variant() == Variant.ANCIENT_BONE_LORD)
+        if ((variant() == Variant.LONGDEAD
+                        || variant() == Variant.LONGDEAD_GUARDIAN
+                        || variant() == Variant.ANCIENT_BONE_LORD)
                 && random.nextFloat() < (killedByPlayer ? 0.50F : 0.25F)) {
             spawnAtLocation(level, InfXItems.ANCIENT_METAL_INGOT.toStack());
         }

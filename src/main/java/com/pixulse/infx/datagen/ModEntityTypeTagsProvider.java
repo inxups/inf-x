@@ -27,6 +27,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
         tag(EntityTypeTags.SKELETONS).add(
                 InfXEntityTypes.INFX_SKELETON.getKey(),
                 InfXEntityTypes.LONGDEAD.getKey(),
+                InfXEntityTypes.LONGDEAD_GUARDIAN.getKey(),
                 InfXEntityTypes.BONE_LORD.getKey(),
                 InfXEntityTypes.ANCIENT_BONE_LORD.getKey());
         // MITE nightwings are undead bats; the zombie/skeleton families join UNDEAD through their family tags.
@@ -37,6 +38,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
                 InfXEntityTypes.REVENANT.getKey(),
                 InfXEntityTypes.INFX_SKELETON.getKey(),
                 InfXEntityTypes.LONGDEAD.getKey(),
+                InfXEntityTypes.LONGDEAD_GUARDIAN.getKey(),
                 InfXEntityTypes.BONE_LORD.getKey(),
                 InfXEntityTypes.ANCIENT_BONE_LORD.getKey());
 
