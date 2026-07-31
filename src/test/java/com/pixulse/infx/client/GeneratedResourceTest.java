@@ -21,6 +21,7 @@ import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
+import com.pixulse.infx.world.Underworld;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -1657,7 +1658,7 @@ class GeneratedResourceTest {
         JsonArray underworldDungeonFeatures = biome.getAsJsonArray("features")
                 .get(GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal())
                 .getAsJsonArray();
-        JsonArray underworldNaturalFeatures = biome.getAsJsonArray("features")
+        JsonArray underworldDecorationFeatures = biome.getAsJsonArray("features")
                 .get(GenerationStep.Decoration.UNDERGROUND_DECORATION.ordinal())
                 .getAsJsonArray();
         JsonObject configuredDungeon = json(GENERATED.resolve(
@@ -1749,6 +1750,28 @@ class GeneratedResourceTest {
                 () -> assertEquals(
                         Set.of(
                                 "infx:underworld_dungeon",
+                                "infx:underworld_copper_ore_low",
+                                "infx:underworld_copper_ore_full",
+                                "infx:underworld_silver_ore_low",
+                                "infx:underworld_silver_ore_full",
+                                "infx:underworld_gold_ore_low",
+                                "infx:underworld_gold_ore_full",
+                                "infx:underworld_iron_ore_low",
+                                "infx:underworld_iron_ore_full",
+                                "infx:underworld_mithril_ore_low",
+                                "infx:underworld_mithril_ore_full",
+                                "infx:underworld_adamantium_ore_low",
+                                "infx:underworld_adamantium_ore_full",
+                                "infx:underworld_redstone_ore_low",
+                                "infx:underworld_redstone_ore_full",
+                                "infx:underworld_diamond_ore_low",
+                                "infx:underworld_diamond_ore_full",
+                                "infx:underworld_lapis_ore_low",
+                                "infx:underworld_lapis_ore_full",
+                                "infx:underworld_silverfish_low",
+                                "infx:underworld_silverfish_full",
+                                "infx:underworld_gravel_low",
+                                "infx:underworld_gravel_full",
                                 "infx:underworld_mycelium",
                                 "infx:underworld_brown_mushroom",
                                 "infx:underworld_liquid_source"),
@@ -1768,13 +1791,11 @@ class GeneratedResourceTest {
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/configured_feature/mithril_ore.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/configured_feature/underworld_adamantium_ore.json"))),
-                () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/placed_feature/silver_ore.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/worldgen/placed_feature/mithril_ore.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
-                        "data/infx/worldgen/placed_feature/underworld_adamantium_ore.json"))),
+                        "data/infx/neoforge/biome_modifier/add_underworld_ores.json"))),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
                         "data/infx/loot_modifiers/underworld_dungeon.json"))));
 
@@ -1816,13 +1837,38 @@ class GeneratedResourceTest {
                         .get("type")
                         .getAsString()));
 
+        List<String> oreFeatureIds = List.of(
+                "underworld_copper_ore_low",
+                "underworld_copper_ore_full",
+                "underworld_silver_ore_low",
+                "underworld_silver_ore_full",
+                "underworld_gold_ore_low",
+                "underworld_gold_ore_full",
+                "underworld_iron_ore_low",
+                "underworld_iron_ore_full",
+                "underworld_mithril_ore_low",
+                "underworld_mithril_ore_full",
+                "underworld_adamantium_ore_low",
+                "underworld_adamantium_ore_full",
+                "underworld_redstone_ore_low",
+                "underworld_redstone_ore_full",
+                "underworld_diamond_ore_low",
+                "underworld_diamond_ore_full",
+                "underworld_lapis_ore_low",
+                "underworld_lapis_ore_full",
+                "underworld_silverfish_low",
+                "underworld_silverfish_full",
+                "underworld_gravel_low",
+                "underworld_gravel_full");
         List<String> naturalFeatureIds = List.of(
                 "underworld_mycelium",
                 "underworld_brown_mushroom",
                 "underworld_liquid_source");
         assertEquals(
-                naturalFeatureIds.stream().map(id -> "infx:" + id).toList(),
-                underworldNaturalFeatures.asList().stream().map(JsonElement::getAsString).toList());
+                Stream.concat(oreFeatureIds.stream(), naturalFeatureIds.stream())
+                        .map(id -> "infx:" + id)
+                        .toList(),
+                underworldDecorationFeatures.asList().stream().map(JsonElement::getAsString).toList());
         for (String featureId : naturalFeatureIds) {
             JsonObject configured = json(GENERATED.resolve(
                     "data/infx/worldgen/configured_feature/" + featureId + ".json"));
@@ -1842,6 +1888,33 @@ class GeneratedResourceTest {
                     () -> assertEquals("minecraft:biome", placement.get(1).getAsJsonObject()
                             .get("type")
                             .getAsString()));
+        }
+
+        Map<String, UnderworldOreExpectation> underworldOres = Map.ofEntries(
+                Map.entry("copper_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 6, 24, 8, "minecraft:copper_ore", "minecraft:deepslate_copper_ore")),
+                Map.entry("silver_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 6, 6, 2, "infx:silver_ore", "infx:deepslate_silver_ore")),
+                Map.entry("gold_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 4, 12, 4, "minecraft:gold_ore", "minecraft:deepslate_gold_ore")),
+                Map.entry("iron_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 6, 36, 12, "minecraft:iron_ore", "minecraft:deepslate_iron_ore")),
+                Map.entry("mithril_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 3, 6, 2, "infx:mithril_ore", "infx:deepslate_mithril_ore")),
+                Map.entry("adamantium_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 3, 8, 0, "infx:adamantium_ore", "infx:deepslate_adamantium_ore")),
+                Map.entry("redstone_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 5, 6, 2, "minecraft:redstone_ore", "minecraft:deepslate_redstone_ore")),
+                Map.entry("diamond_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 3, 3, 1, "minecraft:diamond_ore", "minecraft:deepslate_diamond_ore")),
+                Map.entry("lapis_ore", new UnderworldOreExpectation(
+                        "minecraft:ore", 3, 3, 1, "minecraft:lapis_ore", "minecraft:deepslate_lapis_ore")),
+                Map.entry("silverfish", new UnderworldOreExpectation(
+                        "minecraft:ore", 3, 0, 40, "minecraft:infested_stone", "minecraft:infested_deepslate")),
+                Map.entry("gravel", new UnderworldOreExpectation(
+                        "infx:underworld_supported_gravel", 32, 0, 30, "minecraft:gravel", "minecraft:gravel")));
+        for (Map.Entry<String, UnderworldOreExpectation> entry : underworldOres.entrySet()) {
+            assertUnderworldOre(entry.getKey(), entry.getValue());
         }
 
         for (String strataNoise : List.of(
@@ -2935,6 +3008,85 @@ class GeneratedResourceTest {
                         .get("type")
                         .getAsString()));
     }
+
+    private static void assertUnderworldOre(String ore, UnderworldOreExpectation expected) throws IOException {
+        JsonObject configured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/underworld_" + ore + ".json"));
+        JsonObject config = configured.getAsJsonObject("config");
+        JsonArray targets = config.getAsJsonArray("targets");
+        JsonObject stoneTarget = targets.get(0).getAsJsonObject();
+        JsonObject deepslateTarget = targets.get(1).getAsJsonObject();
+        assertAll(
+                ore,
+                () -> assertEquals(expected.featureType(), configured.get("type").getAsString()),
+                () -> assertEquals(expected.size(), config.get("size").getAsInt()),
+                () -> assertEquals(0.0F, config.get("discard_chance_on_air_exposure").getAsFloat()),
+                () -> assertEquals(2, targets.size()),
+                () -> assertEquals(expected.stoneState(), stoneTarget.getAsJsonObject("state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals("minecraft:block_match", stoneTarget.getAsJsonObject("target")
+                        .get("predicate_type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:stone", stoneTarget.getAsJsonObject("target")
+                        .get("block")
+                        .getAsString()),
+                () -> assertEquals(expected.deepslateState(), deepslateTarget.getAsJsonObject("state")
+                        .get("Name")
+                        .getAsString()),
+                () -> assertEquals("minecraft:block_match", deepslateTarget.getAsJsonObject("target")
+                        .get("predicate_type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:deepslate", deepslateTarget.getAsJsonObject("target")
+                        .get("block")
+                        .getAsString()));
+        assertUnderworldOrePlacement(ore, "low", expected.lowCount(), Underworld.MIN_Y, Underworld.ORE_LOW_MAX_Y_INCLUSIVE,
+                expected.size());
+        assertUnderworldOrePlacement(ore, "full", expected.fullCount(), Underworld.MIN_Y, Underworld.ORE_MAX_Y_INCLUSIVE,
+                expected.size());
+    }
+
+    private static void assertUnderworldOrePlacement(
+            String ore, String range, int count, int minY, int maxY, int size) throws IOException {
+        JsonObject placed = json(GENERATED.resolve(
+                "data/infx/worldgen/placed_feature/underworld_" + ore + "_" + range + ".json"));
+        JsonArray placement = placed.getAsJsonArray("placement");
+        JsonObject frequency = placement.get(0).getAsJsonObject();
+        JsonObject height = placement.get(2).getAsJsonObject().getAsJsonObject("height");
+        JsonObject configured = json(GENERATED.resolve(
+                "data/infx/worldgen/configured_feature/underworld_" + ore + ".json"));
+        assertAll(
+                ore + " " + range,
+                () -> assertEquals("infx:underworld_" + ore, placed.get("feature").getAsString()),
+                () -> assertEquals(4, placement.size()),
+                () -> assertEquals("minecraft:count", frequency.get("type").getAsString()),
+                () -> assertEquals(count, frequency.get("count").getAsInt()),
+                () -> assertEquals("minecraft:in_square", placement.get(1).getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:height_range", placement.get(2).getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:uniform", height.get("type").getAsString()),
+                () -> assertEquals(minY, height.getAsJsonObject("min_inclusive")
+                        .get("absolute")
+                        .getAsInt()),
+                () -> assertEquals(maxY, height.getAsJsonObject("max_inclusive")
+                        .get("absolute")
+                        .getAsInt()),
+                () -> assertEquals("minecraft:biome", placement.get(3).getAsJsonObject()
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals(size, configured.getAsJsonObject("config").get("size").getAsInt()));
+    }
+
+    private record UnderworldOreExpectation(
+            String featureType,
+            int size,
+            int lowCount,
+            int fullCount,
+            String stoneState,
+            String deepslateState) {}
 
     private record OverworldOreExpectation(
             int size,

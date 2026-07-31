@@ -28,6 +28,40 @@ class UnderworldTest {
         assertEquals(-72, Underworld.BEDROCK_STRATUM_TWO_CENTER_Y);
         assertEquals(-16, Underworld.BEDROCK_STRATUM_THREE_CENTER_Y);
         assertEquals(99, Underworld.BEDROCK_STRATUM_FOUR_CENTER_Y);
+        assertEquals(135, Underworld.ORE_LOW_MAX_Y_INCLUSIVE);
+        assertEquals(247, Underworld.ORE_MAX_Y_INCLUSIVE);
+        assertEquals(24, Underworld.COPPER_ORE_LOW_COUNT);
+        assertEquals(8, Underworld.COPPER_ORE_FULL_COUNT);
+        assertEquals(6, Underworld.COPPER_ORE_SIZE);
+        assertEquals(6, Underworld.SILVER_ORE_LOW_COUNT);
+        assertEquals(2, Underworld.SILVER_ORE_FULL_COUNT);
+        assertEquals(6, Underworld.SILVER_ORE_SIZE);
+        assertEquals(12, Underworld.GOLD_ORE_LOW_COUNT);
+        assertEquals(4, Underworld.GOLD_ORE_FULL_COUNT);
+        assertEquals(4, Underworld.GOLD_ORE_SIZE);
+        assertEquals(36, Underworld.IRON_ORE_LOW_COUNT);
+        assertEquals(12, Underworld.IRON_ORE_FULL_COUNT);
+        assertEquals(6, Underworld.IRON_ORE_SIZE);
+        assertEquals(6, Underworld.MITHRIL_ORE_LOW_COUNT);
+        assertEquals(2, Underworld.MITHRIL_ORE_FULL_COUNT);
+        assertEquals(3, Underworld.MITHRIL_ORE_SIZE);
+        assertEquals(8, Underworld.ADAMANTIUM_ORE_LOW_COUNT);
+        assertEquals(3, Underworld.ADAMANTIUM_ORE_SIZE);
+        assertEquals(6, Underworld.REDSTONE_ORE_LOW_COUNT);
+        assertEquals(2, Underworld.REDSTONE_ORE_FULL_COUNT);
+        assertEquals(5, Underworld.REDSTONE_ORE_SIZE);
+        assertEquals(3, Underworld.DIAMOND_ORE_LOW_COUNT);
+        assertEquals(1, Underworld.DIAMOND_ORE_FULL_COUNT);
+        assertEquals(3, Underworld.DIAMOND_ORE_SIZE);
+        assertEquals(3, Underworld.LAPIS_ORE_LOW_COUNT);
+        assertEquals(1, Underworld.LAPIS_ORE_FULL_COUNT);
+        assertEquals(3, Underworld.LAPIS_ORE_SIZE);
+        assertEquals(0, Underworld.SILVERFISH_LOW_COUNT);
+        assertEquals(40, Underworld.SILVERFISH_FULL_COUNT);
+        assertEquals(3, Underworld.SILVERFISH_SIZE);
+        assertEquals(0, Underworld.GRAVEL_LOW_COUNT);
+        assertEquals(30, Underworld.GRAVEL_FULL_COUNT);
+        assertEquals(32, Underworld.GRAVEL_SIZE);
     }
 
     @Test
