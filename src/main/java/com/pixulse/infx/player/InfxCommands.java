@@ -21,7 +21,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class InfxCommands {
     public static final String ROOT = "infx";
-    public static final List<String> NAMES = List.of("infx day", "infx villages");
+    public static final List<String> NAMES = List.of("infx day", "infx villages", "infx xp");
 
     private InfxCommands() {}
 
@@ -38,6 +38,11 @@ public final class InfxCommands {
                     return reply(context, "Village generation: day " + day + "/60; world iron-tier milestone: "
                             + (ironTool ? "yes" : "no") + "; unlocked: "
                             + VillageProgression.generationUnlocked(player.level()));
+                }))
+                .then(Commands.literal("xp").executes(context -> {
+                    ServerPlayer player = player(context);
+                    return reply(context, experienceMessage(
+                            player.totalExperience, player.experienceLevel, player.experienceProgress));
                 })));
     }
 
@@ -48,6 +53,11 @@ public final class InfxCommands {
     private static int reply(CommandContext<CommandSourceStack> context, String message) {
         context.getSource().sendSuccess(() -> Component.literal(message), false);
         return 1;
+    }
+
+    static String experienceMessage(int totalExperience, int level, float progress) {
+        return "Experience: total " + totalExperience + "; level " + level
+                + "; progress " + Math.round(progress * 100.0F) + "%";
     }
 
     private static final class InfxMonsterDay {
