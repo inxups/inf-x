@@ -32,9 +32,14 @@ public final class RiverBiomes {
                         .parameters()
                         .values()
                         .stream()
+                        .filter(pair -> !isRemovedFromOverworld(pair.getSecond()))
                         .flatMap(pair -> replaceRiver(pair.getFirst(), pair.getSecond(), biomes))
                         .toList();
         return MultiNoiseBiomeSource.createFromList(new Climate.ParameterList<>(values));
+    }
+
+    static boolean isRemovedFromOverworld(Holder<Biome> biome) {
+        return biome.is(Biomes.DEEP_DARK) || biome.is(Biomes.MUSHROOM_FIELDS);
     }
 
     private static Stream<Pair<Climate.ParameterPoint, Holder<Biome>>> replaceRiver(

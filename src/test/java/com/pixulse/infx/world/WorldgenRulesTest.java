@@ -1,11 +1,17 @@
 package com.pixulse.infx.world;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.event.StructureSafetyEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.registries.VanillaRegistries;
+import net.minecraft.world.level.biome.Biomes;
 import org.junit.jupiter.api.Test;
 
 class WorldgenRulesTest {
@@ -15,6 +21,16 @@ class WorldgenRulesTest {
         assertEquals(RiverBiomes.JUNGLE_RIVER, RiverBiomes.select(.3F, .6F));
         assertEquals(RiverBiomes.SWAMP_RIVER, RiverBiomes.select(-.2F, .6F));
         assertNull(RiverBiomes.select(0.0F, 0.0F));
+    }
+
+    @Test
+    void deepDarkAndMushroomFieldsAreExcludedFromOverworldGeneration() {
+        HolderLookup.Provider registries = VanillaRegistries.createLookup();
+        var biomes = registries.lookupOrThrow(Registries.BIOME);
+
+        assertTrue(RiverBiomes.isRemovedFromOverworld(biomes.getOrThrow(Biomes.DEEP_DARK)));
+        assertTrue(RiverBiomes.isRemovedFromOverworld(biomes.getOrThrow(Biomes.MUSHROOM_FIELDS)));
+        assertFalse(RiverBiomes.isRemovedFromOverworld(biomes.getOrThrow(Biomes.PLAINS)));
     }
 
     @Test
