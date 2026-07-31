@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Blocks dedicated-server administration entry points outside test mode. */
+/** Restricts dedicated-server command entry points outside test mode. */
 @Mixin(DedicatedServer.class)
 public abstract class DedicatedServerMixin {
     private static final Component MANAGEMENT_DISABLED =
@@ -40,14 +40,14 @@ public abstract class DedicatedServerMixin {
 
     @Inject(method = "handleConsoleInput", at = @At("HEAD"), cancellable = true)
     private void rejectConsoleCommands(String msg, CommandSourceStack source, CallbackInfo callback) {
-        if (!ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isEnabled())) {
+        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isEnabled(), msg)) {
             callback.cancel();
         }
     }
 
     @Inject(method = "runCommand", at = @At("HEAD"), cancellable = true)
     private void rejectRemoteCommands(String command, CallbackInfoReturnable<String> callback) {
-        if (!ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isEnabled())) {
+        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isEnabled(), command)) {
             callback.setReturnValue(MANAGEMENT_DISABLED.getString());
         }
     }

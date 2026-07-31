@@ -551,8 +551,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "InfiniteX test mode must match the server"
                 : "InfiniteX 测试模式必须与服务端一致");
         add("message.infx.server_management_disabled", locale == Locale.EN_US
-                ? "Server management commands are disabled outside InfiniteX test mode"
-                : "非 InfiniteX 测试模式下禁用服务端管理命令");
+                ? "This server command is disabled outside InfiniteX test mode"
+                : "该服务端命令在非 InfiniteX 测试模式下被禁用");
         add("message.infx.world_first", locale == Locale.EN_US
                 ? "%s was first to earn %s on day %s"
                 : "%s 首个完成 %s（第 %s 天）");
