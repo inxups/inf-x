@@ -3,6 +3,7 @@ package com.pixulse.infx.datagen;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
+import com.pixulse.infx.registry.InfXFeatures;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
 import com.pixulse.infx.world.InfXUnderworldBedrockStrata;
 import com.pixulse.infx.world.InfXUnderworldChunkGenerator;
@@ -70,6 +71,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.data.worldgen.features.OreFeatures;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
@@ -111,6 +113,8 @@ public final class ModWorldGen {
     private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
     private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_DUNGEON_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_dungeon"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COAL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COPPER_ORE_CONFIGURED =
@@ -154,6 +158,8 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COAL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_coal_ore"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_DUNGEON_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_dungeon"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COPPER_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_copper_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_IRON_ORE_PLACED =
@@ -258,6 +264,9 @@ public final class ModWorldGen {
     }
 
     private static void bootstrapConfiguredFeatures(BootstrapContext<ConfiguredFeature<?, ?>> context) {
+        context.register(
+                UNDERWORLD_DUNGEON_CONFIGURED,
+                new ConfiguredFeature<>(InfXFeatures.UNDERWORLD_DUNGEON.get(), NoneFeatureConfiguration.INSTANCE));
         context.register(
                 OreFeatures.ORE_GRAVEL_NETHER,
                 new ConfiguredFeature<>(
@@ -429,6 +438,17 @@ public final class ModWorldGen {
     private static void bootstrapPlacedFeatures(BootstrapContext<PlacedFeature> context) {
         HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures =
                 context.lookup(Registries.CONFIGURED_FEATURE);
+        context.register(
+                UNDERWORLD_DUNGEON_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(UNDERWORLD_DUNGEON_CONFIGURED),
+                        List.of(
+                                CountPlacement.of(16),
+                                InSquarePlacement.spread(),
+                                RandomOffsetPlacement.horizontal(ConstantInt.of(8)),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(140), VerticalAnchor.absolute(171)),
+                                BiomeFilter.biome())));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
@@ -627,8 +647,8 @@ public final class ModWorldGen {
         context.register(
                 RiverBiomes.SWAMP_RIVER,
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
-        // Keep the initial Underworld baseline free of carvers and placed features.
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, UNDERWORLD_DUNGEON_PLACED);
 
         context.register(
                 Underworld.BIOME,
