@@ -57,6 +57,8 @@ import org.jspecify.annotations.NonNull;
 final class ModModelProvider extends ModelProvider {
     private static final TextureSlot ANVIL_BODY = TextureSlot.create("body");
     private static final TextureSlot PORTAL = TextureSlot.create("portal");
+    private static final Identifier UNDERWORLD_PORTAL_NS = InfiniteX.id("block/underworld_portal_ns");
+    private static final Identifier UNDERWORLD_PORTAL_EW = InfiniteX.id("block/underworld_portal_ew");
     private static final Identifier RUNE_GATE_NS = InfiniteX.id("block/underworld_portal_runegate_ns");
     private static final Identifier RUNE_GATE_EW = InfiniteX.id("block/underworld_portal_runegate_ew");
     private static final ModelTemplate METAL_ANVIL_MODEL = new ModelTemplate(
@@ -71,6 +73,16 @@ final class ModModelProvider extends ModelProvider {
             PORTAL);
     private static final ModelTemplate RUNE_GATE_EW_MODEL = new ModelTemplate(
             Optional.of(InfiniteX.id("block/template_runegate_portal_ew")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            PORTAL);
+    private static final ModelTemplate TINTED_PORTAL_NS_MODEL = new ModelTemplate(
+            Optional.of(InfiniteX.id("block/template_tinted_portal_ns")),
+            Optional.empty(),
+            TextureSlot.PARTICLE,
+            PORTAL);
+    private static final ModelTemplate TINTED_PORTAL_EW_MODEL = new ModelTemplate(
+            Optional.of(InfiniteX.id("block/template_tinted_portal_ew")),
             Optional.empty(),
             TextureSlot.PARTICLE,
             PORTAL);
@@ -349,15 +361,19 @@ final class ModModelProvider extends ModelProvider {
                 .put(PORTAL, runegate);
         RUNE_GATE_NS_MODEL.create(RUNE_GATE_NS, textures, blockModels.modelOutput);
         RUNE_GATE_EW_MODEL.create(RUNE_GATE_EW, textures, blockModels.modelOutput);
-        var vanillaNs = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ns"));
-        var vanillaEw = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(Blocks.NETHER_PORTAL, "_ew"));
+        Material underworldPortal = new Material(InfiniteX.id("block/portal"));
+        TextureMapping underworldTextures = new TextureMapping()
+                .put(TextureSlot.PARTICLE, underworldPortal)
+                .put(PORTAL, underworldPortal);
+        Identifier underworldNs = TINTED_PORTAL_NS_MODEL.create(
+                UNDERWORLD_PORTAL_NS, underworldTextures, blockModels.modelOutput);
+        Identifier underworldEw = TINTED_PORTAL_EW_MODEL.create(
+                UNDERWORLD_PORTAL_EW, underworldTextures, blockModels.modelOutput);
         blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(InfXBlocks.UNDERWORLD_PORTAL.value())
                 .with(PropertyDispatch.initial(
                                 BlockStateProperties.HORIZONTAL_AXIS, UnderworldPortalBlock.RUNE_GATE)
-                        .select(Direction.Axis.X, false, vanillaNs)
-                        .select(Direction.Axis.Z, false, vanillaEw)
+                        .select(Direction.Axis.X, false, BlockModelGenerators.plainVariant(underworldNs))
+                        .select(Direction.Axis.Z, false, BlockModelGenerators.plainVariant(underworldEw))
                         .select(Direction.Axis.X, true, BlockModelGenerators.plainVariant(RUNE_GATE_NS))
                                 .select(Direction.Axis.Z, true, BlockModelGenerators.plainVariant(RUNE_GATE_EW))));
     }
@@ -370,7 +386,7 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateRedNetherPortal(BlockModelGenerators blockModels) {
-        Material portal = new Material(InfiniteX.id("block/nether_portal"));
+        Material portal = new Material(InfiniteX.id("block/portal"));
         TextureMapping textures = new TextureMapping()
                 .put(TextureSlot.PARTICLE, portal)
                 .put(PORTAL, portal);

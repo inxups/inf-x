@@ -75,7 +75,7 @@ public final class RunegateAnimation {
     }
 
     private static int colorFor(ResourceKey<Level> dimension) {
-        return RunegateColors.rgbFor(dimension);
+        return PortalDestinationColors.rgbFor(dimension);
     }
 
     private static void start() {
