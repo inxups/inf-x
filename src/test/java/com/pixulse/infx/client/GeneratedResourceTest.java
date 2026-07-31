@@ -181,7 +181,6 @@ class GeneratedResourceTest {
         Map<String, int[]> expectedUnderworldMonsters = Map.ofEntries(
                 Map.entry("infx:infx_spider", new int[] {80, 1, 2}),
                 Map.entry("infx:infx_creeper", new int[] {100, 1, 2}),
-                Map.entry("infx:infx_slime", new int[] {100, 1, 4}),
                 Map.entry("infx:infx_enderman", new int[] {10, 1, 1}),
                 Map.entry("infx:wight", new int[] {10, 1, 1}),
                 Map.entry("infx:invisible_stalker", new int[] {10, 1, 1}),
@@ -1782,7 +1781,7 @@ class GeneratedResourceTest {
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
                 () -> assertEquals(
-                        20,
+                        19,
                         biome.getAsJsonObject("spawners").getAsJsonArray("monster").size(),
                         "Underworld monster spawn table"),
                 () -> assertTrue(
