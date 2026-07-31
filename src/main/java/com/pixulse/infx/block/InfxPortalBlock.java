@@ -1,6 +1,5 @@
 package com.pixulse.infx.block;
 
-import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXParticles;
 import com.pixulse.infx.registry.InfXPoiTypes;
 import com.pixulse.infx.world.RunegateTeleportation;
@@ -430,14 +429,13 @@ public class InfxPortalBlock extends NetherPortalBlock {
                 .map(portal -> findPortalExit(level, portal));
     }
 
-    /** Migrates a compatible pre-split portal only after no dedicated destination was found. */
+    /** Migrates a compatible vanilla portal only after no dedicated destination was found. */
     private Optional<BlockPos> findLegacyArrivalPortal(ServerLevel level, BlockPos preferred, int searchRadius) {
         return findClosestPortal(
                         level,
                         preferred,
                         searchRadius,
-                        holder -> holder.is(PoiTypes.NETHER_PORTAL)
-                                || holder.is(InfXPoiTypes.UNDERWORLD_PORTAL),
+                        holder -> holder.is(PoiTypes.NETHER_PORTAL),
                         portal -> isLegacyPortalFor(level, portal))
                 .map(portal -> {
                     UnderworldPortalEvents.replaceConnectedPortal(level, portal, portalType);
@@ -481,16 +479,8 @@ public class InfxPortalBlock extends NetherPortalBlock {
     }
 
     private boolean isLegacyPortalFor(ServerLevel level, BlockPos portal) {
-        BlockState state = level.getBlockState(portal);
-        if (!state.is(Blocks.NETHER_PORTAL) && !state.is(InfXBlocks.UNDERWORLD_PORTAL.get())) {
-            return false;
-        }
-        if (state.is(InfXBlocks.UNDERWORLD_PORTAL.get())
-                && (state.getValue(UnderworldPortalBlock.RUNE_GATE)
-                        || UnderworldPortalBlock.hasRuneGate(level, portal))) {
-            return false;
-        }
-        return UnderworldPortalEvents.portalTypeFor(level, portal) == portalType;
+        return level.getBlockState(portal).is(Blocks.NETHER_PORTAL)
+                && UnderworldPortalEvents.portalTypeFor(level, portal) == portalType;
     }
 
     private BlockPos findPortalExit(ServerLevel level, BlockPos portal) {

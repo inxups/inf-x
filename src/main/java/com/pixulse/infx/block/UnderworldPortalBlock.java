@@ -4,7 +4,6 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXParticles;
-import com.pixulse.infx.event.UnderworldPortalEvents;
 import com.pixulse.infx.world.RunegateTeleportation;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -49,8 +48,7 @@ public final class UnderworldPortalBlock extends InfxPortalBlock {
     public int getPortalTransitionTime(@NonNull ServerLevel level, @NonNull Entity entity) {
         if (entity instanceof ServerPlayer player && player.portalProcess != null) {
             BlockPos entry = player.portalProcess.getEntryPosition();
-            if (hasRuneGate(level, entry)
-                    || UnderworldPortalEvents.portalTypeFor(level, entry) == PortalType.RETURN_SPAWN) {
+            if (hasRuneGate(level, entry)) {
                 return INFX_RUNEGATE_ENTRY_TICKS;
             }
         }
@@ -72,14 +70,6 @@ public final class UnderworldPortalBlock extends InfxPortalBlock {
                 return null;
             }
             return transition;
-        }
-
-        // Worlds saved before portal types were split still contain this one legacy block.
-        PortalType legacyType = UnderworldPortalEvents.portalTypeFor(currentLevel, portalEntryPos);
-        if (legacyType != null && legacyType != PortalType.UNDERWORLD) {
-            UnderworldPortalEvents.replaceConnectedPortal(currentLevel, portalEntryPos, legacyType);
-            return UnderworldPortalEvents.portalBlock(legacyType)
-                    .getPortalDestination(currentLevel, entity, portalEntryPos);
         }
         return super.getPortalDestination(currentLevel, entity, portalEntryPos);
     }

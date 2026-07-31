@@ -609,6 +609,27 @@ public final class ModCompletionGameTests {
                 helper.getLevel().getBlockState(arrival.relative(net.minecraft.core.Direction.NORTH))
                         .is(InfXBlocks.UNDERWORLD_PORTAL.get()),
                 "arrival is beside the target portal");
+        BlockPos arrivalSurface = arrival.relative(Direction.NORTH);
+        helper.assertFalse(
+                UnderworldPortalEvents.frameRestsOnBottomBedrock(helper.getLevel(), arrivalSurface),
+                "generated Overworld arrival does not need bottom-bedrock support");
+        helper.assertTrue(
+                InfXBlocks.UNDERWORLD_PORTAL.get()
+                                .getPortalDestination(helper.getLevel(), portalProbe, arrivalSurface)
+                        == null,
+                "generated Overworld arrival keeps the missing Underworld target instead of routing to spawn");
+        helper.assertTrue(
+                helper.getLevel().getBlockState(arrivalSurface).is(InfXBlocks.UNDERWORLD_PORTAL.get()),
+                "using a generated Overworld arrival must not reclassify its dedicated portal surface");
+
+        BlockPos separateReturnArrival = InfXBlocks.RETURN_SPAWN_PORTAL.get()
+                .findOrCreateArrivalPortal(helper.getLevel(), arrivalSurface);
+        helper.assertTrue(
+                helper.getLevel().getBlockState(arrivalSurface).is(InfXBlocks.UNDERWORLD_PORTAL.get()),
+                "legacy lookup must not claim a dedicated Underworld portal");
+        helper.assertTrue(
+                hasAdjacentPortal(helper, separateReturnArrival, InfXBlocks.RETURN_SPAWN_PORTAL.get()),
+                "return-spawn lookup creates a separate portal when only a dedicated Underworld portal is nearby");
         int underworldSurfaces = countPortalSurfaces(
                 helper,
                 InfXBlocks.UNDERWORLD_PORTAL.get(),
