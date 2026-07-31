@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.sounds.SoundEvents;
@@ -137,6 +138,11 @@ public final class InfXItems {
             ITEMS.registerSimpleBlockItem(InfXBlocks.ADAMANTIUM_WORKBENCH);
     public static final DeferredItem<BlockItem> OBSIDIAN_WORKBENCH =
             ITEMS.registerSimpleBlockItem(InfXBlocks.OBSIDIAN_WORKBENCH);
+    public static final List<DeferredItem<BlockItem>> STRIPPED_LOG_WORKBENCHES = InfXBlocks.STRIPPED_LOG_WORKBENCHES.stream()
+            .flatMap(workbench -> Stream.of(
+                    ITEMS.registerSimpleBlockItem(workbench.flint()),
+                    ITEMS.registerSimpleBlockItem(workbench.obsidian())))
+            .toList();
     public static final DeferredItem<BlockItem> CLAY_FURNACE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> SANDSTONE_FURNACE =
@@ -148,16 +154,20 @@ public final class InfXItems {
     public static final DeferredItem<BlockItem> NETHERRACK_FURNACE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.NETHERRACK_FURNACE, properties -> properties.stacksTo(1));
 
-    public static final List<DeferredItem<BlockItem>> WORKBENCHES = List.of(
-            FLINT_WORKBENCH,
-            COPPER_WORKBENCH,
-            SILVER_WORKBENCH,
-            GOLD_WORKBENCH,
-            IRON_WORKBENCH,
-            ANCIENT_METAL_WORKBENCH,
-            MITHRIL_WORKBENCH,
-            ADAMANTIUM_WORKBENCH,
-            OBSIDIAN_WORKBENCH);
+    public static final List<DeferredItem<BlockItem>> WORKBENCHES =
+            Stream.concat(
+                            Stream.of(
+                                    FLINT_WORKBENCH,
+                                    COPPER_WORKBENCH,
+                                    SILVER_WORKBENCH,
+                                    GOLD_WORKBENCH,
+                                    IRON_WORKBENCH,
+                                    ANCIENT_METAL_WORKBENCH,
+                                    MITHRIL_WORKBENCH,
+                                    ADAMANTIUM_WORKBENCH,
+                                    OBSIDIAN_WORKBENCH),
+                            STRIPPED_LOG_WORKBENCHES.stream())
+                    .toList();
 
     public static final List<DeferredItem<BlockItem>> FURNACES = List.of(
             CLAY_FURNACE,
