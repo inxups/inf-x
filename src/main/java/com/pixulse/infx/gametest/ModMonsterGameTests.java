@@ -570,11 +570,10 @@ public final class ModMonsterGameTests {
 
         MobSpawnSettings underworld = biomes.getOrThrow(Underworld.BIOME).value().getMobSettings();
         helper.assertTrue(
-                spawnTypes(underworld, MobCategory.MONSTER).size() == 20
+                spawnTypes(underworld, MobCategory.MONSTER).size() == 19
                         && Set.copyOf(spawnTypes(underworld, MobCategory.MONSTER)).equals(Set.of(
                                 InfXEntityTypes.INFX_SPIDER.get(),
                                 InfXEntityTypes.INFX_CREEPER.get(),
-                                InfXEntityTypes.INFX_SLIME.get(),
                                 InfXEntityTypes.INFX_ENDERMAN.get(),
                                 InfXEntityTypes.WIGHT.get(),
                                 InfXEntityTypes.INVISIBLE_STALKER.get(),
@@ -601,7 +600,6 @@ public final class ModMonsterGameTests {
         for (var type : List.of(
                 InfXEntityTypes.INFX_SPIDER,
                 InfXEntityTypes.INFX_CREEPER,
-                InfXEntityTypes.INFX_SLIME,
                 InfXEntityTypes.INFX_ENDERMAN,
                 InfXEntityTypes.WIGHT,
                 InfXEntityTypes.INVISIBLE_STALKER,
