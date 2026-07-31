@@ -42,17 +42,19 @@ public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConf
         int minX = SectionPos.sectionToBlockCoord(chunkX);
         int minZ = SectionPos.sectionToBlockCoord(chunkZ);
         long worldSeed = context.level().getSeed();
-        if (InfXUnderworldLushRegion.isLushRegion(worldSeed, chunkX, chunkZ)) {
+        if (isLushBiome(context.level(), minX + CHUNK_SIZE / 2, 0, minZ + CHUNK_SIZE / 2)) {
             return false;
         }
 
-        List<MyceliumPost> posts = nearbyPosts(worldSeed, chunkX, chunkZ);
+        List<MyceliumPost> posts = nearbyPosts(context.level(), worldSeed, chunkX, chunkZ);
         boolean placedAny = false;
 
         for (int x = minX; x < minX + CHUNK_SIZE; x++) {
             for (int z = minZ; z < minZ + CHUNK_SIZE; z++) {
                 for (MyceliumPost post : posts) {
-                    if (post.affects(x, z) && placeColumn(context.level(), x, z, post)) {
+                    if (post.affects(x, z)
+                            && !isLushBiome(context.level(), x, post.y(), z)
+                            && placeColumn(context.level(), x, z, post)) {
                         placedAny = true;
                         break;
                     }
@@ -72,12 +74,21 @@ public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConf
                     offsetZ <= Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE;
                     offsetZ++) {
                 postForChunk(worldSeed, chunkX + offsetX, chunkZ + offsetZ)
-                        .filter(post -> !InfXUnderworldLushRegion.isLushRegion(
-                                worldSeed, post.sourceChunkX(), post.sourceChunkZ()))
                         .ifPresent(posts::add);
             }
         }
         return posts;
+    }
+
+    private static List<MyceliumPost> nearbyPosts(
+            WorldGenLevel level, long worldSeed, int chunkX, int chunkZ) {
+        return nearbyPosts(worldSeed, chunkX, chunkZ).stream()
+                .filter(post -> !isLushBiome(
+                        level,
+                        SectionPos.sectionToBlockCoord(post.sourceChunkX()) + CHUNK_SIZE / 2,
+                        post.y(),
+                        SectionPos.sectionToBlockCoord(post.sourceChunkZ()) + CHUNK_SIZE / 2))
+                .toList();
     }
 
     static Optional<MyceliumPost> postForChunk(long worldSeed, int chunkX, int chunkZ) {
@@ -161,6 +172,10 @@ public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConf
         value = (value ^ value >>> 30) * 0xBF58_476D_1CE4_E5B9L;
         value = (value ^ value >>> 27) * 0x94D0_49BB_1331_11EBL;
         return value ^ value >>> 31;
+    }
+
+    private static boolean isLushBiome(WorldGenLevel level, int x, int y, int z) {
+        return level.getBiome(new BlockPos(x, y, z)).is(Underworld.LUSH_BIOME);
     }
 
     record MyceliumPost(long seed, int sourceChunkX, int sourceChunkZ, int x, int z, int y, int height) {

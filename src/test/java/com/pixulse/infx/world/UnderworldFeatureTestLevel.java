@@ -6,13 +6,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 
 /** Minimal in-memory world-generation level for feature behavior tests. */
 final class UnderworldFeatureTestLevel {
     private static final BlockState DEFAULT_STATE = Blocks.STONE.defaultBlockState();
+    private static final Holder<Biome> TEST_BIOME = Holder.direct(
+            new Biome.BiomeBuilder()
+                    .hasPrecipitation(false)
+                    .temperature(0.5F)
+                    .downfall(0.0F)
+                    .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
+                    .mobSpawnSettings(MobSpawnSettings.EMPTY)
+                    .generationSettings(BiomeGenerationSettings.EMPTY)
+                    .build());
 
     private final long seed;
     private final Map<BlockPos, BlockState> blocks = new HashMap<>();
@@ -52,6 +66,7 @@ final class UnderworldFeatureTestLevel {
                 this.scheduledTicks.add(((BlockPos) arguments[0]).immutable());
                 yield null;
             }
+            case "getBiome" -> TEST_BIOME;
             case "getSeed" -> this.seed;
             case "getMinY" -> Underworld.MIN_Y;
             case "getMaxY" -> Underworld.MAX_Y_EXCLUSIVE;

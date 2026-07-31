@@ -35,10 +35,7 @@ public final class InfXUnderworldBrownMushroomFeature extends Feature<NoneFeatur
                 minX + random.nextInt(CHUNK_SIZE) + CHUNK_OFFSET,
                 Underworld.TERRAIN_MIN_Y + random.nextInt(Underworld.TERRAIN_HEIGHT),
                 minZ + random.nextInt(CHUNK_SIZE) + CHUNK_OFFSET);
-        if (!shouldGenerateInRegion(
-                context.level().getSeed(),
-                SectionPos.blockToSectionCoord(origin.getX()),
-                SectionPos.blockToSectionCoord(origin.getZ()))) {
+        if (context.level().getBiome(mushroomPos).is(Underworld.LUSH_BIOME)) {
             return false;
         }
 
@@ -54,7 +51,4 @@ public final class InfXUnderworldBrownMushroomFeature extends Feature<NoneFeatur
         return roll == 0;
     }
 
-    static boolean shouldGenerateInRegion(long worldSeed, int chunkX, int chunkZ) {
-        return !InfXUnderworldLushRegion.isLushRegion(worldSeed, chunkX, chunkZ);
-    }
 }

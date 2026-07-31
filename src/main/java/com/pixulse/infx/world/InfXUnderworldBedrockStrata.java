@@ -43,6 +43,7 @@ public final class InfXUnderworldBedrockStrata {
     private InfXUnderworldBedrockStrata() {}
 
     public static void bootstrapNoiseParameters(BootstrapContext<NormalNoise.NoiseParameters> context) {
+        InfXUnderworldBiomeSource.bootstrapNoiseParameters(context);
         for (ResourceKey<NormalNoise.NoiseParameters> key : List.of(
                 STRATA_ONE_A,
                 STRATA_ONE_B,
