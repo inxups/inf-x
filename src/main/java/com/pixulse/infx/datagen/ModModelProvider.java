@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 import java.util.stream.Stream;
+import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -229,7 +230,11 @@ final class ModModelProvider extends ModelProvider {
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
             if (entry.key().material() == InfxMaterial.LEATHER
                     && entry.key().type().armorForm() == EquipmentType.ArmorForm.PLATE) {
-                itemModels.generateItemWithTintedBaseLayer(entry.holder().value(), DEFAULT_LEATHER_COLOR);
+                itemModels.itemModelOutput.accept(
+                        entry.holder().value(),
+                        ItemModelUtils.tintedModel(
+                                Identifier.withDefaultNamespace("item/" + entry.path()),
+                                new Dye(DEFAULT_LEATHER_COLOR)));
                 continue;
             }
             switch (entry.key().type().modelFamily()) {

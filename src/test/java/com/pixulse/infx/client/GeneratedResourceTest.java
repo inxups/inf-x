@@ -309,16 +309,21 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void everyCatalogItemHasDefinitionModelAndTwoTranslations() throws Exception {
+    void everyCatalogItemHasDefinitionModelOrVanillaReferenceAndTwoTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         for (Catalog.Entry entry : InfXItems.catalog().entries()) {
             Path definition = GENERATED.resolve("assets/infx/items/" + entry.path() + ".json");
             Path model = GENERATED.resolve("assets/infx/models/item/" + entry.path() + ".json");
+            boolean reusesVanillaLeatherModel = entry instanceof Catalog.EquipmentEntry equipment
+                    && equipment.key().material() == InfxMaterial.LEATHER
+                    && equipment.key().type().armorForm() == EquipmentType.ArmorForm.PLATE;
             assertAll(
                     entry.path(),
                     () -> assertTrue(Files.isRegularFile(definition), "missing item definition"),
-                    () -> assertTrue(Files.isRegularFile(model), "missing base model"),
+                    () -> assertTrue(
+                            reusesVanillaLeatherModel || Files.isRegularFile(model),
+                            "missing base model or vanilla model reference"),
                     () -> assertTrue(english.has("item.infx." + entry.path()), "missing en_us"),
                     () -> assertTrue(chinese.has("item.infx." + entry.path()), "missing zh_cn"));
         }
@@ -2665,9 +2670,9 @@ class GeneratedResourceTest {
         // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the INFX bat egg, the
         // Longdead Guardian egg, and 22 stripped-log workbench variants add one item definition each; gravel and
         // furnace blocks add item definitions, while the workbench item definitions reference their block models.
-        // Leather models use the direct tinted-layer form and do not need separate unused dyed models.
+        // Leather items reference vanilla Minecraft models and do not generate InfX model files.
         assertEquals(468, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(513, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        assertEquals(509, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -3085,22 +3090,19 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void leatherItemModelsUseDefaultColorAndOverlay() throws Exception {
+    void leatherItemModelsReuseVanillaModels() throws Exception {
         for (String piece : List.of("helmet", "chestplate", "leggings", "boots")) {
             String itemPath = "leather_" + piece;
             JsonObject itemDefinition = json(GENERATED.resolve("assets/infx/items/" + itemPath + ".json"));
-            JsonObject modelDefinition = json(GENERATED.resolve("assets/infx/models/item/" + itemPath + ".json"));
             JsonObject model = itemDefinition.getAsJsonObject("model");
             JsonObject tint = model.getAsJsonArray("tints").get(0).getAsJsonObject();
-            JsonObject textures = modelDefinition.getAsJsonObject("textures");
             assertAll(
                     itemPath,
                     () -> assertEquals("minecraft:model", model.get("type").getAsString()),
-                    () -> assertEquals("infx:item/" + itemPath, model.get("model").getAsString()),
+                    () -> assertEquals("minecraft:item/" + itemPath, model.get("model").getAsString()),
                     () -> assertEquals("minecraft:dye", tint.get("type").getAsString()),
                     () -> assertEquals(-6265536, tint.get("default").getAsInt()),
-                    () -> assertEquals("infx:item/" + itemPath, textures.get("layer0").getAsString()),
-                    () -> assertEquals("infx:item/" + itemPath + "_overlay", textures.get("layer1").getAsString()));
+                    () -> assertFalse(Files.exists(GENERATED.resolve("assets/infx/models/item/" + itemPath + ".json"))));
         }
     }
 
