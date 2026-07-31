@@ -2,6 +2,7 @@ package com.pixulse.infx.data;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -44,9 +45,15 @@ class UnderworldDensityTest {
             for (int z = -256; z <= 256; z += 32) {
                 var column = terrain.generator().getBaseColumn(x, z, height, terrain.randomState());
                 for (int y = Underworld.MIN_Y; y < Underworld.TERRAIN_MIN_Y; y++) {
+                    var block = column.getBlock(y);
                     assertTrue(
-                            column.getBlock(y).is(Blocks.STONE),
+                            block.is(Blocks.STONE),
                             coordinateMessage("stone", seed, x, y, z));
+                    if (y < Underworld.WATER_MIN_Y) {
+                        assertFalse(
+                                block.is(Blocks.WATER),
+                                coordinateMessage("not water", seed, x, y, z));
+                    }
                 }
                 for (int y = Underworld.TERRAIN_MIN_Y; y < Underworld.WATER_LEVEL; y++) {
                     var block = column.getBlock(y);

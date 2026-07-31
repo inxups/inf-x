@@ -18,6 +18,7 @@ public final class Underworld {
     public static final int TERRAIN_MIN_Y = 120;
     public static final int TERRAIN_MAX_Y_EXCLUSIVE = 248;
     public static final int TERRAIN_HEIGHT = TERRAIN_MAX_Y_EXCLUSIVE - TERRAIN_MIN_Y;
+    public static final int WATER_MIN_Y = 100;
     public static final int WATER_LEVEL = 144;
     public static final int LUSH_CAVES_MIN_Y = WATER_LEVEL;
     public static final int LUSH_CAVES_MAX_Y_INCLUSIVE = TERRAIN_MAX_Y_EXCLUSIVE - 1;
