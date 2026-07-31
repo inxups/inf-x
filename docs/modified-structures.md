@@ -42,14 +42,13 @@
 
 | 结构或宝箱表 | 修改内容 |
 | --- | --- |
-| 普通地牢 `simple_dungeon` | 添加 InfiniteX 坐骑护甲和锈铁装备；在自定义下界（Underworld）中额外加入古代金属八次抽取池。 |
-| 下界要塞 `nether_bridge` | 添加 InfiniteX 坐骑护甲。 |
-| 沙漠神殿 `desert_pyramid` | 添加 InfiniteX 坐骑护甲；满足第 40 天且世界完成 `bookcase` 后，有机会获得世界唯一创建之书。 |
-| 丛林神庙 `jungle_temple` | 添加 InfiniteX 坐骑护甲；满足创建之书条件后，有机会获得世界唯一创建之书。 |
-| 要塞走廊、图书馆 `stronghold_corridor`、`stronghold_library` | 走廊添加 InfiniteX 坐骑护甲；图书馆满足条件后有机会获得世界唯一创建之书。 |
-| 废弃矿井 `abandoned_mineshaft` | 添加锈铁链和锈铁工具装备。 |
-| 古城、堡垒遗迹、埋藏的宝藏、末地城、雪屋、掠夺者前哨站、残破传送门、沉船、`trail_ruins_*`、试炼密室、海底废墟、村庄、林地府邸 | [`ModernContentAuditEvents`](../src/main/java/com/pixulse/infx/player/ModernContentAuditEvents.java) 会在战利品表加载时取消对应的原版结构箱表，避免现代进度物品绕过 InfiniteX 规则。 |
-| 所有原版结构箱 | [`ModernProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/ModernProgressionLootFilter.java) 会移除绕过 InfiniteX 材料和制作进度的原版物品，例如原版矿物锭、钻石装备、鞘翅和试炼密室钥匙。 |
+| 旧结构 `simple_dungeon`、`abandoned_mineshaft`、`nether_bridge`、沙漠/丛林神庙和要塞箱 | 追加 MITE 对应奖励池，保留 MITE 的权重、滚数和数量范围；现有马铠、锈铁补充表继续单独追加，重复条目从 MITE 池排除。 |
+| 古城、堡垒遗迹、埋藏的宝藏、末地城、雪屋、前哨站、残破传送门、沉船、海底废墟和林地府邸 | 使用 MITE 地牢、矿井、下界堡垒或要塞主题奖励池追加战利品。 |
+| 村庄职业箱 | 48 个实际结构箱目标均有 `AddTableLootModifier`；铁匠、制图师、制箭师、石匠和食物职业箱使用各自的 MITE 子池。 |
+| 试炼密室 `reward`、`reward_ominous` | 分别追加普通/稀有和不祥奖励；只修改两个实际入口，不对子表 `reward_common`、`reward_rare` 等重复执行。 |
+| MITE 资源映射 | 铜/金粒和锭转换为铜币/金币，铁粒和锭转换为银币，银资源保留为 InfX 银粒/银锭，完整钻石/绿宝石转换为 1--5 个碎片；丝线、空碗、洋葱、奶酪、桶和装备使用对应 InfX/原版兼容物品。 |
+| 所有原版结构箱 | [`ModernProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/ModernProgressionLootFilter.java) 先把铁/钻石工具、武器、板甲、马铠、长矛、鹦鹉螺甲和原版锁链甲转换为远古金属装备，再移除剩余原版进度物品。[`MiteProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/MiteProgressionLootFilter.java) 在补充表之后执行第 10/20 天与 `Y=48` 门槛。 |
+| 古迹废墟 | 不存在 `chests/trail_ruins_*` 箱表修改；`archaeology/trail_ruins_common` 和 `archaeology/trail_ruins_rare` 不修改。 |
 
 结构战利品由 [`ModGlobalLootModifierProvider`](../src/main/java/com/pixulse/infx/datagen/ModGlobalLootModifierProvider.java) 及其对应的 Loot Modifier/Data Provider 生成。
 
