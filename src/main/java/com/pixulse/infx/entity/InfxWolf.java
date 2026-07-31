@@ -109,7 +109,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob {
                 && getTarget() == null
                 && !isInLove()
                 && level() instanceof ServerLevel level
-                && MoonPhase.at(level) != MoonPhase.BLUE
+                && !MoonPhase.BLUE.isActiveInOverworldAtNight(level)
                 && random.nextFloat() < 0.004F) {
             Player near = level.getNearestPlayer(this, 4.0);
             if (near != null && !near.isCreative() && !near.isSpectator()) {

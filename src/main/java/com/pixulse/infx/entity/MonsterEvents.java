@@ -85,9 +85,7 @@ public final class MonsterEvents {
                 || !(attacker.level() instanceof ServerLevel level)) {
             return;
         }
-        boolean frenzied = level.dimension() == Level.OVERWORLD
-                && MoonPhase.at(level) == MoonPhase.BLOOD
-                && !isDay(level);
+        boolean frenzied = MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
         if (!frenzied && attacker instanceof InfxSkeleton skeleton && skeleton.isInspired()) {
             frenzied = true;
         }
@@ -243,7 +241,7 @@ public final class MonsterEvents {
                 (type, level, reason, pos, random) -> {
                     ServerLevel serverLevel = level.getLevel();
                     return serverLevel.dimension() != Level.OVERWORLD
-                            || isDay(serverLevel)
+                            || !MoonPhase.isNight(serverLevel)
                             || random.nextInt(4) == 0
                             || !serverLevel.canSeeSky(pos);
                 },
@@ -404,8 +402,7 @@ public final class MonsterEvents {
         if (serverLevel.dimension() != Level.OVERWORLD) return true;
 
         int y = pos.getY();
-        boolean bloodMoonUp = MoonPhase.at(serverLevel) == MoonPhase.BLOOD
-                && !isDay(serverLevel);
+        boolean bloodMoonUp = MoonPhase.BLOOD.isActiveInOverworldAtNight(serverLevel);
         boolean freezing = serverLevel.getBiome(pos).value().getBaseTemperature() <= 0.15F;
         boolean desert = serverLevel.getBiome(pos).is(net.minecraft.world.level.biome.Biomes.DESERT)
                 || serverLevel.getBiome(pos).is(RiverBiomes.DESERT_RIVER);
@@ -478,7 +475,7 @@ public final class MonsterEvents {
         int maximumY = type == InfXEntityTypes.NIGHTWING.get() ? 32 : 48;
         return serverLevel.dimension() != Level.OVERWORLD
                 || pos.getY() <= maximumY
-                || MoonPhase.at(serverLevel) == MoonPhase.BLOOD && !isDay(serverLevel);
+                || MoonPhase.BLOOD.isActiveInOverworldAtNight(serverLevel);
     }
 
     private static boolean earthElementalGround(ServerLevel level, BlockPos pos) {
@@ -531,10 +528,6 @@ public final class MonsterEvents {
         return false;
     }
 
-    private static boolean isDay(ServerLevel level) {
-        return Math.floorMod(level.getOverworldClockTime(), 24_000L) < 12_000L;
-    }
-
     /**
      * The vanilla spawn predicates are declared against the vanilla entity type, while this mod
      * registers subclasses with their own entity types. Keep passing the actual mod type at
@@ -570,7 +563,7 @@ public final class MonsterEvents {
     @SubscribeEvent
     public static void attractToPlayerActivity(VanillaGameEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !(event.getCause() instanceof Player player)) return;
-        double radius = MoonPhase.at(level) == MoonPhase.BLOOD ? 96.0 : 48.0;
+        double radius = MoonPhase.BLOOD.isActiveInOverworldAtNight(level) ? 96.0 : 48.0;
         for (Mob mob : level.getEntitiesOfClass(
                 Mob.class,
                 new AABB(event.getEventPosition(), event.getEventPosition()).inflate(radius),
@@ -612,7 +605,7 @@ public final class MonsterEvents {
             return;
         }
         if (mob.tickCount % 20 == 0) {
-            double range = MoonPhase.at(level) == MoonPhase.BLOOD ? 96.0 : 48.0;
+            double range = MoonPhase.BLOOD.isActiveInOverworldAtNight(level) ? 96.0 : 48.0;
             Player illuminated = level.getNearestPlayer(
                     mob.getX(), mob.getY(), mob.getZ(), range,
                     player -> !player.isSpectator()

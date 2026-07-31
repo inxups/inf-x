@@ -57,6 +57,7 @@
     "GuiExperienceMixin",
     "InventoryScreenMixin",
     "MinecraftMiningInputMixin",
+    "SkyRendererMixin",
     "WorldCreationUiStateMixin"
   ],
   "injectors": {

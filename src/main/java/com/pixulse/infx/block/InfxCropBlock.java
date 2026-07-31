@@ -357,7 +357,6 @@ public final class InfxCropBlock extends CropBlock {
     }
 
     private static boolean isBloodMoonNight(ServerLevel level) {
-        return MoonPhase.at(level) == MoonPhase.BLOOD
-                && Math.floorMod(level.getOverworldClockTime(), 24_000L) >= 12_000L;
+        return MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
     }
 }
