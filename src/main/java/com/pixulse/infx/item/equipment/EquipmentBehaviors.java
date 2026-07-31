@@ -4,6 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.*;
@@ -335,6 +336,8 @@ public final class EquipmentBehaviors {
 
    @SubscribeEvent
     public static void addQualityTooltip(ItemTooltipEvent event) {
+        if (!shouldAddExtendedTooltips(InfiniteXTestMode.isEnabled())) return;
+
         ItemStack stack = event.getItemStack();
         Quality quality = event.getItemStack().get(InfXDataComponents.QUALITY.get());
         if (quality != null) {
@@ -368,6 +371,10 @@ public final class EquipmentBehaviors {
                 && blockItem.getBlock() instanceof InfxFurnaceBlock furnace) {
             event.getToolTip().add(Component.translatable("tooltip.infx.furnace_heat", furnace.maximumHeat()));
         }
+    }
+
+    static boolean shouldAddExtendedTooltips(boolean testMode) {
+        return testMode;
     }
 
     private static int tooltipFuelHeat(ItemStack stack) {

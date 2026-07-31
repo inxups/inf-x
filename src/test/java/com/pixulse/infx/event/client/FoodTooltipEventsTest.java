@@ -42,9 +42,10 @@ class FoodTooltipEventsTest {
     void onlyAdvancedTooltipsForKnownFoodReceiveGains() {
         FoodProfile apple = FoodProfile.mite(2, 1, 1_000, false, false, true);
 
-        assertTrue(FoodTooltipEvents.shouldAddFoodGains(true, apple));
-        assertFalse(FoodTooltipEvents.shouldAddFoodGains(false, apple));
-        assertFalse(FoodTooltipEvents.shouldAddFoodGains(true, FoodProfile.EMPTY));
+        assertTrue(FoodTooltipEvents.shouldAddFoodGains(true, true, apple));
+        assertFalse(FoodTooltipEvents.shouldAddFoodGains(false, true, apple));
+        assertFalse(FoodTooltipEvents.shouldAddFoodGains(true, false, apple));
+        assertFalse(FoodTooltipEvents.shouldAddFoodGains(true, true, FoodProfile.EMPTY));
     }
 
     private static String translationKey(Component component) {
