@@ -384,6 +384,15 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void specialBlockItemsUseTheirBlockTranslations() {
+        assertEquals("block.infx.mithril_rune_stone", InfXItems.MITHRIL_RUNE_STONE.get().getDescriptionId());
+        assertEquals(
+                "block.infx.adamantium_rune_stone", InfXItems.ADAMANTIUM_RUNE_STONE.get().getDescriptionId());
+        InfXItems.METAL_ANVILS.forEach(anvil -> assertEquals(
+                "block.infx." + anvil.getId().getPath(), anvil.get().getDescriptionId()));
+    }
+
+    @Test
     void creativeTabsHaveEnglishAndChineseTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -1086,6 +1095,103 @@ class GeneratedResourceTest {
         assertEquals(
                 5,
                 jsonCount(GENERATED.resolve("data/infx/loot_table/chests/horse_armor")));
+    }
+
+    @Test
+    void miteStructureLootTargetsAndMappingsAreGenerated() throws Exception {
+        List<String> structures = List.of(
+                "simple_dungeon",
+                "abandoned_mineshaft",
+                "nether_bridge",
+                "desert_pyramid",
+                "jungle_temple",
+                "stronghold_corridor",
+                "stronghold_crossing",
+                "stronghold_library",
+                "ancient_city",
+                "ancient_city_ice_box",
+                "bastion_bridge",
+                "bastion_hoglin_stable",
+                "bastion_other",
+                "bastion_treasure",
+                "buried_treasure",
+                "end_city_treasure",
+                "igloo_chest",
+                "pillager_outpost",
+                "ruined_portal",
+                "shipwreck_map",
+                "shipwreck_supply",
+                "shipwreck_treasure",
+                "underwater_ruin_big",
+                "underwater_ruin_small",
+                "woodland_mansion",
+                "village/village_armorer",
+                "village/village_butcher",
+                "village/village_cartographer",
+                "village/village_desert_house",
+                "village/village_fisher",
+                "village/village_fletcher",
+                "village/village_mason",
+                "village/village_plains_house",
+                "village/village_savanna_house",
+                "village/village_shepherd",
+                "village/village_snowy_house",
+                "village/village_taiga_house",
+                "village/village_tannery",
+                "village/village_temple",
+                "village/village_toolsmith",
+                "village/village_weaponsmith",
+                "trial_chambers/corridor",
+                "trial_chambers/entrance",
+                "trial_chambers/intersection",
+                "trial_chambers/intersection_barrel",
+                "trial_chambers/reward",
+                "trial_chambers/reward_ominous",
+                "trial_chambers/supply");
+        Path tables = GENERATED.resolve("data/infx/loot_table/chests/mite");
+        assertEquals(48, jsonCount(tables));
+        assertFalse(Files.exists(GENERATED.resolve("data/infx/loot_table/chests/mite/trail_ruins_common.json")));
+        assertFalse(Files.exists(GENERATED.resolve("data/infx/loot_table/chests/mite/trail_ruins_rare.json")));
+
+        for (String structure : structures) {
+            String modifierName = "mite_structure_" + structure.replace('/', '_') + ".json";
+            JsonObject modifier = json(GENERATED.resolve("data/infx/loot_modifiers/" + modifierName));
+            JsonObject condition = modifier.getAsJsonArray("conditions").get(0).getAsJsonObject();
+            assertAll(
+                    structure,
+                    () -> assertEquals("neoforge:add_table", modifier.get("type").getAsString()),
+                    () -> assertEquals("infx:chests/mite/" + structure, modifier.get("table").getAsString()),
+                    () -> assertEquals(
+                            "minecraft:chests/" + structure,
+                            condition.get("loot_table_id").getAsString()));
+        }
+
+        String dungeon = Files.readString(tables.resolve("simple_dungeon.json"), UTF_8);
+        String mineshaft = Files.readString(tables.resolve("abandoned_mineshaft.json"), UTF_8);
+        String armorer = Files.readString(tables.resolve("village/village_armorer.json"), UTF_8);
+        String trial = Files.readString(tables.resolve("trial_chambers/reward.json"), UTF_8);
+        String ominous = Files.readString(tables.resolve("trial_chambers/reward_ominous.json"), UTF_8);
+        assertAll(
+                "MITE mappings",
+                () -> assertTrue(dungeon.contains("infx:onion")),
+                () -> assertTrue(dungeon.contains("infx:copper_coin")),
+                () -> assertTrue(dungeon.contains("infx:ancient_metal_fishing_rod")),
+                () -> assertFalse(dungeon.contains("minecraft:diamond")),
+                () -> assertTrue(mineshaft.contains("infx:cheese")),
+                () -> assertTrue(mineshaft.contains("infx:silver_ingot")),
+                () -> assertTrue(mineshaft.contains("infx:ancient_metal_pickaxe")),
+                () -> assertTrue(armorer.contains("infx:ancient_metal_chainmail_boots")),
+                () -> assertTrue(armorer.contains("infx:ancient_metal_chestplate")),
+                () -> assertTrue(trial.contains("minecraft:book")),
+                () -> assertTrue(trial.contains("infx:diamond_shard")),
+                () -> assertTrue(ominous.contains("infx:ancient_metal_pickaxe")));
+
+        try (Stream<Path> modifiers = Files.walk(GENERATED.resolve("data/infx/loot_modifiers"))) {
+            assertEquals(
+                    48,
+                    modifiers.filter(path -> path.getFileName().toString().startsWith("mite_structure_"))
+                            .count());
+        }
     }
 
     @Test
@@ -2406,8 +2512,8 @@ class GeneratedResourceTest {
     @Test
     void generatedCountsAreExact() throws Exception {
         // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the INFX bat egg, and the
-        // Longdead Guardian egg add one item definition and model each; gravel adds one block item definition.
-        assertEquals(447, jsonCount(GENERATED.resolve("assets/infx/items")));
+        // Longdead Guardian egg add one item definition and model each; gravel and furnace blocks add item definitions.
+        assertEquals(446, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(517, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }

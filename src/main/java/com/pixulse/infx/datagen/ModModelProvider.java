@@ -144,11 +144,8 @@ final class ModModelProvider extends ModelProvider {
 
     @Override
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
-        InfXBlocks.FURNACES.stream()
-                .filter(furnace -> furnace.value() != InfXBlocks.LARGE_CLAY_OVEN.value())
-                .forEach(furnace -> blockModels.createFurnace(
-                        furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
-        generateLargeClayOven(blockModels);
+        InfXBlocks.FURNACES.forEach(furnace -> blockModels.createFurnace(
+                furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
         InfXBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         InfXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         InfXBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
@@ -452,21 +449,6 @@ final class ModModelProvider extends ModelProvider {
             case ADAMANTIUM -> InfiniteX.id("block/adamantium_block");
             default -> throw new IllegalArgumentException("No safe particle texture for " + material);
         };
-    }
-
-    private static void generateLargeClayOven(BlockModelGenerators models) {
-        var normal = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(InfXBlocks.CLAY_FURNACE.value()));
-        var lit = BlockModelGenerators.plainVariant(
-                ModelLocationUtils.getModelLocation(InfXBlocks.CLAY_FURNACE.value(), "_on"));
-        models.blockStateOutput.accept(
-                MultiVariantGenerator.dispatch(InfXBlocks.LARGE_CLAY_OVEN.value())
-                        .with(BlockModelGenerators.createBooleanModelDispatch(
-                                BlockStateProperties.LIT, lit, normal))
-                        .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
-        models.registerSimpleItemModel(
-                InfXBlocks.LARGE_CLAY_OVEN.value(),
-                ModelLocationUtils.getModelLocation(InfXBlocks.CLAY_FURNACE.value()));
     }
 
     private static void generateMetalAnvil(BlockModelGenerators models, MetalAnvilBlock block) {

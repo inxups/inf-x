@@ -19,7 +19,6 @@ public final class InfXBlockEntityTypes {
             TYPES.register("furnace", () -> new BlockEntityType<>(
                     InfxFurnaceBlockEntity::new,
                     InfXBlocks.CLAY_FURNACE.get(),
-                    InfXBlocks.LARGE_CLAY_OVEN.get(),
                     InfXBlocks.SANDSTONE_FURNACE.get(),
                     InfXBlocks.HARDENED_CLAY_FURNACE.get(),
                     InfXBlocks.OBSIDIAN_FURNACE.get(),

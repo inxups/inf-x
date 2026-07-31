@@ -184,8 +184,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.COMPARATOR),
                         blockKey(Blocks.TRIPWIRE),
                         blockKey(Blocks.TRIPWIRE_HOOK),
-                        InfXBlocks.CLAY_FURNACE.getKey(),
-                        InfXBlocks.LARGE_CLAY_OVEN.getKey());
+                        InfXBlocks.CLAY_FURNACE.getKey());
         addMatching(pickaxe, ModBlockTagsProvider::isInfested);
 
         TagAppender<ResourceKey<Block>, Block> axe = tag(InfXBlockTags.effectiveWith(MiningFamily.AXE))
@@ -208,7 +207,6 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.PACKED_MUD),
                         blockKey(Blocks.SUGAR_CANE),
                         InfXBlocks.CLAY_FURNACE.getKey(),
-                        InfXBlocks.LARGE_CLAY_OVEN.getKey(),
                         InfXBlocks.HARDENED_CLAY_FURNACE.getKey(),
                         InfXBlocks.INFESTED_NETHERRACK.getKey());
         addMatching(axe, id -> isInfested(id) || isMudBrick(id) || isGlazedTerracotta(id));
@@ -225,7 +223,6 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.POTATOES),
                         blockKey(Blocks.BEETROOTS),
                         InfXBlocks.CLAY_FURNACE.getKey(),
-                        InfXBlocks.LARGE_CLAY_OVEN.getKey(),
                         InfXBlocks.SANDSTONE_FURNACE.getKey(),
                         InfXBlocks.INFESTED_NETHERRACK.getKey());
         addMatching(shovel, ModBlockTagsProvider::isInfested);
@@ -419,7 +416,6 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.PISTON_HEAD),
                         blockKey(Blocks.MOVING_PISTON),
                         InfXBlocks.CLAY_FURNACE.getKey(),
-                        InfXBlocks.LARGE_CLAY_OVEN.getKey(),
                         InfXBlocks.SANDSTONE_FURNACE.getKey(),
                         InfXBlocks.INFESTED_NETHERRACK.getKey());
         addMatching(level0, id -> isCoral(id) || isInfested(id));

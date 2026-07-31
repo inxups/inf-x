@@ -13,7 +13,6 @@ import com.pixulse.infx.block.GoldWorkbenchBlock;
 import com.pixulse.infx.block.HardenedClayFurnaceBlock;
 import com.pixulse.infx.block.IronWorkbenchBlock;
 import com.pixulse.infx.block.InfxHotFloorBlock;
-import com.pixulse.infx.block.LargeClayOvenBlock;
 import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.NetherrackFurnaceBlock;
 import com.pixulse.infx.block.ObsidianFurnaceBlock;
@@ -244,15 +243,6 @@ public final class InfXBlocks {
                     .sound(SoundType.STONE)
                     .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
 
-    public static final DeferredBlock<LargeClayOvenBlock> LARGE_CLAY_OVEN = BLOCKS.registerBlock(
-            "large_clay_oven",
-            LargeClayOvenBlock::new,
-            properties -> properties
-                    .mapColor(MapColor.CLAY)
-                    .strength(0.75F)
-                    .sound(SoundType.STONE)
-                    .lightLevel(state -> state.getValue(AbstractFurnaceBlock.LIT) ? 13 : 0));
-
     public static final DeferredBlock<SandstoneFurnaceBlock> SANDSTONE_FURNACE = BLOCKS.registerBlock(
             "sandstone_furnace",
             SandstoneFurnaceBlock::new,
@@ -296,7 +286,6 @@ public final class InfXBlocks {
     public static final List<DeferredBlock<? extends InfxFurnaceBlock>> FURNACES =
             List.of(
                     CLAY_FURNACE,
-                    LARGE_CLAY_OVEN,
                     SANDSTONE_FURNACE,
                     HARDENED_CLAY_FURNACE,
                     OBSIDIAN_FURNACE,
