@@ -1,111 +1,121 @@
 package com.pixulse.infx.world;
 
-import java.util.function.Function;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.util.RandomSource;
+import net.minecraft.core.SectionPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.CarvingMask;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.levelgen.Aquifer;
-import net.minecraft.world.level.levelgen.carver.CarverConfiguration;
-import net.minecraft.world.level.levelgen.carver.CarvingContext;
-import net.minecraft.world.level.levelgen.carver.WorldCarver;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.StructureStart;
 
-/** Carves a warped, layered cheese cavern from rare deep-dark macro-region centers. */
-public final class InfXUnderworldLargeCaveCarver extends WorldCarver<CarverConfiguration> {
+/** Carves one seed-stable cavern around every actual Underworld ancient-city start. */
+final class InfXUnderworldAncientCityCave {
     private static final int NOISE_CELL_SIZE = 4;
     private static final int NOISE_GRID_WIDTH = 16 / NOISE_CELL_SIZE + 1;
     private static final int NOISE_GRID_HEIGHT =
             (Underworld.LARGE_CAVE_MAX_Y - Underworld.LARGE_CAVE_MIN_Y) / NOISE_CELL_SIZE + 1;
-    private static final int BIOME_FADE_RADIUS = 16;
-    private static final int[][] BIOME_FADE_OFFSETS = {
-        {0, 0},
-        {BIOME_FADE_RADIUS, 0},
-        {-BIOME_FADE_RADIUS, 0},
-        {0, BIOME_FADE_RADIUS},
-        {0, -BIOME_FADE_RADIUS},
-        {12, 12},
-        {12, -12},
-        {-12, 12},
-        {-12, -12}
-    };
     private static final BlockState CAVE_AIR = Blocks.CAVE_AIR.defaultBlockState();
 
-    public InfXUnderworldLargeCaveCarver() {
-        super(CarverConfiguration.CODEC.codec());
+    private InfXUnderworldAncientCityCave() {}
+
+    static boolean carveAroundAncientCities(
+            WorldGenRegion region,
+            long worldSeed,
+            StructureManager structureManager,
+            ChunkAccess targetChunk) {
+        if (!(targetChunk instanceof ProtoChunk protoChunk)) {
+            return false;
+        }
+
+        Structure ancientCity = region.registryAccess()
+                .lookupOrThrow(Registries.STRUCTURE)
+                .getOrThrow(Underworld.ANCIENT_CITY)
+                .value();
+        ChunkPos targetPos = targetChunk.getPos();
+        CarvingMask mask = protoChunk.getOrCreateCarvingMask();
+        boolean carved = false;
+
+        for (int offsetX = -Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE;
+                offsetX <= Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE;
+                offsetX++) {
+            for (int offsetZ = -Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE;
+                    offsetZ <= Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE;
+                    offsetZ++) {
+                ChunkAccess sourceChunk = region.getChunk(targetPos.x() + offsetX, targetPos.z() + offsetZ);
+                StructureStart start = structureManager.getStartForStructure(
+                        SectionPos.bottomOf(sourceChunk), ancientCity, sourceChunk);
+                if (start == null || !start.isValid()) {
+                    continue;
+                }
+                BlockPos caveCenter = start.getPieces().getFirst().getBoundingBox().getCenter();
+                carved |= carveFromStart(
+                        worldSeed,
+                        start.getChunkPos(),
+                        caveCenter.getX(),
+                        caveCenter.getZ(),
+                        targetChunk,
+                        mask);
+            }
+        }
+        return carved;
     }
 
-    @Override
-    public int getRange() {
-        return 8;
-    }
-
-    @Override
-    public boolean isStartChunk(CarverConfiguration configuration, RandomSource random) {
-        return true;
-    }
-
-    @Override
-    public boolean carve(
-            CarvingContext context,
-            CarverConfiguration configuration,
-            ChunkAccess chunk,
-            Function<BlockPos, Holder<Biome>> biomeGetter,
-            RandomSource random,
-            Aquifer aquifer,
-            ChunkPos sourceChunkPos,
+    static boolean carveFromStart(
+            long worldSeed,
+            ChunkPos ancientCityStart,
+            int centerX,
+            int centerZ,
+            ChunkAccess targetChunk,
             CarvingMask mask) {
-        if (!isMacroCenter(sourceChunkPos)
-                || !isDeepDark(biomeGetter, sourceChunkPos.getMiddleBlockX(), sourceChunkPos.getMiddleBlockZ())) {
+        ChunkPos targetPos = targetChunk.getPos();
+        if (!canAffect(targetPos, centerX, centerZ)) {
             return false;
         }
 
-        int centerX = sourceChunkPos.getMiddleBlockX();
-        int centerZ = sourceChunkPos.getMiddleBlockZ();
-        ChunkPos targetChunk = chunk.getPos();
-        if (!canAffect(targetChunk, centerX, centerZ)) {
-            return false;
-        }
-
-        int minY = Math.max(context.getMinGenY(), Underworld.LARGE_CAVE_MIN_Y + 1);
-        int maxY = Math.min(context.getMinGenY() + context.getGenDepth() - 1, Underworld.LARGE_CAVE_MAX_Y - 1);
-        long caveSeed = random.nextLong();
-        double[][][] noiseGrid = sampleNoiseGrid(caveSeed, targetChunk, centerX, centerZ);
+        long caveSeed = caveSeed(worldSeed, ancientCityStart);
+        double[][][] noiseGrid = sampleNoiseGrid(caveSeed, targetPos, centerX, centerZ);
+        int minY = Math.max(targetChunk.getMinY(), Underworld.LARGE_CAVE_MIN_Y + 1);
+        int maxY = Math.min(targetChunk.getMaxY(), Underworld.LARGE_CAVE_MAX_Y - 1);
         boolean carved = false;
         BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
 
         for (int localX = 0; localX < 16; localX++) {
-            int worldX = targetChunk.getBlockX(localX);
+            int worldX = targetPos.getBlockX(localX);
             for (int localZ = 0; localZ < 16; localZ++) {
-                int worldZ = targetChunk.getBlockZ(localZ);
-                double biomeWeight = deepDarkInteriorWeight(biomeGetter, worldX, worldZ);
-                if (biomeWeight == 0.0) {
-                    continue;
-                }
-                double edgeThreshold = (1.0 - biomeWeight) * 0.40;
+                int worldZ = targetPos.getBlockZ(localZ);
                 for (int worldY = minY; worldY <= maxY; worldY++) {
-                    if (interpolatedNoise(noiseGrid, localX, worldY, localZ) <= edgeThreshold) {
+                    if (interpolatedNoise(noiseGrid, localX, worldY, localZ) <= 0.0) {
                         continue;
                     }
                     position.set(worldX, worldY, worldZ);
                     if (mask.get(localX, worldY, localZ)) {
                         continue;
                     }
-                    BlockState state = chunk.getBlockState(position);
+                    BlockState state = targetChunk.getBlockState(position);
                     if (!canReplace(state, worldY)) {
                         continue;
                     }
                     mask.set(localX, worldY, localZ);
-                    chunk.setBlockState(position, CAVE_AIR);
+                    targetChunk.setBlockState(position, CAVE_AIR);
                     carved = true;
                 }
             }
         }
         return carved;
+    }
+
+    static long caveSeed(long worldSeed, ChunkPos ancientCityStart) {
+        WorldgenRandom random = new WorldgenRandom(new LegacyRandomSource(0L));
+        random.setLargeFeatureSeed(worldSeed, ancientCityStart.x(), ancientCityStart.z());
+        return random.nextLong();
     }
 
     static double[][][] sampleNoiseGrid(long seed, ChunkPos targetChunk, int centerX, int centerZ) {
@@ -146,17 +156,6 @@ public final class InfXUnderworldLargeCaveCarver extends WorldCarver<CarverConfi
                 samples[cellX + 1][cellY + 1][cellZ + 1]);
     }
 
-    static boolean isMacroCenter(ChunkPos chunkPos) {
-        return chunkPos.x() == macroCenterChunk(chunkPos.x())
-                && chunkPos.z() == macroCenterChunk(chunkPos.z());
-    }
-
-    static int macroCenterChunk(int chunkCoordinate) {
-        return Math.floorDiv(chunkCoordinate, Underworld.LARGE_CAVE_MACRO_CHUNK_SIZE)
-                * Underworld.LARGE_CAVE_MACRO_CHUNK_SIZE
-                + Underworld.LARGE_CAVE_MACRO_CENTER_OFFSET;
-    }
-
     static boolean canAffect(ChunkPos chunkPos, int centerX, int centerZ) {
         int deltaX = distanceToRange(centerX, chunkPos.getMinBlockX(), chunkPos.getMaxBlockX());
         int deltaZ = distanceToRange(centerZ, chunkPos.getMinBlockZ(), chunkPos.getMaxBlockZ());
@@ -171,26 +170,11 @@ public final class InfXUnderworldLargeCaveCarver extends WorldCarver<CarverConfi
         return value > maximum ? value - maximum : 0;
     }
 
-    static double deepDarkInteriorWeight(Function<BlockPos, Holder<Biome>> biomeGetter, int x, int z) {
-        if (!isDeepDark(biomeGetter, x, z)) {
-            return 0.0;
-        }
-        int deepDarkSamples = 0;
-        for (int[] offset : BIOME_FADE_OFFSETS) {
-            deepDarkSamples += isDeepDark(biomeGetter, x + offset[0], z + offset[1]) ? 1 : 0;
-        }
-        return deepDarkSamples / (double) BIOME_FADE_OFFSETS.length;
-    }
-
     static boolean canReplace(BlockState state, int y) {
         return state.is(Blocks.STONE)
                 || state.is(Blocks.DEEPSLATE)
                 || (y >= Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y
                         && y < Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE
                         && state.is(Blocks.BEDROCK));
-    }
-
-    static boolean isDeepDark(Function<BlockPos, Holder<Biome>> biomeGetter, int x, int z) {
-        return biomeGetter.apply(new BlockPos(x, 0, z)).is(Underworld.DEEP_DARK_BIOME);
     }
 }

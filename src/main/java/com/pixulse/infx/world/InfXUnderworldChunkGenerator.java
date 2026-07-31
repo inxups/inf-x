@@ -4,9 +4,11 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.function.Supplier;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.QuartPos;
 import net.minecraft.core.Registry;
+import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -24,7 +26,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
-/** Applies the Underworld's dry lower fluid rule and MITE-style internal bedrock. */
+/** Applies the Underworld's dry lower fluid rule, ancient-city caves and MITE-style internal bedrock. */
 public final class InfXUnderworldChunkGenerator extends NoiseBasedChunkGenerator {
     public static final MapCodec<InfXUnderworldChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -70,6 +72,20 @@ public final class InfXUnderworldChunkGenerator extends NoiseBasedChunkGenerator
         return this.biomeSource.getNoiseBiome(
                         QuartPos.fromBlock(x), 0, QuartPos.fromBlock(z), randomState.sampler())
                 .is(Underworld.DEEP_DARK_BIOME);
+    }
+
+    @Override
+    public void applyCarvers(
+            WorldGenRegion region,
+            long seed,
+            RandomState randomState,
+            BiomeManager biomeManager,
+            StructureManager structureManager,
+            ChunkAccess chunk) {
+        // Deliberately skip NoiseBasedChunkGenerator's biome carvers: lower caves must have a real city start.
+        if (!SharedConstants.DEBUG_DISABLE_CARVERS) {
+            InfXUnderworldAncientCityCave.carveAroundAncientCities(region, seed, structureManager, chunk);
+        }
     }
 
     @Override

@@ -11,7 +11,6 @@ import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXBiomeModifiers;
 import com.pixulse.infx.registry.InfXBiomeSources;
-import com.pixulse.infx.registry.InfXCarvers;
 import com.pixulse.infx.registry.InfXPoiTypes;
 import com.pixulse.infx.registry.InfXCreativeTabs;
 import com.pixulse.infx.registry.InfXChunkGeneratorTypes;
@@ -42,7 +41,6 @@ public final class InfiniteX {
         InfXChunkGeneratorTypes.register(modBus);
         InfXDensityFunctionTypes.register(modBus);
         InfXBiomeSources.register(modBus);
-        InfXCarvers.register(modBus);
         InfXFeatures.register(modBus);
         InfXBiomeModifiers.register(modBus);
         InfXAttachments.register(modBus);

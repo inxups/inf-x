@@ -4,7 +4,6 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.world.RiverBiomes;
 import java.util.concurrent.CompletableFuture;
 
-import com.pixulse.infx.world.Underworld;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -32,8 +31,6 @@ final class ModBiomeTagsProvider extends KeyTagsProvider<Biome> {
                 .add(RiverBiomes.SWAMP_RIVER);
         tag(BiomeTags.IS_JUNGLE).add(RiverBiomes.JUNGLE_RIVER);
         tag(BiomeTags.HAS_STRONGHOLD).addTag(BiomeTags.IS_OVERWORLD);
-        tag(BiomeTags.HAS_ANCIENT_CITY)
-                .add(Biomes.DEEP_DARK)
-                .add(Underworld.DEEP_DARK_BIOME);
+        tag(BiomeTags.HAS_ANCIENT_CITY).add(Biomes.DEEP_DARK);
     }
 }

@@ -19,6 +19,10 @@
 | `infx:ancient_city` | 主世界 | `minecraft:ancient_city` | 永不解锁 |
 | `infx:trial_chambers` | 主世界 | `minecraft:trial_chambers` | 永不解锁 |
 
+地下世界古城使用独立的 `infx:underworld_ancient_city` 结构键，只以
+`infx:underworld_deep_dark` 为合法生物群系，并由地下世界生成器围绕成功的结构起点雕刻专属洞穴。
+它不受仅作用于主世界 `minecraft:ancient_city` 的永久禁用规则影响。
+
 实现位于 [`StructureGenerationGates.java`](../src/main/java/com/pixulse/infx/world/StructureGenerationGates.java)。村庄的铁级工具检测、农田枯萎和保险箱后处理仍位于 [`VillageProgression.java`](../src/main/java/com/pixulse/infx/world/VillageProgression.java)；其他结构进度由 [`StructureProgressionEvents.java`](../src/main/java/com/pixulse/infx/world/StructureProgressionEvents.java) 记录。`/infx villages` 仍可查询村庄规则的状态。
 
 ## 规则语义

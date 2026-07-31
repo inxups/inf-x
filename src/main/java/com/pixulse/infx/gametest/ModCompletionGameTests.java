@@ -486,11 +486,19 @@ public final class ModCompletionGameTests {
                     tag.location() + " excludes the lush Underworld biome");
         }
         helper.assertTrue(
-                biomes.getOrThrow(BiomeTags.HAS_ANCIENT_CITY).contains(deepDarkUnderworldBiome),
-                "deep-dark Underworld biome enables ancient cities");
+                !biomes.getOrThrow(BiomeTags.HAS_ANCIENT_CITY).contains(deepDarkUnderworldBiome),
+                "vanilla ancient cities stay out of the deep-dark Underworld biome");
         helper.assertTrue(
                 !biomes.getOrThrow(BiomeTags.HAS_TRIAL_CHAMBERS).contains(deepDarkUnderworldBiome),
                 "deep-dark Underworld biome does not enable trial chambers");
+        var structures = registries.lookupOrThrow(Registries.STRUCTURE);
+        var underworldAncientCity = structures.getOrThrow(Underworld.ANCIENT_CITY);
+        helper.assertTrue(
+                underworldAncientCity.value().biomes().contains(deepDarkUnderworldBiome),
+                "the raised Underworld ancient city targets only the deep-dark Underworld biome");
+        helper.assertTrue(
+                registries.lookupOrThrow(Registries.STRUCTURE_SET).containsKey(Underworld.ANCIENT_CITIES),
+                "the Underworld ancient city structure set is registered");
         for (var tag : List.of(BiomeTags.HAS_MINESHAFT, BiomeTags.HAS_MINESHAFT_MESA)) {
             var structureBiomes = biomes.getOrThrow(tag);
             helper.assertTrue(

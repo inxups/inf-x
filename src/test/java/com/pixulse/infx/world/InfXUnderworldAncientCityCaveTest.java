@@ -5,26 +5,22 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.function.Function;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderOwner;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import org.junit.jupiter.api.Test;
 
-class InfXUnderworldLargeCaveCarverTest {
+class InfXUnderworldAncientCityCaveTest {
     private static final long CAVE_SEED = 0x1F1A7EL;
 
     @Test
-    void macroCentersRemainStableAcrossZeroAndNegativeCoordinates() {
-        assertTrue(InfXUnderworldLargeCaveCarver.isMacroCenter(new ChunkPos(8, 8)));
-        assertFalse(InfXUnderworldLargeCaveCarver.isMacroCenter(new ChunkPos(7, 8)));
-        assertTrue(InfXUnderworldLargeCaveCarver.isMacroCenter(new ChunkPos(-8, -8)));
-        assertFalse(InfXUnderworldLargeCaveCarver.isMacroCenter(new ChunkPos(-9, -8)));
-        assertTrue(InfXUnderworldLargeCaveCarver.isMacroCenter(new ChunkPos(-24, 8)));
-        assertFalse(InfXUnderworldLargeCaveCarver.isMacroCenter(new ChunkPos(-16, 8)));
+    void caveSeedIsBoundToTheWorldAndActualAncientCityStartChunk() {
+        ChunkPos start = new ChunkPos(3, -11);
+        long seed = InfXUnderworldAncientCityCave.caveSeed(42L, start);
+
+        assertEquals(seed, InfXUnderworldAncientCityCave.caveSeed(42L, start));
+        assertNotEquals(seed, InfXUnderworldAncientCityCave.caveSeed(43L, start));
+        assertNotEquals(seed, InfXUnderworldAncientCityCave.caveSeed(42L, new ChunkPos(4, -11)));
+        assertNotEquals(seed, InfXUnderworldAncientCityCave.caveSeed(42L, new ChunkPos(3, -10)));
     }
 
     @Test
@@ -58,7 +54,7 @@ class InfXUnderworldLargeCaveCarverTest {
 
         assertTrue(carved > 500, "the center slice must contain a broad cheese cavern");
         assertTrue(solid > 100, "layers and pillars must leave solid islands inside the cavern envelope");
-        assertTrue(mirroredDifferences > 100, "domain warping must break the old mirrored dome shape");
+        assertTrue(mirroredDifferences > 100, "domain warping must break mirrored dome shapes");
     }
 
     @Test
@@ -69,14 +65,24 @@ class InfXUnderworldLargeCaveCarverTest {
     }
 
     @Test
-    void outerRadiusLimitsWhichTargetChunksNeedNoiseSampling() {
-        int centerX = new ChunkPos(8, 8).getMiddleBlockX();
-        int centerZ = new ChunkPos(8, 8).getMiddleBlockZ();
+    void structureScanRangeCoversTheWholeCaveAtPositiveAndNegativeChunkEdges() {
+        ChunkPos start = new ChunkPos(3, -11);
+        int centerX = start.getMiddleBlockX();
+        int centerZ = start.getMiddleBlockZ();
 
-        assertTrue(InfXUnderworldLargeCaveCarver.canAffect(new ChunkPos(8, 8), centerX, centerZ));
-        assertTrue(InfXUnderworldLargeCaveCarver.canAffect(new ChunkPos(15, 8), centerX, centerZ));
-        assertTrue(InfXUnderworldLargeCaveCarver.canAffect(new ChunkPos(16, 8), centerX, centerZ));
-        assertFalse(InfXUnderworldLargeCaveCarver.canAffect(new ChunkPos(17, 8), centerX, centerZ));
+        assertEquals(8, Underworld.LARGE_CAVE_STRUCTURE_SCAN_CHUNK_RANGE);
+        assertTrue(InfXUnderworldAncientCityCave.canAffect(new ChunkPos(11, -11), centerX, centerZ));
+        assertFalse(InfXUnderworldAncientCityCave.canAffect(new ChunkPos(12, -11), centerX, centerZ));
+        assertTrue(InfXUnderworldAncientCityCave.canAffect(new ChunkPos(-5, -11), centerX, centerZ));
+        assertFalse(InfXUnderworldAncientCityCave.canAffect(new ChunkPos(-6, -11), centerX, centerZ));
+
+        for (int centerOffset = -4; centerOffset <= 4; centerOffset++) {
+            int rotatedCenterX = start.getMinBlockX() + centerOffset;
+            assertFalse(InfXUnderworldAncientCityCave.canAffect(
+                    new ChunkPos(start.x() + 9, start.z()), rotatedCenterX, centerZ));
+            assertFalse(InfXUnderworldAncientCityCave.canAffect(
+                    new ChunkPos(start.x() - 9, start.z()), rotatedCenterX, centerZ));
+        }
     }
 
     @Test
@@ -86,9 +92,9 @@ class InfXUnderworldLargeCaveCarverTest {
         int centerX = new ChunkPos(8, 8).getMiddleBlockX();
         int centerZ = new ChunkPos(8, 8).getMiddleBlockZ();
         double[][][] leftGrid =
-                InfXUnderworldLargeCaveCarver.sampleNoiseGrid(CAVE_SEED, left, centerX, centerZ);
+                InfXUnderworldAncientCityCave.sampleNoiseGrid(CAVE_SEED, left, centerX, centerZ);
         double[][][] rightGrid =
-                InfXUnderworldLargeCaveCarver.sampleNoiseGrid(CAVE_SEED, right, centerX, centerZ);
+                InfXUnderworldAncientCityCave.sampleNoiseGrid(CAVE_SEED, right, centerX, centerZ);
 
         for (int gridY = 0; gridY < leftGrid[0].length; gridY++) {
             for (int gridZ = 0; gridZ < leftGrid[0][0].length; gridZ++) {
@@ -97,35 +103,19 @@ class InfXUnderworldLargeCaveCarverTest {
         }
         assertEquals(
                 rightGrid[0][12][2],
-                InfXUnderworldLargeCaveCarver.interpolatedNoise(
+                InfXUnderworldAncientCityCave.interpolatedNoise(
                         rightGrid, 0, Underworld.LARGE_CAVE_MIN_Y + 12 * 4, 8));
     }
 
     @Test
     void onlyStoneDeepslateAndTheConfiguredInternalBedrockCanBeCarved() {
-        assertTrue(InfXUnderworldLargeCaveCarver.canReplace(Blocks.STONE.defaultBlockState(), 0));
-        assertTrue(InfXUnderworldLargeCaveCarver.canReplace(Blocks.DEEPSLATE.defaultBlockState(), 0));
-        assertTrue(InfXUnderworldLargeCaveCarver.canReplace(Blocks.BEDROCK.defaultBlockState(), -24));
-        assertFalse(InfXUnderworldLargeCaveCarver.canReplace(Blocks.BEDROCK.defaultBlockState(), -25));
-        assertFalse(InfXUnderworldLargeCaveCarver.canReplace(Blocks.BEDROCK.defaultBlockState(), -8));
-        assertFalse(InfXUnderworldLargeCaveCarver.canReplace(Blocks.AIR.defaultBlockState(), 0));
-        assertFalse(InfXUnderworldLargeCaveCarver.canReplace(Blocks.WATER.defaultBlockState(), 0));
-    }
-
-    @Test
-    void carvingTapersInsideTheDeepDarkBoundaryWithoutCrossingIt() {
-        HolderOwner<Biome> owner = new HolderOwner<>() {};
-        Holder<Biome> deepDark = Holder.Reference.createStandAlone(owner, Underworld.DEEP_DARK_BIOME);
-        Holder<Biome> ordinary = Holder.Reference.createStandAlone(owner, Underworld.BIOME);
-        Function<BlockPos, Holder<Biome>> deepDarkGetter = position -> deepDark;
-        Function<BlockPos, Holder<Biome>> ordinaryGetter = position -> ordinary;
-        Function<BlockPos, Holder<Biome>> edgeGetter = position -> position.getX() == 0 ? deepDark : ordinary;
-
-        assertEquals(1.0, InfXUnderworldLargeCaveCarver.deepDarkInteriorWeight(deepDarkGetter, 0, 0));
-        assertEquals(0.0, InfXUnderworldLargeCaveCarver.deepDarkInteriorWeight(ordinaryGetter, 0, 0));
-        double edgeWeight = InfXUnderworldLargeCaveCarver.deepDarkInteriorWeight(edgeGetter, 0, 0);
-        assertTrue(edgeWeight > 0.0 && edgeWeight < 1.0);
-        assertEquals(0.0, InfXUnderworldLargeCaveCarver.deepDarkInteriorWeight(edgeGetter, 1, 0));
+        assertTrue(InfXUnderworldAncientCityCave.canReplace(Blocks.STONE.defaultBlockState(), 0));
+        assertTrue(InfXUnderworldAncientCityCave.canReplace(Blocks.DEEPSLATE.defaultBlockState(), 0));
+        assertTrue(InfXUnderworldAncientCityCave.canReplace(Blocks.BEDROCK.defaultBlockState(), -24));
+        assertFalse(InfXUnderworldAncientCityCave.canReplace(Blocks.BEDROCK.defaultBlockState(), -25));
+        assertFalse(InfXUnderworldAncientCityCave.canReplace(Blocks.BEDROCK.defaultBlockState(), -8));
+        assertFalse(InfXUnderworldAncientCityCave.canReplace(Blocks.AIR.defaultBlockState(), 0));
+        assertFalse(InfXUnderworldAncientCityCave.canReplace(Blocks.WATER.defaultBlockState(), 0));
     }
 
     private static int carvedSamplesAtY(int y) {
