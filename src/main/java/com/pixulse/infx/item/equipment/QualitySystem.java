@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 public final class QualitySystem {
     public static final int AVERAGE_CODE = 0;
+    private static final int AVERAGE_ORDINAL = 2;
     private static final List<Quality> QUALITY_CYCLE = List.of(
             Quality.FINE,
             Quality.EXCELLENT,
@@ -55,13 +56,29 @@ public final class QualitySystem {
             float difficulty,
             int currentCode,
             boolean clumsy) {
+        return cycleCode(output, player, difficulty, currentCode, clumsy, false);
+    }
+
+    public static int cycleCode(
+            ItemStack output,
+            Player player,
+            float difficulty,
+            int currentCode,
+            boolean clumsy,
+            boolean witchClumsiness) {
         EquipmentKey key = key(output);
         if (key == null) {
             return AVERAGE_CODE;
         }
         Quality current = fromCode(currentCode);
         Quality candidate = nextSelectableQuality(
-                current, key.material().maximumQuality(), player.totalExperience, difficulty, clumsy);
+                current,
+                key.material().maximumQuality(),
+                player.totalExperience,
+                difficulty,
+                player.experienceLevel,
+                clumsy,
+                witchClumsiness);
         return toCode(candidate);
     }
 
@@ -70,7 +87,7 @@ public final class QualitySystem {
             Quality maximum,
             int totalExperience,
             float difficulty) {
-        return nextSelectableQuality(current, maximum, totalExperience, difficulty, false);
+        return nextSelectableQuality(current, maximum, totalExperience, difficulty, 0, false, false);
     }
 
     static Quality nextSelectableQuality(
@@ -79,11 +96,28 @@ public final class QualitySystem {
             int totalExperience,
             float difficulty,
             boolean clumsy) {
+        return nextSelectableQuality(current, maximum, totalExperience, difficulty, 0, clumsy, false);
+    }
+
+    static Quality nextSelectableQuality(
+            Quality current,
+            Quality maximum,
+            int totalExperience,
+            float difficulty,
+            int experienceLevel,
+            boolean clumsy,
+            boolean witchClumsiness) {
         int start = current == null ? 0 : QUALITY_CYCLE.indexOf(current) + 1;
+        Quality minimum = minimumQuality(experienceLevel, witchClumsiness);
+        int minimumOrdinal = minimum == null ? AVERAGE_ORDINAL : minimum.ordinal();
         for (int index = Math.max(0, start); index < QUALITY_CYCLE.size(); index++) {
             Quality candidate = QUALITY_CYCLE.get(index);
             if (candidate.isAtMost(maximum)
-                    && totalExperience >= experienceCost(difficulty, candidate, clumsy)) {
+                    && candidate.ordinal() >= minimumOrdinal
+                    && (experienceLevel >= 0 || candidate == minimum)
+                    && (totalExperience > 0 || candidate == minimum)
+                    && (experienceCost(difficulty, candidate, clumsy) == 0
+                            || totalExperience >= experienceCost(difficulty, candidate, clumsy))) {
                 return candidate;
             }
         }
@@ -100,28 +134,56 @@ public final class QualitySystem {
             float difficulty,
             int requestedCode,
             boolean clumsy) {
+        return clampCode(output, player, difficulty, requestedCode, clumsy, false);
+    }
+
+    public static int clampCode(
+            ItemStack output,
+            Player player,
+            float difficulty,
+            int requestedCode,
+            boolean clumsy,
+            boolean witchClumsiness) {
         EquipmentKey key = key(output);
         if (key == null) {
             return AVERAGE_CODE;
         }
-        int fallback = clumsyFallbackCode(player.experienceLevel, clumsy);
+        Quality minimum = minimumQuality(player.experienceLevel, witchClumsiness);
+        if (minimum != null && !minimum.isAtMost(key.material().maximumQuality())) {
+            minimum = key.material().maximumQuality();
+        }
+        int minimumOrdinal = minimum == null ? AVERAGE_ORDINAL : minimum.ordinal();
+        int fallback = toCode(minimum);
         Quality requested = fromCode(requestedCode);
         if (requested == null) return fallback;
+        int cost = experienceCost(difficulty, requested, clumsy);
         if (!requested.isAtMost(key.material().maximumQuality())
-                || player.totalExperience < experienceCost(difficulty, requested, clumsy)) {
+                || requested.ordinal() < minimumOrdinal
+                || (player.experienceLevel < 0 && requested != minimum)
+                || (cost > 0 && player.totalExperience < cost)) {
             return fallback;
         }
         return requestedCode;
     }
 
     static int clumsyFallbackCode(int experienceLevel, boolean clumsy) {
-        if (!clumsy) return AVERAGE_CODE;
-        // MITE uses average.ordinal() + (level - 20) / 10; Java truncates negative division toward zero.
-        int originalOrdinal = Math.max(0, Math.min(2, 2 + (experienceLevel - 20) / 10));
-        return switch (originalOrdinal) {
-            case 0 -> toCode(Quality.WRETCHED);
-            case 1 -> toCode(Quality.POOR);
-            default -> AVERAGE_CODE;
+        return toCode(minimumQuality(experienceLevel, clumsy));
+    }
+
+    public static Quality minimumQuality(int experienceLevel, boolean witchClumsiness) {
+        if (!witchClumsiness && experienceLevel < 0) {
+            return Math.floorDiv(experienceLevel, 10) <= -2
+                    ? Quality.WRETCHED
+                    : Quality.POOR;
+        }
+
+        // MITE uses Java's truncation toward zero for the cursed -20 level penalty.
+        int effectiveLevel = experienceLevel - (witchClumsiness ? 20 : 0);
+        int qualityOrdinal = Math.clamp(AVERAGE_ORDINAL + effectiveLevel / 10, 0, AVERAGE_ORDINAL);
+        return switch (qualityOrdinal) {
+            case 0 -> Quality.WRETCHED;
+            case 1 -> Quality.POOR;
+            default -> null;
         };
     }
 

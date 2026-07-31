@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import com.pixulse.infx.registry.InfXRecipes;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -33,6 +32,7 @@ public final class TimedCraftingEngine {
 
     public static boolean refreshResult(TimedCraftingMenu timedMenu, ServerPlayer player, boolean clearWhenMissing) {
         AbstractContainerMenu menu = asContainerMenu(timedMenu);
+        timedMenu.infx$setExperienceCost(0);
         Optional<CraftingMatch> match = findRecipe(timedMenu, player.level());
         if (match.isEmpty()) {
             timedMenu.infx$setHasTimedResult(false);
@@ -56,15 +56,20 @@ public final class TimedCraftingEngine {
         if (result.setRecipeUsed(player, holder.holder())) {
             ItemStack assembled = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
             if (assembled.isItemEnabled(player.level().enabledFeatures())) {
+                boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
+                boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
                 int code = QualitySystem.clampCode(
                         assembled,
                         player,
                         holder.profile().difficulty(),
                         timedMenu.infx$selectedQualityCode(),
-                        CraftingEnvironment.hasClumsiness(player));
+                        clumsy,
+                        witchClumsiness);
                 timedMenu.infx$setSelectedQualityCode(code);
                 QualitySystem.applySelectedQuality(assembled, code);
                 applySelectedRune(timedMenu, assembled);
+                timedMenu.infx$setExperienceCost(craftingExperienceCost(
+                        assembled, holder.profile().difficulty(), code, clumsy));
                 preview = assembled;
             }
         }
@@ -85,6 +90,9 @@ public final class TimedCraftingEngine {
             return;
         }
         CraftingMatch holder = match.orElseThrow();
+        if (!canPayExperience(player, timedMenu.infx$experienceCost())) {
+            return;
+        }
         float adjustedDifficulty = QualitySystem.adjustedDifficulty(
                 holder.profile().difficulty(), timedMenu.infx$selectedQualityCode());
         boolean clumsy = CraftingEnvironment.hasClumsiness(player);
@@ -116,17 +124,18 @@ public final class TimedCraftingEngine {
         if (!QualitySystem.supportsQuality(output)) {
             return;
         }
-        boolean clumsy = CraftingEnvironment.hasClumsiness(player);
+        boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
+        boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
         int code = QualitySystem.cycleCode(
                 output,
                 player,
                 holder.profile().difficulty(),
                 timedMenu.infx$selectedQualityCode(),
-                clumsy);
+                clumsy,
+                witchClumsiness);
         timedMenu.infx$setSelectedQualityCode(code);
         timedMenu.infx$resetTimedCrafting();
         refreshResult(timedMenu, player, true);
-        announceQualitySelection(player, holder.profile().difficulty(), code, clumsy);
     }
 
     public static void tick(TimedCraftingMenu timedMenu, ServerPlayer player) {
@@ -196,18 +205,21 @@ public final class TimedCraftingEngine {
             return;
         }
         int coinExperience = coinExperience(input);
-        boolean clumsy = CraftingEnvironment.hasClumsiness(player);
+        boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
+        boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
         int qualityCode = QualitySystem.clampCode(
                 output,
                 player,
                 holder.profile().difficulty(),
                 timedMenu.infx$selectedQualityCode(),
-                clumsy);
+                clumsy,
+                witchClumsiness);
         QualitySystem.applySelectedQuality(output, qualityCode);
         applySelectedRune(timedMenu, output);
-        var quality = QualitySystem.fromCode(qualityCode);
-        int qualityCost = QualitySystem.experienceCost(holder.profile().difficulty(), quality, clumsy);
-        if (qualityCost > player.totalExperience) {
+        int craftingCost = craftingExperienceCost(
+                output, holder.profile().difficulty(), qualityCode, clumsy);
+        timedMenu.infx$setExperienceCost(craftingCost);
+        if (!canPayExperience(player, craftingCost)) {
             timedMenu.infx$resetTimedCrafting();
             refreshResult(timedMenu, player, true);
             return;
@@ -226,8 +238,8 @@ public final class TimedCraftingEngine {
         EventHooks.firePlayerCraftingEvent(player, output, craftSlots);
         timedMenu.infx$resultContainer().setRecipeUsed(holder.holder());
         timedMenu.infx$resultContainer().awardUsedRecipes(player, inputsForCriterion);
-        if (qualityCost > 0) {
-            player.giveExperiencePoints(-qualityCost);
+        if (craftingCost > 0) {
+            player.giveExperiencePoints(-craftingCost);
         }
 
         consumeInputsAndReturnContainers(player, craftSlots, positioned, remaining);
@@ -240,7 +252,7 @@ public final class TimedCraftingEngine {
                 && findRecipe(timedMenu, player.level())
                         .map(next -> next.holder().id().equals(holder.holder().id()))
                         .orElse(false);
-        if (stillSameRecipe) {
+        if (stillSameRecipe && canPayExperience(player, timedMenu.infx$experienceCost())) {
             float adjustedDifficulty = QualitySystem.adjustedDifficulty(
                     holder.profile().difficulty(), timedMenu.infx$selectedQualityCode());
             int requiredTicks = CraftingTimeCalculator.requiredTicks(
@@ -253,6 +265,23 @@ public final class TimedCraftingEngine {
         } else {
             timedMenu.infx$resetTimedCrafting();
         }
+    }
+
+    private static int craftingExperienceCost(
+            ItemStack output,
+            float difficulty,
+            int qualityCode,
+            boolean clumsy) {
+        Quality quality = QualitySystem.fromCode(qualityCode);
+        int qualityCost = QualitySystem.experienceCost(difficulty, quality, clumsy);
+        if (!(output.getItem() instanceof CoinItem coin)) {
+            return qualityCost;
+        }
+        return Math.addExact(qualityCost, Math.multiplyExact(coin.experienceValue(), output.getCount()));
+    }
+
+    private static boolean canPayExperience(Player player, int cost) {
+        return cost <= 0 || player.totalExperience >= cost;
     }
 
     private static int coinExperience(CraftingInput input) {
@@ -314,23 +343,6 @@ public final class TimedCraftingEngine {
         } else {
             timedMenu.infx$setSelectedRune(0);
         }
-    }
-
-    /** Shows the server-authoritative choice and its exact cost before crafting starts. */
-    private static void announceQualitySelection(
-            ServerPlayer player, float difficulty, int qualityCode, boolean clumsy) {
-        Quality quality = QualitySystem.fromCode(qualityCode);
-        if (quality == null) {
-            player.sendSystemMessage(Component.translatable("message.infx.quality.average"));
-            return;
-        }
-        int cost = QualitySystem.experienceCost(difficulty, quality, clumsy);
-        player.sendSystemMessage(
-                Component.translatable(
-                        "message.infx.quality.selected",
-                        Component.translatable("quality.infx." + quality.getSerializedName())
-                                .withStyle(quality.color()),
-                        cost));
     }
 
     private static AbstractContainerMenu asContainerMenu(TimedCraftingMenu menu) {

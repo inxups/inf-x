@@ -31,26 +31,21 @@ class QualitySystemTest {
     }
 
     @Test
-    void qualitySelectorExposesBothBelowAverageR196Grades() {
+    void qualitySelectorRejectsBelowAverageGradesWithoutWitchClumsiness() {
         assertEquals(
                 Quality.FINE,
                 QualitySystem.nextSelectableQuality(null, Quality.FINE, 40, 100.0F));
-        assertEquals(
-                Quality.WRETCHED,
-                QualitySystem.nextSelectableQuality(Quality.FINE, Quality.FINE, 40, 100.0F));
-        assertEquals(
-                Quality.POOR,
-                QualitySystem.nextSelectableQuality(Quality.WRETCHED, Quality.FINE, 0, 100.0F));
+        assertNull(QualitySystem.nextSelectableQuality(Quality.FINE, Quality.FINE, 40, 100.0F));
         assertNull(QualitySystem.nextSelectableQuality(
                 Quality.POOR, Quality.FINE, 0, 100.0F));
-        assertEquals(
-                Quality.WRETCHED,
-                QualitySystem.nextSelectableQuality(
-                        null, Quality.FINE, 40, 100.0F, true));
+        assertNull(QualitySystem.nextSelectableQuality(
+                null, Quality.FINE, 40, 100.0F, true));
+        assertNull(QualitySystem.nextSelectableQuality(
+                Quality.LEGENDARY, Quality.LEGENDARY, 0, 100.0F, true));
     }
 
     @Test
-    void clumsinessUsesMitesOriginalNegativeIntegerDivisionForMinimumQuality() {
+    void minimumQualityUsesOnlyWitchClumsinessForTheMiteLevelPenalty() {
         assertEquals(
                 QualitySystem.toCode(Quality.WRETCHED),
                 QualitySystem.clumsyFallbackCode(0, true));
@@ -63,5 +58,20 @@ class QualitySystemTest {
         assertEquals(QualitySystem.AVERAGE_CODE, QualitySystem.clumsyFallbackCode(11, true));
         assertEquals(QualitySystem.AVERAGE_CODE, QualitySystem.clumsyFallbackCode(20, true));
         assertEquals(QualitySystem.AVERAGE_CODE, QualitySystem.clumsyFallbackCode(0, false));
+        assertEquals(Quality.POOR, QualitySystem.minimumQuality(-1, false));
+        assertEquals(Quality.POOR, QualitySystem.minimumQuality(-10, false));
+        assertEquals(Quality.WRETCHED, QualitySystem.minimumQuality(-11, false));
+        assertNull(QualitySystem.minimumQuality(1, false));
+        assertEquals(Quality.POOR, QualitySystem.minimumQuality(1, true));
+    }
+
+    @Test
+    void enchantedClumsinessDoublesCostWithoutLoweringQualityLevel() {
+        assertNull(QualitySystem.nextSelectableQuality(
+                null, Quality.FINE, 40, 100.0F, 1, true, false));
+        assertEquals(
+                Quality.POOR,
+                QualitySystem.nextSelectableQuality(
+                        Quality.LEGENDARY, Quality.LEGENDARY, 0, 100.0F, 1, true, true));
     }
 }
