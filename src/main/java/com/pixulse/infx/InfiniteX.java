@@ -5,6 +5,7 @@ import com.pixulse.infx.gametest.ModEquipmentGameTests;
 import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.gametest.ModMonsterGameTests;
 import com.pixulse.infx.gametest.ModCompletionGameTests;
+import com.pixulse.infx.gametest.ModStructureLootGameTests;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXBlocks;
@@ -56,6 +57,7 @@ public final class InfiniteX {
         InfXCreativeTabs.register(modBus);
         ModGameTests.register(modBus);
         ModEquipmentGameTests.register(modBus);
+        ModStructureLootGameTests.register(modBus);
         ModCompletionGameTests.register(modBus);
         ModMonsterGameTests.register(modBus);
         if (InfiniteXTestMode.isEnabled()) {
