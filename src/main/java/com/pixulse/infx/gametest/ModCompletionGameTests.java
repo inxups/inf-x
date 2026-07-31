@@ -324,8 +324,10 @@ public final class ModCompletionGameTests {
         ItemStack coins = InfXItems.catalog().raw("copper_coin").holder().toStack(2);
         player.setItemInHand(InteractionHand.MAIN_HAND, coins);
         int beforeXp = player.totalExperience;
-        coins.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-        helper.assertTrue(coins.getCount() == 1, "one server-side coin must be consumed");
+        InteractionResult coinUse = player.gameMode.useItem(
+                player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND);
+        helper.assertTrue(coinUse instanceof InteractionResult.Success, "right-clicking a coin must succeed");
+        helper.assertTrue(player.getMainHandItem().getCount() == 1, "one server-side coin must be consumed");
         helper.assertTrue(player.totalExperience == beforeXp + 5, "copper coin must grant five XP");
 
         ItemStack pickaxe = InfXItems.IRON_PICKAXE.toStack();

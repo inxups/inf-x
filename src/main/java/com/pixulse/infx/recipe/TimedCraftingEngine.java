@@ -23,6 +23,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
 import com.pixulse.infx.block.RuneStoneBlock;
+import com.pixulse.infx.item.CoinItem;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXAttachments;
@@ -194,6 +195,7 @@ public final class TimedCraftingEngine {
             timedMenu.infx$resetTimedCrafting();
             return;
         }
+        int coinExperience = coinExperience(input);
         boolean clumsy = CraftingEnvironment.hasClumsiness(player);
         int qualityCode = QualitySystem.clampCode(
                 output,
@@ -230,6 +232,9 @@ public final class TimedCraftingEngine {
 
         consumeInputsAndReturnContainers(player, craftSlots, positioned, remaining);
         player.getInventory().placeItemBackInInventory(output);
+        if (coinExperience > 0) {
+            player.giveExperiencePoints(coinExperience);
+        }
 
         boolean stillSameRecipe = refreshResult(timedMenu, player, true)
                 && findRecipe(timedMenu, player.level())
@@ -248,6 +253,16 @@ public final class TimedCraftingEngine {
         } else {
             timedMenu.infx$resetTimedCrafting();
         }
+    }
+
+    private static int coinExperience(CraftingInput input) {
+        int experience = 0;
+        for (ItemStack stack : input.items()) {
+            if (stack.getItem() instanceof CoinItem coin) {
+                experience += coin.experienceValue();
+            }
+        }
+        return experience;
     }
 
     private static void consumeInputsAndReturnContainers(

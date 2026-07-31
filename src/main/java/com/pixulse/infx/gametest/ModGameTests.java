@@ -254,6 +254,8 @@ public final class ModGameTests {
             functionKey("bench_hierarchy");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_CRAFTING =
             functionKey("timed_crafting");
+    private static final ResourceKey<Consumer<GameTestHelper>> COIN_CRAFTING =
+            functionKey("coin_crafting");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_REMOVAL =
             functionKey("vanilla_recipe_removal");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
@@ -294,6 +296,7 @@ public final class ModGameTests {
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
+        TEST_FUNCTIONS.register("coin_crafting", () -> ModGameTests::coinCrafting);
         TEST_FUNCTIONS.register("vanilla_recipe_removal", () -> ModGameTests::vanillaRecipeRemoval);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
@@ -326,6 +329,7 @@ public final class ModGameTests {
                 InfiniteX.id("m1"), new TestEnvironmentDefinition.AllOf());
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
+        registerTest(event, COIN_CRAFTING, environment, 200);
         registerTest(event, VANILLA_RECIPE_REMOVAL, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
@@ -557,6 +561,39 @@ public final class ModGameTests {
                             "completion must synchronize the crafted result to the client inventory");
                     helper.assertTrue(menu.infx$craftingContainer().getItem(0).isEmpty(), "completion must consume leather");
                     helper.assertFalse(menu.infx$craftingState().isRunning(), "exhausted ingredients must stop repetition");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void coinCrafting(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        menu.infx$craftingContainer().setItem(
+                0, InfXItems.catalog().raw("copper_coin").holder().toStack());
+        int experienceBefore = player.totalExperience;
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true),
+                "a copper coin must produce a copper nugget preview");
+        helper.assertTrue(
+                menu.infx$resultContainer().getItem(0).is(Items.COPPER_NUGGET),
+                "the coin recipe must produce a copper nugget");
+        player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
+        helper.assertTrue(menu.infx$craftingState().isRunning(), "coin crafting must start its timer");
+
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.COPPER_NUGGET) == 1,
+                        "crafting a copper coin must produce one copper nugget"))
+                .thenExecute(() -> {
+                    helper.assertTrue(
+                            player.totalExperience == experienceBefore + 5,
+                            "crafting a copper coin must return its five XP");
+                    helper.assertTrue(
+                            menu.infx$craftingContainer().getItem(0).isEmpty(),
+                            "coin crafting must consume one coin");
                     removePlayer(player);
                 })
                 .thenSucceed();

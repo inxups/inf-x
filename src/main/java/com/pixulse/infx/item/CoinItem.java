@@ -28,6 +28,6 @@ public final class CoinItem extends Item {
             stack.shrink(1);
             player.giveExperiencePoints(experienceValue());
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS.heldItemTransformedTo(stack);
     }
 }
