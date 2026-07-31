@@ -384,6 +384,15 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void specialBlockItemsUseTheirBlockTranslations() {
+        assertEquals("block.infx.mithril_rune_stone", InfXItems.MITHRIL_RUNE_STONE.get().getDescriptionId());
+        assertEquals(
+                "block.infx.adamantium_rune_stone", InfXItems.ADAMANTIUM_RUNE_STONE.get().getDescriptionId());
+        InfXItems.METAL_ANVILS.forEach(anvil -> assertEquals(
+                "block.infx." + anvil.getId().getPath(), anvil.get().getDescriptionId()));
+    }
+
+    @Test
     void creativeTabsHaveEnglishAndChineseTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
