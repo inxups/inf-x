@@ -19,7 +19,9 @@ import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class PortalParticles {
     static final int NETHER_PORTAL_RGB = 0xBE250B;
-    static final int RUNEGATE_RGB = 0x087999;
+    static final int RUNEGATE_RGB = RunegateColors.OVERWORLD_RGB;
+    static final int RUNEGATE_UNDERWORLD_RGB = RunegateColors.UNDERWORLD_RGB;
+    static final int RUNEGATE_NETHER_RGB = RunegateColors.NETHER_RGB;
 
     private PortalParticles() {}
 
@@ -81,8 +83,9 @@ public final class PortalParticles {
                 double yd,
                 double zd,
                 RandomSource random) {
+            int particleRgb = runegate ? RunegateColors.rgbFor(level.dimension()) : rgb;
             return new TintedPortalParticle(
-                    level, x, y, z, xd, yd, zd, sprites.get(random), rgb, runegate);
+                    level, x, y, z, xd, yd, zd, sprites.get(random), particleRgb, runegate);
         }
     }
 }

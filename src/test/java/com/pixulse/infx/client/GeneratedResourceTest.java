@@ -2620,11 +2620,13 @@ class GeneratedResourceTest {
         assertEquals("infx:block/underworld_portal_runegate_ew",
                 portal.getAsJsonObject("axis=z,rune_gate=true").get("model").getAsString());
         for (String orientation : List.of("ns", "ew")) {
-            JsonObject textures = json(GENERATED.resolve(
-                            "assets/infx/models/block/underworld_portal_runegate_" + orientation + ".json"))
-                    .getAsJsonObject("textures");
+            JsonObject model = json(GENERATED.resolve(
+                    "assets/infx/models/block/underworld_portal_runegate_" + orientation + ".json"));
+            JsonObject textures = model.getAsJsonObject("textures");
             assertEquals("infx:block/runegate", textures.get("portal").getAsString());
             assertEquals("infx:block/runegate", textures.get("particle").getAsString());
+            assertEquals("infx:block/template_runegate_portal_" + orientation,
+                    model.get("parent").getAsString());
         }
         JsonObject netherPortal = json(GENERATED.resolve("assets/infx/blockstates/nether_portal.json"))
                 .getAsJsonObject("variants");
@@ -2639,6 +2641,23 @@ class GeneratedResourceTest {
                 returnSpawnPortal.getAsJsonObject("axis=x").get("model").getAsString());
         assertEquals("infx:block/underworld_portal_runegate_ew",
                 returnSpawnPortal.getAsJsonObject("axis=z").get("model").getAsString());
+    }
+
+    @Test
+    void runegatePortalTemplatesUseDimensionTintSource() throws Exception {
+        for (String orientation : List.of("ns", "ew")) {
+            JsonObject template = json(STATIC.resolve(
+                    "assets/infx/models/block/template_runegate_portal_" + orientation + ".json"));
+            template.getAsJsonArray("elements")
+                    .get(0)
+                    .getAsJsonObject()
+                    .getAsJsonObject("faces")
+                    .entrySet()
+                    .forEach(face -> assertEquals(
+                            0,
+                            face.getValue().getAsJsonObject().get("tintindex").getAsInt(),
+                            orientation + " rune-gate face " + face.getKey() + " must use the dimension tint source"));
+        }
     }
 
     @Test
