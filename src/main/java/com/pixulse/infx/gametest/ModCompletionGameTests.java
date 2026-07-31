@@ -1045,7 +1045,7 @@ public final class ModCompletionGameTests {
         boolean foundCopper = false;
         for (int sample = 0; sample < 2_048; sample++) {
             List<ItemStack> drops = Block.getDrops(
-                    Blocks.GRAVEL.defaultBlockState(),
+                    state,
                     helper.getLevel(),
                     absolute,
                     null,
