@@ -55,6 +55,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.NonNull;
 
 final class ModModelProvider extends ModelProvider {
+    private static final int DEFAULT_LEATHER_COLOR = -6265536;
     private static final TextureSlot ANVIL_BODY = TextureSlot.create("body");
     private static final TextureSlot PORTAL = TextureSlot.create("portal");
     private static final Identifier UNDERWORLD_PORTAL_NS = InfiniteX.id("block/underworld_portal_ns");
@@ -228,7 +229,7 @@ final class ModModelProvider extends ModelProvider {
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
             if (entry.key().material() == InfxMaterial.LEATHER
                     && entry.key().type().armorForm() == EquipmentType.ArmorForm.PLATE) {
-                itemModels.generateTwoLayerDyedItem(entry.holder().value());
+                itemModels.generateItemWithTintedBaseLayer(entry.holder().value(), DEFAULT_LEATHER_COLOR);
                 continue;
             }
             switch (entry.key().type().modelFamily()) {
