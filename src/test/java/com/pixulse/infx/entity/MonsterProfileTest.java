@@ -47,6 +47,7 @@ class MonsterProfileTest {
                 .getBaseValue(Attributes.ARMOR), EPSILON);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.BONE_LORD), 20.0, 40.0, 0.26, 5.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 40.0, 0.27, 8.0);
+        assertStats(VanillaWolf.attributes(), 8.0, 16.0, 0.30, 3.0);
 
         assertStats(InfxSpider.attributes(InfxSpider.Variant.SPIDER), 12.0, 28.0, 0.375, 4.0);
         assertStats(InfxSpider.attributes(InfxSpider.Variant.CAVE_SPIDER), 16.0, 28.0, 0.375, 4.0);
