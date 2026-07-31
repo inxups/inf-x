@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 修复地下世界装饰区块读取崩溃
+
+- 菌丝 post 和棕色蘑菇装饰现在通过生成器的未缓存噪声生物群系采样判断繁茂区，不再从 `WorldGenRegion` 读取邻区块，避免新区块生成阶段触发 `Requested chunk unavailable during world generation`。
+
 ### 修复皮革护甲物品贴图颜色
 
 - 皮革护甲物品模型现在直接引用 Minecraft 26.1 原版皮革模型和材质，不再使用 MITE 皮革贴图；未染色时使用原版默认皮革颜色，仍保留染色组件支持。

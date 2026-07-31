@@ -175,7 +175,7 @@ public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConf
     }
 
     private static boolean isLushBiome(WorldGenLevel level, int x, int y, int z) {
-        return level.getBiome(new BlockPos(x, y, z)).is(Underworld.LUSH_BIOME);
+        return InfXUnderworldBiomeAccess.isLushBiome(level, x, y, z);
     }
 
     record MyceliumPost(long seed, int sourceChunkX, int sourceChunkZ, int x, int z, int y, int height) {
