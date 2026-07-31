@@ -3,7 +3,6 @@ package com.pixulse.infx.client;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.network.Network;
 import com.pixulse.infx.world.RunegateTeleportation;
-import com.pixulse.infx.world.Underworld;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -20,10 +19,6 @@ import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlers
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class RunegateAnimation {
     private static final int FINISHED_COUNTER = 30;
-    private static final int OVERWORLD_RGB = 0x359FFF;
-    private static final int UNDERWORLD_RGB = 0x4401B4;
-    private static final int NETHER_RGB = 0xE47B4E;
-    private static final int FALLBACK_RGB = 0xFFFFFF;
 
     private static boolean teleporting;
     private static int counter;
@@ -80,16 +75,7 @@ public final class RunegateAnimation {
     }
 
     private static int colorFor(ResourceKey<Level> dimension) {
-        if (dimension.equals(Level.OVERWORLD)) {
-            return OVERWORLD_RGB;
-        }
-        if (dimension.equals(Underworld.LEVEL)) {
-            return UNDERWORLD_RGB;
-        }
-        if (dimension.equals(Level.NETHER)) {
-            return NETHER_RGB;
-        }
-        return FALLBACK_RGB;
+        return RunegateColors.rgbFor(dimension);
     }
 
     private static void start() {

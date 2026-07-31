@@ -44,6 +44,8 @@ public final class ModDataGenerators {
                         new LootTableProvider.SubProviderEntry(
                                 ModRustedIronLootSubProvider::new, LootContextParamSets.CHEST),
                         new LootTableProvider.SubProviderEntry(
+                                ModMiteStructureLootSubProvider::new, LootContextParamSets.CHEST),
+                        new LootTableProvider.SubProviderEntry(
                                 ModUnderworldLootSubProvider::new, LootContextParamSets.CHEST),
                         new LootTableProvider.SubProviderEntry(
                                 ModEntityLootSubProvider::new, LootContextParamSets.ENTITY)),
