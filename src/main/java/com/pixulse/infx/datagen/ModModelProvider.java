@@ -152,8 +152,8 @@ final class ModModelProvider extends ModelProvider {
         InfXBlocks.FURNACES.forEach(furnace -> blockModels.createFurnace(
                 furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
         InfXBlocks.STRIPPED_LOG_WORKBENCHES.forEach(workbench -> {
-            generateStrippedLogWorkbench(blockModels, workbench.flint().value(), workbench.wood());
-            generateStrippedLogWorkbench(blockModels, workbench.obsidian().value(), workbench.wood());
+            generateStrippedLogWorkbench(blockModels, workbench.flint().value(), workbench.wood(), "flint");
+            generateStrippedLogWorkbench(blockModels, workbench.obsidian().value(), workbench.wood(), "obsidian");
         });
         InfXBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         InfXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
@@ -259,13 +259,13 @@ final class ModModelProvider extends ModelProvider {
     }
 
     private static void generateStrippedLogWorkbench(
-            BlockModelGenerators blockModels, Block block, String wood) {
+            BlockModelGenerators blockModels, Block block, String wood, String workbenchType) {
         String strippedLogPath = switch (wood) {
             case "crimson", "warped" -> "stripped_" + wood + "_stem";
             default -> "stripped_" + wood + "_log";
         };
         Material strippedLog = new Material(Identifier.withDefaultNamespace("block/" + strippedLogPath));
-        Material craftingTableTop = new Material(Identifier.withDefaultNamespace("block/crafting_table_top"));
+        Material workbenchTop = new Material(InfiniteX.id("block/" + workbenchType + "_workbench_top"));
         Identifier model = ModelTemplates.CUBE.create(
                 block,
                 new TextureMapping()
@@ -274,7 +274,7 @@ final class ModModelProvider extends ModelProvider {
                         .put(TextureSlot.NORTH, strippedLog)
                         .put(TextureSlot.PARTICLE, strippedLog)
                         .put(TextureSlot.SOUTH, strippedLog)
-                        .put(TextureSlot.UP, craftingTableTop)
+                        .put(TextureSlot.UP, workbenchTop)
                         .put(TextureSlot.WEST, strippedLog),
                 blockModels.modelOutput);
         blockModels.blockStateOutput.accept(

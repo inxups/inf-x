@@ -2540,6 +2540,20 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void strippedLogWorkbenchModelsUseTheirOriginalWorkbenchTops() throws Exception {
+        for (var workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
+            String prefix = "stripped_" + workbench.wood();
+            for (String type : List.of("flint", "obsidian")) {
+                JsonObject model = json(GENERATED.resolve(
+                        "assets/infx/models/block/" + prefix + "_" + type + "_workbench.json"));
+                assertEquals(
+                        "infx:block/" + type + "_workbench_top",
+                        model.getAsJsonObject("textures").get("up").getAsString());
+            }
+        }
+    }
+
+    @Test
     void runeStonesHaveR196NuggetRecipesAndModernBypassesStayDisabled() throws Exception {
         Map<String, Map<String, Object>> runes = Map.of(
                 "mithril",
