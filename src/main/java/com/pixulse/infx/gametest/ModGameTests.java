@@ -462,7 +462,7 @@ public final class ModGameTests {
         assertResult(helper, hand, InfXItems.SINEW.get(), "hand recipe result");
 
         clearGrid(hand.infx$craftingContainer());
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, flintWorkbench());
         helper.setBlock(WORK_POS.above(), Blocks.STONE);
         helper.assertTrue(
                 TieredWorkbenchBlock.isObstructed(helper.getLevel(), helper.absolutePos(WORK_POS)),
@@ -471,7 +471,7 @@ public final class ModGameTests {
         helper.assertFalse(
                 TieredWorkbenchBlock.isObstructed(helper.getLevel(), helper.absolutePos(WORK_POS)),
                 "clearing the block above must clear the obstruction");
-        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 1);
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, flintWorkbench(), 1);
         player.containerMenu = flint;
         fillCopperPickaxe(flint.infx$craftingContainer());
         helper.assertFalse(TimedCraftingEngine.refreshResult(flint, player, true), "flint bench must reject copper-tier recipes");
@@ -933,9 +933,9 @@ public final class ModGameTests {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, flintWorkbench());
 
-        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 1);
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, flintWorkbench(), 1);
         player.containerMenu = flint;
         CraftingContainer grid = flint.infx$craftingContainer();
         for (int slot = 0; slot < grid.getContainerSize(); slot++) {
@@ -1095,10 +1095,10 @@ public final class ModGameTests {
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, flintWorkbench());
 
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 5);
+                player, helper, BenchTier.FLINT, flintWorkbench(), 5);
         player.containerMenu = flint;
         fillFlintAxe(flint.infx$craftingContainer());
         helper.assertTrue(
@@ -1259,9 +1259,9 @@ public final class ModGameTests {
                 "obsidian hatchet preview");
         clearGrid(hand.infx$craftingContainer());
 
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, flintWorkbench());
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 12);
+                player, helper, BenchTier.FLINT, flintWorkbench(), 12);
         player.containerMenu = flint;
         CraftingContainer flintGrid = flint.infx$craftingContainer();
         flintGrid.setItem(0, Items.OBSIDIAN.getDefaultInstance());
@@ -1365,9 +1365,9 @@ public final class ModGameTests {
                 "flint knife preview");
 
         player.closeContainer();
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, flintWorkbench());
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 17);
+                player, helper, BenchTier.FLINT, flintWorkbench(), 17);
         player.containerMenu = flint;
         CraftingContainer flintGrid = flint.infx$craftingContainer();
         for (int slot : List.of(1, 3, 7)) {
@@ -1442,9 +1442,9 @@ public final class ModGameTests {
         helper.onEachTick(player::doTick);
         grantMaximumExperience(player);
 
-        helper.setBlock(WORK_POS, InfXBlocks.FLINT_WORKBENCH.get());
+        helper.setBlock(WORK_POS, flintWorkbench());
         TimedWorkbenchMenu flint = workbenchMenu(
-                player, helper, BenchTier.FLINT, InfXBlocks.FLINT_WORKBENCH.get(), 21);
+                player, helper, BenchTier.FLINT, flintWorkbench(), 21);
         player.containerMenu = flint;
         CraftingContainer flintGrid = flint.infx$craftingContainer();
         for (int slot : List.of(0, 1, 2, 3, 5)) {
@@ -1864,6 +1864,10 @@ public final class ModGameTests {
 
     private static void grantMaximumExperience(ServerPlayer player) {
         Experience.setTotal(player, Experience.XP_AT_DISPLAY_CAP);
+    }
+
+    private static Block flintWorkbench() {
+        return InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst().flint().get();
     }
 
     private static TimedWorkbenchMenu workbenchMenu(

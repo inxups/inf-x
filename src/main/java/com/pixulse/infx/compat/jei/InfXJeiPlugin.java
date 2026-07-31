@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.event.client.ClientEvents;
 import com.pixulse.infx.screen.gui.TimedWorkbenchScreen;
 import com.pixulse.infx.recipe.BenchTier;
@@ -57,8 +58,10 @@ public final class InfXJeiPlugin implements IModPlugin {
         var guiHelper = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(
                 new TimedCraftingRecipeCategory(guiHelper, BenchTier.HAND, Items.CRAFTING_TABLE),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.FLINT, InfXItems.FLINT_WORKBENCH.get()),
-                new TimedCraftingRecipeCategory(guiHelper, BenchTier.OBSIDIAN, InfXItems.OBSIDIAN_WORKBENCH.get()),
+                new TimedCraftingRecipeCategory(
+                        guiHelper, BenchTier.FLINT, InfXItems.STRIPPED_LOG_WORKBENCHES.getFirst().get()),
+                new TimedCraftingRecipeCategory(
+                        guiHelper, BenchTier.OBSIDIAN, InfXItems.STRIPPED_LOG_WORKBENCHES.get(1).get()),
                 new TimedCraftingRecipeCategory(guiHelper, BenchTier.COPPER, InfXItems.COPPER_WORKBENCH.get()),
                 new TimedCraftingRecipeCategory(guiHelper, BenchTier.IRON, InfXItems.IRON_WORKBENCH.get()),
                 new TimedCraftingRecipeCategory(
@@ -101,7 +104,10 @@ public final class InfXJeiPlugin implements IModPlugin {
             ItemLike[] workbenches = Arrays.stream(BenchTier.values())
                     .filter(BenchTier::isWorkbench)
                     .filter(benchTier -> benchTier.supports(requiredTier))
-                    .map(benchTier -> (ItemLike) InfXItems.workbench(benchTier).get())
+                    .flatMap(benchTier -> InfXItems.WORKBENCHES.stream()
+                            .filter(item -> item.get().getBlock() instanceof TieredWorkbenchBlock workbench
+                                    && workbench.tier() == benchTier)
+                            .map(item -> (ItemLike) item.get()))
                     .toArray(ItemLike[]::new);
             registration.addCraftingStation(TimedCraftingJeiTypes.forBench(requiredTier), workbenches);
         }

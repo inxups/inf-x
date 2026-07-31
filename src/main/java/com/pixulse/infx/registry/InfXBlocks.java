@@ -29,7 +29,6 @@ import com.pixulse.infx.block.InfxEnchantingTableBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.WitherwoodBlock;
 import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
-import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.List;
 import java.util.Map;
@@ -294,11 +293,6 @@ public final class InfXBlocks {
                     OBSIDIAN_FURNACE,
                     NETHERRACK_FURNACE);
 
-    public static final DeferredBlock<FlintWorkbenchBlock> FLINT_WORKBENCH = BLOCKS.registerBlock(
-            "flint_workbench",
-            FlintWorkbenchBlock::new,
-            properties -> properties.mapColor(MapColor.WOOD).strength(2.5F).sound(SoundType.WOOD));
-
     public static final DeferredBlock<CopperWorkbenchBlock> COPPER_WORKBENCH = BLOCKS.registerBlock(
             "copper_workbench",
             CopperWorkbenchBlock::new,
@@ -334,11 +328,6 @@ public final class InfXBlocks {
             AdamantiumWorkbenchBlock::new,
             properties -> properties.mapColor(MapColor.EMERALD).strength(3.0F).sound(SoundType.WOOD));
 
-    public static final DeferredBlock<ObsidianWorkbenchBlock> OBSIDIAN_WORKBENCH = BLOCKS.registerBlock(
-            "obsidian_workbench",
-            ObsidianWorkbenchBlock::new,
-            properties -> properties.mapColor(MapColor.COLOR_BLACK).strength(2.5F).sound(SoundType.WOOD));
-
     public static final List<StrippedLogWorkbenchSet> STRIPPED_LOG_WORKBENCHES = List.of(
             strippedLogWorkbench("oak", net.minecraft.world.item.Items.STRIPPED_OAK_LOG),
             strippedLogWorkbench("spruce", net.minecraft.world.item.Items.STRIPPED_SPRUCE_LOG),
@@ -355,15 +344,13 @@ public final class InfXBlocks {
     public static final List<DeferredBlock<? extends TieredWorkbenchBlock>> WORKBENCHES =
             Stream.concat(
                             Stream.of(
-                                    FLINT_WORKBENCH,
                                     COPPER_WORKBENCH,
                                     SILVER_WORKBENCH,
                                     GOLD_WORKBENCH,
                                     IRON_WORKBENCH,
                                     ANCIENT_METAL_WORKBENCH,
                                     MITHRIL_WORKBENCH,
-                                    ADAMANTIUM_WORKBENCH,
-                                    OBSIDIAN_WORKBENCH),
+                                    ADAMANTIUM_WORKBENCH),
                             STRIPPED_LOG_WORKBENCHES.stream()
                                     .flatMap(workbench -> Stream.of(workbench.flint(), workbench.obsidian())))
                     .toList();
@@ -467,21 +454,6 @@ public final class InfXBlocks {
         if (block == Blocks.CARROTS) return INFX_CARROTS.value();
         if (block == Blocks.POTATOES) return INFX_POTATOES.value();
         return block == Blocks.BEETROOTS ? INFX_BEETROOTS.value() : null;
-    }
-
-    public static DeferredBlock<? extends TieredWorkbenchBlock> workbench(BenchTier tier) {
-        return switch (tier) {
-            case FLINT -> FLINT_WORKBENCH;
-            case COPPER -> COPPER_WORKBENCH;
-            case SILVER -> SILVER_WORKBENCH;
-            case GOLD -> GOLD_WORKBENCH;
-            case IRON -> IRON_WORKBENCH;
-            case ANCIENT_METAL -> ANCIENT_METAL_WORKBENCH;
-            case MITHRIL -> MITHRIL_WORKBENCH;
-            case ADAMANTIUM -> ADAMANTIUM_WORKBENCH;
-            case OBSIDIAN -> OBSIDIAN_WORKBENCH;
-            case HAND -> throw new IllegalArgumentException("Hand crafting has no workbench block");
-        };
     }
 
     public static void register(IEventBus modBus) {

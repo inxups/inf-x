@@ -70,13 +70,21 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
         AdvancementHolder mineWood = manual(
                 output, "mine_wood", cuttingEdge, Items.OAK_LOG, false, "picked_up_log");
 
-        AdvancementHolder buildWorkbench = child("build_work_bench", mineWood, InfXBlocks.FLINT_WORKBENCH)
-                .addCriterion(
-                        "crafted_flint_bench",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_workbench")))
-                .addCriterion(
-                        "crafted_obsidian_bench",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("obsidian_workbench")))
+        Advancement.Builder buildWorkbenchBuilder = child(
+                "build_work_bench", mineWood, InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst().flint());
+        for (var workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
+            String prefix = "stripped_" + workbench.wood();
+            buildWorkbenchBuilder
+                    .addCriterion(
+                            "crafted_" + prefix + "_flint_bench",
+                            RecipeCraftedTrigger.TriggerInstance.craftedItem(
+                                    recipeKey(prefix + "_flint_workbench")))
+                    .addCriterion(
+                            "crafted_" + prefix + "_obsidian_bench",
+                            RecipeCraftedTrigger.TriggerInstance.craftedItem(
+                                    recipeKey(prefix + "_obsidian_workbench")));
+        }
+        AdvancementHolder buildWorkbench = buildWorkbenchBuilder
                 .requirements(AdvancementRequirements.Strategy.OR)
                 .build(InfiniteX.id("progression/build_work_bench"));
         output.accept(buildWorkbench);
