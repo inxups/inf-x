@@ -767,6 +767,7 @@ public final class ModWorldGen {
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.OVERWORLD, false, false);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.LARGE_BIOMES, false, true);
         registerOverworldNoiseSettings(context, NoiseGeneratorSettings.AMPLIFIED, true, false);
+        registerNetherNoiseSettings(context);
         DensityFunction underworldTerrain = new DensityFunctions.HolderHolder(
                 context.lookup(Registries.DENSITY_FUNCTION).getOrThrow(UNDERWORLD_TERRAIN));
         context.register(
@@ -783,6 +784,24 @@ public final class ModWorldGen {
                         false,
                         false,
                         true));
+    }
+
+    private static void registerNetherNoiseSettings(BootstrapContext<NoiseGeneratorSettings> context) {
+        NoiseGeneratorSettings vanilla = NoiseGeneratorSettings.nether(context);
+        context.register(
+                NoiseGeneratorSettings.NETHER,
+                new NoiseGeneratorSettings(
+                        vanilla.noiseSettings(),
+                        vanilla.defaultBlock(),
+                        vanilla.defaultFluid(),
+                        vanilla.noiseRouter(),
+                        withNetherBoundaryLayers(vanilla.surfaceRule()),
+                        vanilla.spawnTarget(),
+                        vanilla.seaLevel(),
+                        vanilla.disableMobGeneration(),
+                        vanilla.aquifersEnabled(),
+                        vanilla.oreVeinsEnabled(),
+                        vanilla.useLegacyRandomSource()));
     }
 
     public static NoiseRouter underworldNoiseRouter() {
@@ -882,6 +901,17 @@ public final class ModWorldGen {
                                 VerticalAnchor.absolute(Underworld.DEEPSLATE_MAX_Y_EXCLUSIVE), 0)),
                         deepslate),
                 SurfaceRules.state(Blocks.STONE.defaultBlockState()));
+    }
+
+    private static SurfaceRules.RuleSource withNetherBoundaryLayers(SurfaceRules.RuleSource vanilla) {
+        SurfaceRules.RuleSource core = SurfaceRules.state(InfXBlocks.CORE.get().defaultBlockState());
+        SurfaceRules.RuleSource mantle = SurfaceRules.state(InfXBlocks.MANTLE.get().defaultBlockState());
+        // yBlockCheck is inclusive upward, so its inverse selects only the lowest build layer.
+        return SurfaceRules.sequence(
+                SurfaceRules.ifTrue(
+                        SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.aboveBottom(1), 0)), core),
+                SurfaceRules.ifTrue(SurfaceRules.yBlockCheck(VerticalAnchor.belowTop(0), 0), mantle),
+                vanilla);
     }
 
     private static void registerOverworldNoiseSettings(

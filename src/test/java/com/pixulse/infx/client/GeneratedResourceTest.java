@@ -1853,6 +1853,43 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void netherDataUsesMantleAtTopAndSingleCoreAtBottom() throws Exception {
+        JsonObject noise = json(GENERATED.resolve("data/minecraft/worldgen/noise_settings/nether.json"));
+        JsonArray surfaceRules = noise.getAsJsonObject("surface_rule").getAsJsonArray("sequence");
+        JsonObject coreRule = surfaceRules.get(0).getAsJsonObject();
+        JsonObject coreCondition = coreRule.getAsJsonObject("if_true");
+        JsonObject coreYCheck = coreCondition.getAsJsonObject("invert");
+        JsonObject coreAnchor = coreYCheck.getAsJsonObject("anchor");
+        JsonObject coreState = coreRule.getAsJsonObject("then_run").getAsJsonObject("result_state");
+        JsonObject mantleRule = surfaceRules.get(1).getAsJsonObject();
+        JsonObject mantleYCheck = mantleRule.getAsJsonObject("if_true");
+        JsonObject mantleAnchor = mantleYCheck.getAsJsonObject("anchor");
+        JsonObject mantleState = mantleRule.getAsJsonObject("then_run").getAsJsonObject("result_state");
+
+        assertAll(
+                "Nether boundary layers",
+                () -> assertEquals(0, noise.getAsJsonObject("noise").get("min_y").getAsInt()),
+                () -> assertEquals(128, noise.getAsJsonObject("noise").get("height").getAsInt()),
+                () -> assertEquals("minecraft:sequence", noise.getAsJsonObject("surface_rule")
+                        .get("type")
+                        .getAsString()),
+                () -> assertEquals("minecraft:condition", coreRule.get("type").getAsString()),
+                () -> assertEquals("minecraft:not", coreCondition.get("type").getAsString()),
+                () -> assertEquals("minecraft:y_above", coreYCheck.get("type").getAsString()),
+                () -> assertEquals(1, coreAnchor.get("above_bottom").getAsInt()),
+                () -> assertFalse(coreYCheck.get("add_stone_depth").getAsBoolean()),
+                () -> assertEquals(0, coreYCheck.get("surface_depth_multiplier").getAsInt()),
+                () -> assertEquals("infx:core", coreState.get("Name").getAsString()),
+                () -> assertEquals("minecraft:condition", mantleRule.get("type").getAsString()),
+                () -> assertEquals("minecraft:y_above", mantleYCheck.get("type").getAsString()),
+                () -> assertEquals(0, mantleAnchor.get("below_top").getAsInt()),
+                () -> assertFalse(mantleYCheck.get("add_stone_depth").getAsBoolean()),
+                () -> assertEquals(0, mantleYCheck.get("surface_depth_multiplier").getAsInt()),
+                () -> assertEquals("infx:mantle", mantleState.get("Name").getAsString()),
+                () -> assertTrue(surfaceRules.size() > 2));
+    }
+
+    @Test
     void underworldDensityDataUsesMiteProfileAndShiftedCoordinates() throws Exception {
         JsonObject terrain = json(GENERATED.resolve(
                 "data/infx/worldgen/density_function/underworld_terrain.json"));
