@@ -73,11 +73,14 @@ public final class InfXItems {
     public static final DeferredItem<BlockItem> MITHRIL_RUNE_STONE = ITEMS.registerItem(
             "mithril_rune_stone",
             properties -> new RuneStoneItem(InfXBlocks.MITHRIL_RUNE_STONE.get(), properties),
-            properties -> properties.component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
+            properties -> properties
+                    .useBlockDescriptionPrefix()
+                    .component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final DeferredItem<BlockItem> ADAMANTIUM_RUNE_STONE = ITEMS.registerItem(
             "adamantium_rune_stone",
             properties -> new RuneStoneItem(InfXBlocks.ADAMANTIUM_RUNE_STONE.get(), properties),
             properties -> properties
+                    .useBlockDescriptionPrefix()
                     .fireResistant()
                     .component(DataComponents.BLOCK_STATE, RuneStoneBlock.itemState(0)));
     public static final List<DeferredItem<BlockItem>> WORLD_BLOCKS =
@@ -107,7 +110,9 @@ public final class InfXItems {
                     anvil.getId().getPath(),
                     properties -> new BlockItem(anvil.get(), properties),
                     properties -> {
-                        Item.Properties configured = properties.durability(anvil.get().maximumDamage());
+                        Item.Properties configured = properties
+                                .useBlockDescriptionPrefix()
+                                .durability(anvil.get().maximumDamage());
                         return anvil.get().material().has(InfxMaterial.Flag.LAVA_SAFE)
                                 ? configured.fireResistant()
                                 : configured;
@@ -134,8 +139,6 @@ public final class InfXItems {
             ITEMS.registerSimpleBlockItem(InfXBlocks.OBSIDIAN_WORKBENCH);
     public static final DeferredItem<BlockItem> CLAY_FURNACE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.CLAY_FURNACE, properties -> properties.stacksTo(1));
-    public static final DeferredItem<BlockItem> LARGE_CLAY_OVEN =
-            ITEMS.registerSimpleBlockItem(InfXBlocks.LARGE_CLAY_OVEN, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> SANDSTONE_FURNACE =
             ITEMS.registerSimpleBlockItem(InfXBlocks.SANDSTONE_FURNACE, properties -> properties.stacksTo(1));
     public static final DeferredItem<BlockItem> HARDENED_CLAY_FURNACE =
@@ -158,7 +161,6 @@ public final class InfXItems {
 
     public static final List<DeferredItem<BlockItem>> FURNACES = List.of(
             CLAY_FURNACE,
-            LARGE_CLAY_OVEN,
             SANDSTONE_FURNACE,
             HARDENED_CLAY_FURNACE,
             OBSIDIAN_FURNACE,

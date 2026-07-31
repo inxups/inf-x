@@ -439,16 +439,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of('C', Ingredient.of(Blocks.CLAY)),
                 List.of("CC", "CC"));
         addShaped(
-                "large_clay_oven",
-                BenchTier.FLINT,
-                640.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                InfXBlocks.LARGE_CLAY_OVEN,
-                1,
-                Map.of('C', Ingredient.of(Blocks.CLAY)),
-                List.of("CCC", "C C", "CCC"));
-        addShaped(
                 "sandstone_furnace",
                 BenchTier.FLINT,
                 640.0F,

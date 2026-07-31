@@ -384,6 +384,15 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void specialBlockItemsUseTheirBlockTranslations() {
+        assertEquals("block.infx.mithril_rune_stone", InfXItems.MITHRIL_RUNE_STONE.get().getDescriptionId());
+        assertEquals(
+                "block.infx.adamantium_rune_stone", InfXItems.ADAMANTIUM_RUNE_STONE.get().getDescriptionId());
+        InfXItems.METAL_ANVILS.forEach(anvil -> assertEquals(
+                "block.infx." + anvil.getId().getPath(), anvil.get().getDescriptionId()));
+    }
+
+    @Test
     void creativeTabsHaveEnglishAndChineseTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -2503,8 +2512,8 @@ class GeneratedResourceTest {
     @Test
     void generatedCountsAreExact() throws Exception {
         // Three deepslate ore items, four replacement fish spawn eggs, the clay-golem egg, the INFX bat egg, and the
-        // Longdead Guardian egg add one item definition and model each; gravel adds one block item definition.
-        assertEquals(447, jsonCount(GENERATED.resolve("assets/infx/items")));
+        // Longdead Guardian egg add one item definition and model each; gravel and furnace blocks add item definitions.
+        assertEquals(446, jsonCount(GENERATED.resolve("assets/infx/items")));
         assertEquals(517, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
