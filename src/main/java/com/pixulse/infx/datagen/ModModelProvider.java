@@ -65,12 +65,12 @@ final class ModModelProvider extends ModelProvider {
             TextureSlot.TOP,
             ANVIL_BODY);
     private static final ModelTemplate RUNE_GATE_NS_MODEL = new ModelTemplate(
-            Optional.of(Identifier.withDefaultNamespace("block/nether_portal_ns")),
+            Optional.of(InfiniteX.id("block/template_runegate_portal_ns")),
             Optional.empty(),
             TextureSlot.PARTICLE,
             PORTAL);
     private static final ModelTemplate RUNE_GATE_EW_MODEL = new ModelTemplate(
-            Optional.of(Identifier.withDefaultNamespace("block/nether_portal_ew")),
+            Optional.of(InfiniteX.id("block/template_runegate_portal_ew")),
             Optional.empty(),
             TextureSlot.PARTICLE,
             PORTAL);

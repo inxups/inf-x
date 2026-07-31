@@ -32,6 +32,8 @@ import org.jspecify.annotations.NonNull;
 
 public final class GravelLootModifier extends LootModifier {
     private static final Identifier GRAVEL_LOOT_TABLE = Identifier.withDefaultNamespace("blocks/gravel");
+    private static final Identifier SGRAVEL_LOOT_TABLE =
+            Identifier.fromNamespaceAndPath("infx", "blocks/sgravel");
     private static final Identifier NETHER_GRAVEL_LOOT_TABLE =
             Identifier.fromNamespaceAndPath("infx", "blocks/nether_gravel");
 
@@ -44,14 +46,18 @@ public final class GravelLootModifier extends LootModifier {
 
     @Override
     protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
+        boolean gravel = GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId());
+        boolean sgravel = SGRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId());
         boolean netherGravel = NETHER_GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId());
-        if (!GRAVEL_LOOT_TABLE.equals(context.getQueriedLootTableId()) && !netherGravel) {
+        if (!gravel && !sgravel && !netherGravel) {
             return generatedLoot;
         }
 
         BlockState state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
         if (state == null
-                || (netherGravel ? !state.is(InfXBlocks.NETHER_GRAVEL.get()) : !state.is(Blocks.GRAVEL))) {
+                || (netherGravel
+                        ? !state.is(InfXBlocks.NETHER_GRAVEL.get())
+                        : sgravel ? !state.is(InfXBlocks.GRAVEL.get()) : !state.is(Blocks.GRAVEL))) {
             return generatedLoot;
         }
         if (!(context.getOptionalParameter(LootContextParams.THIS_ENTITY) instanceof Player player)) {
@@ -60,7 +66,7 @@ public final class GravelLootModifier extends LootModifier {
         if (context.hasParameter(LootContextParams.EXPLOSION_RADIUS)) {
             return generatedLoot;
         }
-        if (!netherGravel && isVillageRoad(context)) {
+        if (gravel && isVillageRoad(context)) {
             generatedLoot.clear();
             generatedLoot.add(new ItemStack(Items.GRAVEL));
             return generatedLoot;
@@ -80,7 +86,10 @@ public final class GravelLootModifier extends LootModifier {
         ItemStack replacement = createStack(selected, netherGravel);
         FirstLootUnitReplacer.replace(
                 generatedLoot,
-                stack -> stack.is(Items.GRAVEL) || stack.is(Items.FLINT) || stack.is(InfXItems.NETHER_GRAVEL),
+                stack -> stack.is(Items.GRAVEL)
+                        || stack.is(Items.FLINT)
+                        || stack.is(InfXItems.GRAVEL)
+                        || stack.is(InfXItems.NETHER_GRAVEL),
                 ItemStack::getCount,
                 ItemStack::setCount,
                 replacement);

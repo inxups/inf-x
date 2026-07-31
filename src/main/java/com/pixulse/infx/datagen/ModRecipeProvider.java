@@ -769,6 +769,13 @@ final class ModRecipeProvider extends RecipeProvider {
                 25600.0F,
                 InfXItems.ADAMANTIUM_NUGGET,
                 InfXItems.ADAMANTIUM_INGOT);
+        addCoinConversions("copper", raw("copper_coin"), Items.COPPER_NUGGET);
+        addCoinConversions("silver", raw("silver_coin"), InfXItems.SILVER_NUGGET);
+        addCoinConversions("gold", raw("gold_coin"), Items.GOLD_NUGGET);
+        addCoinConversions("ancient_metal", raw("ancient_metal_coin"),
+                InfXItems.catalog().raw("ancient_metal_nugget").holder());
+        addCoinConversions("mithril", raw("mithril_coin"), InfXItems.MITHRIL_NUGGET);
+        addCoinConversions("adamantium", raw("adamantium_coin"), InfXItems.ADAMANTIUM_NUGGET);
         addChainConversions(
                 "copper", BenchTier.COPPER, 400.0F, Items.COPPER_NUGGET);
         addChainConversions(
@@ -1015,6 +1022,27 @@ final class ModRecipeProvider extends RecipeProvider {
                 nugget,
                 9,
                 List.of(Ingredient.of(ingot)));
+    }
+
+    private void addCoinConversions(String material, ItemLike coin, ItemLike nugget) {
+        addShapeless(
+                material + "_nugget_from_coin",
+                BenchTier.HAND,
+                25.0F,
+                CraftingBookCategory.MISC,
+                "",
+                nugget,
+                1,
+                List.of(Ingredient.of(coin)));
+        addShapeless(
+                material + "_coin_from_nugget",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                coin,
+                1,
+                List.of(Ingredient.of(nugget)));
     }
 
     private void addR196Buckets() {

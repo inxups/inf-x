@@ -1030,20 +1030,28 @@ public final class ModCompletionGameTests {
     private static void gravelLoot(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         BlockPos relative = new BlockPos(4, 2, 4);
-        helper.setBlock(relative, Blocks.GRAVEL);
+        sampleGravelLoot(helper, player, relative, Blocks.GRAVEL.defaultBlockState(), "gravel");
+        sampleGravelLoot(helper, player, relative, InfXBlocks.GRAVEL.get().defaultBlockState(), "sgravel");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void sampleGravelLoot(
+            GameTestHelper helper, ServerPlayer player, BlockPos relative, BlockState state, String name) {
+        helper.setBlock(relative, state);
         BlockPos absolute = helper.absolutePos(relative);
         int gravel = 0;
         int alternate = 0;
         boolean foundCopper = false;
         for (int sample = 0; sample < 2_048; sample++) {
             List<ItemStack> drops = Block.getDrops(
-                    Blocks.GRAVEL.defaultBlockState(),
+                    state,
                     helper.getLevel(),
                     absolute,
                     null,
                     player,
                     player.getMainHandItem());
-            helper.assertTrue(!drops.isEmpty(), "player-mined gravel must produce a real loot-table result");
+            helper.assertTrue(!drops.isEmpty(), "player-mined " + name + " must produce a real loot-table result");
             for (ItemStack stack : drops) {
                 if (stack.is(Items.GRAVEL)) gravel += stack.getCount();
                 else alternate += stack.getCount();
@@ -1051,10 +1059,10 @@ public final class ModCompletionGameTests {
             }
         }
         double gravelRate = gravel / (double) (gravel + alternate);
-        helper.assertTrue(gravelRate > .70 && gravelRate < .80, "real gravel rate must converge near 3/4: " + gravelRate);
-        helper.assertTrue(foundCopper, "real gravel loot must reach the copper branch");
-        removePlayer(player);
-        helper.succeed();
+        helper.assertTrue(
+                gravelRate > .70 && gravelRate < .80,
+                "real " + name + " rate must converge near 3/4: " + gravelRate);
+        helper.assertTrue(foundCopper, "real " + name + " loot must reach the copper branch");
     }
 
     private static void survivalCore(GameTestHelper helper) {

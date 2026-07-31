@@ -581,6 +581,26 @@ class GeneratedResourceTest {
                             nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
+        for (String material : List.of("copper", "silver", "gold", "ancient_metal", "mithril", "adamantium")) {
+            String nuggetNamespace = vanillaMetals.contains(material) ? "minecraft" : "infx";
+            JsonObject coinRecipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + material + "_coin_from_nugget.json"));
+            JsonObject nuggetRecipe = json(GENERATED.resolve(
+                    "data/infx/recipe/" + material + "_nugget_from_coin.json"));
+            assertAll(
+                    material + " coin conversions",
+                    () -> assertEquals(100.0F, coinRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", coinRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            "infx:" + material + "_coin",
+                            coinRecipe.getAsJsonObject("result").get("id").getAsString()),
+                    () -> assertEquals(25.0F, nuggetRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", nuggetRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(
+                            nuggetNamespace + ":" + material + "_nugget",
+                            nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+
         for (String disabled : List.of(
                 "gold_ingot_from_nuggets",
                 "gold_nugget",
@@ -1095,6 +1115,103 @@ class GeneratedResourceTest {
         assertEquals(
                 5,
                 jsonCount(GENERATED.resolve("data/infx/loot_table/chests/horse_armor")));
+    }
+
+    @Test
+    void miteStructureLootTargetsAndMappingsAreGenerated() throws Exception {
+        List<String> structures = List.of(
+                "simple_dungeon",
+                "abandoned_mineshaft",
+                "nether_bridge",
+                "desert_pyramid",
+                "jungle_temple",
+                "stronghold_corridor",
+                "stronghold_crossing",
+                "stronghold_library",
+                "ancient_city",
+                "ancient_city_ice_box",
+                "bastion_bridge",
+                "bastion_hoglin_stable",
+                "bastion_other",
+                "bastion_treasure",
+                "buried_treasure",
+                "end_city_treasure",
+                "igloo_chest",
+                "pillager_outpost",
+                "ruined_portal",
+                "shipwreck_map",
+                "shipwreck_supply",
+                "shipwreck_treasure",
+                "underwater_ruin_big",
+                "underwater_ruin_small",
+                "woodland_mansion",
+                "village/village_armorer",
+                "village/village_butcher",
+                "village/village_cartographer",
+                "village/village_desert_house",
+                "village/village_fisher",
+                "village/village_fletcher",
+                "village/village_mason",
+                "village/village_plains_house",
+                "village/village_savanna_house",
+                "village/village_shepherd",
+                "village/village_snowy_house",
+                "village/village_taiga_house",
+                "village/village_tannery",
+                "village/village_temple",
+                "village/village_toolsmith",
+                "village/village_weaponsmith",
+                "trial_chambers/corridor",
+                "trial_chambers/entrance",
+                "trial_chambers/intersection",
+                "trial_chambers/intersection_barrel",
+                "trial_chambers/reward",
+                "trial_chambers/reward_ominous",
+                "trial_chambers/supply");
+        Path tables = GENERATED.resolve("data/infx/loot_table/chests/mite");
+        assertEquals(48, jsonCount(tables));
+        assertFalse(Files.exists(GENERATED.resolve("data/infx/loot_table/chests/mite/trail_ruins_common.json")));
+        assertFalse(Files.exists(GENERATED.resolve("data/infx/loot_table/chests/mite/trail_ruins_rare.json")));
+
+        for (String structure : structures) {
+            String modifierName = "mite_structure_" + structure.replace('/', '_') + ".json";
+            JsonObject modifier = json(GENERATED.resolve("data/infx/loot_modifiers/" + modifierName));
+            JsonObject condition = modifier.getAsJsonArray("conditions").get(0).getAsJsonObject();
+            assertAll(
+                    structure,
+                    () -> assertEquals("neoforge:add_table", modifier.get("type").getAsString()),
+                    () -> assertEquals("infx:chests/mite/" + structure, modifier.get("table").getAsString()),
+                    () -> assertEquals(
+                            "minecraft:chests/" + structure,
+                            condition.get("loot_table_id").getAsString()));
+        }
+
+        String dungeon = Files.readString(tables.resolve("simple_dungeon.json"), UTF_8);
+        String mineshaft = Files.readString(tables.resolve("abandoned_mineshaft.json"), UTF_8);
+        String armorer = Files.readString(tables.resolve("village/village_armorer.json"), UTF_8);
+        String trial = Files.readString(tables.resolve("trial_chambers/reward.json"), UTF_8);
+        String ominous = Files.readString(tables.resolve("trial_chambers/reward_ominous.json"), UTF_8);
+        assertAll(
+                "MITE mappings",
+                () -> assertTrue(dungeon.contains("infx:onion")),
+                () -> assertTrue(dungeon.contains("infx:copper_coin")),
+                () -> assertTrue(dungeon.contains("infx:ancient_metal_fishing_rod")),
+                () -> assertFalse(dungeon.contains("minecraft:diamond")),
+                () -> assertTrue(mineshaft.contains("infx:cheese")),
+                () -> assertTrue(mineshaft.contains("infx:silver_ingot")),
+                () -> assertTrue(mineshaft.contains("infx:ancient_metal_pickaxe")),
+                () -> assertTrue(armorer.contains("infx:ancient_metal_chainmail_boots")),
+                () -> assertTrue(armorer.contains("infx:ancient_metal_chestplate")),
+                () -> assertTrue(trial.contains("minecraft:book")),
+                () -> assertTrue(trial.contains("infx:diamond_shard")),
+                () -> assertTrue(ominous.contains("infx:ancient_metal_pickaxe")));
+
+        try (Stream<Path> modifiers = Files.walk(GENERATED.resolve("data/infx/loot_modifiers"))) {
+            assertEquals(
+                    48,
+                    modifiers.filter(path -> path.getFileName().toString().startsWith("mite_structure_"))
+                            .count());
+        }
     }
 
     @Test
@@ -2524,11 +2641,13 @@ class GeneratedResourceTest {
         assertEquals("infx:block/underworld_portal_runegate_ew",
                 portal.getAsJsonObject("axis=z,rune_gate=true").get("model").getAsString());
         for (String orientation : List.of("ns", "ew")) {
-            JsonObject textures = json(GENERATED.resolve(
-                            "assets/infx/models/block/underworld_portal_runegate_" + orientation + ".json"))
-                    .getAsJsonObject("textures");
+            JsonObject model = json(GENERATED.resolve(
+                    "assets/infx/models/block/underworld_portal_runegate_" + orientation + ".json"));
+            JsonObject textures = model.getAsJsonObject("textures");
             assertEquals("infx:block/runegate", textures.get("portal").getAsString());
             assertEquals("infx:block/runegate", textures.get("particle").getAsString());
+            assertEquals("infx:block/template_runegate_portal_" + orientation,
+                    model.get("parent").getAsString());
         }
         JsonObject netherPortal = json(GENERATED.resolve("assets/infx/blockstates/nether_portal.json"))
                 .getAsJsonObject("variants");
@@ -2543,6 +2662,23 @@ class GeneratedResourceTest {
                 returnSpawnPortal.getAsJsonObject("axis=x").get("model").getAsString());
         assertEquals("infx:block/underworld_portal_runegate_ew",
                 returnSpawnPortal.getAsJsonObject("axis=z").get("model").getAsString());
+    }
+
+    @Test
+    void runegatePortalTemplatesUseDimensionTintSource() throws Exception {
+        for (String orientation : List.of("ns", "ew")) {
+            JsonObject template = json(STATIC.resolve(
+                    "assets/infx/models/block/template_runegate_portal_" + orientation + ".json"));
+            template.getAsJsonArray("elements")
+                    .get(0)
+                    .getAsJsonObject()
+                    .getAsJsonObject("faces")
+                    .entrySet()
+                    .forEach(face -> assertEquals(
+                            0,
+                            face.getValue().getAsJsonObject().get("tintindex").getAsInt(),
+                            orientation + " rune-gate face " + face.getKey() + " must use the dimension tint source"));
+        }
     }
 
     @Test
