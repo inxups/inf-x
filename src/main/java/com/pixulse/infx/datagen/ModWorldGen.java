@@ -121,6 +121,28 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_brown_mushroom"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_LIQUID_SOURCE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_liquid_source"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_COPPER_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_copper_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_SILVER_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_silver_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_GOLD_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_gold_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_IRON_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_iron_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_MITHRIL_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_mithril_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_ADAMANTIUM_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_adamantium_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_REDSTONE_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_redstone_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_DIAMOND_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_diamond_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_LAPIS_ORE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_lapis_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_SILVERFISH_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_silverfish"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_GRAVEL_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_gravel"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COAL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COPPER_ORE_CONFIGURED =
@@ -172,6 +194,50 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_brown_mushroom"));
     private static final ResourceKey<PlacedFeature> UNDERWORLD_LIQUID_SOURCE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_liquid_source"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_COPPER_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_copper_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_COPPER_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_copper_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_SILVER_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_silver_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_SILVER_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_silver_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_GOLD_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_gold_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_GOLD_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_gold_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_IRON_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_iron_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_IRON_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_iron_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_MITHRIL_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_mithril_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_MITHRIL_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_mithril_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_ADAMANTIUM_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_ADAMANTIUM_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_adamantium_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_REDSTONE_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_redstone_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_REDSTONE_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_redstone_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_DIAMOND_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_diamond_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_DIAMOND_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_diamond_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_LAPIS_ORE_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_lapis_ore_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_LAPIS_ORE_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_lapis_ore_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_SILVERFISH_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_silverfish_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_SILVERFISH_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_silverfish_full"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_GRAVEL_LOW_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_gravel_low"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_GRAVEL_FULL_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_gravel_full"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COPPER_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_copper_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_IRON_ORE_PLACED =
@@ -288,6 +354,83 @@ public final class ModWorldGen {
         context.register(
                 UNDERWORLD_LIQUID_SOURCE_CONFIGURED,
                 new ConfiguredFeature<>(InfXFeatures.UNDERWORLD_LIQUID_SOURCE.get(), NoneFeatureConfiguration.INSTANCE));
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_COPPER_ORE_CONFIGURED,
+                Feature.ORE,
+                Blocks.COPPER_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_COPPER_ORE.defaultBlockState(),
+                Underworld.COPPER_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_SILVER_ORE_CONFIGURED,
+                Feature.ORE,
+                InfXBlocks.SILVER_ORE.get().defaultBlockState(),
+                InfXBlocks.DEEPSLATE_SILVER_ORE.get().defaultBlockState(),
+                Underworld.SILVER_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_GOLD_ORE_CONFIGURED,
+                Feature.ORE,
+                Blocks.GOLD_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_GOLD_ORE.defaultBlockState(),
+                Underworld.GOLD_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_IRON_ORE_CONFIGURED,
+                Feature.ORE,
+                Blocks.IRON_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_IRON_ORE.defaultBlockState(),
+                Underworld.IRON_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_MITHRIL_ORE_CONFIGURED,
+                Feature.ORE,
+                InfXBlocks.MITHRIL_ORE.get().defaultBlockState(),
+                InfXBlocks.DEEPSLATE_MITHRIL_ORE.get().defaultBlockState(),
+                Underworld.MITHRIL_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_ADAMANTIUM_ORE_CONFIGURED,
+                Feature.ORE,
+                InfXBlocks.ADAMANTIUM_ORE.get().defaultBlockState(),
+                InfXBlocks.DEEPSLATE_ADAMANTIUM_ORE.get().defaultBlockState(),
+                Underworld.ADAMANTIUM_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_REDSTONE_ORE_CONFIGURED,
+                Feature.ORE,
+                Blocks.REDSTONE_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_REDSTONE_ORE.defaultBlockState(),
+                Underworld.REDSTONE_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_DIAMOND_ORE_CONFIGURED,
+                Feature.ORE,
+                Blocks.DIAMOND_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState(),
+                Underworld.DIAMOND_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_LAPIS_ORE_CONFIGURED,
+                Feature.ORE,
+                Blocks.LAPIS_ORE.defaultBlockState(),
+                Blocks.DEEPSLATE_LAPIS_ORE.defaultBlockState(),
+                Underworld.LAPIS_ORE_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_SILVERFISH_CONFIGURED,
+                Feature.ORE,
+                Blocks.INFESTED_STONE.defaultBlockState(),
+                Blocks.INFESTED_DEEPSLATE.defaultBlockState(),
+                Underworld.SILVERFISH_SIZE);
+        registerUnderworldOre(
+                context,
+                UNDERWORLD_GRAVEL_CONFIGURED,
+                InfXFeatures.UNDERWORLD_SUPPORTED_GRAVEL.get(),
+                Blocks.GRAVEL.defaultBlockState(),
+                Blocks.GRAVEL.defaultBlockState(),
+                Underworld.GRAVEL_SIZE);
         context.register(
                 OreFeatures.ORE_GRAVEL_NETHER,
                 new ConfiguredFeature<>(
@@ -437,6 +580,24 @@ public final class ModWorldGen {
                                 33)));
     }
 
+    private static void registerUnderworldOre(
+            BootstrapContext<ConfiguredFeature<?, ?>> context,
+            ResourceKey<ConfiguredFeature<?, ?>> key,
+            Feature<OreConfiguration> feature,
+            BlockState stoneState,
+            BlockState deepslateState,
+            int size) {
+        context.register(
+                key,
+                new ConfiguredFeature<>(
+                        feature,
+                        new OreConfiguration(
+                                List.of(
+                                        OreConfiguration.target(new BlockMatchTest(Blocks.STONE), stoneState),
+                                        OreConfiguration.target(new BlockMatchTest(Blocks.DEEPSLATE), deepslateState)),
+                                size)));
+    }
+
     private static void registerOverworldConfiguredOre(
             BootstrapContext<ConfiguredFeature<?, ?>> context,
             ResourceKey<ConfiguredFeature<?, ?>> key,
@@ -485,6 +646,94 @@ public final class ModWorldGen {
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(UNDERWORLD_LIQUID_SOURCE_CONFIGURED),
                         List.of(CountPlacement.of(1), BiomeFilter.biome())));
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_COPPER_ORE_CONFIGURED,
+                UNDERWORLD_COPPER_ORE_LOW_PLACED,
+                UNDERWORLD_COPPER_ORE_FULL_PLACED,
+                Underworld.COPPER_ORE_LOW_COUNT,
+                Underworld.COPPER_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_SILVER_ORE_CONFIGURED,
+                UNDERWORLD_SILVER_ORE_LOW_PLACED,
+                UNDERWORLD_SILVER_ORE_FULL_PLACED,
+                Underworld.SILVER_ORE_LOW_COUNT,
+                Underworld.SILVER_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_GOLD_ORE_CONFIGURED,
+                UNDERWORLD_GOLD_ORE_LOW_PLACED,
+                UNDERWORLD_GOLD_ORE_FULL_PLACED,
+                Underworld.GOLD_ORE_LOW_COUNT,
+                Underworld.GOLD_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_IRON_ORE_CONFIGURED,
+                UNDERWORLD_IRON_ORE_LOW_PLACED,
+                UNDERWORLD_IRON_ORE_FULL_PLACED,
+                Underworld.IRON_ORE_LOW_COUNT,
+                Underworld.IRON_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_MITHRIL_ORE_CONFIGURED,
+                UNDERWORLD_MITHRIL_ORE_LOW_PLACED,
+                UNDERWORLD_MITHRIL_ORE_FULL_PLACED,
+                Underworld.MITHRIL_ORE_LOW_COUNT,
+                Underworld.MITHRIL_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_ADAMANTIUM_ORE_CONFIGURED,
+                UNDERWORLD_ADAMANTIUM_ORE_LOW_PLACED,
+                UNDERWORLD_ADAMANTIUM_ORE_FULL_PLACED,
+                Underworld.ADAMANTIUM_ORE_LOW_COUNT,
+                0);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_REDSTONE_ORE_CONFIGURED,
+                UNDERWORLD_REDSTONE_ORE_LOW_PLACED,
+                UNDERWORLD_REDSTONE_ORE_FULL_PLACED,
+                Underworld.REDSTONE_ORE_LOW_COUNT,
+                Underworld.REDSTONE_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_DIAMOND_ORE_CONFIGURED,
+                UNDERWORLD_DIAMOND_ORE_LOW_PLACED,
+                UNDERWORLD_DIAMOND_ORE_FULL_PLACED,
+                Underworld.DIAMOND_ORE_LOW_COUNT,
+                Underworld.DIAMOND_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_LAPIS_ORE_CONFIGURED,
+                UNDERWORLD_LAPIS_ORE_LOW_PLACED,
+                UNDERWORLD_LAPIS_ORE_FULL_PLACED,
+                Underworld.LAPIS_ORE_LOW_COUNT,
+                Underworld.LAPIS_ORE_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_SILVERFISH_CONFIGURED,
+                UNDERWORLD_SILVERFISH_LOW_PLACED,
+                UNDERWORLD_SILVERFISH_FULL_PLACED,
+                Underworld.SILVERFISH_LOW_COUNT,
+                Underworld.SILVERFISH_FULL_COUNT);
+        registerUnderworldOrePlacements(
+                context,
+                configuredFeatures,
+                UNDERWORLD_GRAVEL_CONFIGURED,
+                UNDERWORLD_GRAVEL_LOW_PLACED,
+                UNDERWORLD_GRAVEL_FULL_PLACED,
+                Underworld.GRAVEL_LOW_COUNT,
+                Underworld.GRAVEL_FULL_COUNT);
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
@@ -685,6 +934,7 @@ public final class ModWorldGen {
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, UNDERWORLD_DUNGEON_PLACED);
+        addUnderworldOreFeatures(generation);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_MYCELIUM_PLACED);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_BROWN_MUSHROOM_PLACED);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_LIQUID_SOURCE_PLACED);
@@ -703,6 +953,36 @@ public final class ModWorldGen {
                         .mobSpawnSettings(new MobSpawnSettings.Builder().build())
                         .generationSettings(generation.build())
                         .build());
+    }
+
+    private static void addUnderworldOreFeatures(BiomeGenerationSettings.Builder generation) {
+        addUnderworldOreFeature(generation, UNDERWORLD_COPPER_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_COPPER_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_SILVER_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_SILVER_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_GOLD_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_GOLD_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_IRON_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_IRON_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_MITHRIL_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_MITHRIL_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_ADAMANTIUM_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_ADAMANTIUM_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_REDSTONE_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_REDSTONE_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_DIAMOND_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_DIAMOND_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_LAPIS_ORE_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_LAPIS_ORE_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_SILVERFISH_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_SILVERFISH_FULL_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_GRAVEL_LOW_PLACED);
+        addUnderworldOreFeature(generation, UNDERWORLD_GRAVEL_FULL_PLACED);
+    }
+
+    private static void addUnderworldOreFeature(
+            BiomeGenerationSettings.Builder generation, ResourceKey<PlacedFeature> placedFeature) {
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, placedFeature);
     }
 
     private static Biome r196River(
@@ -1111,6 +1391,38 @@ public final class ModWorldGen {
                                 frequency,
                                 InSquarePlacement.spread(),
                                 HeightRangePlacement.of(height),
+                                BiomeFilter.biome())));
+    }
+
+    private static void registerUnderworldOrePlacements(
+            BootstrapContext<PlacedFeature> context,
+            HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures,
+            ResourceKey<ConfiguredFeature<?, ?>> configuredKey,
+            ResourceKey<PlacedFeature> lowPlacedKey,
+            ResourceKey<PlacedFeature> fullPlacedKey,
+            int lowCount,
+            int fullCount) {
+        context.register(
+                lowPlacedKey,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(configuredKey),
+                        List.of(
+                                CountPlacement.of(lowCount),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(Underworld.MIN_Y),
+                                        VerticalAnchor.absolute(Underworld.ORE_LOW_MAX_Y_INCLUSIVE)),
+                                BiomeFilter.biome())));
+        context.register(
+                fullPlacedKey,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(configuredKey),
+                        List.of(
+                                CountPlacement.of(fullCount),
+                                InSquarePlacement.spread(),
+                                HeightRangePlacement.uniform(
+                                        VerticalAnchor.absolute(Underworld.MIN_Y),
+                                        VerticalAnchor.absolute(Underworld.ORE_MAX_Y_INCLUSIVE)),
                                 BiomeFilter.biome())));
     }
 

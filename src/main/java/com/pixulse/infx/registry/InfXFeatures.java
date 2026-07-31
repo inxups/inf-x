@@ -5,9 +5,11 @@ import com.pixulse.infx.world.InfXUnderworldBrownMushroomFeature;
 import com.pixulse.infx.world.InfXUnderworldDungeonFeature;
 import com.pixulse.infx.world.InfXUnderworldLiquidSourceFeature;
 import com.pixulse.infx.world.InfXUnderworldMyceliumFeature;
+import com.pixulse.infx.world.InfXUnderworldSupportedGravelFeature;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -33,6 +35,10 @@ public final class InfXFeatures {
             FEATURES.register(
                     "underworld_liquid_source",
                     () -> new InfXUnderworldLiquidSourceFeature(NoneFeatureConfiguration.CODEC));
+    public static final DeferredHolder<Feature<?>, InfXUnderworldSupportedGravelFeature> UNDERWORLD_SUPPORTED_GRAVEL =
+            FEATURES.register(
+                    "underworld_supported_gravel",
+                    () -> new InfXUnderworldSupportedGravelFeature(OreConfiguration.CODEC));
 
     private InfXFeatures() {}
 
