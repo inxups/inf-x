@@ -39,6 +39,18 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("banana", names("Banana", "香蕉")),
             Map.entry("worm", names("Worm", "虫子")),
             Map.entry("cooked_worm", names("Cooked Worm", "熟虫子")));
+    private static final Map<String, String[]> STRIPPED_LOG_NAMES = Map.ofEntries(
+            Map.entry("oak", names("Oak", "橡木")),
+            Map.entry("spruce", names("Spruce", "云杉木")),
+            Map.entry("birch", names("Birch", "白桦木")),
+            Map.entry("jungle", names("Jungle", "丛林木")),
+            Map.entry("acacia", names("Acacia", "金合欢木")),
+            Map.entry("cherry", names("Cherry", "樱花木")),
+            Map.entry("pale_oak", names("Pale Oak", "苍白橡木")),
+            Map.entry("dark_oak", names("Dark Oak", "深色橡木")),
+            Map.entry("mangrove", names("Mangrove", "红树木")),
+            Map.entry("crimson", names("Crimson Stem", "绯红菌柄")),
+            Map.entry("warped", names("Warped Stem", "诡异菌柄")));
     private static final Map<String, String[]> GELATINOUS_SPHERE_NAMES = Map.ofEntries(
             Map.entry("green_gelatinous_sphere", names("Green Gelatinous Sphere", "绿色粘液球")),
             Map.entry("ochre_gelatinous_sphere", names("Ochre Gelatinous Sphere", "赭色粘液球")),
@@ -480,6 +492,20 @@ final class ModLanguageProvider extends LanguageProvider {
                             : entity.chinese() + "刷怪蛋");
         });
         locale.baseTranslations.forEach(this::add);
+        for (var workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
+            String[] woodNames = STRIPPED_LOG_NAMES.get(workbench.wood());
+            String prefix = "stripped_" + workbench.wood();
+            String flintName = locale == Locale.EN_US
+                    ? "Stripped " + woodNames[0] + " Flint Workbench"
+                    : "去皮" + woodNames[1] + "燧石工具台";
+            String obsidianName = locale == Locale.EN_US
+                    ? "Stripped " + woodNames[0] + " Obsidian Workbench"
+                    : "去皮" + woodNames[1] + "黑曜石工具台";
+            add("block.infx." + prefix + "_flint_workbench", flintName);
+            add("container.infx." + prefix + "_flint_workbench", flintName);
+            add("block.infx." + prefix + "_obsidian_workbench", obsidianName);
+            add("container.infx." + prefix + "_obsidian_workbench", obsidianName);
+        }
         REMAINING_ADVANCEMENTS.forEach((path, names) -> {
             String name = names[locale == Locale.EN_US ? 0 : 1];
             add("advancements.infx." + path + ".title", name);

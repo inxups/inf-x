@@ -704,6 +704,7 @@ final class ModRecipeProvider extends RecipeProvider {
                         'S', Ingredient.of(Items.STICK),
                         'L', ingredient(ItemTags.LOGS)),
                 List.of("OB", "SL"));
+        addStrippedLogWorkbenchRecipes();
         addMetalWorkbench("copper", BenchTier.FLINT, 605.0F, Items.COPPER_INGOT, InfXBlocks.COPPER_WORKBENCH);
         addMetalWorkbench("silver", BenchTier.FLINT, 605.0F, InfXItems.SILVER_INGOT, InfXBlocks.SILVER_WORKBENCH);
         addMetalWorkbench("gold", BenchTier.FLINT, 605.0F, Items.GOLD_INGOT, InfXBlocks.GOLD_WORKBENCH);
@@ -954,6 +955,40 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.ADAMANTIUM,
                 25600.0F,
                 InfXItems.ADAMANTIUM_INGOT);
+    }
+
+    private void addStrippedLogWorkbenchRecipes() {
+        for (InfXBlocks.StrippedLogWorkbenchSet workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
+            String prefix = "stripped_" + workbench.wood();
+            addShaped(
+                    prefix + "_flint_workbench",
+                    BenchTier.HAND,
+                    270.0F,
+                    CraftingBookCategory.BUILDING,
+                    "",
+                    workbench.flint(),
+                    1,
+                    Map.of(
+                            'F', Ingredient.of(Items.FLINT),
+                            'B', ingredient(InfXItemTags.BINDINGS),
+                            'S', Ingredient.of(Items.STICK),
+                            'L', Ingredient.of(workbench.strippedLog())),
+                    List.of("FB", "SL"));
+            addShaped(
+                    prefix + "_obsidian_workbench",
+                    BenchTier.HAND,
+                    410.0F,
+                    CraftingBookCategory.BUILDING,
+                    "",
+                    workbench.obsidian(),
+                    1,
+                    Map.of(
+                            'O', Ingredient.of(Items.OBSIDIAN),
+                            'B', ingredient(InfXItemTags.BINDINGS),
+                            'S', Ingredient.of(Items.STICK),
+                            'L', Ingredient.of(workbench.strippedLog())),
+                    List.of("OB", "SL"));
+        }
     }
 
     private void addMetalConversions(

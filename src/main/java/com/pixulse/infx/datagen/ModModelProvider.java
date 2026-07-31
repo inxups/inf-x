@@ -98,6 +98,10 @@ final class ModModelProvider extends ModelProvider {
     protected @NonNull Stream<? extends Holder<Block>> getKnownBlocks() {
         Stream<Block> generated = Stream.of(
                         InfXBlocks.FURNACES.stream().map(block -> (Block) block.value()),
+                        InfXBlocks.STRIPPED_LOG_WORKBENCHES.stream()
+                                .flatMap(workbench -> Stream.of(
+                                        (Block) workbench.flint().value(),
+                                        (Block) workbench.obsidian().value())),
                         InfXBlocks.ORES.stream().map(DeferredHolder::value),
                         InfXBlocks.METAL_STORAGE_BLOCKS.stream().map(DeferredHolder::value),
                         InfXBlocks.METAL_ANVILS.stream().map(block -> (Block) block.value()),
@@ -121,6 +125,7 @@ final class ModModelProvider extends ModelProvider {
         return Stream.of(
                         InfXItems.catalog().entries().stream().map(entry -> entry.holder().value()),
                         InfXItems.FURNACES.stream().map(item -> (Item) item.value()),
+                        InfXItems.STRIPPED_LOG_WORKBENCHES.stream().map(item -> (Item) item.value()),
                         InfXItems.ORES.stream().map(item -> (Item) item.value()),
                         InfXItems.METAL_STORAGE_BLOCKS.stream().map(item -> (Item) item.value()),
                         InfXItems.METAL_ANVILS.stream().map(item -> (Item) item.value()),
@@ -146,6 +151,10 @@ final class ModModelProvider extends ModelProvider {
     protected void registerModels(@NonNull BlockModelGenerators blockModels, @NonNull ItemModelGenerators itemModels) {
         InfXBlocks.FURNACES.forEach(furnace -> blockModels.createFurnace(
                 furnace.value(), TexturedModel.ORIENTABLE_ONLY_TOP));
+        InfXBlocks.STRIPPED_LOG_WORKBENCHES.forEach(workbench -> {
+            generateStrippedLogWorkbench(blockModels, workbench.flint().value(), workbench.wood());
+            generateStrippedLogWorkbench(blockModels, workbench.obsidian().value(), workbench.wood());
+        });
         InfXBlocks.ORES.forEach(ore -> blockModels.createTrivialCube(ore.value()));
         InfXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         InfXBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
@@ -247,6 +256,30 @@ final class ModModelProvider extends ModelProvider {
                 block.asItem(),
                 ItemModelUtils.selectBlockItemProperty(
                         RuneStoneBlock.RUNE, ItemModelUtils.plainModel(models[0]), itemVariants));
+    }
+
+    private static void generateStrippedLogWorkbench(
+            BlockModelGenerators blockModels, Block block, String wood) {
+        String strippedLogPath = switch (wood) {
+            case "crimson", "warped" -> "stripped_" + wood + "_stem";
+            default -> "stripped_" + wood + "_log";
+        };
+        Material strippedLog = new Material(Identifier.withDefaultNamespace("block/" + strippedLogPath));
+        Material craftingTableTop = new Material(Identifier.withDefaultNamespace("block/crafting_table_top"));
+        Identifier model = ModelTemplates.CUBE.create(
+                block,
+                new TextureMapping()
+                        .put(TextureSlot.DOWN, strippedLog)
+                        .put(TextureSlot.EAST, strippedLog)
+                        .put(TextureSlot.NORTH, strippedLog)
+                        .put(TextureSlot.PARTICLE, strippedLog)
+                        .put(TextureSlot.SOUTH, strippedLog)
+                        .put(TextureSlot.UP, craftingTableTop)
+                        .put(TextureSlot.WEST, strippedLog),
+                blockModels.modelOutput);
+        blockModels.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(model)));
+        blockModels.registerSimpleItemModel(block, model);
     }
 
     private static void generateBlueberryBush(BlockModelGenerators blockModels) {

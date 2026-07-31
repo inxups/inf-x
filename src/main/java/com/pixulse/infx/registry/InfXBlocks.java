@@ -33,6 +33,8 @@ import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
@@ -43,6 +45,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.util.ColorRGBA;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -336,16 +339,40 @@ public final class InfXBlocks {
             ObsidianWorkbenchBlock::new,
             properties -> properties.mapColor(MapColor.COLOR_BLACK).strength(2.5F).sound(SoundType.WOOD));
 
-    public static final List<DeferredBlock<? extends TieredWorkbenchBlock>> WORKBENCHES = List.of(
-            FLINT_WORKBENCH,
-            COPPER_WORKBENCH,
-            SILVER_WORKBENCH,
-            GOLD_WORKBENCH,
-            IRON_WORKBENCH,
-            ANCIENT_METAL_WORKBENCH,
-            MITHRIL_WORKBENCH,
-            ADAMANTIUM_WORKBENCH,
-            OBSIDIAN_WORKBENCH);
+    public static final List<StrippedLogWorkbenchSet> STRIPPED_LOG_WORKBENCHES = List.of(
+            strippedLogWorkbench("oak", net.minecraft.world.item.Items.STRIPPED_OAK_LOG),
+            strippedLogWorkbench("spruce", net.minecraft.world.item.Items.STRIPPED_SPRUCE_LOG),
+            strippedLogWorkbench("birch", net.minecraft.world.item.Items.STRIPPED_BIRCH_LOG),
+            strippedLogWorkbench("jungle", net.minecraft.world.item.Items.STRIPPED_JUNGLE_LOG),
+            strippedLogWorkbench("acacia", net.minecraft.world.item.Items.STRIPPED_ACACIA_LOG),
+            strippedLogWorkbench("cherry", net.minecraft.world.item.Items.STRIPPED_CHERRY_LOG),
+            strippedLogWorkbench("pale_oak", net.minecraft.world.item.Items.STRIPPED_PALE_OAK_LOG),
+            strippedLogWorkbench("dark_oak", net.minecraft.world.item.Items.STRIPPED_DARK_OAK_LOG),
+            strippedLogWorkbench("mangrove", net.minecraft.world.item.Items.STRIPPED_MANGROVE_LOG),
+            strippedLogWorkbench("crimson", net.minecraft.world.item.Items.STRIPPED_CRIMSON_STEM),
+            strippedLogWorkbench("warped", net.minecraft.world.item.Items.STRIPPED_WARPED_STEM));
+
+    public static final List<DeferredBlock<? extends TieredWorkbenchBlock>> WORKBENCHES =
+            Stream.concat(
+                            Stream.of(
+                                    FLINT_WORKBENCH,
+                                    COPPER_WORKBENCH,
+                                    SILVER_WORKBENCH,
+                                    GOLD_WORKBENCH,
+                                    IRON_WORKBENCH,
+                                    ANCIENT_METAL_WORKBENCH,
+                                    MITHRIL_WORKBENCH,
+                                    ADAMANTIUM_WORKBENCH,
+                                    OBSIDIAN_WORKBENCH),
+                            STRIPPED_LOG_WORKBENCHES.stream()
+                                    .flatMap(workbench -> Stream.of(workbench.flint(), workbench.obsidian())))
+                    .toList();
+
+    public record StrippedLogWorkbenchSet(
+            String wood,
+            ItemLike strippedLog,
+            DeferredBlock<FlintWorkbenchBlock> flint,
+            DeferredBlock<ObsidianWorkbenchBlock> obsidian) {}
 
     private InfXBlocks() {}
 
@@ -353,6 +380,26 @@ public final class InfXBlocks {
         return BLOCKS.registerSimpleBlock(
                 name,
                 properties -> properties.ofFullCopy(Blocks.DEEPSLATE).requiresCorrectToolForDrops());
+    }
+
+    private static StrippedLogWorkbenchSet strippedLogWorkbench(String wood, ItemLike strippedLog) {
+        String prefix = "stripped_" + wood;
+        return new StrippedLogWorkbenchSet(
+                wood,
+                strippedLog,
+                BLOCKS.registerBlock(
+                        prefix + "_flint_workbench",
+                        FlintWorkbenchBlock::new,
+                        workbenchProperties(MapColor.WOOD, 2.5F)),
+                BLOCKS.registerBlock(
+                        prefix + "_obsidian_workbench",
+                        ObsidianWorkbenchBlock::new,
+                        workbenchProperties(MapColor.COLOR_BLACK, 2.5F)));
+    }
+
+    private static UnaryOperator<net.minecraft.world.level.block.state.BlockBehaviour.Properties> workbenchProperties(
+            MapColor mapColor, float strength) {
+        return properties -> properties.mapColor(mapColor).strength(strength).sound(SoundType.WOOD);
     }
 
     private static DeferredBlock<Block> metalStorageBlock(String name, MapColor color, float strength) {
