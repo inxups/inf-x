@@ -8,10 +8,12 @@ import com.pixulse.infx.registry.InfXFeatures;
 import com.pixulse.infx.registry.InfXJukeboxSongs;
 import com.pixulse.infx.world.InfXUnderworldBedrockStrata;
 import com.pixulse.infx.world.InfXUnderworldChunkGenerator;
+import com.pixulse.infx.world.InfXUnderworldLushRegionPlacement;
 import com.pixulse.infx.world.InfXShiftedYDensityFunction;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnsBiomeModifier;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,9 +21,12 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
+import net.minecraft.data.worldgen.features.CaveFeatures;
+import net.minecraft.data.worldgen.features.VegetationFeatures;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
@@ -85,6 +90,7 @@ import net.minecraft.world.level.levelgen.heightproviders.UniformHeight;
 import net.minecraft.world.level.levelgen.placement.BiomeFilter;
 import net.minecraft.world.level.levelgen.placement.BlockPredicateFilter;
 import net.minecraft.world.level.levelgen.placement.CountPlacement;
+import net.minecraft.world.level.levelgen.placement.EnvironmentScanPlacement;
 import net.minecraft.world.level.levelgen.placement.HeightRangePlacement;
 import net.minecraft.world.level.levelgen.placement.HeightmapPlacement;
 import net.minecraft.world.level.levelgen.placement.InSquarePlacement;
@@ -197,6 +203,20 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_brown_mushroom"));
     private static final ResourceKey<PlacedFeature> UNDERWORLD_LIQUID_SOURCE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_liquid_source"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_LUSH_CAVES_CEILING_VEGETATION_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_lush_caves_ceiling_vegetation"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_CAVE_VINES_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_cave_vines"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_LUSH_CAVES_CLAY_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_lush_caves_clay"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_LUSH_CAVES_VEGETATION_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_lush_caves_vegetation"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_ROOTED_AZALEA_TREE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_rooted_azalea_tree"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_SPORE_BLOSSOM_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_spore_blossom"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_CLASSIC_VINES_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_classic_vines"));
     private static final ResourceKey<PlacedFeature> UNDERWORLD_COPPER_ORE_LOW_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_copper_ore_low"));
     private static final ResourceKey<PlacedFeature> UNDERWORLD_COPPER_ORE_FULL_PLACED =
@@ -649,6 +669,89 @@ public final class ModWorldGen {
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(UNDERWORLD_LIQUID_SOURCE_CONFIGURED),
                         List.of(CountPlacement.of(1), BiomeFilter.biome())));
+        context.register(
+                UNDERWORLD_LUSH_CAVES_CEILING_VEGETATION_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(CaveFeatures.MOSS_PATCH_CEILING),
+                        underworldLushCavePlacement(
+                                CountPlacement.of(125),
+                                Underworld.LUSH_CAVES_MIN_Y,
+                                EnvironmentScanPlacement.scanningFor(
+                                        Direction.UP,
+                                        BlockPredicate.solid(),
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        12),
+                                RandomOffsetPlacement.vertical(ConstantInt.of(-1)))));
+        context.register(
+                UNDERWORLD_CAVE_VINES_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(CaveFeatures.CAVE_VINE),
+                        underworldLushCavePlacement(
+                                CountPlacement.of(188),
+                                Underworld.LUSH_CAVES_MIN_Y,
+                                EnvironmentScanPlacement.scanningFor(
+                                        Direction.UP,
+                                        BlockPredicate.hasSturdyFace(Direction.DOWN),
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        12),
+                                RandomOffsetPlacement.vertical(ConstantInt.of(-1)))));
+        context.register(
+                UNDERWORLD_LUSH_CAVES_CLAY_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(CaveFeatures.LUSH_CAVES_CLAY),
+                        underworldLushCavePlacement(
+                                CountPlacement.of(62),
+                                Underworld.LUSH_CAVES_FLOOR_SCAN_MIN_Y,
+                                EnvironmentScanPlacement.scanningFor(
+                                        Direction.DOWN,
+                                        BlockPredicate.solid(),
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        12),
+                                RandomOffsetPlacement.vertical(ConstantInt.of(1)))));
+        context.register(
+                UNDERWORLD_LUSH_CAVES_VEGETATION_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(CaveFeatures.MOSS_PATCH),
+                        underworldLushCavePlacement(
+                                CountPlacement.of(125),
+                                Underworld.LUSH_CAVES_FLOOR_SCAN_MIN_Y,
+                                EnvironmentScanPlacement.scanningFor(
+                                        Direction.DOWN,
+                                        BlockPredicate.solid(),
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        12),
+                                RandomOffsetPlacement.vertical(ConstantInt.of(1)))));
+        context.register(
+                UNDERWORLD_ROOTED_AZALEA_TREE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(CaveFeatures.ROOTED_AZALEA_TREE),
+                        underworldLushCavePlacement(
+                                CountPlacement.of(UniformInt.of(1, 2)),
+                                Underworld.LUSH_CAVES_MIN_Y,
+                                EnvironmentScanPlacement.scanningFor(
+                                        Direction.UP,
+                                        BlockPredicate.solid(),
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        12),
+                                RandomOffsetPlacement.vertical(ConstantInt.of(-1)))));
+        context.register(
+                UNDERWORLD_SPORE_BLOSSOM_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(CaveFeatures.SPORE_BLOSSOM),
+                        underworldLushCavePlacement(
+                                CountPlacement.of(25),
+                                Underworld.LUSH_CAVES_MIN_Y,
+                                EnvironmentScanPlacement.scanningFor(
+                                        Direction.UP,
+                                        BlockPredicate.solid(),
+                                        BlockPredicate.ONLY_IN_AIR_PREDICATE,
+                                        12),
+                                RandomOffsetPlacement.vertical(ConstantInt.of(-1)))));
+        context.register(
+                UNDERWORLD_CLASSIC_VINES_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(VegetationFeatures.VINES),
+                        underworldLushCavePlacement(CountPlacement.of(256), Underworld.LUSH_CAVES_MIN_Y)));
         registerUnderworldOrePlacements(
                 context,
                 configuredFeatures,
@@ -907,6 +1010,20 @@ public final class ModWorldGen {
                 SHORE_RIVER_SGRAVEL_ORE_PLACED);
     }
 
+    private static List<PlacementModifier> underworldLushCavePlacement(
+            PlacementModifier count, int minimumY, PlacementModifier... additional) {
+        List<PlacementModifier> placement = new ArrayList<>();
+        placement.add(InfXUnderworldLushRegionPlacement.INSTANCE);
+        placement.add(count);
+        placement.add(InSquarePlacement.spread());
+        placement.add(HeightRangePlacement.uniform(
+                VerticalAnchor.absolute(minimumY),
+                VerticalAnchor.absolute(Underworld.LUSH_CAVES_MAX_Y_INCLUSIVE)));
+        placement.addAll(List.of(additional));
+        placement.add(BiomeFilter.biome());
+        return List.copyOf(placement);
+    }
+
     private static void registerSgravelOrePlacement(
             BootstrapContext<PlacedFeature> context,
             HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures,
@@ -941,6 +1058,17 @@ public final class ModWorldGen {
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_MYCELIUM_PLACED);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_BROWN_MUSHROOM_PLACED);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_LIQUID_SOURCE_PLACED);
+        generation.addFeature(
+                GenerationStep.Decoration.VEGETAL_DECORATION,
+                UNDERWORLD_LUSH_CAVES_CEILING_VEGETATION_PLACED);
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_CAVE_VINES_PLACED);
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_LUSH_CAVES_CLAY_PLACED);
+        generation.addFeature(
+                GenerationStep.Decoration.VEGETAL_DECORATION,
+                UNDERWORLD_LUSH_CAVES_VEGETATION_PLACED);
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_ROOTED_AZALEA_TREE_PLACED);
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_SPORE_BLOSSOM_PLACED);
+        generation.addFeature(GenerationStep.Decoration.VEGETAL_DECORATION, UNDERWORLD_CLASSIC_VINES_PLACED);
 
         context.register(
                 Underworld.BIOME,

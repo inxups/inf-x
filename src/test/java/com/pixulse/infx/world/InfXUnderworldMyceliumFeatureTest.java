@@ -99,6 +99,9 @@ class InfXUnderworldMyceliumFeatureTest {
 
     private static Candidate firstAffectedColumn() {
         for (long seed = 0L; seed < 4_096L; seed++) {
+            if (InfXUnderworldLushRegion.isLushRegion(seed, 0, 0)) {
+                continue;
+            }
             for (InfXUnderworldMyceliumFeature.MyceliumPost post :
                     InfXUnderworldMyceliumFeature.nearbyPosts(seed, 0, 0)) {
                 for (int x = 0; x < 16; x++) {

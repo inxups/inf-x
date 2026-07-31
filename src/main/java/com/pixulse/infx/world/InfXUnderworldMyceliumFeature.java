@@ -41,7 +41,12 @@ public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConf
         int chunkZ = SectionPos.blockToSectionCoord(origin.getZ());
         int minX = SectionPos.sectionToBlockCoord(chunkX);
         int minZ = SectionPos.sectionToBlockCoord(chunkZ);
-        List<MyceliumPost> posts = nearbyPosts(context.level().getSeed(), chunkX, chunkZ);
+        long worldSeed = context.level().getSeed();
+        if (InfXUnderworldLushRegion.isLushRegion(worldSeed, chunkX, chunkZ)) {
+            return false;
+        }
+
+        List<MyceliumPost> posts = nearbyPosts(worldSeed, chunkX, chunkZ);
         boolean placedAny = false;
 
         for (int x = minX; x < minX + CHUNK_SIZE; x++) {
@@ -66,7 +71,10 @@ public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConf
             for (int offsetZ = -Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE;
                     offsetZ <= Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE;
                     offsetZ++) {
-                postForChunk(worldSeed, chunkX + offsetX, chunkZ + offsetZ).ifPresent(posts::add);
+                postForChunk(worldSeed, chunkX + offsetX, chunkZ + offsetZ)
+                        .filter(post -> !InfXUnderworldLushRegion.isLushRegion(
+                                worldSeed, post.sourceChunkX(), post.sourceChunkZ()))
+                        .ifPresent(posts::add);
             }
         }
         return posts;
