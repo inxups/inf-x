@@ -9,7 +9,7 @@ class StickBoneItemsTest {
     @Test
     void restoresMiteStackLimitAndMeleeReach() {
         assertEquals(32, StickBoneItems.stackLimit(Items.STICK, 64));
-        assertEquals(64, StickBoneItems.stackLimit(Items.BONE, 64));
+        assertEquals(16, StickBoneItems.stackLimit(Items.BONE, 64));
 
         var reach = StickBoneItems.meleeAttackRange();
         assertEquals(2.0F, reach.maxReach());

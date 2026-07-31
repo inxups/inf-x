@@ -67,11 +67,14 @@ public final class Catalog {
                             : definition.kind() == RawItem.Kind.FERTILIZER
                                     ? new ManureItem(properties)
                                     : new Item(properties),
-                    properties -> definition.material()
-                                    .filter(material -> material.has(InfxMaterial.Flag.LAVA_SAFE))
-                                    .isPresent()
-                            ? properties.fireResistant()
-                            : properties);
+                    properties -> {
+                        Item.Properties configured = properties.stacksTo(16);
+                        return definition.material()
+                                        .filter(material -> material.has(InfxMaterial.Flag.LAVA_SAFE))
+                                        .isPresent()
+                                ? configured.fireResistant()
+                                : configured;
+                    });
             RawEntry entry = new RawEntry(definition, holder);
             if (rawByPath.put(entry.path(), entry) != null) {
                 throw new IllegalStateException("Duplicate INFX raw item: " + entry.path());

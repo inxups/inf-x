@@ -41,7 +41,7 @@ public final class ItemProperties {
             case HORSE -> horseArmor(key, properties);
             case NONE -> switch (key.type()) {
                 case BOW, FISHING_ROD -> commonDamageable(key, properties);
-                case ARROW -> properties;
+                case ARROW -> properties.stacksTo(16);
                 default -> tool(key, properties);
             };
         };
