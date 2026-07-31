@@ -1657,6 +1657,9 @@ class GeneratedResourceTest {
         JsonArray underworldDungeonFeatures = biome.getAsJsonArray("features")
                 .get(GenerationStep.Decoration.UNDERGROUND_STRUCTURES.ordinal())
                 .getAsJsonArray();
+        JsonArray underworldNaturalFeatures = biome.getAsJsonArray("features")
+                .get(GenerationStep.Decoration.UNDERGROUND_DECORATION.ordinal())
+                .getAsJsonArray();
         JsonObject configuredDungeon = json(GENERATED.resolve(
                 "data/infx/worldgen/configured_feature/underworld_dungeon.json"));
         JsonObject placedDungeon = json(GENERATED.resolve(
@@ -1743,7 +1746,13 @@ class GeneratedResourceTest {
                         biome.getAsJsonObject("spawners").entrySet().stream()
                                 .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
                         "Underworld spawn tables must be empty"),
-                () -> assertEquals(Set.of("infx:underworld_dungeon"), underworldFeatures),
+                () -> assertEquals(
+                        Set.of(
+                                "infx:underworld_dungeon",
+                                "infx:underworld_mycelium",
+                                "infx:underworld_brown_mushroom",
+                                "infx:underworld_liquid_source"),
+                        underworldFeatures),
                 () -> assertTrue(biome.getAsJsonArray("carvers").isEmpty()),
                 () -> assertFalse(mixinConfig.contains("\"NoiseBasedChunkGeneratorMixin\"")),
                 () -> assertFalse(Files.exists(GENERATED.resolve(
@@ -1806,6 +1815,34 @@ class GeneratedResourceTest {
                 () -> assertEquals("minecraft:biome", dungeonPlacement.get(4).getAsJsonObject()
                         .get("type")
                         .getAsString()));
+
+        List<String> naturalFeatureIds = List.of(
+                "underworld_mycelium",
+                "underworld_brown_mushroom",
+                "underworld_liquid_source");
+        assertEquals(
+                naturalFeatureIds.stream().map(id -> "infx:" + id).toList(),
+                underworldNaturalFeatures.asList().stream().map(JsonElement::getAsString).toList());
+        for (String featureId : naturalFeatureIds) {
+            JsonObject configured = json(GENERATED.resolve(
+                    "data/infx/worldgen/configured_feature/" + featureId + ".json"));
+            JsonObject placed = json(GENERATED.resolve(
+                    "data/infx/worldgen/placed_feature/" + featureId + ".json"));
+            JsonArray placement = placed.getAsJsonArray("placement");
+            assertAll(
+                    "Underworld natural decoration " + featureId,
+                    () -> assertEquals("infx:" + featureId, configured.get("type").getAsString()),
+                    () -> assertTrue(configured.getAsJsonObject("config").isEmpty()),
+                    () -> assertEquals("infx:" + featureId, placed.get("feature").getAsString()),
+                    () -> assertEquals(2, placement.size()),
+                    () -> assertEquals("minecraft:count", placement.get(0).getAsJsonObject()
+                            .get("type")
+                            .getAsString()),
+                    () -> assertEquals(1, placement.get(0).getAsJsonObject().get("count").getAsInt()),
+                    () -> assertEquals("minecraft:biome", placement.get(1).getAsJsonObject()
+                            .get("type")
+                            .getAsString()));
+        }
 
         for (String strataNoise : List.of(
                 "underworld_bedrock_strata_1a",

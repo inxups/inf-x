@@ -19,6 +19,11 @@ public final class Underworld {
     public static final int TERRAIN_MAX_Y_EXCLUSIVE = 248;
     public static final int TERRAIN_HEIGHT = TERRAIN_MAX_Y_EXCLUSIVE - TERRAIN_MIN_Y;
     public static final int WATER_LEVEL = 144;
+    public static final int LIQUID_SOURCE_ATTEMPTS_PER_CHUNK = 70;
+    public static final int BROWN_MUSHROOM_CHANCE = 4;
+    public static final int MYCELIUM_POST_CHANCE = 16;
+    public static final int MYCELIUM_POST_RADIUS = 24;
+    public static final int MYCELIUM_POST_SEARCH_CHUNK_RANGE = (MYCELIUM_POST_RADIUS - 1) / 16 + 1;
     public static final int BOUNDARY_MAX_THICKNESS = 5;
     public static final int INTERNAL_BEDROCK_MIN_Y = MIN_Y;
     public static final int INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE = DEEPSLATE_MAX_Y_EXCLUSIVE;

@@ -16,6 +16,11 @@ class UnderworldTest {
         assertEquals(248, Underworld.TERRAIN_MAX_Y_EXCLUSIVE);
         assertEquals(128, Underworld.TERRAIN_HEIGHT);
         assertEquals(144, Underworld.WATER_LEVEL);
+        assertEquals(70, Underworld.LIQUID_SOURCE_ATTEMPTS_PER_CHUNK);
+        assertEquals(4, Underworld.BROWN_MUSHROOM_CHANCE);
+        assertEquals(16, Underworld.MYCELIUM_POST_CHANCE);
+        assertEquals(24, Underworld.MYCELIUM_POST_RADIUS);
+        assertEquals(2, Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE);
         assertEquals(5, Underworld.BOUNDARY_MAX_THICKNESS);
         assertEquals(-128, Underworld.INTERNAL_BEDROCK_MIN_Y);
         assertEquals(120, Underworld.INTERNAL_BEDROCK_MAX_Y_EXCLUSIVE);
