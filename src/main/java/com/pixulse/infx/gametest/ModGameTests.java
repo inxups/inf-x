@@ -571,6 +571,7 @@ public final class ModGameTests {
         helper.onEachTick(player::doTick);
         TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
         player.containerMenu = player.inventoryMenu;
+        int[] coinExperienceBefore = new int[1];
         menu.infx$craftingContainer().setItem(
                 0, InfXItems.catalog().raw("copper_coin").holder().toStack());
         int experienceBefore = player.totalExperience;
@@ -580,6 +581,7 @@ public final class ModGameTests {
         helper.assertTrue(
                 menu.infx$resultContainer().getItem(0).is(Items.COPPER_NUGGET),
                 "the coin recipe must produce a copper nugget");
+        helper.assertTrue(menu.infx$experienceCost() == 0, "breaking a coin into a nugget must show no XP cost");
         player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
         helper.assertTrue(menu.infx$craftingState().isRunning(), "coin crafting must start its timer");
 
@@ -594,6 +596,28 @@ public final class ModGameTests {
                     helper.assertTrue(
                             menu.infx$craftingContainer().getItem(0).isEmpty(),
                             "coin crafting must consume one coin");
+                    Item copperCoin = InfXItems.catalog().raw("copper_coin").holder().value();
+                    menu.infx$craftingContainer().setItem(0, Items.COPPER_NUGGET.getDefaultInstance());
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(menu, player, true),
+                            "a copper nugget must produce a copper coin preview");
+                    helper.assertTrue(
+                            menu.infx$resultContainer().getItem(0).is(copperCoin),
+                            "the nugget recipe must produce a copper coin");
+                    helper.assertTrue(menu.infx$experienceCost() == 5, "coin crafting must expose its XP cost");
+                    coinExperienceBefore[0] = player.totalExperience;
+                    player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
+                    helper.assertTrue(menu.infx$craftingState().isRunning(), "coin production must start its timer");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(
+                                player.getInventory(),
+                                InfXItems.catalog().raw("copper_coin").holder().value()) == 1,
+                        "crafting a nugget into a coin must produce one coin"))
+                .thenExecute(() -> {
+                    helper.assertTrue(
+                            player.totalExperience == coinExperienceBefore[0] - 5,
+                            "crafting a copper coin must deduct its five XP");
                     removePlayer(player);
                 })
                 .thenSucceed();
@@ -708,7 +732,33 @@ public final class ModGameTests {
                             player.totalExperience == experienceBeforeQualityCraft[0] - qualityCost,
                             "quality crafting must deduct its exact experience cost");
                 })
-                .thenExecute(() -> removePlayer(player))
+                .thenExecute(() -> {
+                    Experience.setTotal(player, -20);
+                    clearGrid(grid);
+                    grid.setItem(0, Items.FLINT.getDefaultInstance());
+                    grid.setItem(1, Items.STRING.getDefaultInstance());
+                    grid.setItem(3, Items.STICK.getDefaultInstance());
+                    timed.infx$setSelectedQualityCode(QualitySystem.toCode(Quality.FINE));
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(timed, player, true),
+                            "negative-level players must still receive a tool preview");
+                    Quality negativeQuality = timed.infx$resultContainer().getItem(0)
+                            .get(InfXDataComponents.QUALITY.get());
+                    helper.assertTrue(
+                            negativeQuality == Quality.WRETCHED || negativeQuality == Quality.POOR,
+                            "negative levels must force Wretched or Poor quality");
+                    helper.assertTrue(timed.infx$experienceCost() == 0, "forced bad quality must cost no XP");
+
+                    Experience.setTotal(player, 1_000);
+                    timed.infx$setSelectedQualityCode(QualitySystem.toCode(Quality.POOR));
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(timed, player, true),
+                            "positive-level players must keep a normal tool preview");
+                    helper.assertTrue(
+                            timed.infx$resultContainer().getItem(0).get(InfXDataComponents.QUALITY.get()) == null,
+                            "positive-level players without the witch curse cannot craft Poor tools");
+                    removePlayer(player);
+                })
                 .thenSucceed();
     }
 

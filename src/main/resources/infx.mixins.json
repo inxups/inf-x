@@ -49,6 +49,7 @@
     "WorldDimensionsMixin"
   ],
   "client": [
+    "AbstractContainerScreenMixin",
     "DifficultyButtonsMixin",
     "DebugScreenOverlayMixin",
     "EnchantmentScreenMixin",

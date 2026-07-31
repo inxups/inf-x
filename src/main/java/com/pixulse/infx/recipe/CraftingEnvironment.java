@@ -16,11 +16,15 @@ public final class CraftingEnvironment {
         return !HarvestSpeedRules.isInCobweb(player) && !HarvestSpeedRules.isParalyzed(player);
     }
 
-    public static boolean hasClumsiness(Player player) {
+    public static boolean hasWitchClumsiness(Player player) {
         if (CurseManager.hasCurse(player, CurseType.CLUMSINESS)) {
             CurseManager.reveal(player, CurseType.CLUMSINESS);
             return true;
         }
+        return false;
+    }
+
+    public static boolean hasEnchantedClumsiness(Player player) {
         var enchantments = player.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         return enchantments.get(InfXEnchantments.CLUMSINESS)
                 .map(enchantment -> {
@@ -33,6 +37,10 @@ public final class CraftingEnvironment {
                     return false;
                 })
                 .orElse(false);
+    }
+
+    public static boolean hasClumsiness(Player player) {
+        return hasWitchClumsiness(player) || hasEnchantedClumsiness(player);
     }
 
     public static int applyClumsiness(int ticks, boolean clumsy) {

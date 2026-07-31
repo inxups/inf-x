@@ -578,12 +578,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.enchanting_table_obstructed", locale == Locale.EN_US
                 ? "The enchanting table needs clear space above it"
                 : "附魔台上方需要留空");
-        add("message.infx.quality.average", locale == Locale.EN_US
-                ? "Selected Average Quality (no XP cost)"
-                : "已选择平均品质（不消耗经验）");
-        add("message.infx.quality.selected", locale == Locale.EN_US
-                ? "Selected %s (cost: %s XP)"
-                : "已选择%s（消耗 %s 点经验）");
         add("message.infx.safe_owned", locale == Locale.EN_US ? "This safe belongs to %s" : "该保险箱属于 %s");
         add("message.infx.safe_tool", locale == Locale.EN_US ? "A matching metal tool is required" : "需要对应金属等级的工具");
         add("message.infx.safe_foreign_tool", locale == Locale.EN_US ? "Another player's safe requires a tool one metal tier higher" : "破坏其他玩家的保险箱需要高一级金属工具");
@@ -632,6 +626,9 @@ final class ModLanguageProvider extends LanguageProvider {
                     locale == Locale.EN_US ? material.englishNoun() : material.chinesePrefix());
         }
         add("tooltip.infx.material", locale == Locale.EN_US ? "Material: %s" : "材料：%s");
+        add("tooltip.infx.crafting_experience", locale == Locale.EN_US
+                ? "Experience cost: %s XP"
+                : "经验消耗：%s 点");
         add("tooltip.infx.damage", locale == Locale.EN_US ? "INFX damage: %s" : "INFX 伤害：%s");
         add("tooltip.infx.reach", locale == Locale.EN_US ? "Melee reach: %s blocks" : "近战距离：%s 格");
         add("tooltip.infx.protection", locale == Locale.EN_US ? "Fixed protection: %s" : "固定防护：%s");

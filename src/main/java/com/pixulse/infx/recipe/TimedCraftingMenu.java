@@ -14,7 +14,8 @@ public interface TimedCraftingMenu {
     int DATA_QUALITY = 4;
     int DATA_RUNE = 5;
     int DATA_CYCLE_SEQUENCE = 6;
-    int DATA_COUNT = 7;
+    int DATA_EXPERIENCE_COST = 7;
+    int DATA_COUNT = 8;
 
     BenchTier infx$benchTier();
 
@@ -62,6 +63,14 @@ public interface TimedCraftingMenu {
         infx$craftingData().set(DATA_RUNE, rune);
     }
 
+    default int infx$experienceCost() {
+        return infx$craftingData().get(DATA_EXPERIENCE_COST);
+    }
+
+    default void infx$setExperienceCost(int cost) {
+        infx$craftingData().set(DATA_EXPERIENCE_COST, Math.max(0, cost));
+    }
+
     default void infx$cycleResult(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             TimedCraftingEngine.cycleResult(this, serverPlayer);
@@ -74,6 +83,7 @@ public interface TimedCraftingMenu {
 
     default void infx$resetTimedCrafting() {
         infx$craftingState().reset();
+        infx$setExperienceCost(0);
         infx$syncCraftingData();
     }
 
