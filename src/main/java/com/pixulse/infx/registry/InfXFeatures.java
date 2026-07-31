@@ -1,7 +1,10 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.world.InfXUnderworldBrownMushroomFeature;
 import com.pixulse.infx.world.InfXUnderworldDungeonFeature;
+import com.pixulse.infx.world.InfXUnderworldLiquidSourceFeature;
+import com.pixulse.infx.world.InfXUnderworldMyceliumFeature;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -18,6 +21,18 @@ public final class InfXFeatures {
             FEATURES.register(
                     "underworld_dungeon",
                     () -> new InfXUnderworldDungeonFeature(NoneFeatureConfiguration.CODEC));
+    public static final DeferredHolder<Feature<?>, InfXUnderworldMyceliumFeature> UNDERWORLD_MYCELIUM =
+            FEATURES.register(
+                    "underworld_mycelium",
+                    () -> new InfXUnderworldMyceliumFeature(NoneFeatureConfiguration.CODEC));
+    public static final DeferredHolder<Feature<?>, InfXUnderworldBrownMushroomFeature> UNDERWORLD_BROWN_MUSHROOM =
+            FEATURES.register(
+                    "underworld_brown_mushroom",
+                    () -> new InfXUnderworldBrownMushroomFeature(NoneFeatureConfiguration.CODEC));
+    public static final DeferredHolder<Feature<?>, InfXUnderworldLiquidSourceFeature> UNDERWORLD_LIQUID_SOURCE =
+            FEATURES.register(
+                    "underworld_liquid_source",
+                    () -> new InfXUnderworldLiquidSourceFeature(NoneFeatureConfiguration.CODEC));
 
     private InfXFeatures() {}
 

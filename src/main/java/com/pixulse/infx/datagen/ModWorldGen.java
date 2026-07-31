@@ -115,6 +115,12 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_DUNGEON_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_dungeon"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_MYCELIUM_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_mycelium"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_BROWN_MUSHROOM_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_brown_mushroom"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_LIQUID_SOURCE_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("underworld_liquid_source"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COAL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> OVERWORLD_COPPER_ORE_CONFIGURED =
@@ -160,6 +166,12 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<PlacedFeature> UNDERWORLD_DUNGEON_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_dungeon"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_MYCELIUM_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_mycelium"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_BROWN_MUSHROOM_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_brown_mushroom"));
+    private static final ResourceKey<PlacedFeature> UNDERWORLD_LIQUID_SOURCE_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("underworld_liquid_source"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COPPER_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_copper_ore"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_IRON_ORE_PLACED =
@@ -267,6 +279,15 @@ public final class ModWorldGen {
         context.register(
                 UNDERWORLD_DUNGEON_CONFIGURED,
                 new ConfiguredFeature<>(InfXFeatures.UNDERWORLD_DUNGEON.get(), NoneFeatureConfiguration.INSTANCE));
+        context.register(
+                UNDERWORLD_MYCELIUM_CONFIGURED,
+                new ConfiguredFeature<>(InfXFeatures.UNDERWORLD_MYCELIUM.get(), NoneFeatureConfiguration.INSTANCE));
+        context.register(
+                UNDERWORLD_BROWN_MUSHROOM_CONFIGURED,
+                new ConfiguredFeature<>(InfXFeatures.UNDERWORLD_BROWN_MUSHROOM.get(), NoneFeatureConfiguration.INSTANCE));
+        context.register(
+                UNDERWORLD_LIQUID_SOURCE_CONFIGURED,
+                new ConfiguredFeature<>(InfXFeatures.UNDERWORLD_LIQUID_SOURCE.get(), NoneFeatureConfiguration.INSTANCE));
         context.register(
                 OreFeatures.ORE_GRAVEL_NETHER,
                 new ConfiguredFeature<>(
@@ -449,6 +470,21 @@ public final class ModWorldGen {
                                 HeightRangePlacement.uniform(
                                         VerticalAnchor.absolute(140), VerticalAnchor.absolute(171)),
                                 BiomeFilter.biome())));
+        context.register(
+                UNDERWORLD_MYCELIUM_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(UNDERWORLD_MYCELIUM_CONFIGURED),
+                        List.of(CountPlacement.of(1), BiomeFilter.biome())));
+        context.register(
+                UNDERWORLD_BROWN_MUSHROOM_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(UNDERWORLD_BROWN_MUSHROOM_CONFIGURED),
+                        List.of(CountPlacement.of(1), BiomeFilter.biome())));
+        context.register(
+                UNDERWORLD_LIQUID_SOURCE_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(UNDERWORLD_LIQUID_SOURCE_CONFIGURED),
+                        List.of(CountPlacement.of(1), BiomeFilter.biome())));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
@@ -649,6 +685,9 @@ public final class ModWorldGen {
                 r196River(placed, carvers, 0.8F, 0.9F, true, true));
         BiomeGenerationSettings.Builder generation = new BiomeGenerationSettings.Builder(placed, carvers);
         generation.addFeature(GenerationStep.Decoration.UNDERGROUND_STRUCTURES, UNDERWORLD_DUNGEON_PLACED);
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_MYCELIUM_PLACED);
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_BROWN_MUSHROOM_PLACED);
+        generation.addFeature(GenerationStep.Decoration.UNDERGROUND_DECORATION, UNDERWORLD_LIQUID_SOURCE_PLACED);
 
         context.register(
                 Underworld.BIOME,

@@ -38,6 +38,7 @@ import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.ChatFormatting;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
@@ -287,6 +288,8 @@ public final class ModGameTests {
             functionKey("advanced_furnace_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> EXTREME_DIFFICULTY =
             functionKey("extreme_difficulty");
+    private static final ResourceKey<Consumer<GameTestHelper>> HOT_FLOOR =
+            functionKey("hot_floor");
 
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
@@ -308,6 +311,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
         TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
+        TEST_FUNCTIONS.register("hot_floor", () -> ModGameTests::hotFloor);
     }
 
     private ModGameTests() {}
@@ -339,6 +343,7 @@ public final class ModGameTests {
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
         registerTest(event, EXTREME_DIFFICULTY, environment, 40);
+        registerTest(event, HOT_FLOOR, environment, 40);
     }
 
     private static void registerTest(
@@ -420,6 +425,26 @@ public final class ModGameTests {
                 difficultyCommand != null && difficultyCommand.getChild("extreme") != null,
                 "/difficulty extreme must be registered by the vanilla difficulty command");
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void hotFloor(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        try {
+            BlockPos floorPos = helper.absolutePos(WORK_POS);
+            for (Block floor : List.of(InfXBlocks.MANTLE.get(), InfXBlocks.CORE.get())) {
+                helper.setBlock(WORK_POS, floor);
+                player.clearFire();
+                floor.stepOn(helper.getLevel(), floorPos, floor.defaultBlockState(), player);
+                String floorName = BuiltInRegistries.BLOCK.getKey(floor).getPath();
+                helper.assertTrue(player.isOnFire(), floorName + " must ignite entities that step on it");
+                helper.assertTrue(
+                        player.getRemainingFireTicks() >= 160,
+                        floorName + " must apply at least eight seconds of fire");
+            }
+        } finally {
+            removePlayer(player);
+        }
         helper.succeed();
     }
 
