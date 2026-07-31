@@ -419,16 +419,13 @@ class GeneratedResourceTest {
     void everyWorkbenchHasClientDataLootRecipeAndTranslations() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
-        for (BenchTier tier : BenchTier.values()) {
-            if (!tier.isWorkbench()) {
-                continue;
-            }
-            String path = tier.serializedName() + "_workbench";
+        for (var workbench : InfXBlocks.WORKBENCHES) {
+            String path = workbench.getId().getPath();
             assertAll(
                     path,
-                    () -> assertTrue(Files.isRegularFile(STATIC.resolve("assets/infx/blockstates/" + path + ".json"))),
-                    () -> assertTrue(Files.isRegularFile(STATIC.resolve("assets/infx/items/" + path + ".json"))),
-                    () -> assertTrue(Files.isRegularFile(STATIC.resolve("assets/infx/models/block/" + path + ".json"))),
+                    () -> assertTrue(resourceExists("assets/infx/blockstates/" + path + ".json")),
+                    () -> assertTrue(resourceExists("assets/infx/items/" + path + ".json")),
+                    () -> assertTrue(resourceExists("assets/infx/models/block/" + path + ".json")),
                     () -> assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/loot_table/blocks/" + path + ".json"))),
                     () -> assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + path + ".json"))),
                     () -> assertTrue(english.has("block.infx." + path)),
@@ -2554,6 +2551,21 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void basicWorkbenchRecipesAndModelsAreRemoved() {
+        for (String path : List.of("flint_workbench", "obsidian_workbench")) {
+            assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/" + path + ".json")));
+            assertFalse(Files.exists(STATIC.resolve("assets/infx/blockstates/" + path + ".json")));
+            assertFalse(Files.exists(STATIC.resolve("assets/infx/items/" + path + ".json")));
+            assertFalse(Files.exists(STATIC.resolve("assets/infx/models/block/" + path + ".json")));
+        }
+    }
+
+    private static boolean resourceExists(String relativePath) {
+        return Files.isRegularFile(STATIC.resolve(relativePath))
+                || Files.isRegularFile(GENERATED.resolve(relativePath));
+    }
+
+    @Test
     void runeStonesHaveR196NuggetRecipesAndModernBypassesStayDisabled() throws Exception {
         Map<String, Map<String, Object>> runes = Map.of(
                 "mithril",
@@ -2814,8 +2826,9 @@ class GeneratedResourceTest {
         assertTrue(alternatives.toString().contains("emerald_path"));
 
         JsonObject workbench = json(root.resolve("build_work_bench.json"));
-        assertTrue(workbench.getAsJsonObject("criteria").has("crafted_flint_bench"));
-        assertTrue(workbench.getAsJsonObject("criteria").has("crafted_obsidian_bench"));
+        assertTrue(workbench.getAsJsonObject("criteria").has("crafted_stripped_oak_flint_bench"));
+        assertTrue(workbench.getAsJsonObject("criteria").has("crafted_stripped_oak_obsidian_bench"));
+        assertEquals(22, workbench.getAsJsonObject("criteria").size());
         JsonObject betterTools = json(root.resolve("better_tools.json"));
         assertEquals(7, betterTools.getAsJsonObject("criteria").size());
         JsonObject nuggets = json(root.resolve("nuggets.json"));

@@ -26,8 +26,8 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        // 399 baseline + 22 stripped-log workbenches + 42 mob buckets + 7 powder-snow buckets + 5 additional spawn eggs.
-        assertEquals(477, registered.size());
+        // 397 baseline + 22 stripped-log workbenches + 42 mob buckets + 7 powder-snow buckets + 5 additional spawn eggs.
+        assertEquals(475, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -35,7 +35,7 @@ class InfXCreativeTabsTest {
     @Test
     void categorySizesMatchTheCreativeInventoryDesign() {
         Map<InfXCreativeTabs.Category, Integer> expected = Map.of(
-                InfXCreativeTabs.Category.BLOCKS, 71,
+                InfXCreativeTabs.Category.BLOCKS, 69,
                 InfXCreativeTabs.Category.INGREDIENTS, 31,
                 InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
                 InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 184,
@@ -83,7 +83,11 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        assertEquals(79, InfXBlocks.BLOCKS.getEntries().size());
+        assertEquals(77, InfXBlocks.BLOCKS.getEntries().size());
+        assertFalse(InfXBlocks.BLOCKS.getEntries().stream()
+                .anyMatch(block -> Set.of("flint_workbench", "obsidian_workbench").contains(block.getId().getPath())));
+        assertFalse(InfXItems.ITEMS.getEntries().stream()
+                .anyMatch(item -> Set.of("flint_workbench", "obsidian_workbench").contains(item.getId().getPath())));
         assertEquals(expectedBlockItems, creativeBlocks);
         assertFalse(registeredItems.contains(underworldPortal), "Underworld portal must remain without a BlockItem");
         assertFalse(registeredItems.contains(netherPortal), "Nether portal must remain without a BlockItem");

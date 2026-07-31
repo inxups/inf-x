@@ -498,7 +498,7 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(axe.isCorrectToolForDrops(Blocks.INFESTED_STONE.defaultBlockState()),
                 "MITE infested blocks use axe-effective clay material");
         helper.assertTrue(axe.isCorrectToolForDrops(
-                InfXBlocks.FLINT_WORKBENCH.get().defaultBlockState()),
+                InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst().flint().get().defaultBlockState()),
                 "all tiered workbenches retain their wood-material axe effectiveness");
 
         ItemStack flintShovel = equipmentStack(InfxMaterial.FLINT, EquipmentType.SHOVEL);

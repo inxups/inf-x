@@ -8,7 +8,6 @@ import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.recipe.TimedCraftingState;
 import com.pixulse.infx.recipe.CraftingEnvironment;
-import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXMenus;
 
 import net.minecraft.core.BlockPos;
@@ -74,7 +73,7 @@ public final class TimedWorkbenchMenu extends AbstractCraftingMenu implements Ti
             BenchTier benchTier,
             RegistryFriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
-        Block expected = InfXBlocks.workbench(benchTier).get();
+        Block expected = inventory.player.level().getBlockState(pos).getBlock();
         return new TimedWorkbenchMenu(
                 containerId,
                 inventory,

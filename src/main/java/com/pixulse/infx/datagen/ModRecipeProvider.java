@@ -676,34 +676,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.MITHRIL,
                 6550.0F,
                 InfXItems.MITHRIL_INGOT);
-        addShaped(
-                "flint_workbench",
-                BenchTier.HAND,
-                270.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                InfXBlocks.FLINT_WORKBENCH,
-                1,
-                Map.of(
-                        'F', Ingredient.of(Items.FLINT),
-                        'B', ingredient(InfXItemTags.BINDINGS),
-                        'S', Ingredient.of(Items.STICK),
-                        'L', ingredient(ItemTags.LOGS)),
-                List.of("FB", "SL"));
-        addShaped(
-                "obsidian_workbench",
-                BenchTier.HAND,
-                410.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                InfXBlocks.OBSIDIAN_WORKBENCH,
-                1,
-                Map.of(
-                        'O', Ingredient.of(Items.OBSIDIAN),
-                        'B', ingredient(InfXItemTags.BINDINGS),
-                        'S', Ingredient.of(Items.STICK),
-                        'L', ingredient(ItemTags.LOGS)),
-                List.of("OB", "SL"));
         addStrippedLogWorkbenchRecipes();
         addMetalWorkbench("copper", BenchTier.FLINT, 605.0F, Items.COPPER_INGOT, InfXBlocks.COPPER_WORKBENCH);
         addMetalWorkbench("silver", BenchTier.FLINT, 605.0F, InfXItems.SILVER_INGOT, InfXBlocks.SILVER_WORKBENCH);

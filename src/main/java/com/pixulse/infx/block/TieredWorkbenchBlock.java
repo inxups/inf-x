@@ -27,6 +27,10 @@ public abstract class TieredWorkbenchBlock extends Block {
         this.title = Component.translatable(titleKey);
     }
 
+    public final BenchTier tier() {
+        return tier;
+    }
+
     @Override
     protected @NonNull InteractionResult useWithoutItem(
             @NonNull BlockState state,
