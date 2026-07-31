@@ -105,6 +105,9 @@ public final class ClientEvents {
                 InfXEntityTypes.LONGDEAD.get(),
                 context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.LONGDEAD));
         event.registerEntityRenderer(
+                InfXEntityTypes.LONGDEAD_GUARDIAN.get(),
+                context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.LONGDEAD_GUARDIAN));
+        event.registerEntityRenderer(
                 InfXEntityTypes.BONE_LORD.get(),
                 context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.BONE_LORD));
         event.registerEntityRenderer(
