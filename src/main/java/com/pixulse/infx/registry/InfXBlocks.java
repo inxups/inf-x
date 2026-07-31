@@ -12,6 +12,7 @@ import com.pixulse.infx.block.FlintWorkbenchBlock;
 import com.pixulse.infx.block.GoldWorkbenchBlock;
 import com.pixulse.infx.block.HardenedClayFurnaceBlock;
 import com.pixulse.infx.block.IronWorkbenchBlock;
+import com.pixulse.infx.block.InfxHotFloorBlock;
 import com.pixulse.infx.block.LargeClayOvenBlock;
 import com.pixulse.infx.block.MithrilWorkbenchBlock;
 import com.pixulse.infx.block.NetherrackFurnaceBlock;
@@ -124,8 +125,9 @@ public final class InfXBlocks {
     public static final DeferredBlock<InfxCropBlock> INFX_BEETROOTS = infxCrop(InfxCropType.BEETROOTS);
     public static final List<DeferredBlock<InfxCropBlock>> INFX_CROPS =
             List.of(INFX_WHEAT, INFX_CARROTS, INFX_POTATOES, INFX_BEETROOTS);
-    public static final DeferredBlock<Block> CORE = BLOCKS.registerSimpleBlock(
+    public static final DeferredBlock<InfxHotFloorBlock> CORE = BLOCKS.registerBlock(
             "core",
+            InfxHotFloorBlock::new,
             properties -> properties
                     .mapColor(MapColor.FIRE)
                     .strength(-1.0F, 3_600_000.0F)
@@ -155,8 +157,9 @@ public final class InfXBlocks {
             properties -> new InfxPortalBlock(InfxPortalBlock.PortalType.RETURN_SPAWN, properties),
             properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
 
-    public static final DeferredBlock<Block> MANTLE = BLOCKS.registerSimpleBlock(
+    public static final DeferredBlock<InfxHotFloorBlock> MANTLE = BLOCKS.registerBlock(
             "mantle",
+            InfxHotFloorBlock::new,
             properties -> properties
                     .mapColor(MapColor.FIRE)
                     .strength(-1.0F, 3_600_000.0F)
