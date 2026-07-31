@@ -2061,9 +2061,9 @@ class GeneratedResourceTest {
                 () -> assertEquals("infx:underworld_large_cave", configuredLargeCave.get("type").getAsString()),
                 () -> assertEquals(1.0F, configuredLargeCave.getAsJsonObject("config")
                         .get("probability").getAsFloat()),
-                () -> assertEquals(-56, configuredLargeCave.getAsJsonObject("config")
+                () -> assertEquals(-20, configuredLargeCave.getAsJsonObject("config")
                         .getAsJsonObject("lava_level").get("absolute").getAsInt()),
-                () -> assertEquals(-56, configuredLargeCave.getAsJsonObject("config")
+                () -> assertEquals(-20, configuredLargeCave.getAsJsonObject("config")
                         .getAsJsonObject("y").getAsJsonObject("min_inclusive")
                         .get("absolute").getAsInt()),
                 () -> assertEquals(80, configuredLargeCave.getAsJsonObject("config")

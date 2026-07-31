@@ -28,11 +28,12 @@ public final class Underworld {
     public static final int MYCELIUM_POST_CHANCE = 16;
     public static final int MYCELIUM_POST_RADIUS = 24;
     public static final int MYCELIUM_POST_SEARCH_CHUNK_RANGE = (MYCELIUM_POST_RADIUS - 1) / 16 + 1;
-    public static final int LARGE_CAVE_MIN_Y = -56;
+    public static final int LARGE_CAVE_MIN_Y = -20;
     public static final int LARGE_CAVE_MAX_Y = 80;
-    public static final int LARGE_CAVE_CENTER_Y = 12;
-    public static final int LARGE_CAVE_MAIN_RADIUS = 96;
-    public static final int LARGE_CAVE_MAIN_VERTICAL_RADIUS = 68;
+    public static final int LARGE_CAVE_CENTER_Y = 30;
+    public static final int LARGE_CAVE_MAIN_RADIUS = 106;
+    public static final int LARGE_CAVE_MAIN_VERTICAL_RADIUS = 50;
+    public static final int LARGE_CAVE_OUTER_RADIUS = 124;
     public static final int LARGE_CAVE_MACRO_CHUNK_SIZE = 16;
     public static final int LARGE_CAVE_MACRO_CENTER_OFFSET = 8;
     public static final int LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y = -24;

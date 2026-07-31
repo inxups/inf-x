@@ -24,10 +24,12 @@ class UnderworldTest {
         assertEquals(16, Underworld.MYCELIUM_POST_CHANCE);
         assertEquals(24, Underworld.MYCELIUM_POST_RADIUS);
         assertEquals(2, Underworld.MYCELIUM_POST_SEARCH_CHUNK_RANGE);
-        assertEquals(-56, Underworld.LARGE_CAVE_MIN_Y);
+        assertEquals(-20, Underworld.LARGE_CAVE_MIN_Y);
         assertEquals(80, Underworld.LARGE_CAVE_MAX_Y);
-        assertEquals(12, Underworld.LARGE_CAVE_CENTER_Y);
-        assertEquals(96, Underworld.LARGE_CAVE_MAIN_RADIUS);
+        assertEquals(30, Underworld.LARGE_CAVE_CENTER_Y);
+        assertEquals(106, Underworld.LARGE_CAVE_MAIN_RADIUS);
+        assertEquals(50, Underworld.LARGE_CAVE_MAIN_VERTICAL_RADIUS);
+        assertEquals(124, Underworld.LARGE_CAVE_OUTER_RADIUS);
         assertEquals(16, Underworld.LARGE_CAVE_MACRO_CHUNK_SIZE);
         assertEquals(8, Underworld.LARGE_CAVE_MACRO_CENTER_OFFSET);
         assertEquals(-24, Underworld.LARGE_CAVE_INTERNAL_BEDROCK_MIN_Y);
