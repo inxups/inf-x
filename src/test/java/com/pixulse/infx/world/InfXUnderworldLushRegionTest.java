@@ -14,6 +14,7 @@ class InfXUnderworldLushRegionTest {
         assertEquals(247, Underworld.LUSH_CAVES_MAX_Y_INCLUSIVE);
         assertEquals(156, Underworld.LUSH_CAVES_FLOOR_SCAN_MIN_Y);
         assertEquals(4, Underworld.LUSH_REGION_CHUNK_SIZE);
+        assertEquals(20, Underworld.LUSH_REGION_ONE_IN);
     }
 
     @Test
@@ -63,6 +64,23 @@ class InfXUnderworldLushRegionTest {
         }
         assertTrue(differentRegion);
         assertTrue(differentSeed);
+    }
+
+    @Test
+    void samplesAboutFivePercentOfRegionsAsLush() {
+        long seed = 0x1357_9BDF_2468_ACE0L;
+        int regionCount = 256 * 256;
+        int lushCount = 0;
+        for (int regionX = -128; regionX < 128; regionX++) {
+            for (int regionZ = -128; regionZ < 128; regionZ++) {
+                if (InfXUnderworldLushRegion.isLushRegion(seed, regionX * 4, regionZ * 4)) {
+                    lushCount++;
+                }
+            }
+        }
+
+        assertTrue(lushCount > regionCount * 3 / 100);
+        assertTrue(lushCount < regionCount * 7 / 100);
     }
 
     @Test

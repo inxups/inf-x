@@ -14,7 +14,7 @@ public final class InfXUnderworldLushRegion {
         long value = worldSeed ^ REGION_SEED_SALT;
         value ^= (long) regionX * REGION_X_SALT;
         value ^= (long) regionZ * REGION_Z_SALT;
-        return (mix64(value) & 1L) == 0L;
+        return Long.remainderUnsigned(mix64(value), Underworld.LUSH_REGION_ONE_IN) == 0L;
     }
 
     static long mix64(long value) {

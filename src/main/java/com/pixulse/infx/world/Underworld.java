@@ -23,6 +23,7 @@ public final class Underworld {
     public static final int LUSH_CAVES_MAX_Y_INCLUSIVE = TERRAIN_MAX_Y_EXCLUSIVE - 1;
     public static final int LUSH_CAVES_FLOOR_SCAN_MIN_Y = LUSH_CAVES_MIN_Y + 12;
     public static final int LUSH_REGION_CHUNK_SIZE = 4;
+    public static final int LUSH_REGION_ONE_IN = 20;
     public static final int LIQUID_SOURCE_ATTEMPTS_PER_CHUNK = 70;
     public static final int BROWN_MUSHROOM_CHANCE = 4;
     public static final int MYCELIUM_POST_CHANCE = 16;
