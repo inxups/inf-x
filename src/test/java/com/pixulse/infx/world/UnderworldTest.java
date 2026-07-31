@@ -1,6 +1,7 @@
 package com.pixulse.infx.world;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.InfiniteX;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,8 @@ class UnderworldTest {
         assertEquals(120, Underworld.TERRAIN_MIN_Y);
         assertEquals(248, Underworld.TERRAIN_MAX_Y_EXCLUSIVE);
         assertEquals(128, Underworld.TERRAIN_HEIGHT);
+        assertEquals(100, Underworld.WATER_MIN_Y);
+        assertTrue(Underworld.WATER_MIN_Y < Underworld.TERRAIN_MIN_Y);
         assertEquals(144, Underworld.WATER_LEVEL);
         assertEquals(70, Underworld.LIQUID_SOURCE_ATTEMPTS_PER_CHUNK);
         assertEquals(4, Underworld.BROWN_MUSHROOM_CHANCE);

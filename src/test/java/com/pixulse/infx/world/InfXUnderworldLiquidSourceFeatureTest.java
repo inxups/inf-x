@@ -47,6 +47,14 @@ class InfXUnderworldLiquidSourceFeatureTest {
     }
 
     @Test
+    void enforcesTheMinimumWaterGenerationHeight() {
+        assertAll(
+                () -> assertFalse(InfXUnderworldLiquidSourceFeature.isWaterAllowedAtY(99)),
+                () -> assertTrue(InfXUnderworldLiquidSourceFeature.isWaterAllowedAtY(100)),
+                () -> assertTrue(InfXUnderworldLiquidSourceFeature.isWaterAllowedAtY(120)));
+    }
+
+    @Test
     void requiresExactlyThreeStoneNeighborsAndOneAirNeighbor() {
         UnderworldFeatureTestLevel level = new UnderworldFeatureTestLevel(0L);
         level.setRaw(SOURCE, Blocks.CAVE_AIR.defaultBlockState());

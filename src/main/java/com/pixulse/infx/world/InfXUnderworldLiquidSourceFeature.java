@@ -44,6 +44,9 @@ public final class InfXUnderworldLiquidSourceFeature extends Feature<NoneFeature
             int z = minZ + random.nextInt(SOURCE_COLUMN_SIZE) + SOURCE_COLUMN_OFFSET;
             BlockPos sourcePos = new BlockPos(x, Underworld.TERRAIN_MIN_Y + localY, z);
             BlockState fluid = chooseFluid(random, localY);
+            if (fluid.is(Blocks.WATER) && !isWaterAllowedAtY(sourcePos.getY())) {
+                continue;
+            }
             if (!hasValidSourceGeometry(level, sourcePos)) {
                 continue;
             }
@@ -63,6 +66,10 @@ public final class InfXUnderworldLiquidSourceFeature extends Feature<NoneFeature
 
     static boolean isUpperWaterAttempt(int localY, int waterRoll) {
         return waterRoll + HIGH_WATER_ROLL_OFFSET < localY;
+    }
+
+    static boolean isWaterAllowedAtY(int y) {
+        return y >= Underworld.WATER_MIN_Y;
     }
 
     static boolean hasValidSourceGeometry(WorldGenLevel level, BlockPos sourcePos) {
