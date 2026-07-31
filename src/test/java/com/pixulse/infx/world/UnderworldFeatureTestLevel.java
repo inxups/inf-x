@@ -66,7 +66,9 @@ final class UnderworldFeatureTestLevel {
                 this.scheduledTicks.add(((BlockPos) arguments[0]).immutable());
                 yield null;
             }
-            case "getBiome" -> TEST_BIOME;
+            case "getBiome" -> throw new AssertionError(
+                    "World-generation features must use uncached biome sampling");
+            case "getUncachedNoiseBiome" -> TEST_BIOME;
             case "getSeed" -> this.seed;
             case "getMinY" -> Underworld.MIN_Y;
             case "getMaxY" -> Underworld.MAX_Y_EXCLUSIVE;
