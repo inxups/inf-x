@@ -1,23 +1,18 @@
 # InfiniteX
 
-InfiniteX 是一个不太简单的Mod。
+> You are no longer just chopping trees, mining ores, and upgrading your gear.
 
-> 你不再只是砍树、挖矿、升级装备。
+You have to learn to survive.
 
-你要学会活下来。
+## About Infx
+This is a mod inspired by [MITE](https://avernite.ca/MITE/) and modernized for the current era. As you can tell, this mod is hard.
 
+It still isn't an official release of the mod, but it's fully playable.
 
-## 开发
-开发时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用 test 模式。测试模式保留原版 OP、
-`ops.json`、本地控制台、RCON 与 JSON-RPC；客户端只能连接到使用相同测试模式的服务端。
+Whether it's unbalanced numbers or questionable mechanics, everything falls within acceptable limits.
 
-普通模式下所有玩家均不具有 OP 权限，新建专用服不会自动生成空 `ops.json`。本地控制台仅允许
-`ban`、`ban-ip`、`pardon`、`pardon-ip`、`kick`、`whitelist`、`stop`、`save-off`、`save-on`、
-`help`（`?`）、`list`、`seed`、`say`、`me`、`msg`/`tell`/`w`、`scoreboard`、`team`、`tag`、
-`bossbar`、`recipe`、`datapack`、`reload`、`schedule`、`particle`、`playsound`、`title`、
-`tellraw`、`teammsg`（`tm`）、`debug`、`jfr`、`perf`、`random` 和 `save-all`；其他命令被拒绝。
-RCON 与 JSON-RPC 仍被禁用。
+For how to beat the game, you can refer to let's-play videos of 1.6.4-MITE. For new content, check out CHANGELOG.
 
-## 其他
-部分材质来自YF101,qf
-部分声音文件取自MITE
+## Other
+- During testing, you can enable test mode with the JVM launch argument `-Dinfx.testMode=true`.
+- Thanks to MITE developer Avernite and the MITE community for their support of "resource".
