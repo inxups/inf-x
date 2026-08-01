@@ -22,8 +22,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Vector3f;
@@ -31,7 +29,6 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
 /** Renders MITE's colored moons, blood/blue halos, and moon-dog ring on the modern sky pipeline. */
-@OnlyIn(Dist.CLIENT)
 public final class MoonCelestialRenderer {
     private static final Identifier HALO_TEXTURE = InfiniteX.id("textures/environment/celestial/moon_halo.png");
     private static final Identifier RING_TEXTURE = InfiniteX.id("textures/environment/celestial/moon_ring.png");
