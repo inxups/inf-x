@@ -11,8 +11,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.server.level.ServerPlayer;
-import com.pixulse.infx.player.ProgressionEvents;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -78,10 +76,6 @@ public final class GravelLootModifier extends LootModifier {
             selected = netherDrop(selected);
         } else if (selected == GravelDrop.DIAMOND_SHARD && context.getLevel().dimension() == Level.NETHER) {
             selected = GravelDrop.NETHER_QUARTZ_SHARD;
-        }
-        if ((selected == GravelDrop.FLINT_CHIP || selected == GravelDrop.FLINT)
-                && player instanceof ServerPlayer serverPlayer) {
-            ProgressionEvents.award(serverPlayer, "flint_finder", "mined_flint_from_gravel");
         }
         ItemStack replacement = createStack(selected, netherGravel);
         FirstLootUnitReplacer.replace(

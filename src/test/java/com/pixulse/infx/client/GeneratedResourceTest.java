@@ -457,7 +457,7 @@ class GeneratedResourceTest {
                     recipe);
         }
         for (String advancement : List.of(
-                "build_shovel", "build_furnace", "acquire_iron", "build_better_pickaxe")) {
+                "flint_kit", "first_furnace", "copper_workbench", "iron_age")) {
             assertTrue(
                     Files.isRegularFile(
                             GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
@@ -500,7 +500,7 @@ class GeneratedResourceTest {
                             "infx:" + recipeName,
                             recipe.getAsJsonObject("result").get("id").getAsString()));
         }
-        for (String advancement : List.of("build_axe", "build_hoe")) {
+        for (String advancement : List.of("flint_kit", "farming")) {
             assertTrue(
                     Files.isRegularFile(
                             GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
@@ -620,14 +620,14 @@ class GeneratedResourceTest {
         }
 
         Map<String, List<String>> advancementRecipes = Map.of(
-                "build_axe",
-                List.of("silver_axe", "gold_axe", "ancient_metal_axe", "mithril_axe", "adamantium_axe"),
-                "build_hoe",
-                List.of("silver_hoe", "gold_hoe", "ancient_metal_hoe", "mithril_hoe", "adamantium_hoe"),
-                "build_pickaxe",
-                List.of("silver_pickaxe", "gold_pickaxe"),
-                "build_better_pickaxe",
-                List.of("ancient_metal_pickaxe", "mithril_pickaxe", "adamantium_pickaxe"));
+                "flint_kit",
+                List.of("flint_hatchet", "flint_knife", "flint_shovel", "flint_axe"),
+                "farming",
+                List.of("copper_hoe", "silver_hoe", "gold_hoe", "iron_hoe"),
+                "iron_age",
+                List.of("iron_workbench", "iron_pickaxe"),
+                "masterwork",
+                List.of("adamantium_pickaxe", "adamantium_war_hammer"));
         for (var advancement : advancementRecipes.entrySet()) {
             String contents = Files.readString(
                     GENERATED.resolve("data/infx/advancement/progression/" + advancement.getKey() + ".json"),
@@ -704,49 +704,10 @@ class GeneratedResourceTest {
         assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/shears.json")));
 
         Map<String, List<String>> advancementRecipes = Map.of(
-                "build_axe",
-                List.of(
-                        "copper_battle_axe",
-                        "silver_battle_axe",
-                        "gold_battle_axe",
-                        "iron_battle_axe",
-                        "ancient_metal_battle_axe",
-                        "mithril_battle_axe",
-                        "adamantium_battle_axe"),
-                "build_shovel",
-                List.of(
-                        "obsidian_shovel",
-                        "copper_shovel",
-                        "silver_shovel",
-                        "gold_shovel",
-                        "iron_shovel",
-                        "ancient_metal_shovel",
-                        "mithril_shovel",
-                        "adamantium_shovel"),
-                "build_hoe",
-                List.of(
-                        "copper_mattock",
-                        "silver_mattock",
-                        "gold_mattock",
-                        "iron_mattock",
-                        "ancient_metal_mattock",
-                        "mithril_mattock",
-                        "adamantium_mattock"),
-                "build_scythe",
-                List.of(
-                        "copper_scythe",
-                        "silver_scythe",
-                        "gold_scythe",
-                        "iron_scythe",
-                        "ancient_metal_scythe",
-                        "mithril_scythe",
-                        "adamantium_scythe"),
-                "build_better_pickaxe",
-                List.of(
-                        "iron_war_hammer",
-                        "ancient_metal_war_hammer",
-                        "mithril_war_hammer",
-                        "adamantium_war_hammer"));
+                "flint_kit",
+                List.of("flint_hatchet", "flint_knife", "flint_shovel", "flint_axe"),
+                "masterwork",
+                List.of("adamantium_pickaxe", "adamantium_war_hammer"));
         for (var advancement : advancementRecipes.entrySet()) {
             String contents = Files.readString(
                     GENERATED.resolve("data/infx/advancement/progression/" + advancement.getKey() + ".json"),
@@ -758,11 +719,11 @@ class GeneratedResourceTest {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertAll(
-                "build scythe translations",
-                () -> assertTrue(english.has("advancements.infx.build_scythe.title")),
-                () -> assertTrue(english.has("advancements.infx.build_scythe.description")),
-                () -> assertTrue(chinese.has("advancements.infx.build_scythe.title")),
-                () -> assertTrue(chinese.has("advancements.infx.build_scythe.description")));
+                "masterwork translations",
+                () -> assertTrue(english.has("advancements.infx.masterwork.title")),
+                () -> assertTrue(english.has("advancements.infx.masterwork.description")),
+                () -> assertTrue(chinese.has("advancements.infx.masterwork.title")),
+                () -> assertTrue(chinese.has("advancements.infx.masterwork.description")));
     }
 
     @Test
@@ -859,24 +820,24 @@ class GeneratedResourceTest {
         for (String disabled : List.of("arrow", "bow")) {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")));
         }
-        String cuttingEdge = Files.readString(
-                GENERATED.resolve("data/infx/advancement/progression/cutting_edge.json"), UTF_8);
-        assertTrue(cuttingEdge.contains("infx:flint_knife"));
+        String flintKit = Files.readString(
+                GENERATED.resolve("data/infx/advancement/progression/flint_kit.json"), UTF_8);
+        assertTrue(flintKit.contains("infx:flint_knife"));
         assertTrue(Files.isRegularFile(
-                GENERATED.resolve("data/infx/advancement/progression/build_club.json")));
+                GENERATED.resolve("data/infx/advancement/progression/flint_kit.json")));
 
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertAll(
                 "weapon progression translations",
                 () -> assertEquals(
-                        "Time to Strike!",
-                        english.get("advancements.infx.build_club.title").getAsString()),
-                () -> assertTrue(english.has("advancements.infx.build_club.description")),
+                        "Flint Kit",
+                        english.get("advancements.infx.flint_kit.title").getAsString()),
+                () -> assertTrue(english.has("advancements.infx.flint_kit.description")),
                 () -> assertEquals(
-                        "出击时间到",
-                        chinese.get("advancements.infx.build_club.title").getAsString()),
-                () -> assertTrue(chinese.has("advancements.infx.build_club.description")));
+                        "燧石工具",
+                        chinese.get("advancements.infx.flint_kit.title").getAsString()),
+                () -> assertTrue(chinese.has("advancements.infx.flint_kit.description")));
     }
 
     @Test
@@ -1002,15 +963,12 @@ class GeneratedResourceTest {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")));
         }
 
-        String buildChainMail = Files.readString(
-                GENERATED.resolve("data/infx/advancement/progression/build_chain_mail.json"), UTF_8);
-        for (String material : chainComponents.keySet()) {
-            for (String piece : chainPieces.keySet()) {
-                assertTrue(buildChainMail.contains("infx:" + material + "_" + piece));
-            }
-        }
+        String metalArmor = Files.readString(
+                GENERATED.resolve("data/infx/advancement/progression/metal_armor.json"), UTF_8);
+        assertTrue(metalArmor.contains("infx:copper_chainmail_helmet"));
+        assertTrue(metalArmor.contains("infx:mithril_chainmail_boots"));
         for (String advancement : List.of(
-                "wear_leather", "wear_all_plate_armor", "wear_all_adamantium_plate_armor")) {
+                "leather_armor", "metal_armor", "adamantium_armor")) {
             assertTrue(Files.isRegularFile(
                     GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")));
         }
@@ -1020,17 +978,17 @@ class GeneratedResourceTest {
         assertAll(
                 "armor progression translations",
                 () -> assertEquals(
-                        "Better Armor",
-                        english.get("advancements.infx.build_chain_mail.title").getAsString()),
+                        "Metal Shell",
+                        english.get("advancements.infx.metal_armor.title").getAsString()),
                 () -> assertEquals(
                         "Juggernaut",
-                        english.get("advancements.infx.wear_all_adamantium_plate_armor.title").getAsString()),
+                        english.get("advancements.infx.adamantium_armor.title").getAsString()),
                 () -> assertEquals(
-                        "更好的护甲",
-                        chinese.get("advancements.infx.build_chain_mail.title").getAsString()),
+                        "金属战甲",
+                        chinese.get("advancements.infx.metal_armor.title").getAsString()),
                 () -> assertEquals(
                         "世界主宰",
-                        chinese.get("advancements.infx.wear_all_adamantium_plate_armor.title").getAsString()));
+                        chinese.get("advancements.infx.adamantium_armor.title").getAsString()));
     }
 
     @Test
@@ -2971,89 +2929,45 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void advancementGraphMatchesAllSixtyTwoR196Nodes() throws Exception {
+    void advancementGraphMatchesTwentyFiveStageLineNodes() throws Exception {
         Map<String, String> parents = Map.ofEntries(
-                Map.entry("stick_picker", "open_inventory"),
-                Map.entry("cutting_edge", "stick_picker"),
-                Map.entry("mine_wood", "cutting_edge"),
-                Map.entry("build_work_bench", "mine_wood"),
-                Map.entry("build_shovel", "build_work_bench"),
-                Map.entry("nuggets", "build_shovel"),
-                Map.entry("better_tools", "nuggets"),
-                Map.entry("build_pickaxe", "better_tools"),
-                Map.entry("build_furnace", "build_pickaxe"),
-                Map.entry("acquire_iron", "build_furnace"),
-                Map.entry("build_better_pickaxe", "acquire_iron"),
-                Map.entry("obsidian_furnace", "build_better_pickaxe"),
-                Map.entry("mithril_ingot", "obsidian_furnace"),
-                Map.entry("diamonds", "mithril_ingot"),
-                Map.entry("emeralds", "build_better_pickaxe"),
-                Map.entry("enchantments", "diamonds"),
-                Map.entry("overkill", "enchantments"),
-                Map.entry("bookcase", "enchantments"),
+                Map.entry("flint_kit", "first_steps"),
+                Map.entry("flint_workbench", "flint_kit"),
+                Map.entry("first_furnace", "first_steps"),
+                Map.entry("copper_workbench", "flint_workbench"),
+                Map.entry("iron_age", "copper_workbench"),
+                Map.entry("obsidian_furnace", "first_furnace"),
+                Map.entry("ancient_metal_age", "iron_age"),
+                Map.entry("mithril_age", "ancient_metal_age"),
+                Map.entry("adamantium_age", "mithril_age"),
+                Map.entry("masterwork", "adamantium_age"),
+                Map.entry("leather_armor", "flint_workbench"),
+                Map.entry("metal_armor", "copper_workbench"),
+                Map.entry("adamantium_armor", "adamantium_age"),
+                Map.entry("farming", "copper_workbench"),
+                Map.entry("food", "farming"),
+                Map.entry("enchanting", "iron_age"),
+                Map.entry("bookcase", "enchanting"),
                 Map.entry("enlightenment", "bookcase"),
-                Map.entry("portal", "build_better_pickaxe"),
-                Map.entry("portal_to_nether", "portal"),
-                Map.entry("ghast", "portal_to_nether"),
-                Map.entry("blaze_rod", "portal_to_nether"),
-                Map.entry("potion", "blaze_rod"),
-                Map.entry("the_end", "blaze_rod"),
-                Map.entry("the_end2", "the_end"),
-                Map.entry("netherrack_furnace", "blaze_rod"),
-                Map.entry("adamantium_ingot", "netherrack_furnace"),
-                Map.entry("crystal_breaker", "adamantium_ingot"),
-                Map.entry("runegate", "portal"),
-                Map.entry("on_a_rail", "acquire_iron"),
-                Map.entry("build_hoe", "better_tools"),
-                Map.entry("flour", "build_hoe"),
-                Map.entry("make_bread", "flour"),
-                Map.entry("bake_cake", "flour"),
-                Map.entry("build_scythe", "build_hoe"),
-                Map.entry("soil_enrichment", "build_hoe"),
-                Map.entry("make_mycelium", "soil_enrichment"),
-                Map.entry("supersize_me", "make_mycelium"),
-                Map.entry("plant_doctor", "build_hoe"),
-                Map.entry("build_chain_mail", "better_tools"),
-                Map.entry("wear_all_plate_armor", "build_chain_mail"),
-                Map.entry("wear_all_adamantium_plate_armor", "wear_all_plate_armor"),
-                Map.entry("fishing_rod", "better_tools"),
-                Map.entry("cook_fish", "fishing_rod"),
-                Map.entry("build_club", "build_work_bench"),
-                Map.entry("kill_enemy", "build_club"),
-                Map.entry("snipe_skeleton", "kill_enemy"),
-                Map.entry("kill_cow", "build_club"),
-                Map.entry("fly_pig", "kill_cow"),
-                Map.entry("wear_leather", "kill_cow"),
-                Map.entry("build_axe", "build_work_bench"),
-                Map.entry("build_torches", "build_work_bench"),
-                Map.entry("well_rested", "build_work_bench"),
-                Map.entry("seaworthy", "build_work_bench"),
-                Map.entry("fine_dining", "build_work_bench"),
-                Map.entry("seeds", "open_inventory"),
-                Map.entry("eggs", "seeds"),
-                Map.entry("build_oven", "open_inventory"),
-                Map.entry("flint_finder", "open_inventory"),
-                Map.entry("explorer", "open_inventory"));
+                Map.entry("underworld", "obsidian_furnace"),
+                Map.entry("nether", "underworld"),
+                Map.entry("nether_forge", "nether"),
+                Map.entry("rune_gate", "underworld"),
+                Map.entry("the_end", "nether_forge"),
+                Map.entry("the_end2", "the_end"));
         Set<String> challenges = Set.of(
-                "on_a_rail",
-                "fly_pig",
-                "snipe_skeleton",
-                "ghast",
-                "the_end",
-                "the_end2",
-                "overkill",
-                "wear_all_adamantium_plate_armor",
-                "explorer",
+                "adamantium_armor",
                 "enlightenment",
-                "runegate",
-                "crystal_breaker");
+                "rune_gate",
+                "the_end",
+                "the_end2");
         Path root = GENERATED.resolve("data/infx/advancement/progression");
         List<Path> files;
         try (Stream<Path> stream = Files.list(root)) {
             files = stream.filter(path -> path.toString().endsWith(".json")).toList();
         }
-        assertEquals(62, files.size());
-        assertEquals(61, parents.size());
+        assertEquals(25, files.size());
+        assertEquals(24, parents.size());
 
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
@@ -3063,7 +2977,7 @@ class GeneratedResourceTest {
             String name = file.getFileName().toString().replaceFirst("\\.json$", "");
             actualNames.add(name);
             JsonObject advancement = json(file);
-            if (name.equals("open_inventory")) {
+            if (name.equals("first_steps")) {
                 assertFalse(advancement.has("parent"));
             } else {
                 assertEquals("infx:progression/" + parents.get(name), advancement.get("parent").getAsString(), name);
@@ -3078,32 +2992,25 @@ class GeneratedResourceTest {
             assertTrue(chinese.has("advancements.infx." + name + ".description"), name);
         }
         assertEquals(parents.keySet(), actualNames.stream()
-                .filter(name -> !name.equals("open_inventory"))
+                .filter(name -> !name.equals("first_steps"))
                 .collect(Collectors.toSet()));
         assertEquals(challenges, actualChallenges);
 
-        JsonObject enchantments = json(root.resolve("enchantments.json"));
-        var alternatives = enchantments.getAsJsonArray("requirements").get(0).getAsJsonArray();
+        JsonObject enchanting = json(root.resolve("enchanting.json"));
+        var alternatives = enchanting.getAsJsonArray("requirements").get(0).getAsJsonArray();
         assertEquals(2, alternatives.size());
-        assertTrue(alternatives.toString().contains("diamond_path"));
-        assertTrue(alternatives.toString().contains("emerald_path"));
+        assertTrue(alternatives.toString().contains("emerald_enchanting_table"));
+        assertTrue(alternatives.toString().contains("diamond_enchanting_table"));
 
-        JsonObject workbench = json(root.resolve("build_work_bench.json"));
+        JsonObject workbench = json(root.resolve("flint_workbench.json"));
         assertTrue(workbench.getAsJsonObject("criteria").has("crafted_stripped_oak_flint_bench"));
         assertTrue(workbench.getAsJsonObject("criteria").has("crafted_stripped_oak_obsidian_bench"));
         assertEquals(22, workbench.getAsJsonObject("criteria").size());
-        JsonObject betterTools = json(root.resolve("better_tools.json"));
-        assertEquals(7, betterTools.getAsJsonObject("criteria").size());
-        JsonObject nuggets = json(root.resolve("nuggets.json"));
-        assertEquals(
-                "minecraft:impossible",
-                nuggets.getAsJsonObject("criteria")
-                        .getAsJsonObject("picked_up_metal_nugget")
-                        .get("trigger")
-                        .getAsString());
-        String mixedArmor = Files.readString(root.resolve("wear_all_plate_armor.json"), UTF_8);
+        JsonObject ironAge = json(root.resolve("iron_age.json"));
+        assertEquals(3, ironAge.getAsJsonObject("criteria").size());
+        String mixedArmor = Files.readString(root.resolve("metal_armor.json"), UTF_8);
         assertTrue(mixedArmor.contains("infx:copper_chainmail_helmet"));
-        assertTrue(mixedArmor.contains("infx:adamantium_chainmail_boots"));
+        assertTrue(mixedArmor.contains("infx:mithril_chainmail_boots"));
     }
 
     @Test

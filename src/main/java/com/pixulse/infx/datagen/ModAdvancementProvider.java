@@ -31,18 +31,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Blocks;
 
 final class ModAdvancementProvider implements AdvancementSubProvider {
     @Override
     public void generate(HolderLookup.Provider registries, Consumer<AdvancementHolder> output) {
         HolderLookup.RegistryLookup<Item> items = registries.lookupOrThrow(Registries.ITEM);
 
-        AdvancementHolder openInventory = Advancement.Builder.recipeAdvancement()
+        AdvancementHolder firstSteps = Advancement.Builder.recipeAdvancement()
                 .display(
                         Items.STICK,
-                        title("open_inventory"),
-                        description("open_inventory"),
+                        title("first_steps"),
+                        description("first_steps"),
                         net.minecraft.resources.Identifier.withDefaultNamespace(
                                 "gui/advancements/backgrounds/stone"),
                         AdvancementType.TASK,
@@ -50,31 +49,18 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                         false,
                         false)
                 .addCriterion("inventory_changed", inventoryChanged())
-                .build(InfiniteX.id("progression/open_inventory"));
-        output.accept(openInventory);
+                .build(InfiniteX.id("progression/first_steps"));
+        output.accept(firstSteps);
 
-        AdvancementHolder stickPicker = manual(
-                output, "stick_picker", openInventory, Items.STICK, false, "picked_up_stick");
+        AdvancementHolder flintKit = recipeNode(
+                output, "flint_kit", firstSteps, InfXItems.FLINT_HATCHET,
+                "flint_hatchet", "flint_knife", "flint_shovel", "flint_axe");
 
-        AdvancementHolder cuttingEdge = child("cutting_edge", stickPicker, InfXItems.FLINT_HATCHET)
-                .addCriterion(
-                        "crafted_hatchet",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_hatchet")))
-                .addCriterion(
-                        "crafted_flint_knife",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_knife")))
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/cutting_edge"));
-        output.accept(cuttingEdge);
-
-        AdvancementHolder mineWood = manual(
-                output, "mine_wood", cuttingEdge, Items.OAK_LOG, false, "picked_up_log");
-
-        Advancement.Builder buildWorkbenchBuilder = child(
-                "build_work_bench", mineWood, InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst().flint());
+        Advancement.Builder flintWorkbenchBuilder = child(
+                "flint_workbench", flintKit, InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst().flint());
         for (var workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
             String prefix = "stripped_" + workbench.wood();
-            buildWorkbenchBuilder
+            flintWorkbenchBuilder
                     .addCriterion(
                             "crafted_" + prefix + "_flint_bench",
                             RecipeCraftedTrigger.TriggerInstance.craftedItem(
@@ -84,323 +70,126 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                             RecipeCraftedTrigger.TriggerInstance.craftedItem(
                                     recipeKey(prefix + "_obsidian_workbench")));
         }
-        AdvancementHolder buildWorkbench = buildWorkbenchBuilder
+        AdvancementHolder flintWorkbench = flintWorkbenchBuilder
                 .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/build_work_bench"));
-        output.accept(buildWorkbench);
+                .build(InfiniteX.id("progression/flint_workbench"));
+        output.accept(flintWorkbench);
 
-        AdvancementHolder buildClub = child(
-                        "build_club",
-                        buildWorkbench,
-                        InfXItems.catalog()
-                                .equipment(InfxMaterial.WOOD, EquipmentType.CLUB)
-                                .holder())
-                .addCriterion(
-                        "crafted_wood_club",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("wood_club")))
-                .build(InfiniteX.id("progression/build_club"));
-        output.accept(buildClub);
+        AdvancementHolder firstFurnace = recipeNode(
+                output, "first_furnace", firstSteps, Items.FURNACE,
+                "clay_furnace", "sandstone_furnace", "hardened_clay_furnace", "cobblestone_furnace");
 
-        AdvancementHolder killCow = manual(
-                output, "kill_cow", buildClub, Items.LEATHER, false, "picked_up_leather");
+        AdvancementHolder copperWorkbench = recipeNode(
+                output, "copper_workbench", flintWorkbench, InfXBlocks.COPPER_WORKBENCH,
+                "copper_workbench", "silver_workbench", "gold_workbench");
 
-        Advancement.Builder buildAxe = child("build_axe", buildWorkbench, InfXItems.FLINT_AXE)
+        Advancement.Builder ironAgeBuilder = child("iron_age", copperWorkbench, Items.IRON_INGOT)
+                .addCriterion("smelted_iron", manualCriterion())
                 .addCriterion(
-                        "crafted_flint_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_axe")))
-                .addCriterion(
-                        "crafted_copper_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_axe")))
-                .addCriterion(
-                        "crafted_iron_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_axe")))
-                .addCriterion(
-                        "crafted_silver_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_axe")))
-                .addCriterion(
-                        "crafted_gold_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_axe")))
-                .addCriterion(
-                        "crafted_ancient_metal_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_axe")))
-                .addCriterion(
-                        "crafted_mithril_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_axe")))
-                .addCriterion(
-                        "crafted_adamantium_axe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_axe")))
-                .requirements(AdvancementRequirements.Strategy.OR);
-        output.accept(addCraftedRecipeCriteria(
-                        buildAxe,
-                        "copper_battle_axe",
-                        "silver_battle_axe",
-                        "gold_battle_axe",
-                        "iron_battle_axe",
-                        "ancient_metal_battle_axe",
-                        "mithril_battle_axe",
-                        "adamantium_battle_axe")
-                .build(InfiniteX.id("progression/build_axe")));
-
-        AdvancementHolder buildShovel = addCraftedRecipeCriteria(
-                        child("build_shovel", buildWorkbench, InfXItems.FLINT_SHOVEL)
-                                .addCriterion(
-                                        "crafted_shovel",
-                                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("flint_shovel"))),
-                        "obsidian_shovel",
-                        "copper_shovel",
-                        "silver_shovel",
-                        "gold_shovel",
-                        "iron_shovel",
-                        "ancient_metal_shovel",
-                        "mithril_shovel",
-                        "adamantium_shovel")
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/build_shovel"));
-        output.accept(buildShovel);
-
-        AdvancementHolder nuggets = manual(
-                output, "nuggets", buildShovel, Items.COPPER_NUGGET, false, "picked_up_metal_nugget");
-
-        AdvancementHolder betterTools = child("better_tools", nuggets, InfXBlocks.COPPER_WORKBENCH)
-                .addCriterion(
-                        "crafted_copper_bench",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_workbench")))
-                .addCriterion(
-                        "crafted_silver_bench",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_workbench")))
-                .addCriterion(
-                        "crafted_gold_bench",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_workbench")))
-                .addCriterion(
-                        "crafted_iron_bench",
+                        "crafted_iron_workbench",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_workbench")))
                 .addCriterion(
-                        "crafted_ancient_metal_bench",
+                        "crafted_iron_pickaxe",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_pickaxe")))
+                .requirements(AdvancementRequirements.Strategy.OR);
+        AdvancementHolder ironAge = ironAgeBuilder.build(InfiniteX.id("progression/iron_age"));
+        output.accept(ironAge);
+
+        AdvancementHolder obsidianFurnace = child("obsidian_furnace", firstFurnace, InfXBlocks.OBSIDIAN_FURNACE)
+                .addCriterion(
+                        "crafted_obsidian_furnace",
+                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("obsidian_furnace")))
+                .build(InfiniteX.id("progression/obsidian_furnace"));
+        output.accept(obsidianFurnace);
+
+        AdvancementHolder ancientMetalAge = child(
+                        "ancient_metal_age", ironAge, InfXBlocks.ANCIENT_METAL_WORKBENCH)
+                .addCriterion(
+                        "crafted_ancient_metal_workbench",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_workbench")))
+                .build(InfiniteX.id("progression/ancient_metal_age"));
+        output.accept(ancientMetalAge);
+
+        Advancement.Builder mithrilAgeBuilder = child("mithril_age", ancientMetalAge, InfXItems.MITHRIL_INGOT)
+                .addCriterion("smelted_mithril", manualCriterion())
                 .addCriterion(
-                        "crafted_mithril_bench",
+                        "crafted_mithril_workbench",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_workbench")))
+                .requirements(AdvancementRequirements.Strategy.OR);
+        AdvancementHolder mithrilAge = mithrilAgeBuilder.build(InfiniteX.id("progression/mithril_age"));
+        output.accept(mithrilAge);
+
+        Advancement.Builder adamantiumAgeBuilder = child(
+                        "adamantium_age", mithrilAge, InfXItems.ADAMANTIUM_INGOT)
+                .addCriterion("smelted_adamantium", manualCriterion())
                 .addCriterion(
-                        "crafted_adamantium_bench",
+                        "crafted_adamantium_workbench",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_workbench")))
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/better_tools"));
-        output.accept(betterTools);
+                .requirements(AdvancementRequirements.Strategy.OR);
+        AdvancementHolder adamantiumAge = adamantiumAgeBuilder.build(InfiniteX.id("progression/adamantium_age"));
+        output.accept(adamantiumAge);
 
-        Advancement.Builder wearLeather = child(
-                "wear_leather",
-                killCow,
-                equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE));
+        AdvancementHolder masterwork = recipeNode(
+                output, "masterwork", adamantiumAge,
+                InfXItems.catalog().equipment(InfxMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder(),
+                "adamantium_pickaxe", "adamantium_war_hammer");
+
+        Advancement.Builder leatherArmor = child(
+                        "leather_armor", flintWorkbench,
+                        equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE));
         for (EquipmentType piece : EquipmentType.platePieces()) {
-            wearLeather.addCriterion(
-                    "wearing_leather_" + piece.path(),
-                    wearingPiece(items, InfxMaterial.LEATHER, piece));
+            leatherArmor.addCriterion(
+                    "wearing_leather_" + piece.path(), wearingPiece(items, InfxMaterial.LEATHER, piece));
         }
-        output.accept(wearLeather
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/wear_leather")));
+        AdvancementHolder leatherArmorHolder = leatherArmor.build(InfiniteX.id("progression/leather_armor"));
+        output.accept(leatherArmorHolder);
 
-        List<InfxMaterial> chainMaterials = List.of(
-                InfxMaterial.COPPER,
-                InfxMaterial.SILVER,
-                InfxMaterial.GOLD,
-                InfxMaterial.RUSTED_IRON,
-                InfxMaterial.IRON,
-                InfxMaterial.ANCIENT_METAL,
-                InfxMaterial.MITHRIL,
-                InfxMaterial.ADAMANTIUM);
-        Advancement.Builder buildChainMail = child(
-                "build_chain_mail",
-                betterTools,
-                equipment(InfxMaterial.IRON, EquipmentType.CHAINMAIL_CHESTPLATE));
-        for (InfxMaterial material : chainMaterials) {
-            for (EquipmentType piece : EquipmentType.chainPieces()) {
-                String recipe = material.path() + "_" + piece.path();
-                buildChainMail.addCriterion(
-                        "crafted_" + recipe,
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey(recipe)));
-            }
-        }
-        AdvancementHolder buildChainMailHolder = buildChainMail
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/build_chain_mail"));
-        output.accept(buildChainMailHolder);
-
-        List<InfxMaterial> plateMaterials = List.of(
+        List<InfxMaterial> metalArmorMaterials = List.of(
                 InfxMaterial.COPPER,
                 InfxMaterial.SILVER,
                 InfxMaterial.GOLD,
                 InfxMaterial.IRON,
                 InfxMaterial.ANCIENT_METAL,
-                InfxMaterial.MITHRIL,
-                InfxMaterial.ADAMANTIUM);
-        AdvancementHolder wearAllPlateArmor = child(
-                        "wear_all_plate_armor",
-                        buildChainMailHolder,
+                InfxMaterial.MITHRIL);
+        AdvancementHolder metalArmor = child(
+                        "metal_armor", copperWorkbench,
                         equipment(InfxMaterial.IRON, EquipmentType.CHESTPLATE))
-                .addCriterion("wearing_full_plate", wearingPlateSet(items, plateMaterials))
-                .build(InfiniteX.id("progression/wear_all_plate_armor"));
-        output.accept(wearAllPlateArmor);
+                .addCriterion("wearing_full_metal_armor", wearingPlateSet(items, metalArmorMaterials))
+                .build(InfiniteX.id("progression/metal_armor"));
+        output.accept(metalArmor);
 
-        AdvancementHolder wearAllAdamantiumPlateArmor = Advancement.Builder.recipeAdvancement()
-                .parent(wearAllPlateArmor)
+        AdvancementHolder adamantiumArmor = Advancement.Builder.recipeAdvancement()
+                .parent(adamantiumAge)
                 .display(
                         equipment(InfxMaterial.ADAMANTIUM, EquipmentType.CHESTPLATE),
-                        title("wear_all_adamantium_plate_armor"),
-                        description("wear_all_adamantium_plate_armor"),
+                        title("adamantium_armor"),
+                        description("adamantium_armor"),
                         null,
                         AdvancementType.CHALLENGE,
                         true,
                         true,
                         false)
                 .addCriterion(
-                        "wearing_full_adamantium_plate",
+                        "wearing_full_adamantium_armor",
                         wearingPlateSet(items, List.of(InfxMaterial.ADAMANTIUM)))
-                .build(InfiniteX.id("progression/wear_all_adamantium_plate_armor"));
-        output.accept(wearAllAdamantiumPlateArmor);
+                .build(InfiniteX.id("progression/adamantium_armor"));
+        output.accept(adamantiumArmor);
 
-        Advancement.Builder buildHoeBuilder = child("build_hoe", betterTools, InfXItems.COPPER_HOE)
-                .addCriterion(
-                        "crafted_copper_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_hoe")))
-                .addCriterion(
-                        "crafted_iron_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_hoe")))
-                .addCriterion(
-                        "crafted_silver_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_hoe")))
-                .addCriterion(
-                        "crafted_gold_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_hoe")))
-                .addCriterion(
-                        "crafted_ancient_metal_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_hoe")))
-                .addCriterion(
-                        "crafted_mithril_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_hoe")))
-                .addCriterion(
-                        "crafted_adamantium_hoe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_hoe")))
-                .requirements(AdvancementRequirements.Strategy.OR);
-        AdvancementHolder buildHoe = addCraftedRecipeCriteria(
-                        buildHoeBuilder,
-                        "copper_mattock",
-                        "silver_mattock",
-                        "gold_mattock",
-                        "iron_mattock",
-                        "ancient_metal_mattock",
-                        "mithril_mattock",
-                        "adamantium_mattock")
-                .build(InfiniteX.id("progression/build_hoe"));
-        output.accept(buildHoe);
+        AdvancementHolder farming = recipeNode(
+                output, "farming", copperWorkbench, InfXItems.COPPER_HOE,
+                "copper_hoe", "silver_hoe", "gold_hoe", "iron_hoe");
 
-        AdvancementHolder buildScythe = addCraftedRecipeCriteria(
-                        child(
-                                "build_scythe",
-                                buildHoe,
-                                InfXItems.catalog()
-                                        .equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE)
-                                        .holder()),
-                        "copper_scythe",
-                        "silver_scythe",
-                        "gold_scythe",
-                        "iron_scythe",
-                        "ancient_metal_scythe",
-                        "mithril_scythe",
-                        "adamantium_scythe")
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/build_scythe"));
-        output.accept(buildScythe);
+        AdvancementHolder food = recipeNode(
+                output, "food", farming, InfXItems.FLOUR,
+                "flour", "dough", "bread_from_dough", "mushroom_stew", "beef_stew",
+                "chicken_soup", "cream_of_mushroom_soup", "cream_of_vegetable_soup",
+                "pumpkin_soup", "vegetable_soup");
 
-        AdvancementHolder buildPickaxe = child("build_pickaxe", betterTools, InfXItems.COPPER_PICKAXE)
-                .addCriterion(
-                        "crafted_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("copper_pickaxe")))
-                .addCriterion(
-                        "crafted_silver_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("silver_pickaxe")))
-                .addCriterion(
-                        "crafted_gold_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("gold_pickaxe")))
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/build_pickaxe"));
-        output.accept(buildPickaxe);
+        AdvancementHolder enchanting = recipeNode(
+                output, "enchanting", ironAge, InfXBlocks.EMERALD_ENCHANTING_TABLE,
+                "emerald_enchanting_table", "diamond_enchanting_table");
 
-        AdvancementHolder buildFurnace = child("build_furnace", buildPickaxe, Items.FURNACE)
-                .addCriterion(
-                        "crafted_furnace",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("cobblestone_furnace")))
-                .build(InfiniteX.id("progression/build_furnace"));
-        output.accept(buildFurnace);
-
-        AdvancementHolder acquireIron = child("acquire_iron", buildFurnace, Items.IRON_INGOT)
-                .addCriterion(
-                        "smelted_iron",
-                        CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance()))
-                .build(InfiniteX.id("progression/acquire_iron"));
-        output.accept(acquireIron);
-
-        Advancement.Builder buildBetterPickaxe = child("build_better_pickaxe", acquireIron, InfXItems.IRON_PICKAXE)
-                .addCriterion(
-                        "crafted_iron_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("iron_pickaxe")))
-                .addCriterion(
-                        "crafted_ancient_metal_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("ancient_metal_pickaxe")))
-                .addCriterion(
-                        "crafted_mithril_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("mithril_pickaxe")))
-                .addCriterion(
-                        "crafted_adamantium_pickaxe",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("adamantium_pickaxe")))
-                .requirements(AdvancementRequirements.Strategy.OR);
-        AdvancementHolder buildBetterPickaxeHolder = addCraftedRecipeCriteria(
-                        buildBetterPickaxe,
-                        "iron_war_hammer",
-                        "ancient_metal_war_hammer",
-                        "mithril_war_hammer",
-                        "adamantium_war_hammer")
-                .build(InfiniteX.id("progression/build_better_pickaxe"));
-        output.accept(buildBetterPickaxeHolder);
-
-        AdvancementHolder killEnemy = manual(
-                output, "kill_enemy", buildClub, Items.ROTTEN_FLESH, false, "killed_enemy");
-        manual(output, "snipe_skeleton", killEnemy, Items.BOW, true, "long_range_skeleton_kill");
-        manual(output, "fly_pig", killCow, Items.SADDLE, true, "pig_fall");
-
-        AdvancementHolder flour = manual(
-                output, "flour", buildHoe, Items.WHEAT, false, "crafted_flour");
-        manual(output, "make_bread", flour, Items.BREAD, false, "smelted_bread");
-        AdvancementHolder bakeCake = child("bake_cake", flour, Items.CAKE)
-                .addCriterion(
-                        "crafted_cake",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(
-                                ResourceKey.create(Registries.RECIPE, net.minecraft.resources.Identifier.withDefaultNamespace("cake"))))
-                .build(InfiniteX.id("progression/bake_cake"));
-        output.accept(bakeCake);
-        manual(output, "on_a_rail", acquireIron, Items.MINECART, true, "travelled_rail_1000");
-
-        AdvancementHolder obsidianFurnace = child(
-                        "obsidian_furnace", buildBetterPickaxeHolder, InfXBlocks.OBSIDIAN_FURNACE)
-                .addCriterion(
-                        "crafted_obsidian_furnace",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("obsidian_furnace")))
-                .build(InfiniteX.id("progression/obsidian_furnace"));
-        output.accept(obsidianFurnace);
-        AdvancementHolder mithrilIngot = manual(
-                output, "mithril_ingot", obsidianFurnace, InfXItems.MITHRIL_INGOT, false, "smelted_mithril");
-        AdvancementHolder diamonds = manual(
-                output, "diamonds", mithrilIngot, Items.DIAMOND, false, "picked_up_diamond");
-        AdvancementHolder emeralds = manual(
-                output, "emeralds", buildBetterPickaxeHolder, Items.EMERALD, false, "picked_up_emerald");
-        AdvancementHolder enchantments = node("enchantments", diamonds, Items.ENCHANTING_TABLE, AdvancementType.TASK)
-                .addCriterion("diamond_path", manualCriterion())
-                .addCriterion("emerald_path", manualCriterion())
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/enchantments"));
-        output.accept(enchantments);
-        manual(output, "overkill", enchantments, InfXItems.IRON_SWORD, true, "melee_damage_18");
-        AdvancementHolder bookcase = child("bookcase", enchantments, Items.BOOKSHELF)
+        AdvancementHolder bookcase = child("bookcase", enchanting, Items.BOOKSHELF)
                 .addCriterion(
                         "crafted_bookcase",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(ResourceKey.create(
@@ -408,94 +197,49 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
                                 net.minecraft.resources.Identifier.withDefaultNamespace("bookshelf"))))
                 .build(InfiniteX.id("progression/bookcase"));
         output.accept(bookcase);
-        manual(output, "enlightenment", bookcase, Items.WRITTEN_BOOK, true, "read_nine_books");
 
-        AdvancementHolder portal = manual(
-                output, "portal", buildBetterPickaxeHolder, Items.OBSIDIAN, false, "changed_infx_dimension");
-        AdvancementHolder portalToNether = manual(
-                output, "portal_to_nether", portal, InfXBlocks.MANTLE, false, "found_mantle");
-        manual(output, "ghast", portalToNether, Items.GHAST_TEAR, true, "reflected_fireball_kill");
-        AdvancementHolder blazeRod = manual(
-                output, "blaze_rod", portalToNether, Items.BLAZE_ROD, false, "picked_up_blaze_rod");
-        manual(output, "potion", blazeRod, Items.POTION, false, "brewed_potion");
-        AdvancementHolder theEnd = manual(
-                output, "the_end", blazeRod, Items.ENDER_EYE, true, "entered_end");
-        manual(output, "the_end2", theEnd, Items.DRAGON_EGG, true, "returned_from_end");
-        AdvancementHolder netherrackFurnace = child(
-                        "netherrack_furnace", blazeRod, InfXBlocks.NETHERRACK_FURNACE)
+        AdvancementHolder enlightenment = manual(
+                output, "enlightenment", bookcase, Items.WRITTEN_BOOK, true, "read_nine_books");
+
+        AdvancementHolder underworld = manual(
+                output, "underworld", obsidianFurnace, Items.OBSIDIAN, false, "entered_underworld");
+
+        AdvancementHolder nether = manual(
+                output, "nether", underworld, Items.NETHERRACK, false, "entered_nether");
+
+        AdvancementHolder netherForge = child("nether_forge", nether, InfXBlocks.NETHERRACK_FURNACE)
                 .addCriterion(
                         "crafted_netherrack_furnace",
                         RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey("netherrack_furnace")))
-                .build(InfiniteX.id("progression/netherrack_furnace"));
-        output.accept(netherrackFurnace);
-        AdvancementHolder adamantiumIngot = manual(
-                output,
-                "adamantium_ingot",
-                netherrackFurnace,
-                InfXItems.ADAMANTIUM_INGOT,
-                false,
-                "smelted_adamantium");
-        manual(output, "crystal_breaker", adamantiumIngot, InfXItems.catalog()
-                .equipment(InfxMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder(), true, "crafted_crystal_tool");
-        manual(output, "runegate", portal, InfXBlocks.MITHRIL_RUNE_STONE, true, "used_runegate");
+                .build(InfiniteX.id("progression/nether_forge"));
+        output.accept(netherForge);
 
-        AdvancementHolder seeds = manual(
-                output, "seeds", openInventory, Items.WHEAT_SEEDS, false, "picked_up_seed");
-        manual(output, "eggs", seeds, Items.EGG, false, "ate_raw_egg");
-        AdvancementHolder buildOven = addCraftedRecipeCriteria(
-                        child("build_oven", openInventory, InfXBlocks.CLAY_FURNACE),
-                        "clay_furnace",
-                        "sandstone_furnace",
-                        "hardened_clay_furnace",
-                        "cobblestone_furnace",
-                        "obsidian_furnace",
-                        "netherrack_furnace")
+        AdvancementHolder runeGate = manual(
+                output, "rune_gate", underworld, InfXBlocks.MITHRIL_RUNE_STONE, true, "used_runegate");
+
+        AdvancementHolder theEnd = manual(
+                output, "the_end", netherForge, Items.END_CRYSTAL, true, "entered_end");
+
+        manual(output, "the_end2", theEnd, Items.DRAGON_EGG, true, "returned_from_end");
+    }
+
+    private static AdvancementHolder recipeNode(
+            Consumer<AdvancementHolder> output,
+            String name,
+            AdvancementHolder parent,
+            ItemLike icon,
+            String... recipePaths) {
+        Advancement.Builder builder = child(name, parent, icon);
+        for (String recipePath : recipePaths) {
+            builder.addCriterion(
+                    "crafted_" + recipePath,
+                    RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey(recipePath)));
+        }
+        AdvancementHolder holder = builder
                 .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/build_oven"));
-        output.accept(buildOven);
-        manual(output, "flint_finder", openInventory, Items.FLINT, false, "mined_flint_from_gravel");
-        AdvancementHolder buildTorches = child("build_torches", buildWorkbench, Items.TORCH)
-                .addCriterion(
-                        "crafted_torches",
-                        RecipeCraftedTrigger.TriggerInstance.craftedItem(ResourceKey.create(
-                                Registries.RECIPE,
-                                net.minecraft.resources.Identifier.withDefaultNamespace("torch"))))
-                .build(InfiniteX.id("progression/build_torches"));
-        output.accept(buildTorches);
-        AdvancementHolder soilEnrichment = manual(
-                output,
-                "soil_enrichment",
-                buildHoe,
-                InfXItems.catalog().raw("manure").holder(),
-                false,
-                "fertilized_soil");
-        AdvancementHolder makeMycelium = manual(
-                output, "make_mycelium", soilEnrichment, Blocks.MYCELIUM, false, "made_mycelium");
-        manual(output, "supersize_me", makeMycelium, Blocks.BROWN_MUSHROOM_BLOCK, false, "grew_giant_mushroom");
-        manual(output, "plant_doctor", buildHoe, Items.BONE_MEAL, false, "cured_crop");
-        manual(output, "well_rested", buildWorkbench, Blocks.RED_BED, false, "slept_6000_ticks");
-        manual(output, "seaworthy", buildWorkbench, Items.OAK_BOAT, false, "sailed_deep_water");
-        manual(output, "explorer", openInventory, Items.COMPASS, true, "reached_10000_blocks");
-        AdvancementHolder fishingRod = addCraftedRecipeCriteria(
-                        child(
-                                "fishing_rod",
-                                betterTools,
-                                InfXItems.catalog().equipment(InfxMaterial.FLINT, EquipmentType.FISHING_ROD).holder()),
-                        "flint_fishing_rod",
-                        "obsidian_fishing_rod",
-                        "copper_fishing_rod",
-                        "silver_fishing_rod",
-                        "gold_fishing_rod",
-                        "rusted_iron_fishing_rod",
-                        "iron_fishing_rod",
-                        "ancient_metal_fishing_rod",
-                        "mithril_fishing_rod",
-                        "adamantium_fishing_rod")
-                .requirements(AdvancementRequirements.Strategy.OR)
-                .build(InfiniteX.id("progression/fishing_rod"));
-        output.accept(fishingRod);
-        manual(output, "cook_fish", fishingRod, Items.COOKED_COD, false, "smelted_fish");
-        manual(output, "fine_dining", buildWorkbench, Items.MUSHROOM_STEW, false, "crafted_fine_food");
+                .build(InfiniteX.id("progression/" + name));
+        output.accept(holder);
+        return holder;
     }
 
     private static Advancement.Builder child(String name, AdvancementHolder parent, ItemLike icon) {
@@ -540,16 +284,6 @@ final class ModAdvancementProvider implements AdvancementSubProvider {
 
     private static Criterion<ImpossibleTrigger.TriggerInstance> manualCriterion() {
         return CriteriaTriggers.IMPOSSIBLE.createCriterion(new ImpossibleTrigger.TriggerInstance());
-    }
-
-    private static Advancement.Builder addCraftedRecipeCriteria(
-            Advancement.Builder builder, String... recipePaths) {
-        for (String recipePath : recipePaths) {
-            builder.addCriterion(
-                    "crafted_" + recipePath,
-                    RecipeCraftedTrigger.TriggerInstance.craftedItem(recipeKey(recipePath)));
-        }
-        return builder;
     }
 
     private static Criterion<InventoryChangeTrigger.TriggerInstance> inventoryChanged() {
