@@ -138,6 +138,7 @@ public final class ModWorldGen {
     private static final int MITE_TERRAIN_CELL_HEIGHT = 8;
     private static final int MITE_TOP_SLIDE_START_SAMPLE = 13;
     private static final int UNDERWORLD_GRAY_COLOR = 0x303030;
+    private static final int UNDERWORLD_LUSH_AMBER_COLOR = 0x6B4630;
     private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
     private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
@@ -1176,13 +1177,13 @@ public final class ModWorldGen {
                         .temperature(0.5F)
                         .downfall(0.0F)
                         .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
-                        .setAttribute(EnvironmentAttributes.FOG_COLOR, UNDERWORLD_GRAY_COLOR)
-                        .setAttribute(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, UNDERWORLD_GRAY_COLOR)
+                        .setAttribute(EnvironmentAttributes.FOG_COLOR, UNDERWORLD_LUSH_AMBER_COLOR)
+                        .setAttribute(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, UNDERWORLD_LUSH_AMBER_COLOR)
                         .setAttribute(
                                 EnvironmentAttributes.BACKGROUND_MUSIC,
                                 new BackgroundMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES))
                         .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
-                        .mobSpawnSettings(underworldMobSpawns())
+                        .mobSpawnSettings(underworldLushMobSpawns())
                         .generationSettings(lushGeneration.build())
                         .build());
         context.register(
@@ -1233,6 +1234,14 @@ public final class ModWorldGen {
     }
 
     private static MobSpawnSettings underworldMobSpawns() {
+        return underworldMobSpawns(false);
+    }
+
+    private static MobSpawnSettings underworldLushMobSpawns() {
+        return underworldMobSpawns(true);
+    }
+
+    private static MobSpawnSettings underworldMobSpawns(boolean lush) {
         MobSpawnSettings.Builder spawns = new MobSpawnSettings.Builder();
         addUnderworldMonster(spawns, InfXEntityTypes.INFX_SPIDER.get(), 80, 1, 2);
         addUnderworldMonster(spawns, InfXEntityTypes.INFX_CREEPER.get(), 100, 1, 2);
@@ -1241,7 +1250,9 @@ public final class ModWorldGen {
         addUnderworldMonster(spawns, InfXEntityTypes.INVISIBLE_STALKER.get(), 10, 1, 1);
         addUnderworldMonster(spawns, InfXEntityTypes.DEMON_SPIDER.get(), 10, 1, 1);
         addUnderworldMonster(spawns, InfXEntityTypes.HELLHOUND.get(), 10, 1, 2);
-        addUnderworldMonster(spawns, InfXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
+        if (lush) {
+            addUnderworldMonster(spawns, InfXEntityTypes.WOOD_SPIDER.get(), 20, 1, 1);
+        }
         addUnderworldMonster(spawns, InfXEntityTypes.SHADOW.get(), 10, 1, 1);
         addUnderworldMonster(spawns, InfXEntityTypes.EARTH_ELEMENTAL.get(), 10, 1, 1);
         addUnderworldMonster(spawns, InfXEntityTypes.JELLY.get(), 30, 1, 4);

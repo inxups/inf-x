@@ -186,7 +186,6 @@ class GeneratedResourceTest {
                 Map.entry("infx:invisible_stalker", new int[] {10, 1, 1}),
                 Map.entry("infx:demon_spider", new int[] {10, 1, 1}),
                 Map.entry("infx:hellhound", new int[] {10, 1, 2}),
-                Map.entry("infx:wood_spider", new int[] {20, 1, 1}),
                 Map.entry("infx:shadow", new int[] {10, 1, 1}),
                 Map.entry("infx:earth_elemental", new int[] {10, 1, 1}),
                 Map.entry("infx:jelly", new int[] {30, 1, 4}),
@@ -227,6 +226,34 @@ class GeneratedResourceTest {
                                 .filter(entry -> !entry.getKey().equals("monster"))
                                 .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
                         "Underworld non-monster spawn tables must remain empty"));
+
+        JsonObject lush = json(GENERATED.resolve("data/infx/worldgen/biome/underworld_lush.json"));
+        JsonObject lushSpawners = lush.getAsJsonObject("spawners");
+        Map<String, int[]> expectedLushMonsters = new java.util.HashMap<>(expectedUnderworldMonsters);
+        expectedLushMonsters.put("infx:wood_spider", new int[] {20, 1, 1});
+        Map<String, int[]> actualLushMonsters = new java.util.HashMap<>();
+        for (JsonElement element : lushSpawners.getAsJsonArray("monster")) {
+            JsonObject entry = element.getAsJsonObject();
+            actualLushMonsters.put(entry.get("type").getAsString(), new int[] {
+                entry.get("weight").getAsInt(),
+                spawnCount(entry, "minCount", "min_count"),
+                spawnCount(entry, "maxCount", "max_count")
+            });
+        }
+        assertAll(
+                "INFX lush spawn tables",
+                () -> assertEquals(expectedLushMonsters.keySet(), actualLushMonsters.keySet()),
+                () -> expectedLushMonsters.forEach((type, expected) -> {
+                    int[] actual = actualLushMonsters.get(type);
+                    assertEquals(expected[0], actual[0], type + " weight");
+                    assertEquals(expected[1], actual[1], type + " minimum");
+                    assertEquals(expected[2], actual[2], type + " maximum");
+                }),
+                () -> assertTrue(
+                        lushSpawners.entrySet().stream()
+                                .filter(entry -> !entry.getKey().equals("monster"))
+                                .allMatch(entry -> entry.getValue().getAsJsonArray().isEmpty()),
+                        "Lush underworld non-monster spawn tables must remain empty"));
     }
 
     @Test
@@ -1875,10 +1902,10 @@ class GeneratedResourceTest {
                                 .get("minecraft:visual/ambient_light_color")
                                 .getAsString()),
                 () -> assertEquals(
-                        "#303030",
+                        "#6b4630",
                         lushBiomeAttributes.get("minecraft:visual/fog_color").getAsString()),
                 () -> assertEquals(
-                        "#303030",
+                        "#6b4630",
                         lushBiomeAttributes
                                 .get("minecraft:visual/ambient_light_color")
                                 .getAsString()),
@@ -1931,7 +1958,7 @@ class GeneratedResourceTest {
                 () -> assertEquals("never", bedRule.get("can_set_spawn").getAsString()),
                 () -> assertFalse(bedRule.has("explodes")),
                 () -> assertEquals(
-                        19,
+                        18,
                         biome.getAsJsonObject("spawners").getAsJsonArray("monster").size(),
                         "Underworld monster spawn table"),
                 () -> assertTrue(
