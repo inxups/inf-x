@@ -570,7 +570,7 @@ public final class ModMonsterGameTests {
 
         MobSpawnSettings underworld = biomes.getOrThrow(Underworld.BIOME).value().getMobSettings();
         helper.assertTrue(
-                spawnTypes(underworld, MobCategory.MONSTER).size() == 19
+                spawnTypes(underworld, MobCategory.MONSTER).size() == 18
                         && Set.copyOf(spawnTypes(underworld, MobCategory.MONSTER)).equals(Set.of(
                                 InfXEntityTypes.INFX_SPIDER.get(),
                                 InfXEntityTypes.INFX_CREEPER.get(),
@@ -579,7 +579,6 @@ public final class ModMonsterGameTests {
                                 InfXEntityTypes.INVISIBLE_STALKER.get(),
                                 InfXEntityTypes.DEMON_SPIDER.get(),
                                 InfXEntityTypes.HELLHOUND.get(),
-                                InfXEntityTypes.WOOD_SPIDER.get(),
                                 InfXEntityTypes.SHADOW.get(),
                                 InfXEntityTypes.EARTH_ELEMENTAL.get(),
                                 InfXEntityTypes.JELLY.get(),
@@ -591,12 +590,41 @@ public final class ModMonsterGameTests {
                                 InfXEntityTypes.INFX_CAVE_SPIDER.get(),
                                 InfXEntityTypes.LONGDEAD.get(),
                                 InfXEntityTypes.ANCIENT_BONE_LORD.get())),
-                "Underworld must use the exact 20-entry InfX monster table");
+                "Underworld must use the exact 18-entry InfX monster table without wood spiders");
         helper.assertTrue(
                 spawnTypes(underworld, MobCategory.CREATURE).isEmpty()
                         && spawnTypes(underworld, MobCategory.AMBIENT).isEmpty()
                         && spawnTypes(underworld, MobCategory.WATER_CREATURE).isEmpty(),
                 "Underworld non-monster spawn tables must remain unchanged");
+        MobSpawnSettings underworldLush = biomes.getOrThrow(Underworld.LUSH_BIOME).value().getMobSettings();
+        helper.assertTrue(
+                spawnTypes(underworldLush, MobCategory.MONSTER).size() == 19
+                        && Set.copyOf(spawnTypes(underworldLush, MobCategory.MONSTER)).equals(Set.of(
+                                InfXEntityTypes.INFX_SPIDER.get(),
+                                InfXEntityTypes.INFX_CREEPER.get(),
+                                InfXEntityTypes.INFX_ENDERMAN.get(),
+                                InfXEntityTypes.WIGHT.get(),
+                                InfXEntityTypes.INVISIBLE_STALKER.get(),
+                                InfXEntityTypes.DEMON_SPIDER.get(),
+                                InfXEntityTypes.HELLHOUND.get(),
+                                InfXEntityTypes.SHADOW.get(),
+                                InfXEntityTypes.EARTH_ELEMENTAL.get(),
+                                InfXEntityTypes.JELLY.get(),
+                                InfXEntityTypes.BLOB.get(),
+                                InfXEntityTypes.OOZE.get(),
+                                InfXEntityTypes.PUDDING.get(),
+                                InfXEntityTypes.CLAY_GOLEM.get(),
+                                InfXEntityTypes.PHASE_SPIDER.get(),
+                                InfXEntityTypes.INFX_CAVE_SPIDER.get(),
+                                InfXEntityTypes.LONGDEAD.get(),
+                                InfXEntityTypes.ANCIENT_BONE_LORD.get(),
+                                InfXEntityTypes.WOOD_SPIDER.get())),
+                "Lush underworld must be the only region with wood spiders in its monster table");
+        helper.assertTrue(
+                spawnTypes(underworldLush, MobCategory.CREATURE).isEmpty()
+                        && spawnTypes(underworldLush, MobCategory.AMBIENT).isEmpty()
+                        && spawnTypes(underworldLush, MobCategory.WATER_CREATURE).isEmpty(),
+                "Lush underworld non-monster spawn tables must remain unchanged");
         for (var type : List.of(
                 InfXEntityTypes.INFX_SPIDER,
                 InfXEntityTypes.INFX_CREEPER,
