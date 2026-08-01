@@ -137,8 +137,7 @@ public final class ModWorldGen {
     private static final int MITE_TERRAIN_SAMPLE_COUNT = 17;
     private static final int MITE_TERRAIN_CELL_HEIGHT = 8;
     private static final int MITE_TOP_SLIDE_START_SAMPLE = 13;
-    private static final int UNDERWORLD_MOSS_GREEN_COLOR = 0x16382D;
-    private static final int UNDERWORLD_LUSH_AMBER_COLOR = 0x6B4630;
+    private static final int UNDERWORLD_GRAY_COLOR = 0x303030;
     private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
     private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
@@ -1164,8 +1163,8 @@ public final class ModWorldGen {
                         .temperature(0.5F)
                         .downfall(0.0F)
                         .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
-                        .setAttribute(EnvironmentAttributes.FOG_COLOR, UNDERWORLD_MOSS_GREEN_COLOR)
-                        .setAttribute(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, UNDERWORLD_MOSS_GREEN_COLOR)
+                        .setAttribute(EnvironmentAttributes.FOG_COLOR, UNDERWORLD_GRAY_COLOR)
+                        .setAttribute(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, UNDERWORLD_GRAY_COLOR)
                         .setAttribute(EnvironmentAttributes.AMBIENT_SOUNDS, AmbientSounds.LEGACY_CAVE_SETTINGS)
                         .mobSpawnSettings(underworldMobSpawns())
                         .generationSettings(ordinaryGeneration.build())
@@ -1177,8 +1176,8 @@ public final class ModWorldGen {
                         .temperature(0.5F)
                         .downfall(0.0F)
                         .specialEffects(new BiomeSpecialEffects.Builder().waterColor(4_159_204).build())
-                        .setAttribute(EnvironmentAttributes.FOG_COLOR, UNDERWORLD_LUSH_AMBER_COLOR)
-                        .setAttribute(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, UNDERWORLD_LUSH_AMBER_COLOR)
+                        .setAttribute(EnvironmentAttributes.FOG_COLOR, UNDERWORLD_GRAY_COLOR)
+                        .setAttribute(EnvironmentAttributes.AMBIENT_LIGHT_COLOR, UNDERWORLD_GRAY_COLOR)
                         .setAttribute(
                                 EnvironmentAttributes.BACKGROUND_MUSIC,
                                 new BackgroundMusic(SoundEvents.MUSIC_BIOME_LUSH_CAVES))
