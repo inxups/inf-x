@@ -1867,18 +1867,18 @@ class GeneratedResourceTest {
                         .get("water_color")
                         .getAsString()),
                 () -> assertEquals(
-                        "#16382d",
+                        "#303030",
                         biomeAttributes.get("minecraft:visual/fog_color").getAsString()),
                 () -> assertEquals(
-                        "#16382d",
+                        "#303030",
                         biomeAttributes
                                 .get("minecraft:visual/ambient_light_color")
                                 .getAsString()),
                 () -> assertEquals(
-                        "#6b4630",
+                        "#303030",
                         lushBiomeAttributes.get("minecraft:visual/fog_color").getAsString()),
                 () -> assertEquals(
-                        "#6b4630",
+                        "#303030",
                         lushBiomeAttributes
                                 .get("minecraft:visual/ambient_light_color")
                                 .getAsString()),
