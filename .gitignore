@@ -2,6 +2,7 @@
 codex
 .codex
 .claude/
+.codex-worktrees
 
 ### Gradle ###
 .gradle
@@ -18,6 +19,7 @@ out/
 !**/src/**/out/
 
 .run/
+logs/
 
 ### Eclipse ###
 .apt_generated
