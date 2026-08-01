@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### 移除失效的 @OnlyIn 注解
+
+- 移除 `MoonCelestialRenderer` 上的 `@OnlyIn(Dist.CLIENT)` 注解及其导入；NeoForge 26.1 已不再在运行时剥离 `@OnlyIn` 成员，该注解只会触发 OnlyInWarningsHandler 的 ERROR 日志。
+- 该类仍只被客户端 `SkyRendererMixin` 与客户端测试引用，专用服务器不会加载它，因此移除注解不改变客户端/服务端分发行为。
+
 ### 重做玩家进度树
 
 - 将玩家进度树从 62 项旧 MITE/R196 迁移树重做为 25 项单根多分支阶段主线，涵盖燧石起步、工具台与熔炉、金属时代、护甲、农业与食物、附魔与创世书、地下世界/下界/末地。
