@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -35,39 +36,37 @@ public final class GelatinousCubeEvents {
             return;
         }
 
-        dissolveTouchedBlocks(level, slime);
-        dissolveTouchedItems(level, slime);
+        boolean corroded = dissolveTouchedBlocks(level, slime);
+        corroded |= dissolveTouchedItems(level, slime);
+        if (corroded) {
+            playCorrosionFizz(level, slime, slime.getRandom());
+        }
         if (slime.getTarget() == null) {
             seekDissolvableItem(level, slime);
         }
     }
 
-    private static void dissolveTouchedBlocks(ServerLevel level, InfxSlime slime) {
+    private static boolean dissolveTouchedBlocks(ServerLevel level, InfxSlime slime) {
         CorrosionType type = slime.variant().corrosionType();
-        boolean playedGrassCorrosionSound = false;
+        boolean corroded = false;
         for (BlockPos pos : BlockPos.betweenClosed(slime.getBoundingBox().inflate(0.01))) {
             BlockState state = level.getBlockState(pos);
             int period = GelatinousCubeRules.dissolvePeriod(state, type);
             if (period == GelatinousCubeRules.INSTANT) {
-                boolean dissolved = GelatinousCubeRules.dissolveOnContact(level, pos, type, null);
-                if (!playedGrassCorrosionSound
-                        && dissolved
-                        && GelatinousCubeRules.isAcidScorchableGround(state, type)) {
-                    playAcidCorrosionFizz(level, pos, slime.getRandom());
-                    playedGrassCorrosionSound = true;
-                }
+                corroded |= GelatinousCubeRules.dissolveOnContact(level, pos, type, null);
                 slime.clearDissolvingBlock(pos);
             } else if (period > 0) {
                 if (slime.advanceDissolvingBlock(pos, period)) {
-                    level.destroyBlock(pos, false);
+                    corroded |= level.destroyBlock(pos, false);
                 }
             } else {
                 slime.clearDissolvingBlock(pos);
             }
         }
+        return corroded;
     }
 
-    static void playAcidCorrosionFizz(ServerLevel level, BlockPos pos, RandomSource random) {
+    public static void playCorrosionFizz(ServerLevel level, BlockPos pos, RandomSource random) {
         level.playSound(
                 null,
                 pos,
@@ -77,10 +76,24 @@ public final class GelatinousCubeEvents {
                 2.6F + (random.nextFloat() - random.nextFloat()) * 0.8F);
     }
 
-    private static void dissolveTouchedItems(ServerLevel level, InfxSlime slime) {
+    public static void playCorrosionFizz(ServerLevel level, Entity entity, RandomSource random) {
+        level.playSound(
+                null,
+                entity.getX(),
+                entity.getY() + entity.getBbHeight() * 0.5D,
+                entity.getZ(),
+                InfXSounds.GELATINOUS_CUBE_CORROSION.get(),
+                SoundSource.HOSTILE,
+                0.7F,
+                1.6F + (random.nextFloat() - random.nextFloat()) * 0.4F);
+    }
+
+    private static boolean dissolveTouchedItems(ServerLevel level, InfxSlime slime) {
+        boolean corroded = false;
         for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, slime.getBoundingBox())) {
-            CorrosionRules.damageItemEntity(item, slime.variant().corrosionType(), 1.0F);
+            corroded |= CorrosionRules.damageItemEntity(item, slime.variant().corrosionType(), 1.0F);
         }
+        return corroded;
     }
 
     private static void seekDissolvableItem(ServerLevel level, InfxSlime slime) {
@@ -96,12 +109,15 @@ public final class GelatinousCubeEvents {
     public static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || !(event.getEntity() instanceof InfxSlime slime)
+                || !(slime.level() instanceof ServerLevel level)
                 || !(event.getSource().getEntity() instanceof ServerPlayer player)
                 || event.getSource().getDirectEntity() != player) {
             return;
         }
-        CorrosionRules.damageHeldItem(
-                player, slime.variant().corrosionType(), slime.variant().damageMultiplier());
+        if (CorrosionRules.damageHeldItem(
+                player, slime.variant().corrosionType(), slime.variant().damageMultiplier())) {
+            playCorrosionFizz(level, player, slime.getRandom());
+        }
     }
 
     @SubscribeEvent

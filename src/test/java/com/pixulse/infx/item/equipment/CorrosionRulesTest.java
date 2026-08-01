@@ -3,6 +3,7 @@ package com.pixulse.infx.item.equipment;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,16 @@ class CorrosionRulesTest {
         assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.OBSIDIAN, CorrosionType.ACID));
         assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.GOLD, CorrosionType.ACID));
         assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.MITHRIL, CorrosionType.ACID));
+        assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.ADAMANTIUM, CorrosionType.ACID));
         assertTrue(CorrosionRules.isHarmedBy(InfxMaterial.IRON, CorrosionType.ACID));
-        assertTrue(CorrosionRules.isHarmedBy(InfxMaterial.ADAMANTIUM, CorrosionType.ACID));
+    }
+
+    @Test
+    void miteCompositeEquipmentKeepsItsWoodenComponents() {
+        assertTrue(CorrosionRules.hasMiteWoodenComponent(EquipmentType.PICKAXE));
+        assertTrue(CorrosionRules.hasMiteWoodenComponent(EquipmentType.BOW));
+        assertTrue(CorrosionRules.hasMiteWoodenComponent(EquipmentType.ARROW));
+        assertFalse(CorrosionRules.hasMiteWoodenComponent(EquipmentType.SHEARS));
+        assertFalse(CorrosionRules.hasMiteWoodenComponent(EquipmentType.HELMET));
     }
 }

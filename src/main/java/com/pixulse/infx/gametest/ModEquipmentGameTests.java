@@ -21,6 +21,7 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 import com.pixulse.infx.registry.tag.InfXItemTags;
@@ -80,6 +81,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
@@ -661,6 +663,25 @@ public final class ModEquipmentGameTests {
                 .size();
         helper.assertTrue(repeatedItems == itemsAfter, "an entity hit receives only one recovery roll");
         target.discard();
+
+        var acidSlime = helper.spawnWithNoFreeWill(InfXEntityTypes.OOZE.get(), new BlockPos(4, 2, 2));
+        AbstractArrow unownedAcidArrow = (AbstractArrow) flint.asProjectile(
+                helper.getLevel(), position, flint.getDefaultInstance(), Direction.NORTH);
+        ProjectileImpactEvent unownedImpact =
+                new ProjectileImpactEvent(unownedAcidArrow, new EntityHitResult(acidSlime));
+        EquipmentBehaviors.onProjectileImpact(unownedImpact);
+        helper.assertTrue(unownedImpact.isCanceled(), "acid slime must cancel an unowned corrosible arrow impact");
+        helper.assertTrue(unownedAcidArrow.isRemoved(), "acid slime must consume an unowned corrosible arrow");
+
+        ItemStack creativeArrowStack = flint.getDefaultInstance();
+        creativeArrowStack.set(DataComponents.INTANGIBLE_PROJECTILE, Unit.INSTANCE);
+        AbstractArrow creativeAcidArrow = flint.createArrow(helper.getLevel(), creativeArrowStack, player, null);
+        ProjectileImpactEvent creativeImpact =
+                new ProjectileImpactEvent(creativeAcidArrow, new EntityHitResult(acidSlime));
+        EquipmentBehaviors.onProjectileImpact(creativeImpact);
+        helper.assertTrue(creativeImpact.isCanceled(), "acid slime must cancel a creative-only corrosible arrow impact");
+        helper.assertTrue(creativeAcidArrow.isRemoved(), "acid slime must consume a creative-only corrosible arrow");
+        acidSlime.discard();
         removePlayer(player);
         helper.succeed();
     }

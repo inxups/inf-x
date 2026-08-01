@@ -5,6 +5,8 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.entity.GelatinousCubeEvents;
+import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.*;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
@@ -74,17 +77,35 @@ public final class EquipmentBehaviors {
     @SubscribeEvent
     public static void onProjectileImpact(ProjectileImpactEvent event) {
         if (event.getProjectile() instanceof AbstractArrow arrow) {
-            resolveArrowRecovery(arrow, event.getRayTraceResult());
+            if (resolveArrowRecovery(arrow, event.getRayTraceResult())) {
+                event.setCanceled(true);
+            }
         }
     }
 
-    public static void resolveArrowRecovery(AbstractArrow arrow, HitResult hit) {
+    /** Returns true when an acid slime consumed the arrow and the impact must be canceled. */
+    public static boolean resolveArrowRecovery(AbstractArrow arrow, HitResult hit) {
         if (hit.getType() != HitResult.Type.ENTITY
                 || !(arrow.level() instanceof net.minecraft.server.level.ServerLevel level)
-                || !(arrow.getPickupItemStackOrigin().getItem() instanceof InfxArrowItem arrowItem)
-                || arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY
                 || arrow.getPersistentData().getBooleanOr(RECOVERY_CHECKED, false)) {
-            return;
+            return false;
+        }
+        ItemStack origin = arrow.getPickupItemStackOrigin();
+        if (hit instanceof EntityHitResult entityHit
+                && entityHit.getEntity() instanceof InfxSlime slime
+                && slime.variant().corrosionType() == CorrosionType.ACID
+                && CorrosionRules.isHarmedBy(origin, CorrosionType.ACID)) {
+            arrow.getPersistentData().putBoolean(RECOVERY_CHECKED, true);
+            arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
+            GelatinousCubeEvents.playCorrosionFizz(level, arrow, arrow.getRandom());
+            arrow.discard();
+            return true;
+        }
+        if (arrow.pickup == AbstractArrow.Pickup.CREATIVE_ONLY) {
+            return false;
+        }
+        if (!(origin.getItem() instanceof InfxArrowItem arrowItem)) {
+            return false;
         }
         arrow.getPersistentData().putBoolean(RECOVERY_CHECKED, true);
         int enchantment = arrow.getPersistentData().getInt("infx_recovery_enchantment").orElse(0);
@@ -95,6 +116,7 @@ public final class EquipmentBehaviors {
             arrow.pickup = AbstractArrow.Pickup.DISALLOWED;
             arrow.spawnAtLocation(level, arrow.getPickupItemStackOrigin().copyWithCount(1));
         }
+        return false;
     }
 
     public static float recoveryChance(InfxMaterial material) {
