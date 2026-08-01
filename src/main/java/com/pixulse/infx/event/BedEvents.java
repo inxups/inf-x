@@ -8,7 +8,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.entity.MonsterTactics;
-import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXEntityTypes;
 
@@ -186,11 +185,6 @@ public final class BedEvents {
         if (ticksSlept >= BedRules.EFFECT_CLEAR_TICKS) {
             for (ServerPlayer player : players) {
                 if (player.isSleeping()) player.removeAllEffects();
-            }
-        }
-        if (!interrupted && ticksSlept == requestedTicks && ticksSlept >= BedRules.WELL_RESTED_TICKS) {
-            for (ServerPlayer player : players) {
-                if (player.isSleeping()) ProgressionEvents.award(player, "well_rested", "slept_6000_ticks");
             }
         }
         if (ticksSlept > 0) {

@@ -142,49 +142,58 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("fear_of_undead", names(
                     "Three out of four attacks against undead creatures fail",
                     "你对亡灵生物发起的四次攻击中通常只有一次有效")));
-    private static final Map<String, String[]> REMAINING_ADVANCEMENTS = Map.ofEntries(
-            Map.entry("kill_cow", names("Cow Tipper", "斗牛士")),
-            Map.entry("kill_enemy", names("Monster Hunter", "怪物猎人")),
-            Map.entry("snipe_skeleton", names("Sniper Duel", "狙击手的对决")),
-            Map.entry("fly_pig", names("When Pigs Fly", "当猪飞的时候")),
-            Map.entry("flour", names("The Basic Ingredient", "基础成分")),
-            Map.entry("make_bread", names("Bake Bread", "烤面包")),
-            Map.entry("bake_cake", names("The Lie", "蛋糕是个谎言")),
-            Map.entry("on_a_rail", names("On a Rail", "在铁路上")),
-            Map.entry("obsidian_furnace", names("Lava Time", "岩浆烧制时刻")),
-            Map.entry("mithril_ingot", names("Mythical Age", "神话时代")),
-            Map.entry("diamonds", names("Diamonds!", "钻石")),
-            Map.entry("emeralds", names("Emeralds!", "绿宝石")),
-            Map.entry("enchantments", names("Enchanter", "附魔师")),
-            Map.entry("overkill", names("Overkill", "赶尽杀绝")),
+    private static final Map<String, String[]> PROGRESSION_NAMES = Map.ofEntries(
+            Map.entry("first_steps", names("First Steps", "第一步")),
+            Map.entry("flint_kit", names("Flint Kit", "燧石工具")),
+            Map.entry("flint_workbench", names("Flint Workbench", "燧石工具台")),
+            Map.entry("first_furnace", names("First Furnace", "第一座熔炉")),
+            Map.entry("copper_workbench", names("Copper Age", "铜器时代")),
+            Map.entry("iron_age", names("Iron Age", "铁器时代")),
+            Map.entry("obsidian_furnace", names("Lava Heat", "熔岩之热")),
+            Map.entry("ancient_metal_age", names("Ancient Metal", "远古金属")),
+            Map.entry("mithril_age", names("Mithril Age", "秘银时代")),
+            Map.entry("adamantium_age", names("Adamantium Age", "艾德曼时代")),
+            Map.entry("masterwork", names("Masterwork", "大师之作")),
+            Map.entry("leather_armor", names("Suiting Up", "穿上护甲")),
+            Map.entry("metal_armor", names("Metal Shell", "金属战甲")),
+            Map.entry("adamantium_armor", names("Juggernaut", "世界主宰")),
+            Map.entry("farming", names("Time to Farm", "农耕时间")),
+            Map.entry("food", names("Cooked Cuisine", "熟食之道")),
+            Map.entry("enchanting", names("Enchanter", "附魔师")),
             Map.entry("bookcase", names("Knowledge is Power", "知识就是力量")),
-            Map.entry("enlightenment", names("Enlightenment", "启蒙之书")),
-            Map.entry("portal", names("The Underworld", "地下世界")),
-            Map.entry("portal_to_nether", names("A Long Way Down", "长路漫漫")),
-            Map.entry("ghast", names("Return to Sender", "见鬼去吧")),
-            Map.entry("blaze_rod", names("Into Fire", "与火共舞")),
-            Map.entry("potion", names("Local Brewery", "本地的酿造厂")),
+            Map.entry("enlightenment", names("Enlightenment", "启蒙")),
+            Map.entry("underworld", names("The Underworld", "地下世界")),
+            Map.entry("nether", names("The Nether", "下界")),
+            Map.entry("nether_forge", names("Nether Forge", "下界熔炉")),
+            Map.entry("rune_gate", names("Rune Gate", "符文之门")),
             Map.entry("the_end", names("The End?", "末地？")),
-            Map.entry("the_end2", names("The End.", "末地。")),
-            Map.entry("netherrack_furnace", names("Ultimate Furnace", "最强的熔炉")),
-            Map.entry("adamantium_ingot", names("Ultimate Metal", "最强的金属")),
-            Map.entry("crystal_breaker", names("Crystal Breaker", "末影水晶破坏者")),
-            Map.entry("runegate", names("The Power of Runes", "符文的力量")),
-            Map.entry("seeds", names("Scavenger", "拾荒者")),
-            Map.entry("eggs", names("Eat an Egg", "吃鸡蛋")),
-            Map.entry("build_oven", names("Clay Craft", "粘土工艺")),
-            Map.entry("flint_finder", names("Flint Finder", "燧石寻找者")),
-            Map.entry("build_torches", names("Light It Up", "让一切亮起来吧")),
-            Map.entry("soil_enrichment", names("Soil Enrichment", "土壤增肥")),
-            Map.entry("make_mycelium", names("Keep It Dark", "保持黑暗")),
-            Map.entry("supersize_me", names("Supersize Me", "喂蘑菇")),
-            Map.entry("plant_doctor", names("Plant Doctor", "植物医生")),
-            Map.entry("well_rested", names("Well Rested", "休息充沛")),
-            Map.entry("seaworthy", names("Seaworthy", "航海家")),
-            Map.entry("explorer", names("Explorer", "探险家")),
-            Map.entry("fishing_rod", names("Go Fishing", "去钓鱼")),
-            Map.entry("cook_fish", names("Delicious Fish", "美味的鱼儿")),
-            Map.entry("fine_dining", names("Fine Dining", "美食")));
+            Map.entry("the_end2", names("The End.", "末地。")));
+    private static final Map<String, String[]> PROGRESSION_DESCRIPTIONS = Map.ofEntries(
+            Map.entry("first_steps", names("Pick up your first item and begin surviving", "拾起第一件物品，开始求生")),
+            Map.entry("flint_kit", names("Craft a flint hatchet, knife, shovel, or axe", "制作一把燧石短斧、小刀、锹或斧")),
+            Map.entry("flint_workbench", names("Craft a stripped-log flint or obsidian workbench", "制作去皮原木燧石或黑曜石工具台")),
+            Map.entry("first_furnace", names("Craft a clay, sandstone, hardened clay, or cobblestone furnace", "制作黏土、砂岩、陶瓦或圆石熔炉")),
+            Map.entry("copper_workbench", names("Craft a copper, silver, or gold workbench", "制作铜、银或金工具台")),
+            Map.entry("iron_age", names("Smelt iron or craft an iron workbench and pickaxe", "冶炼铁锭，或制作铁工具台与铁镐")),
+            Map.entry("obsidian_furnace", names("Craft an obsidian furnace", "制作黑曜石熔炉")),
+            Map.entry("ancient_metal_age", names("Craft an ancient metal workbench", "制作远古金属工具台")),
+            Map.entry("mithril_age", names("Smelt mithril or craft a mithril workbench", "冶炼秘银，或制作秘银工具台")),
+            Map.entry("adamantium_age", names("Smelt adamantium or craft an adamantium workbench", "冶炼艾德曼，或制作艾德曼工具台")),
+            Map.entry("masterwork", names("Craft an adamantium pickaxe or war hammer", "制作艾德曼镐或战锤")),
+            Map.entry("leather_armor", names("Wear a full set of leather armor", "穿上整套皮革护甲")),
+            Map.entry("metal_armor", names("Wear a full set of non-adamantium metal armor", "穿上整套非艾德曼金属护甲")),
+            Map.entry("adamantium_armor", names("Wear a full set of adamantium armor", "穿上整套艾德曼护甲")),
+            Map.entry("farming", names("Craft a copper, silver, gold, or iron hoe", "制作铜、银、金或铁锄")),
+            Map.entry("food", names("Craft flour, dough, bread, or an INFX soup", "制作面粉、面团、面包或 InfX 汤类食物")),
+            Map.entry("enchanting", names("Craft an emerald or diamond enchanting table", "制作绿宝石或钻石附魔台")),
+            Map.entry("bookcase", names("Craft a bookshelf", "制作书架")),
+            Map.entry("enlightenment", names("Read all nine creation books", "读完九本创世之书")),
+            Map.entry("underworld", names("Enter the Underworld", "进入地下世界")),
+            Map.entry("nether", names("Enter the Nether", "进入下界")),
+            Map.entry("nether_forge", names("Craft a netherrack furnace", "制作下界岩熔炉")),
+            Map.entry("rune_gate", names("Use a rune gate", "使用符文门")),
+            Map.entry("the_end", names("Enter the End", "进入末地")),
+            Map.entry("the_end2", names("Defeat the ender dragon and return", "击败末影龙并返回")));
 
     private static String[] names(String english, String chinese) {
         return new String[]{english, chinese};
@@ -242,55 +251,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("jei.infx.category.obsidian", "Obsidian Workbench"),
                 Map.entry("jei.infx.difficulty", "Difficulty: %s"),
                 Map.entry("jei.infx.required_bench", "Required: %s"),
-                Map.entry("message.infx.workbench_obstructed", "The workbench needs clear space above it"),
-                Map.entry("advancements.infx.open_inventory.title", "Taking Stock"),
-                Map.entry("advancements.infx.open_inventory.description", "Open your inventory and assess your situation"),
-                Map.entry("advancements.infx.stick_picker.title", "Stick Picker"),
-                Map.entry("advancements.infx.stick_picker.description", "Find your first stick"),
-                Map.entry("advancements.infx.cutting_edge.title", "Cutting Edge"),
-                Map.entry("advancements.infx.cutting_edge.description", "Craft a flint hatchet or knife"),
-                Map.entry("advancements.infx.mine_wood.title", "Mine Wood"),
-                Map.entry("advancements.infx.mine_wood.description", "Use the right tool to harvest a log"),
-                Map.entry("advancements.infx.build_work_bench.title", "Build Work Bench"),
-                Map.entry("advancements.infx.build_work_bench.description", "Craft a flint workbench"),
-                Map.entry("advancements.infx.build_club.title", "Time to Strike!"),
-                Map.entry("advancements.infx.build_club.description", "Use planks and sticks to make a club"),
-                Map.entry("advancements.infx.build_axe.title", "Lumberjack"),
-                Map.entry("advancements.infx.build_axe.description", "Craft a full axe or battle axe"),
-                Map.entry("advancements.infx.build_shovel.title", "Explore the Surface"),
-                Map.entry("advancements.infx.build_shovel.description", "Craft a shovel"),
-                Map.entry("advancements.infx.nuggets.title", "Nuggets"),
-                Map.entry("advancements.infx.nuggets.description", "Recover a copper nugget from gravel"),
-                Map.entry("advancements.infx.better_tools.title", "Better Tools"),
-                Map.entry("advancements.infx.better_tools.description", "Build a copper workbench"),
-                Map.entry("advancements.infx.wear_leather.title", "Suiting Up"),
-                Map.entry("advancements.infx.wear_leather.description", "Wear leather armor to protect yourself"),
-                Map.entry("advancements.infx.build_chain_mail.title", "Better Armor"),
-                Map.entry(
-                        "advancements.infx.build_chain_mail.description",
-                        "Use nuggets to craft chains and chain mail armor"),
-                Map.entry("advancements.infx.wear_all_plate_armor.title", "Tin Can"),
-                Map.entry(
-                        "advancements.infx.wear_all_plate_armor.description",
-                        "Cover yourself head to toe with plate armor"),
-                Map.entry("advancements.infx.wear_all_adamantium_plate_armor.title", "Juggernaut"),
-                Map.entry(
-                        "advancements.infx.wear_all_adamantium_plate_armor.description",
-                        "Don a full suit of adamantium plate armor"),
-                Map.entry("advancements.infx.build_hoe.title", "Time to Farm!"),
-                Map.entry("advancements.infx.build_hoe.description", "Craft a metal hoe or mattock"),
-                Map.entry("advancements.infx.build_scythe.title", "Reaper"),
-                Map.entry("advancements.infx.build_scythe.description", "Make a scythe to harvest wheat"),
-                Map.entry("advancements.infx.build_pickaxe.title", "Build Pickaxe"),
-                Map.entry("advancements.infx.build_pickaxe.description", "Craft an InfiniteX copper pickaxe"),
-                Map.entry("advancements.infx.build_furnace.title", "Hot Topic"),
-                Map.entry("advancements.infx.build_furnace.description", "Build a cobblestone furnace"),
-                Map.entry("advancements.infx.acquire_iron.title", "Acquire Hardware"),
-                Map.entry("advancements.infx.acquire_iron.description", "Smelt an iron ingot"),
-                Map.entry("advancements.infx.build_better_pickaxe.title", "Getting an Upgrade"),
-                Map.entry(
-                        "advancements.infx.build_better_pickaxe.description",
-                        "Craft an iron-or-better pickaxe or war hammer"))) {
+                Map.entry("message.infx.workbench_obstructed", "The workbench needs clear space above it")
+                )) {
             @Override
             String name(Catalog.Entry entry) {
                 return entry.englishName();
@@ -348,47 +310,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("jei.infx.category.obsidian", "黑曜石工具台"),
                 Map.entry("jei.infx.difficulty", "难度：%s"),
                 Map.entry("jei.infx.required_bench", "需要：%s"),
-                Map.entry("message.infx.workbench_obstructed", "工具台上方需要留出空间"),
-                Map.entry("advancements.infx.open_inventory.title", "查看物品栏"),
-                Map.entry("advancements.infx.open_inventory.description", "打开物品栏，确认眼下的处境"),
-                Map.entry("advancements.infx.stick_picker.title", "拾枝者"),
-                Map.entry("advancements.infx.stick_picker.description", "找到第一根木棍"),
-                Map.entry("advancements.infx.cutting_edge.title", "锋芒初现"),
-                Map.entry("advancements.infx.cutting_edge.description", "制作一把燧石短斧或小刀"),
-                Map.entry("advancements.infx.mine_wood.title", "伐木"),
-                Map.entry("advancements.infx.mine_wood.description", "用正确的工具采集原木"),
-                Map.entry("advancements.infx.build_work_bench.title", "搭建工具台"),
-                Map.entry("advancements.infx.build_work_bench.description", "制作燧石工具台"),
-                Map.entry("advancements.infx.build_club.title", "出击时间到"),
-                Map.entry("advancements.infx.build_club.description", "用木板和木棍制作一根木棒"),
-                Map.entry("advancements.infx.build_axe.title", "伐木工"),
-                Map.entry("advancements.infx.build_axe.description", "制作一把斧或战斧"),
-                Map.entry("advancements.infx.build_shovel.title", "探索地表"),
-                Map.entry("advancements.infx.build_shovel.description", "制作一把锹"),
-                Map.entry("advancements.infx.nuggets.title", "铜粒"),
-                Map.entry("advancements.infx.nuggets.description", "从沙砾中取得一粒铜"),
-                Map.entry("advancements.infx.better_tools.title", "更好的工具"),
-                Map.entry("advancements.infx.better_tools.description", "搭建铜工具台"),
-                Map.entry("advancements.infx.wear_leather.title", "文明着装"),
-                Map.entry("advancements.infx.wear_leather.description", "穿上一件皮革护甲"),
-                Map.entry("advancements.infx.build_chain_mail.title", "更好的护甲"),
-                Map.entry("advancements.infx.build_chain_mail.description", "用金属粒制造锁链以及锁链护甲"),
-                Map.entry("advancements.infx.wear_all_plate_armor.title", "铁罐头"),
-                Map.entry("advancements.infx.wear_all_plate_armor.description", "用盔甲从头武装到脚趾"),
-                Map.entry("advancements.infx.wear_all_adamantium_plate_armor.title", "世界主宰"),
-                Map.entry("advancements.infx.wear_all_adamantium_plate_armor.description", "穿上整套艾德曼护甲"),
-                Map.entry("advancements.infx.build_hoe.title", "农耕时间到"),
-                Map.entry("advancements.infx.build_hoe.description", "制作一把金属锄或鹤嘴锄"),
-                Map.entry("advancements.infx.build_scythe.title", "收割者"),
-                Map.entry("advancements.infx.build_scythe.description", "合成一把镰刀收割小麦"),
-                Map.entry("advancements.infx.build_pickaxe.title", "制作铜镐"),
-                Map.entry("advancements.infx.build_pickaxe.description", "制作 InfiniteX 铜镐"),
-                Map.entry("advancements.infx.build_furnace.title", "温暖的炉火"),
-                Map.entry("advancements.infx.build_furnace.description", "制作一座圆石熔炉"),
-                Map.entry("advancements.infx.acquire_iron.title", "铁器时代"),
-                Map.entry("advancements.infx.acquire_iron.description", "冶炼一块铁锭"),
-                Map.entry("advancements.infx.build_better_pickaxe.title", "获得升级"),
-                Map.entry("advancements.infx.build_better_pickaxe.description", "制作铁级或更高级的镐或战锤"))) {
+                Map.entry("message.infx.workbench_obstructed", "工具台上方需要留出空间")
+                )) {
             @Override
             String name(Catalog.Entry entry) {
                 return entry.chineseName();
@@ -502,14 +425,11 @@ final class ModLanguageProvider extends LanguageProvider {
             add("block.infx." + prefix + "_obsidian_workbench", obsidianName);
             add("container.infx." + prefix + "_obsidian_workbench", obsidianName);
         }
-        REMAINING_ADVANCEMENTS.forEach((path, names) -> {
-            String name = names[locale == Locale.EN_US ? 0 : 1];
-            add("advancements.infx." + path + ".title", name);
-            add(
-                    "advancements.infx." + path + ".description",
-                    locale == Locale.EN_US
-                            ? "Complete the INFX requirement: " + name
-                            : "完成 INFX 条件：" + name);
+        PROGRESSION_NAMES.forEach((path, names) -> {
+            add("advancements.infx." + path + ".title", names[locale == Locale.EN_US ? 0 : 1]);
+        });
+        PROGRESSION_DESCRIPTIONS.forEach((path, descriptions) -> {
+            add("advancements.infx." + path + ".description", descriptions[locale == Locale.EN_US ? 0 : 1]);
         });
         for (var anvil : InfXBlocks.METAL_ANVILS) {
             String material = anvil.get().material().path();
@@ -571,9 +491,6 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.server_management_disabled", locale == Locale.EN_US
                 ? "This server command is disabled outside InfiniteX test mode"
                 : "该服务端命令在非 InfiniteX 测试模式下被禁用");
-        add("message.infx.world_first", locale == Locale.EN_US
-                ? "%s was first to earn %s on day %s"
-                : "%s 首个完成 %s（第 %s 天）");
         add("message.infx.safe_obstructed", locale == Locale.EN_US ? "The safe is obstructed above" : "保险箱上方被遮挡");
         add("message.infx.enchanting_table_obstructed", locale == Locale.EN_US
                 ? "The enchanting table needs clear space above it"

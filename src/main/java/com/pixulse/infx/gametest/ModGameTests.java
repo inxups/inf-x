@@ -1084,14 +1084,14 @@ public final class ModGameTests {
                     ItemStack smelted = resultSlot.remove(1);
                     helper.assertTrue(smelted.is(Items.IRON_INGOT), "furnace output must be an iron ingot");
                     resultSlot.onTake(player, smelted);
-                    var acquireIron = helper.getLevel()
+                    var ironAge = helper.getLevel()
                             .getServer()
                             .getAdvancements()
-                            .get(InfiniteX.id("progression/acquire_iron"));
-                    helper.assertTrue(acquireIron != null, "acquire iron advancement must be loaded");
+                            .get(InfiniteX.id("progression/iron_age"));
+                    helper.assertTrue(ironAge != null, "iron age advancement must be loaded");
                     helper.assertTrue(
-                            player.getAdvancements().getOrStartProgress(acquireIron).isDone(),
-                            "taking furnace output must grant acquire iron");
+                            player.getAdvancements().getOrStartProgress(ironAge).isDone(),
+                            "taking furnace output must grant iron age");
                     player.getInventory().add(smelted);
                     player.getInventory().add(new ItemStack(Items.IRON_INGOT, 3));
 
@@ -1162,7 +1162,7 @@ public final class ModGameTests {
                         countItem(player.getInventory(), InfXItems.FLINT_AXE.get()) == 1,
                         "flint workbench must finish the flint axe"))
                 .thenExecute(() -> {
-                    assertAdvancementDone(helper, player, "build_axe", "crafting a full axe must grant Lumberjack");
+                    assertAdvancementDone(helper, player, "flint_kit", "crafting a flint axe must grant Flint Kit");
                     takeItem(helper, player.getInventory(), InfXItems.FLINT_AXE.get(), 1);
                     player.closeContainer();
                     helper.setBlock(WORK_POS, InfXBlocks.COPPER_WORKBENCH.get());
@@ -1181,7 +1181,7 @@ public final class ModGameTests {
                         countItem(player.getInventory(), InfXItems.COPPER_HOE.get()) == 1,
                         "copper workbench must finish the copper hoe"))
                 .thenExecute(() -> {
-                    assertAdvancementDone(helper, player, "build_hoe", "crafting a hoe must grant Time to Farm");
+                    assertAdvancementDone(helper, player, "farming", "crafting a hoe must grant Time to Farm");
                     takeItem(helper, player.getInventory(), InfXItems.COPPER_HOE.get(), 1);
                     player.closeContainer();
                     helper.setBlock(WORK_POS, InfXBlocks.IRON_WORKBENCH.get());
@@ -1583,7 +1583,7 @@ public final class ModGameTests {
                 equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> assertAdvancementDone(
-                        helper, player, "wear_leather", "wearing leather armor must grant Suiting Up"))
+                        helper, player, "leather_armor", "wearing leather armor must grant Suiting Up"))
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
@@ -1601,8 +1601,8 @@ public final class ModGameTests {
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
                         player,
-                        "wear_all_plate_armor",
-                        "a mixed full metal plate set must grant Tin Can"))
+                        "metal_armor",
+                        "a mixed full metal set must grant Metal Shell"))
                 .thenExecute(() -> {
                     player.setItemSlot(
                             EquipmentSlot.HEAD,
@@ -1620,7 +1620,7 @@ public final class ModGameTests {
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper,
                         player,
-                        "wear_all_adamantium_plate_armor",
+                        "adamantium_armor",
                         "a full adamantium plate set must grant Juggernaut"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();

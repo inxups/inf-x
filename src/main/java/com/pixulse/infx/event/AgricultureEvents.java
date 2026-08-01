@@ -3,7 +3,6 @@ package com.pixulse.infx.event;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.data.agriculture.AgricultureData;
-import com.pixulse.infx.player.ProgressionEvents;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
@@ -87,9 +86,6 @@ public final class AgricultureEvents {
         if (clicked.getBlock() instanceof MushroomBlock mushroom) {
             if (mushroom.growMushroom(level, event.getPos(), clicked, level.getRandom())) {
                 if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
-                if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
-                    ProgressionEvents.award(player, "supersize_me", "grew_giant_mushroom");
-                }
                 cancelInteraction(event);
             }
             return;
@@ -99,11 +95,8 @@ public final class AgricultureEvents {
         if (!level.getBlockState(farmlandPos).is(Blocks.FARMLAND)) {
             return;
         }
-        boolean fresh = AgricultureData.get(level).fertilize(farmlandPos, level.getGameTime());
+        AgricultureData.get(level).fertilize(farmlandPos, level.getGameTime());
         if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
-        if (fresh && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
-            ProgressionEvents.award(player, "soil_enrichment", "fertilized_soil");
-        }
         cancelInteraction(event);
     }
 
@@ -137,9 +130,6 @@ public final class AgricultureEvents {
             BlockState farmland = level.getBlockState(soil);
             if (data.isFertile(soil) && isMoistFarmland(farmland) && level.getRawBrightness(pos, 0) < 8) {
                 level.setBlockAndUpdate(soil, Blocks.MYCELIUM.defaultBlockState());
-                if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
-                    ProgressionEvents.award(player, "make_mycelium", "made_mycelium");
-                }
             }
         }
     }
