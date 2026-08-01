@@ -21,6 +21,7 @@ import net.minecraft.world.item.Items;
 public final class CorrosionRules {
     private static final float TOOL_DAMAGE_SCALE = 100.0F;
     private static final float ARMOR_DAMAGE_SCALE = 2.0F;
+    private static final String ITEM_ENTITY_CORROSION_HEALTH = "infx_mite_corrosion_health";
 
     private CorrosionRules() {}
 
@@ -28,7 +29,7 @@ public final class CorrosionRules {
         return switch (type) {
             case PEPSIN -> material == InfxMaterial.LEATHER;
             case ACID -> switch (material) {
-                case FLINT, OBSIDIAN, GOLD, MITHRIL -> false;
+                case FLINT, OBSIDIAN, GOLD, MITHRIL, ADAMANTIUM -> false;
                 default -> true;
             };
         };
@@ -41,7 +42,7 @@ public final class CorrosionRules {
 
         Catalog.EquipmentEntry equipment = InfXItems.catalog().equipment(stack);
         if (equipment != null) {
-            return isHarmedBy(equipment.key().material(), type);
+            return isHarmedBy(equipment, type);
         }
         Catalog.RawEntry raw = InfXItems.catalog().raw(stack.getItem());
         if (raw != null && raw.definition().material().isPresent()) {
@@ -57,6 +58,16 @@ public final class CorrosionRules {
         return isAcidHarmedVanillaItem(stack);
     }
 
+    /** MITE treats the material list as an OR: a wooden handle or shaft remains acid-sensitive. */
+    private static boolean isHarmedBy(Catalog.EquipmentEntry equipment, CorrosionType type) {
+        return isHarmedBy(equipment.key().material(), type)
+                || hasMiteWoodenComponent(equipment.key().type()) && isHarmedBy(InfxMaterial.WOOD, type);
+    }
+
+    static boolean hasMiteWoodenComponent(EquipmentType type) {
+        return type.armorForm() == EquipmentType.ArmorForm.NONE && type != EquipmentType.SHEARS;
+    }
+
     public static int scaledDamage(ItemStack stack, float amount) {
         if (!stack.isDamageableItem() || amount <= 0.0F) {
             return 0;
@@ -65,7 +76,11 @@ public final class CorrosionRules {
         if (equipment == null) {
             return Math.max(1, Math.round(amount));
         }
-        EquipmentType.ArmorForm armor = equipment.key().type().armorForm();
+        EquipmentType type = equipment.key().type();
+        EquipmentType.ArmorForm armor = type.armorForm();
+        if (type == EquipmentType.BOW || type == EquipmentType.FISHING_ROD) {
+            return Math.max(1, Math.round(amount));
+        }
         float scale = armor == EquipmentType.ArmorForm.PLATE || armor == EquipmentType.ArmorForm.CHAIN
                 ? ARMOR_DAMAGE_SCALE
                 : TOOL_DAMAGE_SCALE;
@@ -117,14 +132,13 @@ public final class CorrosionRules {
             return stack.isEmpty() || stack.getDamageValue() != before;
         }
 
-        if (entity.getRandom().nextFloat() * 10.0F >= amount) {
-            return false;
-        }
-        stack.shrink(1);
-        if (stack.isEmpty()) {
+        int health = entity.getPersistentData().getIntOr(ITEM_ENTITY_CORROSION_HEALTH, 5);
+        health -= Math.max(1, Math.round(amount));
+        if (health <= 0) {
+            entity.getPersistentData().remove(ITEM_ENTITY_CORROSION_HEALTH);
             entity.discard();
         } else {
-            entity.setItem(stack);
+            entity.getPersistentData().putInt(ITEM_ENTITY_CORROSION_HEALTH, health);
         }
         return true;
     }

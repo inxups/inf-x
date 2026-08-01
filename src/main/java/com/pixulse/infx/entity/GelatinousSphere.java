@@ -54,7 +54,9 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
             return;
         }
         Entity target = hitResult.getEntity();
-        target.hurtServer(level, damageSources().thrown(this, getOwner()), 1.0F + sphere().attackDamage());
+        if (target.hurtServer(level, damageSources().thrown(this, getOwner()), 1.0F + sphere().attackDamage())) {
+            GelatinousCubeEvents.playCorrosionFizz(level, target, getRandom());
+        }
     }
 
     @Override
@@ -66,8 +68,8 @@ public final class GelatinousSphere extends ThrowableItemProjectile {
             boolean reacted = GelatinousCubeRules.dissolveOnContact(
                     level, target.relative(face), type, face.getOpposite());
             reacted |= GelatinousCubeRules.dissolveOnContact(level, target, type, face);
-            if (type == CorrosionType.ACID && reacted) {
-                GelatinousCubeEvents.playAcidCorrosionFizz(level, target, getRandom());
+            if (reacted) {
+                GelatinousCubeEvents.playCorrosionFizz(level, target, getRandom());
             }
         }
         super.onHitBlock(hitResult);

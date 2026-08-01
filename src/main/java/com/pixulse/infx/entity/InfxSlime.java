@@ -341,11 +341,14 @@ public final class InfxSlime extends Slime implements InfxMob {
         }
         Variant variant = variant();
         if (target instanceof net.minecraft.server.level.ServerPlayer player) {
-            CorrosionRules.damageInventory(
+            boolean corroded = CorrosionRules.damageInventory(
                     player,
                     variant.corrosionType(),
                     0.05F * getSize(),
                     (float) attackDamageForSize(variant, getSize()));
+            if (corroded && level() instanceof ServerLevel level) {
+                GelatinousCubeEvents.playCorrosionFizz(level, player, getRandom());
+            }
         }
         if (variant == Variant.BLOB) {
             target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 50, 5), this);
