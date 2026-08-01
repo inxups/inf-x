@@ -1,5 +1,7 @@
 # InfiniteX
 
+[Discord](https://discord.gg/CKnHnhr5x)
+
 > 你不再只是砍树、挖矿、升级装备。
 
 你要学会活下来。

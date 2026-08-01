@@ -1,5 +1,7 @@
 # InfiniteX
 
+[Discord](https://discord.gg/CKnHnhr5x)
+
 > You are no longer just chopping trees, mining ores, and upgrading your gear.
 
 You have to learn to survive.
