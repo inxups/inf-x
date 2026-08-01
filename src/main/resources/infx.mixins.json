@@ -35,6 +35,7 @@
     "LivingEntityCurseMixin",
     "LivingEntitySwimMixin",
     "HopperBlockEntityMixin",
+    "InfXFireBlockMixin",
     "PlayerExperienceMixin",
     "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
