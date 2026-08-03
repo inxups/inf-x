@@ -180,7 +180,15 @@ public final class InfXItems {
     public static final DeferredItem<Item> CHOCOLATE = food("chocolate", 5, 0.6F);
     public static final DeferredItem<Item> PUMPKIN_SOUP = bowlFood("pumpkin_soup", 6, 0.6F);
     public static final DeferredItem<Item> CREAM_OF_MUSHROOM_SOUP = bowlFood("cream_of_mushroom_soup", 7, 0.8F);
-    public static final DeferredItem<Item> ONION = food("onion", 2, 0.2F);
+    public static final DeferredItem<Item> ONION = ITEMS.registerItem(
+            "onion",
+            properties -> new BlockItem(InfXBlocks.INFX_ONION.get(), properties),
+            properties -> properties
+                    .stacksTo(16)
+                    .food(new FoodProperties.Builder()
+                            .nutrition(2)
+                            .saturationModifier(0.2F)
+                            .build()));
     public static final DeferredItem<Item> VEGETABLE_SOUP = bowlFood("vegetable_soup", 7, 0.8F);
     public static final DeferredItem<Item> CREAM_OF_VEGETABLE_SOUP = bowlFood("cream_of_vegetable_soup", 8, 0.9F);
     public static final DeferredItem<Item> CHICKEN_SOUP = bowlFood("chicken_soup", 8, 0.9F);

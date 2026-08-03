@@ -479,9 +479,33 @@ public final class Livestock {
                     || state.is(Blocks.TALL_GRASS)
                     || state.is(Blocks.DANDELION);
         }
+        if (animal instanceof Pig) {
+            return state.is(Blocks.BROWN_MUSHROOM)
+                    || state.is(Blocks.GRASS_BLOCK)
+                    || state.is(Blocks.SHORT_GRASS)
+                    || state.is(Blocks.TALL_GRASS);
+        }
         return state.is(Blocks.GRASS_BLOCK)
                 || state.is(Blocks.SHORT_GRASS)
                 || state.is(Blocks.TALL_GRASS);
+    }
+
+    /**
+     * Consumes part of a daily milk quota, keyed by overworld day. Callers decide whether the
+     * animal must be productive; vanilla goats have no INFX wellness skin and are always milkable.
+     */
+    public static boolean takeMilk(
+            Animal animal, ServerLevel level, int units, String dayKey, String unitsKey, int maxUnitsPerDay) {
+        long day = level.getOverworldClockTime() / 24_000L;
+        var data = animal.getPersistentData();
+        if (data.getLong(dayKey).orElse(Long.MIN_VALUE) != day) {
+            data.putLong(dayKey, day);
+            data.putInt(unitsKey, 0);
+        }
+        int used = data.getInt(unitsKey).orElse(0);
+        if (used + units > maxUnitsPerDay) return false;
+        data.putInt(unitsKey, used + units);
+        return true;
     }
 
     private static void consumeNearbyFood(ServerLevel level, Animal animal) {

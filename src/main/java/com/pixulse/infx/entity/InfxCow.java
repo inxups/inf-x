@@ -116,16 +116,7 @@ public final class InfxCow extends Cow {
 
     boolean takeMilk(ServerLevel level, int units) {
         if (!Livestock.isProductive(this)) return false;
-        long day = level.getOverworldClockTime() / 24_000L;
-        var data = getPersistentData();
-        if (data.getLong(MILK_DAY).orElse(Long.MIN_VALUE) != day) {
-            data.putLong(MILK_DAY, day);
-            data.putInt(MILK_UNITS, 0);
-        }
-        int used = data.getInt(MILK_UNITS).orElse(0);
-        if (used + units > MILK_UNITS_PER_DAY) return false;
-        data.putInt(MILK_UNITS, used + units);
-        return true;
+        return Livestock.takeMilk(this, level, units, MILK_DAY, MILK_UNITS, MILK_UNITS_PER_DAY);
     }
 
     private void giveFilled(

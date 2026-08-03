@@ -1,5 +1,7 @@
 package com.pixulse.infx.block;
 
+import com.pixulse.infx.registry.InfXItems;
+import java.util.function.Supplier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -7,16 +9,19 @@ import net.minecraft.world.level.block.Blocks;
 
 /** Crop-specific MITE growth, rendering, and harvest settings. */
 public enum InfxCropType {
-    WHEAT("wheat", "wheat", Blocks.WHEAT, Items.WHEAT_SEEDS, Items.WHEAT, 7, 8, 7, 0.0005F, 1, 0.0F),
-    CARROTS("carrots", "carrots", Blocks.CARROTS, Items.CARROT, Items.CARROT, 7, 4, 3, 0.0005F, 2, 0.25F),
-    POTATOES("potatoes", "potatoes", Blocks.POTATOES, Items.POTATO, Items.POTATO, 7, 4, 3, 0.0010F, 2, 0.25F),
-    BEETROOTS("beetroots", "beetroot", Blocks.BEETROOTS, Items.BEETROOT_SEEDS, Items.BEETROOT, 7, 4, 4, 0.0005F, 2, 0.5F);
+    WHEAT("wheat", "wheat", Blocks.WHEAT, () -> Items.WHEAT_SEEDS, () -> Items.WHEAT, 7, 8, 7, 0.0005F, 1, 0.0F),
+    CARROTS("carrots", "carrots", Blocks.CARROTS, () -> Items.CARROT, () -> Items.CARROT, 7, 4, 3, 0.0005F, 2, 0.25F),
+    POTATOES("potatoes", "potatoes", Blocks.POTATOES, () -> Items.POTATO, () -> Items.POTATO, 7, 4, 3, 0.0010F, 2, 0.25F),
+    BEETROOTS("beetroots", "beetroot", Blocks.BEETROOTS, () -> Items.BEETROOT_SEEDS, () -> Items.BEETROOT, 7, 4, 4, 0.0005F, 2, 0.5F),
+    // MITE onion uses the onion item itself as both seed and crop; the vanilla block is only a
+    // properties template because modern Minecraft has no onion crop block.
+    ONION("onions", "onions", Blocks.CARROTS, () -> InfXItems.ONION.get(), () -> InfXItems.ONION.get(), 7, 5, 4, 0.0005F, 2, 0.25F);
 
     private final String registryName;
     private final String textureName;
     private final Block vanillaBlock;
-    private final Item seed;
-    private final Item product;
+    private final Supplier<Item> seed;
+    private final Supplier<Item> product;
     private final int maxAge;
     private final int textureStages;
     private final int deadTextureStages;
@@ -28,8 +33,8 @@ public enum InfxCropType {
             String registryName,
             String textureName,
             Block vanillaBlock,
-            Item seed,
-            Item product,
+            Supplier<Item> seed,
+            Supplier<Item> product,
             int maxAge,
             int textureStages,
             int deadTextureStages,
@@ -62,11 +67,11 @@ public enum InfxCropType {
     }
 
     public Item seed() {
-        return seed;
+        return seed.get();
     }
 
     public Item product() {
-        return product;
+        return product.get();
     }
 
     public int maxAge() {
@@ -114,6 +119,9 @@ public enum InfxCropType {
     /** MITE carrots, potatoes, and ITF Reborn beetroots map eight stored ages to four frames. */
     public int textureStage(int age) {
         int clamped = Math.clamp(age, 0, maxAge);
+        if (this == ONION) {
+            return clamped == 0 ? 0 : clamped == 7 ? 4 : (clamped + 1) / 2;
+        }
         if (this != WHEAT) {
             return (clamped == 6 ? 5 : clamped) / 2;
         }

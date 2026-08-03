@@ -124,8 +124,9 @@ public final class InfXBlocks {
     public static final DeferredBlock<InfxCropBlock> INFX_CARROTS = infxCrop(InfxCropType.CARROTS);
     public static final DeferredBlock<InfxCropBlock> INFX_POTATOES = infxCrop(InfxCropType.POTATOES);
     public static final DeferredBlock<InfxCropBlock> INFX_BEETROOTS = infxCrop(InfxCropType.BEETROOTS);
+    public static final DeferredBlock<InfxCropBlock> INFX_ONION = infxCrop(InfxCropType.ONION);
     public static final List<DeferredBlock<InfxCropBlock>> INFX_CROPS =
-            List.of(INFX_WHEAT, INFX_CARROTS, INFX_POTATOES, INFX_BEETROOTS);
+            List.of(INFX_WHEAT, INFX_CARROTS, INFX_POTATOES, INFX_BEETROOTS, INFX_ONION);
     public static final DeferredBlock<InfxHotFloorBlock> CORE = BLOCKS.registerBlock(
             "core",
             InfxHotFloorBlock::new,

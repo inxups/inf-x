@@ -3172,7 +3172,8 @@ class GeneratedResourceTest {
                 "textures/block/crops/(wheat/(?:[0-7]|blighted/[0-7]|dead/[0-6])"
                         + "|carrots/(?:[0-3]|blighted/[0-3]|dead/[0-2])"
                         + "|potatoes/(?:[0-3]|blighted/[0-3]|dead/[0-2])"
-                        + "|beetroot/(?:[0-3]|blighted/[0-3]|dead/[0-3]))\\.png")));
+                        + "|beetroot/(?:[0-3]|blighted/[0-3]|dead/[0-3])"
+                        + "|onions/(?:[0-4]|blighted/[0-4]|dead/[0-3]))\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/emerald_enchanting_table_(side|top)\\.png")));
         assertTrue(destinations.remove("textures/block/sgravel.png"));

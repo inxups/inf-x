@@ -781,3 +781,17 @@ resource-pack	items/food/worm_raw.png	textures/item/worm.png	07b763e2eeea77e97ac
 derived	items/sugar.png+pad(18x18,1,1)	textures/mob_effect/insulin_resistance.png	36e0769380f06abf8f45c5592ea1504f8fd2600260084aa715189652861f7e23
 derived	gui/MITE_icons.png+crop(19,199,16,16)+pad(18x18,1,1)	textures/mob_effect/malnutrition.png	7a2920c151b7f14b2b098016ab6ba63be9896916cd663329173037e359f2fbbd
 derived	gui/mite_icon_gold_ring.png+crop(7,7,18,18)	textures/mob_effect/witch_curse.png	b0e86c7108b1f67ee89d42ffb981a215a25d0e6113a0786ec4d1cf7ef676a23c
+resource-pack	blocks/crops/onions/0.png	textures/block/crops/onions/0.png	c953c5f9418e123591cf852af74bcd778b7f7ce7decdd316f079a913b6efd959
+resource-pack	blocks/crops/onions/1.png	textures/block/crops/onions/1.png	e688d0f4e828e0e8e83c3b3e29dbbfdef66c4bcf2060692fd251023d1c4517f4
+resource-pack	blocks/crops/onions/2.png	textures/block/crops/onions/2.png	d336e58a8af48768086b4a13cbe834c194897696a4c539e5894c5505dff02a51
+resource-pack	blocks/crops/onions/3.png	textures/block/crops/onions/3.png	8aa78ec701b6d66c6d040223ee0a2691a47a83c21f9fe952f88b57192a72ab1a
+resource-pack	blocks/crops/onions/4.png	textures/block/crops/onions/4.png	bff75b41513c23451da8b933326d3301a391e20421e5c19c4f8e174ef7cdf6a0
+resource-pack	blocks/crops/onions/blighted/0.png	textures/block/crops/onions/blighted/0.png	ff58c45ce6001a81e6c5786a12b02a280895af1bd03597d6526e2e2e7aa95a47
+resource-pack	blocks/crops/onions/blighted/1.png	textures/block/crops/onions/blighted/1.png	7093449759a190ebf0d11ae77e280430acef29fb92d1f0a25de15959d4926107
+resource-pack	blocks/crops/onions/blighted/2.png	textures/block/crops/onions/blighted/2.png	4aa001db957fb01b5144e3c3dd04889db46775a1d4bfd66d4231cbb2f19aa77a
+resource-pack	blocks/crops/onions/blighted/3.png	textures/block/crops/onions/blighted/3.png	990d7e6cb2afccece40c0038c941c142c87f647dbb2020156d9c4cd5c22f1bd8
+resource-pack	blocks/crops/onions/blighted/4.png	textures/block/crops/onions/blighted/4.png	893fc449f3f1f781072e7258825ebbd594266fface5b84474fc49d6ca12ea5ee
+resource-pack	blocks/crops/onions/dead/0.png	textures/block/crops/onions/dead/0.png	aae13a588c78bd1c16e00d37f4c5a180854b19279632d86601b2d458f1093fd9
+resource-pack	blocks/crops/onions/dead/1.png	textures/block/crops/onions/dead/1.png	e66efeafb13d80ac76c53fde1825ae4b1e7b9291cfa9436805ddc5525b56a5fd
+resource-pack	blocks/crops/onions/dead/2.png	textures/block/crops/onions/dead/2.png	18ccf4cc095dc377078968c27d032d3b90788cf37c7e7e84a2d82df051125592
+resource-pack	blocks/crops/onions/dead/3.png	textures/block/crops/onions/dead/3.png	993a3d13c4431bfb473bd69bcc9378526550cf6771d1beccdf1f722c39f67acf

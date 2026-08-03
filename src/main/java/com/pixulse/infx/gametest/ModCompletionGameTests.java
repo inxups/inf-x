@@ -97,6 +97,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Input;
@@ -166,6 +167,7 @@ public final class ModCompletionGameTests {
             "infx_underworld",
             "infx_portals",
             "infx_livestock",
+            "infx_onion_crop",
             "infx_gravel_loot",
             "infx_hopper_xp",
             "infx_survival_core",
@@ -189,6 +191,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_underworld", () -> ModCompletionGameTests::underworld);
         FUNCTIONS.register("infx_portals", () -> ModCompletionGameTests::portals);
         FUNCTIONS.register("infx_livestock", () -> ModCompletionGameTests::livestock);
+        FUNCTIONS.register("infx_onion_crop", () -> ModCompletionGameTests::onionCrop);
         FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
         FUNCTIONS.register("infx_survival_core", () -> ModCompletionGameTests::survivalCore);
@@ -923,6 +926,35 @@ public final class ModCompletionGameTests {
                 "a successful feeding interaction must consume food and restore the food meter");
         feedingPig.discard();
 
+        Pig mushroomPig = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(5, 2, 7));
+        mushroomPig.goalSelector.removeAllGoals(goal -> true);
+        mushroomPig.setAge(0);
+        setLivestockWellness(mushroomPig, 0.2F, 1.0F, 1.0F);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BROWN_MUSHROOM));
+        interactAt(player, mushroomPig);
+        helper.assertTrue(
+                player.getMainHandItem().isEmpty()
+                        && mushroomPig.getPersistentData().getFloatOr("infx_livestock_food", 0.0F) > 0.2F,
+                "MITE pigs must eat brown mushrooms to restore the food meter");
+        mushroomPig.discard();
+
+        Goat goat = helper.spawn(EntityType.GOAT, new BlockPos(3, 2, 7));
+        player.setItemInHand(
+                InteractionHand.MAIN_HAND,
+                InfXItems.bucket(InfxMaterial.COPPER, InfxBucketItem.Contents.EMPTY).toStack());
+        interactAt(player, goat);
+        helper.assertTrue(
+                player.getMainHandItem().is(InfXItems.bucket(InfxMaterial.COPPER, InfxBucketItem.Contents.MILK).get()),
+                "a metal empty bucket must fill with goat milk");
+        player.setItemInHand(
+                InteractionHand.MAIN_HAND,
+                InfXItems.bucket(InfxMaterial.COPPER, InfxBucketItem.Contents.EMPTY).toStack());
+        interactAt(player, goat);
+        helper.assertTrue(
+                player.getMainHandItem().is(InfXItems.bucket(InfxMaterial.COPPER, InfxBucketItem.Contents.EMPTY).get()),
+                "a second same-day goat milk bucket must be denied");
+        goat.discard();
+
         // The empty template has no ground. Build the common livestock floor before spawning the
         // production chicken so its scheduled feather remains near its deterministic test site.
         for (int x = 4; x <= 14; x++) {
@@ -1117,6 +1149,53 @@ public final class ModCompletionGameTests {
                     panickedChicken.discard();
                 })
                 .thenSucceed();
+    }
+
+    private static void onionCrop(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        try {
+            // Function tests run inside an air-filled template; y=2 is the first row other tests
+            // reliably place blocks in, so the farmland sits there and the crop goes one above.
+            BlockPos relative = new BlockPos(3, 3, 3);
+            BlockPos absolute = helper.absolutePos(relative);
+            helper.setBlock(relative.below(), Blocks.FARMLAND);
+
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.ONION.toStack());
+            BlockPos farmlandAbsolute = helper.absolutePos(relative.below());
+            BlockHitResult hit =
+                    new BlockHitResult(Vec3.atCenterOf(farmlandAbsolute), Direction.UP, farmlandAbsolute, false);
+            InfXItems.ONION.get().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+            helper.assertTrue(
+                    helper.getBlockState(relative).is(InfXBlocks.INFX_ONION.get()),
+                    "the onion item must plant the INFX onion crop on farmland");
+
+            List<ItemStack> plantedDrops = Block.getDrops(
+                    helper.getBlockState(relative), helper.getLevel(), absolute, null, player, ItemStack.EMPTY);
+            int plantedOnions = plantedDrops.stream()
+                    .filter(stack -> stack.is(InfXItems.ONION.get()))
+                    .mapToInt(ItemStack::getCount)
+                    .sum();
+            helper.assertTrue(
+                    plantedOnions == 1,
+                    "breaking a newly planted onion must return one onion seed");
+
+            helper.getLevel().setBlock(
+                    absolute,
+                    InfXBlocks.INFX_ONION.get().defaultBlockState().setValue(CropBlock.AGE, 7),
+                    3);
+            List<ItemStack> matureDrops = Block.getDrops(
+                    helper.getBlockState(relative), helper.getLevel(), absolute, null, player, ItemStack.EMPTY);
+            int onions = matureDrops.stream()
+                    .filter(stack -> stack.is(InfXItems.ONION.get()))
+                    .mapToInt(ItemStack::getCount)
+                    .sum();
+            helper.assertTrue(
+                    onions == 2 || onions == 3,
+                    "a mature onion crop must yield two onions, or three with the 25% bonus");
+        } finally {
+            removePlayer(player);
+        }
+        helper.succeed();
     }
 
     private static void gravelLoot(GameTestHelper helper) {

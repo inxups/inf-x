@@ -283,7 +283,9 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                                     .build())
                                             .subPredicate(SheepPredicate.hasWool()))));
         }
-        return LootPool.lootPool().add(variants);
+        return LootPool.lootPool()
+                .when(LootItemRandomChanceCondition.randomChance(0.5F))
+                .add(variants);
     }
 
     private static net.minecraft.world.level.block.Block woolBlock(DyeColor color) {
