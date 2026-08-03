@@ -106,13 +106,12 @@ public final class InfxShearsItem extends ShearsItem {
         ItemStack stack = context.getItemInHand();
         ItemStack originalStack = stack.copy();
 
-        if (player.preventsBlockDrops()) {
-            return removeBlock(level, pos, destroyedState, player, false, originalStack);
-        }
-
         boolean canHarvest = destroyedState.canHarvestBlock(level, pos, player);
 
-        stack.mineBlock(level, destroyedState, pos, player);
+        // Creative players still receive the sheared drop, but their tool takes no wear.
+        if (!player.preventsBlockDrops()) {
+            stack.mineBlock(level, destroyedState, pos, player);
+        }
         boolean destroyed = removeBlock(level, pos, destroyedState, player, canHarvest, originalStack);
         if (destroyed && canHarvest) {
             dropShearedBlock(level, pos, player, block, destroyedState, blockEntity, originalStack);
