@@ -97,7 +97,8 @@ public final class ModEquipmentGameTests {
             "material_bows",
             "fishing_rods",
             "armor_and_horse_armor",
-            "horse_armor_loot");
+            "horse_armor_loot",
+            "height_advantage");
 
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -110,6 +111,7 @@ public final class ModEquipmentGameTests {
         TEST_FUNCTIONS.register("fishing_rods", () -> ModEquipmentGameTests::fishingRods);
         TEST_FUNCTIONS.register("armor_and_horse_armor", () -> ModEquipmentGameTests::armorAndHorseArmor);
         TEST_FUNCTIONS.register("horse_armor_loot", () -> ModEquipmentGameTests::horseArmorLoot);
+        TEST_FUNCTIONS.register("height_advantage", () -> ModEquipmentGameTests::heightAdvantage);
     }
 
     private ModEquipmentGameTests() {}
@@ -739,6 +741,7 @@ public final class ModEquipmentGameTests {
 
     private static void fishingRods(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
+        player.setOnGround(true);
         for (InfxMaterial material : List.of(InfxMaterial.FLINT, InfxMaterial.IRON, InfxMaterial.ADAMANTIUM)) {
             InfxFishingRodItem rod = (InfxFishingRodItem) InfXItems.catalog()
                     .equipment(material, EquipmentType.FISHING_ROD)
@@ -755,6 +758,52 @@ public final class ModEquipmentGameTests {
             helper.assertTrue(player.fishing == null, material.path() + " retrieve must clear hook");
             helper.assertTrue(player.getMainHandItem().is(rod), material.path() + " rod identity");
         }
+        // MITE forbids casting with the head under liquid or while airborne.
+        BlockPos waterPos = new BlockPos(1, 2, 4);
+        helper.setBlock(waterPos, Blocks.WATER);
+        helper.setBlock(waterPos.above(), Blocks.WATER);
+        player.snapTo(helper.absoluteVec(Vec3.atBottomCenterOf(waterPos)), 0.0F, 0.0F);
+        player.setOnGround(true);
+        InfxFishingRodItem rod = (InfxFishingRodItem) InfXItems.catalog()
+                .equipment(InfxMaterial.FLINT, EquipmentType.FISHING_ROD)
+                .holder()
+                .value();
+        player.setItemInHand(InteractionHand.MAIN_HAND, rod.getDefaultInstance());
+        helper.assertTrue(
+                rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND) == InteractionResult.FAIL,
+                "rod must refuse to cast with the head under water");
+        player.snapTo(helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(1, 2, 1))), 0.0F, 0.0F);
+        player.setOnGround(false);
+        helper.assertTrue(
+                rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND) == InteractionResult.FAIL,
+                "rod must refuse to cast while airborne");
+        player.setOnGround(true);
+        helper.assertTrue(
+                rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).consumesAction(),
+                "rod must cast again on dry ground");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void heightAdvantage(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        player.setOnGround(true);
+        ItemStack sword = InfXItems.catalog()
+                .equipment(InfxMaterial.IRON, EquipmentType.SWORD)
+                .holder()
+                .toStack();
+        player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+        var range = sword.get(DataComponents.ATTACK_RANGE);
+        helper.assertTrue(range != null, "sword must carry an attack range");
+        // A pig two blocks below stands with its top about 2.7 blocks under the player's eye;
+        // that is beyond the vanilla 2.25 reach but inside the MITE height-advantaged reach.
+        Vec3 pigTopBelow = player.getEyePosition().add(0.0, -2.7, 0.0);
+        helper.assertTrue(
+                range.isInRange(player, pigTopBelow),
+                "sword must hit a target two blocks below via the MITE height advantage");
+        helper.assertTrue(
+                range.isInRange(player, player.getEyePosition()),
+                "eye-level target must stay in range");
         removePlayer(player);
         helper.succeed();
     }

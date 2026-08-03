@@ -31,6 +31,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
@@ -80,6 +81,7 @@ public final class ModMonsterGameTests {
     private static final String RANGED_ATTACK_RANGES = "infx_ranged_attack_ranges";
     private static final String EXPLOSION_RANGES = "infx_explosion_ranges";
     private static final String LONGDEAD_DROPS = "infx_longdead_drops";
+    private static final String SPAWN_EQUIPMENT = "infx_spawn_equipment";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -98,6 +100,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(RANGED_ATTACK_RANGES, () -> ModMonsterGameTests::rangedAttackRanges);
         FUNCTIONS.register(EXPLOSION_RANGES, () -> ModMonsterGameTests::explosionRanges);
         FUNCTIONS.register(LONGDEAD_DROPS, () -> ModMonsterGameTests::longdeadDrops);
+        FUNCTIONS.register(SPAWN_EQUIPMENT, () -> ModMonsterGameTests::spawnEquipment);
     }
 
     private ModMonsterGameTests() {}
@@ -126,7 +129,7 @@ public final class ModMonsterGameTests {
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
                 EXPLOSION_RANGES,
-                LONGDEAD_DROPS)) {
+                SPAWN_EQUIPMENT)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -1578,5 +1581,84 @@ public final class ModMonsterGameTests {
                 "longdead must not drop ancient metal ingots");
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
+    }
+
+    /**
+     * MITE strips vanilla spawn equipment from the zombie and skeleton families: the INFX
+     * replacements never wear vanilla weapons or armor (world-age gear is MITE equipment and
+     * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray,
+     * wither skeleton) get no vanilla weapons or armor at all.
+     */
+    private static void spawnEquipment(GameTestHelper helper) {
+        var zombie = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
+        assertNoVanillaEquipment(helper, zombie, "replacement zombie");
+
+        var skeleton = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_SKELETON.get());
+        helper.assertTrue(
+                !isVanillaItem(skeleton.getMainHandItem()),
+                "replacement skeletons must spawn with only MITE weapons");
+        assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
+
+        for (EntityType<?> type : List.of(EntityType.HUSK, EntityType.DROWNED, EntityType.STRAY)) {
+            assertVanillaVariantBare(helper, type);
+        }
+        assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
+        helper.succeed();
+    }
+
+    private static void assertVanillaVariantBare(GameTestHelper helper, EntityType<?> type) {
+        @SuppressWarnings("unchecked")
+        Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
+        mob.finalizeSpawn(
+                helper.getLevel(),
+                helper.getLevel().getCurrentDifficultyAt(mob.blockPosition()),
+                EntitySpawnReason.COMMAND,
+                null);
+        helper.assertTrue(
+                mob.getMainHandItem().isEmpty(), type + " must not spawn with vanilla weapons");
+        assertNoArmor(helper, mob, type.toString());
+        mob.discard();
+    }
+
+    private static Mob spawnWithMiteFinalize(GameTestHelper helper, EntityType<?> type) {
+        @SuppressWarnings("unchecked")
+        Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
+        mob.finalizeSpawn(
+                helper.getLevel(),
+                helper.getLevel().getCurrentDifficultyAt(mob.blockPosition()),
+                EntitySpawnReason.COMMAND,
+                null);
+        return mob;
+    }
+
+    private static void assertNoVanillaEquipment(GameTestHelper helper, Mob mob, String description) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() != EquipmentSlot.Type.HAND
+                    && slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) {
+                continue;
+            }
+            ItemStack stack = mob.getItemBySlot(slot);
+            helper.assertTrue(
+                    !isVanillaItem(stack),
+                    description + " must not spawn with vanilla equipment in " + slot + "; found " + stack);
+        }
+    }
+
+    private static boolean isVanillaItem(ItemStack stack) {
+        return !stack.isEmpty()
+                && net.minecraft.core.registries.BuiltInRegistries.ITEM
+                        .getKey(stack.getItem())
+                        .getNamespace()
+                        .equals("minecraft");
+    }
+
+    private static void assertNoArmor(GameTestHelper helper, Mob mob, String description) {
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            ItemStack stack = mob.getItemBySlot(slot);
+            helper.assertTrue(
+                    stack.isEmpty(),
+                    description + " must not spawn with vanilla armor in " + slot + "; found " + stack);
+        }
     }
 }

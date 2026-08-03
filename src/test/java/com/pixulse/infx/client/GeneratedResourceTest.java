@@ -1190,16 +1190,16 @@ class GeneratedResourceTest {
                 "MITE mappings",
                 () -> assertTrue(dungeon.contains("infx:onion")),
                 () -> assertTrue(dungeon.contains("infx:copper_coin")),
-                () -> assertTrue(dungeon.contains("infx:ancient_metal_fishing_rod")),
+                () -> assertFalse(dungeon.contains("infx:ancient_metal_fishing_rod")),
                 () -> assertFalse(dungeon.contains("minecraft:diamond")),
                 () -> assertTrue(mineshaft.contains("infx:cheese")),
                 () -> assertTrue(mineshaft.contains("infx:silver_ingot")),
-                () -> assertTrue(mineshaft.contains("infx:ancient_metal_pickaxe")),
-                () -> assertTrue(armorer.contains("infx:ancient_metal_chainmail_boots")),
-                () -> assertTrue(armorer.contains("infx:ancient_metal_chestplate")),
+                () -> assertFalse(mineshaft.contains("infx:ancient_metal_pickaxe")),
+                () -> assertFalse(armorer.contains("infx:ancient_metal_chainmail_boots")),
+                () -> assertFalse(armorer.contains("infx:ancient_metal_chestplate")),
                 () -> assertTrue(trial.contains("minecraft:book")),
                 () -> assertTrue(trial.contains("infx:diamond_shard")),
-                () -> assertTrue(ominous.contains("infx:ancient_metal_pickaxe")));
+                () -> assertFalse(ominous.contains("infx:ancient_metal_pickaxe")));
 
         try (Stream<Path> modifiers = Files.walk(GENERATED.resolve("data/infx/loot_modifiers"))) {
             assertEquals(
@@ -2514,7 +2514,7 @@ class GeneratedResourceTest {
                     () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
                     () -> assertEquals(entry.getKey(), recipe.get("required_bench").getAsString()),
                     () -> assertEquals(
-                            "[\"BBB\",\"I I\",\"I I\"]",
+                            "[\"BBB\",\" I \",\"III\"]",
                             recipe.getAsJsonArray("pattern").toString()),
                     () -> assertEquals(
                             "infx:" + path,
@@ -2761,8 +2761,9 @@ class GeneratedResourceTest {
         // Longdead Guardian egg, and 22 stripped-log workbench variants add one item definition each; gravel and
         // furnace blocks add item definitions, while the workbench item definitions reference their block models.
         // Leather items reference vanilla Minecraft models and do not generate InfX model files.
-        assertEquals(468, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(509, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // The nine carrot-on-a-stick variants add item definitions and flat models each.
+        assertEquals(477, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(518, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -3204,6 +3205,7 @@ class GeneratedResourceTest {
             assertTrue(destinations.remove("textures/item/" + entry.path() + ".png"), entry.path());
         }
         assertTrue(destinations.remove("textures/item/fishing_rod_cast.png"));
+        assertTrue(destinations.remove("textures/item/carrot_on_a_stick.png"));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/item/(wood|ancient_metal|mithril)_bow/(flint|obsidian|copper|silver|gold|rusted_iron|iron|ancient_metal|mithril|adamantium)_[0-2]\\.png")));
         assertTrue(destinations.removeIf(

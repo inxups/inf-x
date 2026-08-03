@@ -138,7 +138,6 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
                         item(Items.NAME_TAG, 1, 1, 10),
                         item(fishingRod(InfxMaterial.FLINT), 1, 1, 5),
                         item(fishingRod(InfxMaterial.COPPER), 1, 1, 3),
-                        item(fishingRod(InfxMaterial.ANCIENT_METAL), 1, 1, 2),
                         item(equipment(InfxMaterial.WOOD, EquipmentType.SHOVEL), 1, 1, 2),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.HOE), 1, 1, 1),
@@ -185,17 +184,11 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
                         item(bucket(InfxMaterial.COPPER), 1, 1, 2),
                         item(bucket(InfxMaterial.IRON), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SHOVEL), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.HATCHET), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.HATCHET), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.AXE), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.AXE), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.MATTOCK), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.MATTOCK), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.PICKAXE), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.WAR_HAMMER), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.WAR_HAMMER), 1, 1, 1),
                         item(Items.RAIL, 2, 5, 1)));
     }
 
@@ -258,35 +251,21 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
                         item(raw("silver_coin"), 1, 5, 5),
                         item(Items.REDSTONE, 3, 5, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.PICKAXE), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.DAGGER), 1, 1, 3),
                         item(equipment(InfxMaterial.SILVER, EquipmentType.DAGGER), 1, 1, 3),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.DAGGER), 1, 1, 3),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SWORD), 1, 1, 5),
                         item(equipment(InfxMaterial.SILVER, EquipmentType.SWORD), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SWORD), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.BATTLE_AXE), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.BATTLE_AXE), 1, 1, 1),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.WAR_HAMMER), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.WAR_HAMMER), 1, 1, 1),
                         chain(InfxMaterial.COPPER, EquipmentType.CHAINMAIL_CHESTPLATE, 5),
                         chain(InfxMaterial.COPPER, EquipmentType.CHAINMAIL_HELMET, 5),
                         chain(InfxMaterial.COPPER, EquipmentType.CHAINMAIL_LEGGINGS, 5),
                         chain(InfxMaterial.COPPER, EquipmentType.CHAINMAIL_BOOTS, 5),
-                        chain(InfxMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_CHESTPLATE, 3),
-                        chain(InfxMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_HELMET, 3),
-                        chain(InfxMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_LEGGINGS, 3),
-                        chain(InfxMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_BOOTS, 3),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.CHESTPLATE), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.HELMET), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.LEGGINGS), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.BOOTS), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.CHESTPLATE), 1, 1, 3),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.HELMET), 1, 1, 3),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.LEGGINGS), 1, 1, 3),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.BOOTS), 1, 1, 3),
-                        item(Items.SADDLE, 1, 1, 1),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SHEARS), 1, 1, 1)));
+                        item(Items.SADDLE, 1, 1, 1)));
     }
 
     private static LootTable.Builder strongholdCrossingPool() {
@@ -298,8 +277,7 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
                         item(Items.REDSTONE, 4, 9, 5),
                         item(Items.COAL, 3, 8, 10),
                         item(Items.BREAD, 1, 3, 15),
-                        item(Items.APPLE, 1, 3, 15),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.PICKAXE), 1, 1, 1)));
+                        item(Items.APPLE, 1, 3, 15)));
     }
 
     private static LootTable.Builder strongholdLibraryPool() {
@@ -324,8 +302,8 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
                         item(raw("emerald_shard"), 1, 5, 4),
                         item(raw("diamond_shard"), 1, 3, 2),
                         item(raw("silver_coin"), 1, 5, 3),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SWORD), 1, 1, 2),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.CHAINMAIL_CHESTPLATE), 1, 1, 1)));
+                        item(equipment(InfxMaterial.COPPER, EquipmentType.DAGGER), 1, 1, 2),
+                        item(equipment(InfxMaterial.COPPER, EquipmentType.CHAINMAIL_CHESTPLATE), 1, 1, 1)));
     }
 
     private static LootTable.Builder villagePool(String profession) {
@@ -394,31 +372,19 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
                         item(Items.SADDLE, 1, 1, 3)));
         entries.addAll(armorSet(InfxMaterial.COPPER, 5));
         entries.addAll(chainSet(InfxMaterial.COPPER, 5));
-        entries.addAll(armorSet(InfxMaterial.ANCIENT_METAL, 5));
-        entries.addAll(chainSet(InfxMaterial.ANCIENT_METAL, 5));
         entries.addAll(List.of(
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SHOVEL), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.HOE), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.HOE), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.MATTOCK), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.MATTOCK), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.HATCHET), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.HATCHET), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.AXE), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.AXE), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SHEARS), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SHEARS), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.DAGGER), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.DAGGER), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.SWORD), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SWORD), 1, 1, 5),
                         item(equipment(InfxMaterial.COPPER, EquipmentType.WAR_HAMMER), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.WAR_HAMMER), 1, 1, 5),
-                        item(equipment(InfxMaterial.COPPER, EquipmentType.BATTLE_AXE), 1, 1, 5),
-                        item(equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.BATTLE_AXE), 1, 1, 5)));
+                        item(equipment(InfxMaterial.COPPER, EquipmentType.BATTLE_AXE), 1, 1, 5)));
         return table(UniformGenerator.between(3.0F, 8.0F), entries);
     }
 

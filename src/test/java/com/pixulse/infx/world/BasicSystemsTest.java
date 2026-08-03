@@ -6,6 +6,7 @@ import com.pixulse.infx.event.SafeEvents;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.HashSet;
+import java.util.List;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -51,6 +52,18 @@ class BasicSystemsTest {
         assertFalse(PhysicsRules.isLoose(Blocks.GRASS_BLOCK.defaultBlockState()));
         assertTrue(PhysicsRules.isLoose(Blocks.DIRT.defaultBlockState()));
         assertTrue(PhysicsRules.isLoose(Blocks.GRAVEL.defaultBlockState()));
+    }
+
+    @Test
+    void soilAndSurfaceBlocksAreNotGravityBlocks() {
+        for (var block : List.of(
+                Blocks.PODZOL,
+                Blocks.MYCELIUM,
+                Blocks.DIRT_PATH,
+                Blocks.CLAY,
+                Blocks.ROOTED_DIRT)) {
+            assertFalse(PhysicsRules.isLoose(block.defaultBlockState()), block + " must not fall as gravel");
+        }
     }
 
     @Test

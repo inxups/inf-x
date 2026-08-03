@@ -344,6 +344,13 @@ final class ModLanguageProvider extends LanguageProvider {
         FOOD_NAMES.forEach((path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
         GELATINOUS_SPHERE_NAMES.forEach(
                 (path, names) -> add("item.infx." + path, names[locale == Locale.EN_US ? 0 : 1]));
+        for (var hookMaterial : InfXItems.FISHING_HOOK_MATERIALS) {
+            add(
+                    "item.infx." + hookMaterial.path() + "_carrot_on_a_stick",
+                    locale == Locale.EN_US
+                            ? hookMaterial.englishEquipmentPrefix() + " Carrot on a Stick"
+                            : "胡萝卜" + hookMaterial.chinesePrefix() + "钓竿");
+        }
         CURSE_NAMES.forEach((path, names) ->
                 add("curse.infx." + path + ".name", names[locale == Locale.EN_US ? 0 : 1]));
         CURSE_DESCRIPTIONS.forEach((path, descriptions) ->

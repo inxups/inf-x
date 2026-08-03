@@ -927,6 +927,65 @@ final class ModRecipeProvider extends RecipeProvider {
         addArrowDismantling("mithril", InfxMaterial.MITHRIL, InfXItems.MITHRIL_NUGGET);
         addArrowDismantling("adamantium", InfxMaterial.ADAMANTIUM, InfXItems.ADAMANTIUM_NUGGET);
 
+        addFishingRod("flint", InfxMaterial.FLINT, BenchTier.FLINT, 75.0F, InfXItems.FLINT_CHIP);
+        addFishingRod(
+                "obsidian",
+                InfxMaterial.OBSIDIAN,
+                BenchTier.FLINT,
+                200.0F / 9.0F + 50.0F,
+                InfXItems.OBSIDIAN_SHARD);
+        addFishingRod("copper", InfxMaterial.COPPER, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.COPPER_NUGGET);
+        addFishingRod(
+                "silver",
+                InfxMaterial.SILVER,
+                BenchTier.COPPER,
+                400.0F / 9.0F + 50.0F,
+                InfXItems.SILVER_NUGGET);
+        addFishingRod("gold", InfxMaterial.GOLD, BenchTier.COPPER, 400.0F / 9.0F + 50.0F, Items.GOLD_NUGGET);
+        addFishingRod("iron", InfxMaterial.IRON, BenchTier.IRON, 800.0F / 9.0F + 50.0F, Items.IRON_NUGGET);
+        addFishingRod(
+                "ancient_metal",
+                InfxMaterial.ANCIENT_METAL,
+                BenchTier.ANCIENT_METAL,
+                1600.0F / 9.0F + 50.0F,
+                InfXItems.catalog().raw("ancient_metal_nugget").holder());
+        addFishingRod(
+                "mithril",
+                InfxMaterial.MITHRIL,
+                BenchTier.MITHRIL,
+                6400.0F / 9.0F + 50.0F,
+                InfXItems.MITHRIL_NUGGET);
+        addFishingRod(
+                "adamantium",
+                InfxMaterial.ADAMANTIUM,
+                BenchTier.ADAMANTIUM,
+                25600.0F / 9.0F + 50.0F,
+                InfXItems.ADAMANTIUM_NUGGET);
+
+        // MITE: every hook material has a carrot on a stick, craftable from its rod and back again.
+        for (InfxMaterial hookMaterial : InfXItems.FISHING_HOOK_MATERIALS) {
+            addShapeless(
+                    hookMaterial.path() + "_carrot_on_a_stick",
+                    BenchTier.HAND,
+                    40.0F,
+                    CraftingBookCategory.EQUIPMENT,
+                    "",
+                    InfXItems.CARROT_ON_A_STICKS.get(hookMaterial).get(),
+                    1,
+                    List.of(
+                            Ingredient.of(equipment(hookMaterial, EquipmentType.FISHING_ROD)),
+                            Ingredient.of(Items.CARROT)));
+            addShapeless(
+                    hookMaterial.path() + "_carrot_on_a_stick_dismantling",
+                    BenchTier.HAND,
+                    40.0F,
+                    CraftingBookCategory.EQUIPMENT,
+                    "",
+                    equipment(hookMaterial, EquipmentType.FISHING_ROD),
+                    1,
+                    List.of(Ingredient.of(InfXItems.CARROT_ON_A_STICKS.get(hookMaterial).get())));
+        }
+
         addArmorSet("leather", InfxMaterial.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
         addMetalArmorSets(
                 "copper", InfxMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
@@ -2048,6 +2107,28 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of("H", "S", "F"));
     }
 
+    /** MITE fishing rods: hook material, two sticks and two silk strands in the rod shape. */
+    private void addFishingRod(
+            String material,
+            InfxMaterial equipmentMaterial,
+            BenchTier requiredBench,
+            float difficulty,
+            ItemLike hookMaterial) {
+        addShaped(
+                material + "_fishing_rod",
+                requiredBench,
+                difficulty,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(equipmentMaterial, EquipmentType.FISHING_ROD),
+                1,
+                Map.of(
+                        '?', Ingredient.of(hookMaterial),
+                        '/', Ingredient.of(Items.STICK),
+                        '|', Ingredient.of(Items.STRING)),
+                List.of("  /", " /|", "/?|"));
+    }
+
     private static ItemLike equipment(InfxMaterial material, EquipmentType type) {
         return InfXItems.catalog().equipment(material, type).holder();
     }
@@ -2151,7 +2232,8 @@ final class ModRecipeProvider extends RecipeProvider {
                 InfXBlocks.metalAnvil(material),
                 1,
                 Map.of('B', Ingredient.of(storageBlock), 'I', Ingredient.of(ingot)),
-                List.of("BBB", "I I", "I I"));
+                // MITE anvils: a full storage-block top, one centered ingot, and a full ingot base.
+                List.of("BBB", " I ", "III"));
     }
 
     private void addSafe(

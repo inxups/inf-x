@@ -14,6 +14,7 @@ import com.pixulse.infx.recipe.CraftingProfile;
 import com.pixulse.infx.recipe.InfxCraftingRules;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
+import com.pixulse.infx.recipe.TimedShapedRecipe;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.data.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.item.EquipmentType;
@@ -32,6 +33,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.List;
+import java.util.Optional;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -952,6 +956,36 @@ public final class ModGameTests {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", path)) != null,
                     "InfiniteX arrow dismantling recipe must exist: " + path);
+        }
+        for (String material : ARROW_MATERIALS) {
+            for (String path : List.of(
+                    material + "_fishing_rod",
+                    material + "_carrot_on_a_stick",
+                    material + "_carrot_on_a_stick_dismantling")) {
+                helper.assertTrue(
+                        recipes.byKey(recipeKey("infx", path)) != null,
+                        "InfiniteX fishing recipe must exist: " + path);
+            }
+        }
+        for (String material : METAL_MATERIALS) {
+            var recipe = recipes.byKey(recipeKey("infx", material + "_anvil"));
+            helper.assertTrue(recipe != null, "InfiniteX anvil recipe must exist: " + material);
+            if (recipe != null
+                    && recipe.value() instanceof TimedShapedRecipe timed
+                    && timed.delegate() instanceof ShapedRecipe shaped) {
+                List<Optional<net.minecraft.world.item.crafting.Ingredient>> grid =
+                        shaped.pattern.ingredients();
+                helper.assertTrue(
+                        grid.size() == 9
+                                && grid.get(3).isEmpty()
+                                && grid.get(4).isPresent()
+                                && grid.get(5).isEmpty()
+                                && grid.get(6).isPresent()
+                                && grid.get(7).isPresent()
+                                && grid.get(8).isPresent(),
+                        "MITE anvil shape must place one centered ingot above a full ingot base: "
+                                + material);
+            }
         }
         helper.assertTrue(
                 recipes.byKey(recipeKey("infx", "glass_bottle")) != null,

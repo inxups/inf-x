@@ -16,7 +16,8 @@ public final class PlantHardness {
                     case "short_grass", "tall_grass", "fern", "large_fern", "sugar_cane",
                             "short_dry_grass", "tall_dry_grass", "dead_bush", "bush",
                             "firefly_bush", "weeping_vines", "weeping_vines_plant",
-                            "twisting_vines", "twisting_vines_plant" -> true;
+                            "twisting_vines", "twisting_vines_plant", "azalea", "flowering_azalea" ->
+                            true;
                     default -> false;
                 };
     }
@@ -26,7 +27,8 @@ public final class PlantHardness {
         return switch (blockId.getPath()) {
             case "short_grass", "tall_grass", "fern", "large_fern", "short_dry_grass",
                     "tall_dry_grass", "dead_bush", "bush", "firefly_bush", "weeping_vines",
-                    "weeping_vines_plant", "twisting_vines", "twisting_vines_plant" ->
+                    "weeping_vines_plant", "twisting_vines", "twisting_vines_plant",
+                    "azalea", "flowering_azalea" ->
                     TALL_GRASS_HARDNESS;
             case "sugar_cane" -> SUGAR_CANE_HARDNESS;
             default -> throw new IllegalArgumentException("No MITE plant hardness mapping for " + blockId);

@@ -21,7 +21,10 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import java.util.ArrayList;
+import java.util.List;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
@@ -116,6 +119,19 @@ public final class AnimalEvents {
     public static void onDrops(LivingDropsEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
 
+        // MITE livestock drop their cooked meat when they die burning (e.g. fire-aspect kills).
+        if (event.getEntity().isOnFire() && event.getEntity() instanceof Animal) {
+            List<ItemEntity> cookedDrops = new ArrayList<>();
+            for (ItemEntity drop : event.getDrops()) {
+                Item cooked = cookedMeat(drop.getItem().getItem());
+                if (cooked != null) {
+                    cookedDrops.add(drop(level, event.getEntity(), new ItemStack(cooked, drop.getItem().getCount())));
+                }
+            }
+            event.getDrops().removeIf(drop -> cookedMeat(drop.getItem().getItem()) != null);
+            event.getDrops().addAll(cookedDrops);
+        }
+
         if (event.getEntity() instanceof Animal animal
                 && Livestock.hasSickSkin(animal)
                 && !Livestock.isWell(animal)) {
@@ -150,6 +166,14 @@ public final class AnimalEvents {
             return stack.is(Items.MUTTON) || stack.is(Items.COOKED_MUTTON);
         }
         return false;
+    }
+
+    private static @org.jspecify.annotations.Nullable Item cookedMeat(Item raw) {
+        if (raw == Items.BEEF) return Items.COOKED_BEEF;
+        if (raw == Items.PORKCHOP) return Items.COOKED_PORKCHOP;
+        if (raw == Items.CHICKEN) return Items.COOKED_CHICKEN;
+        if (raw == Items.MUTTON) return Items.COOKED_MUTTON;
+        return null;
     }
 
     private static ItemEntity drop(ServerLevel level, Entity source, ItemStack stack) {
