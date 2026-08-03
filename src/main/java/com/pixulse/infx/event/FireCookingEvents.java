@@ -29,6 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
@@ -44,6 +45,7 @@ public final class FireCookingEvents {
     private static final String COOKING_PROGRESS = "infx_fire_cooking_progress";
     private static final float COOKING_PROGRESS_REQUIRED = 100.0F;
     private static final float PROGRESS_PER_DAMAGE = 3.0F;
+    private static final float CAMPFIRE_PROGRESS_PER_TICK = 1.0F;
     private static final Identifier DOUGH_ID = InfiniteX.id("dough");
     private static final Identifier WORM_ID = InfiniteX.id("worm");
     private static final Identifier COOKED_WORM_ID = InfiniteX.id("cooked_worm");
@@ -88,6 +90,31 @@ public final class FireCookingEvents {
             return true;
         }
         return false;
+    }
+
+    @SubscribeEvent
+    public static void tickCampfireCooking(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ItemEntity entity)) return;
+        if (!(entity.level() instanceof ServerLevel level)) return;
+        BlockPos below = entity.blockPosition().below();
+        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(below);
+        if (!(state.getBlock() instanceof net.minecraft.world.level.block.CampfireBlock)
+                || !state.getValue(net.minecraft.world.level.block.CampfireBlock.LIT)) {
+            return;
+        }
+        ItemStack stack = entity.getItem();
+        CookingResult result = cookingResult(stack.getItem());
+        if (result == null) return;
+        float progress = entity.getPersistentData().getFloatOr(COOKING_PROGRESS, 0.0F) + CAMPFIRE_PROGRESS_PER_TICK;
+        if (progress < COOKING_PROGRESS_REQUIRED) {
+            entity.getPersistentData().putFloat(COOKING_PROGRESS, progress);
+        } else {
+            entity.setItem(new ItemStack(result.cooked(), stack.getCount()));
+            entity.getPersistentData().remove(COOKING_PROGRESS);
+            if (result.experience() > 0) {
+                ExperienceOrb.award(level, entity.position(), result.experience() * stack.getCount());
+            }
+        }
     }
 
     @SubscribeEvent

@@ -81,6 +81,24 @@ public final class SurvivalEvents {
         event.modify(Items.EGG, (components, context, item) -> components
                 .set(DataComponents.FOOD, egg)
                 .set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD));
+        event.modify(Items.ROTTEN_FLESH, (components, context, item) -> components.set(
+                DataComponents.CONSUMABLE,
+                Consumables.defaultFood()
+                        .onConsume(new ApplyStatusEffectsConsumeEffect(
+                                java.util.List.of(
+                                        new MobEffectInstance(MobEffects.HUNGER, 600, 0),
+                                        new MobEffectInstance(MobEffects.POISON, 200, 0)),
+                                0.8F))
+                        .build()));
+        event.modify(Items.CHICKEN, (components, context, item) -> components.set(
+                DataComponents.CONSUMABLE,
+                Consumables.defaultFood()
+                        .onConsume(new ApplyStatusEffectsConsumeEffect(
+                                java.util.List.of(
+                                        new MobEffectInstance(MobEffects.HUNGER, 600, 0),
+                                        new MobEffectInstance(MobEffects.POISON, 200, 0)),
+                                0.3F))
+                        .build()));
         event.modify(Items.GOLDEN_APPLE, (components, context, item) -> components.set(
                 DataComponents.CONSUMABLE,
                 foodWithEffects(new MobEffectInstance(MobEffects.REGENERATION, 1_200, 0))));

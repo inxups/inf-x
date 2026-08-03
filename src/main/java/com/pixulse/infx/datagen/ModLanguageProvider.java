@@ -361,7 +361,7 @@ final class ModLanguageProvider extends LanguageProvider {
                     case EMPTY -> "";
                     case WATER -> "水";
                     case LAVA -> "岩浆";
-                    case MILK -> "牛奶";
+                    case MILK -> "奶";
                     case STONE -> "石头";
                 };
                 add(
@@ -389,6 +389,7 @@ final class ModLanguageProvider extends LanguageProvider {
         addRecord("wanderer", "Wanderer");
         addRecord("legends", "Legends");
         add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
+        add("death.infx.poison", locale == Locale.EN_US ? "%s was poisoned to death" : "%s 毒发身亡");
         add("block.infx.blueberry_bush", locale == Locale.EN_US ? "Blueberry Bush" : "蓝莓丛");
         add("block.infx.infx_wheat", locale == Locale.EN_US ? "Wheat Crop" : "小麦作物");
         add("block.infx.infx_carrots", locale == Locale.EN_US ? "Carrot Crop" : "胡萝卜作物");
