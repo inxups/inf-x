@@ -71,7 +71,10 @@ class InfXCreativeTabsTest {
                 InfXBlocks.INFX_WHEAT.getId(),
                 InfXBlocks.INFX_CARROTS.getId(),
                 InfXBlocks.INFX_POTATOES.getId(),
-                InfXBlocks.INFX_BEETROOTS.getId());
+                InfXBlocks.INFX_BEETROOTS.getId(),
+                // The onion crop has no separate block item: the onion item itself is its seed
+                // and is listed in the food tab, exactly like MITE.
+                InfXBlocks.INFX_ONION.getId());
         Set<Identifier> expectedBlockItems = InfXBlocks.BLOCKS.getEntries().stream()
                 .map(DeferredHolder::getId)
                 .filter(id -> !unobtainableBlocks.contains(id))
@@ -83,7 +86,7 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        assertEquals(77, InfXBlocks.BLOCKS.getEntries().size());
+        assertEquals(78, InfXBlocks.BLOCKS.getEntries().size());
         assertFalse(InfXBlocks.BLOCKS.getEntries().stream()
                 .anyMatch(block -> Set.of("flint_workbench", "obsidian_workbench").contains(block.getId().getPath())));
         assertFalse(InfXItems.ITEMS.getEntries().stream()
@@ -97,7 +100,8 @@ class InfXCreativeTabsTest {
                 InfXBlocks.INFX_WHEAT.getId(),
                 InfXBlocks.INFX_CARROTS.getId(),
                 InfXBlocks.INFX_POTATOES.getId(),
-                InfXBlocks.INFX_BEETROOTS.getId())) {
+                InfXBlocks.INFX_BEETROOTS.getId(),
+                InfXBlocks.INFX_ONION.getId())) {
             assertFalse(registeredItems.contains(crop), crop + " must remain seed-placed only");
         }
         assertTrue(InfXItems.WORLD_BLOCKS.stream().allMatch(item -> creativeBlocks.contains(item.getId())));

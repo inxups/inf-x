@@ -15,6 +15,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -39,6 +41,12 @@ public final class InfxPig extends Pig {
 
     public static AttributeSupplier.Builder attributes() {
         return Pig.createAttributes().add(Attributes.MAX_HEALTH, 10.0);
+    }
+
+    @Override
+    public boolean isFood(ItemStack stack) {
+        // MITE pigs eat brown mushrooms in addition to the vanilla carrot/potato/beetroot foods.
+        return super.isFood(stack) || stack.is(Items.BROWN_MUSHROOM);
     }
 
     @Override

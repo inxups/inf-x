@@ -4,17 +4,25 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.item.InfxBucketItem;
+import com.pixulse.infx.registry.InfXItems;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 /**
  * Residual global animal hooks that are not owned by INFX replacement entity classes
@@ -22,7 +30,69 @@ import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AnimalEvents {
+    private static final String GOAT_MILK_DAY = "infx_goat_milk_day";
+    private static final String GOAT_MILK_UNITS = "infx_goat_milk_units";
+
     private AnimalEvents() {}
+
+    /**
+     * MITE goats share the cow daily milk quota: a metal empty bucket (or the vanilla bucket)
+     * fills with milk once per day. Vanilla goats have no INFX wellness skin, so they are not
+     * gated by livestock productivity.
+     */
+    @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        InteractionResult result = milkGoat(
+                event.getEntity(), event.getHand(), event.getTarget(), event.getItemStack(), event.getLevel());
+        if (result != null) {
+            event.setCancellationResult(result);
+            event.setCanceled(true);
+        }
+    }
+
+    /** The "interact at" path used by clients and GameTest helpers fires the specific event. */
+    @SubscribeEvent
+    public static void onEntityInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        InteractionResult result = milkGoat(
+                event.getEntity(), event.getHand(), event.getTarget(), event.getItemStack(), event.getLevel());
+        if (result != null) {
+            event.setCancellationResult(result);
+            event.setCanceled(true);
+        }
+    }
+
+    private static @org.jspecify.annotations.Nullable InteractionResult milkGoat(
+            net.minecraft.world.entity.player.Player player,
+            net.minecraft.world.InteractionHand hand,
+            net.minecraft.world.entity.Entity target,
+            ItemStack stack,
+            net.minecraft.world.level.Level level) {
+        if (!(target instanceof Goat goat) || goat.isBaby()) return null;
+        if (!(level instanceof ServerLevel serverLevel)) return null;
+
+        ItemStack filled = ItemStack.EMPTY;
+        int units = 0;
+        if (stack.is(Items.BUCKET)) {
+            units = InfxCow.MILK_UNITS_PER_DAY;
+            filled = new ItemStack(Items.MILK_BUCKET);
+        } else if (stack.getItem() instanceof InfxBucketItem bucket
+                && bucket.contents() == InfxBucketItem.Contents.EMPTY) {
+            units = InfxCow.MILK_UNITS_PER_DAY;
+            filled = InfXItems.bucket(bucket.material(), InfxBucketItem.Contents.MILK).toStack();
+        } else {
+            return null;
+        }
+
+        if (!Livestock.takeMilk(
+                goat, serverLevel, units, GOAT_MILK_DAY, GOAT_MILK_UNITS, InfxCow.MILK_UNITS_PER_DAY)) {
+            return InteractionResult.CONSUME;
+        }
+        ItemStack remainder = ItemUtils.createFilledResult(stack, player, filled);
+        player.setItemInHand(hand, remainder);
+        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        goat.playSound(SoundEvents.GOAT_MILK, 1.0F, 1.0F);
+        return InteractionResult.SUCCESS;
+    }
 
     @SubscribeEvent
     public static void onExperienceDrop(LivingExperienceDropEvent event) {
