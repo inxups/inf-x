@@ -44,6 +44,7 @@ import com.pixulse.infx.data.food.FoodProfiles;
 import com.pixulse.infx.data.food.SurvivalData;
 import com.pixulse.infx.event.SurvivalEvents;
 import com.pixulse.infx.data.food.SurvivalRules;
+import com.pixulse.infx.event.HarvestEvents;
 import com.pixulse.infx.network.Network;
 import com.pixulse.infx.event.EndEvents;
 import com.pixulse.infx.world.FluidDecayData;
@@ -177,7 +178,8 @@ public final class ModCompletionGameTests {
             "infx_block_stack_limits",
             "infx_bucket_mechanics",
             "infx_swim_physics",
-            "infx_fulltext_systems");
+            "infx_fulltext_systems",
+            "infx_harvest_rules");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -200,6 +202,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_bucket_mechanics", () -> ModCompletionGameTests::bucketMechanics);
         FUNCTIONS.register("infx_swim_physics", () -> ModCompletionGameTests::swimPhysics);
         FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
+        FUNCTIONS.register("infx_harvest_rules", () -> ModCompletionGameTests::harvestRules);
     }
 
     private ModCompletionGameTests() {}
@@ -315,6 +318,48 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 Math.abs(player.getAttributeValue(Attributes.ARMOR) - fullArmor) < .001,
                 "repaired armor restores its attribute");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void harvestRules(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos pos = new BlockPos(2, 2, 2);
+
+        ItemStack sword = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
+                .holder()
+                .toStack();
+        player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+
+        helper.assertFalse(
+                HarvestEvents.hasDestroyProgress(player, Blocks.STONE.defaultBlockState(), pos),
+                "sword must not mine stone");
+        helper.assertTrue(
+                HarvestEvents.hasDestroyProgress(player, Blocks.COBWEB.defaultBlockState(), pos),
+                "sword must cut cobwebs");
+        helper.assertTrue(
+                HarvestEvents.hasDestroyProgress(player, Blocks.SHORT_GRASS.defaultBlockState(), pos),
+                "sword must cut plants");
+
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        helper.assertFalse(
+                HarvestEvents.hasDestroyProgress(player, Blocks.STONE.defaultBlockState(), pos),
+                "creative sword must not mine stone");
+        helper.assertTrue(
+                HarvestEvents.hasDestroyProgress(player, Blocks.COBWEB.defaultBlockState(), pos),
+                "creative sword must cut cobwebs");
+
+        ItemStack pickaxe = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
+                .holder()
+                .toStack();
+        player.setItemInHand(InteractionHand.MAIN_HAND, pickaxe);
+        helper.assertTrue(
+                HarvestEvents.hasDestroyProgress(player, Blocks.STONE.defaultBlockState(), pos),
+                "creative pickaxe must mine stone");
+
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
         removePlayer(player);
         helper.succeed();
     }

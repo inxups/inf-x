@@ -321,13 +321,24 @@ public final class ModEquipmentGameTests {
         helper.setBlock(leftClickPos.below(), Blocks.STONE);
         helper.setBlock(leftClickPos, Blocks.RED_WOOL);
         player.setItemInHand(InteractionHand.MAIN_HAND, blockShears);
-        helper.assertFalse(
+        helper.assertTrue(
                 player.gameMode.destroyBlock(helper.absolutePos(leftClickPos)),
-                "left-click shears must not destroy blocks");
-        helper.assertTrue(helper.getBlockState(leftClickPos).is(Blocks.RED_WOOL),
-                "left-click shears must leave the block in place");
-        helper.assertTrue(blockShears.getDamageValue() == 0,
-                "a cancelled left-click block break must not consume durability");
+                "left-click shears must destroy shears-effective blocks");
+        helper.assertTrue(
+                helper.getBlockState(leftClickPos).isAir(),
+                "left-click shears must remove the wool block");
+        helper.assertTrue(
+                blockShears.getDamageValue() > 0,
+                "a successful left-click block break must consume durability");
+
+        BlockPos stonePos = new BlockPos(8, 1, 4);
+        helper.setBlock(stonePos, Blocks.STONE);
+        helper.assertFalse(
+                player.gameMode.destroyBlock(helper.absolutePos(stonePos)),
+                "left-click shears must not destroy non-shears blocks");
+        helper.assertTrue(
+                helper.getBlockState(stonePos).is(Blocks.STONE),
+                "left-click shears must leave stone in place");
 
         EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
         while (playerChannel.readOutbound() != null) {}

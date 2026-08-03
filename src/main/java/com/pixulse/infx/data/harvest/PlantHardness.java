@@ -13,7 +13,10 @@ public final class PlantHardness {
     public static boolean appliesTo(Identifier blockId) {
         return Identifier.DEFAULT_NAMESPACE.equals(blockId.getNamespace())
                 && switch (blockId.getPath()) {
-                    case "short_grass", "tall_grass", "fern", "large_fern", "sugar_cane" -> true;
+                    case "short_grass", "tall_grass", "fern", "large_fern", "sugar_cane",
+                            "short_dry_grass", "tall_dry_grass", "dead_bush", "bush",
+                            "firefly_bush", "weeping_vines", "weeping_vines_plant",
+                            "twisting_vines", "twisting_vines_plant" -> true;
                     default -> false;
                 };
     }
@@ -21,7 +24,10 @@ public final class PlantHardness {
     /** Returns the mapped destroy time for a block accepted by {@link #appliesTo(Identifier)}. */
     public static float destroyTime(Identifier blockId) {
         return switch (blockId.getPath()) {
-            case "short_grass", "tall_grass", "fern", "large_fern" -> TALL_GRASS_HARDNESS;
+            case "short_grass", "tall_grass", "fern", "large_fern", "short_dry_grass",
+                    "tall_dry_grass", "dead_bush", "bush", "firefly_bush", "weeping_vines",
+                    "weeping_vines_plant", "twisting_vines", "twisting_vines_plant" ->
+                    TALL_GRASS_HARDNESS;
             case "sugar_cane" -> SUGAR_CANE_HARDNESS;
             default -> throw new IllegalArgumentException("No MITE plant hardness mapping for " + blockId);
         };

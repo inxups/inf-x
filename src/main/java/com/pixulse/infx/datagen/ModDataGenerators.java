@@ -31,6 +31,7 @@ public final class ModDataGenerators {
         event.createProvider(ModEquipmentAssetProvider::new);
         event.createProvider(ModRecipeProvider.Runner::new);
         event.createProvider(DisabledVanillaRecipesProvider::new);
+        event.createProvider(VanillaLootTableOverridesProvider::new);
         event.createProvider((output, lookup) ->
                 new AdvancementProvider(output, lookup, List.of(new ModAdvancementProvider())));
         event.createProvider((output, lookup) -> new LootTableProvider(

@@ -4,16 +4,20 @@ import com.pixulse.infx.data.harvest.HarvestPolicy;
 import com.pixulse.infx.data.harvest.HarvestRequirements;
 import com.pixulse.infx.data.harvest.HarvestSpeedRules;
 import com.pixulse.infx.data.harvest.HarvestTier;
+import com.pixulse.infx.data.harvest.InfxMiningRules;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.item.Catalog;
+import com.pixulse.infx.item.MiningFamily;
 
 import java.util.Optional;
 
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
+import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 
@@ -83,6 +87,13 @@ public final class HarvestEvents {
 
     private static boolean isAllowed(Player player, BlockState state, @Nullable BlockPos pos) {
         ItemStack tool = player.getMainHandItem();
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(tool);
+        if (entry != null
+                && entry.key().type().miningFamily() == MiningFamily.SWORD
+                && !InfxMiningRules.isEffective(entry.key(), state)) {
+            // MITE swords cut plants and webs but cannot mine ordinary blocks.
+            return false;
+        }
         return HarvestPolicy.allows(
                 player.getAbilities().instabuild,
                 isPortable(player, state, pos),

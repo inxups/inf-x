@@ -50,7 +50,7 @@ public enum MiningFamily {
                     true);
             case SWORD -> new Tool(
                     List.of(
-                            Tool.Rule.minesAndDrops(
+                            Tool.Rule.overrideSpeed(
                                     HolderSet.direct(BuiltInRegistries.BLOCK.wrapAsHolder(Blocks.COBWEB)), 15.0F),
                             Tool.Rule.overrideSpeed(
                                     blocks.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE),

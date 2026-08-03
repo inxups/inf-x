@@ -27,9 +27,26 @@ class PlantHardnessTest {
     }
 
     @Test
+    void mapsTheMiteDryBushesAndNetherVines() {
+        for (String path : new String[] {
+                "short_dry_grass",
+                "tall_dry_grass",
+                "dead_bush",
+                "bush",
+                "firefly_bush",
+                "weeping_vines",
+                "weeping_vines_plant",
+                "twisting_vines",
+                "twisting_vines_plant"}) {
+            Identifier id = Identifier.withDefaultNamespace(path);
+            assertTrue(PlantHardness.appliesTo(id), path + " must have a MITE plant hardness");
+            assertEquals(PlantHardness.TALL_GRASS_HARDNESS, PlantHardness.destroyTime(id), path);
+        }
+    }
+
+    @Test
     void leavesUnmappedPlantsOnTheirOwnMappings() {
         assertFalse(PlantHardness.appliesTo(Identifier.withDefaultNamespace("grass_block")));
-        assertFalse(PlantHardness.appliesTo(Identifier.withDefaultNamespace("short_dry_grass")));
         assertFalse(PlantHardness.appliesTo(Identifier.fromNamespaceAndPath("infx", "sugar_cane")));
     }
 }
