@@ -2788,6 +2788,52 @@ class GeneratedResourceTest {
                 || Files.isRegularFile(GENERATED.resolve(relativePath));
     }
 
+    /** The vanilla crafting table recipes removed for MITE must be restored as INFX timed recipes. */
+    @Test
+    void restoredVanillaRecipesExistWithMiteCounts() throws Exception {
+        record Expectation(String path, String result, int count) {}
+        List<Expectation> expectations = List.of(
+                new Expectation("bowl", "minecraft:bowl", 4),
+                new Expectation("white_wool_from_string", "minecraft:white_wool", 1),
+                new Expectation("raw_copper_block", "minecraft:raw_copper_block", 1),
+                new Expectation("raw_copper_block_to_raw_copper", "minecraft:raw_copper", 9),
+                new Expectation("raw_iron_block", "minecraft:raw_iron_block", 1),
+                new Expectation("raw_iron_block_to_raw_iron", "minecraft:raw_iron", 9),
+                new Expectation("raw_gold_block", "minecraft:raw_gold_block", 1),
+                new Expectation("raw_gold_block_to_raw_gold", "minecraft:raw_gold", 9),
+                new Expectation("beetroot_soup", "minecraft:beetroot_soup", 1),
+                new Expectation("rabbit_stew", "minecraft:rabbit_stew", 1),
+                new Expectation("cookie", "minecraft:cookie", 8),
+                new Expectation("melon_seeds", "minecraft:melon_seeds", 1),
+                new Expectation("wheat_seeds", "minecraft:wheat_seeds", 1),
+                new Expectation("white_dye_from_bone_meal", "minecraft:white_dye", 1),
+                new Expectation("black_dye_from_ink_sac", "minecraft:black_dye", 1),
+                new Expectation("brown_dye_from_cocoa_beans", "minecraft:brown_dye", 1),
+                new Expectation("red_dye_from_poppy", "minecraft:red_dye", 1),
+                new Expectation("yellow_dye_from_dandelion", "minecraft:yellow_dye", 1),
+                new Expectation("blue_dye_from_lapis_lazuli", "minecraft:blue_dye", 1),
+                new Expectation("gray_dye", "minecraft:gray_dye", 2),
+                new Expectation("light_gray_dye_from_gray_white_dye", "minecraft:light_gray_dye", 2),
+                new Expectation("cyan_dye", "minecraft:cyan_dye", 2),
+                new Expectation("lime_dye", "minecraft:lime_dye", 2),
+                new Expectation("purple_dye", "minecraft:purple_dye", 2),
+                new Expectation("magenta_dye_from_purple_and_pink", "minecraft:magenta_dye", 2),
+                new Expectation("orange_dye_from_red_yellow", "minecraft:orange_dye", 2),
+                new Expectation("pink_dye_from_red_white_dye", "minecraft:pink_dye", 2),
+                new Expectation("light_blue_dye_from_blue_white_dye", "minecraft:light_blue_dye", 2));
+        for (Expectation expectation : expectations) {
+            JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + expectation.path + ".json"));
+            assertAll(
+                    expectation.path,
+                    () -> {
+                        JsonObject result = recipe.getAsJsonObject("result");
+                        assertEquals(expectation.result, result.get("id").getAsString());
+                        JsonElement count = result.get("count");
+                        assertEquals(expectation.count, count == null ? 1 : count.getAsInt());
+                    });
+        }
+    }
+
     @Test
     void runeStonesHaveR196NuggetRecipesAndModernBypassesStayDisabled() throws Exception {
         Map<String, Map<String, Object>> runes = Map.of(
