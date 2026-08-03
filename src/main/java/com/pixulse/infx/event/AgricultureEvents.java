@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.BonemealEvent;
@@ -78,13 +79,19 @@ public final class AgricultureEvents {
 
     @SubscribeEvent
     public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!(event.getLevel() instanceof ServerLevel level)
-                || !event.getItemStack().is(InfXItems.catalog().raw("manure").holder())) {
+        if (!event.getItemStack().is(InfXItems.catalog().raw("manure").holder())) {
             return;
         }
+        Level level = event.getLevel();
         BlockState clicked = level.getBlockState(event.getPos());
-        if (clicked.getBlock() instanceof MushroomBlock mushroom) {
-            if (mushroom.growMushroom(level, event.getPos(), clicked, level.getRandom())) {
+        if (clicked.getBlock() instanceof MushroomBlock) {
+            // The client cancels too so the interaction is consumed and always reaches the server.
+            if (!(level instanceof ServerLevel serverLevel)) {
+                cancelInteraction(event);
+                return;
+            }
+            MushroomBlock mushroom = (MushroomBlock) clicked.getBlock();
+            if (mushroom.growMushroom(serverLevel, event.getPos(), clicked, serverLevel.getRandom())) {
                 if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
                 cancelInteraction(event);
             }
@@ -95,7 +102,11 @@ public final class AgricultureEvents {
         if (!level.getBlockState(farmlandPos).is(Blocks.FARMLAND)) {
             return;
         }
-        AgricultureData.get(level).fertilize(farmlandPos, level.getGameTime());
+        if (!(level instanceof ServerLevel serverLevel)) {
+            cancelInteraction(event);
+            return;
+        }
+        AgricultureData.get(serverLevel).fertilize(farmlandPos, serverLevel.getGameTime());
         if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
         cancelInteraction(event);
     }

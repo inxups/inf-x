@@ -947,6 +947,18 @@ public final class ModGameTests {
                     recipes.byKey(recipeKey("infx", path)) != null,
                     "InfiniteX arrow recipe must exist: " + path);
         }
+        for (String material : ARROW_MATERIALS) {
+            String path = material + "_arrow_dismantling";
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", path)) != null,
+                    "InfiniteX arrow dismantling recipe must exist: " + path);
+        }
+        helper.assertTrue(
+                recipes.byKey(recipeKey("infx", "glass_bottle")) != null,
+                "InfiniteX glass bottle recipe must exist");
+        helper.assertTrue(
+                recipes.byKey(recipeKey("infx", "red_sandstone_to_glass")) != null,
+                "InfiniteX red sandstone to glass recipe must exist");
         for (String material : METAL_MATERIALS) {
             for (String conversion : List.of("chain_from_nuggets", "nuggets_from_chain")) {
                 String path = material + "_" + conversion;

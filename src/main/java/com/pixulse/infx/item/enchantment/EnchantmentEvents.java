@@ -31,7 +31,10 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.entity.animal.equine.Mule;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
@@ -251,9 +254,11 @@ public final class EnchantmentEvents {
                     addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_PORKCHOP : Items.PORKCHOP, level);
             case Sheep sheep ->
                     addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_MUTTON : Items.MUTTON, level);
-            case Horse horse -> addEntityDrop(event, new ItemStack(
-                    target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
-                    EnchantmentRules.horseButcheringBeefCount(level, target.getRandom())));
+            case AbstractHorse equine
+                    when equine instanceof Horse || equine instanceof Donkey || equine instanceof Mule ->
+                    addEntityDrop(event, new ItemStack(
+                            target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
+                            EnchantmentRules.horseButcheringBeefCount(level, target.getRandom())));
             case Spider spider when event.getDrops().stream().noneMatch(drop -> drop.getItem().is(Items.SPIDER_EYE)) && EnchantmentRules.butcheringAddsSpiderEye(level, target.getRandom()) ->
                     addEntityDrop(event, new ItemStack(Items.SPIDER_EYE));
             default -> {

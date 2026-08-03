@@ -25,6 +25,12 @@ public final class VanillaWolf extends Wolf {
         super(type, level);
     }
 
+    /** MITE wolves are worth the base experience value. */
+    @Override
+    public int getBaseExperienceReward(@NonNull ServerLevel level) {
+        return 5;
+    }
+
     public static AttributeSupplier.Builder attributes() {
         return Wolf.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)

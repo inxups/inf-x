@@ -36,4 +36,27 @@ public abstract class EnchantmentScreenMixin {
             graphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);
         }
     }
+
+    /**
+     * INFX conversion inputs (golden apples, water bottles) have no enchantment choice, so the
+     * server keeps their clue at -1; without this the client's disabled-slot test would never
+     * light up their level options even though the conversion itself is purchasable.
+     */
+    @Redirect(
+            method = "extractBackground",
+            at = @At(
+                    value = "FIELD",
+                    target = "Lnet/minecraft/world/inventory/EnchantmentMenu;enchantClue:[I"))
+    private int[] infx$conversionEnchantClue(EnchantmentMenu menu) {
+        if (!(menu instanceof InfxEnchantmentMenu)) {
+            return menu.enchantClue;
+        }
+        int[] clues = menu.enchantClue.clone();
+        for (int index = 0; index < clues.length; index++) {
+            if (menu.costs[index] > 0 && clues[index] == -1) {
+                clues[index] = 0;
+            }
+        }
+        return clues;
+    }
 }

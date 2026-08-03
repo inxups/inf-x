@@ -90,6 +90,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.PoisonMobEffect;
@@ -180,6 +181,7 @@ public final class ModCompletionGameTests {
             "infx_survival_fixes",
             "infx_safe_enchanting",
             "infx_enchantment_drops",
+            "infx_equine_drops",
             "infx_creative_tabs",
             "infx_block_stack_limits",
             "infx_bucket_mechanics",
@@ -206,6 +208,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_survival_fixes", () -> ModCompletionGameTests::survivalFixes);
         FUNCTIONS.register("infx_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("infx_enchantment_drops", () -> ModCompletionGameTests::enchantmentDrops);
+        FUNCTIONS.register("infx_equine_drops", () -> ModCompletionGameTests::equineDrops);
         FUNCTIONS.register("infx_creative_tabs", () -> ModCompletionGameTests::creativeTabs);
         FUNCTIONS.register("infx_block_stack_limits", () -> ModCompletionGameTests::blockStackLimits);
         FUNCTIONS.register("infx_bucket_mechanics", () -> ModCompletionGameTests::bucketMechanics);
@@ -2223,6 +2226,37 @@ public final class ModCompletionGameTests {
         helper.assertTrue(itemCount(dirtDrops, Items.DIRT) == 1, "fortune does not multiply unrelated blocks");
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static void equineDrops(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        assertEquineBeefDrop(helper, player, EntityType.DONKEY, "donkey");
+        assertEquineBeefDrop(helper, player, EntityType.MULE, "mule");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void assertEquineBeefDrop(
+            GameTestHelper helper, ServerPlayer player, EntityType<?> type, String description) {
+        boolean found = false;
+        for (long seed = 0; seed < 128 && !found; seed++) {
+            @SuppressWarnings("unchecked")
+            Mob equine = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
+            equine.getRandom().setSeed(seed);
+            List<ItemEntity> drops = new ArrayList<>();
+            drops.add(new ItemEntity(
+                    equine.level(), equine.getX(), equine.getY(), equine.getZ(), new ItemStack(Items.APPLE)));
+            NeoForge.EVENT_BUS.post(new LivingDropsEvent(
+                    equine, helper.getLevel().damageSources().playerAttack(player), drops, true));
+            if (itemCount(drops, Items.BEEF) > 0) {
+                helper.assertTrue(
+                        itemCount(drops, Items.APPLE) == 1,
+                        description + " beef drop must not duplicate an unrelated food drop");
+                found = true;
+            }
+            equine.discard();
+        }
+        helper.assertTrue(found, description + " must drop beef like the INFX horse");
     }
 
     private static void assertButcheringDrop(

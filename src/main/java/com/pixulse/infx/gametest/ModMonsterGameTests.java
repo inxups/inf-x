@@ -2,6 +2,8 @@ package com.pixulse.infx.gametest;
 
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.*;
@@ -77,6 +79,7 @@ public final class ModMonsterGameTests {
     private static final String ATTACK_RANGES = "infx_attack_ranges";
     private static final String RANGED_ATTACK_RANGES = "infx_ranged_attack_ranges";
     private static final String EXPLOSION_RANGES = "infx_explosion_ranges";
+    private static final String LONGDEAD_DROPS = "infx_longdead_drops";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -94,6 +97,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ATTACK_RANGES, () -> ModMonsterGameTests::attackRanges);
         FUNCTIONS.register(RANGED_ATTACK_RANGES, () -> ModMonsterGameTests::rangedAttackRanges);
         FUNCTIONS.register(EXPLOSION_RANGES, () -> ModMonsterGameTests::explosionRanges);
+        FUNCTIONS.register(LONGDEAD_DROPS, () -> ModMonsterGameTests::longdeadDrops);
     }
 
     private ModMonsterGameTests() {}
@@ -121,7 +125,8 @@ public final class ModMonsterGameTests {
                 SPAWNS,
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
-                EXPLOSION_RANGES)) {
+                EXPLOSION_RANGES,
+                LONGDEAD_DROPS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -211,7 +216,30 @@ public final class ModMonsterGameTests {
                 InfXEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
                         && InfXEntityTypes.DIRE_WOLF.get().isAllowedInPeaceful(),
                 "dire wolves must use animal spawning rather than the hostile cap");
+        helper.assertTrue(
+                experienceAfterDropEvent(helper, InfXEntityTypes.INFX_WOLF.get(), 5),
+                "vanilla wolves must keep MITE's base experience");
+        helper.assertTrue(
+                experienceAfterDropEvent(helper, InfXEntityTypes.DIRE_WOLF.get(), 10),
+                "dire wolves must keep double the base experience");
+        helper.assertTrue(
+                experienceAfterDropEvent(helper, InfXEntityTypes.HELLHOUND.get(), 15),
+                "hellhounds must keep triple the base experience");
+        helper.assertTrue(
+                experienceAfterDropEvent(helper, InfXEntityTypes.INFX_COW.get(), 0),
+                "other animals must still grant no experience");
         helper.succeed();
+    }
+
+    private static boolean experienceAfterDropEvent(GameTestHelper helper, EntityType<?> type, int expected) {
+        if (!(type.create(helper.getLevel(), EntitySpawnReason.COMMAND) instanceof LivingEntity living)) {
+            return false;
+        }
+        int original = living.getExperienceReward(helper.getLevel(), null);
+        var drop = NeoForge.EVENT_BUS.post(
+                new LivingExperienceDropEvent(living, null, original));
+        living.discard();
+        return drop.getDroppedExperience() == expected;
     }
 
     private static void attributes(GameTestHelper helper) {
@@ -1534,6 +1562,20 @@ public final class ModMonsterGameTests {
             MonsterTactics.tryDig(level, digger);
         }
         helper.assertTrue(helper.getBlockState(wall).isAir(), "tool-equipped blocked monster must mine through stone");
+        ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void longdeadDrops(GameTestHelper helper) {
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos pos = new BlockPos(2, 2, 2);
+        var longdead = helper.spawnWithNoFreeWill(InfXEntityTypes.LONGDEAD.get(), pos);
+        longdead.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
+        AABB area = new AABB(helper.absolutePos(pos)).inflate(8.0);
+        helper.assertTrue(
+                helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).stream()
+                        .noneMatch(drop -> drop.getItem().is(InfXItems.ANCIENT_METAL_INGOT.get())),
+                "longdead must not drop ancient metal ingots");
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
