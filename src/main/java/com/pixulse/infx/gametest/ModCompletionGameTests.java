@@ -182,6 +182,8 @@ public final class ModCompletionGameTests {
             "infx_safe_enchanting",
             "infx_enchantment_drops",
             "infx_equine_drops",
+            "infx_fire_cooked_meat",
+            "infx_bonemeal_rules",
             "infx_creative_tabs",
             "infx_block_stack_limits",
             "infx_bucket_mechanics",
@@ -209,6 +211,8 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("infx_enchantment_drops", () -> ModCompletionGameTests::enchantmentDrops);
         FUNCTIONS.register("infx_equine_drops", () -> ModCompletionGameTests::equineDrops);
+        FUNCTIONS.register("infx_fire_cooked_meat", () -> ModCompletionGameTests::fireCookedMeat);
+        FUNCTIONS.register("infx_bonemeal_rules", () -> ModCompletionGameTests::bonemealRules);
         FUNCTIONS.register("infx_creative_tabs", () -> ModCompletionGameTests::creativeTabs);
         FUNCTIONS.register("infx_block_stack_limits", () -> ModCompletionGameTests::blockStackLimits);
         FUNCTIONS.register("infx_bucket_mechanics", () -> ModCompletionGameTests::bucketMechanics);
@@ -2233,6 +2237,81 @@ public final class ModCompletionGameTests {
         assertEquineBeefDrop(helper, player, EntityType.DONKEY, "donkey");
         assertEquineBeefDrop(helper, player, EntityType.MULE, "mule");
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void fireCookedMeat(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        for (EntityType<?> type : List.of(EntityType.PIG, EntityType.COW, EntityType.CHICKEN, EntityType.SHEEP)) {
+            assertFireCookedMeatDrop(helper, player, type, cookedMeatFor(type));
+        }
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static Item cookedMeatFor(EntityType<?> type) {
+        if (type == EntityType.PIG) return Items.COOKED_PORKCHOP;
+        if (type == EntityType.COW) return Items.COOKED_BEEF;
+        if (type == EntityType.CHICKEN) return Items.COOKED_CHICKEN;
+        if (type == EntityType.SHEEP) return Items.COOKED_MUTTON;
+        throw new IllegalArgumentException("No cooked meat for " + type);
+    }
+
+    private static void assertFireCookedMeatDrop(
+            GameTestHelper helper, ServerPlayer player, EntityType<?> type, Item expected) {
+        @SuppressWarnings("unchecked")
+        Mob animal = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
+        animal.setRemainingFireTicks(100);
+        List<ItemEntity> drops = new ArrayList<>();
+        drops.add(new ItemEntity(
+                animal.level(), animal.getX(), animal.getY(), animal.getZ(), new ItemStack(Items.APPLE)));
+        drops.add(new ItemEntity(
+                animal.level(),
+                animal.getX(),
+                animal.getY(),
+                animal.getZ(),
+                new ItemStack(rawMeatFor(type))));
+        NeoForge.EVENT_BUS.post(new LivingDropsEvent(
+                animal, helper.getLevel().damageSources().playerAttack(player), drops, true));
+        helper.assertTrue(
+                itemCount(drops, expected) > 0,
+                type + " killed while burning must drop " + expected + " (fire-aspect rule)");
+        helper.assertTrue(
+                itemCount(drops, rawMeatFor(type)) == 0,
+                type + " fire cooking must replace the raw meat drop");
+        helper.assertTrue(
+                itemCount(drops, Items.APPLE) == 1,
+                type + " fire cooking must not duplicate unrelated drops");
+        animal.discard();
+    }
+
+    private static Item rawMeatFor(EntityType<?> type) {
+        if (type == EntityType.PIG) return Items.PORKCHOP;
+        if (type == EntityType.COW) return Items.BEEF;
+        if (type == EntityType.CHICKEN) return Items.CHICKEN;
+        if (type == EntityType.SHEEP) return Items.MUTTON;
+        throw new IllegalArgumentException("No raw meat for " + type);
+    }
+
+    private static void bonemealRules(GameTestHelper helper) {
+        BlockPos sapling = new BlockPos(2, 2, 2);
+        helper.setBlock(sapling, Blocks.OAK_SAPLING);
+        ItemStack bonemeal = new ItemStack(Items.BONE_MEAL);
+        boolean grew = net.minecraft.world.item.BoneMealItem.applyBonemeal(
+                bonemeal, helper.getLevel(), helper.absolutePos(sapling), null);
+        helper.assertTrue(!grew, "bone meal must not grow saplings");
+        helper.assertTrue(
+                helper.getBlockState(sapling).is(Blocks.OAK_SAPLING),
+                "sapling must remain untouched by bone meal");
+        helper.assertTrue(bonemeal.getCount() == 1, "bone meal must not be consumed on saplings");
+
+        BlockPos grass = new BlockPos(4, 2, 2);
+        helper.setBlock(grass, Blocks.GRASS_BLOCK);
+        ItemStack grassBonemeal = new ItemStack(Items.BONE_MEAL);
+        boolean grewGrass = net.minecraft.world.item.BoneMealItem.applyBonemeal(
+                grassBonemeal, helper.getLevel(), helper.absolutePos(grass), null);
+        helper.assertTrue(grewGrass, "bone meal must keep growing tall grass on grass blocks");
+        helper.assertTrue(grassBonemeal.getCount() == 0, "grass-block bone meal must still be consumed");
         helper.succeed();
     }
 

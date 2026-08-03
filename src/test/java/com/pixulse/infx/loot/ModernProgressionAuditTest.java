@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 class ModernProgressionAuditTest {
     @BeforeAll
     static void bindConversionTargetComponents() {
-        bindTestComponents(ancientMetal(EquipmentType.SWORD), damageableComponents());
+        bindTestComponents(convertedIron(EquipmentType.SWORD), damageableComponents());
     }
 
     @Test
@@ -91,7 +91,7 @@ class ModernProgressionAuditTest {
 
     @Test
     void equipmentConversionPreservesCompatibleStackData() {
-        Item target = ancientMetal(EquipmentType.SWORD);
+        Item target = convertedIron(EquipmentType.SWORD);
         bindTestComponents(target);
         ItemStack source = testStack(Items.DIAMOND_SWORD, 3);
         source.setDamageValue(4);
@@ -113,7 +113,7 @@ class ModernProgressionAuditTest {
 
         ItemStack converted = ModernProgressionLootFilter.convertEquipment(source);
         assertEquals(
-                InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SWORD).holder().value(),
+                InfXItems.catalog().equipment(InfxMaterial.IRON, EquipmentType.SWORD).holder().value(),
                 converted.getItem());
         assertEquals(3, converted.getCount());
         assertEquals(4, converted.getDamageValue());
@@ -147,10 +147,10 @@ class ModernProgressionAuditTest {
     }
 
     private static void assertConverted(Item item, EquipmentType type) {
-        bindTestComponents(ancientMetal(type));
+        bindTestComponents(convertedIron(type));
         ItemStack converted = ModernProgressionLootFilter.convertEquipment(testStack(item, 2));
         assertEquals(
-                InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, type).holder().value(),
+                InfXItems.catalog().equipment(InfxMaterial.IRON, type).holder().value(),
                 converted.getItem());
         assertEquals(2, converted.getCount());
     }
@@ -163,8 +163,8 @@ class ModernProgressionAuditTest {
         return new ItemStack(Holder.direct(item, prototype), count);
     }
 
-    private static Item ancientMetal(EquipmentType type) {
-        return InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, type).holder().value();
+    private static Item convertedIron(EquipmentType type) {
+        return InfXItems.catalog().equipment(InfxMaterial.IRON, type).holder().value();
     }
 
     private static void bindTestComponents(Item item) {

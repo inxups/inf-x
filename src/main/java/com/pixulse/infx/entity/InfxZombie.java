@@ -228,10 +228,8 @@ public final class InfxZombie extends Zombie implements InfxMob {
 
     @Override
     protected void populateDefaultEquipmentSlots(@NonNull RandomSource random, @NonNull DifficultyInstance difficulty) {
-        // MITE only arms the plain zombie; the revenant receives its fixed kit in finalizeSpawn.
-        if (variant() == Variant.ZOMBIE) {
-            super.populateDefaultEquipmentSlots(random, difficulty);
-        }
+        // MITE zombies never spawn with vanilla weapons or armor. The plain zombie instead
+        // receives MITE world-age gear through MonsterTactics, and the revenant its fixed kit.
     }
 
     /** MITE revenants always spawn in full rusted-iron armor with a weighted rusted weapon. */

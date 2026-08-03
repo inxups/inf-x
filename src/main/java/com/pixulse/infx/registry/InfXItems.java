@@ -3,6 +3,7 @@ package com.pixulse.infx.registry;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.InfxBucketItem;
+import com.pixulse.infx.item.InfxCarrotOnAStickItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.GelatinousSphereItem;
 import com.pixulse.infx.item.InfxMobBucketItem;
@@ -14,6 +15,7 @@ import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -281,6 +283,22 @@ public final class InfXItems {
     /** One 26.2-style spawn egg for every INFX mob entity (excludes gelatinous_sphere projectile). */
     public static final List<DeferredItem<SpawnEggItem>> SPAWN_EGGS = registerSpawnEggs();
 
+    /** MITE carrot-on-a-stick hook materials, mirroring the fishing-rod material set. */
+    public static final List<InfxMaterial> FISHING_HOOK_MATERIALS = List.of(
+            InfxMaterial.FLINT,
+            InfxMaterial.OBSIDIAN,
+            InfxMaterial.COPPER,
+            InfxMaterial.SILVER,
+            InfxMaterial.GOLD,
+            InfxMaterial.IRON,
+            InfxMaterial.ANCIENT_METAL,
+            InfxMaterial.MITHRIL,
+            InfxMaterial.ADAMANTIUM);
+
+    /** MITE carrot on a stick per fishing-hook material, boosting the ridden pig. */
+    public static final Map<InfxMaterial, DeferredItem<InfxCarrotOnAStickItem>> CARROT_ON_A_STICKS =
+            registerCarrotOnASticks();
+
     private static final Catalog CATALOG = Catalog.register(ITEMS);
 
     public static final DeferredItem<Item> FLINT_CHIP = CATALOG.raw("flint_chip").holderAs(Item.class);
@@ -483,6 +501,19 @@ public final class InfXItems {
                     properties -> properties.stacksTo(16).spawnEgg(type.get())));
         }
         return List.copyOf(eggs);
+    }
+
+    private static Map<InfxMaterial, DeferredItem<InfxCarrotOnAStickItem>> registerCarrotOnASticks() {
+        Map<InfxMaterial, DeferredItem<InfxCarrotOnAStickItem>> sticks = new LinkedHashMap<>();
+        for (InfxMaterial material : FISHING_HOOK_MATERIALS) {
+            sticks.put(
+                    material,
+                    ITEMS.registerItem(
+                            material.path() + "_carrot_on_a_stick",
+                            InfxCarrotOnAStickItem::new,
+                            properties -> properties.stacksTo(1).durability(25)));
+        }
+        return Map.copyOf(sticks);
     }
 
     public static DeferredItem<InfxBucketItem> bucket(InfxMaterial material, InfxBucketItem.Contents contents) {

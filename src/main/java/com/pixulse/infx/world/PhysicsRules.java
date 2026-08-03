@@ -11,13 +11,8 @@ public final class PhysicsRules {
     public static boolean isLoose(BlockState state) {
         return state.is(Blocks.DIRT)
                 || state.is(Blocks.COARSE_DIRT)
-                || state.is(Blocks.ROOTED_DIRT)
-                || state.is(Blocks.PODZOL)
-                || state.is(Blocks.MYCELIUM)
                 || state.is(Blocks.MUD)
-                || state.is(Blocks.CLAY)
                 || state.is(Blocks.FARMLAND)
-                || state.is(Blocks.DIRT_PATH)
                 || state.is(BlockTags.SAND)
                 || state.is(Blocks.GRAVEL);
     }

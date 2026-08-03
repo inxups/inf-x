@@ -6,6 +6,7 @@ import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -177,6 +178,15 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
 
     private static ItemStack equipment(InfxMaterial material, EquipmentType type) {
         return InfXItems.catalog().equipment(material, type).holder().toStack();
+    }
+
+    @Override
+    protected void populateDefaultEquipmentSlots(@NonNull RandomSource random, @NonNull DifficultyInstance difficulty) {
+        // MITE skeletons never spawn with vanilla armor. The plain skeleton always carries a
+        // MITE wooden bow; the longdead and bone-lord variants are fully armed in finalizeSpawn.
+        if (variant() == Variant.SKELETON) {
+            setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.WOOD, EquipmentType.BOW));
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@
   "mixins": [
     "AbstractContainerMenuMixin",
     "AbstractFurnaceBlockEntityMixin",
+    "AttackRangeMixin",
     "BaseFireBlockMixin",
     "BlockBehaviourPropertiesMixin",
     "BucketableMixin",
@@ -51,6 +52,7 @@
     "ServerLevelFluidTickMixin",
     "ServerExplosionMixin",
     "SpreadingSnowyBlockMixin",
+    "VanillaMobEquipmentMixin",
     "WorldDimensionsMixin"
   ],
   "client": [

@@ -86,12 +86,15 @@ public final class ModernProgressionLootFilter extends LootModifier {
         return loot;
     }
 
-    /** Converts vanilla equipment before the final forbidden-item pass removes it. */
+    /**
+     * Converts vanilla equipment before the final forbidden-item pass removes it. Vanilla iron
+     * and diamond gear becomes INFX iron gear; ancient metal stays underworld-exclusive.
+     */
     public static ItemStack convertEquipment(ItemStack stack) {
         Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         EquipmentType type = conversionType(id);
         if (type == null) return stack;
-        return stack.transmuteCopy(InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, type).holder());
+        return stack.transmuteCopy(InfXItems.catalog().equipment(InfxMaterial.IRON, type).holder());
     }
 
     static EquipmentType conversionType(Identifier id) {

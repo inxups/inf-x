@@ -50,19 +50,26 @@ public final class ModStructureLootGameTests {
             new StructureCase(
                     "village/village_toolsmith",
                     stack -> stack.is(InfXItems.catalog()
-                            .equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.CHESTPLATE)
+                            .equipment(InfxMaterial.COPPER, EquipmentType.CHESTPLATE)
                             .holder()),
-                    "village ancient-metal chestplate"),
+                    "village copper chestplate"),
             new StructureCase(
                     "end_city_treasure",
                     stack -> stack.is(InfXItems.catalog()
-                            .equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.SWORD)
+                            .equipment(InfxMaterial.SILVER, EquipmentType.SWORD)
                             .holder()),
-                    "end-city ancient-metal sword"),
+                    "end-city silver sword"),
             new StructureCase(
                     "trial_chambers/reward",
                     stack -> stack.is(InfXItems.catalog().raw("diamond_shard").holder()),
                     "trial-chamber diamond shard"));
+
+    /** Ancient metal must never enter overworld chests; it is underworld-exclusive loot. */
+    private static final List<String> OVERWORLD_CHESTS_WITHOUT_ANCIENT_METAL = List.of(
+            "village/village_toolsmith",
+            "abandoned_mineshaft",
+            "stronghold_corridor",
+            "trial_chambers/reward");
 
     static {
         TEST_FUNCTIONS.register("structure_loot", () -> ModStructureLootGameTests::structureLoot);
@@ -98,7 +105,34 @@ public final class ModStructureLootGameTests {
         for (StructureCase structure : CASES) {
             assertStructureReward(helper, params, structure);
         }
+        assertNoAncientMetalInOverworldChests(helper);
         helper.succeed();
+    }
+
+    private static void assertNoAncientMetalInOverworldChests(GameTestHelper helper) {
+        LootParams params = new LootParams.Builder(helper.getLevel())
+                .withParameter(LootContextParams.ORIGIN, helper.absoluteVec(new Vec3(0.5D, 64.0D, 0.5D)))
+                .create(LootContextParamSets.CHEST);
+        for (String path : OVERWORLD_CHESTS_WITHOUT_ANCIENT_METAL) {
+            ResourceKey<LootTable> key = ResourceKey.create(
+                    Registries.LOOT_TABLE, Identifier.withDefaultNamespace("chests/" + path));
+            LootTable table = helper.getLevel().getServer().reloadableRegistries().getLootTable(key);
+            List<String> found = new java.util.ArrayList<>();
+            for (long seed = 0; seed < 1024; seed++) {
+                for (ItemStack stack : table.getRandomItems(params, seed)) {
+                    if (isAncientMetalEquipment(stack)) {
+                        found.add(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+                    }
+                }
+            }
+            helper.assertTrue(
+                    found.isEmpty(), path + " must never offer ancient metal equipment; found " + found);
+        }
+    }
+
+    private static boolean isAncientMetalEquipment(ItemStack stack) {
+        var entry = InfXItems.catalog().equipment(stack.getItem());
+        return entry != null && entry.key().material() == InfxMaterial.ANCIENT_METAL;
     }
 
     private static void assertStructureReward(

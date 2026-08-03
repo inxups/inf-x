@@ -8,6 +8,7 @@ import com.pixulse.infx.block.UnderworldPortalBlock;
 import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.InfxCarrotOnAStickItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXDataComponents;
@@ -29,6 +30,7 @@ import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
@@ -227,6 +229,14 @@ final class ModModelProvider extends ModelProvider {
         InfXItems.SPAWN_EGGS.forEach(egg -> generateSpawnEggModel(itemModels, egg.value()));
         itemModels.generateFlatItem(InfXItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateInfxFoodModels(itemModels);
+        // MITE carrot-on-a-stick variants share the single approved carrot-on-a-stick sprite.
+        for (DeferredItem<InfxCarrotOnAStickItem> stick : InfXItems.CARROT_ON_A_STICKS.values()) {
+            Identifier model = ModelTemplates.FLAT_ITEM.create(
+                    ModelLocationUtils.getModelLocation(stick.value()),
+                    TextureMapping.layer0(new Material(InfiniteX.id("item/carrot_on_a_stick"))),
+                    itemModels.modelOutput);
+            itemModels.itemModelOutput.accept(stick.value(), ItemModelUtils.plainModel(model));
+        }
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
             if (entry.key().material() == InfxMaterial.LEATHER
                     && entry.key().type().armorForm() == EquipmentType.ArmorForm.PLATE) {

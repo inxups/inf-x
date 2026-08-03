@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.CocoaBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.MushroomBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -63,10 +64,18 @@ public final class AgricultureEvents {
     /**
      * Converts legacy vanilla row crops before a bone-meal attempt. MITE white dye cures blight
      * only, so a healthy converted crop intentionally does not consume or use the bone meal.
+     * Saplings never grow from bone meal either; grass blocks, water plants and decorative
+     * plants keep their vanilla uses.
      */
     @SubscribeEvent
     public static void onBonemeal(BonemealEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        if (event.getState().getBlock() instanceof SaplingBlock) {
+            // MITE bone meal ignores saplings entirely: no growth, no consumption.
+            event.setSuccessful(false);
+            event.setCanceled(true);
             return;
         }
         InfxCropBlock replacement = InfXBlocks.infxCropForVanilla(event.getState().getBlock());

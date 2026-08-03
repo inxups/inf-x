@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -42,6 +44,8 @@ public final class GlassShardLootModifier extends LootModifier {
             count = 6;
         else if (GLASS_PANE_TABLE.equals(table) && state != null && state.is(Blocks.GLASS_PANE))
             count = 1;
+        else if (isStainedGlass(table, state))
+            count = state.getBlock() instanceof StainedGlassBlock ? 6 : 1;
         else
             return generatedLoot;
         if (context.hasParameter(LootContextParams.EXPLOSION_RADIUS) || hasSilkTouch(context))
@@ -50,6 +54,17 @@ public final class GlassShardLootModifier extends LootModifier {
         ItemStack shards = InfXItems.catalog().raw("glass_shard").holder().toStack(count);
         generatedLoot.add(shards);
         return generatedLoot;
+    }
+
+    /** MITE fragments extend to every stained-glass table; panes drop a single shard. */
+    private static boolean isStainedGlass(Identifier table, BlockState state) {
+        if (state == null
+                || !Identifier.DEFAULT_NAMESPACE.equals(table.getNamespace())
+                || !table.getPath().startsWith("blocks/")) {
+            return false;
+        }
+        return table.getPath().endsWith("_stained_glass") && state.getBlock() instanceof StainedGlassBlock
+                || table.getPath().endsWith("_stained_glass_pane") && state.getBlock() instanceof StainedGlassPaneBlock;
     }
 
     private static boolean hasSilkTouch(LootContext context) {
