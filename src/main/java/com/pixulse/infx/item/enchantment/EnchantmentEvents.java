@@ -10,6 +10,9 @@ import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXMobEffects;
+import com.pixulse.infx.item.Catalog;
+import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.registry.InfXItems;
 
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -61,6 +64,7 @@ public final class EnchantmentEvents {
     private static final net.minecraft.resources.Identifier PARALYSIS_SPEED = InfiniteX.id("paralysis_speed");
     private static final String DISARMED_UNTIL = "infx_disarmed_until";
     private static final String RESTORE_PICKUP = "infx_disarmed_restore_pickup";
+    private static final ThreadLocal<Boolean> SWEEPING = new ThreadLocal<>();
     private static boolean felling;
 
     private EnchantmentEvents() {}
@@ -80,20 +84,73 @@ public final class EnchantmentEvents {
         int slaughter = Enchantments.level(
                 attacker.level(), attacker.getMainHandItem(), InfXEnchantments.SLAUGHTER);
         event.setAmount(event.getAmount() + EnchantmentRules.slaughterDamageBonus(slaughter));
+
+        // Vanilla sharpness only applies through the player stabAttack path; restore it for
+        // any direct melee hit so INFX swords/scythes behave like the vanilla enchantment.
+        if (!Boolean.TRUE.equals(SWEEPING.get())) {
+            int sharpness = Enchantments.level(
+                    attacker.level(), attacker.getMainHandItem(), InfXEnchantments.VANILLA_SHARPNESS);
+            if (sharpness > 0) {
+                event.setAmount(event.getAmount() + 1.0F + 0.5F * (sharpness - 1));
+            }
+        }
     }
 
     @SubscribeEvent
     public static void onDamagePost(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || event.getSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS)) return;
-        if (event.getSource().getDirectEntity() instanceof AbstractArrow arrow) {
+        boolean sweeping = Boolean.TRUE.equals(SWEEPING.get());
+        if (event.getSource().getDirectEntity() instanceof AbstractArrow arrow && !sweeping) {
             applyArrowPoison(event.getEntity(), arrow);
         }
         if (event.getSource().getEntity() instanceof LivingEntity attacker
                 && event.getSource().getDirectEntity() == attacker) {
-            applyMeleeEffects(attacker, event.getEntity(), event.getHealthDamage());
+            if (!sweeping) {
+                applyMeleeEffects(attacker, event.getEntity(), event.getHealthDamage());
+            }
+            applySweep(attacker, event.getEntity(), event.getHealthDamage());
         }
         applyThorns(event);
+    }
+
+    /**
+     * MITE swords, daggers, knives and scythes sweep one block around the struck target for
+     * 50% of the hit, plus 25% per sweeping edge level. Swept targets do not re-trigger effects.
+     */
+    private static void applySweep(LivingEntity attacker, LivingEntity target, float healthDamage) {
+        if (!(attacker instanceof Player player) || healthDamage <= 0.0F
+                || !(attacker.level() instanceof ServerLevel level)) {
+            return;
+        }
+        ItemStack weapon = attacker.getMainHandItem();
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(weapon);
+        if (entry == null) return;
+        EquipmentType type = entry.key().type();
+        if (type != EquipmentType.SWORD
+                && type != EquipmentType.DAGGER
+                && type != EquipmentType.KNIFE
+                && type != EquipmentType.SCYTHE) {
+            return;
+        }
+        int sweepingLevel = Enchantments.level(level, weapon, InfXEnchantments.VANILLA_SWEEPING_EDGE);
+        float ratio = 0.5F + 0.25F * Math.clamp(sweepingLevel, 0, 3);
+        float damage = healthDamage * ratio;
+        SWEEPING.set(true);
+        try {
+            for (LivingEntity nearby : level.getEntitiesOfClass(
+                    LivingEntity.class,
+                    target.getBoundingBox().inflate(1.0, 0.25, 1.0),
+                    entity -> entity != attacker
+                            && entity != target
+                            && entity.isAlive()
+                            && !attacker.isAlliedTo(entity)
+                            && attacker.distanceToSqr(entity) < 9.0)) {
+                nearby.hurtServer(level, level.damageSources().playerAttack(player), damage);
+            }
+        } finally {
+            SWEEPING.remove();
+        }
     }
 
     /** MITE thorns retaliates against melee attackers and arrow shooters, wearing the cuirass. */

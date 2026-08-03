@@ -51,13 +51,37 @@ public final class EquipmentBehaviors {
 
     private EquipmentBehaviors() {}
 
-   @SubscribeEvent
+    @SubscribeEvent
     public static void applySilverBonus(LivingIncomingDamageEvent event) {
         if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(event.getEntity().getType()).is(EntityTypeTags.UNDEAD)
                 || !hasSilverAspect(event)) {
             return;
         }
         event.setAmount(event.getAmount() * 1.25F);
+    }
+
+    /** MITE war hammers and cudgels add two damage against the skeleton family. */
+    @SubscribeEvent
+    public static void applySkeletonBane(LivingIncomingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof LivingEntity attacker)
+                || event.getSource().getDirectEntity() != attacker) {
+            return;
+        }
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(attacker.getMainHandItem());
+        if (entry == null) {
+            return;
+        }
+        EquipmentType type = entry.key().type();
+        if (type != EquipmentType.WAR_HAMMER
+                && type != EquipmentType.CUDGEL
+                && type != EquipmentType.CLUB) {
+            return;
+        }
+        if (!BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(event.getEntity().getType())
+                .is(EntityTypeTags.SKELETONS)) {
+            return;
+        }
+        event.setAmount(event.getAmount() + 2.0F);
     }
 
     private static boolean hasSilverAspect(LivingIncomingDamageEvent event) {
@@ -358,15 +382,35 @@ public final class EquipmentBehaviors {
 
    @SubscribeEvent
     public static void addQualityTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
+        if (entry != null) {
+            EquipmentKey key = entry.key();
+            if (key.material() == InfxMaterial.SILVER) {
+                event.getToolTip()
+                        .add(Component.translatable("tooltip.infx.silver_undead_bonus")
+                                .withStyle(net.minecraft.ChatFormatting.GRAY));
+                if (key.type().armorForm() != EquipmentType.ArmorForm.NONE) {
+                    event.getToolTip()
+                            .add(Component.translatable("tooltip.infx.silver_armor_resistance")
+                                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+                }
+            }
+            if (key.type() == EquipmentType.WAR_HAMMER
+                    || key.type() == EquipmentType.CUDGEL
+                    || key.type() == EquipmentType.CLUB) {
+                event.getToolTip()
+                        .add(Component.translatable("tooltip.infx.skeleton_bane")
+                                .withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
+        }
         if (!shouldAddExtendedTooltips(InfiniteXTestMode.isEnabled())) return;
 
-        ItemStack stack = event.getItemStack();
         Quality quality = event.getItemStack().get(InfXDataComponents.QUALITY.get());
         if (quality != null) {
             event.getToolTip().add(1, Component.translatable("quality.infx." + quality.getSerializedName())
                     .withStyle(quality.color()));
         }
-        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry != null) {
             EquipmentKey key = entry.key();
             event.getToolTip().add(Component.translatable(

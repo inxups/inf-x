@@ -85,6 +85,9 @@ public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> VANILLA_POWER = vanillaKey("power");
     public static final ResourceKey<Enchantment> VANILLA_PUNCH = vanillaKey("punch");
     public static final ResourceKey<Enchantment> VANILLA_FLAME = vanillaKey("flame");
+    public static final ResourceKey<Enchantment> VANILLA_SHARPNESS = vanillaKey("sharpness");
+    public static final ResourceKey<Enchantment> VANILLA_SWEEPING_EDGE = vanillaKey("sweeping_edge");
+    public static final ResourceKey<Enchantment> VANILLA_SWIFT_SNEAK = vanillaKey("swift_sneak");
 
     public static final List<ResourceKey<Enchantment>> INFX = List.of(
             DURABILITY, DISARMING, QUICKNESS, PRECISION, POISONING, BUTCHERING, STUNNING,
@@ -97,7 +100,8 @@ public final class InfXEnchantments {
             VANILLA_PROJECTILE_PROTECTION, VANILLA_RESPIRATION, VANILLA_AQUA_AFFINITY,
             VANILLA_THORNS, VANILLA_SMITE, VANILLA_BANE_OF_ARTHROPODS, VANILLA_KNOCKBACK,
             VANILLA_FIRE_ASPECT, VANILLA_LOOTING, VANILLA_EFFICIENCY, VANILLA_SILK_TOUCH,
-            VANILLA_POWER, VANILLA_PUNCH, VANILLA_FLAME);
+            VANILLA_POWER, VANILLA_PUNCH, VANILLA_FLAME, VANILLA_SHARPNESS,
+            VANILLA_SWEEPING_EDGE, VANILLA_SWIFT_SNEAK);
 
     /** Every enchantment served by the INFX tables, trades, loot and mob equipment. */
     public static final List<ResourceKey<Enchantment>> ALL =
@@ -144,7 +148,10 @@ public final class InfXEnchantments {
             Map.entry(VANILLA_SILK_TOUCH, profile(Rarity.RARE, 10)),
             Map.entry(VANILLA_POWER, profile(Rarity.COMMON, 10)),
             Map.entry(VANILLA_PUNCH, profile(Rarity.UNCOMMON, 10)),
-            Map.entry(VANILLA_FLAME, profile(Rarity.RARE, 20)));
+            Map.entry(VANILLA_FLAME, profile(Rarity.RARE, 20)),
+            Map.entry(VANILLA_SHARPNESS, profile(Rarity.COMMON, 10)),
+            Map.entry(VANILLA_SWEEPING_EDGE, profile(Rarity.RARE, 10)),
+            Map.entry(VANILLA_SWIFT_SNEAK, profile(Rarity.RARE, 10)));
 
     private InfXEnchantments() {}
 
@@ -329,6 +336,23 @@ public final class InfXEnchantments {
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.PROJECTILE_SPAWNED,
                         new Ignite(LevelBasedValue.constant(100.0F))));
+        register(context, items, enchantments, VANILLA_SHARPNESS, InfXItemTags.INFX_SHARPNESS_ENCHANTABLE,
+                EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
+                builder -> builder.withEffect(
+                        EnchantmentEffectComponents.DAMAGE,
+                        new AddValue(LevelBasedValue.perLevel(1.0F, 0.5F))));
+        // Sweeping edge is implemented by the INFX sweep event, which reads the level directly.
+        register(context, items, enchantments, VANILLA_SWEEPING_EDGE,
+                InfXItemTags.INFX_SWEEPING_ENCHANTABLE, 3, EquipmentSlotGroup.MAINHAND);
+        register(context, items, enchantments, VANILLA_SWIFT_SNEAK, ItemTags.FOOT_ARMOR_ENCHANTABLE,
+                3, EquipmentSlotGroup.FEET,
+                builder -> builder.withEffect(
+                        EnchantmentEffectComponents.ATTRIBUTES,
+                        new EnchantmentAttributeEffect(
+                                Identifier.withDefaultNamespace("enchantment.swift_sneak"),
+                                Attributes.SNEAKING_SPEED,
+                                LevelBasedValue.perLevel(0.15F),
+                                AttributeModifier.Operation.ADD_VALUE)));
     }
 
     public static EnchantmentProfile profile(ResourceKey<Enchantment> key) {

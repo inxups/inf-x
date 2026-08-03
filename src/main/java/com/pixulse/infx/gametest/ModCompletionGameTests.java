@@ -181,7 +181,8 @@ public final class ModCompletionGameTests {
             "infx_bucket_mechanics",
             "infx_swim_physics",
             "infx_fulltext_systems",
-            "infx_harvest_rules");
+            "infx_harvest_rules",
+            "infx_enchantment_combat");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -206,6 +207,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_swim_physics", () -> ModCompletionGameTests::swimPhysics);
         FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
         FUNCTIONS.register("infx_harvest_rules", () -> ModCompletionGameTests::harvestRules);
+        FUNCTIONS.register("infx_enchantment_combat", () -> ModCompletionGameTests::enchantmentCombat);
     }
 
     private ModCompletionGameTests() {}
@@ -363,6 +365,127 @@ public final class ModCompletionGameTests {
                 "creative pickaxe must mine stone");
 
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void enchantmentCombat(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        var level = helper.getLevel();
+        var registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+
+        ItemStack sword = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
+                .holder()
+                .toStack();
+        ItemStack scythe = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE)
+                .holder()
+                .toStack();
+        ItemStack boots = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.BOOTS)
+                .holder()
+                .toStack();
+        var sharpness = registry.getOrThrow(InfXEnchantments.VANILLA_SHARPNESS);
+        var sweeping = registry.getOrThrow(InfXEnchantments.VANILLA_SWEEPING_EDGE);
+        var swiftSneak = registry.getOrThrow(InfXEnchantments.VANILLA_SWIFT_SNEAK);
+        helper.assertTrue(sharpness.value().isSupportedItem(sword), "swords must support sharpness");
+        helper.assertTrue(sharpness.value().isSupportedItem(scythe), "scythes must support sharpness");
+        helper.assertTrue(sweeping.value().isSupportedItem(sword), "swords must support sweeping edge");
+        helper.assertTrue(sweeping.value().isSupportedItem(scythe), "scythes must support sweeping edge");
+        helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
+
+        sword.enchant(sharpness, 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        zombie.invulnerableTime = 0;
+        float before = zombie.getHealth();
+        zombie.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
+        helper.assertTrue(
+                Math.abs((before - zombie.getHealth()) - 5.0F) < 0.001F,
+                "sharpness I must add one damage");
+        zombie.discard();
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
+                .holder()
+                .toStack());
+        var target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        target.invulnerableTime = 0;
+        bystander.invulnerableTime = 0;
+        before = bystander.getHealth();
+        target.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
+        helper.assertTrue(
+                Math.abs((before - bystander.getHealth()) - 2.0F) < 0.001F,
+                "sword sweep must deal 50% to adjacent targets");
+        target.discard();
+        bystander.discard();
+
+        ItemStack sweepSword = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
+                .holder()
+                .toStack();
+        sweepSword.enchant(sweeping, 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, sweepSword);
+        target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        target.invulnerableTime = 0;
+        bystander.invulnerableTime = 0;
+        before = bystander.getHealth();
+        target.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
+        helper.assertTrue(
+                Math.abs((before - bystander.getHealth()) - 3.0F) < 0.001F,
+                "sweeping edge I must raise sweep damage to 75%");
+        target.discard();
+        bystander.discard();
+
+        player.removeEffect(MobEffects.POISON);
+        player.setItemSlot(EquipmentSlot.CHEST, InfXItems.catalog()
+                .equipment(InfxMaterial.SILVER, EquipmentType.CHESTPLATE)
+                .holder()
+                .toStack());
+        player.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0));
+        helper.assertTrue(
+                player.getEffect(MobEffects.POISON) != null
+                        && player.getEffect(MobEffects.POISON).getDuration() == 170,
+                "one silver piece must shorten harmful effects to 85%");
+
+        ItemStack hammer = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.WAR_HAMMER)
+                .holder()
+                .toStack();
+        player.setItemInHand(InteractionHand.MAIN_HAND, hammer);
+        var skeleton = helper.spawnWithNoFreeWill(EntityType.SKELETON, new BlockPos(2, 2, 2));
+        skeleton.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        skeleton.invulnerableTime = 0;
+        before = skeleton.getHealth();
+        skeleton.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
+        helper.assertTrue(
+                Math.abs((before - skeleton.getHealth()) - 6.0F) < 0.001F,
+                "war hammers must add two damage against skeletons");
+        skeleton.discard();
+
+        ItemStack cudgel = InfXItems.catalog()
+                .equipment(InfxMaterial.WOOD, EquipmentType.CUDGEL)
+                .holder()
+                .toStack();
+        player.setItemInHand(InteractionHand.MAIN_HAND, cudgel);
+        skeleton = helper.spawnWithNoFreeWill(EntityType.SKELETON, new BlockPos(2, 2, 2));
+        skeleton.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        skeleton.invulnerableTime = 0;
+        before = skeleton.getHealth();
+        skeleton.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
+        helper.assertTrue(
+                Math.abs((before - skeleton.getHealth()) - 6.0F) < 0.001F,
+                "cudgels must add two damage against skeletons");
+        skeleton.discard();
+
         removePlayer(player);
         helper.succeed();
     }

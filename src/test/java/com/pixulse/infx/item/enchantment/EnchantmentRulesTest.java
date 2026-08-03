@@ -130,7 +130,7 @@ class EnchantmentRulesTest {
     @Test
     void selectorUsesOnlyTheFixedR196CandidatePool() {
         assertSame(InfXEnchantments.ALL, EnchantmentSelector.candidateKeys());
-        assertEquals(39, EnchantmentSelector.candidateKeys().size());
+        assertEquals(42, EnchantmentSelector.candidateKeys().size());
         assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.INFX));
         assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.VANILLA_R196));
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.CLUMSINESS));
