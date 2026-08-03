@@ -27,8 +27,12 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob {
 
     public InfxWolf(EntityType<? extends Wolf> type, Level level) {
         super(type, level);
-        // MITE experience: hellhounds are worth triple, dire wolves double the base value.
-        xpReward = variant() == Variant.HELLHOUND ? 15 : 10;
+    }
+
+    /** MITE experience: hellhounds are worth triple, dire wolves double the base value. */
+    @Override
+    public int getBaseExperienceReward(@NonNull ServerLevel level) {
+        return variant() == Variant.HELLHOUND ? 15 : 10;
     }
 
     public Variant variant() {

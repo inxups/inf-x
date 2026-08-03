@@ -521,15 +521,4 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         super.readAdditionalSaveData(input);
         summonedTroops = input.getIntOr("R196SummonedTroops", 0);
     }
-
-    @Override
-    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
-        super.dropCustomDeathLoot(level, source, killedByPlayer);
-        if ((variant() == Variant.LONGDEAD
-                        || variant() == Variant.LONGDEAD_GUARDIAN
-                        || variant() == Variant.ANCIENT_BONE_LORD)
-                && random.nextFloat() < (killedByPlayer ? 0.50F : 0.25F)) {
-            spawnAtLocation(level, InfXItems.ANCIENT_METAL_INGOT.toStack());
-        }
-    }
 }

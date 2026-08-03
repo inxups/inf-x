@@ -13,8 +13,11 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.equine.Donkey;
+import net.minecraft.world.entity.animal.equine.Mule;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.ItemStack;
@@ -96,7 +99,8 @@ public final class AnimalEvents {
 
     @SubscribeEvent
     public static void onExperienceDrop(LivingExperienceDropEvent event) {
-        if (event.getEntity() instanceof Animal) {
+        // MITE wolf-family combat mobs keep their experience; other animals grant none.
+        if (event.getEntity() instanceof Animal animal && !(animal instanceof Wolf)) {
             event.setDroppedExperience(0);
         }
     }
@@ -123,6 +127,12 @@ public final class AnimalEvents {
             event.getDrops().removeIf(drop -> drop.getItem().is(Items.IRON_INGOT));
             event.getDrops()
                     .add(drop(level, golem, new ItemStack(Items.IRON_NUGGET, 2 + golem.getRandom().nextInt(4))));
+        }
+
+        if (event.getEntity() instanceof Donkey || event.getEntity() instanceof Mule) {
+            // MITE donkeys and mules drop beef like the INFX horse replacement.
+            event.getDrops().add(drop(level, event.getEntity(), new ItemStack(
+                    Items.BEEF, 1 + event.getEntity().getRandom().nextInt(3))));
         }
     }
 

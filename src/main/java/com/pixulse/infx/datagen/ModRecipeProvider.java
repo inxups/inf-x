@@ -498,6 +498,15 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_sandstone", has(Blocks.SANDSTONE))
                 .save(output, recipeKey("sandstone_to_glass"));
         SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(Blocks.RED_SANDSTONE),
+                        RecipeCategory.BUILDING_BLOCKS,
+                        CookingBookCategory.BLOCKS,
+                        Blocks.GLASS,
+                        0.1F,
+                        200)
+                .unlockedBy("has_red_sandstone", has(Blocks.RED_SANDSTONE))
+                .save(output, recipeKey("red_sandstone_to_glass"));
+        SimpleCookingRecipeBuilder.smelting(
                         Ingredient.of(InfXBlocks.SILVER_ORE, InfXBlocks.DEEPSLATE_SILVER_ORE),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
@@ -904,6 +913,19 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.ADAMANTIUM,
                 25600.0F / 9.0F + 50.0F,
                 InfXItems.ADAMANTIUM_NUGGET);
+
+        addArrowDismantling("flint", InfxMaterial.FLINT, InfXItems.FLINT_CHIP);
+        addArrowDismantling("obsidian", InfxMaterial.OBSIDIAN, InfXItems.OBSIDIAN_SHARD);
+        addArrowDismantling("copper", InfxMaterial.COPPER, Items.COPPER_NUGGET);
+        addArrowDismantling("silver", InfxMaterial.SILVER, InfXItems.SILVER_NUGGET);
+        addArrowDismantling("gold", InfxMaterial.GOLD, Items.GOLD_NUGGET);
+        addArrowDismantling("iron", InfxMaterial.IRON, Items.IRON_NUGGET);
+        addArrowDismantling(
+                "ancient_metal",
+                InfxMaterial.ANCIENT_METAL,
+                InfXItems.catalog().raw("ancient_metal_nugget").holder());
+        addArrowDismantling("mithril", InfxMaterial.MITHRIL, InfXItems.MITHRIL_NUGGET);
+        addArrowDismantling("adamantium", InfxMaterial.ADAMANTIUM, InfXItems.ADAMANTIUM_NUGGET);
 
         addArmorSet("leather", InfxMaterial.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
         addMetalArmorSets(
@@ -1347,6 +1369,16 @@ final class ModRecipeProvider extends RecipeProvider {
                 4,
                 Map.of('P', ingredient(ItemTags.PLANKS)),
                 List.of("P P", " P "));
+        addShaped(
+                "glass_bottle",
+                BenchTier.FLINT,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.GLASS_BOTTLE,
+                3,
+                Map.of('G', Ingredient.of(Items.GLASS)),
+                List.of("G G", " G "));
         addShaped(
                 "white_wool_from_string",
                 BenchTier.HAND,
@@ -2018,6 +2050,19 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private static ItemLike equipment(InfxMaterial material, EquipmentType type) {
         return InfXItems.catalog().equipment(material, type).holder();
+    }
+
+    /** MITE dismantles one arrow back into its single arrowhead material. */
+    private void addArrowDismantling(String material, InfxMaterial arrowMaterial, ItemLike arrowhead) {
+        addShapeless(
+                material + "_arrow_dismantling",
+                BenchTier.HAND,
+                25.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                arrowhead,
+                1,
+                List.of(Ingredient.of(equipment(arrowMaterial, EquipmentType.ARROW))));
     }
 
     private void addMetalWorkbench(
