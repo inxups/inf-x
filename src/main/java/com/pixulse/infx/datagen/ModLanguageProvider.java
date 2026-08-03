@@ -552,6 +552,15 @@ final class ModLanguageProvider extends LanguageProvider {
         add("tooltip.infx.reach", locale == Locale.EN_US ? "Melee reach: %s blocks" : "近战距离：%s 格");
         add("tooltip.infx.protection", locale == Locale.EN_US ? "Fixed protection: %s" : "固定防护：%s");
         add("tooltip.infx.repair", locale == Locale.EN_US ? "Repair with %s nuggets" : "使用%s粒修理");
+        add("tooltip.infx.silver_undead_bonus", locale == Locale.EN_US
+                ? "+25% damage to undead"
+                : "对亡灵生物伤害+25%");
+        add("tooltip.infx.silver_armor_resistance", locale == Locale.EN_US
+                ? "Each silver piece shortens negative effects by 15%"
+                : "每件银甲使负面效果时长缩短15%");
+        add("tooltip.infx.skeleton_bane", locale == Locale.EN_US
+                ? "+2 damage to skeletons"
+                : "对骷髅生物伤害+2");
         add("tooltip.infx.fuel_heat", locale == Locale.EN_US ? "Fuel heat: %s" : "燃料热量：%s");
         add("tooltip.infx.recipe_heat", locale == Locale.EN_US ? "Required heat: %s" : "所需热量：%s");
         add("tooltip.infx.furnace_heat", locale == Locale.EN_US ? "Maximum heat: %s" : "最高热量：%s");

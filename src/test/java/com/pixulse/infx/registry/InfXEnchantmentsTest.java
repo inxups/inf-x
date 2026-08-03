@@ -37,7 +37,7 @@ class InfXEnchantmentsTest {
 
         assertEquals(22, InfXEnchantments.INFX.size());
         assertEquals(22, expected.size());
-        assertEquals(39, InfXEnchantments.ALL.size());
+        assertEquals(42, InfXEnchantments.ALL.size());
         for (ResourceKey<Enchantment> key : InfXEnchantments.INFX) {
             InfXEnchantments.EnchantmentProfile actual = InfXEnchantments.profile(key);
             ExpectedProfile profile = expected.get(key);
@@ -82,10 +82,13 @@ class InfXEnchantmentsTest {
                 Map.entry(InfXEnchantments.VANILLA_SILK_TOUCH, expected(InfXEnchantments.Rarity.RARE, 10)),
                 Map.entry(InfXEnchantments.VANILLA_POWER, expected(InfXEnchantments.Rarity.COMMON, 10)),
                 Map.entry(InfXEnchantments.VANILLA_PUNCH, expected(InfXEnchantments.Rarity.UNCOMMON, 10)),
-                Map.entry(InfXEnchantments.VANILLA_FLAME, expected(InfXEnchantments.Rarity.RARE, 20)));
+                Map.entry(InfXEnchantments.VANILLA_FLAME, expected(InfXEnchantments.Rarity.RARE, 20)),
+                Map.entry(InfXEnchantments.VANILLA_SHARPNESS, expected(InfXEnchantments.Rarity.COMMON, 10)),
+                Map.entry(InfXEnchantments.VANILLA_SWEEPING_EDGE, expected(InfXEnchantments.Rarity.RARE, 10)),
+                Map.entry(InfXEnchantments.VANILLA_SWIFT_SNEAK, expected(InfXEnchantments.Rarity.RARE, 10)));
 
-        assertEquals(17, InfXEnchantments.VANILLA_R196.size());
-        assertEquals(17, expected.size());
+        assertEquals(20, InfXEnchantments.VANILLA_R196.size());
+        assertEquals(20, expected.size());
         for (ResourceKey<Enchantment> key : InfXEnchantments.VANILLA_R196) {
             assertEquals("minecraft", key.identifier().getNamespace(), key.identifier().toString());
             InfXEnchantments.EnchantmentProfile actual = InfXEnchantments.profile(key);

@@ -33,6 +33,7 @@
     "ItemStackCurseMixin",
     "LavaFluidMixin",
     "LivingEntityCurseMixin",
+    "LivingEntitySilverArmorMixin",
     "LivingEntitySwimMixin",
     "HopperBlockEntityMixin",
     "InfXFireBlockMixin",

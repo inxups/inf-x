@@ -31,6 +31,8 @@ public final class InfXItemTags {
     public static final TagKey<Item> INFX_FREE_MOVEMENT_ENCHANTABLE = enchantable("infx_free_movement");
     public static final TagKey<Item> INFX_CHEST_ARMOR_ENCHANTABLE = enchantable("infx_chest_armor");
     public static final TagKey<Item> INFX_SWORD_FAMILY_ENCHANTABLE = enchantable("infx_sword_family");
+    public static final TagKey<Item> INFX_SHARPNESS_ENCHANTABLE = enchantable("infx_sharpness");
+    public static final TagKey<Item> INFX_SWEEPING_ENCHANTABLE = enchantable("infx_sweeping");
     public static final TagKey<Item> INFX_SMITE_ENCHANTABLE = enchantable("infx_smite");
     public static final TagKey<Item> INFX_KNOCKBACK_ENCHANTABLE = enchantable("infx_knockback");
     public static final TagKey<Item> INFX_LOOTING_ENCHANTABLE = enchantable("infx_looting");
