@@ -91,7 +91,7 @@ class GeneratedResourceTest {
                     tag,
                     () -> assertTrue(source.has("replace") && source.get("replace").getAsBoolean()),
                     () -> assertEquals(expected, values),
-                    () -> assertEquals(39, values.size()));
+                    () -> assertEquals(42, values.size()));
         }
     }
 
