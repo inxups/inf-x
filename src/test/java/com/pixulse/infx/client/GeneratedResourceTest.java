@@ -96,6 +96,13 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void miteChineseNamesForMilkAndPoisonDeath() throws Exception {
+        JsonObject zh = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
+        assertEquals("铁奶桶", zh.get("item.infx.iron_milk_bucket").getAsString());
+        assertEquals("%s 毒发身亡", zh.get("death.infx.poison").getAsString());
+    }
+
+    @Test
     void portalParticlesReuseVanillaPortalSprites() throws Exception {
         List<String> expected = List.of(
                 "minecraft:generic_0",

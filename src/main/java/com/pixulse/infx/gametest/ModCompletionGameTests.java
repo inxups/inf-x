@@ -92,6 +92,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.effect.PoisonMobEffect;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -122,6 +123,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.HopperBlock;
@@ -151,6 +153,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -174,6 +177,7 @@ public final class ModCompletionGameTests {
             "infx_sprinting_nutrition",
             "infx_survival_modes",
             "infx_behavior_hunger",
+            "infx_survival_fixes",
             "infx_safe_enchanting",
             "infx_enchantment_drops",
             "infx_creative_tabs",
@@ -199,6 +203,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_sprinting_nutrition", () -> ModCompletionGameTests::sprintingNutrition);
         FUNCTIONS.register("infx_survival_modes", () -> ModCompletionGameTests::survivalModes);
         FUNCTIONS.register("infx_behavior_hunger", () -> ModCompletionGameTests::behaviorHunger);
+        FUNCTIONS.register("infx_survival_fixes", () -> ModCompletionGameTests::survivalFixes);
         FUNCTIONS.register("infx_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("infx_enchantment_drops", () -> ModCompletionGameTests::enchantmentDrops);
         FUNCTIONS.register("infx_creative_tabs", () -> ModCompletionGameTests::creativeTabs);
@@ -1750,10 +1755,80 @@ public final class ModCompletionGameTests {
         NeoForge.EVENT_BUS.post(new LivingDamageEvent.Post(player, damage));
         assertBehaviorHunger(helper, player, 0.075D, "armor-applicable damage uses the INFX damage cost");
 
+        player.removeEffect(MobEffects.HUNGER);
+        player.setHealth(player.getMaxHealth());
+        player.tickCount = 20;
+        resetBehaviorHunger(player);
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.005D, "baseline metabolism bills ten ticks at the base rate");
+
+        resetBehaviorHunger(player);
+        player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 200, 0));
+        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
+        assertBehaviorHunger(helper, player, 0.0675D, "hunger I must accelerate ten ticks to 12.5x the base rate");
+        player.removeEffect(MobEffects.HUNGER);
+
         helper.setBlock(miningRelative, Blocks.AIR);
         helper.setBlock(placeRelative, Blocks.AIR);
         cow.discard();
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void survivalFixes(GameTestHelper helper) {
+        var level = helper.getLevel();
+        PoisonMobEffect poison = (PoisonMobEffect) MobEffects.POISON.value();
+        helper.assertFalse(poison.shouldApplyEffectTickThisTick(99, 0), "poison I must wait 100 ticks");
+        helper.assertTrue(poison.shouldApplyEffectTickThisTick(100, 0), "poison I ticks at 100");
+        helper.assertFalse(poison.shouldApplyEffectTickThisTick(49, 1), "poison II must wait 50 ticks");
+        helper.assertTrue(poison.shouldApplyEffectTickThisTick(50, 1), "poison II ticks at 50");
+        helper.assertFalse(poison.shouldApplyEffectTickThisTick(24, 2), "poison III must wait 25 ticks");
+        helper.assertTrue(poison.shouldApplyEffectTickThisTick(25, 2), "poison III ticks at 25");
+        helper.assertTrue(poison.shouldApplyEffectTickThisTick(0, 10), "high poison levels tick every tick");
+
+        var zombie = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 2, 3));
+        zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        zombie.setHealth(1.0F);
+        zombie.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0));
+        zombie.invulnerableTime = 0;
+        zombie.hurtServer(level, level.damageSources().magic(), 1.0F);
+        helper.assertTrue(
+                zombie.hasEffect(MobEffects.POISON),
+                "poisoned victim keeps poison after death: " + zombie.getHealth());
+        String deathMessage = level.damageSources()
+                .magic()
+                .getLocalizedDeathMessage(zombie)
+                .getString()
+                .toLowerCase(java.util.Locale.ROOT);
+        helper.assertTrue(
+                deathMessage.contains("poison") || deathMessage.contains("毒发"),
+                "poison deaths must use the INFX message: " + deathMessage);
+
+        BlockPos campfirePos = new BlockPos(3, 2, 3);
+        helper.setBlock(campfirePos, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true));
+        helper.assertTrue(
+                helper.getBlockState(campfirePos).getBlock() instanceof CampfireBlock
+                        && helper.getBlockState(campfirePos).getValue(CampfireBlock.LIT),
+                "campfire must be placed and lit");
+        BlockPos rawPos = helper.absolutePos(campfirePos.above());
+        ItemEntity raw = new ItemEntity(
+                level, rawPos.getX() + 0.5D, rawPos.getY() + 0.1D, rawPos.getZ() + 0.5D, new ItemStack(Items.BEEF));
+        level.addFreshEntity(raw);
+        for (int i = 0; i < 99; i++) {
+            NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(raw));
+        }
+        float progressAfter99 = raw.getPersistentData().getFloatOr("infx_fire_cooking_progress", -1.0F);
+        helper.assertTrue(
+                progressAfter99 == 99.0F,
+                "campfire progress must accumulate: " + progressAfter99);
+        helper.assertTrue(raw.getItem().is(Items.BEEF), "raw beef needs 100 campfire ticks");
+        NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(raw));
+        helper.assertTrue(raw.getItem().is(Items.COOKED_BEEF), "campfire cooks raw beef after 100 ticks");
+        for (int i = 0; i < 50; i++) {
+            NeoForge.EVENT_BUS.post(new EntityTickEvent.Post(raw));
+        }
+        helper.assertTrue(raw.isAlive() && raw.getItem().is(Items.COOKED_BEEF), "cooked food survives campfires");
+        raw.discard();
         helper.succeed();
     }
 
