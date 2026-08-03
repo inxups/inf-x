@@ -22,6 +22,10 @@
 ### Server
 - Permissions can only be fully opened in test mode.
 
+### Git 工作流
+
+- Git 工作流统一为 Rebase and merge，禁止直接提交 master，PR 合并后强制清理分支与 worktree；本次同时清理了历史遗留的重复分支与失效 worktree。
+
 ---
 
 ## 0t1-0t4

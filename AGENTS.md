@@ -17,9 +17,15 @@
 
 - 凡需要修改仓库的任务，必须使用独立 Git worktree 和 `codex/<任务名>` 分支。
 - 如果当前已经处于该任务的独立 worktree，并且上文中没有旧任务，不再嵌套创建 worktree；如果上文中有旧任务且再次发起了新任务，创建新 worktree。
+- 开工前先 `git fetch origin`，并检查 `git branch -a`、`git ls-remote --heads origin`、`gh pr list --state all --head <分支>`；已有同名或等价任务（已合并、已有分支或 PR）时复用并继续，禁止重复创建分支、提交或 PR。
 - 只提交与当前任务有关的文件。
+- 一个任务只允许一个分支和一个 PR；从最新 `origin/master` 创建 worktree 与分支：`git worktree add <路径> -b codex/<任务名> origin/master`。
+- 任务分支内禁止 `git merge master` 或 `git pull origin master`；需要同步主线时只允许 `git rebase origin/master`，冲突逐条解决。
 - 凡产生仓库改动的任务，都必须同步更新 `CHANGELOG.md`；纯只读任务除外。
-- 完成前必须执行适合改动范围的验证，然后创建提交并提交 PR 并确保合并到 master。
+- 完成前必须执行适合改动范围的验证，然后创建提交并提交 PR。
+- PR 统一使用 Rebase and merge 合并并删除分支：`gh pr merge <编号> --rebase --delete-branch`；网页操作时选择 Rebase and merge 并勾选自动删除分支。
+- PR 合并后必须立即清理，否则任务不算完成：`git worktree remove <路径>`（目录已不存在则 `git worktree prune`）→ `git branch -D codex/<任务名>` → 远端未删除则 `git push origin --delete codex/<任务名>` → `git fetch --prune origin`。
+- 若 `git cherry origin/master <分支>` 已无未合并补丁，或改动与 master 中已有提交内容等价，禁止再建重复分支/PR。
 - 无法创建提交或 PR 时，明确说明阻塞原因，不得宣称任务已经完成。
 
 ## Minecraft 与 NeoForge 修改原则
