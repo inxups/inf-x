@@ -1793,6 +1793,27 @@ public final class ModCompletionGameTests {
         helper.assertTrue(poison.shouldApplyEffectTickThisTick(25, 2), "poison III ticks at 25");
         helper.assertTrue(poison.shouldApplyEffectTickThisTick(0, 10), "high poison levels tick every tick");
 
+        var poisonTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(2, 2, 3));
+        poisonTarget.setHealth(poisonTarget.getMaxHealth());
+        MobEffectInstance poisonInstance = new MobEffectInstance(MobEffects.POISON, 200, 0);
+        poisonTarget.addEffect(poisonInstance);
+        float poisonHealth = poisonTarget.getHealth();
+        poisonInstance.tickServer(level, poisonTarget, () -> {});
+        helper.assertTrue(
+                poisonTarget.getHealth() == poisonHealth,
+                "newly applied poison must not damage on its first tick");
+        for (int i = 0; i < 99; i++) {
+            poisonInstance.tickServer(level, poisonTarget, () -> {});
+        }
+        helper.assertTrue(
+                poisonTarget.getHealth() == poisonHealth,
+                "poison I must wait for its full first interval");
+        poisonInstance.tickServer(level, poisonTarget, () -> {});
+        helper.assertTrue(
+                Math.abs(poisonTarget.getHealth() - (poisonHealth - 1.0F)) < 0.001F,
+                "poison I must deal one damage after 100 ticks");
+        poisonTarget.discard();
+
         var zombie = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 2, 3));
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         zombie.setHealth(1.0F);
