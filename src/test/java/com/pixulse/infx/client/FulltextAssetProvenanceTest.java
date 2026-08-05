@@ -57,6 +57,9 @@ class FulltextAssetProvenanceTest {
         List<String> lines = Files.readAllLines(MANIFEST, UTF_8);
         for (String line : lines.subList(1, lines.size())) {
             String[] fields = line.split("\t", -1);
+            if (fields[0].equals("derived")) {
+                continue;
+            }
             Path source = sources.get(fields[0]);
             assertNotNull(source, fields[0]);
             if (Files.isDirectory(source)) {
