@@ -6,6 +6,7 @@ import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.gametest.ModMonsterGameTests;
 import com.pixulse.infx.gametest.ModCompletionGameTests;
 import com.pixulse.infx.gametest.ModStructureLootGameTests;
+import com.pixulse.infx.item.StickBoneItems;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXBlocks;
@@ -51,6 +52,7 @@ public final class InfiniteX {
         InfXDataComponents.register(modBus);
         // Entity types must register before spawn eggs bind via Item.Properties#spawnEgg.
         InfXEntityTypes.register(modBus);
+        StickBoneItems.register(modBus);
         InfXItems.register(modBus);
         InfXLootModifiers.register(modBus);
         InfXRecipes.register(modBus);

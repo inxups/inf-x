@@ -57,6 +57,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -91,6 +92,7 @@ public final class ModEquipmentGameTests {
 
     private static final List<String> TEST_NAMES = List.of(
             "equipment_components",
+            "infx_equipment_components",
             "tool_actions_and_wear",
             "harvest_tier_catalog",
             "material_arrows",
@@ -104,6 +106,7 @@ public final class ModEquipmentGameTests {
 
     static {
         TEST_FUNCTIONS.register("equipment_components", () -> ModEquipmentGameTests::equipmentComponents);
+        TEST_FUNCTIONS.register("infx_equipment_components", () -> ModEquipmentGameTests::stickBoneAttackBehavior);
         TEST_FUNCTIONS.register("tool_actions_and_wear", () -> ModEquipmentGameTests::toolActionsAndWear);
         TEST_FUNCTIONS.register("harvest_tier_catalog", () -> ModEquipmentGameTests::harvestTierCatalog);
         TEST_FUNCTIONS.register("material_arrows", () -> ModEquipmentGameTests::materialArrows);
@@ -186,6 +189,98 @@ public final class ModEquipmentGameTests {
             }
         }
         helper.succeed();
+    }
+
+    private static void stickBoneAttackBehavior(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        ItemStack stick = new ItemStack(Items.STICK, 2);
+        ItemStack bone = new ItemStack(Items.BONE, 2);
+
+        helper.assertTrue(stick.getMaxStackSize() == 32, "MITE sticks must stack to 32 at runtime");
+        helper.assertTrue(bone.getMaxStackSize() == 16, "MITE bones must stack to 16 at runtime");
+        assertMeleeAttackRange(helper, player, stick, "stick");
+        assertMeleeAttackRange(helper, player, bone, "bone");
+
+        double blockInteractionRange = player.blockInteractionRange();
+        double entityInteractionRange = player.entityInteractionRange();
+        BlockPos interactionBlock = helper.absolutePos(new BlockPos(4, 2, 1));
+        var farTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 2, 1));
+        boolean emptyHandBlockRange = player.isWithinBlockInteractionRange(interactionBlock, 0.0D);
+        boolean emptyHandEntityRange = player.isWithinEntityInteractionRange(farTarget, 0.0D);
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, stick);
+        var nearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 1));
+        helper.assertTrue(
+                player.isWithinAttackRange(stick, nearTarget.getBoundingBox(), 0.0D),
+                "a stick must reach a target within two blocks");
+        helper.assertFalse(
+                player.isWithinAttackRange(stick, farTarget.getBoundingBox(), 0.0D),
+                "a stick must not extend beyond its two-block melee reach");
+        helper.assertTrue(
+                player.blockInteractionRange() == blockInteractionRange
+                        && player.entityInteractionRange() == entityInteractionRange,
+                "a stick must not change block or entity interaction attributes");
+        helper.assertTrue(
+                player.isWithinBlockInteractionRange(interactionBlock, 0.0D) == emptyHandBlockRange
+                        && player.isWithinEntityInteractionRange(farTarget, 0.0D) == emptyHandEntityRange,
+                "a stick must not change block or entity interaction reach");
+
+        attackWithGuaranteedBreak(helper, player, nearTarget, 50);
+        helper.assertTrue(stick.getCount() == 1, "a successful stick hit must consume one stick on a 1/50 roll");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, bone);
+        var boneTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        attackWithGuaranteedBreak(helper, player, boneTarget, 100);
+        helper.assertTrue(bone.getCount() == 1, "a successful bone hit must consume one bone on a 1/100 roll");
+
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        ItemStack creativeStick = new ItemStack(Items.STICK, 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, creativeStick);
+        var creativeReachTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 2, 1));
+        helper.assertTrue(
+                player.isWithinAttackRange(creativeStick, creativeReachTarget.getBoundingBox(), 0.0D),
+                "creative sticks must retain the five-block attack reach");
+        attackWithGuaranteedBreak(helper, player, creativeReachTarget, 50);
+        helper.assertTrue(creativeStick.getCount() == 1, "creative stick attacks must not consume sticks");
+
+        farTarget.discard();
+        nearTarget.discard();
+        boneTarget.discard();
+        creativeReachTarget.discard();
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void assertMeleeAttackRange(
+            GameTestHelper helper, ServerPlayer player, ItemStack stack, String description) {
+        var component = stack.get(DataComponents.ATTACK_RANGE);
+        var playerRange = player.getAttackRangeWith(stack);
+        helper.assertTrue(
+                component != null
+                        && component.maxReach() == 2.0F
+                        && component.maxCreativeReach() == 5.0F,
+                description + " ItemStack must carry the MITE attack range component");
+        helper.assertTrue(
+                playerRange.maxReach() == 2.0F && playerRange.maxCreativeReach() == 5.0F,
+                description + " Player#getAttackRangeWith must return the MITE attack range");
+    }
+
+    private static void attackWithGuaranteedBreak(
+            GameTestHelper helper,
+            ServerPlayer player,
+            LivingEntity target,
+            int denominator) {
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
+        long seed = 0L;
+        while (RandomSource.create(seed++).nextInt(denominator) != 0) {
+            // Find a deterministic seed so the runtime test exercises the break branch.
+        }
+        player.getRandom().setSeed(seed - 1L);
+        float healthBefore = target.getHealth();
+        player.attack(target);
+        helper.assertTrue(target.getHealth() < healthBefore, "the seeded attack must damage its target");
     }
 
     private static void toolActionsAndWear(GameTestHelper helper) {
