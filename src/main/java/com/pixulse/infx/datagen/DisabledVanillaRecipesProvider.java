@@ -80,6 +80,7 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "smithing_table",
             "stonecutter",
             "spyglass",
+            "stick",
             "mace",
             "bricks",
             "chiseled_stone_bricks",
