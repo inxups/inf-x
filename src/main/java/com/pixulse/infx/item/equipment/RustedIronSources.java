@@ -18,6 +18,7 @@ import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.WitherSkeleton;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
@@ -70,9 +71,14 @@ public final class RustedIronSources {
 
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
-        if (!(event.getEntity() instanceof AbstractSkeleton skeleton)
-                || skeleton instanceof WitherSkeleton
-                || !event.isRecentlyHit()) {
+        if (!(event.getEntity() instanceof AbstractSkeleton skeleton)) {
+            return;
+        }
+        // Vanilla skeleton variants use the modern arrow and tipped-arrow loot tables. MITE
+        // skeletons use material arrows instead, so strip only the two vanilla item types before
+        // the material-arrow roll below; unrelated drops and INFX arrows remain untouched.
+        event.getDrops().removeIf(RustedIronSources::isVanillaArrow);
+        if (skeleton instanceof WitherSkeleton || !event.isRecentlyHit()) {
             return;
         }
         // MITE: skeletons shed nextInt(2) rusted arrows; longdead shed an ancient-metal arrow
@@ -94,6 +100,10 @@ public final class RustedIronSources {
         arrow.setCount(count);
         event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(
                 skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(), arrow));
+    }
+
+    private static boolean isVanillaArrow(net.minecraft.world.entity.item.ItemEntity drop) {
+        return drop.getItem().is(Items.ARROW) || drop.getItem().is(Items.TIPPED_ARROW);
     }
 
     private static ItemStack equipment(EquipmentType type) {

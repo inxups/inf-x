@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * MITE removes the vanilla spawn equipment of every zombie and skeleton family member that has
- * no INFX replacement variant (husks, drowned, zombie villagers, strays and wither skeletons
- * keep the vanilla types). The INFX replacements override the same method themselves, so this
- * cancel only affects those vanilla entities.
+ * no INFX replacement variant (husks, drowned, zombie villagers, strays, bogged, parched and
+ * wither skeletons keep the vanilla types). The INFX replacements override the same method
+ * themselves, so this cancel only affects those vanilla entities.
  */
 @Mixin({Zombie.class, Drowned.class, AbstractSkeleton.class, WitherSkeleton.class})
 abstract class VanillaMobEquipmentMixin {

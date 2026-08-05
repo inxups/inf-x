@@ -13,6 +13,7 @@ import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -61,6 +62,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Runtime coverage for roster construction and vanilla natural-spawn replacement. */
@@ -82,6 +84,7 @@ public final class ModMonsterGameTests {
     private static final String EXPLOSION_RANGES = "infx_explosion_ranges";
     private static final String LONGDEAD_DROPS = "infx_longdead_drops";
     private static final String SPAWN_EQUIPMENT = "infx_spawn_equipment";
+    private static final String SKELETON_DROPS = "infx_skeleton_drops";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -101,6 +104,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(EXPLOSION_RANGES, () -> ModMonsterGameTests::explosionRanges);
         FUNCTIONS.register(LONGDEAD_DROPS, () -> ModMonsterGameTests::longdeadDrops);
         FUNCTIONS.register(SPAWN_EQUIPMENT, () -> ModMonsterGameTests::spawnEquipment);
+        FUNCTIONS.register(SKELETON_DROPS, () -> ModMonsterGameTests::skeletonDrops);
     }
 
     private ModMonsterGameTests() {}
@@ -129,7 +133,8 @@ public final class ModMonsterGameTests {
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
                 EXPLOSION_RANGES,
-                SPAWN_EQUIPMENT)) {
+                SPAWN_EQUIPMENT,
+                SKELETON_DROPS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -1586,8 +1591,8 @@ public final class ModMonsterGameTests {
     /**
      * MITE strips vanilla spawn equipment from the zombie and skeleton families: the INFX
      * replacements never wear vanilla weapons or armor (world-age gear is MITE equipment and
-     * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray,
-     * wither skeleton) get no vanilla weapons or armor at all.
+     * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
+     * parched, wither skeleton) get no vanilla weapons or armor at all.
      */
     private static void spawnEquipment(GameTestHelper helper) {
         var zombie = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
@@ -1599,10 +1604,39 @@ public final class ModMonsterGameTests {
                 "replacement skeletons must spawn with only MITE weapons");
         assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
 
-        for (EntityType<?> type : List.of(EntityType.HUSK, EntityType.DROWNED, EntityType.STRAY)) {
+        for (EntityType<?> type : List.of(
+                EntityType.HUSK, EntityType.DROWNED, EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             assertVanillaVariantBare(helper, type);
         }
         assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
+        helper.succeed();
+    }
+
+    private static void skeletonDrops(GameTestHelper helper) {
+        for (EntityType<?> type : List.of(EntityType.SKELETON, EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
+            @SuppressWarnings("unchecked")
+            Mob skeleton = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
+            List<ItemEntity> drops = new ArrayList<>(List.of(
+                    new ItemEntity(
+                            skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(),
+                            new ItemStack(Items.ARROW, 2)),
+                    new ItemEntity(
+                            skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(),
+                            new ItemStack(Items.TIPPED_ARROW)),
+                    new ItemEntity(
+                            skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(),
+                            new ItemStack(Items.BONE))));
+            NeoForge.EVENT_BUS.post(new LivingDropsEvent(
+                    skeleton, helper.getLevel().damageSources().generic(), drops, false));
+            helper.assertTrue(
+                    drops.stream().noneMatch(drop -> drop.getItem().is(Items.ARROW)
+                            || drop.getItem().is(Items.TIPPED_ARROW)),
+                    type + " must not drop vanilla arrows");
+            helper.assertTrue(
+                    drops.stream().anyMatch(drop -> drop.getItem().is(Items.BONE)),
+                    type + " must preserve unrelated skeleton drops");
+            skeleton.discard();
+        }
         helper.succeed();
     }
 
