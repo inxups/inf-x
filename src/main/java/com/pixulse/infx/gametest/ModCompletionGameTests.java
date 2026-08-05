@@ -335,6 +335,35 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 Math.abs(player.getAttributeValue(Attributes.ARMOR) - fullArmor) < .001,
                 "repaired armor restores its attribute");
+
+        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 200, 0));
+        double resistanceOneArmor = player.getAttributeValue(Attributes.ARMOR);
+        helper.assertTrue(
+                Math.abs(resistanceOneArmor - (fullArmor + 5.0)) < .001,
+                "resistance I must add five MITE protection points to armor");
+        player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 200, 1));
+        double resistanceTwoArmor = player.getAttributeValue(Attributes.ARMOR);
+        helper.assertTrue(
+                Math.abs(resistanceTwoArmor - (fullArmor + 10.0)) < .001,
+                "resistance II must add ten MITE protection points to armor");
+        player.removeEffect(MobEffects.RESISTANCE);
+        helper.assertTrue(
+                Math.abs(player.getAttributeValue(Attributes.ARMOR) - fullArmor) < .001,
+                "removing resistance must remove its armor modifier");
+        player.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        player.doTick();
+        var resistanceTarget = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(7, 2, 2));
+        resistanceTarget.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        resistanceTarget.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 200, 0));
+        resistanceTarget.invulnerableTime = 0;
+        float beforeResistanceDamage = resistanceTarget.getHealth();
+        resistanceTarget.hurtServer(level, level.damageSources().magic(), 10.0F);
+        float resistanceDamage = beforeResistanceDamage - resistanceTarget.getHealth();
+        helper.assertTrue(
+                Math.abs(resistanceDamage - 5.0F) < .001F,
+                "resistance I must reduce ten armor-bypassing damage by five fixed points; actual="
+                        + resistanceDamage);
+        resistanceTarget.discard();
         removePlayer(player);
         helper.succeed();
     }

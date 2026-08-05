@@ -161,7 +161,7 @@ public final class EquipmentBehaviors {
                 recoveryChance(material), recoveryEnchantmentLevel);
     }
 
-   @SubscribeEvent
+    @SubscribeEvent
     public static void applyArmorDecay(ItemAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
@@ -191,7 +191,7 @@ public final class EquipmentBehaviors {
         return Math.min(1.0F, remaining * 2.0F);
     }
 
-   @SubscribeEvent
+    @SubscribeEvent
     public static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)
                 || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -202,13 +202,18 @@ public final class EquipmentBehaviors {
         boolean bypassesMundaneArmor = event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)
                 || event.getSource().is(DamageTypeTags.IS_FIRE);
         float typed = typedProtectionPoints(player, event);
+        float resistanceArmor = resistanceProtectionPoints(player);
+        float resistanceProtection = resistanceProtectionPoints(player, event);
         float base = bypassesMundaneArmor
                 ? 0.0F
-                : (float) player.getAttributeValue(Attributes.ARMOR)
+                : (float) player.getAttributeValue(Attributes.ARMOR) - resistanceArmor
                         + protectionBonus(player)
                         - penetrationPoints(event);
-        float armorPoints = Math.max(0.0F, base) + typed;
-        if (armorPoints <= 0.0F && !bypassesMundaneArmor) {
+        float armorPoints = Math.max(0.0F, base) + typed
+                + resistanceProtection;
+        boolean mustOverrideBypassedResistance = resistanceArmor > 0.0F
+                && resistanceProtection <= 0.0F;
+        if (armorPoints <= 0.0F && !bypassesMundaneArmor && !mustOverrideBypassedResistance) {
             return;
         }
         event.getContainer().addModifier(
@@ -299,22 +304,44 @@ public final class EquipmentBehaviors {
         return Math.min(armorPoints, incomingDamage - 1.0F);
     }
 
-    /** Replaces modern percentage resistance with INFX's five fixed protection points per level. */
-   @SubscribeEvent
-    public static void applyFixedResistance(LivingIncomingDamageEvent event) {
-        var resistance = event.getEntity().getEffect(MobEffects.RESISTANCE);
-        if (resistance == null
-                || event.getSource().is(DamageTypeTags.BYPASSES_EFFECTS)
-                || event.getSource().is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+    /**
+     * MITE adds Resistance to total protection as fixed points. Players use the attribute in
+     * the custom armor stage; other entities and armor-bypassing damage need a mob-effect-stage
+     * fallback because vanilla does not run the armor reduction in those cases.
+     */
+    @SubscribeEvent
+    public static void applyMiteResistanceProtection(LivingIncomingDamageEvent event) {
+        float protection = resistanceProtectionPoints(event.getEntity(), event);
+        if (protection <= 0.0F) {
             return;
         }
-        float protection = (resistance.getAmplifier() + 1) * 5.0F;
+        if (!(event.getEntity() instanceof Player)
+                || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)) {
+            event.getContainer().addModifier(
+                    DamageContainer.Reduction.MOB_EFFECTS,
+                    (container, vanillaReduction) -> fixedArmorReduction(
+                            container.getNewDamage(), protection));
+            return;
+        }
         event.getContainer().addModifier(
                 DamageContainer.Reduction.MOB_EFFECTS,
-                (container, vanillaReduction) -> fixedArmorReduction(container.getNewDamage(), protection));
+                (container, vanillaReduction) -> 0.0F);
     }
 
-   @SubscribeEvent
+    private static float resistanceProtectionPoints(LivingEntity entity) {
+        var resistance = entity.getEffect(MobEffects.RESISTANCE);
+        return resistance == null ? 0.0F : (resistance.getAmplifier() + 1) * 5.0F;
+    }
+
+    private static float resistanceProtectionPoints(LivingEntity entity, LivingIncomingDamageEvent event) {
+        if (event.getSource().is(DamageTypeTags.BYPASSES_EFFECTS)
+                || event.getSource().is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+            return 0.0F;
+        }
+        return resistanceProtectionPoints(entity);
+    }
+
+    @SubscribeEvent
     public static void applyElementalCorrosion(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;

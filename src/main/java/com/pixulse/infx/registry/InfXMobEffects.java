@@ -5,6 +5,7 @@ import com.pixulse.infx.effect.InfxMobEffect;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.IEventBus;
@@ -32,6 +33,11 @@ public final class InfXMobEffects {
     private InfXMobEffects() {}
 
     public static void register(IEventBus modBus) {
+        MobEffects.RESISTANCE.value().addAttributeModifier(
+                Attributes.ARMOR,
+                InfiniteX.id("resistance_armor"),
+                5.0D,
+                AttributeModifier.Operation.ADD_VALUE);
         EFFECTS.register(modBus);
     }
 }
