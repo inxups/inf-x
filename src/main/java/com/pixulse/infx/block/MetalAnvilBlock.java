@@ -102,6 +102,11 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     @Override
     protected @NonNull InteractionResult useWithoutItem(
             @NonNull BlockState state, @NonNull Level level, @NonNull BlockPos pos, @NonNull Player player, @NonNull BlockHitResult hit) {
+        BlockPos above = pos.above();
+        BlockState aboveState = level.getBlockState(above);
+        if (!aboveState.isAir() && !aboveState.getCollisionShape(level, above).isEmpty()) {
+            return InteractionResult.PASS;
+        }
         if (player instanceof ServerPlayer serverPlayer) {
             MenuProvider provider = new SimpleMenuProvider(
                     (id, inventory, ignored) -> MetalAnvilMenu.server(

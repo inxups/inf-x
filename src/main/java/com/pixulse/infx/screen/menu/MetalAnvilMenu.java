@@ -22,13 +22,14 @@ import org.jspecify.annotations.NonNull;
 
 public final class MetalAnvilMenu extends ItemCombinerMenu {
     private static final ItemCombinerMenuSlotDefinition SLOTS = ItemCombinerMenuSlotDefinition.create()
-            .withSlot(0, 27, 47, RepairPlan::supportsType)
-            .withSlot(1, 76, 47, stack -> RepairPlan.isRepairMaterial(stack.getItem()))
+            .withSlot(0, 27, 47, stack -> !stack.isEmpty())
+            .withSlot(1, 76, 47, RepairPlan::isAdditionalItem)
             .withResultSlot(2, 134, 47)
             .build();
 
     private final InfxMaterial anvilMaterial;
     private final Block expectedBlock;
+    private String itemName;
 
     private MetalAnvilMenu(
             int containerId,
@@ -68,6 +69,20 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
         return anvilMaterial;
     }
 
+    public String itemName() {
+        return itemName;
+    }
+
+    public boolean setItemName(String name) {
+        String filteredName = RepairPlan.normalizeName(name);
+        if (filteredName == null || filteredName.equals(itemName)) {
+            return false;
+        }
+        itemName = filteredName;
+        createResult();
+        return true;
+    }
+
     @Override
     public void createResult() {
         RepairPlan plan = currentPlan();
@@ -82,16 +97,22 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
 
     @Override
     protected void onTake(@NonNull Player player, @NonNull ItemStack carried) {
-        RepairPlan plan = currentPlan();
+        RepairPlan plan = currentPlan(player);
         if (!plan.valid()) {
             return;
         }
         inputSlots.removeItem(0, 1);
-        inputSlots.removeItem(1, plan.materialsUsed());
+        if (plan.materialsUsed() > 0) {
+            inputSlots.removeItem(1, plan.materialsUsed());
+        } else if (plan.consumesAdditional()) {
+            inputSlots.removeItem(1, 1);
+        }
         access.execute((level, pos) -> {
-            if (level instanceof ServerLevel serverLevel
-                    && level.getBlockEntity(pos) instanceof MetalAnvilBlockEntity anvil) {
-                anvil.addDamage(serverLevel, plan.anvilDamage());
+            if (level instanceof ServerLevel serverLevel) {
+                if (plan.anvilDamage() > 0
+                        && level.getBlockEntity(pos) instanceof MetalAnvilBlockEntity anvil) {
+                    anvil.addDamage(serverLevel, plan.anvilDamage());
+                }
                 level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
         });
@@ -104,6 +125,15 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
     }
 
     private RepairPlan currentPlan() {
-        return RepairPlan.create(anvilMaterial, inputSlots.getItem(0), inputSlots.getItem(1));
+        return currentPlan(player);
+    }
+
+    private RepairPlan currentPlan(Player player) {
+        return RepairPlan.create(
+                anvilMaterial,
+                player,
+                inputSlots.getItem(0),
+                inputSlots.getItem(1),
+                itemName);
     }
 }

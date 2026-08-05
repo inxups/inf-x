@@ -4,6 +4,7 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
+import com.pixulse.infx.recipe.InfxCraftingRules;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import java.util.List;
@@ -33,6 +34,44 @@ public final class QualitySystem {
     public static EquipmentKey key(ItemStack stack) {
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         return entry == null ? null : entry.key();
+    }
+
+    /**
+     * Returns whether the player can perform a MITE-quality repair on this stack.
+     * The project has no separate MITE skill registry, so the existing quality
+     * and raw-experience progression is the authoritative gate here.
+     */
+    public static boolean canRepair(ItemStack stack, Player player) {
+        if (player == null || player.getAbilities().instabuild || !supportsQuality(stack)) {
+            return true;
+        }
+        Quality quality = stack.get(InfXDataComponents.QUALITY.get());
+        EquipmentKey key = key(stack);
+        if (quality == null || key == null) {
+            return true;
+        }
+
+        int minimumRank = minimumQualityRank(player.experienceLevel);
+        int maximumRank = qualityRank(key.material().maximumQuality());
+        if (player.totalExperience <= 0) {
+            return qualityRank(quality) <= Math.min(maximumRank, minimumRank);
+        }
+
+        float difficulty = Math.max(
+                InfxCraftingRules.MINIMUM_DIFFICULTY,
+                InfxCraftingRules.componentDifficulty(stack));
+        int availableRank = minimumRank;
+        for (int index = Quality.values().length - 1; index >= 0; index--) {
+            Quality candidate = Quality.values()[index];
+            int rank = qualityRank(candidate);
+            if (rank >= minimumRank
+                    && rank <= maximumRank
+                    && experienceCost(difficulty, candidate) <= player.totalExperience) {
+                availableRank = rank;
+                break;
+            }
+        }
+        return qualityRank(quality) <= availableRank;
     }
 
     public static Quality fromCode(int code) {
@@ -205,6 +244,15 @@ public final class QualitySystem {
         }
         int cost = Math.round(adjustedDifficulty(difficulty, toCode(quality)) / 5.0F);
         return clumsy ? Math.multiplyExact(cost, 2) : cost;
+    }
+
+    private static int minimumQualityRank(int experienceLevel) {
+        Quality minimum = minimumQuality(experienceLevel, false);
+        return minimum == null ? AVERAGE_ORDINAL : qualityRank(minimum);
+    }
+
+    private static int qualityRank(Quality quality) {
+        return quality.ordinal() + 1;
     }
 
     public static int applySelectedQuality(ItemStack stack, int qualityCode) {

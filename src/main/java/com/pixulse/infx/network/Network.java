@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.server.ServerTestModePolicy;
+import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import com.pixulse.infx.world.RunegateTeleportation;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -68,6 +69,19 @@ public final class Network {
                                 RunegateTeleportation.execute(player);
                             }
                         })
+                .playToServer(
+                        RenameMetalAnvilPayload.TYPE,
+                        RenameMetalAnvilPayload.STREAM_CODEC,
+                        (payload, context) -> {
+                            if (context.player() instanceof ServerPlayer player) {
+                                context.enqueueWork(() -> {
+                                    if (player.containerMenu instanceof MetalAnvilMenu menu
+                                            && menu.stillValid(player)) {
+                                        menu.setItemName(payload.name());
+                                    }
+                                });
+                            }
+                        })
                 .playToClient(RunegateStartPayload.TYPE, RunegateStartPayload.STREAM_CODEC)
                 .playToClient(RunegateFinishedPayload.TYPE, RunegateFinishedPayload.STREAM_CODEC);
     }
@@ -129,6 +143,17 @@ public final class Network {
         public static final StreamCodec<RegistryFriendlyByteBuf, PlaceFluidSourcePayload> STREAM_CODEC =
                 StreamCodec.composite(
                         ByteBufCodecs.BOOL, PlaceFluidSourcePayload::offhand, PlaceFluidSourcePayload::new);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    public record RenameMetalAnvilPayload(String name) implements CustomPacketPayload {
+        public static final Type<RenameMetalAnvilPayload> TYPE = new Type<>(InfiniteX.id("rename_metal_anvil"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, RenameMetalAnvilPayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.STRING_UTF8, RenameMetalAnvilPayload::name, RenameMetalAnvilPayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {

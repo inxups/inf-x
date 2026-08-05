@@ -26,6 +26,7 @@ import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
+import com.pixulse.infx.item.repair.RepairPlan;
 import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
@@ -562,6 +563,7 @@ public final class ModCompletionGameTests {
 
     private static void metalAnvil(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
+        Experience.setTotal(player, 1_000);
         BlockPos relative = new BlockPos(4, 2, 4);
         helper.setBlock(relative, InfXBlocks.IRON_ANVIL.get());
         BlockPos absolute = helper.absolutePos(relative);
@@ -619,6 +621,76 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 entity.damage() == beforeRodRepair + 10 * 22,
                 "metal fishing rod uses INFX anvil wear scaling");
+
+        int beforeCombination = entity.damage();
+        ItemStack firstWoodenTool = InfXItems.catalog()
+                .equipment(InfxMaterial.WOOD, EquipmentType.CLUB)
+                .holder()
+                .toStack();
+        int woodenToolDamage = firstWoodenTool.getMaxDamage() / 4;
+        firstWoodenTool.setDamageValue(woodenToolDamage);
+        ItemStack secondWoodenTool = firstWoodenTool.copy();
+        secondWoodenTool.setDamageValue(woodenToolDamage);
+        menu.getSlot(0).set(firstWoodenTool);
+        menu.getSlot(1).set(secondWoodenTool);
+        ItemStack combinedWoodenTool = menu.getSlot(2).getItem();
+        helper.assertTrue(!combinedWoodenTool.isEmpty(), "same non-metal tools can be combined");
+        helper.assertTrue(combinedWoodenTool.getDamageValue() == 0, "combining two wooden tools caps durability");
+        menu.getSlot(2).onTake(player, combinedWoodenTool);
+        helper.assertTrue(entity.damage() == beforeCombination, "combining tools does not damage the anvil");
+
+        var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Holder<Enchantment> efficiency = enchantments.getOrThrow(InfXEnchantments.VANILLA_EFFICIENCY);
+        ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance();
+        enchantedBook.enchant(efficiency, 1);
+        ItemStack unenchantedPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        menu.getSlot(0).set(unenchantedPickaxe);
+        menu.getSlot(1).set(enchantedBook);
+        ItemStack enchantedPickaxe = menu.getSlot(2).getItem();
+        helper.assertTrue(enchantedPickaxe.isEnchanted(), "an enchanted book applies its stored enchantment");
+        int beforeEnchantment = entity.damage();
+        menu.getSlot(2).onTake(player, enchantedPickaxe);
+        helper.assertTrue(entity.damage() == beforeEnchantment, "enchanting does not damage the anvil");
+
+        ItemStack disenchantedPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        disenchantedPickaxe.enchant(efficiency, 1);
+        menu.getSlot(0).set(disenchantedPickaxe);
+        menu.getSlot(1).set(InfXItems.BOTTLE_OF_DISENCHANTING.toStack());
+        ItemStack plainPickaxe = menu.getSlot(2).getItem();
+        helper.assertTrue(!plainPickaxe.isEmpty() && !plainPickaxe.isEnchanted(), "disenchanting clears ordinary enchantments");
+        int beforeDisenchantment = entity.damage();
+        menu.getSlot(2).onTake(player, plainPickaxe);
+        helper.assertTrue(entity.damage() == beforeDisenchantment, "disenchanting does not damage the anvil");
+
+        menu.getSlot(0).set(Items.DIAMOND.getDefaultInstance());
+        menu.getSlot(1).set(ItemStack.EMPTY);
+        helper.assertTrue(menu.setItemName("  Renamed Diamond  "), "anvil accepts a custom name");
+        ItemStack renamedDiamond = menu.getSlot(2).getItem();
+        helper.assertTrue(
+                renamedDiamond.get(DataComponents.CUSTOM_NAME).equals(Component.literal("Renamed Diamond")),
+                "anvil trims a custom name without a second input");
+        helper.assertFalse(menu.setItemName("x".repeat(RepairPlan.MAX_NAME_LENGTH + 1)), "anvil rejects overlong names");
+        int beforeRename = entity.damage();
+        menu.getSlot(2).onTake(player, renamedDiamond);
+        helper.assertTrue(entity.damage() == beforeRename, "renaming does not damage the anvil");
+
+        ItemStack namedDiamond = Items.DIAMOND.getDefaultInstance();
+        namedDiamond.set(DataComponents.CUSTOM_NAME, Component.literal("Remove Me"));
+        menu.getSlot(0).set(namedDiamond);
+        menu.getSlot(1).set(ItemStack.EMPTY);
+        helper.assertTrue(menu.setItemName(""), "anvil accepts a blank name to clear a custom name");
+        ItemStack clearedDiamond = menu.getSlot(2).getItem();
+        helper.assertTrue(clearedDiamond.get(DataComponents.CUSTOM_NAME) == null, "blank anvil name clears custom name");
+        menu.getSlot(2).onTake(player, clearedDiamond);
+
+        helper.setBlock(relative.above(), Blocks.STONE);
+        InteractionResult blockedInteraction = helper.getBlockState(relative)
+                .useWithoutItem(
+                        helper.getLevel(),
+                        player,
+                        new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false));
+        helper.assertFalse(blockedInteraction.consumesAction(), "a blocked anvil cannot be opened");
+        helper.setBlock(relative.above(), Blocks.AIR);
 
         entity.addDamage(helper.getLevel(), block.maximumDamage() / 2);
         helper.assertTrue(helper.getBlockState(relative).getValue(MetalAnvilBlock.DAMAGE_STAGE) == 1, "50% anvil damage stage");
