@@ -282,8 +282,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 && material != InfxMaterial.MITHRIL) {
             add(InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE, entry);
         }
-        if (type == EquipmentType.SWORD
-                || type == EquipmentType.BATTLE_AXE
+        if (type == EquipmentType.BATTLE_AXE
                 || type == EquipmentType.SCYTHE) {
             add(InfXItemTags.INFX_SLAUGHTER_ENCHANTABLE, entry);
         }

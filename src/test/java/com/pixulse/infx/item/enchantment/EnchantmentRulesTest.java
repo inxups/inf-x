@@ -104,8 +104,13 @@ class EnchantmentRulesTest {
         assertEquals(25, EnchantmentRules.stunningAmplifier(5));
         assertEquals(.2F, EnchantmentRules.disarmingChance(1), .0001F);
         assertEquals(.5F, EnchantmentRules.vampirismChance(5), .0001F);
+        assertEquals(0.0F, EnchantmentRules.slaughterDamageBonus(0), .0001F);
         assertEquals(1.0F, EnchantmentRules.slaughterDamageBonus(1), .0001F);
-        assertEquals(5.0F, EnchantmentRules.slaughterDamageBonus(5), .0001F);
+        assertEquals(1.75F, EnchantmentRules.slaughterDamageBonus(2), .0001F);
+        assertEquals(2.5F, EnchantmentRules.slaughterDamageBonus(3), .0001F);
+        assertEquals(3.25F, EnchantmentRules.slaughterDamageBonus(4), .0001F);
+        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(5), .0001F);
+        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(6), .0001F);
         assertEquals(1, EnchantmentRules.vampirismHealing(1.0F, 0.0F));
         assertEquals(2, EnchantmentRules.vampirismHealing(10.0F, .5F));
     }

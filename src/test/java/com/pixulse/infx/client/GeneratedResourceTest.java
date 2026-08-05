@@ -163,6 +163,37 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void slaughterUsesTheDamageExclusiveSetAndExcludesSwords() throws Exception {
+        JsonObject slaughter = json(GENERATED.resolve("data/infx/enchantment/slaughter.json"));
+        Set<String> exclusiveSet = slaughter.getAsJsonArray("exclusive_set").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        assertTrue(exclusiveSet.contains("infx:slaughter"), "slaughter stays self-exclusive");
+        assertTrue(exclusiveSet.contains("minecraft:sharpness"), "slaughter excludes sharpness");
+        assertTrue(exclusiveSet.contains("minecraft:smite"), "slaughter excludes smite");
+        assertTrue(
+                exclusiveSet.contains("minecraft:bane_of_arthropods"),
+                "slaughter excludes bane of arthropods");
+
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/infx_slaughter.json"));
+        Set<String> supported = tag.getAsJsonArray("values").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> swords = EquipmentKey.all().stream()
+                .filter(key -> key.type() == EquipmentType.SWORD)
+                .map(key -> "infx:" + key.path())
+                .collect(Collectors.toSet());
+        assertTrue(swords.stream().noneMatch(supported::contains), "slaughter must exclude swords");
+        assertTrue(
+                EquipmentKey.all().stream()
+                        .filter(key -> key.type() == EquipmentType.BATTLE_AXE
+                                || key.type() == EquipmentType.SCYTHE)
+                        .map(key -> "infx:" + key.path())
+                        .allMatch(supported::contains),
+                "slaughter must retain battle axe and scythe targets");
+    }
+
+    @Test
     void materialShearsAreSilkTouchEnchantable() throws Exception {
         JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/infx_silk_touch.json"));
         Set<String> values = tag.getAsJsonArray("values").asList().stream()

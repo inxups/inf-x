@@ -409,10 +409,20 @@ public final class InfXEnchantments {
 
     /**
      * MITE's canApplyTogether allows any two distinct enchantments except silk touch with
-     * fortune, so every set contains the enchantment itself plus that one special pair.
+     * fortune and the damage-enchantment group.
      */
     private static HolderSet<Enchantment> exclusiveSet(
             HolderGetter<Enchantment> enchantments, ResourceKey<Enchantment> key) {
+        if (key.equals(SLAUGHTER)
+                || key.equals(VANILLA_SHARPNESS)
+                || key.equals(VANILLA_SMITE)
+                || key.equals(VANILLA_BANE_OF_ARTHROPODS)) {
+            return HolderSet.direct(
+                    enchantments.getOrThrow(SLAUGHTER),
+                    enchantments.getOrThrow(VANILLA_SHARPNESS),
+                    enchantments.getOrThrow(VANILLA_SMITE),
+                    enchantments.getOrThrow(VANILLA_BANE_OF_ARTHROPODS));
+        }
         if (key.equals(FORTUNE)) {
             return HolderSet.direct(
                     enchantments.getOrThrow(key), enchantments.getOrThrow(VANILLA_SILK_TOUCH));

@@ -399,10 +399,13 @@ public final class ModCompletionGameTests {
                 .holder()
                 .toStack();
         var sharpness = registry.getOrThrow(InfXEnchantments.VANILLA_SHARPNESS);
+        var slaughter = registry.getOrThrow(InfXEnchantments.SLAUGHTER);
         var sweeping = registry.getOrThrow(InfXEnchantments.VANILLA_SWEEPING_EDGE);
         var swiftSneak = registry.getOrThrow(InfXEnchantments.VANILLA_SWIFT_SNEAK);
         helper.assertTrue(sharpness.value().isSupportedItem(sword), "swords must support sharpness");
         helper.assertTrue(sharpness.value().isSupportedItem(scythe), "scythes must support sharpness");
+        helper.assertFalse(slaughter.value().isSupportedItem(sword), "swords must not support slaughter");
+        helper.assertTrue(slaughter.value().isSupportedItem(scythe), "scythes must support slaughter");
         helper.assertTrue(sweeping.value().isSupportedItem(sword), "swords must support sweeping edge");
         helper.assertTrue(sweeping.value().isSupportedItem(scythe), "scythes must support sweeping edge");
         helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
@@ -2132,6 +2135,15 @@ public final class ModCompletionGameTests {
         Holder<Enchantment> silkTouch = enchantments.getOrThrow(InfXEnchantments.VANILLA_SILK_TOUCH);
         Holder<Enchantment> fortune = enchantments.getOrThrow(InfXEnchantments.FORTUNE);
         Holder<Enchantment> efficiency = enchantments.getOrThrow(InfXEnchantments.VANILLA_EFFICIENCY);
+        Holder<Enchantment> slaughter = enchantments.getOrThrow(InfXEnchantments.SLAUGHTER);
+        for (ResourceKey<Enchantment> damageKey : List.of(
+                InfXEnchantments.VANILLA_SHARPNESS,
+                InfXEnchantments.VANILLA_SMITE,
+                InfXEnchantments.VANILLA_BANE_OF_ARTHROPODS)) {
+            helper.assertFalse(
+                    Enchantment.areCompatible(slaughter, enchantments.getOrThrow(damageKey)),
+                    "slaughter and " + damageKey.identifier() + " stay mutually exclusive");
+        }
         helper.assertFalse(
                 Enchantment.areCompatible(silkTouch, fortune),
                 "silk touch and fortune stay mutually exclusive");
