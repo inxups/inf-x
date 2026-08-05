@@ -30,6 +30,8 @@ public final class EnchantmentRules {
     public static final float BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL = 0.15F;
     /** MITE smite and bane of arthropods both add two damage per level against their targets. */
     public static final float SMITE_DAMAGE_PER_LEVEL = 2.0F;
+    public static final float SLAUGHTER_FIRST_LEVEL_DAMAGE = 1.0F;
+    public static final float SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL = 0.75F;
     private static final float FEATHER_FALLING_FULL_PROTECTION = 15.0F;
 
     private EnchantmentRules() {}
@@ -132,7 +134,11 @@ public final class EnchantmentRules {
     }
 
     public static float slaughterDamageBonus(int level) {
-        return Math.clamp(level, 0, STANDARD_MAX_LEVEL);
+        int cappedLevel = Math.clamp(level, 0, STANDARD_MAX_LEVEL);
+        return cappedLevel == 0
+                ? 0.0F
+                : SLAUGHTER_FIRST_LEVEL_DAMAGE
+                        + (cappedLevel - 1) * SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL;
     }
 
     public static int vampirismHealing(float inflictedDamage, float randomFraction) {
