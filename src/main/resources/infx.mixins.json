@@ -44,6 +44,7 @@
     "PlayerFoodMixin",
     "PlayerListMixin",
     "PlayerWaterfallSwimMixin",
+    "MobEffectInstanceMixin",
     "PoisonMobEffectMixin",
     "PrimaryLevelDataMixin",
     "LevelAccessorMixin",
