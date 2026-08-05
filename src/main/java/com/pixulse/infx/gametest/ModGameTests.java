@@ -296,6 +296,8 @@ public final class ModGameTests {
             functionKey("extreme_difficulty");
     private static final ResourceKey<Consumer<GameTestHelper>> HOT_FLOOR =
             functionKey("hot_floor");
+    private static final ResourceKey<Consumer<GameTestHelper>> MITE_BLOCK_HARDNESS =
+            functionKey("mite_block_hardness");
 
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
@@ -319,6 +321,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
         TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
         TEST_FUNCTIONS.register("hot_floor", () -> ModGameTests::hotFloor);
+        TEST_FUNCTIONS.register("mite_block_hardness", () -> ModGameTests::miteBlockHardness);
     }
 
     private ModGameTests() {}
@@ -352,6 +355,7 @@ public final class ModGameTests {
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
         registerTest(event, EXTREME_DIFFICULTY, environment, 40);
         registerTest(event, HOT_FLOOR, environment, 40);
+        registerTest(event, MITE_BLOCK_HARDNESS, environment, 40);
     }
 
     private static void registerTest(
@@ -452,6 +456,23 @@ public final class ModGameTests {
             }
         } finally {
             removePlayer(player);
+        }
+        helper.succeed();
+    }
+
+    private static void miteBlockHardness(GameTestHelper helper) {
+        for (Block block : List.of(Blocks.COBWEB, Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN)) {
+            float expected = 8.0F;
+            float defaultDestroyTime = block.defaultDestroyTime();
+            float destroySpeed = block.defaultBlockState()
+                    .getDestroySpeed(helper.getLevel(), helper.absolutePos(WORK_POS));
+            String blockName = BuiltInRegistries.BLOCK.getKey(block).getPath();
+            helper.assertTrue(
+                    defaultDestroyTime == expected,
+                    blockName + " default hardness must match MITE obsidian hardness: " + defaultDestroyTime);
+            helper.assertTrue(
+                    destroySpeed == expected,
+                    blockName + " runtime destroy speed must match MITE obsidian hardness: " + destroySpeed);
         }
         helper.succeed();
     }
