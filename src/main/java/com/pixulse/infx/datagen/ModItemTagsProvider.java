@@ -73,6 +73,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 InfXItems.GRAY_GELATINOUS_SPHERE.getKey(),
                 InfXItems.BLACK_GELATINOUS_SPHERE.getKey());
         addCurseTags();
+        tag(InfXItemTags.INFX_SHARPNESS_ENCHANTABLE).addTag(ItemTags.SWORDS);
 
         for (Catalog.RawEntry entry : InfXItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(InfXItemTags.material(material), entry));
