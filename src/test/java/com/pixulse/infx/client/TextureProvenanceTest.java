@@ -169,13 +169,27 @@ class TextureProvenanceTest {
                 .map(line -> line.split("\\t", -1))
                 .collect(Collectors.toMap(fields -> fields[2], fields -> fields[1]));
         Map<String, String> expected = Map.ofEntries(
-                Map.entry("textures/entity/chest/copper.png", "entity/chest/copper_single.png"),
-                Map.entry("textures/entity/chest/silver.png", "entity/chest/silver_single.png"),
-                Map.entry("textures/entity/chest/gold.png", "entity/chest/gold_single.png"),
-                Map.entry("textures/entity/chest/iron.png", "entity/chest/iron_single.png"),
-                Map.entry("textures/entity/chest/ancient_metal.png", "entity/chest/ancient_metal_single.png"),
-                Map.entry("textures/entity/chest/mithril.png", "entity/chest/mithril_single.png"),
-                Map.entry("textures/entity/chest/adamantium.png", "entity/chest/adamantium_single.png"),
+                Map.entry(
+                        "textures/entity/chest/copper.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/copper.png"),
+                Map.entry(
+                        "textures/entity/chest/silver.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/silver.png"),
+                Map.entry(
+                        "textures/entity/chest/gold.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/gold.png"),
+                Map.entry(
+                        "textures/entity/chest/iron.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/iron.png"),
+                Map.entry(
+                        "textures/entity/chest/ancient_metal.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/ancient_metal.png"),
+                Map.entry(
+                        "textures/entity/chest/mithril.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/mithril.png"),
+                Map.entry(
+                        "textures/entity/chest/adamantium.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/chest/adamantium.png"),
                 Map.entry("textures/block/blueberry_bush.png", "blocks/bushes/blueberry.png"),
                 Map.entry("textures/block/blueberry_bush_picked.png", "blocks/bushes/blueberry_picked.png"),
                 Map.entry(
@@ -200,53 +214,97 @@ class TextureProvenanceTest {
                 Map.entry("textures/item/onion.png", "items/food/onion.png"),
                 Map.entry("textures/item/vegetable_soup.png", "items/bowls/vegetable_soup.png"),
                 Map.entry("textures/item/cream_of_vegetable_soup.png", "items/bowls/cream_of_vegetable_soup.png"),
-                Map.entry("textures/item/chicken_soup.png", "items/bowls/chicken_soup.png"),
+                Map.entry(
+                        "textures/item/chicken_soup.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/chicken_soup.png"),
                 Map.entry("textures/item/beef_stew.png", "items/bowls/beef_stew.png"),
                 Map.entry("textures/item/orange.png", "items/food/orange.png"),
-                Map.entry("textures/item/fruit_ice.png", "items/bowls/sorbet.png"),
+                Map.entry(
+                        "textures/item/fruit_ice.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/fruit_ice.png"),
                 Map.entry("textures/item/cheese.png", "items/food/cheese.png"),
-                Map.entry("textures/item/mashed_potato.png", "items/bowls/mashed_potato.png"),
+                Map.entry(
+                        "textures/item/mashed_potato.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/mashed_potato.png"),
                 Map.entry("textures/item/ice_cream.png", "items/bowls/ice_cream.png"),
                 Map.entry("textures/item/banana.png", "items/food/banana.png"),
                 Map.entry("textures/item/worm.png", "items/food/worm_raw.png"),
                 Map.entry("textures/item/cooked_worm.png", "items/food/worm_cooked.png"),
-                Map.entry("textures/item/gelatinous_sphere/green.png", "items/gelatinous_sphere/green.png"),
-                Map.entry("textures/item/gelatinous_sphere/ochre.png", "items/gelatinous_sphere/ochre.png"),
-                Map.entry("textures/item/gelatinous_sphere/crimson.png", "items/gelatinous_sphere/crimson.png"),
-                Map.entry("textures/item/gelatinous_sphere/gray.png", "items/gelatinous_sphere/gray.png"),
-                Map.entry("textures/item/gelatinous_sphere/black.png", "items/gelatinous_sphere/black.png"),
-                Map.entry("textures/entity/slime/slime.png", "entity/slime/slime.png"),
-                Map.entry("textures/entity/slime/jelly.png", "entity/slime/jelly.png"),
-                Map.entry("textures/entity/slime/blob.png", "entity/slime/blob.png"),
-                Map.entry("textures/entity/slime/ooze.png", "entity/slime/ooze.png"),
-                Map.entry("textures/entity/slime/pudding.png", "entity/slime/pudding.png"),
-                Map.entry("textures/entity/slime/magmacube.png", "entity/slime/magmacube.png"),
+                Map.entry(
+                        "textures/item/gelatinous_sphere/green.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/gelatinous_sphere/green.png"),
+                Map.entry(
+                        "textures/item/gelatinous_sphere/ochre.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/gelatinous_sphere/ochre.png"),
+                Map.entry(
+                        "textures/item/gelatinous_sphere/crimson.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/gelatinous_sphere/crimson.png"),
+                Map.entry(
+                        "textures/item/gelatinous_sphere/gray.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/gelatinous_sphere/gray.png"),
+                Map.entry(
+                        "textures/item/gelatinous_sphere/black.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/gelatinous_sphere/black.png"),
+                Map.entry(
+                        "textures/entity/slime/slime.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/slime/slime.png"),
+                Map.entry(
+                        "textures/entity/slime/jelly.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/slime/jelly.png"),
+                Map.entry(
+                        "textures/entity/slime/blob.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/slime/blob.png"),
+                Map.entry(
+                        "textures/entity/slime/ooze.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/slime/ooze.png"),
+                Map.entry(
+                        "textures/entity/slime/pudding.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/slime/pudding.png"),
+                Map.entry(
+                        "textures/entity/slime/magmacube.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/slime/magmacube.png"),
                 Map.entry("textures/entity/ghoul.png", "mite/entity/ghoul.png+expand64x64"),
                 Map.entry("textures/entity/shadow.png", "mite/entity/shadow.png+expand64x64"),
                 Map.entry("textures/entity/wight.png", "mite/entity/wight.png+expand64x64"),
                 Map.entry("textures/entity/ghoul_baby.png", "mite/entity/ghoul.png+baby_uv"),
                 Map.entry("textures/entity/shadow_baby.png", "mite/entity/shadow.png+baby_uv"),
                 Map.entry("textures/entity/wight_baby.png", "mite/entity/wight.png+baby_uv"),
-                Map.entry("textures/entity/zombie/revenant.png", "entity/zombie/revenant.png"),
+                Map.entry(
+                        "textures/entity/zombie/revenant.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/zombie/revenant.png"),
                 Map.entry(
                         "textures/entity/zombie/revenant_baby.png",
-                        "mite/entity/zombie/revenant.png+baby_uv"),
-                Map.entry("textures/entity/spider/spider.png", "entity/spider/spider.png"),
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/zombie/revenant_baby.png"),
+                Map.entry(
+                        "textures/entity/spider/spider.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/spider.png"),
                 Map.entry("textures/entity/blaze.png", "entity/blaze.png"),
                 Map.entry("textures/entity/ghast/ghast.png", "entity/ghast/ghast.png"),
                 Map.entry("textures/entity/ghast/ghast_shooting.png", "entity/ghast/ghast_shooting.png"),
                 Map.entry("textures/entity/zombie_pigman.png", "entity/zombie_pigman.png"),
                 Map.entry("textures/entity/zombie_pigman_baby.png", "mite/entity/zombie_pigman.png+baby_uv"),
                 Map.entry("textures/entity/skeleton/longdead.png", "entity/skeleton/longdead.png"),
-                Map.entry("textures/entity/skeleton/bone_lord.png", "entity/skeleton/bone_lord.png"),
+                Map.entry(
+                        "textures/entity/skeleton/bone_lord.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/skeleton/bone_lord.png"),
                 Map.entry(
                         "textures/entity/skeleton/longdead_guardian.png",
-                        "entity/skeleton/longdead_guardian.png"),
-                Map.entry("textures/entity/spider/black_widow.png", "entity/spider/black_widow.png"),
-                Map.entry("textures/entity/spider/demon_spider.png", "entity/spider/demon_spider.png"),
-                Map.entry("textures/entity/spider/wood_spider.png", "entity/spider/wood_spider.png"),
-                Map.entry("textures/entity/spider/phase_spider.png", "entity/spider/phase_spider.png"),
-                Map.entry("textures/entity/spider/cave_spider.png", "entity/spider/cave_spider.png"),
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/skeleton/longdead_guardian.png"),
+                Map.entry(
+                        "textures/entity/spider/black_widow.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/black_widow.png"),
+                Map.entry(
+                        "textures/entity/spider/demon_spider.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/demon_spider.png"),
+                Map.entry(
+                        "textures/entity/spider/wood_spider.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/wood_spider.png"),
+                Map.entry(
+                        "textures/entity/spider/phase_spider.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/phase_spider.png"),
+                Map.entry(
+                        "textures/entity/spider/cave_spider.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/cave_spider.png"),
                 Map.entry(
                         "textures/entity/creeper/infernal_creeper.png",
                         "entity/creeper/infernal_creeper.png"),
@@ -296,14 +354,18 @@ class TextureProvenanceTest {
                 Map.entry("textures/entity/silverfish/netherspawn.png", "entity/silverfish/netherspawn.png"),
                 Map.entry("textures/entity/silverfish/copperspine.png", "entity/silverfish/copperspine.png"),
                 Map.entry("textures/entity/silverfish/hoary.png", "entity/silverfish/hoary.png"),
-                Map.entry("textures/entity/bat.png", "entity/bat.png"),
+                Map.entry(
+                        "textures/entity/bat.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/bat.png"),
                 Map.entry(
                         "textures/entity/bat/vampire.png",
-                        "owner-provided:/Users/inxups/Downloads/vampire.png"),
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/bat/vampire.png"),
                 Map.entry(
                         "textures/entity/bat/nightwing.png",
                         "owner-provided:/Users/inxups/Downloads/nightwing.png"),
-                Map.entry("textures/entity/hellhound/hellhound.png", "entity/hellhound/hellhound.png"),
+                Map.entry(
+                        "textures/entity/hellhound/hellhound.png",
+                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/hellhound/hellhound.png"),
                 Map.entry("textures/entity/dire_wolf/neutral.png", "entity/dire_wolf/neutral.png"),
                 Map.entry("textures/entity/dire_wolf/tame.png", "entity/dire_wolf/tame.png"),
                 Map.entry("textures/entity/dire_wolf/angry.png", "entity/dire_wolf/angry.png"),
