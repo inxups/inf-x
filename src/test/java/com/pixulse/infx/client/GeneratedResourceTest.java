@@ -2614,6 +2614,7 @@ class GeneratedResourceTest {
     @Test
     void miteRecipeTableOverridesMatchTheReferenceRecipes() throws Exception {
         Map<String, String> shapedPatterns = Map.ofEntries(
+                Map.entry("stick", "[\"P\",\"P\"]"),
                 Map.entry("sugar_from_sugar_cane", "[\"C\"]"),
                 Map.entry("flour", "[\"WWW\"]"),
                 Map.entry("dough_from_water_bucket", "[\"F F\",\" W \",\"F F\"]"),
@@ -2644,6 +2645,7 @@ class GeneratedResourceTest {
 
         JsonObject dough = json(GENERATED.resolve("data/infx/recipe/dough.json"));
         JsonObject boneMeal = json(GENERATED.resolve("data/infx/recipe/bone_meal.json"));
+        JsonObject stick = json(GENERATED.resolve("data/infx/recipe/stick.json"));
         JsonObject sugar = json(GENERATED.resolve("data/infx/recipe/sugar_from_sugar_cane.json"));
         JsonObject flintFromChips = json(GENERATED.resolve("data/infx/recipe/flint_from_flint_chips.json"));
         JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
@@ -2657,6 +2659,14 @@ class GeneratedResourceTest {
         assertAll(
                 "MITE recipe table",
                 () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
+                () -> assertEquals("infx:crafting_shaped", stick.get("type").getAsString()),
+                () -> assertEquals("hand", stick.get("required_bench").getAsString()),
+                () -> assertEquals(160.0F, stick.get("difficulty").getAsFloat()),
+                () -> assertEquals(
+                        "#minecraft:planks", stick.getAsJsonObject("key").get("P").getAsString()),
+                () -> assertEquals(
+                        "minecraft:stick", stick.getAsJsonObject("result").get("id").getAsString()),
+                () -> assertEquals(4, stick.getAsJsonObject("result").get("count").getAsInt()),
                 () -> assertEquals("infx:crafting_shapeless", boneMeal.get("type").getAsString()),
                 () -> assertEquals("hand", boneMeal.get("required_bench").getAsString()),
                 () -> assertEquals(100.0F, boneMeal.get("difficulty").getAsFloat()),
@@ -2722,6 +2732,7 @@ class GeneratedResourceTest {
                 "saddle",
                 "snow",
                 "snow_block",
+                "stick",
                 "stone",
                 "stone_bricks")) {
             JsonObject recipe = json(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json"));
@@ -2846,6 +2857,7 @@ class GeneratedResourceTest {
     void restoredVanillaRecipesExistWithMiteCounts() throws Exception {
         record Expectation(String path, String result, int count) {}
         List<Expectation> expectations = List.of(
+                new Expectation("stick", "minecraft:stick", 4),
                 new Expectation("bowl", "minecraft:bowl", 4),
                 new Expectation("white_wool_from_string", "minecraft:white_wool", 1),
                 new Expectation("raw_copper_block", "minecraft:raw_copper_block", 1),

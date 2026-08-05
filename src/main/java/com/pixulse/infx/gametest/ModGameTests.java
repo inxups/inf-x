@@ -185,6 +185,7 @@ public final class ModGameTests {
             "stone_shovel",
             "stone_spear",
             "stone_sword",
+            "stick",
             "warped_planks",
             "wooden_axe",
             "wooden_hoe",
@@ -929,6 +930,7 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "stick")) != null, "InfiniteX stick recipe must exist");
         for (String material : METAL_MATERIALS) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", material + "_ingot_from_nuggets")) != null,

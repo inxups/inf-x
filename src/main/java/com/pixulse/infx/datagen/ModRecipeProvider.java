@@ -1419,6 +1419,16 @@ final class ModRecipeProvider extends RecipeProvider {
         // Vanilla basics removed by VanillaCraftingRecipeRemoval but required by MITE gameplay.
         // -----------------------------------------------------------------------------------
         addShaped(
+                "stick",
+                BenchTier.HAND,
+                160.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.STICK,
+                4,
+                Map.of('P', ingredient(ItemTags.PLANKS)),
+                List.of("P", "P"));
+        addShaped(
                 "bowl",
                 BenchTier.HAND,
                 75.0F,
