@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.AttackRange;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.EventHooks;
@@ -30,11 +31,15 @@ public final class StickBoneItems {
 
     private StickBoneItems() {}
 
+    /** Registers the vanilla default-component patch on the mod event bus. */
+    public static void register(IEventBus modBus) {
+        modBus.addListener(StickBoneItems::modifyDefaultComponents);
+    }
+
     /**
      * MITE {@code Item.stick}/{@code Item.bone}: both extend only melee reach by 0.5 blocks.
      * They do not extend block reach or entity-interaction reach.
      */
-    @SubscribeEvent
     public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
         event.modify(Items.STICK, (components, context, item) -> {
             int currentLimit = components.getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
@@ -57,7 +62,6 @@ public final class StickBoneItems {
     public static void breakOnSuccessfulMeleeHit(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || !(event.getSource().getEntity() instanceof ServerPlayer player)
-                || event.getSource().getDirectEntity() != player
                 || !event.getSource().is(DamageTypeTags.IS_PLAYER_ATTACK)
                 || player.hasInfiniteMaterials()) {
             return;
