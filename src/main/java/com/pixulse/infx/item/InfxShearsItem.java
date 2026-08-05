@@ -8,6 +8,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.CommonHooks;
@@ -65,7 +67,8 @@ public final class InfxShearsItem extends ShearsItem {
 
         BlockPos pos = context.getClickedPos();
         BlockState state = context.getLevel().getBlockState(pos);
-        if (!state.is(InfXBlockTags.effectiveWith(MiningFamily.SHEARS))) {
+        if (!state.is(InfXBlockTags.effectiveWith(MiningFamily.SHEARS))
+                || !isRightClickShearable(state)) {
             return vanilla;
         }
 
@@ -89,6 +92,17 @@ public final class InfxShearsItem extends ShearsItem {
                                 && shearBlock(context, player, state))
                 ? InteractionResult.SUCCESS
                 : InteractionResult.FAIL;
+    }
+
+    /**
+     * The effective-tool tag also drives left-click mining. Beds, bamboo and sugar cane remain
+     * effective for that purpose, but must not be treated as blocks that a right-click shears.
+     */
+    private static boolean isRightClickShearable(BlockState state) {
+        return !state.is(BlockTags.BEDS)
+                && !state.is(Blocks.BAMBOO)
+                && !state.is(Blocks.BAMBOO_SAPLING)
+                && !state.is(Blocks.SUGAR_CANE);
     }
 
     @Override

@@ -481,6 +481,13 @@ public final class ModEquipmentGameTests {
                 .forEach(ItemEntity::discard);
         helper.assertTrue(blockShears.getDamageValue() > 0, "right-click block shearing must consume durability");
 
+        assertNotRightClickShearable(helper, player, new BlockPos(11, 1, 1), Blocks.RED_BED, blockShears, "beds");
+        assertNotRightClickShearable(helper, player, new BlockPos(12, 1, 1), Blocks.BAMBOO, blockShears, "bamboo");
+        assertNotRightClickShearable(
+                helper, player, new BlockPos(13, 1, 1), Blocks.BAMBOO_SAPLING, blockShears, "bamboo saplings");
+        assertNotRightClickShearable(
+                helper, player, new BlockPos(14, 1, 1), Blocks.SUGAR_CANE, blockShears, "sugar cane");
+
         helper.setBlock(wearPos, Blocks.OAK_LOG);
         BlockPos absoluteWearPos = helper.absolutePos(wearPos);
         BlockState state = helper.getBlockState(wearPos);
@@ -516,6 +523,26 @@ public final class ModEquipmentGameTests {
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
         InteractionResult result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
         helper.assertTrue(result.consumesAction(), stack.getItem() + " use action must succeed");
+    }
+
+    private static void assertNotRightClickShearable(
+            GameTestHelper helper,
+            ServerPlayer player,
+            BlockPos relativePos,
+            Block block,
+            ItemStack stack,
+            String description) {
+        helper.setBlock(relativePos.below(), Blocks.STONE);
+        helper.setBlock(relativePos, block.defaultBlockState());
+        helper.setBlock(relativePos.above(), Blocks.AIR);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        BlockPos absolute = helper.absolutePos(relativePos);
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
+        int damageBefore = stack.getDamageValue();
+        InteractionResult result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        helper.assertFalse(result.consumesAction(), "right-click shears must not cut " + description);
+        helper.assertTrue(helper.getBlockState(relativePos).is(block), description + " must remain in place");
+        helper.assertTrue(stack.getDamageValue() == damageBefore, description + " must not consume shears durability");
     }
 
     private static int itemCount(GameTestHelper helper, BlockPos relativePos, Item item) {
