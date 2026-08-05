@@ -163,6 +163,20 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void sharpnessTargetsVanillaAndInfiniteXSwords() throws Exception {
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/infx_sharpness.json"));
+        Set<String> values = tag.getAsJsonArray("values").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> swords = EquipmentKey.all().stream()
+                .filter(key -> key.type() == EquipmentType.SWORD)
+                .map(key -> "infx:" + key.path())
+                .collect(Collectors.toSet());
+        assertTrue(values.contains("#minecraft:swords"), "sharpness must target vanilla swords");
+        assertTrue(values.containsAll(swords), "sharpness must target InfiniteX swords");
+    }
+
+    @Test
     void slaughterUsesTheDamageExclusiveSetAndExcludesSwords() throws Exception {
         JsonObject slaughter = json(GENERATED.resolve("data/infx/enchantment/slaughter.json"));
         Set<String> exclusiveSet = slaughter.getAsJsonArray("exclusive_set").asList().stream()
