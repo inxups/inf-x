@@ -2738,9 +2738,11 @@ public final class ModCompletionGameTests {
 
         assertStackLimit(helper, 1, Items.SHULKER_BOX);
         assertStackLimit(helper, 64, Items.WHEAT_SEEDS);
-        assertStackLimit(helper, 64, Items.CARROT);
+        // MITE defaults: ItemSeeds stack 64, everything else without an override 16 (carrot is
+        // ItemSeedFood, redstone an ordinary item).
+        assertStackLimit(helper, 16, Items.CARROT);
         assertStackLimit(helper, 64, Items.NETHER_WART);
-        assertStackLimit(helper, 64, Items.REDSTONE);
+        assertStackLimit(helper, 16, Items.REDSTONE);
 
         InfXItems.FURNACES.forEach(item -> assertStackLimit(helper, 1, item.value()));
         InfXItems.METAL_ANVILS.forEach(item -> assertStackLimit(helper, 1, item.value()));
@@ -2997,6 +2999,13 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         ServerLevel level = helper.getLevel();
         Item emptyIron = InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.EMPTY).value();
+        // The GameTestServer reuses grid cells between batches and clears only the 1x1x1 structure
+        // box, so leftover blocks from earlier tests at this cell (e.g. portal obsidian frames)
+        // would shadow the cells this test aims at. Clear the whole working area first.
+        for (BlockPos pos : BlockPos.betweenClosed(
+                helper.absolutePos(new BlockPos(2, 0, 2)), helper.absolutePos(new BlockPos(8, 6, 6)))) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+        }
         helper.assertTrue(
                 DispenserBlock.DISPENSER_REGISTRY.containsKey(emptyIron),
                 "the empty bucket registers its own dispenser behavior");
