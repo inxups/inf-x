@@ -129,7 +129,7 @@ public final class EnchantmentEvents {
     }
 
     /**
-     * MITE swords, daggers, knives and scythes sweep one block around the struck target for
+     * MITE swords and scythes sweep one block around the struck target for
      * 50% of the hit, plus 25% per sweeping edge level. Swept targets do not re-trigger effects.
      */
     private static void applySweep(LivingEntity attacker, LivingEntity target, float healthDamage) {

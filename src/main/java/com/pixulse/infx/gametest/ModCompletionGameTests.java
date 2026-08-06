@@ -423,6 +423,14 @@ public final class ModCompletionGameTests {
                 .equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE)
                 .holder()
                 .toStack();
+        ItemStack dagger = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.DAGGER)
+                .holder()
+                .toStack();
+        ItemStack knife = InfXItems.catalog()
+                .equipment(InfxMaterial.FLINT, EquipmentType.KNIFE)
+                .holder()
+                .toStack();
         ItemStack boots = InfXItems.catalog()
                 .equipment(InfxMaterial.COPPER, EquipmentType.BOOTS)
                 .holder()
@@ -437,12 +445,20 @@ public final class ModCompletionGameTests {
         helper.assertTrue(slaughter.value().isSupportedItem(scythe), "scythes must support slaughter");
         helper.assertTrue(sweeping.value().isSupportedItem(sword), "swords must support sweeping edge");
         helper.assertTrue(sweeping.value().isSupportedItem(scythe), "scythes must support sweeping edge");
+        helper.assertFalse(sweeping.value().isSupportedItem(dagger), "daggers must not support sweeping edge");
+        helper.assertFalse(sweeping.value().isSupportedItem(knife), "knives must not support sweeping edge");
         helper.assertTrue(
                 sword.canPerformAction(ItemAbilities.SWORD_SWEEP),
                 "swords must advertise the native sweep action");
         helper.assertTrue(
                 scythe.canPerformAction(ItemAbilities.SWORD_SWEEP),
                 "scythes must advertise the native sweep action");
+        helper.assertFalse(
+                dagger.canPerformAction(ItemAbilities.SWORD_SWEEP),
+                "daggers must not advertise the native sweep action");
+        helper.assertFalse(
+                knife.canPerformAction(ItemAbilities.SWORD_SWEEP),
+                "knives must not advertise the native sweep action");
         helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
 
         sword.enchant(sharpness, 1);

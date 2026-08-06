@@ -324,6 +324,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.KNIFE;
         if (swordFamily || type == EquipmentType.SCYTHE) {
             add(InfXItemTags.INFX_SHARPNESS_ENCHANTABLE, entry);
+        }
+        if (type == EquipmentType.SWORD || type == EquipmentType.SCYTHE) {
             add(InfXItemTags.INFX_SWEEPING_ENCHANTABLE, entry);
         }
         if (swordFamily) {
