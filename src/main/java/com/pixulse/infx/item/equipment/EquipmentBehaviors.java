@@ -24,6 +24,7 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -410,6 +411,12 @@ public final class EquipmentBehaviors {
    @SubscribeEvent
     public static void addQualityTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
+        InfxMaterial hookMaterial = fishingRodHookMaterial(stack);
+        if (hookMaterial != null) {
+            event.getToolTip().add(Component.translatable(
+                    "tooltip.infx.fishing_rod_hook",
+                    Component.translatable("material.infx." + hookMaterial.path())));
+        }
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry != null) {
             EquipmentKey key = entry.key();
@@ -464,6 +471,27 @@ public final class EquipmentBehaviors {
                 && blockItem.getBlock() instanceof InfxFurnaceBlock furnace) {
             event.getToolTip().add(Component.translatable("tooltip.infx.furnace_heat", furnace.maximumHeat()));
         }
+    }
+
+    static InfxMaterial fishingRodHookMaterial(ItemStack stack) {
+        return fishingRodHookMaterial(stack.getItem());
+    }
+
+    static InfxMaterial fishingRodHookMaterial(Item item) {
+        if (item instanceof InfxFishingRodItem fishingRod) {
+            return fishingRod.key().material();
+        }
+        if (item instanceof InfxCarrotOnAStickItem carrotOnAStick) {
+            return carrotOnAStick.hookMaterial();
+        }
+        // MITE's vanilla fishing rod and carrot-on-a-stick use an iron hook; warped fungus
+        // on a stick is the modern equivalent of the carrot item.
+        if (item == Items.FISHING_ROD
+                || item == Items.CARROT_ON_A_STICK
+                || item == Items.WARPED_FUNGUS_ON_A_STICK) {
+            return InfxMaterial.IRON;
+        }
+        return null;
     }
 
     static boolean shouldAddExtendedTooltips(boolean testMode) {

@@ -2,11 +2,13 @@ package com.pixulse.infx.item.equipment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.InfxBowItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.Map;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 
 class BehaviorRulesTest {
@@ -14,6 +16,18 @@ class BehaviorRulesTest {
     void extendedTooltipsOnlyAppearInTestMode() {
         assertTrue(EquipmentBehaviors.shouldAddExtendedTooltips(true));
         assertFalse(EquipmentBehaviors.shouldAddExtendedTooltips(false));
+    }
+
+    @Test
+    void miteHookMaterialsCoverVanillaStickItems() {
+        assertEquals(InfxMaterial.IRON, EquipmentBehaviors.fishingRodHookMaterial(Items.FISHING_ROD));
+        assertEquals(
+                InfxMaterial.IRON,
+                EquipmentBehaviors.fishingRodHookMaterial(Items.CARROT_ON_A_STICK));
+        assertEquals(
+                InfxMaterial.IRON,
+                EquipmentBehaviors.fishingRodHookMaterial(Items.WARPED_FUNGUS_ON_A_STICK));
+        assertNull(EquipmentBehaviors.fishingRodHookMaterial(Items.STICK));
     }
 
     @Test

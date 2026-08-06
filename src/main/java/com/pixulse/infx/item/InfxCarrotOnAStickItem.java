@@ -1,6 +1,8 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.entity.InfxPig;
+import com.pixulse.infx.item.material.InfxMaterial;
+import java.util.Objects;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -19,9 +21,15 @@ import net.minecraft.world.level.Level;
  */
 public final class InfxCarrotOnAStickItem extends FoodOnAStickItem<Pig> {
     private static final int PIG_BOOST_DAMAGE = 7;
+    private final InfxMaterial hookMaterial;
 
-    public InfxCarrotOnAStickItem(Properties properties) {
+    public InfxCarrotOnAStickItem(InfxMaterial hookMaterial, Properties properties) {
         super(EntityType.PIG, PIG_BOOST_DAMAGE, properties);
+        this.hookMaterial = Objects.requireNonNull(hookMaterial, "hookMaterial");
+    }
+
+    public InfxMaterial hookMaterial() {
+        return hookMaterial;
     }
 
     @Override
