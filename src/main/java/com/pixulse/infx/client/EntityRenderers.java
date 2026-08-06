@@ -262,28 +262,6 @@ public final class EntityRenderers {
         }
     }
 
-    /**
-     * MITE zombie pigmen are humanoid zombies with the pack's 64x64 sheet, not modern piglin models.
-     */
-    public static final class ZombiePigmanTexture extends ZombieRenderer {
-        public ZombiePigmanTexture(EntityRendererProvider.Context context) {
-            super(context);
-        }
-
-        @Override
-        public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
-            return state.isBaby ? babyTexture() : texture();
-        }
-
-        static Identifier texture() {
-            return mite("textures/entity/zombie_pigman.png");
-        }
-
-        static Identifier babyTexture() {
-            return mite("textures/entity/zombie_pigman_baby.png");
-        }
-    }
-
     public static final class SkeletonTexture extends SkeletonRenderer {
         private final Identifier texture;
 

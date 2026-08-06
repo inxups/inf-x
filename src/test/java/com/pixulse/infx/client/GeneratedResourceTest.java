@@ -2810,7 +2810,7 @@ class GeneratedResourceTest {
                             chinese.get("container.infx." + path).getAsString(),
                             "Chinese block and menu names must match"));
         }
-        for (String recipe : List.of("sand_batch", "sandstone_to_glass")) {
+        for (String recipe : List.of("sand_batch", "red_sand_batch")) {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")));
         }
         for (String disabled : List.of("glass", "sandstone", "smooth_sandstone")) {

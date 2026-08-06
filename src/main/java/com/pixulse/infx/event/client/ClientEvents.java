@@ -46,6 +46,7 @@ import net.minecraft.client.renderer.entity.SquidRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.TropicalFishRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
+import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -199,9 +200,15 @@ public final class ClientEvents {
         event.registerEntityRenderer(InfXEntityTypes.INFX_PUFFERFISH.get(), PufferfishRenderer::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_TROPICAL_FISH.get(), TropicalFishRenderer::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_WITCH.get(), WitchRenderer::new);
-        // MITE zombie pigmen keep the humanoid zombie model instead of the modern piglin model.
+        // The zombified piglin keeps its modern piglin model and vanilla skin.
         event.registerEntityRenderer(
-                InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get(), EntityRenderers.ZombiePigmanTexture::new);
+                InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get(),
+                context -> new ZombifiedPiglinRenderer(
+                        context,
+                        ModelLayers.ZOMBIFIED_PIGLIN,
+                        ModelLayers.ZOMBIFIED_PIGLIN_BABY,
+                        ModelLayers.ZOMBIFIED_PIGLIN_ARMOR,
+                        ModelLayers.ZOMBIFIED_PIGLIN_BABY_ARMOR));
         event.registerEntityRenderer(InfXEntityTypes.INFX_BLAZE.get(), EntityRenderers.BlazeTexture::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_GHAST.get(), EntityRenderers.GhastTexture::new);
 

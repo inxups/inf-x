@@ -489,23 +489,14 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_sand", has(Blocks.SAND))
                 .save(output, recipeKey("sand_batch"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(Blocks.SANDSTONE),
+                        Ingredient.of(Blocks.RED_SAND),
                         RecipeCategory.BUILDING_BLOCKS,
                         CookingBookCategory.BLOCKS,
-                        Blocks.GLASS,
+                        Blocks.RED_SANDSTONE,
                         0.1F,
                         200)
-                .unlockedBy("has_sandstone", has(Blocks.SANDSTONE))
-                .save(output, recipeKey("sandstone_to_glass"));
-        SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(Blocks.RED_SANDSTONE),
-                        RecipeCategory.BUILDING_BLOCKS,
-                        CookingBookCategory.BLOCKS,
-                        Blocks.GLASS,
-                        0.1F,
-                        200)
-                .unlockedBy("has_red_sandstone", has(Blocks.RED_SANDSTONE))
-                .save(output, recipeKey("red_sandstone_to_glass"));
+                .unlockedBy("has_red_sand", has(Blocks.RED_SAND))
+                .save(output, recipeKey("red_sand_batch"));
         SimpleCookingRecipeBuilder.smelting(
                         Ingredient.of(InfXBlocks.SILVER_ORE, InfXBlocks.DEEPSLATE_SILVER_ORE),
                         RecipeCategory.MISC,
@@ -1494,7 +1485,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Items.BEETROOT_SOUP,
                 1,
                 List.of(
-                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(InfXItems.WATER_BOWL),
                         Ingredient.of(Items.BEETROOT),
                         Ingredient.of(Items.BEETROOT),
                         Ingredient.of(Items.BEETROOT),
@@ -1510,7 +1501,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 Items.RABBIT_STEW,
                 1,
                 List.of(
-                        Ingredient.of(Items.BOWL),
+                        Ingredient.of(InfXItems.WATER_BOWL),
                         Ingredient.of(Items.COOKED_RABBIT),
                         Ingredient.of(Items.CARROT),
                         Ingredient.of(Items.BAKED_POTATO),

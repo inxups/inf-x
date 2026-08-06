@@ -12,18 +12,50 @@ import org.jspecify.annotations.NonNull;
 /** MITE data overrides for vanilla gameplay loot tables. */
 final class VanillaLootTableOverridesProvider implements DataProvider {
     private final Path carveDirectory;
+    private final Path entityDirectory;
 
     VanillaLootTableOverridesProvider(PackOutput output) {
-        this.carveDirectory = output
-                .getOutputFolder(PackOutput.Target.DATA_PACK)
-                .resolve("minecraft")
-                .resolve("loot_table")
-                .resolve("carve");
+        Path lootRoot = output.getOutputFolder(PackOutput.Target.DATA_PACK).resolve("minecraft").resolve("loot_table");
+        this.carveDirectory = lootRoot.resolve("carve");
+        this.entityDirectory = lootRoot.resolve("entities");
     }
 
     @Override
     public @NonNull CompletableFuture<?> run(@NonNull CachedOutput cache) {
-        return DataProvider.saveStable(cache, carvePumpkin(), carveDirectory.resolve("pumpkin.json"));
+        return CompletableFuture.allOf(
+                DataProvider.saveStable(cache, carvePumpkin(), carveDirectory.resolve("pumpkin.json")),
+                DataProvider.saveStable(cache, wolfDrops(), entityDirectory.resolve("wolf.json")));
+    }
+
+    /** MITE wolves leave one piece of leather even when spawned outside world generation. */
+    private static JsonObject wolfDrops() {
+        JsonObject setCount = new JsonObject();
+        setCount.addProperty("function", "minecraft:set_count");
+        setCount.addProperty("count", 1.0);
+        JsonArray functions = new JsonArray();
+        functions.add(setCount);
+
+        JsonObject entry = new JsonObject();
+        entry.addProperty("type", "minecraft:item");
+        entry.add("functions", functions);
+        entry.addProperty("name", "minecraft:leather");
+
+        JsonArray entries = new JsonArray();
+        entries.add(entry);
+
+        JsonObject pool = new JsonObject();
+        pool.add("entries", entries);
+        pool.addProperty("rolls", 1.0);
+        pool.addProperty("bonus_rolls", 0.0);
+
+        JsonArray pools = new JsonArray();
+        pools.add(pool);
+
+        JsonObject table = new JsonObject();
+        table.addProperty("type", "minecraft:entity");
+        table.add("pools", pools);
+        table.addProperty("random_sequence", "minecraft:entities/wolf");
+        return table;
     }
 
     /** MITE shears drop one pumpkin seed when carving, not the modern four. */

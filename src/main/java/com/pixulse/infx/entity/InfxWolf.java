@@ -4,6 +4,8 @@ import com.pixulse.infx.registry.InfXSounds;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -15,18 +17,32 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
 /** Dire wolves retain wolf taming, while hellhounds remain permanently wild and hostile. */
-public final class InfxWolf extends Wolf implements Enemy, InfxMob {
+public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameableWolf {
     public enum Variant {
         HELLHOUND,
         DIRE_WOLF
     }
 
+    private int tamingCooldown;
+
     public InfxWolf(EntityType<? extends Wolf> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public int tamingCooldown() {
+        return tamingCooldown;
+    }
+
+    @Override
+    public void setTamingCooldown(int ticks) {
+        tamingCooldown = ticks;
     }
 
     /** MITE experience: hellhounds are worth triple, dire wolves double the base value. */
@@ -65,6 +81,9 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob {
 
     @Override
     public void setTame(boolean tame, boolean applySideEffects) {
+        if (variant() == Variant.HELLHOUND) {
+            return;
+        }
         super.setTame(variant() == Variant.DIRE_WOLF && tame, applySideEffects);
         if (variant() != Variant.DIRE_WOLF) {
             return;
@@ -103,8 +122,29 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob {
     }
 
     @Override
+    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        // MITE hellhounds cannot be fed, tamed, or sat down.
+        if (variant() == Variant.HELLHOUND) {
+            return InteractionResult.PASS;
+        }
+        ItemStack itemStack = player.getItemInHand(hand);
+        if (isTame()) {
+            return super.mobInteract(player, hand);
+        }
+        if (!level().isClientSide() && itemStack.is(Items.BONE) && !isAngry()) {
+            itemStack.consume(1, player);
+            WolfTaming.attempt(this, WolfTaming.Kind.DIRE_WOLF, player, this);
+            return InteractionResult.SUCCESS_SERVER;
+        }
+        return super.mobInteract(player, hand);
+    }
+
+    @Override
     public void aiStep() {
         super.aiStep();
+        if (tamingCooldown > 0) {
+            tamingCooldown--;
+        }
         // MITE dire wolves snap at players within 4 blocks at 0.4% per tick, sparing pups,
         // breeding pairs and blue-moon nights.
         if (variant() == Variant.DIRE_WOLF

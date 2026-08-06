@@ -157,7 +157,7 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
             BlockState state,
             AbstractFurnaceBlockEntity entity) {
         ItemStack ingredient = input.item();
-        if (!ingredient.is(Items.SAND) || FurnaceHeatPolicy.maximumHeat(state) == 0) {
+        if (!isSand(ingredient) || FurnaceHeatPolicy.maximumHeat(state) == 0) {
             return recipe.assemble(input);
         }
         if (ingredient.getCount() < 4) {
@@ -172,11 +172,15 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
             effectiveHeat = FurnaceHeatPolicy.fuelHeat(fuel, burnTime);
         }
         if (effectiveHeat == FurnaceHeatPolicy.HEAT_WOOD) {
-            return new ItemStack(Blocks.SANDSTONE);
+            return ingredient.is(Items.RED_SAND) ? new ItemStack(Blocks.RED_SANDSTONE) : new ItemStack(Blocks.SANDSTONE);
         }
         return effectiveHeat >= FurnaceHeatPolicy.HEAT_COAL
                 ? new ItemStack(Blocks.GLASS)
                 : ItemStack.EMPTY;
+    }
+
+    private static boolean isSand(ItemStack stack) {
+        return stack.is(Items.SAND) || stack.is(Items.RED_SAND);
     }
 
     @Redirect(
@@ -185,7 +189,7 @@ public abstract class AbstractFurnaceBlockEntityMixin implements FurnaceHeatAcce
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
     private static void infx$consumeSandBatch(ItemStack input, int amount) {
-        input.shrink(input.is(Items.SAND) ? 4 : amount);
+        input.shrink(isSand(input) ? 4 : amount);
     }
 
     @Inject(method = "serverTick", at = @At("HEAD"), cancellable = true)
