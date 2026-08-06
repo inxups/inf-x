@@ -151,7 +151,8 @@ public final class InfXCreativeTabs {
                         InfXItems.INFX_MOB_BUCKETS,
                         InfXItems.INFX_POWDER_SNOW_BUCKETS,
                         InfXItems.INFX_RECORDS,
-                        List.copyOf(InfXItems.CARROT_ON_A_STICKS.values())));
+                        List.copyOf(InfXItems.CARROT_ON_A_STICKS.values()),
+                        List.copyOf(InfXItems.WARPED_FUNGUS_ON_A_STICKS.values())));
         categories.put(
                 Category.COMBAT_AND_EQUIPMENT,
                 concatenate(

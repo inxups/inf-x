@@ -27,8 +27,8 @@ class InfXCreativeTabsTest {
                 .collect(Collectors.toSet());
 
         // 397 baseline + 22 stripped-log workbenches + 42 mob buckets + 7 powder-snow buckets
-        // + 5 additional spawn eggs + 9 carrot-on-a-stick items.
-        assertEquals(484, registered.size());
+        // + 5 additional spawn eggs + 9 carrot-on-a-stick + 9 warped-fungus-on-a-stick items.
+        assertEquals(493, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
     }
@@ -39,7 +39,7 @@ class InfXCreativeTabsTest {
                 InfXCreativeTabs.Category.BLOCKS, 69,
                 InfXCreativeTabs.Category.INGREDIENTS, 31,
                 InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
-                InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 193,
+                InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 202,
                 InfXCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113,
                 InfXCreativeTabs.Category.SPAWN_EGGS, 54);
 

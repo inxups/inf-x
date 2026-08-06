@@ -2727,7 +2727,8 @@ class GeneratedResourceTest {
                 () -> assertEquals(
                         "infx:snow_slab",
                         snowSlab.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertEquals(4, saddle.getAsJsonObject("result").get("count").getAsInt()),
+                () -> assertFalse(saddle.getAsJsonObject("result").has("count"),
+                        "MITE saddle outputs a single item"),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/blockstates/snow_slab.json"))),
                 () -> assertTrue(Files.isRegularFile(
@@ -2843,9 +2844,10 @@ class GeneratedResourceTest {
         // Longdead Guardian egg, and 22 stripped-log workbench variants add one item definition each; gravel and
         // furnace blocks add item definitions, while the workbench item definitions reference their block models.
         // Leather items reference vanilla Minecraft models and do not generate InfX model files.
-        // The nine carrot-on-a-stick variants add item definitions and flat models each.
-        assertEquals(477, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(518, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // The nine carrot-on-a-stick and nine warped-fungus-on-a-stick variants add item
+        // definitions and flat models each.
+        assertEquals(486, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(527, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 

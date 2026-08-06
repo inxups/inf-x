@@ -321,6 +321,18 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('G', Ingredient.of(Items.GOLD_NUGGET), 'A', Ingredient.of(Items.APPLE)),
                 List.of("GGG", "GAG", "GGG"));
+        // MITE RecipesMITE: golden apple + bottle o' enchanting makes an enchanted golden apple.
+        addShapeless(
+                "enchanted_golden_apple",
+                BenchTier.HAND,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.ENCHANTED_GOLDEN_APPLE,
+                1,
+                List.of(
+                        Ingredient.of(Items.GOLDEN_APPLE),
+                        Ingredient.of(Items.EXPERIENCE_BOTTLE)));
         addShaped(
                 "mushroom_stew",
                 BenchTier.HAND,
@@ -977,6 +989,30 @@ final class ModRecipeProvider extends RecipeProvider {
                     List.of(Ingredient.of(InfXItems.CARROT_ON_A_STICKS.get(hookMaterial).get())));
         }
 
+        // MITE warped-fungus-on-a-stick variants follow the same rod-and-back pattern.
+        for (InfxMaterial hookMaterial : InfXItems.FISHING_HOOK_MATERIALS) {
+            addShapeless(
+                    hookMaterial.path() + "_warped_fungus_on_a_stick",
+                    BenchTier.HAND,
+                    40.0F,
+                    CraftingBookCategory.EQUIPMENT,
+                    "",
+                    InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(hookMaterial).get(),
+                    1,
+                    List.of(
+                            Ingredient.of(equipment(hookMaterial, EquipmentType.FISHING_ROD)),
+                            Ingredient.of(Items.WARPED_FUNGUS)));
+            addShapeless(
+                    hookMaterial.path() + "_warped_fungus_on_a_stick_dismantling",
+                    BenchTier.HAND,
+                    40.0F,
+                    CraftingBookCategory.EQUIPMENT,
+                    "",
+                    equipment(hookMaterial, EquipmentType.FISHING_ROD),
+                    1,
+                    List.of(Ingredient.of(InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(hookMaterial).get())));
+        }
+
         addArmorSet("leather", InfxMaterial.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
         addMetalArmorSets(
                 "copper", InfxMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
@@ -1402,9 +1438,30 @@ final class ModRecipeProvider extends RecipeProvider {
                 CraftingBookCategory.EQUIPMENT,
                 "",
                 Items.SADDLE,
-                4,
+                1,
                 Map.of('L', Ingredient.of(Items.LEATHER), 'N', Ingredient.of(Items.IRON_NUGGET)),
                 List.of("LLL", "L L", "N N"));
+        // MITE CraftingManager: two leads per silk/string or sinew leash, with a slime ball knot.
+        addShaped(
+                "lead",
+                BenchTier.HAND,
+                150.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                Items.LEAD,
+                2,
+                Map.of('~', Ingredient.of(Items.STRING), 'O', Ingredient.of(Items.SLIME_BALL)),
+                List.of("~~ ", "~O ", "  ~"));
+        addShaped(
+                "lead_from_sinew",
+                BenchTier.HAND,
+                150.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                Items.LEAD,
+                2,
+                Map.of('~', Ingredient.of(InfXItems.SINEW), 'O', Ingredient.of(Items.SLIME_BALL)),
+                List.of("~~ ", "~O ", "  ~"));
 
         // -----------------------------------------------------------------------------------
         // Vanilla basics removed by VanillaCraftingRecipeRemoval but required by MITE gameplay.

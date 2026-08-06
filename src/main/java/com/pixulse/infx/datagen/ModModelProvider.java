@@ -9,6 +9,7 @@ import com.pixulse.infx.block.SafeBlock;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.InfxCarrotOnAStickItem;
+import com.pixulse.infx.item.InfxWarpedFungusOnAStickItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXDataComponents;
@@ -234,6 +235,14 @@ final class ModModelProvider extends ModelProvider {
             Identifier model = ModelTemplates.FLAT_ITEM.create(
                     ModelLocationUtils.getModelLocation(stick.value()),
                     TextureMapping.layer0(new Material(InfiniteX.id("item/carrot_on_a_stick"))),
+                    itemModels.modelOutput);
+            itemModels.itemModelOutput.accept(stick.value(), ItemModelUtils.plainModel(model));
+        }
+        // Warped-fungus-on-a-stick variants share the single vanilla warped-fungus sprite.
+        for (DeferredItem<InfxWarpedFungusOnAStickItem> stick : InfXItems.WARPED_FUNGUS_ON_A_STICKS.values()) {
+            Identifier model = ModelTemplates.FLAT_ITEM.create(
+                    ModelLocationUtils.getModelLocation(stick.value()),
+                    TextureMapping.layer0(new Material(InfiniteX.id("item/warped_fungus_on_a_stick"))),
                     itemModels.modelOutput);
             itemModels.itemModelOutput.accept(stick.value(), ItemModelUtils.plainModel(model));
         }

@@ -57,6 +57,7 @@
     "ServerLevelFluidTickMixin",
     "ServerExplosionMixin",
     "SpreadingSnowyBlockMixin",
+    "ThrownExperienceBottleMixin",
     "VanillaMobEquipmentMixin",
     "WallBlockCollisionMixin",
     "WorldDimensionsMixin"
