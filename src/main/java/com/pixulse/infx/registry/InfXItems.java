@@ -510,7 +510,7 @@ public final class InfXItems {
                     material,
                     ITEMS.registerItem(
                             material.path() + "_carrot_on_a_stick",
-                            InfxCarrotOnAStickItem::new,
+                            properties -> new InfxCarrotOnAStickItem(material, properties),
                             properties -> properties.stacksTo(1).durability(25)));
         }
         return Map.copyOf(sticks);
