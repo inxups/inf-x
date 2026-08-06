@@ -99,6 +99,7 @@ class GeneratedResourceTest {
     void miteChineseNamesForMilkAndPoisonDeath() throws Exception {
         JsonObject zh = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertEquals("铁奶桶", zh.get("item.infx.iron_milk_bucket").getAsString());
+        assertEquals("胡萝卜钓竿", zh.get("item.infx.iron_carrot_on_a_stick").getAsString());
         assertEquals("%s 毒发身亡", zh.get("death.infx.poison").getAsString());
     }
 
