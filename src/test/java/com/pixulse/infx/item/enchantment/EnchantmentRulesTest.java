@@ -144,6 +144,12 @@ class EnchantmentRulesTest {
     @Test
     void vanillaMiteRulesFollowTheOriginalFormulas() {
         assertEquals(0.15F, EnchantmentRules.FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL, .0001F);
+        assertEquals(85, EnchantmentRules.fireProtectionTicks(100, 1));
+        assertEquals(40, EnchantmentRules.fireProtectionTicks(100, 4));
+        assertEquals(17, EnchantmentRules.fireProtectionTicks(20, 1));
+        assertEquals(1.0D, EnchantmentRules.blastProtectionKnockback(1.0D, 1), .0001D);
+        assertEquals(9.0D, EnchantmentRules.blastProtectionKnockback(10.0D, 1), .0001D);
+        assertEquals(4.0D, EnchantmentRules.blastProtectionKnockback(10.0D, 4), .0001D);
         assertEquals(2.0F, EnchantmentRules.SMITE_DAMAGE_PER_LEVEL, .0001F);
         assertEquals(2.0F, EnchantmentRules.typedProtectionPoints(8.0F, 1), .0001F);
         assertEquals(8.0F, EnchantmentRules.typedProtectionPoints(8.0F, 4), .0001F);

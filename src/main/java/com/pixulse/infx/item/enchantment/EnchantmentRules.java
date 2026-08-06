@@ -244,6 +244,28 @@ public final class EnchantmentRules {
         return Math.max(0.0F, pieceProtection) * levelFraction(level, PROTECTION_MAX_LEVEL);
     }
 
+    /** MITE's fire protection subtracts a floored 15% of the requested burn time per level. */
+    public static int fireProtectionTicks(int ticks, int level) {
+        if (ticks <= 0 || level <= 0) {
+            return ticks;
+        }
+        int cappedLevel = Math.clamp(level, 0, PROTECTION_MAX_LEVEL);
+        int reduction = (int) Math.floor(
+                (double) ticks * cappedLevel * FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL);
+        return ticks - reduction;
+    }
+
+    /** MITE's blast protection subtracts a floored 15% of explosion knockback per level. */
+    public static double blastProtectionKnockback(double knockback, int level) {
+        if (knockback <= 0.0D || level <= 0) {
+            return knockback;
+        }
+        int cappedLevel = Math.clamp(level, 0, PROTECTION_MAX_LEVEL);
+        double reduction = Math.floor(
+                knockback * cappedLevel * BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL);
+        return knockback - reduction;
+    }
+
     /** Feather falling grants up to 15 armor points against falls, scaled by piece condition. */
     public static float featherFallingPoints(int level, float durabilityFactor) {
         return FEATHER_FALLING_FULL_PROTECTION

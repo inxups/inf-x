@@ -160,6 +160,31 @@ class GeneratedResourceTest {
                         .map(JsonElement::getAsString)
                         .anyMatch("minecraft:silk_touch"::equals),
                 "fortune stays exclusive with silk touch");
+
+        Set<String> protectionSet = json(GENERATED.resolve("data/infx/enchantment/protection.json"))
+                .getAsJsonArray("exclusive_set").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> typedProtectionSet = Set.of(
+                "infx:protection",
+                "minecraft:fire_protection",
+                "minecraft:blast_protection",
+                "minecraft:projectile_protection");
+        assertEquals(typedProtectionSet, protectionSet, "MITE protection enchantments must be mutually exclusive");
+        for (String path : List.of("fire_protection", "blast_protection", "projectile_protection")) {
+            Set<String> exclusiveSet = json(GENERATED.resolve(
+                            "data/minecraft/enchantment/" + path + ".json"))
+                    .getAsJsonArray("exclusive_set").asList().stream()
+                    .map(JsonElement::getAsString)
+                    .collect(Collectors.toSet());
+            assertEquals(typedProtectionSet, exclusiveSet, path + " must use the shared MITE protection set");
+        }
+        String featherFallingSet = json(GENERATED.resolve(
+                        "data/minecraft/enchantment/feather_falling.json"))
+                .get("exclusive_set")
+                .getAsString();
+        assertEquals("minecraft:feather_falling", featherFallingSet,
+                "feather falling must remain compatible with the other protection enchantments");
     }
 
     @Test
