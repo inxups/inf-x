@@ -4,7 +4,6 @@ import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.enchantment.EnchantmentSelector;
 import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.InfXBlocks;
-import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXMenus;
 import java.util.ArrayList;
 import java.util.List;
@@ -170,7 +169,9 @@ public final class InfxEnchantmentMenu extends EnchantmentMenu {
     }
 
     private static ItemStack conversionResult(ItemStack stack) {
-        return isWaterBottle(stack) ? InfXItems.BOTTLE_OF_DISENCHANTING.toStack() : Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance();
+        // MITE ContainerEnchantment: a water bottle becomes a bottle o' enchanting on the
+        // table; the bottle of disenchanting is only obtained from its own crafting recipe.
+        return isWaterBottle(stack) ? Items.EXPERIENCE_BOTTLE.getDefaultInstance() : Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance();
     }
 
     private List<EnchantmentInstance> enchantmentChoices(RegistryAccess registryAccess, ItemStack stack, int option) {
@@ -287,8 +288,10 @@ public final class InfxEnchantmentMenu extends EnchantmentMenu {
         for (int y = 0; y <= 1; y++) {
             for (int x = -2; x <= 2; x++) {
                 for (int z = -2; z <= 2; z++) {
-                    if ((Math.abs(x) == 2 || Math.abs(z) == 2)
-                            && !(Math.abs(x) == 2 && Math.abs(z) == 2)) {
+                    // Modern vanilla includes the corner shelves at (+-2, +-2); MITE's
+                    // accessibility grid accepts them too. The 24-shelf cap keeps the
+                    // emerald (50) and diamond (100) table maxima unchanged.
+                    if (Math.abs(x) == 2 || Math.abs(z) == 2) {
                         result.add(new BlockPos(x, y, z));
                     }
                 }

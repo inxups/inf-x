@@ -50,12 +50,12 @@ public final class SafeBlockEntity extends RandomizableContainerBlockEntity
         protected void onOpen(@NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState state) {
             // Match vanilla chests: lid animation is BER-only; do not rewrite OPEN block state
             // (that rebuilds the chunk section and flashes the safe model).
-            SafeBlockEntity.this.playSound(SoundEvents.CHEST_OPEN);
+            SafeBlockEntity.this.playSound(SoundEvents.COPPER_CHEST_OPEN);
         }
 
         @Override
         protected void onClose(@NonNull Level level, @NonNull BlockPos pos, @NonNull BlockState state) {
-            SafeBlockEntity.this.playSound(SoundEvents.CHEST_CLOSE);
+            SafeBlockEntity.this.playSound(SoundEvents.COPPER_CHEST_CLOSE);
         }
 
         @Override

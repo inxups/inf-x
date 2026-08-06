@@ -4,6 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.InfxCarrotOnAStickItem;
+import com.pixulse.infx.item.InfxWarpedFungusOnAStickItem;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.GelatinousSphereItem;
 import com.pixulse.infx.item.InfxMobBucketItem;
@@ -299,6 +300,10 @@ public final class InfXItems {
     public static final Map<InfxMaterial, DeferredItem<InfxCarrotOnAStickItem>> CARROT_ON_A_STICKS =
             registerCarrotOnASticks();
 
+    /** Modern warped-fungus-on-a-stick per fishing-hook material, steering striders. */
+    public static final Map<InfxMaterial, DeferredItem<InfxWarpedFungusOnAStickItem>> WARPED_FUNGUS_ON_A_STICKS =
+            registerWarpedFungusOnASticks();
+
     private static final Catalog CATALOG = Catalog.register(ITEMS);
 
     public static final DeferredItem<Item> FLINT_CHIP = CATALOG.raw("flint_chip").holderAs(Item.class);
@@ -524,6 +529,19 @@ public final class InfXItems {
                             material.path() + "_carrot_on_a_stick",
                             properties -> new InfxCarrotOnAStickItem(material, properties),
                             properties -> properties.stacksTo(1).durability(25)));
+        }
+        return Map.copyOf(sticks);
+    }
+
+    private static Map<InfxMaterial, DeferredItem<InfxWarpedFungusOnAStickItem>> registerWarpedFungusOnASticks() {
+        Map<InfxMaterial, DeferredItem<InfxWarpedFungusOnAStickItem>> sticks = new LinkedHashMap<>();
+        for (InfxMaterial material : FISHING_HOOK_MATERIALS) {
+            sticks.put(
+                    material,
+                    ITEMS.registerItem(
+                            material.path() + "_warped_fungus_on_a_stick",
+                            properties -> new InfxWarpedFungusOnAStickItem(material, properties),
+                            properties -> properties.stacksTo(1).durability(100)));
         }
         return Map.copyOf(sticks);
     }

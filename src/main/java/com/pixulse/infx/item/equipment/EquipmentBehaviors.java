@@ -557,6 +557,9 @@ public final class EquipmentBehaviors {
         if (item instanceof InfxCarrotOnAStickItem carrotOnAStick) {
             return carrotOnAStick.hookMaterial();
         }
+        if (item instanceof InfxWarpedFungusOnAStickItem warpedOnAStick) {
+            return warpedOnAStick.hookMaterial();
+        }
         // MITE's vanilla fishing rod and carrot-on-a-stick use an iron hook; warped fungus
         // on a stick is the modern equivalent of the carrot item.
         if (item == Items.FISHING_ROD

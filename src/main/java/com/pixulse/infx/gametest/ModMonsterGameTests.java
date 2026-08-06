@@ -1610,10 +1610,13 @@ public final class ModMonsterGameTests {
         assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
 
         for (EntityType<?> type : List.of(
-                EntityType.HUSK, EntityType.DROWNED, EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
+                EntityType.HUSK, EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             assertVanillaVariantBare(helper, type);
         }
         assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
+        // Vanilla drowned randomizes a nautilus shell into the offhand in 3% of spawns; that
+        // item is neither a weapon nor armor, so only the main hand and armor slots are banned.
+        assertVanillaVariantBare(helper, EntityType.DROWNED, EquipmentSlot.OFFHAND);
         helper.succeed();
     }
 
@@ -1646,7 +1649,7 @@ public final class ModMonsterGameTests {
     }
 
     /** The vanilla variant may wear INFX world-age gear; only vanilla equipment is banned. */
-    private static void assertVanillaVariantBare(GameTestHelper helper, EntityType<?> type) {
+    private static void assertVanillaVariantBare(GameTestHelper helper, EntityType<?> type, EquipmentSlot... skippedSlots) {
         @SuppressWarnings("unchecked")
         Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
         mob.finalizeSpawn(
@@ -1654,7 +1657,7 @@ public final class ModMonsterGameTests {
                 helper.getLevel().getCurrentDifficultyAt(mob.blockPosition()),
                 EntitySpawnReason.COMMAND,
                 null);
-        assertNoVanillaEquipment(helper, mob, type.toString());
+        assertNoVanillaEquipment(helper, mob, type.toString(), skippedSlots);
         mob.discard();
     }
 
@@ -1669,10 +1672,13 @@ public final class ModMonsterGameTests {
         return mob;
     }
 
-    private static void assertNoVanillaEquipment(GameTestHelper helper, Mob mob, String description) {
+    private static void assertNoVanillaEquipment(GameTestHelper helper, Mob mob, String description, EquipmentSlot... skippedSlots) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() != EquipmentSlot.Type.HAND
                     && slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) {
+                continue;
+            }
+            if (java.util.Arrays.asList(skippedSlots).contains(slot)) {
                 continue;
             }
             ItemStack stack = mob.getItemBySlot(slot);

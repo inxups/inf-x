@@ -104,6 +104,7 @@ import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownExperienceBottle;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ContainerInput;
@@ -190,7 +191,9 @@ public final class ModCompletionGameTests {
             "infx_swim_physics",
             "infx_fulltext_systems",
             "infx_harvest_rules",
-            "infx_enchantment_combat");
+            "infx_enchantment_combat",
+            "infx_mite_recipes",
+            "infx_experience_bottle");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -220,6 +223,8 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
         FUNCTIONS.register("infx_harvest_rules", () -> ModCompletionGameTests::harvestRules);
         FUNCTIONS.register("infx_enchantment_combat", () -> ModCompletionGameTests::enchantmentCombat);
+        FUNCTIONS.register("infx_mite_recipes", () -> ModCompletionGameTests::miteRecipes);
+        FUNCTIONS.register("infx_experience_bottle", () -> ModCompletionGameTests::experienceBottle);
     }
 
     private ModCompletionGameTests() {}
@@ -2179,7 +2184,7 @@ public final class ModCompletionGameTests {
                 owner,
                 menu,
                 PotionContents.createItemStack(Items.POTION, Potions.WATER),
-                InfXItems.BOTTLE_OF_DISENCHANTING.get(),
+                Items.EXPERIENCE_BOTTLE,
                 Items.DIAMOND,
                 "diamond water conversion");
         helper.setBlock(tableRelative, InfXBlocks.EMERALD_ENCHANTING_TABLE.get());
@@ -2195,8 +2200,151 @@ public final class ModCompletionGameTests {
                 .equipment(InfxMaterial.ADAMANTIUM, EquipmentType.PICKAXE).holder().toStack());
         helper.assertTrue(EndEvents.hasAdamantiumCrystalTool(owner),
                 "adamantium pickaxe meets crystal gate");
+        assertCornerBookshelves(helper, table);
         removePlayer(visitor);
         removePlayer(owner);
+        helper.succeed();
+    }
+
+    /** Modern vanilla counts the corner shelves at (+-2, +-2); MITE allows them too. */
+    private static void assertCornerBookshelves(GameTestHelper helper, BlockPos table) {
+        for (int x = -2; x <= 2; x++) {
+            for (int z = -2; z <= 2; z++) {
+                if ((Math.abs(x) == 2 || Math.abs(z) == 2)
+                        && !(Math.abs(x) == 2 && Math.abs(z) == 2)) {
+                    helper.getLevel().setBlockAndUpdate(table.offset(x, 1, z), Blocks.AIR.defaultBlockState());
+                }
+            }
+        }
+        helper.assertTrue(InfxEnchantmentMenu.bookshelfCount(helper.getLevel(), table) == 12,
+                "removing the upper non-corner ring leaves twelve shelves");
+        for (int y = 0; y <= 1; y++) {
+            for (int x : new int[] {-2, 2}) {
+                for (int z : new int[] {-2, 2}) {
+                    helper.getLevel().setBlockAndUpdate(table.offset(x, y, z), Blocks.BOOKSHELF.defaultBlockState());
+                }
+            }
+        }
+        helper.assertTrue(InfxEnchantmentMenu.bookshelfCount(helper.getLevel(), table) == 20,
+                "corner shelves must count toward the INFX table power");
+    }
+
+    /** MITE saddle, lead and enchanted-golden-apple recipes restored on the timed grid. */
+    private static void miteRecipes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos workbench = helper.absolutePos(new BlockPos(8, 2, 4));
+        // The inventory menu has a 2x2 grid; MITE's saddle needs the full 3x3 table.
+        net.minecraft.world.inventory.CraftingMenu menu = new net.minecraft.world.inventory.CraftingMenu(
+                96, player.getInventory(), ContainerLevelAccess.create(helper.getLevel(), workbench));
+        player.containerMenu = menu;
+        TimedCraftingMenu crafting = (TimedCraftingMenu) menu;
+        var grid = crafting.infx$craftingContainer();
+        grid.clearContent();
+        grid.setItem(0, new ItemStack(Items.LEATHER));
+        grid.setItem(1, new ItemStack(Items.LEATHER));
+        grid.setItem(2, new ItemStack(Items.LEATHER));
+        grid.setItem(3, new ItemStack(Items.LEATHER));
+        grid.setItem(5, new ItemStack(Items.LEATHER));
+        grid.setItem(6, new ItemStack(Items.IRON_NUGGET));
+        grid.setItem(8, new ItemStack(Items.IRON_NUGGET));
+        assertMiteCraft(
+                helper,
+                player,
+                crafting,
+                new ItemStack(Items.SADDLE, 1),
+                "MITE saddle (five leather, two iron nuggets)");
+
+        grid.clearContent();
+        grid.setItem(0, new ItemStack(Items.STRING));
+        grid.setItem(1, new ItemStack(Items.STRING));
+        grid.setItem(3, new ItemStack(Items.STRING));
+        grid.setItem(4, new ItemStack(Items.SLIME_BALL));
+        grid.setItem(8, new ItemStack(Items.STRING));
+        assertMiteCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "MITE string lead");
+
+        grid.clearContent();
+        grid.setItem(0, InfXItems.SINEW.toStack());
+        grid.setItem(1, InfXItems.SINEW.toStack());
+        grid.setItem(3, InfXItems.SINEW.toStack());
+        grid.setItem(4, new ItemStack(Items.SLIME_BALL));
+        grid.setItem(8, InfXItems.SINEW.toStack());
+        assertMiteCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "MITE sinew lead");
+
+        grid.clearContent();
+        grid.setItem(0, new ItemStack(Items.GOLDEN_APPLE));
+        grid.setItem(1, new ItemStack(Items.EXPERIENCE_BOTTLE));
+        assertMiteCraft(
+                helper,
+                player,
+                crafting,
+                new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
+                "golden apple infused with a bottle o' enchanting");
+
+        ItemStack copperRod = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.FISHING_ROD)
+                .holder()
+                .toStack();
+        grid.clearContent();
+        grid.setItem(0, copperRod.copy());
+        grid.setItem(1, new ItemStack(Items.WARPED_FUNGUS));
+        assertMiteCraft(
+                helper,
+                player,
+                crafting,
+                InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(InfxMaterial.COPPER).get().getDefaultInstance(),
+                "copper warped fungus on a stick");
+
+        grid.clearContent();
+        grid.setItem(0, InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(InfxMaterial.COPPER).get().getDefaultInstance());
+        assertMiteCraft(
+                helper,
+                player,
+                crafting,
+                copperRod,
+                "copper warped fungus on a stick dismantles back into its rod");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void assertMiteCraft(
+            GameTestHelper helper,
+            ServerPlayer player,
+            TimedCraftingMenu crafting,
+            ItemStack expected,
+            String message) {
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(crafting, player, true),
+                message + " must produce a timed result");
+        ItemStack preview = crafting.infx$resultContainer().getItem(0);
+        helper.assertTrue(preview.is(expected.getItem()), message + " must match item " + expected + " but got " + preview);
+        helper.assertTrue(
+                preview.getCount() == expected.getCount(),
+                message + " must output " + expected.getCount() + " but got " + preview.getCount());
+    }
+
+    /** MITE bottle o' enchanting always shatters into a fixed 200 XP. */
+    private static void experienceBottle(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos ground = helper.absolutePos(new BlockPos(4, 2, 4));
+        ThrownExperienceBottle bottle = new ThrownExperienceBottle(
+                helper.getLevel(), player, new ItemStack(Items.EXPERIENCE_BOTTLE));
+        bottle.setPos(ground.getX() + 0.5, ground.getY() + 3.0, ground.getZ() + 0.5);
+        bottle.setDeltaMovement(0.0, -1.5, 0.0);
+        helper.getLevel().addFreshEntity(bottle);
+        for (int i = 0; i < 200 && bottle.isAlive(); i++) {
+            bottle.tick();
+        }
+        helper.assertTrue(!bottle.isAlive(), "bottle o' enchanting must shatter on impact");
+        List<ExperienceOrb> orbs = helper.getLevel().getEntities(
+                EntityType.EXPERIENCE_ORB,
+                new AABB(ground).inflate(4.0),
+                orb -> true);
+        int total = orbs.stream().mapToInt(ExperienceOrb::getValue).sum();
+        helper.assertTrue(
+                total == 200,
+                "MITE bottle o' enchanting must grant exactly 200 XP, got " + total);
+        orbs.forEach(orb -> orb.discard());
+        removePlayer(player);
         helper.succeed();
     }
 
