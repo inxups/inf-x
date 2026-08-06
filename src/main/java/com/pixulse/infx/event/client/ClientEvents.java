@@ -156,6 +156,8 @@ public final class ClientEvents {
                 context -> new EntityRenderers.SlimeTexture(context, InfxSlime.Variant.PUDDING));
         event.registerEntityRenderer(
                 InfXEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
+        event.registerEntityRenderer(
+                InfXEntityTypes.BRICK_PROJECTILE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
         event.registerEntityRenderer(InfXEntityTypes.MAGMA_CUBE.get(), EntityRenderers.MagmaCubeTexture::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.NETHERSPAWN.get(),

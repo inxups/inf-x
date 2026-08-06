@@ -89,7 +89,7 @@ public final class FoodProfiles {
         if (item == Items.PORKCHOP) return RAW_PORK;
         if (item == Items.COOKED_PORKCHOP) return COOKED_PORK;
         if (item == Items.GOLDEN_APPLE || item == Items.ENCHANTED_GOLDEN_APPLE) return GOLDEN_APPLE;
-        if (item == Items.EGG) return EGG;
+        if (item == Items.EGG || item == Items.BLUE_EGG || item == Items.BROWN_EGG) return EGG;
         if (item == Items.COD) return RAW_COD;
         if (item == Items.COOKED_COD) return COOKED_COD;
         if (item == Items.SALMON) return RAW_SALMON;

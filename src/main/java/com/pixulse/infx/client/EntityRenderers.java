@@ -34,6 +34,7 @@ import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
 import net.minecraft.client.renderer.entity.state.ChickenRenderState;
 import net.minecraft.client.renderer.entity.state.CowRenderState;
@@ -298,6 +299,11 @@ public final class EntityRenderers {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
+            // MITE glow textures: phase spiders glow green, everything else red. The phase body sheet
+            // already paints green eyes, so the vanilla red spider_eyes layer must not cover them.
+            if (variant == InfxSpider.Variant.PHASE) {
+                this.layers.removeIf(layer -> layer instanceof SpiderEyesLayer<?>);
+            }
         }
 
         @Override
