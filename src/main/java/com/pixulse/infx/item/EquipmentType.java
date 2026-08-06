@@ -225,7 +225,7 @@ public enum EquipmentType {
     public InfxUseAction useAction() { return useAction; }
 
     public boolean supportsSweepAttack() {
-        return this == SCYTHE || this == SWORD || this == DAGGER || this == KNIFE;
+        return this == SCYTHE || this == SWORD;
     }
 
     public ModelFamily modelFamily() { return modelFamily; }
