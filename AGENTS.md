@@ -21,7 +21,7 @@
 - 只提交与当前任务有关的文件。
 - 一个任务只允许一个分支和一个 PR；从最新 `origin/master` 创建 worktree 与分支：`git worktree add <路径> -b codex/<任务名> origin/master`。
 - 任务分支内禁止 `git merge master` 或 `git pull origin master`；需要同步主线时只允许 `git rebase origin/master`，冲突逐条解决。
-- 凡产生仓库改动的任务，都必须同步更新 `CHANGELOG.md`；纯只读任务除外。
+- 凡产生仓库改动的任务，都必须同步更新 `CHANGELOG_CN.md`；纯只读任务除外。
 - 完成前必须执行适合改动范围的验证，然后创建提交并提交 PR。
 - PR 统一使用 Rebase and merge 合并并删除分支：`gh pr merge <编号> --rebase --delete-branch`；网页操作时选择 Rebase and merge 并勾选自动删除分支。
 - PR 合并后必须立即清理，否则任务不算完成：`git worktree remove <路径>`（目录已不存在则 `git worktree prune`）→ `git branch -D codex/<任务名>` → 远端未删除则 `git push origin --delete codex/<任务名>` → `git fetch --prune origin`。
