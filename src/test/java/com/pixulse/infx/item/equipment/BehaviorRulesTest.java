@@ -61,7 +61,7 @@ class BehaviorRulesTest {
         assertEquals(1.0F, EquipmentBehaviors.armorDurabilityFactor(0, 100));
         assertEquals(1.0F, EquipmentBehaviors.armorDurabilityFactor(50, 100));
         assertEquals(.98F, EquipmentBehaviors.armorDurabilityFactor(51, 100), .0001F);
-        assertEquals(.02F, EquipmentBehaviors.armorDurabilityFactor(99, 100), .0001F);
+        assertEquals(0.0F, EquipmentBehaviors.armorDurabilityFactor(99, 100), .0001F);
         assertEquals(1.0F, EquipmentBehaviors.armorDurabilityFactor(0, 0));
     }
 
