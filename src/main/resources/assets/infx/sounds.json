@@ -94,5 +94,8 @@
   },
   "entity.gelatinous_cube.corrosion": {
     "sounds": [ "infx:random/fizz" ]
+  },
+  "random.level_drain": {
+    "sounds": [ "infx:random/level_drain" ]
   }
 }

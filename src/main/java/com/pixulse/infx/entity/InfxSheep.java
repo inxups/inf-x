@@ -76,6 +76,11 @@ public final class InfxSheep extends Sheep {
                             .orElse(false)) {
                 setSheared(true);
             }
+            // MITE EntitySheep#onEntityDamaged: any gelatinous sphere hit (including the gray and
+            // black acid spheres) or gelatinous-cube melee instantly corrodes the wool.
+            if (source.getDirectEntity() instanceof GelatinousSphere || source.getDirectEntity() instanceof InfxSlime) {
+                setSheared(true);
+            }
         }
         return hurt;
     }

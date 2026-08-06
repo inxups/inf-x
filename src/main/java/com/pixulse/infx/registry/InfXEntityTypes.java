@@ -2,6 +2,7 @@ package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.InfxBat;
+import com.pixulse.infx.entity.InfxBrickProjectile;
 import com.pixulse.infx.entity.InfxBlaze;
 import com.pixulse.infx.entity.InfxChicken;
 import com.pixulse.infx.entity.ClayGolem;
@@ -144,6 +145,12 @@ public final class InfXEntityTypes {
             ENTITIES.registerEntityType(
                     "gelatinous_sphere",
                     GelatinousSphere::new,
+                    MobCategory.MISC,
+                    builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+    public static final DeferredHolder<EntityType<?>, EntityType<InfxBrickProjectile>> BRICK_PROJECTILE =
+            ENTITIES.registerEntityType(
+                    "brick_projectile",
+                    InfxBrickProjectile::new,
                     MobCategory.MISC,
                     builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
     public static final DeferredHolder<EntityType<?>, EntityType<InfxMagmaCube>> MAGMA_CUBE = register(

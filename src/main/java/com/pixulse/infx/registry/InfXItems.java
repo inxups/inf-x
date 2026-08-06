@@ -406,6 +406,12 @@ public final class InfXItems {
                         properties -> {
                             Item.Properties configured = properties.stacksTo(
                                     contents == InfxBucketItem.Contents.EMPTY ? 8 : 1);
+                            if (contents != InfxBucketItem.Contents.EMPTY) {
+                                // MITE ItemVessel#setContainerItem: a filled vessel used in crafting
+                                // returns the matching empty bucket as its remainder.
+                                configured.craftRemainder(
+                                        bucket(material, InfxBucketItem.Contents.EMPTY).value());
+                            }
                             if (contents == InfxBucketItem.Contents.MILK) {
                                 configured.component(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET);
                             }
@@ -438,6 +444,9 @@ public final class InfXItems {
                             Item.Properties configured = properties
                                     .stacksTo(1)
                                     .component(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
+                            // MITE ItemVessel#setContainerItem: a filled vessel used in crafting
+                            // returns the matching empty bucket as its remainder.
+                            configured.craftRemainder(bucket(material, InfxBucketItem.Contents.EMPTY).value());
                             if (kind.food() != null) {
                                 configured.component(DataComponents.FOOD, kind.food());
                             }
@@ -465,6 +474,9 @@ public final class InfXItems {
                             properties),
                     properties -> {
                         Item.Properties configured = properties.stacksTo(1);
+                        // MITE ItemVessel#setContainerItem: a filled vessel used in crafting
+                        // returns the matching empty bucket as its remainder.
+                        configured.craftRemainder(bucket(material, InfxBucketItem.Contents.EMPTY).value());
                         return material == InfxMaterial.ADAMANTIUM
                                 ? configured.fireResistant()
                                 : configured;
