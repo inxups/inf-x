@@ -1650,8 +1650,17 @@ public final class ModGameTests {
         player.closeContainer();
 
         player.setItemSlot(
+                EquipmentSlot.HEAD,
+                equipment(InfxMaterial.LEATHER, EquipmentType.HELMET).getDefaultInstance());
+        player.setItemSlot(
                 EquipmentSlot.CHEST,
                 equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
+        player.setItemSlot(
+                EquipmentSlot.LEGS,
+                equipment(InfxMaterial.LEATHER, EquipmentType.LEGGINGS).getDefaultInstance());
+        player.setItemSlot(
+                EquipmentSlot.FEET,
+                equipment(InfxMaterial.LEATHER, EquipmentType.BOOTS).getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper, player, "leather_armor", "wearing leather armor must grant Suiting Up"))

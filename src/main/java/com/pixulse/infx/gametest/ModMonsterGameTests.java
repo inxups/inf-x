@@ -1128,9 +1128,14 @@ public final class ModMonsterGameTests {
 
         for (var batType : List.of(
                 InfXEntityTypes.VAMPIRE_BAT, InfXEntityTypes.NIGHTWING, InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
-            helper.setBlock(new BlockPos(2, 86, 2), Blocks.STONE);
             var bat = helper.spawn(batType.get(), new BlockPos(2, 84, 2));
             bat.setNoGravity(true);
+            // MITE nightwings die to direct sunlight and this test world is at day. Give the bat
+            // enough health to survive the sunlight ticks; the attack lands before the sun check.
+            if (batType == InfXEntityTypes.NIGHTWING) {
+                bat.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2000.0);
+                bat.setHealth(2000.0F);
+            }
             var prey = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 84, 2));
             prey.setNoGravity(true);
             float health = prey.getHealth();
@@ -1592,7 +1597,7 @@ public final class ModMonsterGameTests {
      * MITE strips vanilla spawn equipment from the zombie and skeleton families: the INFX
      * replacements never wear vanilla weapons or armor (world-age gear is MITE equipment and
      * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
-     * parched, wither skeleton) get no vanilla weapons or armor at all.
+     * parched, wither skeleton) keep only MITE world-age gear, never vanilla weapons or armor.
      */
     private static void spawnEquipment(GameTestHelper helper) {
         var zombie = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
@@ -1640,6 +1645,7 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
+    /** The vanilla variant may wear INFX world-age gear; only vanilla equipment is banned. */
     private static void assertVanillaVariantBare(GameTestHelper helper, EntityType<?> type) {
         @SuppressWarnings("unchecked")
         Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
@@ -1648,9 +1654,7 @@ public final class ModMonsterGameTests {
                 helper.getLevel().getCurrentDifficultyAt(mob.blockPosition()),
                 EntitySpawnReason.COMMAND,
                 null);
-        helper.assertTrue(
-                mob.getMainHandItem().isEmpty(), type + " must not spawn with vanilla weapons");
-        assertNoArmor(helper, mob, type.toString());
+        assertNoVanillaEquipment(helper, mob, type.toString());
         mob.discard();
     }
 
@@ -1684,15 +1688,5 @@ public final class ModMonsterGameTests {
                         .getKey(stack.getItem())
                         .getNamespace()
                         .equals("minecraft");
-    }
-
-    private static void assertNoArmor(GameTestHelper helper, Mob mob, String description) {
-        for (EquipmentSlot slot : List.of(
-                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
-            ItemStack stack = mob.getItemBySlot(slot);
-            helper.assertTrue(
-                    stack.isEmpty(),
-                    description + " must not spawn with vanilla armor in " + slot + "; found " + stack);
-        }
     }
 }
