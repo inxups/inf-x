@@ -4,27 +4,20 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.registry.InfXBlocks;
-import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.TriState;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CocoaBlock;
-import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.FarmlandBlock;
-import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.BonemealEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
@@ -84,47 +77,6 @@ public final class AgricultureEvents {
         }
         level.setBlock(event.getPos(), replacement.stateFromVanilla(event.getState()), Block.UPDATE_CLIENTS);
         event.setSuccessful(false);
-    }
-
-    @SubscribeEvent
-    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        if (!event.getItemStack().is(InfXItems.catalog().raw("manure").holder())) {
-            return;
-        }
-        Level level = event.getLevel();
-        BlockState clicked = level.getBlockState(event.getPos());
-        if (clicked.getBlock() instanceof MushroomBlock) {
-            // The client cancels too so the interaction is consumed and always reaches the server.
-            if (!(level instanceof ServerLevel serverLevel)) {
-                cancelInteraction(event);
-                return;
-            }
-            MushroomBlock mushroom = (MushroomBlock) clicked.getBlock();
-            if (mushroom.growMushroom(serverLevel, event.getPos(), clicked, serverLevel.getRandom())) {
-                if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
-                cancelInteraction(event);
-            }
-            return;
-        }
-
-        BlockPos farmlandPos = clicked.getBlock() instanceof CropBlock ? event.getPos().below() : event.getPos();
-        if (!level.getBlockState(farmlandPos).is(Blocks.FARMLAND)) {
-            return;
-        }
-        if (!(level instanceof ServerLevel serverLevel)) {
-            cancelInteraction(event);
-            return;
-        }
-        AgricultureData.get(serverLevel).fertilize(farmlandPos, serverLevel.getGameTime());
-        if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
-        cancelInteraction(event);
-    }
-
-    private static void cancelInteraction(PlayerInteractEvent.RightClickBlock event) {
-        event.setUseBlock(TriState.FALSE);
-        event.setUseItem(TriState.FALSE);
-        event.setCancellationResult(InteractionResult.SUCCESS_SERVER);
-        event.setCanceled(true);
     }
 
     @SubscribeEvent

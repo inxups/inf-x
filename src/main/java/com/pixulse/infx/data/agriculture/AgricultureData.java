@@ -42,9 +42,13 @@ public final class AgricultureData extends SavedData {
     }
 
     public boolean fertilize(BlockPos farmland, long gameTime) {
-        boolean fresh = fertile.put(key(farmland), gameTime) == null;
+        String position = key(farmland);
+        if (fertile.containsKey(position)) {
+            return false;
+        }
+        fertile.put(position, gameTime);
         setDirty();
-        return fresh;
+        return true;
     }
 
     /** MITE consumes the fertilized bit only after a successful crop growth roll. */

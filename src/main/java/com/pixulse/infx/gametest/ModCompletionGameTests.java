@@ -42,6 +42,7 @@ import com.pixulse.infx.data.food.FoodProfile;
 import com.pixulse.infx.data.food.FoodIngestion;
 import com.pixulse.infx.data.food.FoodProfiles;
 import com.pixulse.infx.data.food.SurvivalData;
+import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.event.SurvivalEvents;
 import com.pixulse.infx.data.food.SurvivalRules;
 import com.pixulse.infx.event.HarvestEvents;
@@ -190,6 +191,7 @@ public final class ModCompletionGameTests {
             "infx_swim_physics",
             "infx_fulltext_systems",
             "infx_harvest_rules",
+            "infx_manure_rules",
             "infx_enchantment_combat");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -219,6 +221,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_swim_physics", () -> ModCompletionGameTests::swimPhysics);
         FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
         FUNCTIONS.register("infx_harvest_rules", () -> ModCompletionGameTests::harvestRules);
+        FUNCTIONS.register("infx_manure_rules", () -> ModCompletionGameTests::manureRules);
         FUNCTIONS.register("infx_enchantment_combat", () -> ModCompletionGameTests::enchantmentCombat);
     }
 
@@ -241,7 +244,9 @@ public final class ModCompletionGameTests {
                             function,
                             new TestData<>(
                                     environment,
-                                    Identifier.withDefaultNamespace("empty"),
+                                    "infx_manure_rules".equals(name)
+                                            ? InfiniteX.id("manure_rules")
+                                            : Identifier.withDefaultNamespace("empty"),
                                     800,
                                     0,
                                     true,
@@ -2446,6 +2451,140 @@ public final class ModCompletionGameTests {
         helper.assertTrue(grewGrass, "bone meal must keep growing tall grass on grass blocks");
         helper.assertTrue(grassBonemeal.getCount() == 0, "grass-block bone meal must still be consumed");
         helper.succeed();
+    }
+
+    private static void manureRules(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        ServerLevel level = helper.getLevel();
+        ItemStack manure = InfXItems.catalog().raw("manure").holder().toStack();
+
+        // Manure directly fertilizes farmland and consumes the item.
+        BlockPos farmland = new BlockPos(2, 2, 2);
+        helper.setBlock(farmland.below(2), Blocks.STONE);
+        helper.setBlock(farmland.below(), Blocks.DIRT);
+        helper.setBlock(farmland, Blocks.FARMLAND);
+        helper.setBlock(farmland.above(), Blocks.AIR);
+        player.setItemInHand(InteractionHand.MAIN_HAND, manure.copy());
+        helper.assertTrue(
+                useManure(helper, player, farmland, Direction.UP).consumesAction(),
+                "manure on farmland succeeds");
+        helper.assertTrue(player.getMainHandItem().isEmpty(), "manure on farmland consumes the item");
+        helper.assertTrue(
+                AgricultureData.get(level).isFertile(helper.absolutePos(farmland)),
+                "manure on farmland records fertility");
+
+        // Manure also fertilizes the farmland under a crop.
+        BlockPos crop = new BlockPos(4, 2, 2);
+        helper.setBlock(crop.below(2), Blocks.STONE);
+        helper.setBlock(crop.below(), Blocks.FARMLAND);
+        helper.setBlock(crop, Blocks.WHEAT);
+        helper.setBlock(crop.above(), Blocks.AIR);
+        player.setItemInHand(InteractionHand.MAIN_HAND, manure.copy());
+        helper.assertTrue(
+                useManure(helper, player, crop, Direction.UP).consumesAction(),
+                "manure on a crop succeeds");
+        helper.assertTrue(player.getMainHandItem().isEmpty(), "manure on a crop consumes the item");
+        helper.assertTrue(
+                AgricultureData.get(level).isFertile(helper.absolutePos(crop.below())),
+                "manure on a crop fertilizes the farmland below");
+
+        // Already fertilized farmland rejects a second application without consuming.
+        BlockPos repeat = new BlockPos(2, 2, 4);
+        helper.setBlock(repeat.below(2), Blocks.STONE);
+        helper.setBlock(repeat.below(), Blocks.DIRT);
+        helper.setBlock(repeat, Blocks.FARMLAND);
+        helper.setBlock(repeat.above(), Blocks.AIR);
+        player.setItemInHand(InteractionHand.MAIN_HAND, manure.copy());
+        useManure(helper, player, repeat, Direction.UP);
+        player.setItemInHand(InteractionHand.MAIN_HAND, manure.copy());
+        helper.assertFalse(
+                useManure(helper, player, repeat, Direction.UP).consumesAction(),
+                "already fertilized farmland rejects another manure application");
+        helper.assertTrue(
+                player.getMainHandItem().getCount() == 1, "rejected manure is not consumed");
+        helper.assertTrue(
+                AgricultureData.get(level).isFertile(helper.absolutePos(repeat)),
+                "rejected manure leaves the farmland fertile");
+
+        // Creative players still fertilize but do not consume manure.
+        BlockPos creative = new BlockPos(4, 2, 4);
+        helper.setBlock(creative.below(2), Blocks.STONE);
+        helper.setBlock(creative.below(), Blocks.DIRT);
+        helper.setBlock(creative, Blocks.FARMLAND);
+        helper.setBlock(creative.above(), Blocks.AIR);
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        player.setItemInHand(InteractionHand.MAIN_HAND, manure.copy());
+        helper.assertTrue(
+                useManure(helper, player, creative, Direction.UP).consumesAction(),
+                "creative manure on farmland succeeds");
+        helper.assertTrue(player.getMainHandItem().getCount() == 1, "creative manure is not consumed");
+        helper.assertTrue(
+                AgricultureData.get(level).isFertile(helper.absolutePos(creative)),
+                "creative manure still fertilizes farmland");
+        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+
+        // Brown manure on mycelium grows a giant mushroom, even when clicked through the base.
+        BlockPos mycelium = new BlockPos(4, 2, 6);
+        BlockPos mushroom = mycelium.above();
+        BlockPos secondMycelium = new BlockPos(14, 2, 6);
+        BlockPos secondMushroom = secondMycelium.above();
+        helper.setBlock(mycelium, Blocks.MYCELIUM);
+        helper.setBlock(mushroom, Blocks.BROWN_MUSHROOM);
+        helper.setBlock(secondMycelium, Blocks.MYCELIUM);
+        helper.setBlock(secondMushroom, Blocks.BROWN_MUSHROOM);
+        helper.setBlock(mycelium.above(17), Blocks.STONE);
+        helper.setBlock(secondMycelium.above(17), Blocks.STONE);
+        helper.startSequence()
+                .thenExecuteAfter(1, () -> {
+                    assertBrownMushroomGrows(
+                            helper, level, player, manure, mycelium, mushroom, mushroom,
+                            "manure directly on a brown mushroom succeeds");
+                    assertBrownMushroomGrows(
+                            helper, level, player, manure, secondMycelium, secondMushroom, secondMycelium,
+                            "manure on the mycelium base of a brown mushroom succeeds");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static InteractionResult useManure(
+            GameTestHelper helper, ServerPlayer player, BlockPos relative, Direction face) {
+        BlockPos absolute = helper.absolutePos(relative);
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), face, absolute, false);
+        return player.getMainHandItem()
+                .getItem()
+                .useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+    }
+
+    private static void assertBrownMushroomGrows(
+            GameTestHelper helper,
+            ServerLevel level,
+            ServerPlayer player,
+            ItemStack manure,
+            BlockPos mycelium,
+            BlockPos mushroom,
+            BlockPos click,
+            String description) {
+        player.setItemInHand(InteractionHand.MAIN_HAND, manure.copy());
+        helper.assertTrue(
+                useManure(helper, player, click, Direction.UP).consumesAction(),
+                description);
+        helper.assertTrue(player.getMainHandItem().isEmpty(), description + " and consumes the item");
+        helper.assertTrue(
+                level.getBlockState(helper.absolutePos(mushroom)).is(Blocks.MUSHROOM_STEM),
+                description + " and creates a giant mushroom stem");
+        boolean capFound = false;
+        for (int dy = 4; dy <= 14 && !capFound; dy++) {
+            for (int dx = -3; dx <= 3 && !capFound; dx++) {
+                for (int dz = -3; dz <= 3 && !capFound; dz++) {
+                    if (level.getBlockState(helper.absolutePos(mycelium).offset(dx, dy, dz))
+                            .is(Blocks.BROWN_MUSHROOM_BLOCK)) {
+                        capFound = true;
+                    }
+                }
+            }
+        }
+        helper.assertTrue(capFound, description + " and creates a giant mushroom cap");
     }
 
     private static void assertEquineBeefDrop(

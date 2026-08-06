@@ -51,6 +51,8 @@ class AgricultureRulesTest {
         BlockPos farmland = new BlockPos(3, 64, -7);
         assertTrue(data.fertilize(farmland, 0L));
         assertTrue(data.isFertile(farmland));
+        assertFalse(data.fertilize(farmland, 100L), "already fertilized farmland rejects a second application");
+        assertTrue(data.isFertile(farmland));
         assertTrue(data.consumeFertility(farmland));
         assertFalse(data.isFertile(farmland));
         assertFalse(data.consumeFertility(farmland));
