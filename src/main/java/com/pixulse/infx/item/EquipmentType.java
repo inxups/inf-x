@@ -224,6 +224,10 @@ public enum EquipmentType {
 
     public InfxUseAction useAction() { return useAction; }
 
+    public boolean supportsSweepAttack() {
+        return this == SCYTHE || this == SWORD || this == DAGGER || this == KNIFE;
+    }
+
     public ModelFamily modelFamily() { return modelFamily; }
 
     public ArmorForm armorForm() { return armorForm; }

@@ -437,6 +437,12 @@ public final class ModCompletionGameTests {
         helper.assertTrue(slaughter.value().isSupportedItem(scythe), "scythes must support slaughter");
         helper.assertTrue(sweeping.value().isSupportedItem(sword), "swords must support sweeping edge");
         helper.assertTrue(sweeping.value().isSupportedItem(scythe), "scythes must support sweeping edge");
+        helper.assertTrue(
+                sword.canPerformAction(ItemAbilities.SWORD_SWEEP),
+                "swords must advertise the native sweep action");
+        helper.assertTrue(
+                scythe.canPerformAction(ItemAbilities.SWORD_SWEEP),
+                "scythes must advertise the native sweep action");
         helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
 
         sword.enchant(sharpness, 1);
@@ -466,6 +472,55 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 Math.abs((before - bystander.getHealth()) - 2.0F) < 0.001F,
                 "sword sweep must deal 50% to adjacent targets");
+        target.discard();
+        bystander.discard();
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
+                .holder()
+                .toStack());
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
+        target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        target.invulnerableTime = 0;
+        bystander.invulnerableTime = 0;
+        float targetBefore = target.getHealth();
+        before = bystander.getHealth();
+        player.attack(target);
+        float actualTargetDamage = targetBefore - target.getHealth();
+        float actualSweepDamage = before - bystander.getHealth();
+        helper.assertTrue(
+                actualTargetDamage > 0.0F
+                        && Math.abs(actualSweepDamage - actualTargetDamage * 0.5F) < 0.001F,
+                "a real sword attack must sweep for 50%; target=" + actualTargetDamage
+                        + ", sweep=" + actualSweepDamage);
+        target.discard();
+        bystander.discard();
+
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, scythe);
+        target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        target.invulnerableTime = 0;
+        bystander.invulnerableTime = 0;
+        targetBefore = target.getHealth();
+        before = bystander.getHealth();
+        player.attack(target);
+        actualTargetDamage = targetBefore - target.getHealth();
+        actualSweepDamage = before - bystander.getHealth();
+        helper.assertTrue(
+                actualTargetDamage > 0.0F
+                        && Math.abs(actualSweepDamage - actualTargetDamage * 0.5F) < 0.001F,
+                "a real scythe attack must sweep for 50%; target=" + actualTargetDamage
+                        + ", sweep=" + actualSweepDamage);
         target.discard();
         bystander.discard();
 
