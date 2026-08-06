@@ -76,6 +76,8 @@ public final class Livestock {
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     static final String HORSE_RETRY = "infx_horse_tame_retry";
     static final long HORSE_RETRY_TICKS = 4_000L;
+    static final String HORSE_FEED_RETRY = "infx_horse_feed_retry";
+    static final long HORSE_FEED_RETRY_TICKS = 4_000L;
 
     private Livestock() {}
 
@@ -225,6 +227,17 @@ public final class Livestock {
     public static void markHorseDismount(AbstractHorse horse, long now) {
         if (!horse.isTamed()) {
             horse.getPersistentData().putLong(HORSE_RETRY, now + HORSE_RETRY_TICKS);
+        }
+    }
+
+    /** MITE wild horses refuse every further feed for 4000 ticks after accepting one. */
+    public static boolean isHorseFeedBlocked(AbstractHorse horse, long now) {
+        return !horse.isTamed() && horse.getPersistentData().getLong(HORSE_FEED_RETRY).orElse(0L) > now;
+    }
+
+    public static void markHorseFed(AbstractHorse horse, long now) {
+        if (!horse.isTamed()) {
+            horse.getPersistentData().putLong(HORSE_FEED_RETRY, now + HORSE_FEED_RETRY_TICKS);
         }
     }
 

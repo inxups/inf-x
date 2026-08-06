@@ -278,12 +278,6 @@ class EntityRenderersTest {
                 "infx:textures/entity/ghast/ghast_shooting.png",
                 EntityRenderers.GhastTexture.texture(true).toString());
         assertEquals(
-                "infx:textures/entity/zombie_pigman.png",
-                EntityRenderers.ZombiePigmanTexture.texture().toString());
-        assertEquals(
-                "infx:textures/entity/zombie_pigman_baby.png",
-                EntityRenderers.ZombiePigmanTexture.babyTexture().toString());
-        assertEquals(
                 "minecraft:textures/entity/zombie/zombie.png",
                 EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.ZOMBIE).toString());
         assertEquals(

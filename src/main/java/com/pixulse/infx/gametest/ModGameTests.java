@@ -1013,9 +1013,11 @@ public final class ModGameTests {
         helper.assertTrue(
                 recipes.byKey(recipeKey("infx", "glass_bottle")) != null,
                 "InfiniteX glass bottle recipe must exist");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("infx", "red_sandstone_to_glass")) != null,
-                "InfiniteX red sandstone to glass recipe must exist");
+        for (String removed : List.of("sandstone_to_glass", "red_sandstone_to_glass")) {
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", removed)) == null,
+                    "Sandstone must not smelt into glass: " + removed);
+        }
         for (String material : METAL_MATERIALS) {
             for (String conversion : List.of("chain_from_nuggets", "nuggets_from_chain")) {
                 String path = material + "_" + conversion;

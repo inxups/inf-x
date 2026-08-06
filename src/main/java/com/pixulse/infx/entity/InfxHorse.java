@@ -68,6 +68,29 @@ public final class InfxHorse extends Horse {
         return super.mobInteract(player, hand);
     }
 
+    /**
+     * MITE wild horses rear and refuse any food for 4000 ticks after accepting one,
+     * unless the food actually healed them (then they eat freely until full).
+     */
+    @Override
+    protected boolean handleEating(@NonNull Player player, @NonNull ItemStack itemStack) {
+        if (!isTamed()
+                && level() instanceof ServerLevel serverLevel
+                && Livestock.isHorseFeedBlocked(this, serverLevel.getGameTime())) {
+            makeMad();
+            return false;
+        }
+        float healthBefore = getHealth();
+        boolean ate = super.handleEating(player, itemStack);
+        if (ate
+                && !isTamed()
+                && level() instanceof ServerLevel serverLevel
+                && (getHealth() <= healthBefore || getHealth() >= getMaxHealth())) {
+            Livestock.markHorseFed(this, serverLevel.getGameTime());
+        }
+        return ate;
+    }
+
     @Override
     public void removePassenger(@NonNull Entity passenger) {
         super.removePassenger(passenger);

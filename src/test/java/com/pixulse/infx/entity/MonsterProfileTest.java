@@ -346,7 +346,7 @@ class MonsterProfileTest {
         add(names, "infx_pufferfish", "Pufferfish", "河豚");
         add(names, "infx_tropical_fish", "Tropical Fish", "热带鱼");
         add(names, "infx_witch", "Witch", "女巫");
-        add(names, "infx_zombified_piglin", "Zombie Pigman", "僵尸猪人");
+        add(names, "infx_zombified_piglin", "Zombified Piglin", "僵尸猪灵");
         add(names, "infx_blaze", "Blaze", "烈焰人");
         add(names, "infx_ghast", "Ghast", "恶魂");
         add(names, "invisible_stalker", "Invisible Stalker", "影子潜伏者");
