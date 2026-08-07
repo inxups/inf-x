@@ -200,6 +200,7 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(bone.getMaxStackSize() == 16, "MITE bones must stack to 16 at runtime");
         assertMeleeAttackRange(helper, player, stick, "stick");
         assertMeleeAttackRange(helper, player, bone, "bone");
+        assertEmptyHandAttackRange(helper, player);
 
         double blockInteractionRange = player.blockInteractionRange();
         double entityInteractionRange = player.entityInteractionRange();
@@ -249,6 +250,13 @@ public final class ModEquipmentGameTests {
         creativeReachTarget.discard();
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static void assertEmptyHandAttackRange(GameTestHelper helper, ServerPlayer player) {
+        var playerRange = player.getAttackRangeWith(ItemStack.EMPTY);
+        helper.assertTrue(
+                playerRange.maxReach() == 2.5F && playerRange.maxCreativeReach() == 5.0F,
+                "empty hand must match the INFX 2.5-block attack reach");
     }
 
     private static void assertMeleeAttackRange(
