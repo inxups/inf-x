@@ -139,6 +139,9 @@ public final class EnchantmentEvents {
         }
         ItemStack weapon = attacker.getMainHandItem();
         if (!isMiteSweepWeapon(weapon)) return;
+        // Align with vanilla Player#isSweepAttack gates: grounded, non-sprint, unmounted hits
+        // only; jump crits are airborne, so !onGround() excludes them as well.
+        if (!player.onGround() || player.isSprinting() || player.isPassenger()) return;
         int sweepingLevel = Enchantments.level(level, weapon, InfXEnchantments.VANILLA_SWEEPING_EDGE);
         float ratio = 0.5F + 0.25F * Math.clamp(sweepingLevel, 0, 3);
         float damage = healthDamage * ratio;
