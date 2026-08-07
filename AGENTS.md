@@ -5,13 +5,9 @@
 - 本文件适用于整个仓库；子目录中的 `AGENTS.md` 可对其作用域追加或覆盖规则。
 - 开始工作前检查 `git status`，保留用户已有修改，不覆盖、不回滚无关内容。
 
-## 定义
-- mite/MITE 指的是 1.6.4-MITE(src = codex/reference/mite-src)
-- infx 指的是本26.1.2项目
-
 ## 命名规则
 - 当重写某原版注册时,以InfX为开头(java源码文件或注册)
-- 写入mixin方法,方法名无需额外附加(如 r196,mite,infx)
+- 写入mixin方法,方法名无需额外附加(如 r196,infx)
 
 ## Git 工作流
 
@@ -38,7 +34,6 @@
     4. Coremod，仅在公共 API、Access Transformer 和 Mixin 都无法实现时使用。
 - 修改 InfiniteX 自身代码时可正常编辑，不要求使用 Mixin 或 Coremod。
 - 修改 Minecraft 或 NeoForge 原有行为时优先使用最小范围的 Mixin，并说明注入原因。
-- 添加属于mite的新方块或者新物品自动从 ‘mite-resource-pack’寻找材质
 - 添加指令以/infx xxx xxx 格式
 - 修改原版世界结构生成规则,参考 ‘docs/structure-generation-gates.md’
 - 找不到 Minecraft 源码时，先检查 Gradle 下载的 sources JAR 或 NeoForge 附带源码；只有访问级别受限时才使用 Access Transformer。
@@ -49,6 +44,9 @@
 - 新增材质只能来自项目所有者提供并确认授权的素材库，不得自行从不明网络来源获取。
 - 已确认无需玩家侧署名的素材不必额外展示署名，但仍须维护现有来源清单、目标路径和 SHA-256，以便内部追溯。
 - 未经用户明确要求，不得删除现有来源清单或第三方声明。
+
+## 其他
+- 完成要求时，注重26.1.2和neoforge，无需太过在意MITE
 
 ## 验证要求
 
