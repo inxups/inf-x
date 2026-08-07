@@ -20,9 +20,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * MITE's attacking-digger behavior for earth elementals.
+ * InfX's attacking-digger behavior for earth elementals.
  *
- * <p>Unlike an ordinary sight-line blocker, MITE considers the target's support, upper body and
+ * <p>Unlike an ordinary sight-line blocker, InfX considers the target's support, upper body and
  * lower body while the navigator cannot get into striking range. This lets an elemental dig a
  * route through a ledge instead of idling below it.
  */
@@ -44,7 +44,7 @@ final class InfxEarthDigGoal extends Goal {
         if (!(elemental.level() instanceof ServerLevel level) || !canDigForTarget(level)) {
             return false;
         }
-        BlockPos active = elemental.miteDiggingPosition();
+        BlockPos active = elemental.diggingPosition();
         if (active != null) {
             return pauseTicks() > 0 || canDigAt(level, active);
         }
@@ -58,8 +58,8 @@ final class InfxEarthDigGoal extends Goal {
     @Override
     public void start() {
         if (pendingPos != null && elemental.level() instanceof ServerLevel level
-                && elemental.miteDiggingPosition() == null) {
-            elemental.beginMiteDigging(level, pendingPos, INITIAL_COOLOFF, 0);
+                && elemental.diggingPosition() == null) {
+            elemental.beginDigging(level, pendingPos, INITIAL_COOLOFF, 0);
         }
         pendingPos = null;
     }
@@ -69,7 +69,7 @@ final class InfxEarthDigGoal extends Goal {
         if (!(elemental.level() instanceof ServerLevel level) || !canDigForTarget(level)) {
             return false;
         }
-        BlockPos pos = elemental.miteDiggingPosition();
+        BlockPos pos = elemental.diggingPosition();
         LivingEntity target = elemental.getTarget();
         if (pos == null || target == null) {
             return false;
@@ -86,7 +86,7 @@ final class InfxEarthDigGoal extends Goal {
     @Override
     public void stop() {
         if (elemental.level() instanceof ServerLevel level) {
-            elemental.stopMiteDigging(level);
+            elemental.stopDigging(level);
         }
         pendingPos = null;
     }
@@ -100,11 +100,11 @@ final class InfxEarthDigGoal extends Goal {
     public void tick() {
         if (!(elemental.level() instanceof ServerLevel level) || !canDigForTarget(level)) {
             if (elemental.level() instanceof ServerLevel serverLevel) {
-                elemental.stopMiteDigging(serverLevel);
+                elemental.stopDigging(serverLevel);
             }
             return;
         }
-        BlockPos pos = elemental.miteDiggingPosition();
+        BlockPos pos = elemental.diggingPosition();
         LivingEntity target = elemental.getTarget();
         if (pos == null || target == null) {
             return;
@@ -117,7 +117,7 @@ final class InfxEarthDigGoal extends Goal {
             return;
         }
         if (!canDigAt(level, pos)) {
-            elemental.stopMiteDigging(level);
+            elemental.stopDigging(level);
             return;
         }
 
@@ -141,7 +141,7 @@ final class InfxEarthDigGoal extends Goal {
         }
 
         if (!level.destroyBlock(pos, true, elemental)) {
-            elemental.stopMiteDigging(level);
+            elemental.stopDigging(level);
             return;
         }
         level.destroyBlockProgress(elemental.getId(), pos, -1);
@@ -246,7 +246,7 @@ final class InfxEarthDigGoal extends Goal {
         BlockPos next = null;
         BlockPos above = destroyed.above();
         if (isFallingOrUnstable(level, above)) {
-            // MITE pauses for a falling block to settle into the just-cleared cell.
+            // InfX pauses for a falling block to settle into the just-cleared cell.
             next = destroyed;
         } else if (!level.getBlockState(above).isAir()) {
             if (destroyed.getY() == elemental.blockPosition().getY() && canDigAt(level, above)) {
@@ -266,16 +266,16 @@ final class InfxEarthDigGoal extends Goal {
         }
 
         if (next == null) {
-            elemental.stopMiteDigging(level);
+            elemental.stopDigging(level);
         } else {
-            elemental.beginMiteDigging(level, next, cooloff, FOLLOW_UP_PAUSE);
+            elemental.beginDigging(level, next, cooloff, FOLLOW_UP_PAUSE);
         }
     }
 
     private boolean canDigAt(ServerLevel level, BlockPos pos) {
         Vec3 bodyCenter = elemental.position().add(0.0, elemental.getBbHeight() * 0.5, 0.0);
         return Vec3.atCenterOf(pos).distanceToSqr(bodyCenter) <= 3.25
-                && elemental.canDestroyMiteBlock(level, pos)
+                && elemental.canDestroyBlock(level, pos)
                 && hasPhysicalReach(level, pos);
     }
 

@@ -23,7 +23,7 @@ public final class InfxFishingRodItem extends FishingRodItem {
     }
 
     /**
-     * MITE only lets a player cast from a boat or horse, or on the ground while not standing in
+     * InfX only lets a player cast from a boat or horse, or on the ground while not standing in
      * liquid; reeling in an existing hook keeps the vanilla behavior.
      */
     @Override
@@ -42,7 +42,7 @@ public final class InfxFishingRodItem extends FishingRodItem {
         if (vehicle instanceof Boat || vehicle instanceof AbstractHorse) {
             return true;
         }
-        // MITE forbids casting while riding other mobs, airborne, or with the head under liquid.
+        // InfX forbids casting while riding other mobs, airborne, or with the head under liquid.
         return vehicle == null
                 && player.onGround()
                 && !player.level().getFluidState(player.blockPosition().above()).isSource();

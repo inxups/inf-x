@@ -9,21 +9,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * MITE's bottle o' enchanting always grants the fixed 200 XP worth of two
+ * InfX's bottle o' enchanting always grants the fixed 200 XP worth of two
  * enchantment levels (Enchantment#getExperienceCost(2)) instead of the modern
  * random 3-11 XP. Both awardWithDirection call sites in onHit are redirected.
  */
 @Mixin(ThrownExperienceBottle.class)
 public abstract class ThrownExperienceBottleMixin {
-    private static final int MITE_EXPERIENCE_BOTTLE_XP = 200;
+    private static final int EXPERIENCE_BOTTLE_XP = 200;
 
     @Redirect(
             method = "onHit",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/ExperienceOrb;awardWithDirection(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/world/phys/Vec3;I)V"))
-    private static void infx$awardMiteExperience(
+    private static void infx$awardExperience(
             ServerLevel level, Vec3 position, Vec3 direction, int value) {
-        ExperienceOrb.awardWithDirection(level, position, direction, MITE_EXPERIENCE_BOTTLE_XP);
+        ExperienceOrb.awardWithDirection(level, position, direction, EXPERIENCE_BOTTLE_XP);
     }
 }

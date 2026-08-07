@@ -15,10 +15,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * MITE melee reach grows when the target is lower than the attacker: reach increases by
+ * InfX melee reach grows when the target is lower than the attacker: reach increases by
  * half of (elevation difference - 0.5), capped at +1.0, and shrinks symmetrically for higher
  * targets. The vanilla eye-to-point distance check never accounts for vertical separation,
- * so a sword cannot hit a mob two blocks below; this restores the MITE height advantage for
+ * so a sword cannot hit a mob two blocks below; this restores the InfX height advantage for
  * any INFX weapon or tool carrying an attack-range component.
  */
 @Mixin(AttackRange.class)
@@ -33,14 +33,14 @@ public abstract class AttackRangeMixin {
     public abstract float hitboxMargin();
 
     @Inject(method = "isInRange(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/phys/Vec3;)Z", at = @At("HEAD"), cancellable = true)
-    private void infx$miteHeightAdvantagePoint(
+    private void infx$HeightAdvantagePoint(
             LivingEntity attacker, Vec3 location, CallbackInfoReturnable<Boolean> callback) {
         if (!(attacker instanceof Player player) || !hasAttackRangeComponent(player)) {
             return;
         }
         // The client measures eye-to-hit-point distance, so the vertical separation is taken
-        // from the eye; the server box check below keeps MITE's feet-to-feet measurement.
-        float advantage = miteHeightAdvantage((float) (player.getEyeY() - location.y));
+        // from the eye; the server box check below keeps InfX's feet-to-feet measurement.
+        float advantage = heightAdvantage((float) (player.getEyeY() - location.y));
         if (advantage == 0.0F) {
             return;
         }
@@ -50,13 +50,13 @@ public abstract class AttackRangeMixin {
     }
 
     @Inject(method = "isInRange(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/phys/AABB;D)Z", at = @At("HEAD"), cancellable = true)
-    private void infx$miteHeightAdvantageBox(
+    private void infx$HeightAdvantageBox(
             LivingEntity attacker, AABB boundingBox, double extraBuffer, CallbackInfoReturnable<Boolean> callback) {
         if (!(attacker instanceof Player player) || !hasAttackRangeComponent(player)) {
             return;
         }
-        // MITE measures elevation from feet to feet; the bounding box minY is the target's feet.
-        float advantage = miteHeightAdvantage((float) (player.getY() - boundingBox.minY));
+        // InfX measures elevation from feet to feet; the bounding box minY is the target's feet.
+        float advantage = heightAdvantage((float) (player.getY() - boundingBox.minY));
         if (advantage == 0.0F) {
             return;
         }
@@ -70,7 +70,7 @@ public abstract class AttackRangeMixin {
         return held.has(DataComponents.ATTACK_RANGE);
     }
 
-    private static float miteHeightAdvantage(float elevationDifference) {
+    private static float heightAdvantage(float elevationDifference) {
         if (elevationDifference > 0.5F) {
             return Math.min(1.0F, (elevationDifference - 0.5F) * 0.5F);
         }

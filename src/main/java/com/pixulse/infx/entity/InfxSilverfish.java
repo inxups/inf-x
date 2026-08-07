@@ -37,11 +37,11 @@ public final class InfxSilverfish extends Silverfish implements InfxMob {
 
     private boolean exploded;
     private int nextFizzTick;
-    private InfxWakeUpFriendsGoal miteWakeUpFriendsGoal;
+    private InfxWakeUpFriendsGoal wakeUpFriendsGoal;
 
     public InfxSilverfish(EntityType<? extends Silverfish> type, Level level) {
         super(type, level);
-        // MITE silverfish variants are worth double the base experience.
+        // InfX silverfish variants are worth double the base experience.
         xpReward = 10;
     }
 
@@ -54,7 +54,7 @@ public final class InfxSilverfish extends Silverfish implements InfxMob {
     }
 
     public static AttributeSupplier.Builder attributes() {
-        // The legacy 0.6 value is consumed by MITE's old-AI throttle.  These variants
+        // The legacy 0.6 value is consumed by the old-AI throttle.  These variants
         // otherwise match vanilla silverfish movement, so keep the modern 0.25 baseline.
         return Silverfish.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
@@ -70,13 +70,13 @@ public final class InfxSilverfish extends Silverfish implements InfxMob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE silverfish neither burrow into blocks nor use the modern 50% ally-release roll.
+        // InfX silverfish neither burrow into blocks nor use the modern 50% ally-release roll.
         goalSelector.removeAllGoals(goal -> {
             String name = goal.getClass().getSimpleName();
             return name.equals("SilverfishMergeWithStoneGoal") || name.equals("SilverfishWakeUpFriendsGoal");
         });
-        miteWakeUpFriendsGoal = new InfxWakeUpFriendsGoal(this);
-        goalSelector.addGoal(3, miteWakeUpFriendsGoal);
+        wakeUpFriendsGoal = new InfxWakeUpFriendsGoal(this);
+        goalSelector.addGoal(3, wakeUpFriendsGoal);
         targetSelector.removeAllGoals(goal -> goal instanceof NearestAttackableTargetGoal<?>);
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this, Player.class, 10, true, false, (target, level) -> distanceToSqr(target) <= 64.0));
@@ -105,9 +105,9 @@ public final class InfxSilverfish extends Silverfish implements InfxMob {
         boolean hurt = super.hurtServer(level, source, damage);
         if (hurt
                 && isAlive()
-                && miteWakeUpFriendsGoal != null
+                && wakeUpFriendsGoal != null
                 && (source.getEntity() != null || source.is(DamageTypes.MAGIC))) {
-            miteWakeUpFriendsGoal.notifyHurt();
+            wakeUpFriendsGoal.notifyHurt();
         }
         return hurt;
     }
@@ -115,7 +115,7 @@ public final class InfxSilverfish extends Silverfish implements InfxMob {
     @Override
     public void aiStep() {
         super.aiStep();
-        // MITE netherspawn fizz while wet every 2-8 ticks, always losing a point in water and
+        // InfX netherspawn fizz while wet every 2-8 ticks, always losing a point in water and
         // one roll in four in rain — roughly one point every five ticks when submerged.
         if (variant() == Variant.NETHERSPAWN && level() instanceof ServerLevel level
                 && isInWaterOrRain() && tickCount >= nextFizzTick) {

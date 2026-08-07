@@ -74,7 +74,7 @@ class InfXCreativeTabsTest {
                 InfXBlocks.INFX_POTATOES.getId(),
                 InfXBlocks.INFX_BEETROOTS.getId(),
                 // The onion crop has no separate block item: the onion item itself is its seed
-                // and is listed in the food tab, exactly like MITE.
+                // and is listed in the food tab, exactly like the original.
                 InfXBlocks.INFX_ONION.getId());
         Set<Identifier> expectedBlockItems = InfXBlocks.BLOCKS.getEntries().stream()
                 .map(DeferredHolder::getId)

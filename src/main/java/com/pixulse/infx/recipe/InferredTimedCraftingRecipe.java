@@ -15,7 +15,7 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * Client-side JEI view of a normal 26.2 crafting recipe with its inferred
- * MITE profile.  This wrapper is never registered or used for server recipe
+ * InfX profile.  This wrapper is never registered or used for server recipe
  * matching; the original recipe holder ID remains authoritative.
  */
 public record InferredTimedCraftingRecipe(CraftingProfile profile, CraftingRecipe delegate)

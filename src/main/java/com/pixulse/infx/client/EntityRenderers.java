@@ -58,9 +58,9 @@ import net.minecraft.world.entity.animal.wolf.Wolf;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Vanilla-model renderers that bind authorized MITE entity textures for INFX variants.
+ * Vanilla-model renderers that bind authorized imported entity textures for INFX variants.
  *
- * <p>Base monsters keep vanilla texture ids wherever the authorized MITE pack is pixel-identical
+ * <p>Base monsters keep vanilla texture ids wherever the imported pack is pixel-identical
  * to vanilla 26.2 (zombie, skeleton, creeper + armor, enderman + eyes, witch, spider eyes). Only
  * the audited divergences bind {@code infx:} sheets: spider, blaze, ghast, and the humanoid
  * zombie pigman that replaces the modern piglin-model look.
@@ -135,7 +135,7 @@ public final class EntityRenderers {
         } else if (withoutExt.endsWith("/sheep_baby")) {
             sickPath = "textures/entity/sheep/sheep_sick_baby.png";
         }
-        return mite(sickPath);
+        return of(sickPath);
     }
 
     /**
@@ -153,7 +153,7 @@ public final class EntityRenderers {
         }
 
         static Identifier sickTexture() {
-            return mite("textures/entity/cow/cow_temperate_sick.png");
+            return of("textures/entity/cow/cow_temperate_sick.png");
         }
     }
 
@@ -172,7 +172,7 @@ public final class EntityRenderers {
         }
 
         static Identifier sickTexture() {
-            return mite("textures/entity/chicken/chicken_temperate_sick.png");
+            return of("textures/entity/chicken/chicken_temperate_sick.png");
         }
     }
 
@@ -191,7 +191,7 @@ public final class EntityRenderers {
         }
 
         static Identifier sickTexture() {
-            return mite("textures/entity/pig/pig_temperate_sick.png");
+            return of("textures/entity/pig/pig_temperate_sick.png");
         }
     }
 
@@ -210,7 +210,7 @@ public final class EntityRenderers {
         }
 
         static Identifier sickTexture() {
-            return mite("textures/entity/sheep/sheep_sick.png");
+            return of("textures/entity/sheep/sheep_sick.png");
         }
     }
 
@@ -236,10 +236,10 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxZombie.Variant variant) {
             return switch (variant) {
-                case GHOUL -> mite("textures/entity/ghoul.png");
-                case SHADOW -> mite("textures/entity/shadow.png");
-                case WIGHT -> mite("textures/entity/wight.png");
-                case REVENANT -> mite("textures/entity/zombie/revenant.png");
+                case GHOUL -> of("textures/entity/ghoul.png");
+                case SHADOW -> of("textures/entity/shadow.png");
+                case WIGHT -> of("textures/entity/wight.png");
+                case REVENANT -> of("textures/entity/zombie/revenant.png");
                 case INVISIBLE_STALKER, ZOMBIE -> Identifier.withDefaultNamespace("textures/entity/zombie/zombie.png");
             };
         }
@@ -249,17 +249,17 @@ public final class EntityRenderers {
          */
         static Identifier babyTextureFor(InfxZombie.Variant variant) {
             return switch (variant) {
-                case GHOUL -> mite("textures/entity/ghoul_baby.png");
-                case SHADOW -> mite("textures/entity/shadow_baby.png");
-                case WIGHT -> mite("textures/entity/wight_baby.png");
-                case REVENANT -> mite("textures/entity/zombie/revenant_baby.png");
+                case GHOUL -> of("textures/entity/ghoul_baby.png");
+                case SHADOW -> of("textures/entity/shadow_baby.png");
+                case WIGHT -> of("textures/entity/wight_baby.png");
+                case REVENANT -> of("textures/entity/zombie/revenant_baby.png");
                 case INVISIBLE_STALKER, ZOMBIE ->
                         Identifier.withDefaultNamespace("textures/entity/zombie/zombie_baby.png");
             };
         }
 
         static Identifier villagerTexture() {
-            return mite("textures/entity/zombie/zombie_villager.png");
+            return of("textures/entity/zombie/zombie_villager.png");
         }
     }
 
@@ -278,10 +278,10 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxSkeleton.Variant variant) {
             return switch (variant) {
-                case LONGDEAD -> mite("textures/entity/skeleton/longdead.png");
-                case LONGDEAD_GUARDIAN -> mite("textures/entity/skeleton/longdead_guardian.png");
-                case BONE_LORD -> mite("textures/entity/skeleton/bone_lord.png");
-                case ANCIENT_BONE_LORD -> mite("textures/entity/skeleton/longdead_guardian.png");
+                case LONGDEAD -> of("textures/entity/skeleton/longdead.png");
+                case LONGDEAD_GUARDIAN -> of("textures/entity/skeleton/longdead_guardian.png");
+                case BONE_LORD -> of("textures/entity/skeleton/bone_lord.png");
+                case ANCIENT_BONE_LORD -> of("textures/entity/skeleton/longdead_guardian.png");
                 case SKELETON -> Identifier.withDefaultNamespace("textures/entity/skeleton/skeleton.png");
             };
         }
@@ -299,7 +299,7 @@ public final class EntityRenderers {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
-            // MITE glow textures: phase spiders glow green, everything else red. The phase body sheet
+            // Glow textures: phase spiders glow green, everything else red. The phase body sheet
             // already paints green eyes, so the vanilla red spider_eyes layer must not cover them.
             if (variant == InfxSpider.Variant.PHASE) {
                 this.layers.removeIf(layer -> layer instanceof SpiderEyesLayer<?>);
@@ -319,12 +319,12 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxSpider.Variant variant) {
             return switch (variant) {
-                case CAVE_SPIDER -> mite("textures/entity/spider/cave_spider.png");
-                case BLACK_WIDOW -> mite("textures/entity/spider/black_widow.png");
-                case DEMON -> mite("textures/entity/spider/demon_spider.png");
-                case WOOD -> mite("textures/entity/spider/wood_spider.png");
-                case PHASE -> mite("textures/entity/spider/phase_spider.png");
-                case SPIDER -> mite("textures/entity/spider/spider.png");
+                case CAVE_SPIDER -> of("textures/entity/spider/cave_spider.png");
+                case BLACK_WIDOW -> of("textures/entity/spider/black_widow.png");
+                case DEMON -> of("textures/entity/spider/demon_spider.png");
+                case WOOD -> of("textures/entity/spider/wood_spider.png");
+                case PHASE -> of("textures/entity/spider/phase_spider.png");
+                case SPIDER -> of("textures/entity/spider/spider.png");
             };
         }
     }
@@ -344,7 +344,7 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxCreeper.Variant variant) {
             return switch (variant) {
-                case INFERNAL -> mite("textures/entity/creeper/infernal_creeper.png");
+                case INFERNAL -> of("textures/entity/creeper/infernal_creeper.png");
                 case CREEPER -> Identifier.withDefaultNamespace("textures/entity/creeper/creeper.png");
             };
         }
@@ -353,7 +353,7 @@ public final class EntityRenderers {
     /**
      * SlimeRenderer's built-in outer layer always uses the vanilla slime texture, even when this
      * renderer overrides {@link #getTextureLocation(SlimeRenderState)}. Rebuild the small renderer
-     * with a texture-aware outer layer so both shells use the authorized MITE sheet.
+     * with a texture-aware outer layer so both shells use the authorized imported sheet.
      */
     public static final class SlimeTexture extends MobRenderer<InfxSlime, SlimeRenderState, SlimeModel> {
         private final Identifier texture;
@@ -398,11 +398,11 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxSlime.Variant variant) {
             return switch (variant) {
-                case SLIME -> mite("textures/entity/slime/slime.png");
-                case JELLY -> mite("textures/entity/slime/jelly.png");
-                case BLOB -> mite("textures/entity/slime/blob.png");
-                case OOZE -> mite("textures/entity/slime/ooze.png");
-                case PUDDING -> mite("textures/entity/slime/pudding.png");
+                case SLIME -> of("textures/entity/slime/slime.png");
+                case JELLY -> of("textures/entity/slime/jelly.png");
+                case BLOB -> of("textures/entity/slime/blob.png");
+                case OOZE -> of("textures/entity/slime/ooze.png");
+                case PUDDING -> of("textures/entity/slime/pudding.png");
             };
         }
     }
@@ -470,7 +470,7 @@ public final class EntityRenderers {
         }
 
         static Identifier texture() {
-            return mite("textures/entity/slime/magmacube.png");
+            return of("textures/entity/slime/magmacube.png");
         }
     }
 
@@ -489,9 +489,9 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxSilverfish.Variant variant) {
             return switch (variant) {
-                case NETHERSPAWN -> mite("textures/entity/silverfish/netherspawn.png");
-                case COPPERSPINE -> mite("textures/entity/silverfish/copperspine.png");
-                case HOARY -> mite("textures/entity/silverfish/hoary.png");
+                case NETHERSPAWN -> of("textures/entity/silverfish/netherspawn.png");
+                case COPPERSPINE -> of("textures/entity/silverfish/copperspine.png");
+                case HOARY -> of("textures/entity/silverfish/hoary.png");
             };
         }
     }
@@ -523,9 +523,9 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxBat.Variant variant) {
             return switch (variant) {
-                case NORMAL -> mite("textures/entity/bat.png");
-                case VAMPIRE, GIANT_VAMPIRE -> mite("textures/entity/bat/vampire.png");
-                case NIGHTWING -> mite("textures/entity/bat/nightwing.png");
+                case NORMAL -> of("textures/entity/bat.png");
+                case VAMPIRE, GIANT_VAMPIRE -> of("textures/entity/bat/vampire.png");
+                case NIGHTWING -> of("textures/entity/bat/nightwing.png");
             };
         }
     }
@@ -563,15 +563,15 @@ public final class EntityRenderers {
 
         static Identifier textureFor(InfxWolf.Variant variant, boolean tame, boolean angry) {
             if (variant == InfxWolf.Variant.HELLHOUND) {
-                return mite("textures/entity/hellhound/hellhound.png");
+                return of("textures/entity/hellhound/hellhound.png");
             }
             if (tame) {
-                return mite("textures/entity/dire_wolf/tame.png");
+                return of("textures/entity/dire_wolf/tame.png");
             }
             if (angry) {
-                return mite("textures/entity/dire_wolf/angry.png");
+                return of("textures/entity/dire_wolf/angry.png");
             }
-            return mite("textures/entity/dire_wolf/neutral.png");
+            return of("textures/entity/dire_wolf/neutral.png");
         }
     }
 
@@ -586,12 +586,12 @@ public final class EntityRenderers {
         }
 
         static Identifier texture() {
-            return mite("textures/entity/fire_elemental.png");
+            return of("textures/entity/fire_elemental.png");
         }
     }
 
     /**
-     * MITE blaze sheet: brighter rod pixels than vanilla 26.2.
+     * Blaze sheet: brighter rod pixels than vanilla 26.2.
      */
     public static final class BlazeTexture extends BlazeRenderer {
         public BlazeTexture(EntityRendererProvider.Context context) {
@@ -604,12 +604,12 @@ public final class EntityRenderers {
         }
 
         static Identifier texture() {
-            return mite("textures/entity/blaze.png");
+            return of("textures/entity/blaze.png");
         }
     }
 
     /**
-     * MITE ghast face art; 64x32 matches the ghast model's declared UV size.
+     * Ghast face art; 64x32 matches the ghast model's declared UV size.
      */
     public static final class GhastTexture extends GhastRenderer {
         public GhastTexture(EntityRendererProvider.Context context) {
@@ -623,12 +623,12 @@ public final class EntityRenderers {
 
         static Identifier texture(boolean charging) {
             return charging
-                    ? mite("textures/entity/ghast/ghast_shooting.png")
-                    : mite("textures/entity/ghast/ghast.png");
+                    ? of("textures/entity/ghast/ghast_shooting.png")
+                    : of("textures/entity/ghast/ghast.png");
         }
     }
 
-    private static Identifier mite(String path) {
+    private static Identifier of(String path) {
         return InfiniteX.id(path);
     }
 }

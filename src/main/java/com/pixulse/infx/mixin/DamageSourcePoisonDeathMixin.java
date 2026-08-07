@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Uses MITE's dedicated poison death message when a poisoned victim dies to magic damage. */
+/** Uses InfX's dedicated poison death message when a poisoned victim dies to magic damage. */
 @Mixin(DamageSource.class)
 public abstract class DamageSourcePoisonDeathMixin {
     @Inject(method = "getLocalizedDeathMessage", at = @At("HEAD"), cancellable = true)

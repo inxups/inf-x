@@ -51,7 +51,7 @@ public final class InfXAttachments {
                                     HashMap::new, ByteBufCodecs.STRING_UTF8, ByteBufCodecs.VAR_INT)
                             .decode(buf)));
 
-    /** Per-chunk grass trampling counts (MITE manure-brown grass). */
+    /** Per-chunk grass trampling counts (InfX manure-brown grass). */
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Map<String, Integer>>> GRASS_TRAMPLING =
             ATTACHMENTS.register(
                     "grass_trampling",

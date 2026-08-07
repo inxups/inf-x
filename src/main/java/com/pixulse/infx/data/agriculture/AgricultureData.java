@@ -10,7 +10,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
-/** Persistent MITE farmland fertility and artificial-log bookkeeping. */
+/** Persistent InfX farmland fertility and artificial-log bookkeeping. */
 public final class AgricultureData extends SavedData {
     private static final Codec<Map<String, Long>> POSITION_TIMES =
             Codec.unboundedMap(Codec.STRING, Codec.LONG);
@@ -47,7 +47,7 @@ public final class AgricultureData extends SavedData {
         return fresh;
     }
 
-    /** MITE consumes the fertilized bit only after a successful crop growth roll. */
+    /** InfX consumes the fertilized bit only after a successful crop growth roll. */
     public boolean consumeFertility(BlockPos farmland) {
         boolean consumed = fertile.remove(key(farmland)) != null;
         if (consumed) setDirty();

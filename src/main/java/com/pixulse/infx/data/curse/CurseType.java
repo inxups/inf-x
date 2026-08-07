@@ -8,7 +8,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** The sixteen equally weighted witch curses defined by MITE INFX. */
+/** The sixteen equally weighted witch curses defined by INFX. */
 public enum CurseType implements StringRepresentable {
     EQUIPMENT_DECAYS_FASTER(1, "equipment_decay"),
     CANNOT_HOLD_BREATH(2, "cannot_hold_breath"),
@@ -72,7 +72,7 @@ public enum CurseType implements StringRepresentable {
         return selected;
     }
 
-    /** Reproduces MITE's username hash instead of Java's {@link String#hashCode()}. */
+    /** Reproduces InfX's username hash instead of Java's {@link String#hashCode()}. */
     public static int originalUsernameHash(String username) {
         int hash = 0;
         for (int index = 0; index < username.length(); index++) {

@@ -12,8 +12,8 @@ class SkeletonRangedAttackTest {
     private static final double EPSILON = 1.0E-6;
 
     @Test
-    void rangedAimUsesMiteDistanceCurveAndIgnoresVerticalMotion() {
-        InfxSkeleton.InfxRangedAim aim = InfxSkeleton.calculateMiteRangedAim(
+    void rangedAimUsesDistanceCurveAndIgnoresVerticalMotion() {
+        InfxSkeleton.InfxRangedAim aim = InfxSkeleton.calculateRangedAim(
                 0.0, 0.0, 10.0, 0.0, new Vec3(0.2, 99.0, -0.1), Vec3.ZERO, 0.5F);
 
         assertEquals(7.585776F, aim.leadTicks(), EPSILON);
@@ -24,7 +24,7 @@ class SkeletonRangedAttackTest {
 
     @Test
     void rangedAimFallsBackPerAxisForInvalidKnownPlayerMotion() {
-        InfxSkeleton.InfxRangedAim aim = InfxSkeleton.calculateMiteRangedAim(
+        InfxSkeleton.InfxRangedAim aim = InfxSkeleton.calculateRangedAim(
                 0.0,
                 0.0,
                 10.0,
@@ -38,17 +38,17 @@ class SkeletonRangedAttackTest {
     }
 
     @Test
-    void verticalCorrectionKeepsMiteRangeAndElevationRules() {
-        assertEquals(-0.0475, InfxSkeleton.miteVerticalCorrection(100.0, 5.0), EPSILON);
-        assertEquals(0.10765625, InfxSkeleton.miteVerticalCorrection(625.0, 5.0), EPSILON);
-        assertEquals(0.09, InfxSkeleton.miteVerticalCorrection(400.0, 9.0), EPSILON);
+    void verticalCorrectionKeepsRangeAndElevationRules() {
+        assertEquals(-0.0475, InfxSkeleton.verticalCorrection(100.0, 5.0), EPSILON);
+        assertEquals(0.10765625, InfxSkeleton.verticalCorrection(625.0, 5.0), EPSILON);
+        assertEquals(0.09, InfxSkeleton.verticalCorrection(400.0, 9.0), EPSILON);
     }
 
     @Test
-    void skeletonUncertaintyIncludesMiteMultiplier() {
-        assertEquals(21.0F, InfxSkeleton.miteArrowInaccuracy(0));
-        assertEquals(9.0F, InfxSkeleton.miteArrowInaccuracy(2));
-        assertEquals(3.0F, InfxSkeleton.miteArrowInaccuracy(3));
+    void skeletonUncertaintyIncludesMultiplier() {
+        assertEquals(21.0F, InfxSkeleton.arrowInaccuracy(0));
+        assertEquals(9.0F, InfxSkeleton.arrowInaccuracy(2));
+        assertEquals(3.0F, InfxSkeleton.arrowInaccuracy(3));
     }
 
     @Test

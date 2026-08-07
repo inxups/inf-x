@@ -56,7 +56,7 @@ public final class GlassShardLootModifier extends LootModifier {
         return generatedLoot;
     }
 
-    /** MITE fragments extend to every stained-glass table; panes drop a single shard. */
+    /** InfX fragments extend to every stained-glass table; panes drop a single shard. */
     private static boolean isStainedGlass(Identifier table, BlockState state) {
         if (state == null
                 || !Identifier.DEFAULT_NAMESPACE.equals(table.getNamespace())

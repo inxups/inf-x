@@ -32,12 +32,12 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         addEffectiveToolTags();
         addPortableBlocks();
         addHarvestLevels();
-        addMiteCropTags();
+        addCropTags();
         addGelatinousCubeTags();
         addCurseTags();
     }
 
-    private void addMiteCropTags() {
+    private void addCropTags() {
         InfXBlocks.INFX_CROPS.forEach(crop -> {
             tag(BlockTags.CROPS).add(crop.getKey());
             tag(BlockTags.MAINTAINS_FARMLAND).add(crop.getKey());

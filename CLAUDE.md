@@ -24,8 +24,8 @@
     4. Coremod，仅在公共 API、Access Transformer 和 Mixin 都无法实现时使用。
 - 修改 InfiniteX 自身代码时可正常编辑，不要求使用 Mixin 或 Coremod。
 - 修改 Minecraft 或 NeoForge 原有行为时优先使用最小范围的 Mixin，并说明注入原因。
-- 添加属于mite的新方块或者新物品自动从 ‘mite-resource-pack’寻找材质
 - 添加指令以/infx xxx xxx 格式
+- 项目已放弃与 MITE 的对齐：代码注释、测试文案与标识符中不新增 MITE 字样（既有行为与素材溯源清单保持不变）
 - 找不到 Minecraft 源码时，先检查 Gradle 下载的 sources JAR 或 NeoForge 附带源码；只有访问级别受限时才使用 Access Transformer。
 
 ## 资源与数据生成

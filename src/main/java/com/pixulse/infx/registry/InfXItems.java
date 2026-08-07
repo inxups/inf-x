@@ -284,7 +284,7 @@ public final class InfXItems {
     /** One 26.2-style spawn egg for every INFX mob entity (excludes gelatinous_sphere projectile). */
     public static final List<DeferredItem<SpawnEggItem>> SPAWN_EGGS = registerSpawnEggs();
 
-    /** MITE carrot-on-a-stick hook materials, mirroring the fishing-rod material set. */
+    /** InfX carrot-on-a-stick hook materials, mirroring the fishing-rod material set. */
     public static final List<InfxMaterial> FISHING_HOOK_MATERIALS = List.of(
             InfxMaterial.FLINT,
             InfxMaterial.OBSIDIAN,
@@ -296,7 +296,7 @@ public final class InfXItems {
             InfxMaterial.MITHRIL,
             InfxMaterial.ADAMANTIUM);
 
-    /** MITE carrot on a stick per fishing-hook material, boosting the ridden pig. */
+    /** InfX carrot on a stick per fishing-hook material, boosting the ridden pig. */
     public static final Map<InfxMaterial, DeferredItem<InfxCarrotOnAStickItem>> CARROT_ON_A_STICKS =
             registerCarrotOnASticks();
 
@@ -412,7 +412,7 @@ public final class InfXItems {
                             Item.Properties configured = properties.stacksTo(
                                     contents == InfxBucketItem.Contents.EMPTY ? 8 : 1);
                             if (contents != InfxBucketItem.Contents.EMPTY) {
-                                // MITE ItemVessel#setContainerItem: a filled vessel used in crafting
+                                // InfX ItemVessel#setContainerItem: a filled vessel used in crafting
                                 // returns the matching empty bucket as its remainder.
                                 configured.craftRemainder(
                                         bucket(material, InfxBucketItem.Contents.EMPTY).value());
@@ -449,7 +449,7 @@ public final class InfXItems {
                             Item.Properties configured = properties
                                     .stacksTo(1)
                                     .component(DataComponents.BUCKET_ENTITY_DATA, CustomData.EMPTY);
-                            // MITE ItemVessel#setContainerItem: a filled vessel used in crafting
+                            // InfX ItemVessel#setContainerItem: a filled vessel used in crafting
                             // returns the matching empty bucket as its remainder.
                             configured.craftRemainder(bucket(material, InfxBucketItem.Contents.EMPTY).value());
                             if (kind.food() != null) {
@@ -479,7 +479,7 @@ public final class InfXItems {
                             properties),
                     properties -> {
                         Item.Properties configured = properties.stacksTo(1);
-                        // MITE ItemVessel#setContainerItem: a filled vessel used in crafting
+                        // InfX ItemVessel#setContainerItem: a filled vessel used in crafting
                         // returns the matching empty bucket as its remainder.
                         configured.craftRemainder(bucket(material, InfxBucketItem.Contents.EMPTY).value());
                         return material == InfxMaterial.ADAMANTIUM

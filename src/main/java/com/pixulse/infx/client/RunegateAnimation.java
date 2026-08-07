@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.client.network.event.RegisterClientPayloadHandlersEvent;
 
-/** Recreates MITE's rune-gate full-screen fade and client-timed execution signal. */
+/** Recreates InfX's rune-gate full-screen fade and client-timed execution signal. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class RunegateAnimation {
     private static final int FINISHED_COUNTER = 30;

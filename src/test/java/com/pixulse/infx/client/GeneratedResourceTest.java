@@ -45,7 +45,7 @@ class GeneratedResourceTest {
     private static final Path GENERATED = ROOT.resolve("src/generated/resources");
     private static final Path STATIC = ROOT.resolve("src/main/resources");
     private static final Pattern FORMAT_SPECIFIER = Pattern.compile("%(?:\\d+\\$)?[A-Za-z]");
-    private static final double[] MITE_UNDERWORLD_PROFILE = {
+    private static final double[] UNDERWORLD_PROFILE = {
         -638.0,
         -269.1085232884469,
         -81.20526927275851,
@@ -96,7 +96,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void miteChineseNamesForMilkAndPoisonDeath() throws Exception {
+    void chineseNamesForMilkAndPoisonDeath() throws Exception {
         JsonObject zh = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertEquals("铁奶桶", zh.get("item.infx.iron_milk_bucket").getAsString());
         assertEquals("胡萝卜钓竿", zh.get("item.infx.iron_carrot_on_a_stick").getAsString());
@@ -121,9 +121,9 @@ class GeneratedResourceTest {
         }
     }
 
-    /** The vanilla-id overrides must carry MITE weights, level caps and self-exclusivity. */
+    /** The vanilla-id overrides must carry InfX weights, level caps and self-exclusivity. */
     @Test
-    void vanillaEnchantmentOverridesUseMiteDefinitions() throws Exception {
+    void vanillaEnchantmentOverridesUseDefinitions() throws Exception {
         Map<String, int[]> expected = Map.ofEntries(
                 Map.entry("fire_protection", new int[]{25, 4}),
                 Map.entry("feather_falling", new int[]{25, 4}),
@@ -155,7 +155,7 @@ class GeneratedResourceTest {
         assertTrue(silkTouch.getAsJsonArray("exclusive_set").asList().stream()
                         .map(JsonElement::getAsString)
                         .anyMatch("infx:fortune"::equals),
-                "silk touch stays exclusive with MITE fortune");
+                "silk touch stays exclusive with InfX fortune");
         JsonObject fortune = json(GENERATED.resolve("data/infx/enchantment/fortune.json"));
         assertTrue(fortune.getAsJsonArray("exclusive_set").asList().stream()
                         .map(JsonElement::getAsString)
@@ -171,14 +171,14 @@ class GeneratedResourceTest {
                 "minecraft:fire_protection",
                 "minecraft:blast_protection",
                 "minecraft:projectile_protection");
-        assertEquals(typedProtectionSet, protectionSet, "MITE protection enchantments must be mutually exclusive");
+        assertEquals(typedProtectionSet, protectionSet, "InfX protection enchantments must be mutually exclusive");
         for (String path : List.of("fire_protection", "blast_protection", "projectile_protection")) {
             Set<String> exclusiveSet = json(GENERATED.resolve(
                             "data/minecraft/enchantment/" + path + ".json"))
                     .getAsJsonArray("exclusive_set").asList().stream()
                     .map(JsonElement::getAsString)
                     .collect(Collectors.toSet());
-            assertEquals(typedProtectionSet, exclusiveSet, path + " must use the shared MITE protection set");
+            assertEquals(typedProtectionSet, exclusiveSet, path + " must use the shared InfX protection set");
         }
         String featherFallingSet = json(GENERATED.resolve(
                         "data/minecraft/enchantment/feather_falling.json"))
@@ -348,7 +348,7 @@ class GeneratedResourceTest {
                         .map(JsonElement::getAsJsonObject)
                         .anyMatch(function -> function.get("function").getAsString().equals("minecraft:enchanted_count_increase")
                                 && function.get("enchantment").getAsString().equals("minecraft:looting")),
-                "INFX ender pearl drops must retain MITE's Looting count increase");
+                "INFX ender pearl drops must retain InfX's Looting count increase");
     }
 
     @Test
@@ -390,7 +390,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void emeraldEnchantingTableModelUsesImportedMiteTextures() throws Exception {
+    void emeraldEnchantingTableModelUsesImportedTextures() throws Exception {
         JsonObject model = json(GENERATED.resolve("assets/infx/models/block/emerald_enchanting_table.json"));
         JsonObject textures = model.getAsJsonObject("textures");
         JsonObject blockState = json(GENERATED.resolve("assets/infx/blockstates/emerald_enchanting_table.json"));
@@ -1184,7 +1184,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void miteStructureLootTargetsAndMappingsAreGenerated() throws Exception {
+    void structureLootTargetsAndMappingsAreGenerated() throws Exception {
         List<String> structures = List.of(
                 "simple_dungeon",
                 "abandoned_mineshaft",
@@ -1258,7 +1258,7 @@ class GeneratedResourceTest {
         String trial = Files.readString(tables.resolve("trial_chambers/reward.json"), UTF_8);
         String ominous = Files.readString(tables.resolve("trial_chambers/reward_ominous.json"), UTF_8);
         assertAll(
-                "MITE mappings",
+                "InfX mappings",
                 () -> assertTrue(dungeon.contains("infx:onion")),
                 () -> assertTrue(dungeon.contains("infx:copper_coin")),
                 () -> assertFalse(dungeon.contains("infx:ancient_metal_fishing_rod")),
@@ -1305,7 +1305,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void miteOresHaveCompleteResourcesAndProgressionData() throws Exception {
+    void oresHaveCompleteResourcesAndProgressionData() throws Exception {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         for (String ore : List.of(
@@ -1871,7 +1871,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void underworldDataUsesShiftedMiteTerrainWithDeepSlateAndRandomBoundaries() throws Exception {
+    void underworldDataUsesShiftedTerrainWithDeepSlateAndRandomBoundaries() throws Exception {
         JsonObject dimension = json(GENERATED.resolve("data/infx/dimension/underworld.json"));
         JsonObject generator = dimension.getAsJsonObject("generator");
         JsonObject dimensionType = json(GENERATED.resolve("data/infx/dimension_type/underworld.json"));
@@ -2428,7 +2428,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void underworldDensityDataUsesMiteProfileAndShiftedCoordinates() throws Exception {
+    void underworldDensityDataUsesProfileAndShiftedCoordinates() throws Exception {
         JsonObject terrain = json(GENERATED.resolve(
                 "data/infx/worldgen/density_function/underworld_terrain.json"));
         JsonObject shiftedY = objectWithType(terrain, "infx:shifted_y");
@@ -2436,9 +2436,9 @@ class GeneratedResourceTest {
         JsonObject terrainInRange = terrain.getAsJsonObject("when_in_range");
         JsonObject interpolatedTerrain = terrainInRange.getAsJsonObject("input");
 
-        assertMiteUnderworldProfile(terrain);
+        assertUnderworldProfile(terrain);
         assertAll(
-                "MITE Underworld density",
+                "InfX Underworld density",
                 () -> assertEquals("minecraft:range_choice", terrain.get("type").getAsString()),
                 () -> assertEquals(120.0, terrain.get("min_inclusive").getAsDouble()),
                 () -> assertEquals(248.0, terrain.get("max_exclusive").getAsDouble()),
@@ -2518,7 +2518,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void moonTimelineUsesMiteDayOnePhaseOrder() throws Exception {
+    void moonTimelineUsesDayOnePhaseOrder() throws Exception {
         JsonObject timeline = json(GENERATED.resolve("data/minecraft/timeline/moon.json"));
         JsonArray keyframes = timeline
                 .getAsJsonObject("tracks")
@@ -2534,7 +2534,7 @@ class GeneratedResourceTest {
                 .toList();
 
         assertAll(
-                "MITE moon timeline",
+                "InfX moon timeline",
                 () -> assertEquals("minecraft:overworld", timeline.get("clock").getAsString()),
                 () -> assertEquals(192_000, timeline.get("period_ticks").getAsInt()),
                 () -> assertEquals(List.of(0, 24_000, 48_000, 72_000, 96_000, 120_000, 144_000, 168_000), ticks),
@@ -2638,7 +2638,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void miteRecipeTableOverridesMatchTheReferenceRecipes() throws Exception {
+    void recipeTableOverridesMatchTheReferenceRecipes() throws Exception {
         Map<String, String> shapedPatterns = Map.ofEntries(
                 Map.entry("stick", "[\"P\",\"P\"]"),
                 Map.entry("sugar_from_sugar_cane", "[\"C\"]"),
@@ -2683,7 +2683,7 @@ class GeneratedResourceTest {
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertAll(
-                "MITE recipe table",
+                "InfX recipe table",
                 () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
                 () -> assertEquals("infx:crafting_shaped", stick.get("type").getAsString()),
                 () -> assertEquals("hand", stick.get("required_bench").getAsString()),
@@ -2728,7 +2728,7 @@ class GeneratedResourceTest {
                         "infx:snow_slab",
                         snowSlab.getAsJsonObject("result").get("id").getAsString()),
                 () -> assertFalse(saddle.getAsJsonObject("result").has("count"),
-                        "MITE saddle outputs a single item"),
+                        "InfX saddle outputs a single item"),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/blockstates/snow_slab.json"))),
                 () -> assertTrue(Files.isRegularFile(
@@ -2880,9 +2880,9 @@ class GeneratedResourceTest {
                 || Files.isRegularFile(GENERATED.resolve(relativePath));
     }
 
-    /** The vanilla crafting table recipes removed for MITE must be restored as INFX timed recipes. */
+    /** The vanilla crafting table recipes removed for InfX must be restored as INFX timed recipes. */
     @Test
-    void restoredVanillaRecipesExistWithMiteCounts() throws Exception {
+    void restoredVanillaRecipesExistWithCounts() throws Exception {
         record Expectation(String path, String result, int count) {}
         List<Expectation> expectations = List.of(
                 new Expectation("stick", "minecraft:stick", 4),
@@ -3378,7 +3378,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void safeAndFoodModelsReferenceTheirImportedMiteTextures() throws Exception {
+    void safeAndFoodModelsReferenceTheirImportedTextures() throws Exception {
         for (String material : List.of("copper", "silver", "gold", "iron", "ancient_metal", "mithril", "adamantium")) {
             JsonObject model = json(GENERATED.resolve("assets/infx/models/block/" + material + "_safe.json"));
             JsonObject itemModel = json(GENERATED.resolve("assets/infx/items/" + material + "_safe.json"));
@@ -3442,7 +3442,7 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void miteHarvestLevelsAndEffectiveToolsCoverR196AndModern262Families() throws Exception {
+    void harvestLevelsAndEffectiveToolsCoverR196AndModern262Families() throws Exception {
         Map<Integer, Set<String>> levels = new java.util.LinkedHashMap<>();
         Set<String> directAssignments = new HashSet<>();
         for (int level = 0; level <= 6; level++) {
@@ -3456,7 +3456,7 @@ class GeneratedResourceTest {
         }
 
         assertAll(
-                "MITE and 26.2 level representatives",
+                "legacy and 26.2 level representatives",
                 () -> assertTrue(levels.get(0).contains("minecraft:coal_block")),
                 () -> assertTrue(levels.get(0).contains("#minecraft:rails")),
                 () -> assertTrue(levels.get(0).contains("minecraft:infested_stone")),
@@ -3489,7 +3489,7 @@ class GeneratedResourceTest {
         Set<String> axeHalfSpeed = tagValues("effective_tool/axe_half_speed");
         Set<String> portable = tagValues("portable_hand_harvest");
         assertAll(
-                "MITE effective-tool and portability tags",
+                "InfX effective-tool and portability tags",
                 () -> assertTrue(pickaxe.contains("#minecraft:mineable/pickaxe")),
                 () -> assertTrue(pickaxe.contains("#c:glass_blocks")),
                 () -> assertTrue(pickaxe.contains("#minecraft:flower_pots")),
@@ -3762,8 +3762,8 @@ class GeneratedResourceTest {
         return false;
     }
 
-    private static void assertMiteUnderworldProfile(JsonObject terrain) {
-        for (int sample = 0; sample < MITE_UNDERWORLD_PROFILE.length - 1; sample++) {
+    private static void assertUnderworldProfile(JsonObject terrain) {
+        for (int sample = 0; sample < UNDERWORLD_PROFILE.length - 1; sample++) {
             int fromY = 120 + sample * 8;
             int toY = fromY + 8;
             assertTrue(
@@ -3771,9 +3771,9 @@ class GeneratedResourceTest {
                             terrain,
                             fromY,
                             toY,
-                            MITE_UNDERWORLD_PROFILE[sample],
-                            MITE_UNDERWORLD_PROFILE[sample + 1]),
-                    "Missing MITE Underworld profile segment from Y=" + fromY + " to Y=" + toY);
+                            UNDERWORLD_PROFILE[sample],
+                            UNDERWORLD_PROFILE[sample + 1]),
+                    "Missing InfX Underworld profile segment from Y=" + fromY + " to Y=" + toY);
         }
     }
 

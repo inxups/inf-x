@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * INFX horse: untamed remount cooldown and beef drop only.
- * Does <strong>not</strong> use livestock needs/disease (matches MITE: horse is not EntityLivestock).
+ * Does <strong>not</strong> use livestock needs/disease (matches the original: horse is not EntityLivestock).
  */
 public final class InfxHorse extends Horse {
     private static final String GOALS_ADDED = "infx_horse_goals_added";
@@ -75,7 +75,7 @@ public final class InfxHorse extends Horse {
     }
 
     /**
-     * MITE wild horses rear and refuse any food for 4000 ticks after accepting one,
+     * InfX wild horses rear and refuse any food for 4000 ticks after accepting one,
      * unless the food actually healed them (then they eat freely until full).
      */
     @Override
@@ -130,7 +130,7 @@ public final class InfxHorse extends Horse {
             }
             return baby;
         }
-        // MITE foals inherit the coat/markings table and the parents' attributes like the vanilla
+        // InfX foals inherit the coat/markings table and the parents' attributes like the vanilla
         // horse instead of spawning a blank coat with base stats.
         Horse horsePartner = (Horse) partner;
         Horse baby = InfXEntityTypes.INFX_HORSE.get().create(level, EntitySpawnReason.BREEDING);

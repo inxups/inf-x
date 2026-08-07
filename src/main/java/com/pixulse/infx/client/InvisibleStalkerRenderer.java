@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import org.jspecify.annotations.NonNull;
 
-/** Renders the MITE stalker as a faint wight-textured silhouette rather than a potion-invisible zombie. */
+/** Renders the InfX stalker as a faint wight-textured silhouette rather than a potion-invisible zombie. */
 public final class InvisibleStalkerRenderer
         extends MobRenderer<InfxZombie, ZombieRenderState, InvisibleStalkerModel> {
     static final float OPACITY = 0.05F;

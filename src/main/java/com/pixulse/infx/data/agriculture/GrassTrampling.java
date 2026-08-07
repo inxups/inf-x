@@ -26,15 +26,15 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
- * MITE grass trampling: adult livestock darken grass toward brown manure color.
+ * InfX grass trampling: adult livestock darken grass toward brown manure color.
  *
  * <p>Trampling count is stored per grass block on the chunk attachment (0-15), matching
- * MITE {@code BlockGrass} metadata bits. Color blend uses the same brown target (134, 96, 67).
+ * InfX {@code BlockGrass} metadata bits. Color blend uses the same brown target (134, 96, 67).
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class GrassTrampling {
     public static final int MAX_TRAMPLINGS = 15;
-    /** MITE brown manure grass target RGB. */
+    /** InfX brown manure grass target RGB. */
     public static final int MANURE_RED = 134;
     public static final int MANURE_GREEN = 96;
     public static final int MANURE_BLUE = 67;
@@ -100,7 +100,7 @@ public final class GrassTrampling {
         if (effect >= 0.2F && entity.getRandom().nextFloat() < effect * 2.0F) {
             BlockPos above = under.above();
             BlockState plant = level.getBlockState(above);
-            // MITE tramples plants/crops on the grass surface.
+            // InfX tramples plants/crops on the grass surface.
             if (plant.getBlock() instanceof CropBlock
                     || plant.is(Blocks.SHORT_GRASS)
                     || plant.is(Blocks.TALL_GRASS)
@@ -112,7 +112,7 @@ public final class GrassTrampling {
         }
     }
 
-    /** Decrease trampling by 1 when a grass block is selected for MITE-style recovery. */
+    /** Decrease trampling by 1 when a grass block is selected for InfX-style recovery. */
     public static boolean recoverOne(ServerLevel level, BlockPos pos) {
         int tramplings = getTramplings(level, pos);
         if (tramplings <= 0) {
@@ -155,7 +155,7 @@ public final class GrassTrampling {
         return Mth.clamp((tramplings - 3) * 0.05F, 0.0F, 0.5F);
     }
 
-    /** Blend biome grass color toward MITE manure brown by trampling effect. */
+    /** Blend biome grass color toward InfX manure brown by trampling effect. */
     public static int blendColor(int biomeColor, int tramplings) {
         float effect = tramplingEffect(tramplings);
         if (effect <= 0.0F) {

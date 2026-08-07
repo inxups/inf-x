@@ -13,7 +13,7 @@ import org.jspecify.annotations.NonNull;
 
 /**
  * The INFX magma cube only accepts player melee from stone-mining tools (pickaxe / war hammer),
- * plus snowballs, water and explosions — matching MITE's stone-effective tool gate.
+ * plus snowballs, water and explosions — matching the stone-effective tool gate.
  */
 public final class InfxMagmaCube extends MagmaCube implements InfxMob {
     private static final double MOVEMENT_SPEED = 0.20;
@@ -61,13 +61,13 @@ public final class InfxMagmaCube extends MagmaCube implements InfxMob {
         return (float) attackDamageForSize(getSize());
     }
 
-    /** MITE jump cadence: 40-120 ticks at rest, an effective 20 while chasing (60 / 3). */
+    /** InfX jump cadence: 40-120 ticks at rest, an effective 20 while chasing (60 / 3). */
     @Override
     protected int getJumpDelay() {
         return getTarget() != null ? 60 : random.nextInt(81) + 40;
     }
 
-    /** MITE magma cubes set landed targets on fire for size×3 seconds at a size×2-in-10 chance. */
+    /** InfX magma cubes set landed targets on fire for size×3 seconds at a size×2-in-10 chance. */
     @Override
     protected void dealDamage(LivingEntity target) {
         float health = target.getHealth();
@@ -88,7 +88,7 @@ public final class InfxMagmaCube extends MagmaCube implements InfxMob {
     @Override
     public void aiStep() {
         super.aiStep();
-        // MITE magma cubes fizz while wet and take a point of water damage on a 1-in-4 roll in
+        // InfX magma cubes fizz while wet and take a point of water damage on a 1-in-4 roll in
         // water (1-in-16 in rain), rechecked every 2-8 ticks.
         if (level() instanceof ServerLevel level && isInWaterOrRain() && tickCount >= nextFizzTick) {
             nextFizzTick = tickCount + 2 + random.nextInt(7);

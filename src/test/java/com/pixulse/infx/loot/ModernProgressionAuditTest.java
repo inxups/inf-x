@@ -122,7 +122,7 @@ class ModernProgressionAuditTest {
     }
 
     @Test
-    void miteProgressionUsesMiteDayAndHeightBoundaries() {
+    void progressionUsesDayAndHeightBoundaries() {
         Identifier axe = Identifier.fromNamespaceAndPath("infx", "ancient_metal_axe");
         Identifier hoe = Identifier.fromNamespaceAndPath("infx", "copper_hoe");
         Identifier mattock = Identifier.fromNamespaceAndPath("infx", "copper_mattock");
@@ -132,18 +132,18 @@ class ModernProgressionAuditTest {
         Identifier nugget = Identifier.fromNamespaceAndPath("infx", "silver_nugget");
         Identifier rod = Identifier.fromNamespaceAndPath("infx", "ancient_metal_fishing_rod");
 
-        assertTrue(MiteProgressionLootFilter.isLocked(axe, 9, 64));
-        assertFalse(MiteProgressionLootFilter.isLocked(axe, 10, 64));
-        assertTrue(MiteProgressionLootFilter.isLocked(hoe, 10, 47));
-        assertFalse(MiteProgressionLootFilter.isLocked(hoe, 10, 48));
-        assertTrue(MiteProgressionLootFilter.isLocked(mattock, 9, 64));
-        assertTrue(MiteProgressionLootFilter.isLocked(pickaxe, 19, 64));
-        assertFalse(MiteProgressionLootFilter.isLocked(pickaxe, 20, 64));
-        assertTrue(MiteProgressionLootFilter.isLocked(ingot, 19, 64));
-        assertTrue(MiteProgressionLootFilter.isLocked(coin, 19, 64));
-        assertFalse(MiteProgressionLootFilter.isLocked(nugget, 19, 64));
-        assertTrue(MiteProgressionLootFilter.isLocked(rod, 20, 47));
-        assertFalse(MiteProgressionLootFilter.isLocked(rod, 20, 48));
+        assertTrue(LegacyProgressionLootFilter.isLocked(axe, 9, 64));
+        assertFalse(LegacyProgressionLootFilter.isLocked(axe, 10, 64));
+        assertTrue(LegacyProgressionLootFilter.isLocked(hoe, 10, 47));
+        assertFalse(LegacyProgressionLootFilter.isLocked(hoe, 10, 48));
+        assertTrue(LegacyProgressionLootFilter.isLocked(mattock, 9, 64));
+        assertTrue(LegacyProgressionLootFilter.isLocked(pickaxe, 19, 64));
+        assertFalse(LegacyProgressionLootFilter.isLocked(pickaxe, 20, 64));
+        assertTrue(LegacyProgressionLootFilter.isLocked(ingot, 19, 64));
+        assertTrue(LegacyProgressionLootFilter.isLocked(coin, 19, 64));
+        assertFalse(LegacyProgressionLootFilter.isLocked(nugget, 19, 64));
+        assertTrue(LegacyProgressionLootFilter.isLocked(rod, 20, 47));
+        assertFalse(LegacyProgressionLootFilter.isLocked(rod, 20, 48));
     }
 
     private static void assertConverted(Item item, EquipmentType type) {

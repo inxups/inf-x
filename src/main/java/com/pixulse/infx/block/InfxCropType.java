@@ -7,13 +7,13 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
-/** Crop-specific MITE growth, rendering, and harvest settings. */
+/** Crop-specific InfX growth, rendering, and harvest settings. */
 public enum InfxCropType {
     WHEAT("wheat", "wheat", Blocks.WHEAT, () -> Items.WHEAT_SEEDS, () -> Items.WHEAT, 7, 8, 7, 0.0005F, 1, 0.0F),
     CARROTS("carrots", "carrots", Blocks.CARROTS, () -> Items.CARROT, () -> Items.CARROT, 7, 4, 3, 0.0005F, 2, 0.25F),
     POTATOES("potatoes", "potatoes", Blocks.POTATOES, () -> Items.POTATO, () -> Items.POTATO, 7, 4, 3, 0.0010F, 2, 0.25F),
     BEETROOTS("beetroots", "beetroot", Blocks.BEETROOTS, () -> Items.BEETROOT_SEEDS, () -> Items.BEETROOT, 7, 4, 4, 0.0005F, 2, 0.5F),
-    // MITE onion uses the onion item itself as both seed and crop; the vanilla block is only a
+    // InfX onion uses the onion item itself as both seed and crop; the vanilla block is only a
     // properties template because modern Minecraft has no onion crop block.
     ONION("onions", "onions", Blocks.CARROTS, () -> InfXItems.ONION.get(), () -> InfXItems.ONION.get(), 7, 5, 4, 0.0005F, 2, 0.25F);
 
@@ -100,7 +100,7 @@ public enum InfxCropType {
     }
 
     /**
-     * Converts the modern four-step beetroot state to ITF Reborn's eight stored MITE ages while
+     * Converts the modern four-step beetroot state to ITF Reborn's eight stored InfX ages while
      * preserving its visible growth frame. Other crop ages are already storage-compatible.
      */
     public int ageFromVanilla(int age) {
@@ -116,7 +116,7 @@ public enum InfxCropType {
         };
     }
 
-    /** MITE carrots, potatoes, and ITF Reborn beetroots map eight stored ages to four frames. */
+    /** InfX carrots, potatoes, and ITF Reborn beetroots map eight stored ages to four frames. */
     public int textureStage(int age) {
         int clamped = Math.clamp(age, 0, maxAge);
         if (this == ONION) {

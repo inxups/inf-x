@@ -37,7 +37,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-/** MITE strongbox: player-only inventory; hoppers and other automation get no sided slots. */
+/** InfX strongbox: player-only inventory; hoppers and other automation get no sided slots. */
 public final class SafeBlockEntity extends RandomizableContainerBlockEntity
         implements LidBlockEntity, WorldlyContainer {
     private static final int[] NO_SLOTS = new int[0];

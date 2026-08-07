@@ -25,10 +25,10 @@ public final class EnchantmentRules {
     public static final int THORNS_MAX_LEVEL = 3;
     public static final int LOOTING_MAX_LEVEL = 3;
     public static final int KNOCKBACK_MAX_LEVEL = 2;
-    /** MITE reduces burn time and explosion knockback by this per protection level, up to 60%. */
+    /** InfX reduces burn time and explosion knockback by this per protection level, up to 60%. */
     public static final float FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL = 0.15F;
     public static final float BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL = 0.15F;
-    /** MITE smite and bane of arthropods both add two damage per level against their targets. */
+    /** InfX smite and bane of arthropods both add two damage per level against their targets. */
     public static final float SMITE_DAMAGE_PER_LEVEL = 2.0F;
     public static final float SLAUGHTER_FIRST_LEVEL_DAMAGE = 1.0F;
     public static final float SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL = 0.75F;
@@ -171,7 +171,7 @@ public final class EnchantmentRules {
         return cappedLevel == 0 ? 0 : random.nextInt(cappedLevel + 1);
     }
 
-    /** Horses do not have vanilla meat drops, so retain MITE's complete horse-beef roll. */
+    /** Horses do not have vanilla meat drops, so retain InfX's complete horse-beef roll. */
     public static int horseButcheringBeefCount(int level, RandomSource random) {
         int cappedLevel = Math.clamp(level, 0, BUTCHERING_MAX_LEVEL);
         return 1 + random.nextInt(cappedLevel + 1) + random.nextInt(2);
@@ -237,14 +237,14 @@ public final class EnchantmentRules {
     }
 
     /**
-     * MITE's typed protections (fire, blast, projectile) add the enchanted piece's own
+     * InfX's typed protections (fire, blast, projectile) add the enchanted piece's own
      * damage-factored protection again, scaled by the level fraction, when the damage matches.
      */
     public static float typedProtectionPoints(float pieceProtection, int level) {
         return Math.max(0.0F, pieceProtection) * levelFraction(level, PROTECTION_MAX_LEVEL);
     }
 
-    /** MITE's fire protection subtracts a floored 15% of the requested burn time per level. */
+    /** InfX's fire protection subtracts a floored 15% of the requested burn time per level. */
     public static int fireProtectionTicks(int ticks, int level) {
         if (ticks <= 0 || level <= 0) {
             return ticks;
@@ -255,7 +255,7 @@ public final class EnchantmentRules {
         return ticks - reduction;
     }
 
-    /** MITE's blast protection subtracts a floored 15% of explosion knockback per level. */
+    /** InfX's blast protection subtracts a floored 15% of explosion knockback per level. */
     public static double blastProtectionKnockback(double knockback, int level) {
         if (knockback <= 0.0D || level <= 0) {
             return knockback;
@@ -277,7 +277,7 @@ public final class EnchantmentRules {
         return Math.clamp(level, 0, THORNS_MAX_LEVEL) * 0.15F;
     }
 
-    /** MITE thorns damage: levels at or below ten roll one to four points. */
+    /** InfX thorns damage: levels at or below ten roll one to four points. */
     public static int thornsDamage(int level, RandomSource random) {
         return level > 10 ? level - 10 : 1 + random.nextInt(4);
     }

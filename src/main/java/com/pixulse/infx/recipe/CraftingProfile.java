@@ -1,12 +1,12 @@
 package com.pixulse.infx.recipe;
 
 /**
- * The server-side crafting facts that are needed to apply the MITE INFX
+ * The server-side crafting facts that are needed to apply the INFX
  * crafting rules to one recipe match.
  *
  * <p>{@code difficulty} is the unmodified recipe difficulty (the sum of the
  * component difficulties).  {@code materialGated} distinguishes recipes for
- * which MITE checks the hardness of the workbench from ordinary recipes that
+ * which InfX checks the hardness of the workbench from ordinary recipes that
  * merely need a 3x3 grid.  The distinction matters because an ordinary recipe
  * receives the fixed 20% workbench bonus even when it is opened on an
  * adamantium bench.</p>

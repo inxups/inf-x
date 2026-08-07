@@ -77,7 +77,7 @@ public final class InfxSheep extends Sheep {
                             .orElse(false)) {
                 setSheared(true);
             }
-            // MITE EntitySheep#onEntityDamaged: any gelatinous sphere hit (including the gray and
+            // InfX EntitySheep#onEntityDamaged: any gelatinous sphere hit (including the gray and
             // black acid spheres) or gelatinous-cube melee instantly corrodes the wool.
             if (source.getDirectEntity() instanceof GelatinousSphere || source.getDirectEntity() instanceof InfxSlime) {
                 setSheared(true);
@@ -122,7 +122,7 @@ public final class InfxSheep extends Sheep {
 
     @Override
     public @Nullable Sheep getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        // MITE newborns mix the wool dyes of both parents like the vanilla sheep.
+        // InfX newborns mix the wool dyes of both parents like the vanilla sheep.
         Sheep baby = InfXEntityTypes.INFX_SHEEP.get().create(level, EntitySpawnReason.BREEDING);
         if (baby != null && partner instanceof Sheep partnerSheep) {
             baby.setColor(DyeColor.getMixedColor(level, this.getColor(), partnerSheep.getColor()));

@@ -25,7 +25,7 @@ class BasicSystemsTest {
     }
 
     @Test
-    void visualMoonTimelineAndNightWindowMatchMiteCalendar() {
+    void visualMoonTimelineAndNightWindowMatchCalendar() {
         assertEquals(net.minecraft.world.level.MoonPhase.WANING_GIBBOUS, MoonPhase.visualPhaseAtTime(0));
         assertEquals(net.minecraft.world.level.MoonPhase.NEW_MOON, MoonPhase.visualPhaseAtTime(72_000));
         assertEquals(net.minecraft.world.level.MoonPhase.FULL_MOON, MoonPhase.visualPhaseAtTime(168_000));
@@ -67,7 +67,7 @@ class BasicSystemsTest {
     }
 
     @Test
-    void safeOwnershipUsesMitePortabilityAndNumericHarvestLevels() {
+    void safeOwnershipUsesPortabilityAndNumericHarvestLevels() {
         assertTrue(SafeEvents.mayBreak(InfxMaterial.COPPER, true, null));
         assertFalse(SafeEvents.mayBreak(InfxMaterial.COPPER, false, InfxMaterial.COPPER));
         assertFalse(SafeEvents.mayBreak(InfxMaterial.COPPER, false, InfxMaterial.SILVER));

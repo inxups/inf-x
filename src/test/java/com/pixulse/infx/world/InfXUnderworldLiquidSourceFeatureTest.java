@@ -38,7 +38,7 @@ class InfXUnderworldLiquidSourceFeatureTest {
     }
 
     @Test
-    void usesTheMiteWaterThresholdAtHigherLocalY() {
+    void usesTheWaterThresholdAtHigherLocalY() {
         assertAll(
                 () -> assertFalse(InfXUnderworldLiquidSourceFeature.isUpperWaterAttempt(16, 0)),
                 () -> assertTrue(InfXUnderworldLiquidSourceFeature.isUpperWaterAttempt(17, 0)),

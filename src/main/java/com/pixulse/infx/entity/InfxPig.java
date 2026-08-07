@@ -46,7 +46,7 @@ public final class InfxPig extends Pig {
 
     @Override
     public boolean isFood(ItemStack stack) {
-        // MITE pigs eat brown mushrooms in addition to the vanilla carrot/potato/beetroot foods.
+        // InfX pigs eat brown mushrooms in addition to the vanilla carrot/potato/beetroot foods.
         return super.isFood(stack) || stack.is(Items.BROWN_MUSHROOM);
     }
 
@@ -95,7 +95,7 @@ public final class InfxPig extends Pig {
 
     @Override
     public @Nullable Pig getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        // MITE newborns inherit the coat of one parent instead of re-rolling by biome.
+        // InfX newborns inherit the coat of one parent instead of re-rolling by biome.
         Pig baby = InfXEntityTypes.INFX_PIG.get().create(level, EntitySpawnReason.BREEDING);
         if (baby != null && partner instanceof Pig partnerPig) {
             ((PigAccessor) baby).infx$setVariant(

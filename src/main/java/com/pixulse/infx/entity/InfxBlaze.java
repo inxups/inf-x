@@ -18,39 +18,39 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Blaze replacement with INFX's six-point melee damage and MITE vulnerability rules.
+ * Blaze replacement with INFX's six-point melee damage and InfX vulnerability rules.
  *
  * <p>Water/snowballs always hurt. Ordinary hits require a non-fire enchanted weapon.
  * Fire-aspect / flame weapons are treated as fire. Attacker ignition must not cancel valid hits.
  */
 public final class InfxBlaze extends Blaze implements InfxMob {
     // Mirrors the vanilla charged flag, whose setter is private, for the burn-while-charging look.
-    private static final EntityDataAccessor<Boolean> DATA_MITE_CHARGED =
+    private static final EntityDataAccessor<Boolean> DATA_CHARGED =
             SynchedEntityData.defineId(InfxBlaze.class, EntityDataSerializers.BOOLEAN);
 
     public InfxBlaze(EntityType<? extends Blaze> type, Level level) {
         super(type, level);
-        // MITE blazes are worth four times the base experience.
+        // InfX blazes are worth four times the base experience.
         xpReward = 20;
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NonNull Builder entityData) {
         super.defineSynchedData(entityData);
-        entityData.define(DATA_MITE_CHARGED, false);
+        entityData.define(DATA_CHARGED, false);
     }
 
     @Override
     public boolean isOnFire() {
-        return entityData.get(DATA_MITE_CHARGED);
+        return entityData.get(DATA_CHARGED);
     }
 
-    void setMiteCharged(boolean charged) {
-        entityData.set(DATA_MITE_CHARGED, charged);
+    void setCharged(boolean charged) {
+        entityData.set(DATA_CHARGED, charged);
     }
 
     public static AttributeSupplier.Builder attributes() {
-        // EntityBlaze uses MITE's legacy, fixed-throttle AI and does not override its
+        // EntityBlaze uses the legacy fixed-throttle AI and does not override its
         // movement input.  Retain the modern Blaze baseline instead of copying the old
         // SharedMonsterAttributes default (0.7) into the modern movement scale.
         return Blaze.createAttributes()
@@ -61,7 +61,7 @@ public final class InfxBlaze extends Blaze implements InfxMob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // Swap the vanilla fireball cadence (60/6/100) for MITE's much faster 20/6/20 cycle.
+        // Swap the vanilla fireball cadence (60/6/100) for the much faster 20/6/20 cycle.
         goalSelector.removeAllGoals(goal -> goal.getClass().getSimpleName().equals("BlazeAttackGoal"));
         goalSelector.addGoal(4, new InfxFireballGoal(this));
     }
@@ -74,7 +74,7 @@ public final class InfxBlaze extends Blaze implements InfxMob {
         return false;
     }
 
-    /** MITE cycle: 20-tick charge, three fireballs six ticks apart, 20-tick cooldown, 30-block range. */
+    /** InfX cycle: 20-tick charge, three fireballs six ticks apart, 20-tick cooldown, 30-block range. */
     private static final class InfxFireballGoal extends Goal {
         private static final int CHARGE_TICKS = 20;
         private static final int VOLLEY_INTERVAL = 6;
@@ -104,7 +104,7 @@ public final class InfxBlaze extends Blaze implements InfxMob {
 
         @Override
         public void stop() {
-            blaze.setMiteCharged(false);
+            blaze.setCharged(false);
             lastSeen = 0;
         }
 
@@ -140,13 +140,13 @@ public final class InfxBlaze extends Blaze implements InfxMob {
                     attackStep++;
                     if (attackStep == 1) {
                         attackTime = CHARGE_TICKS;
-                        blaze.setMiteCharged(true);
+                        blaze.setCharged(true);
                     } else if (attackStep <= 4) {
                         attackTime = VOLLEY_INTERVAL;
                     } else {
                         attackTime = COOLDOWN_TICKS;
                         attackStep = 0;
-                        blaze.setMiteCharged(false);
+                        blaze.setCharged(false);
                     }
                     if (attackStep > 1) {
                         double spread = Math.sqrt(Math.sqrt(distance)) * 0.5;

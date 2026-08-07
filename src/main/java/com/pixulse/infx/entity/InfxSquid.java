@@ -37,7 +37,7 @@ public final class InfxSquid extends Squid implements InfxMob {
                 .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
-    /** MITE squid grant no experience. */
+    /** InfX squid grant no experience. */
     @Override
     public int getBaseExperienceReward(@NonNull ServerLevel level) {
         return 0;
@@ -49,7 +49,7 @@ public final class InfxSquid extends Squid implements InfxMob {
         if (!(level() instanceof ServerLevel level)) {
             return;
         }
-        // MITE squid keep the peace on blue-moon nights.
+        // InfX squid keep the peace on blue-moon nights.
         if (MoonPhase.BLUE.isActiveInOverworldAtNight(level)) {
             return;
         }
@@ -86,7 +86,7 @@ public final class InfxSquid extends Squid implements InfxMob {
 
     /**
      * Modern living entities initiate a collision through {@link #doPush(Entity)}, which then
-     * calls {@code boat.push(this)}.  Hook before that delegation so the MITE six-hit rule runs
+     * calls {@code boat.push(this)}.  Hook before that delegation so the InfX six-hit rule runs
      * on natural squid-to-boat collisions rather than only on an explicit test call.
      */
     private boolean ramPursuedBoat(Entity entity) {
@@ -94,7 +94,7 @@ public final class InfxSquid extends Squid implements InfxMob {
             return false;
         }
 
-        // MITE keeps this counter on the boat, so separate squid attacks combine and the
+        // InfX keeps this counter on the boat, so separate squid attacks combine and the
         // damage survives unloading. It decays on the boat's id-offset 200-tick cadence.
         LivingEntity target = nearestPrey(level);
         if (target != null && target.getVehicle() == boat) {
@@ -146,7 +146,7 @@ public final class InfxSquid extends Squid implements InfxMob {
                     && (!(player.getVehicle() instanceof AbstractBoat) || MoonPhase.isNight(level))
                     && !isPlayerNotInOrAboveDeepWater(player);
         }
-        // MITE's Entity#isTrueAnimal accepts land animals but explicitly excludes hellhounds.
+        // InfX's Entity#isTrueAnimal accepts land animals but explicitly excludes hellhounds.
         return candidate instanceof Animal
                 && !(candidate instanceof InfxWolf wolf && wolf.variant() == InfxWolf.Variant.HELLHOUND)
                 && isInOrAboveWater(candidate);

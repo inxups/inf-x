@@ -15,11 +15,11 @@ import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 
-/** MITE's lower internal bedrock strata adapted to 26.1.2's seeded normal noises. */
+/** InfX's lower internal bedrock strata adapted to 26.1.2's seeded normal noises. */
 public final class InfXUnderworldBedrockStrata {
     private static final int FOUR_OCTAVE_FIRST_OCTAVE = -3;
     private static final List<Double> FOUR_OCTAVE_AMPLITUDES = List.of(1.0, 1.0, 1.0, 1.0);
-    private static final double MITE_OCTAVE_GAIN = 8.0;
+    private static final double OCTAVE_GAIN = 8.0;
     private static final double STRATA_ONE_SCALE = 1.0 / 32.0;
     private static final double STRATA_OTHER_SCALE = 1.0 / 16.0;
     private static final double BUMP_ONE_A_SCALE = 1.0 / 8.0;
@@ -213,7 +213,7 @@ public final class InfXUnderworldBedrockStrata {
         }
 
         private static double sample(NormalNoise noise, int x, int z, double scale) {
-            return noise.getValue(x * scale, 0.0, z * scale) * MITE_OCTAVE_GAIN;
+            return noise.getValue(x * scale, 0.0, z * scale) * OCTAVE_GAIN;
         }
     }
 }

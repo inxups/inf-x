@@ -24,8 +24,8 @@ public final class HarvestSpeedRules {
     private HarvestSpeedRules() {}
 
     /**
-     * Converts the already-computed 26.2 dig speed into a value that produces MITE progress.
-     * Water and airborne penalties are already present in {@code modernSpeed}; only MITE's
+     * Converts the already-computed 26.2 dig speed into a value that produces InfX progress.
+     * Water and airborne penalties are already present in {@code modernSpeed}; only InfX's
      * additional conditions are applied to ordinary blocks.
      */
     public static float adjustedBreakSpeed(
@@ -57,8 +57,8 @@ public final class HarvestSpeedRules {
         return toModernBreakSpeed(strength);
     }
 
-    public static float toModernBreakSpeed(float miteStrength) {
-        return miteStrength * MODERN_CORRECT_TOOL_DIVISOR / INFX_PROGRESS_DIVISOR;
+    public static float toModernBreakSpeed(float progressStrength) {
+        return progressStrength * MODERN_CORRECT_TOOL_DIVISOR / INFX_PROGRESS_DIVISOR;
     }
 
     public static float portableStrength(float hardness, float contextMultiplier) {
@@ -68,7 +68,7 @@ public final class HarvestSpeedRules {
 
     /**
      * Compensates for vanilla's slower no-correct-tool divisor after a portable block has
-     * already received its MITE hand-harvest speed through {@code BreakSpeed}.
+     * already received its InfX hand-harvest speed through {@code BreakSpeed}.
      */
     public static float compensatePortableHandSpeed(
             float modernSpeed, boolean requiresCorrectTool, boolean hasCorrectTool) {
@@ -94,7 +94,7 @@ public final class HarvestSpeedRules {
         return result;
     }
 
-    public static float miteMiningFatigueMultiplier(int amplifier) {
+    public static float miningFatigueMultiplier(int amplifier) {
         return amplifier < 0 ? 1.0F : Math.max(0.0F, 1.0F - (amplifier + 1) * 0.2F);
     }
 
@@ -115,7 +115,7 @@ public final class HarvestSpeedRules {
         int amplifier = fatigue.getAmplifier();
         return modernSpeed
                 / modernMiningFatigueMultiplier(amplifier)
-                * miteMiningFatigueMultiplier(amplifier);
+                * miningFatigueMultiplier(amplifier);
     }
 
     private static float portableMultiplier(Player player) {
@@ -124,7 +124,7 @@ public final class HarvestSpeedRules {
             result *= 1.0F + (MobEffectUtil.getDigSpeedAmplification(player) + 1) * 0.2F;
         }
         var fatigue = player.getEffect(MobEffects.MINING_FATIGUE);
-        result *= miteMiningFatigueMultiplier(fatigue == null ? -1 : fatigue.getAmplifier());
+        result *= miningFatigueMultiplier(fatigue == null ? -1 : fatigue.getAmplifier());
         if (player.isEyeInFluid(FluidTags.WATER)) {
             result *= (float) player.getAttributeValue(Attributes.SUBMERGED_MINING_SPEED);
         }

@@ -214,7 +214,7 @@ public final class ClientEvents {
         event.registerEntityRenderer(InfXEntityTypes.INFX_BLAZE.get(), EntityRenderers.BlazeTexture::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_GHAST.get(), EntityRenderers.GhastTexture::new);
 
-        // INFX livestock: vanilla models; sick skins when !isWell (MITE).
+        // INFX livestock: vanilla models; sick skins when !isWell (INFX).
         event.registerEntityRenderer(InfXEntityTypes.INFX_COW.get(), EntityRenderers.CowTexture::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_CHICKEN.get(), EntityRenderers.ChickenTexture::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_SHEEP.get(), EntityRenderers.SheepTexture::new);

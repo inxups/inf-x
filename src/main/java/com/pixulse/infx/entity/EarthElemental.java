@@ -49,7 +49,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * MITE INFX earth elemental with a material body selected from its spawn surface.
+ * INFX earth elemental with a material body selected from its spawn surface.
  *
  * <p>Stone, obsidian, netherrack and end-stone bodies each have normal and magma states. The
  * related {@link ClayGolem} uses the two clay states in the same synced form field.
@@ -99,10 +99,10 @@ public class EarthElemental extends Monster implements InfxMob {
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.0);
     }
 
-    /** MITE elementals hunt players and villagers, break doors, and use normal hostile-mob AI. */
+    /** InfX elementals hunt players and villagers, break doors, and use normal hostile-mob AI. */
     @Override
     protected void registerGoals() {
-        // Lets the ground navigator route through a closed wooden door so the dedicated MITE
+        // Lets the ground navigator route through a closed wooden door so the dedicated InfX
         // breaking goal receives a path node instead of treating the door as an unreachable wall.
         getNavigation().setCanOpenDoors(true);
         goalSelector.addGoal(0, new InfxEarthFloatGoal(this));
@@ -258,8 +258,8 @@ public class EarthElemental extends Monster implements InfxMob {
                 || state.is(Blocks.END_STONE);
     }
 
-    /** Applies the MITE spawn material after natural, egg, command, or dispenser creation. */
-    public void initializeMiteForm() {
+    /** Applies the InfX spawn material after natural, egg, command, or dispenser creation. */
+    public void initializeElementalForm() {
         BlockState ground = level().getBlockState(blockPosition().below());
         boolean heated = isInLava() || isClayGolem() && isStandingInFire();
         heat = 0;
@@ -274,7 +274,7 @@ public class EarthElemental extends Monster implements InfxMob {
     }
 
     /** Enables deterministic GameTests and keeps block-to-form conversion in one place. */
-    public void initializeMiteForm(BlockState ground, boolean heated) {
+    public void initializeElementalForm(BlockState ground, boolean heated) {
         heat = 0;
         if (isClayGolem()) {
             setForm(heated ? Form.CLAY_HARDENED : Form.CLAY_NORMAL);
@@ -286,7 +286,7 @@ public class EarthElemental extends Monster implements InfxMob {
         }
     }
 
-    /** MITE converts mineral bodies at 100 heat and keeps fully molten bodies at 1000 heat. */
+    /** InfX converts mineral bodies at 100 heat and keeps fully molten bodies at 1000 heat. */
     public void convertToMagma() {
         heat = MAGMA_MAX_HEAT;
         Form before = form();
@@ -300,7 +300,7 @@ public class EarthElemental extends Monster implements InfxMob {
         }
     }
 
-    /** Cools a molten mineral body; clay hardening is permanent in MITE. */
+    /** Cools a molten mineral body; clay hardening is permanent in InfX. */
     public boolean convertToNormal(boolean steam) {
         Form before = form();
         // Cooling lowers heat before this method is called, so the server-side isMagma() check
@@ -323,7 +323,7 @@ public class EarthElemental extends Monster implements InfxMob {
 
     @Override
     public void thunderHit(@NonNull ServerLevel level, @NonNull LightningBolt lightningBolt) {
-        // The MITE source calls super first, but its own immunity gate rejects lightning damage.
+        // The InfX source calls super first, but its own immunity gate rejects lightning damage.
         // Applying only the material reaction prevents modern fire/lava side effects from leaking in.
         if (!isMagma() && !isHardenedClay()) {
             convertToMagma();
@@ -332,7 +332,7 @@ public class EarthElemental extends Monster implements InfxMob {
         }
     }
 
-    /** MITE elementals hit for a flat value and magma bodies sometimes ignite damaged targets. */
+    /** InfX elementals hit for a flat value and magma bodies sometimes ignite damaged targets. */
     @Override
     public boolean doHurtTarget(@NonNull ServerLevel level, Entity target) {
         swing(InteractionHand.MAIN_HAND);
@@ -350,7 +350,7 @@ public class EarthElemental extends Monster implements InfxMob {
 
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
-        // MITE snowballs deal their ordinary one point to normal clay, but mineral bodies only
+        // InfX snowballs deal their ordinary one point to normal clay, but mineral bodies only
         // use them as a quench trigger. Hardened clay still follows the tool-only damage gate.
         if (source.getDirectEntity() instanceof Snowball && !isNormalClay()) {
             quench(level);
@@ -364,7 +364,7 @@ public class EarthElemental extends Monster implements InfxMob {
 
     @Override
     public void knockback(double power, double xd, double zd) {
-        // MITE applies a separate 0.4 velocity multiplier after normal mob knockback handling.
+        // InfX applies a separate 0.4 velocity multiplier after normal mob knockback handling.
         super.knockback(power * 0.4, xd, zd);
     }
 
@@ -373,7 +373,7 @@ public class EarthElemental extends Monster implements InfxMob {
         return false;
     }
 
-    /** MITE elementals use fire and lava for material reactions, never as direct damage sources. */
+    /** InfX elementals use fire and lava for material reactions, never as direct damage sources. */
     @Override
     public boolean fireImmune() {
         return true;
@@ -392,13 +392,13 @@ public class EarthElemental extends Monster implements InfxMob {
         return super.canBeAffected(effect);
     }
 
-    /** MITE's {@code mob.irongolem.hit} maps to the modern iron-golem hurt sound. */
+    /** InfX's {@code mob.irongolem.hit} maps to the modern iron-golem hurt sound. */
     @Override
     protected @NonNull SoundEvent getHurtSound(@NonNull DamageSource source) {
         return SoundEvents.IRON_GOLEM_HURT;
     }
 
-    /** MITE's {@code mob.irongolem.death} maps to the modern iron-golem death sound. */
+    /** InfX's {@code mob.irongolem.death} maps to the modern iron-golem death sound. */
     @Override
     protected @NonNull SoundEvent getDeathSound() {
         return SoundEvents.IRON_GOLEM_DEATH;
@@ -408,11 +408,11 @@ public class EarthElemental extends Monster implements InfxMob {
     public void aiStep() {
         super.aiStep();
         if (level() instanceof ServerLevel level) {
-            tickMiteEnvironment(level);
+            tickEnvironment(level);
         }
     }
 
-    private void tickMiteEnvironment(ServerLevel level) {
+    private void tickEnvironment(ServerLevel level) {
         if (isInWater()) {
             if (isMagma()) {
                 convertToNormal(true);
@@ -506,16 +506,16 @@ public class EarthElemental extends Monster implements InfxMob {
                 if (random.nextInt(10) == 0 && fire.canSurvive(level, pos)) {
                     level.setBlockAndUpdate(pos, fire);
                 } else if (offset == 0) {
-                    meltMiteBlock(level, getOnPos());
+                    meltBlock(level, getOnPos());
                 }
-            } else if (!tryToIgniteMiteBlock(level, pos)) {
-                meltMiteBlock(level, pos);
+            } else if (!tryToIgniteBlock(level, pos)) {
+                meltBlock(level, pos);
             }
         }
     }
 
-    /** Mirrors MITE's fire helper: one vertical body column can ignite or melt, never a random side block. */
-    private boolean tryToIgniteMiteBlock(ServerLevel level, BlockPos pos) {
+    /** Mirrors InfX's fire helper: one vertical body column can ignite or melt, never a random side block. */
+    private boolean tryToIgniteBlock(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (random.nextInt(100) >= state.getFlammability(level, pos, Direction.UP)) {
             return false;
@@ -532,8 +532,8 @@ public class EarthElemental extends Monster implements InfxMob {
         return true;
     }
 
-    /** Modern equivalent of MITE World#tryToMeltBlock for ice, layered snow and snow blocks. */
-    private static boolean meltMiteBlock(ServerLevel level, BlockPos pos) {
+    /** Modern equivalent of World#tryToMeltBlock for ice, layered snow and snow blocks. */
+    private static boolean meltBlock(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof IceBlock) {
             level.setBlockAndUpdate(pos, IceBlock.meltsInto());
@@ -559,7 +559,7 @@ public class EarthElemental extends Monster implements InfxMob {
         return false;
     }
 
-    boolean canDestroyMiteBlock(ServerLevel level, BlockPos pos) {
+    boolean canDestroyBlock(ServerLevel level, BlockPos pos) {
         int footY = blockPosition().getY();
         if (pos.getY() < footY || pos.getY() > footY + 1) {
             return false;
@@ -588,13 +588,13 @@ public class EarthElemental extends Monster implements InfxMob {
         return level() instanceof ServerLevel level && MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
     }
 
-    @Nullable BlockPos miteDiggingPosition() {
+    @Nullable BlockPos diggingPosition() {
         long encoded = getPersistentData().getLong(DIG_POS).orElse(Long.MIN_VALUE);
         return encoded == Long.MIN_VALUE ? null : BlockPos.of(encoded);
     }
 
-    void beginMiteDigging(ServerLevel level, BlockPos pos, int cooloff, int pause) {
-        BlockPos previous = miteDiggingPosition();
+    void beginDigging(ServerLevel level, BlockPos pos, int cooloff, int pause) {
+        BlockPos previous = diggingPosition();
         if (previous != null && !previous.equals(pos)) {
             level.destroyBlockProgress(getId(), previous, -1);
         }
@@ -605,7 +605,7 @@ public class EarthElemental extends Monster implements InfxMob {
         data.putInt(DIG_PAUSE, Math.max(0, pause));
     }
 
-    void stopMiteDigging(ServerLevel level) {
+    void stopDigging(ServerLevel level) {
         var data = getPersistentData();
         long encoded = data.getLong(DIG_POS).orElse(Long.MIN_VALUE);
         if (encoded != Long.MIN_VALUE) {
@@ -617,8 +617,8 @@ public class EarthElemental extends Monster implements InfxMob {
         data.remove(DIG_PAUSE);
     }
 
-    public boolean isMiteDigging() {
-        return miteDiggingPosition() != null;
+    public boolean isDigging() {
+        return diggingPosition() != null;
     }
 
     public int doorBreakTicks(boolean woodenDoor) {
@@ -628,13 +628,13 @@ public class EarthElemental extends Monster implements InfxMob {
         return isBloodMoonFrenzied() ? Math.max(1, ticks / 2) : ticks;
     }
 
-    /** MITE limits earth-elemental natural spawns to a single mob per cluster. */
+    /** InfX limits earth-elemental natural spawns to a single mob per cluster. */
     @Override
     public int getMaxSpawnClusterSize() {
         return 1;
     }
 
-    public ItemStack miteDrop() {
+    public ItemStack materialDrop() {
         Block block = materialBlock();
         if (block == Blocks.STONE) {
             return Blocks.COBBLESTONE.asItem().getDefaultInstance();
@@ -645,7 +645,7 @@ public class EarthElemental extends Monster implements InfxMob {
     @Override
     protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
         super.dropCustomDeathLoot(level, source, killedByPlayer);
-        spawnAtLocation(level, miteDrop());
+        spawnAtLocation(level, materialDrop());
     }
 
     @Override

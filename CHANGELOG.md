@@ -1,6 +1,9 @@
 # Changelog
 
 ## 0t7
+### Project Direction
+- MITE alignment is abandoned: development now benchmarks against vanilla 26.1.2 / NeoForge behaviour while keeping all existing behaviour changes. MITE wording was removed from code comments, test text and identifiers (provenance manifests, resource paths, NBT keys and the vanilla Smite enchantment are intentionally unchanged).
+
 ## Bug Fixes
 - Pigs and horses (including the INFX replacement types) can now equip saddles again, and horses can equip horse armor; the horse inventory saddle and armor slots are visible again (26.1 gates equipping by entity-type tags).
 - Tamed wolves and dire wolves can now equip wolf armor and repair it with armadillo scutes (26.1 restricts wolf armor to the exact minecraft:wolf type, so the replacement entities handle the equip branch themselves).

@@ -230,7 +230,7 @@ final class ModModelProvider extends ModelProvider {
         InfXItems.SPAWN_EGGS.forEach(egg -> generateSpawnEggModel(itemModels, egg.value()));
         itemModels.generateFlatItem(InfXItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateInfxFoodModels(itemModels);
-        // MITE carrot-on-a-stick variants share the single approved carrot-on-a-stick sprite.
+        // InfX carrot-on-a-stick variants share the single approved carrot-on-a-stick sprite.
         for (DeferredItem<InfxCarrotOnAStickItem> stick : InfXItems.CARROT_ON_A_STICKS.values()) {
             Identifier model = ModelTemplates.FLAT_ITEM.create(
                     ModelLocationUtils.getModelLocation(stick.value()),

@@ -41,7 +41,7 @@ public final class InfxWitch extends Witch implements InfxMob {
 
     public InfxWitch(EntityType<? extends Witch> type, Level level) {
         super(type, level);
-        // MITE witches are worth four times the base experience.
+        // InfX witches are worth four times the base experience.
         xpReward = 20;
         if (!level.isClientSide()) {
             curseRandomSeed = new Random().nextInt();
@@ -57,7 +57,7 @@ public final class InfxWitch extends Witch implements InfxMob {
     }
 
     /**
-     * MITE witches are homebodies that never despawn.
+     * InfX witches are homebodies that never despawn.
      */
     @Override
     public boolean removeWhenFarAway(double distance) {
@@ -87,7 +87,7 @@ public final class InfxWitch extends Witch implements InfxMob {
         if (!hasIndirectMagicDefense(source)) {
             return 0.0F;
         }
-        // MITE protection is flat and leaves one point of incoming damage.
+        // InfX protection is flat and leaves one point of incoming damage.
         return Math.min(INDIRECT_MAGIC_DEFENSE, Math.max(0.0F, damage - 1.0F));
     }
 
@@ -95,7 +95,7 @@ public final class InfxWitch extends Witch implements InfxMob {
     protected void registerGoals() {
         super.registerGoals();
         goalSelector.removeAllGoals(goal -> goal instanceof net.minecraft.world.entity.ai.goal.RangedAttackGoal);
-        goalSelector.addGoal(2, new InfxHardLimitedRangedAttackGoal(
+        goalSelector.addGoal(2, new InfxHardCappedRangedAttackGoal(
                 this, 1.0, 60, (float) AttackRanges.WITCH_RANGED_REACH));
         targetSelector.removeAllGoals(goal -> true);
         targetSelector.addGoal(1, new CurseHurtByTargetGoal(this));
@@ -112,7 +112,7 @@ public final class InfxWitch extends Witch implements InfxMob {
                 CurseType.forWitch(curseRandomSeed, player.getScoreboardName()));
     }
 
-    /** MITE excludes only players whose game-mode abilities disable damage. */
+    /** InfX excludes only players whose game-mode abilities disable damage. */
     public static boolean canReceiveCurse(Player player) {
         return !player.getAbilities().invulnerable;
     }
@@ -120,7 +120,7 @@ public final class InfxWitch extends Witch implements InfxMob {
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         boolean hurt = super.hurtServer(level, source, damage);
-        // MITE: the first player hit triggers a single wolf-pack summon 60 ticks later.
+        // InfX: the first player hit triggers a single wolf-pack summon 60 ticks later.
         if (hurt && !summonedWolves && summonWolvesAt < 0 && source.getEntity() instanceof Player) {
             summonWolvesAt = tickCount + 60;
         }
@@ -153,7 +153,7 @@ public final class InfxWitch extends Witch implements InfxMob {
     }
 
     /**
-     * MITE summons plain hostile wolves 8-16 blocks around the witch's target.
+     * InfX summons plain hostile wolves 8-16 blocks around the witch's target.
      */
     private void summonWolfNear(ServerLevel level, LivingEntity target) {
         for (int attempt = 0; attempt < 16; attempt++) {
@@ -213,7 +213,7 @@ public final class InfxWitch extends Witch implements InfxMob {
         private static final double VERTICAL_SEARCH_RANGE = 6.0D;
         private final InfxWitch witch;
         /*
-         * MITE's EntityAITarget rejects a player only when that player's game-mode
+         * InfX's EntityAITarget rejects a player only when that player's game-mode
          * capabilities disable damage.  TargetingConditions.forCombat() is stricter
          * in 26.2: it also rejects an entity whose root Invulnerable flag is set.
          * That flag can be present on an otherwise-survival player, so use a

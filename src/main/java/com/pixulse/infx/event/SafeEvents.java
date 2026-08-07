@@ -64,7 +64,7 @@ public final class SafeEvents {
 
     /**
      * Only the owner (or creative) recovers the safe block item. Explosions and other
-     * non-player breakers never drop the box itself, matching MITE {@code dropBlockAsEntityItem}.
+     * non-player breakers never drop the box itself, matching InfX {@code dropBlockAsEntityItem}.
      */
     public static boolean mayDropSafeItem(@Nullable Entity breaker, @Nullable BlockEntity blockEntity) {
         if (!(breaker instanceof Player player)) {

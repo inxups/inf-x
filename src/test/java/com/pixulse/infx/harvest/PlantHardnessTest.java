@@ -27,7 +27,7 @@ class PlantHardnessTest {
     }
 
     @Test
-    void mapsTheMiteDryBushesAndNetherVines() {
+    void mapsTheDryBushesAndNetherVines() {
         for (String path : new String[] {
                 "short_dry_grass",
                 "tall_dry_grass",
@@ -39,7 +39,7 @@ class PlantHardnessTest {
                 "twisting_vines",
                 "twisting_vines_plant"}) {
             Identifier id = Identifier.withDefaultNamespace(path);
-            assertTrue(PlantHardness.appliesTo(id), path + " must have a MITE plant hardness");
+            assertTrue(PlantHardness.appliesTo(id), path + " must have a InfX plant hardness");
             assertEquals(PlantHardness.TALL_GRASS_HARDNESS, PlantHardness.destroyTime(id), path);
         }
     }

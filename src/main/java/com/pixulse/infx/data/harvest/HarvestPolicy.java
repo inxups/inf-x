@@ -1,6 +1,6 @@
 package com.pixulse.infx.data.harvest;
 
-/** Resolves whether a player may start destroying a block under MITE harvest rules. */
+/** Resolves whether a player may start destroying a block under InfX harvest rules. */
 public final class HarvestPolicy {
     private HarvestPolicy() {}
 

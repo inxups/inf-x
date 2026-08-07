@@ -27,7 +27,7 @@ class SwimRulesTest {
     }
 
     @Test
-    void waterGravityRestoresMiteSinkRate() {
+    void waterGravityRestoresSinkRate() {
         double vanillaGravity = 0.08D;
         assertEquals(0.005D, vanillaGravity / 16.0D, 1.0E-9D);
         assertEquals(0.02D, SwimRules.waterGravity(vanillaGravity) / 16.0D, 1.0E-9D);
@@ -81,7 +81,7 @@ class SwimRulesTest {
     }
 
     @Test
-    void speedModifierFollowsMiteAmplifierWeights() {
+    void speedModifierFollowsAmplifierWeights() {
         assertEquals(0.0F, SwimRules.speedModifier(-1, -1, false));
         assertEquals(-0.2F, SwimRules.speedModifier(0, -1, false), 1.0E-6F);
         assertEquals(-0.4F, SwimRules.speedModifier(1, -1, false), 1.0E-6F);
@@ -98,12 +98,12 @@ class SwimRulesTest {
         assertEquals(0.08D, still, 1.0E-6D);
         assertEquals(0.024D, upstream, 1.0E-6D);
         assertEquals(0.136D, downstream, 1.0E-6D);
-        assertTrue(upstream > 0.0D, "MITE's 0.02 swim acceleration beats the 0.014 current");
+        assertTrue(upstream > 0.0D, "InfX's 0.02 swim acceleration beats the 0.014 current");
         assertTrue(upstream < still && still < downstream);
     }
 
     @Test
-    void sinkRateConvergesOnMiteTerminalVelocity() {
+    void sinkRateConvergesOnTerminalVelocity() {
         double velocity = 0.0D;
         for (int tick = 0; tick < 500; tick++) {
             velocity = velocity * WATER_DRAG - SwimRules.waterGravity(0.08D) / 16.0D;
@@ -122,7 +122,7 @@ class SwimRulesTest {
         assertTrue(verticalMovement < 0.0D, "a sprinting player must not gain height in a waterfall");
     }
 
-    /** MITE applies acceleration first, then the 0.8 drag, so the fixed point is 4x the acceleration. */
+    /** InfX applies acceleration first, then the 0.8 drag, so the fixed point is 4x the acceleration. */
     private static double terminalSpeed(double acceleration) {
         double velocity = 0.0D;
         for (int tick = 0; tick < 500; tick++) {

@@ -12,7 +12,7 @@ class SlimeParticleTest {
     }
 
     @Test
-    void gelatinousVariantsUseTheirMatchingMiteLandingParticleColors() {
+    void gelatinousVariantsUseTheirMatchingLandingParticleColors() {
         assertEquals(GelatinousSphereItem.Color.GREEN, InfxSlime.Variant.SLIME.landingParticleColor());
         assertEquals(GelatinousSphereItem.Color.OCHRE, InfxSlime.Variant.JELLY.landingParticleColor());
         assertEquals(GelatinousSphereItem.Color.CRIMSON, InfxSlime.Variant.BLOB.landingParticleColor());

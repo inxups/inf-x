@@ -47,7 +47,7 @@
 | 村庄职业箱 | 48 个实际结构箱目标均有 `AddTableLootModifier`；铁匠、制图师、制箭师、石匠和食物职业箱使用各自的 MITE 子池。 |
 | 试炼密室 `reward`、`reward_ominous` | 分别追加普通/稀有和不祥奖励；只修改两个实际入口，不对子表 `reward_common`、`reward_rare` 等重复执行。 |
 | MITE 资源映射 | 铜/金粒和锭转换为铜币/金币，铁粒和锭转换为银币，银资源保留为 InfX 银粒/银锭，完整钻石/绿宝石转换为 1--5 个碎片；丝线、空碗、洋葱、奶酪、桶和装备使用对应 InfX/原版兼容物品。 |
-| 所有原版结构箱 | [`ModernProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/ModernProgressionLootFilter.java) 先把铁/钻石工具、武器、板甲、马铠、长矛、鹦鹉螺甲和原版锁链甲转换为远古金属装备，再移除剩余原版进度物品。[`MiteProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/MiteProgressionLootFilter.java) 在补充表之后执行第 10/20 天与 `Y=48` 门槛。 |
+| 所有原版结构箱 | [`ModernProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/ModernProgressionLootFilter.java) 先把铁/钻石工具、武器、板甲、马铠、长矛、鹦鹉螺甲和原版锁链甲转换为远古金属装备，再移除剩余原版进度物品。[`LegacyProgressionLootFilter`](../src/main/java/com/pixulse/infx/loot/LegacyProgressionLootFilter.java) 在补充表之后执行第 10/20 天与 `Y=48` 门槛。 |
 | 古迹废墟 | 不存在 `chests/trail_ruins_*` 箱表修改；`archaeology/trail_ruins_common` 和 `archaeology/trail_ruins_rare` 不修改。 |
 
 结构战利品由 [`ModGlobalLootModifierProvider`](../src/main/java/com/pixulse/infx/datagen/ModGlobalLootModifierProvider.java) 及其对应的 Loot Modifier/Data Provider 生成。

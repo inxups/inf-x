@@ -54,7 +54,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
 
     private int summonedTroops;
     private int inspiredUntil;
-    private @Nullable InfxHardLimitedBowAttackGoal<InfxSkeleton> bowGoal;
+    private @Nullable InfxHardCappedBowAttackGoal<InfxSkeleton> bowGoal;
 
     public InfxSkeleton(EntityType<? extends Skeleton> type, Level level) {
         super(type, level);
@@ -121,7 +121,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             @NonNull EntitySpawnReason spawnReason,
             @Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
-        // MITE skeletons always pick up loot; the vanilla finalizeSpawn re-rolls it at 55%.
+        // InfX skeletons always pick up loot; the vanilla finalizeSpawn re-rolls it at 55%.
         setCanPickUpLoot(true);
         switch (variant()) {
             case SKELETON -> {
@@ -129,7 +129,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                     setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.WOOD, EquipmentType.CLUB));
                 }
             }
-            // MITE longdead carry an ancient-metal bow or sword at even odds.
+            // InfX longdead carry an ancient-metal bow or sword at even odds.
             case LONGDEAD, LONGDEAD_GUARDIAN -> equip(
                     InfxMaterial.ANCIENT_METAL,
                     false,
@@ -138,7 +138,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             case ANCIENT_BONE_LORD -> equip(InfxMaterial.ANCIENT_METAL, true, lordWeapon(level.getLevel()));
         }
         if (variant() == Variant.LONGDEAD || variant() == Variant.LONGDEAD_GUARDIAN) {
-            // MITE longdead drop their armor pieces at a quarter of the usual chance.
+            // InfX longdead drop their armor pieces at a quarter of the usual chance.
             for (EquipmentSlot slot : new EquipmentSlot[] {
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
             }) {
@@ -149,7 +149,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         return result;
     }
 
-    /** MITE bone lords weight rusted swords 2, battle axes 1 from day 10, war hammers 1 from day 20. */
+    /** InfX bone lords weight rusted swords 2, battle axes 1 from day 10, war hammers 1 from day 20. */
     private EquipmentType lordWeapon(ServerLevel level) {
         long day = MonsterTactics.survivalDay(level);
         int bound = 2 + (day >= 10L ? 1 : 0) + (day >= 20L ? 1 : 0);
@@ -182,8 +182,8 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
 
     @Override
     protected void populateDefaultEquipmentSlots(@NonNull RandomSource random, @NonNull DifficultyInstance difficulty) {
-        // MITE skeletons never spawn with vanilla armor. The plain skeleton always carries a
-        // MITE wooden bow; the longdead and bone-lord variants are fully armed in finalizeSpawn.
+        // InfX skeletons never spawn with vanilla armor. The plain skeleton always carries a
+        // InfX wooden bow; the longdead and bone-lord variants are fully armed in finalizeSpawn.
         if (variant() == Variant.SKELETON) {
             setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.WOOD, EquipmentType.BOW));
         }
@@ -193,15 +193,15 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     public void reassessWeaponGoal() {
         super.reassessWeaponGoal();
         goalSelector.getAvailableGoals().stream()
-                .filter(candidate -> candidate.getGoal() instanceof InfxHardLimitedBowAttackGoal<?>
+                .filter(candidate -> candidate.getGoal() instanceof InfxHardCappedBowAttackGoal<?>
                         || candidate.getGoal() instanceof RangedBowAttackGoal<?>)
                 .map(candidate -> candidate.getGoal())
                 .toList()
                 .forEach(goalSelector::removeGoal);
         bowGoal = null;
         if (level() != null && !level().isClientSide() && isHolding(stack -> stack.getItem() instanceof BowItem)) {
-            // MITE skeletons fire once every 60 ticks (40 while inspired) out to 30 blocks.
-            bowGoal = new InfxHardLimitedBowAttackGoal<>(
+            // InfX skeletons fire once every 60 ticks (40 while inspired) out to 30 blocks.
+            bowGoal = new InfxHardCappedBowAttackGoal<>(
                     this, 1.0, 60, (float) AttackRanges.SKELETON_RANGED_REACH);
             goalSelector.addGoal(4, bowGoal);
         }
@@ -210,7 +210,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     @Override
     public void performRangedAttack(@NonNull LivingEntity target, float power) {
         ItemStack bow = getItemInHand(ProjectileUtil.getWeaponHoldingHand(this, item -> item instanceof BowItem));
-        // MITE skeletons loose rusted-iron arrows; longdead loose ancient-metal arrows.
+        // InfX skeletons loose rusted-iron arrows; longdead loose ancient-metal arrows.
         ItemStack ammunition = equipment(
                 variant() == Variant.LONGDEAD || variant() == Variant.LONGDEAD_GUARDIAN
                         ? InfxMaterial.ANCIENT_METAL
@@ -232,7 +232,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                 targetMotionX,
                 targetMotionZ);
         if (level() instanceof ServerLevel level) {
-            float uncertainty = miteArrowInaccuracy(level.getDifficulty().getId());
+            float uncertainty = arrowInaccuracy(level.getDifficulty().getId());
             if (ballisticAim != null) {
                 Projectile.spawnProjectile(
                         arrow,
@@ -241,7 +241,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                         projectile -> projectile.shoot(
                                 ballisticAim.x(), ballisticAim.y(), ballisticAim.z(), ARROW_SPEED, uncertainty));
             } else {
-                spawnMiteFallbackArrow(
+                spawnFallbackArrow(
                         arrow,
                         level,
                         ammunition,
@@ -254,7 +254,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 0.8F));
     }
 
-    private void spawnMiteFallbackArrow(
+    private void spawnFallbackArrow(
             AbstractArrow arrow,
             ServerLevel level,
             ItemStack ammunition,
@@ -262,7 +262,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             Vec3 knownMovement,
             Vec3 physicalMovement,
             float uncertainty) {
-        InfxRangedAim aim = calculateMiteRangedAim(
+        InfxRangedAim aim = calculateRangedAim(
                 getX(),
                 getZ(),
                 target.getX(),
@@ -272,7 +272,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                 arrow.getRandom().nextFloat());
         double predictedDistance = Math.sqrt(aim.horizontalDistanceSqr());
         double yd = target.getY(1.0 / 3.0) - arrow.getY();
-        double verticalCorrection = miteVerticalCorrection(aim.horizontalDistanceSqr(), target.getY() - getY());
+        double verticalCorrection = verticalCorrection(aim.horizontalDistanceSqr(), target.getY() - getY());
         Projectile.spawnProjectile(
                 arrow,
                 level,
@@ -370,8 +370,8 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         return ARROW_GRAVITY / (1.0D - ARROW_AIR_DRAG) * (time - travelScale);
     }
 
-    /** MITE's random horizontal lead, using the player input vector when the server has one. */
-    static InfxRangedAim calculateMiteRangedAim(
+    /** InfX's random horizontal lead, using the player input vector when the server has one. */
+    static InfxRangedAim calculateRangedAim(
             double shooterX,
             double shooterZ,
             double targetX,
@@ -382,17 +382,17 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         double currentX = targetX - shooterX;
         double currentZ = targetZ - shooterZ;
         double currentDistanceSqr = currentX * currentX + currentZ * currentZ;
-        float leadTicks = miteLeadTicks(currentDistanceSqr, randomSample);
+        float leadTicks = leadTicks(currentDistanceSqr, randomSample);
         double xd = targetX + predictionMotion(knownMovement.x, physicalMovement.x) * leadTicks - shooterX;
         double zd = targetZ + predictionMotion(knownMovement.z, physicalMovement.z) * leadTicks - shooterZ;
         return new InfxRangedAim(xd, zd, xd * xd + zd * zd, leadTicks);
     }
 
-    static float miteLeadTicks(double horizontalDistanceSqr, float randomSample) {
+    static float leadTicks(double horizontalDistanceSqr, float randomSample) {
         return (float) Math.pow(horizontalDistanceSqr, 0.44D) * (0.5F + randomSample);
     }
 
-    static float miteArrowInaccuracy(int difficultyId) {
+    static float arrowInaccuracy(int difficultyId) {
         return (14 - difficultyId * 4) * 1.5F;
     }
 
@@ -408,7 +408,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         return VANILLA_ARROW_GRAVITY - ARROW_GRAVITY;
     }
 
-    static double miteVerticalCorrection(double horizontalDistanceSqr, double targetHeightDifference) {
+    static double verticalCorrection(double horizontalDistanceSqr, double targetHeightDifference) {
         double correction = horizontalDistanceSqr * 0.0005D * horizontalDistanceSqr * 0.0005D - 0.05D;
         if (horizontalDistanceSqr > 576.0D) {
             correction += 0.06D;
@@ -420,7 +420,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     }
 
     private static double predictionMotion(double knownMovement, double physicalMovement) {
-        // Entity#getKnownMovement is the modern public equivalent of MITE's last received player motion.
+        // Entity#getKnownMovement is the modern public equivalent of InfX's last received player motion.
         return Math.abs(knownMovement) <= 1.0D ? knownMovement : physicalMovement;
     }
 
@@ -434,7 +434,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             if (source.getEntity() instanceof AbstractSkeleton) {
                 return false;
             }
-            // MITE quarters arrow damage against skeletons regardless of the shooter.
+            // InfX quarters arrow damage against skeletons regardless of the shooter.
             damage *= 0.25F;
         }
         if (source.isDirect() && source.getEntity() instanceof LivingEntity attacker) {
@@ -443,18 +443,18 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                     && (equipment.key().type() == EquipmentType.CUDGEL
                             || equipment.key().type() == EquipmentType.CLUB
                             || equipment.key().type() == EquipmentType.WAR_HAMMER)) {
-                // MITE doubles blunt-weapon damage against the skeleton family.
+                // InfX doubles blunt-weapon damage against the skeleton family.
                 damage *= 2.0F;
             }
         }
         return super.hurtServer(level, source, damage);
     }
 
-    /** MITE has no powder-snow conversion; longdead and bone lords must never become strays. */
+    /** InfX has no powder-snow conversion; longdead and bone lords must never become strays. */
     @Override
     public void startFreezeConversion(int time) {}
 
-    /** MITE lord inspiration: +50% base melee damage and faster shooting for a short window. */
+    /** InfX lord inspiration: +50% base melee damage and faster shooting for a short window. */
     public boolean isInspired() {
         return tickCount < inspiredUntil;
     }

@@ -297,8 +297,8 @@ public final class ModGameTests {
             functionKey("extreme_difficulty");
     private static final ResourceKey<Consumer<GameTestHelper>> HOT_FLOOR =
             functionKey("hot_floor");
-    private static final ResourceKey<Consumer<GameTestHelper>> MITE_BLOCK_HARDNESS =
-            functionKey("mite_block_hardness");
+    private static final ResourceKey<Consumer<GameTestHelper>> BLOCK_HARDNESS =
+            functionKey("block_hardness");
 
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
@@ -322,7 +322,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
         TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
         TEST_FUNCTIONS.register("hot_floor", () -> ModGameTests::hotFloor);
-        TEST_FUNCTIONS.register("mite_block_hardness", () -> ModGameTests::miteBlockHardness);
+        TEST_FUNCTIONS.register("block_hardness", () -> ModGameTests::blockHardness);
     }
 
     private ModGameTests() {}
@@ -356,7 +356,7 @@ public final class ModGameTests {
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
         registerTest(event, EXTREME_DIFFICULTY, environment, 40);
         registerTest(event, HOT_FLOOR, environment, 40);
-        registerTest(event, MITE_BLOCK_HARDNESS, environment, 40);
+        registerTest(event, BLOCK_HARDNESS, environment, 40);
     }
 
     private static void registerTest(
@@ -461,7 +461,7 @@ public final class ModGameTests {
         helper.succeed();
     }
 
-    private static void miteBlockHardness(GameTestHelper helper) {
+    private static void blockHardness(GameTestHelper helper) {
         for (Block block : List.of(Blocks.COBWEB, Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN)) {
             float expected = 8.0F;
             float defaultDestroyTime = block.defaultDestroyTime();
@@ -470,10 +470,10 @@ public final class ModGameTests {
             String blockName = BuiltInRegistries.BLOCK.getKey(block).getPath();
             helper.assertTrue(
                     defaultDestroyTime == expected,
-                    blockName + " default hardness must match MITE obsidian hardness: " + defaultDestroyTime);
+                    blockName + " default hardness must match InfX obsidian hardness: " + defaultDestroyTime);
             helper.assertTrue(
                     destroySpeed == expected,
-                    blockName + " runtime destroy speed must match MITE obsidian hardness: " + destroySpeed);
+                    blockName + " runtime destroy speed must match InfX obsidian hardness: " + destroySpeed);
         }
         helper.succeed();
     }
@@ -1006,7 +1006,7 @@ public final class ModGameTests {
                                 && grid.get(6).isPresent()
                                 && grid.get(7).isPresent()
                                 && grid.get(8).isPresent(),
-                        "MITE anvil shape must place one centered ingot above a full ingot base: "
+                        "InfX anvil shape must place one centered ingot above a full ingot base: "
                                 + material);
             }
         }

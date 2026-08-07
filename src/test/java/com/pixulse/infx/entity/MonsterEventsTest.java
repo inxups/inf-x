@@ -44,10 +44,10 @@ class MonsterEventsTest {
     }
 
     @Test
-    void miteBatHalloweenWindowMatchesR196CalendarDates() {
-        assertTrue(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 10, 20)));
-        assertTrue(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 11, 3)));
-        assertFalse(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 10, 19)));
-        assertFalse(MonsterEvents.isMiteBatHalloween(LocalDate.of(2026, 11, 4)));
+    void batHalloweenWindowMatchesR196CalendarDates() {
+        assertTrue(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 10, 20)));
+        assertTrue(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 11, 3)));
+        assertFalse(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 10, 19)));
+        assertFalse(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 11, 4)));
     }
 }

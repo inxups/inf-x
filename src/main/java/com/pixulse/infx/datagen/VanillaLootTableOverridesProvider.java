@@ -9,7 +9,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import org.jspecify.annotations.NonNull;
 
-/** MITE data overrides for vanilla gameplay loot tables. */
+/** InfX data overrides for vanilla gameplay loot tables. */
 final class VanillaLootTableOverridesProvider implements DataProvider {
     private final Path carveDirectory;
     private final Path entityDirectory;
@@ -27,7 +27,7 @@ final class VanillaLootTableOverridesProvider implements DataProvider {
                 DataProvider.saveStable(cache, wolfDrops(), entityDirectory.resolve("wolf.json")));
     }
 
-    /** MITE wolves leave one piece of leather even when spawned outside world generation. */
+    /** InfX wolves leave one piece of leather even when spawned outside world generation. */
     private static JsonObject wolfDrops() {
         JsonObject setCount = new JsonObject();
         setCount.addProperty("function", "minecraft:set_count");
@@ -58,7 +58,7 @@ final class VanillaLootTableOverridesProvider implements DataProvider {
         return table;
     }
 
-    /** MITE shears drop one pumpkin seed when carving, not the modern four. */
+    /** InfX shears drop one pumpkin seed when carving, not the modern four. */
     private static JsonObject carvePumpkin() {
         JsonObject setCount = new JsonObject();
         setCount.addProperty("function", "minecraft:set_count");

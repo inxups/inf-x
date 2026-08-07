@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class InfxPortalParticleTest {
     @Test
-    void portalSurfacesUseTheirMiteParticleFamilies() {
+    void portalSurfacesUseTheirParticleFamilies() {
         assertSame(
                 InfXParticles.UNDERWORLD_PORTAL.get(),
                 InfXBlocks.UNDERWORLD_PORTAL.get().portalParticle(InfXBlocks.UNDERWORLD_PORTAL.get().defaultBlockState()));

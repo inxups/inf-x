@@ -76,7 +76,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
             return;
         }
 
-        // The old modifier was an additive +6.2 on MITE's 0.3 base (6.5 total).
+        // The old modifier was an additive +6.2 on InfX's 0.3 base (6.5 total).
         // Express that as a multiplier so it remains tied to the registered modern base
         // and replaces 26.2's unrelated +0.15 attacking modifier.
         movementSpeed.removeModifier(VANILLA_CHASE_SPEED_ID);
@@ -95,7 +95,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE evaluates the nearest player every tick: the curse rolls first, held
+        // InfX evaluates the nearest player every tick: the curse rolls first, held
         // valuables anger immediately, and inventory valuables each get a 1-in-2000 roll.
         // Priority zero prevents the delayed vanilla stare goal from masking these checks.
         targetSelector.addGoal(0, new NearestAttackableTargetGoal<>(
@@ -140,7 +140,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
             return hurtFromProjectile(level, source, damage);
         }
         boolean hurt = super.hurtServer(level, source, damage);
-        if (hurt && isMiteIndirect(source)) {
+        if (hurt && isIndirect(source)) {
             // EntityDamageSource#isIndirect in INFX clears aggression before blinking.
             // Clear the retaliation memory too, otherwise the inherited HurtByTargetGoal
             // reacquires the indirect attacker on its next tick.
@@ -160,7 +160,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
         suppressDamageTeleport = true;
         try {
             // The modern parent short-circuits projectile damage. Feeding it a direct source
-            // preserves the MITE rule that arrows and other projectiles actually hurt endermen.
+            // preserves the InfX rule that arrows and other projectiles actually hurt endermen.
             hurt = super.hurtServer(level, direct, damage);
         } finally {
             suppressDamageTeleport = false;
@@ -171,7 +171,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
         return hurt;
     }
 
-    private static boolean isMiteIndirect(DamageSource source) {
+    private static boolean isIndirect(DamageSource source) {
         return source.getEntity() != null
                 && source.getEntity() != source.getDirectEntity()
                 && !source.is(DamageTypeTags.IS_PROJECTILE);

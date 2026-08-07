@@ -41,7 +41,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-/** MITE INFX livestock wellness and the goals that keep food, water, and freedom healthy. */
+/** INFX livestock wellness and the goals that keep food, water, and freedom healthy. */
 public final class Livestock {
     static final String FOOD = "infx_livestock_food";
     static final String WATER = "infx_livestock_water";
@@ -92,7 +92,7 @@ public final class Livestock {
     }
 
     /**
-     * MITE isWell: the minimum of food, water, and freedom must remain at least 0.25.
+     * InfX isWell: the minimum of food, water, and freedom must remain at least 0.25.
      * The server owns the float values; the synced flag is used by clients for the unwell skin.
      */
     public static boolean isWell(Animal animal) {
@@ -140,7 +140,7 @@ public final class Livestock {
     }
 
     /**
-     * Install MITE-style seek and flee goals once on INFX livestock (cow/chicken/sheep/pig).
+     * Install InfX-style seek and flee goals once on INFX livestock (cow/chicken/sheep/pig).
      * Horses are not livestock and must not call this.
      */
     public static void ensureGoals(Animal animal) {
@@ -169,7 +169,7 @@ public final class Livestock {
                 .anyMatch(goal -> goal.getGoal() instanceof LivestockPanicGoal);
     }
 
-    /** MITE advances the three wellness values at most once every 100 ticks. */
+    /** InfX advances the three wellness values at most once every 100 ticks. */
     public static void serverTick(Animal animal) {
         if (!(animal.level() instanceof ServerLevel level)) return;
         ensureWellness(animal);
@@ -180,7 +180,7 @@ public final class Livestock {
     }
 
     /**
-     * Start the MITE panic response only after a livestock hit has completed. The victim flees
+     * Start the InfX panic response only after a livestock hit has completed. The victim flees
      * the attacker while nearby livestock flee the wounded herd member.
      */
     public static void onHurt(Animal animal, DamageSource source, float inflictedDamage) {
@@ -196,7 +196,7 @@ public final class Livestock {
         panic(level, animal, attacker == null ? animal.blockPosition() : attacker.blockPosition());
     }
 
-    /** MITE food interactions add 0.5 food only after vanilla accepts the item. */
+    /** InfX food interactions add 0.5 food only after vanilla accepts the item. */
     public static void markFedAfterInteraction(
             Animal animal, boolean offeredFood, InteractionResult result) {
         if (!(animal.level() instanceof ServerLevel) || !foodInteractionSucceeded(offeredFood, result)) {
@@ -230,7 +230,7 @@ public final class Livestock {
         }
     }
 
-    /** MITE wild horses refuse every further feed for 4000 ticks after accepting one. */
+    /** InfX wild horses refuse every further feed for 4000 ticks after accepting one. */
     public static boolean isHorseFeedBlocked(AbstractHorse horse, long now) {
         return !horse.isTamed() && horse.getPersistentData().getLong(HORSE_FEED_RETRY).orElse(0L) > now;
     }
@@ -241,7 +241,7 @@ public final class Livestock {
         }
     }
 
-    /** Advance one MITE wellness cycle. This is intentionally not called by navigation goals. */
+    /** Advance one InfX wellness cycle. This is intentionally not called by navigation goals. */
     public static Wellness update(ServerLevel level, Animal animal) {
         ensureWellness(animal);
         consumeNearbyFood(level, animal);
@@ -260,7 +260,7 @@ public final class Livestock {
         return new Wellness(food, water, freedom, crowded, isWell(food, water, freedom));
     }
 
-    /** Returns the current MITE wellness values without advancing the 100-tick cycle. */
+    /** Returns the current InfX wellness values without advancing the 100-tick cycle. */
     private static Wellness snapshot(ServerLevel level, Animal animal) {
         ensureWellness(animal);
         float food = food(animal);
@@ -358,13 +358,13 @@ public final class Livestock {
         return packedOrigin == Long.MIN_VALUE ? null : Vec3.atCenterOf(BlockPos.of(packedOrigin));
     }
 
-    /** MITE feeding restores half of the food meter. */
+    /** InfX feeding restores half of the food meter. */
     public static void markFed(Animal animal, long ignoredNow) {
         ensureWellness(animal);
         setWellness(animal, food(animal) + 0.5F, water(animal), freedom(animal));
     }
 
-    /** MITE buckets have standard volume four and therefore refill the whole water meter. */
+    /** InfX buckets have standard volume four and therefore refill the whole water meter. */
     public static void markWatered(Animal animal, long ignoredNow) {
         ensureWellness(animal);
         setWellness(animal, food(animal), water(animal) + 1.0F, freedom(animal));
@@ -375,7 +375,7 @@ public final class Livestock {
         return water(animal) < NEEDY_THRESHOLD;
     }
 
-    /** MITE suppresses manure only when the food meter is below 0.05. */
+    /** InfX suppresses manure only when the food meter is below 0.05. */
     public static boolean isDesperateForFood(Animal animal) {
         return isDesperateForFood(food(animal));
     }
@@ -665,7 +665,7 @@ public final class Livestock {
             food = null;
             target = null;
             path = null;
-            // MITE livestock seek dropped breeding food whenever they are not full; only truly
+            // InfX livestock seek dropped breeding food whenever they are not full; only truly
             // needy animals also forage grass and other block sources.
             if (wellness.food() < 1.0F) {
                 target = findFood(level, searchRange(wellness.food()), wellness.food() < NEEDY_THRESHOLD);

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class UnderworldTest {
     @Test
-    void verticalRangeSpansTheDeepslateBaseAndShiftedMiteTerrain() {
+    void verticalRangeSpansTheDeepslateBaseAndShiftedTerrain() {
         assertEquals(-128, Underworld.MIN_Y);
         assertEquals(256, Underworld.MAX_Y_EXCLUSIVE);
         assertEquals(384, Underworld.HEIGHT);

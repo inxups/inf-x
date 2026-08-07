@@ -6,7 +6,7 @@ import java.util.OptionalInt;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Resolves MITE's numeric block harvest level without replacing vanilla tags. */
+/** Resolves InfX's numeric block harvest level without replacing vanilla tags. */
 public final class HarvestRequirements {
     public static final int MAX_LEVEL = 6;
 

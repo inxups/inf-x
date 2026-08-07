@@ -28,7 +28,7 @@ class UnderworldDensityTest {
     private static final long TEST_SEED = 0x1F1A7EL;
 
     @Test
-    void underworldTerrainKeepsStoneOutsideTheShiftedMiteBand() {
+    void underworldTerrainKeepsStoneOutsideTheShiftedBand() {
         for (long seed : List.of(TEST_SEED, TEST_SEED + 1, -TEST_SEED)) {
             assertTerrainBand(seed);
         }

@@ -34,11 +34,11 @@ import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 /**
- * MITE-style open-fire cooking for dropped food.
+ * InfX-style open-fire cooking for dropped food.
  *
  * <p>Progress is applied only when an item actually receives non-lava fire damage. Raw food turns
  * into its cooked counterpart at 100 progress; cooked food reaches the same threshold and burns
- * away. Raw food also schedules MITE's anti-bulk-cooking fire-extinguish check.
+ * away. Raw food also schedules InfX's anti-bulk-cooking fire-extinguish check.
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class FireCookingEvents {
@@ -72,7 +72,7 @@ public final class FireCookingEvents {
     private FireCookingEvents() {}
 
     /**
-     * Applies one real MITE-style fire-damage increment and consumes vanilla item damage when the
+     * Applies one real InfX-style fire-damage increment and consumes vanilla item damage when the
      * stack is an open-fire food. Lava deliberately remains destructive rather than cooking food.
      */
     public static boolean handleFireDamage(ServerLevel level, ItemEntity entity, DamageSource source, float damage) {
@@ -148,7 +148,7 @@ public final class FireCookingEvents {
         if (!event.getEntity().isOnFire()) return;
         for (ItemEntity drop : event.getDrops()) {
             if (isCooked(drop.getItem())) {
-                // MITE transfers 2-8 seconds of the burning victim's fire to its dropped items.
+                // InfX transfers 2-8 seconds of the burning victim's fire to its dropped items.
                 drop.igniteForSeconds(2.0F + drop.getRandom().nextInt(7));
             }
         }
@@ -160,10 +160,10 @@ public final class FireCookingEvents {
     }
 
     public static boolean isCooked(ItemStack stack) {
-        return isMiteCooked(stack.getItem());
+        return isCooked(stack.getItem());
     }
 
-    static boolean isMiteCooked(Item item) {
+    static boolean isCooked(Item item) {
         return COOKED_EXPERIENCE.containsKey(item)
                 || COOKED_WORM_ID.equals(BuiltInRegistries.ITEM.getKey(item));
     }

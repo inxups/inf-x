@@ -25,7 +25,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.event.RegisterCauldronInteractionEvent;
 
 /**
- * MITE BlockCauldron#onBlockActivated ItemVessel branch for INFX metal buckets and bowls. An empty
+ * InfX BlockCauldron#onBlockActivated ItemVessel branch for INFX metal buckets and bowls. An empty
  * bucket takes a full water cauldron (vessel volume 4 capped to 3) and a water bucket pours back
  * three levels; bowls transfer a single level.
  */
@@ -48,7 +48,7 @@ public final class CauldronEvents {
         event.register(EMPTY, InfXItems.WATER_BOWL.value(), CauldronEvents::emptyBowl);
     }
 
-    /** MITE: empty vessel with volume >= 1 takes water from a cauldron of the same volume. */
+    /** InfX: empty vessel with volume >= 1 takes water from a cauldron of the same volume. */
     private static InteractionResult fillBucket(
             BlockState state,
             Level level,
@@ -74,7 +74,7 @@ public final class CauldronEvents {
         return InteractionResult.SUCCESS;
     }
 
-    /** MITE: a full vessel empties into a cauldron below capacity, clamping at three levels. */
+    /** InfX: a full vessel empties into a cauldron below capacity, clamping at three levels. */
     private static InteractionResult emptyWaterBucket(
             BlockState state,
             Level level,

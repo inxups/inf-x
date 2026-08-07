@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class GelatinousSphereItemTest {
     @Test
-    void sphereColorsCarryMiteDamageAndCorrosionPayloads() {
+    void sphereColorsCarryDamageAndCorrosionPayloads() {
         assertSphere(GelatinousSphereItem.Color.GREEN, "green", CorrosionType.PEPSIN, 1);
         assertSphere(GelatinousSphereItem.Color.OCHRE, "ochre", CorrosionType.PEPSIN, 2);
         assertSphere(GelatinousSphereItem.Color.CRIMSON, "crimson", CorrosionType.PEPSIN, 3);

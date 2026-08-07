@@ -40,7 +40,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
 
     public InfxZombifiedPiglin(EntityType<? extends ZombifiedPiglin> type, Level level) {
         super(type, level);
-        // MITE pig zombies are worth triple the base experience.
+        // InfX pig zombies are worth triple the base experience.
         xpReward = 15;
         disableVanillaZombieAbilities();
     }
@@ -68,7 +68,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE pig zombies notice unprovoked players only within 6 blocks; anger extends to 24.
+        // InfX pig zombies notice unprovoked players only within 6 blocks; anger extends to 24.
         targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
                 this,
                 Player.class,
@@ -87,7 +87,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
             @NonNull DifficultyInstance difficulty,
             @NonNull EntitySpawnReason reason,
             @Nullable SpawnGroupData groupData) {
-        // MITE has no baby pig zombies and no chicken jockeys.
+        // InfX has no baby pig zombies and no chicken jockeys.
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, new Zombie.ZombieGroupData(false, false));
         setBaby(false);
         AttributeInstance reinforcements = getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE);
@@ -95,7 +95,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
             reinforcements.removeModifiers();
             reinforcements.setBaseValue(0.0);
         }
-        // Zombie#finalizeSpawn re-rolls both flags, so restore MITE's pig-zombie restrictions.
+        // Zombie#finalizeSpawn re-rolls both flags, so restore the pig-zombie restrictions.
         disableVanillaZombieAbilities();
         return data;
     }
@@ -117,7 +117,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
         return false;
     }
 
-    /** MITE pig zombies always carry a worn golden weapon: sword 2, axe 1, pickaxe 1. */
+    /** InfX pig zombies always carry a worn golden weapon: sword 2, axe 1, pickaxe 1. */
     @Override
     public void populateDefaultEquipmentSlots(RandomSource random, @NonNull DifficultyInstance difficulty) {
         int roll = random.nextInt(4);

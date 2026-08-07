@@ -163,7 +163,7 @@ class TextureProvenanceTest {
     }
 
     @Test
-    void safeFoodAndGelatinousDestinationsUseTheirExplicitMiteTextures() throws Exception {
+    void safeFoodAndGelatinousDestinationsUseTheirExplicitTextures() throws Exception {
         Map<String, String> sourcesByDestination = Files.readAllLines(MANIFEST, UTF_8).stream()
                 .skip(1)
                 .map(line -> line.split("\\t", -1))

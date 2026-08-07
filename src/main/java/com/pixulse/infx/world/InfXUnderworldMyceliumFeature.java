@@ -15,7 +15,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-/** Generates MITE-style mycelium post fields without shared mutable world-generation state. */
+/** Generates InfX-style mycelium post fields without shared mutable world-generation state. */
 public final class InfXUnderworldMyceliumFeature extends Feature<NoneFeatureConfiguration> {
     private static final int CHUNK_SIZE = 16;
     private static final int POST_MIN_LOCAL_Y = 24;

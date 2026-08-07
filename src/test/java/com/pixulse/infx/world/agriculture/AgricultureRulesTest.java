@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class AgricultureRulesTest {
     @Test
-    void miteClimateAndTickIntervalFollowGrowingPlantRules() {
+    void climateAndTickIntervalFollowGrowingPlantRules() {
         assertEquals(1.0F, InfxCropBlock.temperatureGrowthRateModifier(0.8F));
         assertEquals(1.0F, InfxCropBlock.temperatureGrowthRateModifier(1.2F));
         assertEquals(0.2F, InfxCropBlock.temperatureGrowthRateModifier(0.0F), 1.0E-6F);
@@ -25,7 +25,7 @@ class AgricultureRulesTest {
     }
 
     @Test
-    void cropTexturesUseMiteStageMappings() {
+    void cropTexturesUseStageMappings() {
         assertEquals(8, InfxCropType.WHEAT.textureStages());
         assertEquals(7, InfxCropType.WHEAT.deadTextureStages());
         assertEquals(0, InfxCropType.CARROTS.textureStage(0));

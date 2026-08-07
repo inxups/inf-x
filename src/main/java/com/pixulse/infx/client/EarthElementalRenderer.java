@@ -55,7 +55,7 @@ public final class EarthElementalRenderer<T extends EarthElemental> extends MobR
     }
 
     /**
-     * MITE magma elementals keep a faint light level even in total darkness.
+     * InfX magma elementals keep a faint light level even in total darkness.
      */
     @Override
     protected int getBlockLightLevel(T entity, @NonNull BlockPos blockPos) {

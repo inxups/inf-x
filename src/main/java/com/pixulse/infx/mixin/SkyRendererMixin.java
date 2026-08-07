@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * SkyRenderer has no public moon-tint or special-celestial hook. These three narrow injections
- * retain vanilla's data-driven phase geometry while adding MITE's visual-only treatment.
+ * retain vanilla's data-driven phase geometry while adding InfX's visual-only treatment.
  */
 @Mixin(SkyRenderer.class)
 abstract class SkyRendererMixin {

@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Block contact rules from MITE's pepsin and acid gelatinous cubes. */
+/** Block contact rules from InfX's pepsin and acid gelatinous cubes. */
 public final class GelatinousCubeRules {
     public static final int IMMUNE = -1;
     public static final int INSTANT = 0;

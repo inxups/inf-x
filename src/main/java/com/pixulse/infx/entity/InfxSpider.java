@@ -99,7 +99,7 @@ public final class InfxSpider extends Spider implements InfxMob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        // Legacy MITE arachnids use the old AI pathing formula, where the attribute is a
+        // Legacy arachnids use the old AI pathing formula, where the attribute is a
         // forward-input multiplier under a fixed 0.1 throttle.  Its 1.0/0.8 values cannot
         // be assigned directly to 26.2's movement attribute.  Preserve only the source's
         // 25% base/cave/demon boost over the vanilla arachnid family.
@@ -135,7 +135,7 @@ public final class InfxSpider extends Spider implements InfxMob {
         };
     }
 
-    /** MITE arachnids have a finite 0-3 web stock; phase spiders do not carry webs. */
+    /** InfX arachnids have a finite 0-3 web stock; phase spiders do not carry webs. */
     static int initialWebCount(Variant variant, int randomRoll) {
         if (variant == Variant.PHASE) {
             return 0;
@@ -167,7 +167,7 @@ public final class InfxSpider extends Spider implements InfxMob {
         goalSelector.removeAllGoals(goal -> goal instanceof LeapAtTargetGoal);
         goalSelector.addGoal(3, new InfxArachnidLeapGoal(this));
         if (variant() != Variant.SPIDER) {
-            // MITE: only the base spider turns peaceful in daylight; the variants ignore light
+            // InfX: only the base spider turns peaceful in daylight; the variants ignore light
             // both when acquiring targets and when continuing an attack.
             targetSelector.removeAllGoals(goal -> goal instanceof NearestAttackableTargetGoal<?>);
             targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
@@ -201,7 +201,7 @@ public final class InfxSpider extends Spider implements InfxMob {
             if (variant() == Variant.SPIDER
                     && level.getDifficulty() == Difficulty.HARD
                     && random.nextFloat() < 0.1F * difficulty.getSpecialMultiplier()) {
-                // MITE buff table: speed 1/2, strength 1/4, regeneration 1/4 — never invisibility.
+                // InfX buff table: speed 1/2, strength 1/4, regeneration 1/4 — never invisibility.
                 int roll = random.nextInt(4);
                 effects.effect = roll <= 1
                         ? MobEffects.SPEED
@@ -214,7 +214,7 @@ public final class InfxSpider extends Spider implements InfxMob {
             if (!(passenger instanceof AbstractSkeleton)) {
                 continue;
             }
-            // MITE: variants never carry jockeys; base-spider jockeys are INFX skeletons,
+            // InfX: variants never carry jockeys; base-spider jockeys are INFX skeletons,
             // or longdead in the Underworld.
             passenger.discard();
             if (variant() == Variant.SPIDER) {
@@ -242,7 +242,7 @@ public final class InfxSpider extends Spider implements InfxMob {
         switch (variant()) {
             case CAVE_SPIDER -> living.addEffect(new MobEffectInstance(MobEffects.POISON, 480, 0), this);
             case BLACK_WIDOW -> living.addEffect(new MobEffectInstance(MobEffects.POISON, 960, 0), this);
-            // MITE demon spiders poison and slow but never ignite on melee; their fire comes
+            // InfX demon spiders poison and slow but never ignite on melee; their fire comes
             // from burning webs only.
             case DEMON -> {
                 living.addEffect(new MobEffectInstance(MobEffects.POISON, 480, 0), this);
@@ -308,7 +308,7 @@ public final class InfxSpider extends Spider implements InfxMob {
 
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
-        // MITE phase spiders always evade while they have evasions left, jumping at least three
+        // InfX phase spiders always evade while they have evasions left, jumping at least three
         // blocks sideways and away from the threat, then reacquire a player within 24 blocks.
         if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null) {
             for (int attempt = 0; attempt < 64; attempt++) {

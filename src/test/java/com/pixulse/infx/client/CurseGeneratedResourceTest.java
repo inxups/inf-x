@@ -44,7 +44,7 @@ class CurseGeneratedResourceTest {
     }
 
     @Test
-    void curseBehaviorTagsCoverMiteCategories() throws Exception {
+    void curseBehaviorTagsCoverCategories() throws Exception {
         String vines = text("data/infx/tags/block/curse/vines.json");
         String plants = text("data/infx/tags/block/curse/plants.json");
         String animals = text("data/infx/tags/item/curse/animal_products.json");

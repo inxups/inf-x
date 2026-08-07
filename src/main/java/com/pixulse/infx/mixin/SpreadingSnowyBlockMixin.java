@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * MITE BlockGrass trampling recovery during the grass random-tick spread loop.
+ * InfX BlockGrass trampling recovery during the grass random-tick spread loop.
  */
 @Mixin(SpreadingSnowyBlock.class)
 public abstract class SpreadingSnowyBlockMixin {

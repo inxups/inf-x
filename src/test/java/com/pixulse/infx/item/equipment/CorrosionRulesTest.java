@@ -16,7 +16,7 @@ class CorrosionRulesTest {
     }
 
     @Test
-    void acidRespectsMiteMaterialExceptions() {
+    void acidRespectsMaterialExceptions() {
         assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.FLINT, CorrosionType.ACID));
         assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.OBSIDIAN, CorrosionType.ACID));
         assertFalse(CorrosionRules.isHarmedBy(InfxMaterial.GOLD, CorrosionType.ACID));
@@ -26,11 +26,11 @@ class CorrosionRulesTest {
     }
 
     @Test
-    void miteCompositeEquipmentKeepsItsWoodenComponents() {
-        assertTrue(CorrosionRules.hasMiteWoodenComponent(EquipmentType.PICKAXE));
-        assertTrue(CorrosionRules.hasMiteWoodenComponent(EquipmentType.BOW));
-        assertTrue(CorrosionRules.hasMiteWoodenComponent(EquipmentType.ARROW));
-        assertFalse(CorrosionRules.hasMiteWoodenComponent(EquipmentType.SHEARS));
-        assertFalse(CorrosionRules.hasMiteWoodenComponent(EquipmentType.HELMET));
+    void compositeEquipmentKeepsItsWoodenComponents() {
+        assertTrue(CorrosionRules.hasWoodenComponent(EquipmentType.PICKAXE));
+        assertTrue(CorrosionRules.hasWoodenComponent(EquipmentType.BOW));
+        assertTrue(CorrosionRules.hasWoodenComponent(EquipmentType.ARROW));
+        assertFalse(CorrosionRules.hasWoodenComponent(EquipmentType.SHEARS));
+        assertFalse(CorrosionRules.hasWoodenComponent(EquipmentType.HELMET));
     }
 }

@@ -8,7 +8,7 @@ import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 
-/** MITE torches burn as fuel (800 ticks), matching the MITE torch burn time. */
+/** InfX torches burn as fuel (800 ticks), matching the InfX torch burn time. */
 public final class ModDataMapProvider extends DataMapProvider {
     public ModDataMapProvider(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(packOutput, lookupProvider);

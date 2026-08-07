@@ -28,7 +28,7 @@ import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
-/** Renders MITE's colored moons, blood/blue halos, and moon-dog ring on the modern sky pipeline. */
+/** Renders InfX's colored moons, blood/blue halos, and moon-dog ring on the modern sky pipeline. */
 public final class MoonCelestialRenderer {
     private static final Identifier HALO_TEXTURE = InfiniteX.id("textures/environment/celestial/moon_halo.png");
     private static final Identifier RING_TEXTURE = InfiniteX.id("textures/environment/celestial/moon_ring.png");
@@ -41,7 +41,7 @@ public final class MoonCelestialRenderer {
 
     private MoonCelestialRenderer() {}
 
-    /** Called from SkyRenderer's moon transform to preserve the MITE moon-face colors. */
+    /** Called from SkyRenderer's moon transform to preserve the InfX moon-face colors. */
     public static Vector4fc tintMoon(Vector4fc vanillaColor) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
@@ -73,7 +73,7 @@ public final class MoonCelestialRenderer {
             return;
         }
 
-        // Modern star brightness reaches 0.5 at full night; scaling it restores MITE's full
+        // Modern star brightness reaches 0.5 at full night; scaling it restores InfX's full
         // halo/ring opacity while still fading the effect naturally at dusk and dawn.
         float nightVisibility = Mth.clamp(starBrightness * 2.0F, 0.0F, 1.0F);
         if (nightVisibility <= 0.0F) {

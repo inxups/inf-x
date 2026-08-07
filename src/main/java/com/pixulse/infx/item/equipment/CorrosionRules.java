@@ -58,13 +58,13 @@ public final class CorrosionRules {
         return isAcidHarmedVanillaItem(stack);
     }
 
-    /** MITE treats the material list as an OR: a wooden handle or shaft remains acid-sensitive. */
+    /** InfX treats the material list as an OR: a wooden handle or shaft remains acid-sensitive. */
     private static boolean isHarmedBy(Catalog.EquipmentEntry equipment, CorrosionType type) {
         return isHarmedBy(equipment.key().material(), type)
-                || hasMiteWoodenComponent(equipment.key().type()) && isHarmedBy(InfxMaterial.WOOD, type);
+                || hasWoodenComponent(equipment.key().type()) && isHarmedBy(InfxMaterial.WOOD, type);
     }
 
-    static boolean hasMiteWoodenComponent(EquipmentType type) {
+    static boolean hasWoodenComponent(EquipmentType type) {
         return type.armorForm() == EquipmentType.ArmorForm.NONE && type != EquipmentType.SHEARS;
     }
 

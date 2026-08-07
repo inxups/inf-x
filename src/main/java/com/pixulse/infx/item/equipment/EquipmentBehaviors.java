@@ -63,7 +63,7 @@ public final class EquipmentBehaviors {
         event.setAmount(event.getAmount() * 1.25F);
     }
 
-    /** MITE war hammers and cudgels add two damage against the skeleton family. */
+    /** InfX war hammers and cudgels add two damage against the skeleton family. */
     @SubscribeEvent
     public static void applySkeletonBane(LivingIncomingDamageEvent event) {
         if (!(event.getSource().getEntity() instanceof LivingEntity attacker)
@@ -203,7 +203,7 @@ public final class EquipmentBehaviors {
         if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return;
         }
-        // MITE: fire and armor-bypassing damage skip mundane armor, but the typed protection
+        // InfX: fire and armor-bypassing damage skip mundane armor, but the typed protection
         // enchantments (fire/blast/projectile protection, feather falling) still contribute.
         boolean bypassesMundaneArmor = bypassesMundaneArmor(event);
         float typed = typedProtectionPoints(entity, event);
@@ -239,9 +239,9 @@ public final class EquipmentBehaviors {
                         container.getNewDamage(), fixedArmorPoints));
     }
 
-    /** Sums MITE's typed protection points from the four armor pieces for a matching source. */
+    /** Sums InfX's typed protection points from the four armor pieces for a matching source. */
     private static float typedProtectionPoints(LivingEntity entity, LivingIncomingDamageEvent event) {
-        boolean fire = isMiteFireDamage(event);
+        boolean fire = isFireDamage(event);
         boolean fall = event.getSource().is(DamageTypeTags.IS_FALL);
         boolean explosion = event.getSource().is(DamageTypeTags.IS_EXPLOSION);
         boolean projectile = event.getSource().is(DamageTypeTags.IS_PROJECTILE);
@@ -289,7 +289,7 @@ public final class EquipmentBehaviors {
         if (entity instanceof Player) {
             return armor;
         }
-        // MITE gives non-player armor a fixed 0.5 damage factor. The item attribute still uses
+        // InfX gives non-player armor a fixed 0.5 damage factor. The item attribute still uses
         // the player's durability curve, so replace that contribution before the fixed armor step.
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
@@ -337,7 +337,7 @@ public final class EquipmentBehaviors {
                 || event.getSource().is(DamageTypes.LAVA);
     }
 
-    private static boolean isMiteFireDamage(LivingIncomingDamageEvent event) {
+    private static boolean isFireDamage(LivingIncomingDamageEvent event) {
         return event.getSource().is(DamageTypeTags.IS_FIRE)
                 && !event.getSource().is(DamageTypes.LAVA);
     }
@@ -379,12 +379,12 @@ public final class EquipmentBehaviors {
     }
 
     /**
-     * MITE adds Resistance to total protection as fixed points. Players use the attribute in
+     * InfX adds Resistance to total protection as fixed points. Players use the attribute in
      * the custom armor stage; other entities and armor-bypassing damage need a mob-effect-stage
      * fallback because vanilla does not run the armor reduction in those cases.
      */
     @SubscribeEvent
-    public static void applyMiteResistanceProtection(LivingIncomingDamageEvent event) {
+    public static void applyResistanceProtection(LivingIncomingDamageEvent event) {
         float protection = resistanceProtectionPoints(event.getEntity(), event);
         if (protection <= 0.0F) {
             return;
@@ -560,7 +560,7 @@ public final class EquipmentBehaviors {
         if (item instanceof InfxWarpedFungusOnAStickItem warpedOnAStick) {
             return warpedOnAStick.hookMaterial();
         }
-        // MITE's vanilla fishing rod and carrot-on-a-stick use an iron hook; warped fungus
+        // InfX's vanilla fishing rod and carrot-on-a-stick use an iron hook; warped fungus
         // on a stick is the modern equivalent of the carrot item.
         if (item == Items.FISHING_ROD
                 || item == Items.CARROT_ON_A_STICK

@@ -24,14 +24,14 @@ public record FoodProfile(
     }
 
     /** Creates a profile from the INFX Item#setFoodValue inputs. */
-    public static FoodProfile mite(
+    public static FoodProfile of(
             double satiation,
             double nutrition,
             int sugarContent,
             boolean hasProtein,
             boolean hasEssentialFats,
             boolean hasPhytonutrients) {
-        return mite(
+        return of(
                 satiation,
                 nutrition,
                 sugarContent,
@@ -43,7 +43,7 @@ public record FoodProfile(
     }
 
     /** Creates an INFX profile with an item-specific nutrient bonus, such as wheat seeds. */
-    public static FoodProfile mite(
+    public static FoodProfile of(
             double satiation,
             double nutrition,
             int sugarContent,

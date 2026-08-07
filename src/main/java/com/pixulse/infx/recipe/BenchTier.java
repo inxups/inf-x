@@ -27,7 +27,7 @@ public enum BenchTier {
         return speedBonus;
     }
 
-    /** Numeric hardness value used by MITE's workbench gate. */
+    /** Numeric hardness value used by InfX's workbench gate. */
     public int capability() {
         return capability;
     }

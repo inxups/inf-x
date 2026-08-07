@@ -36,8 +36,8 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 
 /**
- * The 22 INFX enchantments, the 17 vanilla-derived MITE enchantments re-registered under their
- * {@code minecraft:} ids with MITE profiles, and the crafting-only clumsiness curse.
+ * The 22 INFX enchantments, the 17 vanilla-derived enchantments re-registered under their
+ * {@code minecraft:} ids with legacy profiles, and the crafting-only clumsiness curse.
  */
 public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> DURABILITY = key("durability");
@@ -65,8 +65,8 @@ public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> CLUMSINESS = key("clumsiness");
 
     /**
-     * MITE enchantments that survive in 26.2 under their vanilla ids. Their definitions are
-     * overridden via datagen so acquisition follows the same MITE table rules as the INFX set.
+     * Enchantments that survive in 26.2 under their vanilla ids. Their definitions are
+     * overridden via datagen so acquisition follows the same table rules as the INFX set.
      */
     public static final ResourceKey<Enchantment> VANILLA_FIRE_PROTECTION = vanillaKey("fire_protection");
     public static final ResourceKey<Enchantment> VANILLA_FEATHER_FALLING = vanillaKey("feather_falling");
@@ -215,8 +215,8 @@ public final class InfXEnchantments {
     }
 
     /**
-     * Re-registers the vanilla-derived MITE enchantments with MITE rarity, difficulty windows,
-     * level caps and item targets. Effects that MITE computes in armor, damage or drop code are
+     * Re-registers the vanilla-derived enchantments with legacy rarity, difficulty windows,
+     * level caps and item targets. Effects that the original computes in armor, damage or drop code are
      * implemented in the INFX event pipeline instead of as data components.
      */
     private static void bootstrapVanilla(
@@ -283,7 +283,7 @@ public final class InfXEnchantments {
                         EnchantmentEffectComponents.POST_ATTACK,
                         EnchantmentTarget.ATTACKER,
                         EnchantmentTarget.VICTIM,
-                        // MITE ignites for a fixed second regardless of level; the level only
+                        // InfX ignites for a fixed second regardless of level; the level only
                         // marks the damage as fire-aspect for mob immunity checks.
                         new Ignite(LevelBasedValue.constant(1.0F)),
                         net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition.hasDamageSource(
@@ -394,7 +394,7 @@ public final class InfXEnchantments {
     }
 
     /**
-     * MITE's canApplyTogether allows any two distinct enchantments except silk touch with
+     * InfX's canApplyTogether allows any two distinct enchantments except silk touch with
      * fortune and the damage-enchantment group.
      */
     private static HolderSet<Enchantment> exclusiveSet(

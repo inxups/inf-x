@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** MITE creative players reach 5 blocks for block and entity interaction. */
+/** InfX creative players reach 5 blocks for block and entity interaction. */
 @Mixin(Player.class)
 public abstract class PlayerReachMixin {
     @Inject(method = "blockInteractionRange", at = @At("HEAD"), cancellable = true)

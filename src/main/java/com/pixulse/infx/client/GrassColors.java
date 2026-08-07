@@ -17,7 +17,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import org.jspecify.annotations.NonNull;
 
-/** Client grass tint: biome color blended toward MITE manure brown when trampled. */
+/** Client grass tint: biome color blended toward InfX manure brown when trampled. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class GrassColors {
     private GrassColors() {}

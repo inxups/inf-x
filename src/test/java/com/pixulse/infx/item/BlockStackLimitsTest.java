@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 class BlockStackLimitsTest {
     @Test
-    void restoresEveryExplicitMiteStackTier() {
+    void restoresEveryExplicitStackTier() {
         assertLimit(1, Items.FURNACE, Items.ANVIL, Items.OAK_DOOR, Items.RED_BED);
         assertLimit(4, Items.STONE, Items.CHEST, Items.CRAFTING_TABLE, Items.DIAMOND_BLOCK);
         assertLimit(
@@ -58,7 +58,7 @@ class BlockStackLimitsTest {
     }
 
     @Test
-    void extrapolatesModernBlocksFromTheNearestMiteFamily() {
+    void extrapolatesModernBlocksFromTheNearestFamily() {
         assertLimit(1, Items.BLAST_FURNACE, Items.SMOKER, Items.CHERRY_DOOR);
         assertLimit(4, Items.CRAFTER, Items.CHERRY_STAIRS);
         assertLimit(8, Items.CHERRY_PLANKS, Items.CHERRY_SLAB, Items.CHERRY_FENCE);

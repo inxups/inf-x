@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * MITE EntityLivingBase water movement: sinking uses a flat 0.02/tick instead of vanilla's
- * gravity/16, and holding jump underwater adds 0.04 scaled by MITE's surface / waterfall / slowdown
+ * InfX EntityLivingBase water movement: sinking uses a flat 0.02/tick instead of vanilla's
+ * gravity/16, and holding jump underwater adds 0.04 scaled by InfX's surface / waterfall / slowdown
  * factor. Only players are converted; mobs keep vanilla water handling.
  */
 @Mixin(LivingEntity.class)
@@ -23,15 +23,15 @@ abstract class LivingEntitySwimMixin {
     @Shadow
     protected abstract float getWaterSlowDown();
 
-    /** MITE applies a constant 0.02 downward pull in water; vanilla derives it from baseGravity/16. */
+    /** InfX applies a constant 0.02 downward pull in water; vanilla derives it from baseGravity/16. */
     @ModifyVariable(method = "travelInWater", at = @At("HEAD"), argsOnly = true, ordinal = 0)
-    private double infx$useMiteWaterGravity(double baseGravity) {
+    private double infx$useWaterGravity(double baseGravity) {
         return (Object) this instanceof Player ? SwimPhysics.waterGravity(baseGravity) : baseGravity;
     }
 
     /**
-     * MITE has no counter-current sprint model; vanilla's sprint-swim drag reduction otherwise lets a
-     * sprinting player trivially out-swim MITE's current in any direction, including upstream.
+     * InfX has no counter-current sprint model; vanilla's sprint-swim drag reduction otherwise lets a
+     * sprinting player trivially out-swim InfX's current in any direction, including upstream.
      * {@code movement} (the multiply receiver) is this tick's already-computed thrust, so it doubles
      * as the direction proxy for how directly the player is swimming against the current.
      */
@@ -51,8 +51,8 @@ abstract class LivingEntitySwimMixin {
     }
 
     /**
-     * Vanilla intentionally omits {@code baseGravity / 16} while sprinting. That makes MITE's
-     * 7/16 waterfall jump impulse positive after drag, so reapply the same MITE water pull only
+     * Vanilla intentionally omits {@code baseGravity / 16} while sprinting. That makes InfX's
+     * 7/16 waterfall jump impulse positive after drag, so reapply the same water pull only
      * when both the player's feet and head are in the falling column.
      */
     @Redirect(
@@ -78,7 +78,7 @@ abstract class LivingEntitySwimMixin {
                             value = "INVOKE",
                             target =
                                     "Lnet/minecraft/world/entity/LivingEntity;jumpInFluid(Lnet/neoforged/neoforge/fluids/FluidType;)V"))
-    private void infx$useMiteSwimUp(LivingEntity entity, FluidType type) {
+    private void infx$useSwimUp(LivingEntity entity, FluidType type) {
         if (entity instanceof Player player && type == NeoForgeMod.WATER_TYPE.value()) {
             SwimPhysics.swimUp(player);
         } else {

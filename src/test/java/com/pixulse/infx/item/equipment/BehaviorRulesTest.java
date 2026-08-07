@@ -19,7 +19,7 @@ class BehaviorRulesTest {
     }
 
     @Test
-    void miteHookMaterialsCoverVanillaStickItems() {
+    void hookMaterialsCoverVanillaStickItems() {
         assertEquals(InfxMaterial.IRON, EquipmentBehaviors.fishingRodHookMaterial(Items.FISHING_ROD));
         assertEquals(
                 InfxMaterial.IRON,

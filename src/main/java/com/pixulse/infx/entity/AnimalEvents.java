@@ -45,7 +45,7 @@ public final class AnimalEvents {
     private AnimalEvents() {}
 
     /**
-     * MITE goats share the cow daily milk quota: a metal empty bucket (or the vanilla bucket)
+     * InfX goats share the cow daily milk quota: a metal empty bucket (or the vanilla bucket)
      * fills with milk once per day. Vanilla goats have no INFX wellness skin, so they are not
      * gated by livestock productivity.
      */
@@ -104,7 +104,7 @@ public final class AnimalEvents {
     }
 
     /**
-     * MITE applies the 4000-tick untamed remount and feed intervals to every equine: the INFX
+     * InfX applies the 4000-tick untamed remount and feed intervals to every equine: the INFX
      * horse self-handles in its class, while vanilla donkeys, mules and llamas are gated here.
      */
     @SubscribeEvent
@@ -166,7 +166,7 @@ public final class AnimalEvents {
 
     @SubscribeEvent
     public static void onExperienceDrop(LivingExperienceDropEvent event) {
-        // MITE wolf-family combat mobs keep their experience; other animals grant none.
+        // InfX wolf-family combat mobs keep their experience; other animals grant none.
         if (event.getEntity() instanceof Animal animal && !(animal instanceof Wolf)) {
             event.setDroppedExperience(0);
         }
@@ -183,7 +183,7 @@ public final class AnimalEvents {
     public static void onDrops(LivingDropsEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
 
-        // MITE livestock drop their cooked meat when they die burning (e.g. fire-aspect kills).
+        // InfX livestock drop their cooked meat when they die burning (e.g. fire-aspect kills).
         if (event.getEntity().isOnFire() && event.getEntity() instanceof Animal) {
             List<ItemEntity> cookedDrops = new ArrayList<>();
             for (ItemEntity drop : event.getDrops()) {
@@ -199,7 +199,7 @@ public final class AnimalEvents {
         if (event.getEntity() instanceof Animal animal
                 && Livestock.hasSickSkin(animal)
                 && !Livestock.isWell(animal)) {
-            // MITE's unwell state removes only the meat yield. Leather, wool and feathers remain.
+            // InfX's unwell state removes only the meat yield. Leather, wool and feathers remain.
             event.getDrops().removeIf(drop -> isLivestockMeat(animal, drop.getItem()));
         }
 
@@ -210,7 +210,7 @@ public final class AnimalEvents {
         }
 
         if (event.getEntity() instanceof Donkey || event.getEntity() instanceof Mule) {
-            // MITE donkeys and mules drop beef like the INFX horse replacement.
+            // InfX donkeys and mules drop beef like the INFX horse replacement.
             event.getDrops().add(drop(level, event.getEntity(), new ItemStack(
                     Items.BEEF, 1 + event.getEntity().getRandom().nextInt(3))));
         }

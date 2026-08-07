@@ -65,17 +65,17 @@ import org.jspecify.annotations.Nullable;
 public final class InfxBucketItem extends BucketItem {
     public static final int SOURCE_EXPERIENCE_COST = 100;
     public static final int LAVA_BURN_TIME = 3200;
-    /** MITE scheduleBlockChange delay before a placed water cell degrades to flowing. */
+    /** InfX scheduleBlockChange delay before a placed water cell degrades to flowing. */
     public static final int WATER_DECAY_DELAY = 16;
-    /** MITE scheduleBlockChange delay before a placed lava cell degrades to flowing. */
+    /** InfX scheduleBlockChange delay before a placed lava cell degrades to flowing. */
     public static final int LAVA_DECAY_DELAY = 48;
-    /** MITE prevent_item_pickup_due_to_held_item_breaking_until: 1.5s in ticks. */
+    /** InfX prevent_item_pickup_due_to_held_item_breaking_until: 1.5s in ticks. */
     public static final int MELT_PICKUP_DELAY = 30;
     /** Persistent key holding the game time until which melt-induced pickup stays suppressed. */
     public static final String MELT_PICKUP_BLOCK = "infx_bucket_melt_pickup_block";
-    /** MITE ItemVessel water damage to fire elementals. */
+    /** InfX ItemVessel water damage to fire elementals. */
     public static final float FIRE_ELEMENTAL_QUENCH_DAMAGE = 20.0F;
-    /** MITE ItemVessel water damage to netherspawn. */
+    /** InfX ItemVessel water damage to netherspawn. */
     public static final float NETHERSPAWN_QUENCH_DAMAGE = 8.0F;
 
     public enum Contents {
@@ -204,7 +204,7 @@ public final class InfxBucketItem extends BucketItem {
     }
 
     /**
-     * MITE ItemBucket#getChanceOfMeltingWhenFilledWithLava: adamantium is lava safe, gold is a flat
+     * InfX ItemBucket#getChanceOfMeltingWhenFilledWithLava: adamantium is lava safe, gold is a flat
      * 20%, everything else scales inversely with material durability against mithril's 1% baseline.
      */
     public static float lavaMeltChance(InfxMaterial material) {
@@ -271,7 +271,7 @@ public final class InfxBucketItem extends BucketItem {
 
     private InteractionResult consume(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        // MITE ItemBucketMilk#onItemRightClick: milk douses fire before it can be drunk.
+        // InfX ItemBucketMilk#onItemRightClick: milk douses fire before it can be drunk.
         Level level = player.level();
         BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (hit.getType() == HitResult.Type.BLOCK) {
@@ -295,7 +295,7 @@ public final class InfxBucketItem extends BucketItem {
                 return InteractionResult.SUCCESS.heldItemTransformedTo(emptied);
             }
         }
-        // MITE ItemBucket#onItemRightClick: pouring a liquid back into itself only spends the bucket.
+        // InfX ItemBucket#onItemRightClick: pouring a liquid back into itself only spends the bucket.
         if (hit.getType() == HitResult.Type.BLOCK && !player.hasInfiniteMaterials() && sameLiquidAt(level, hit)) {
             player.awardStat(Stats.ITEM_USED.get(this));
             ItemStack emptied = ItemUtils.createFilledResult(held, player, new ItemStack(emptyBucket.get()));
@@ -335,7 +335,7 @@ public final class InfxBucketItem extends BucketItem {
     }
 
     /**
-     * MITE ItemBucket#onItemRightClick: the contents already occupy the hit cell or the cell beyond
+     * InfX ItemBucket#onItemRightClick: the contents already occupy the hit cell or the cell beyond
      * the hit face, so emptying changes nothing. Matches both source and flowing states.
      */
     private boolean sameLiquidAt(Level level, BlockHitResult hit) {
@@ -347,7 +347,7 @@ public final class InfxBucketItem extends BucketItem {
                 || level.getFluidState(pos.relative(hit.getDirection())).is(content);
     }
 
-    /** MITE World#douseFire target: the fire cell hit directly, or the one beyond the hit face. */
+    /** InfX World#douseFire target: the fire cell hit directly, or the one beyond the hit face. */
     private static @Nullable BlockPos fireTarget(Level level, BlockHitResult hit) {
         BlockPos pos = hit.getBlockPos();
         if (level.getBlockState(pos).getBlock() instanceof BaseFireBlock) {
@@ -357,7 +357,7 @@ public final class InfxBucketItem extends BucketItem {
         return level.getBlockState(neighbor).getBlock() instanceof BaseFireBlock ? neighbor : null;
     }
 
-    /** MITE World#douseFire: extinguish without placing the contents, still spending the vessel. */
+    /** InfX World#douseFire: extinguish without placing the contents, still spending the vessel. */
     private InteractionResult douse(Level level, Player player, InteractionHand hand, BlockPos pos) {
         ItemStack held = player.getItemInHand(hand);
         douseFire(level, pos);
@@ -366,7 +366,7 @@ public final class InfxBucketItem extends BucketItem {
         return InteractionResult.SUCCESS.heldItemTransformedTo(emptied);
     }
 
-    /** Moistens a 3×3 farmland patch (MITE water-bucket fertilize). */
+    /** Moistens a 3×3 farmland patch (InfX water-bucket fertilize). */
     public static boolean moistenFarmland(Level level, @Nullable Player player, BlockPos center) {
         if (level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, center)) {
             if (!level.isClientSide()) {
@@ -420,8 +420,8 @@ public final class InfxBucketItem extends BucketItem {
                                 : null;
         if (filled == null) return InteractionResult.FAIL;
 
-        // MITE ItemBucket#onItemRightClick: scooping source or flowing liquid leaves its cell in place.
-        // The cell is only consumed in creative or with Ctrl held, MITE's "take this cell" modifier.
+        // InfX ItemBucket#onItemRightClick: scooping source or flowing liquid leaves its cell in place.
+        // The cell is only consumed in creative or with Ctrl held, InfX's "take this cell" modifier.
         // Waterlogged blocks are not liquid cells, so they keep vanilla pickup.
         boolean liquidCell = state.getBlock() instanceof LiquidBlock;
         if (!liquidCell) {
@@ -449,14 +449,14 @@ public final class InfxBucketItem extends BucketItem {
         return InteractionResult.SUCCESS.heldItemTransformedTo(result);
     }
 
-    /** MITE ctrl_is_down while filling: consume the liquid cell instead of leaving it behind. */
+    /** InfX ctrl_is_down while filling: consume the liquid cell instead of leaving it behind. */
     private static boolean shouldTakeLiquidCell(Player player) {
         return player.hasInfiniteMaterials()
                 || player.getPersistentData().getBooleanOr(Network.CTRL_USE, false);
     }
 
     /**
-     * MITE ItemBucket#onItemRightClick melt branch: the vessel is destroyed outright because every
+     * InfX ItemBucket#onItemRightClick melt branch: the vessel is destroyed outright because every
      * bucket metal except adamantium is harmed by lava, and adamantium never melts. Pickup is
      * suppressed briefly so the empty hand does not immediately grab a nearby drop.
      */
@@ -507,7 +507,7 @@ public final class InfxBucketItem extends BucketItem {
                             user, level, hitResult.getBlockPos().relative(hitResult.getDirection()), null, containerItem);
         }
 
-        // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
+        // InfX tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
         if (canDouseFire() && blockState.getBlock() instanceof BaseFireBlock) {
             douseFire(level, pos);
             return true;
@@ -553,13 +553,13 @@ public final class InfxBucketItem extends BucketItem {
             level.destroyBlock(pos, true);
         }
 
-        // MITE tryConvertLavaToCobblestoneOrObsidian / tryConvertWaterToCobblestone: contact between the
+        // InfX tryConvertLavaToCobblestoneOrObsidian / tryConvertWaterToCobblestone: contact between the
         // two liquids sets stone instead of leaving a fluid cell.
         if (convertOnContact(level, pos)) {
             return true;
         }
 
-        // MITE always writes a source cell and schedules the degrade separately, so the pour spreads
+        // InfX always writes a source cell and schedules the degrade separately, so the pour spreads
         // once before settling to flowing unless the player paid for a permanent source.
         if (!level.setBlock(pos, flowingFluid.getSource(false).createLegacyBlock(), 11)
                 && !blockState.getFluidState().isSource()) {
@@ -576,7 +576,7 @@ public final class InfxBucketItem extends BucketItem {
         return true;
     }
 
-    /** MITE water↔lava contact conversion. Returns true when stone replaced the fluid cell. */
+    /** InfX water↔lava contact conversion. Returns true when stone replaced the fluid cell. */
     private boolean convertOnContact(Level level, BlockPos pos) {
         if (level.isClientSide()) {
             return false;
@@ -597,7 +597,7 @@ public final class InfxBucketItem extends BucketItem {
         return false;
     }
 
-    /** Queues the MITE scheduleBlockChange that degrades an unpaid source cell to flowing. */
+    /** Queues the InfX scheduleBlockChange that degrades an unpaid source cell to flowing. */
     private void scheduleSourceDecay(Level level, BlockPos pos) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
@@ -608,7 +608,7 @@ public final class InfxBucketItem extends BucketItem {
     }
 
     /**
-     * MITE scheduleBlockChange delay: an unpaid water cell placed by any vessel degrades to flowing
+     * InfX scheduleBlockChange delay: an unpaid water cell placed by any vessel degrades to flowing
      * after {@value #WATER_DECAY_DELAY} ticks instead of staying a permanent source.
      */
     public static void scheduleWaterDecay(Level level, BlockPos pos) {
@@ -630,7 +630,7 @@ public final class InfxBucketItem extends BucketItem {
         return content.is(FluidTags.WATER) || contents == Contents.MILK;
     }
 
-    /** MITE World#douseFire: smoke and steam, then the fire cell clears. */
+    /** InfX World#douseFire: smoke and steam, then the fire cell clears. */
     static void douseFire(Level level, BlockPos pos) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return;
@@ -667,7 +667,7 @@ public final class InfxBucketItem extends BucketItem {
         }
         if (player.getPersistentData().getBooleanOr(Network.CTRL_USE, false)) {
             player.giveExperiencePoints(-SOURCE_EXPERIENCE_COST);
-            // MITE EntityPlayer#addExperience: spending experience plays the level-drain sound.
+            // InfX EntityPlayer#addExperience: spending experience plays the level-drain sound.
             player.level().playSound(
                     null,
                     player.blockPosition(),
@@ -706,7 +706,7 @@ public final class InfxBucketItem extends BucketItem {
     }
 
     /**
-     * MITE ItemVessel#tryEntityInteraction: water satisfies thirsty livestock and quenches
+     * InfX ItemVessel#tryEntityInteraction: water satisfies thirsty livestock and quenches
      * fire-aligned mobs. Thirst lives in server-side persistent data, so the client defers.
      */
     @Override
@@ -740,9 +740,9 @@ public final class InfxBucketItem extends BucketItem {
     }
 
     /**
-     * MITE water damage tiers: 20 against fire elementals, 8 against netherspawn. Deliberately not
+     * InfX water damage tiers: 20 against fire elementals, 8 against netherspawn. Deliberately not
      * keyed on {@code isSensitiveToWater}, which also covers endermen, snow golems and striders that
-     * MITE's vessel interaction never touched.
+     * InfX's vessel interaction never touched.
      */
     private static float quenchDamage(LivingEntity target) {
         if (target instanceof FireElemental) {

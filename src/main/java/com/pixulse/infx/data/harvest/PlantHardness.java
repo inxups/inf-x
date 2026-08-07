@@ -2,7 +2,7 @@ package com.pixulse.infx.data.harvest;
 
 import net.minecraft.resources.Identifier;
 
-/** Hardness mappings for vanilla plants that must retain non-instant MITE harvesting progress. */
+/** Hardness mappings for vanilla plants that must retain non-instant InfX harvesting progress. */
 public final class PlantHardness {
     public static final float TALL_GRASS_HARDNESS = 0.02F;
     public static final float SUGAR_CANE_HARDNESS = 0.02F;
@@ -31,7 +31,7 @@ public final class PlantHardness {
                     "azalea", "flowering_azalea" ->
                     TALL_GRASS_HARDNESS;
             case "sugar_cane" -> SUGAR_CANE_HARDNESS;
-            default -> throw new IllegalArgumentException("No MITE plant hardness mapping for " + blockId);
+            default -> throw new IllegalArgumentException("No InfX plant hardness mapping for " + blockId);
         };
     }
 }

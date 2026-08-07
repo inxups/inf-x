@@ -22,7 +22,7 @@ class MonsterProfileTest {
     private static final double EPSILON = 1.0E-6;
 
     @Test
-    void earthElementalsUseTheMiteHostileMobHierarchy() {
+    void earthElementalsUseTheHostileMobHierarchy() {
         assertEquals(Monster.class, EarthElemental.class.getSuperclass());
         assertEquals(EarthElemental.class, ClayGolem.class.getSuperclass());
         assertTrue(Enemy.class.isAssignableFrom(EarthElemental.class));
@@ -219,7 +219,7 @@ class MonsterProfileTest {
     }
 
     @Test
-    void fireElementalWaterAttritionAndVampireBatFeedingUseMiteCadences() {
+    void fireElementalWaterAttritionAndVampireBatFeedingUseCadences() {
         assertFalse(FireElemental.shouldApplyWaterAttrition(40, false));
         assertFalse(FireElemental.shouldApplyWaterAttrition(39, true));
         assertTrue(FireElemental.shouldApplyWaterAttrition(40, true));
@@ -228,7 +228,7 @@ class MonsterProfileTest {
     }
 
     @Test
-    void villagerZombieRareDropsUseTheMiteVillagerRate() {
+    void villagerZombieRareDropsUseTheVillagerRate() {
         assertEquals(0.025F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, false, 0), EPSILON);
         assertEquals(0.035F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, false, 1), EPSILON);
         assertEquals(0.10F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, true, 0), EPSILON);
@@ -243,7 +243,7 @@ class MonsterProfileTest {
     }
 
     @Test
-    void netherspawnExplosionKeepsTheMiteProtectedTerrain() {
+    void netherspawnExplosionKeepsTheProtectedTerrain() {
         assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.NETHERRACK.defaultBlockState()));
         assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.NETHER_QUARTZ_ORE.defaultBlockState()));
         assertTrue(InfxSilverfish.isNetherspawnExplosionProtected(Blocks.NETHER_GOLD_ORE.defaultBlockState()));

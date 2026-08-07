@@ -29,7 +29,7 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 
-/** MITE crop-family rules that do not belong to a specific custom crop block. */
+/** InfX crop-family rules that do not belong to a specific custom crop block. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AgricultureEvents {
     private AgricultureEvents() {}
@@ -62,7 +62,7 @@ public final class AgricultureEvents {
     }
 
     /**
-     * Converts legacy vanilla row crops before a bone-meal attempt. MITE white dye cures blight
+     * Converts legacy vanilla row crops before a bone-meal attempt. InfX white dye cures blight
      * only, so a healthy converted crop intentionally does not consume or use the bone meal.
      * Saplings never grow from bone meal either; grass blocks, water plants and decorative
      * plants keep their vanilla uses.
@@ -73,7 +73,7 @@ public final class AgricultureEvents {
             return;
         }
         if (event.getState().getBlock() instanceof SaplingBlock) {
-            // MITE bone meal ignores saplings entirely: no growth, no consumption.
+            // InfX bone meal ignores saplings entirely: no growth, no consumption.
             event.setSuccessful(false);
             event.setCanceled(true);
             return;

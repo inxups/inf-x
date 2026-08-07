@@ -24,8 +24,8 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 
-/** MITE structure rewards, mapped to the 26.1.2 InfiniteX item catalog. */
-final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
+/** InfX structure rewards, mapped to the 26.1.2 InfiniteX item catalog. */
+final class ModLegacyStructureLootSubProvider implements LootTableSubProvider {
     static final List<String> TARGETS = List.of(
             "simple_dungeon",
             "abandoned_mineshaft",
@@ -76,7 +76,7 @@ final class ModMiteStructureLootSubProvider implements LootTableSubProvider {
             "trial_chambers/reward_ominous",
             "trial_chambers/supply");
 
-    ModMiteStructureLootSubProvider(HolderLookup.Provider registries) {}
+    ModLegacyStructureLootSubProvider(HolderLookup.Provider registries) {}
 
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {

@@ -16,7 +16,7 @@ class HarvestSpeedRulesTest {
     }
 
     @Test
-    void convertsModernCorrectToolSpeedToMiteProgressUnits() {
+    void convertsModernCorrectToolSpeedToProgressUnits() {
         float strength = 7.0F;
         float hardness = 1.5F;
         float adjustedSpeed = HarvestSpeedRules.toModernBreakSpeed(strength);
@@ -42,11 +42,11 @@ class HarvestSpeedRulesTest {
 
     @Test
     void miningFatigueUsesR196LinearStrengthInsteadOfModernExponentialStrength() {
-        assertEquals(0.8F, HarvestSpeedRules.miteMiningFatigueMultiplier(0), 1.0E-6F);
-        assertEquals(0.6F, HarvestSpeedRules.miteMiningFatigueMultiplier(1), 1.0E-6F);
-        assertEquals(0.4F, HarvestSpeedRules.miteMiningFatigueMultiplier(2), 1.0E-6F);
-        assertEquals(0.2F, HarvestSpeedRules.miteMiningFatigueMultiplier(3), 1.0E-6F);
-        assertEquals(0.0F, HarvestSpeedRules.miteMiningFatigueMultiplier(4), 1.0E-6F);
+        assertEquals(0.8F, HarvestSpeedRules.miningFatigueMultiplier(0), 1.0E-6F);
+        assertEquals(0.6F, HarvestSpeedRules.miningFatigueMultiplier(1), 1.0E-6F);
+        assertEquals(0.4F, HarvestSpeedRules.miningFatigueMultiplier(2), 1.0E-6F);
+        assertEquals(0.2F, HarvestSpeedRules.miningFatigueMultiplier(3), 1.0E-6F);
+        assertEquals(0.0F, HarvestSpeedRules.miningFatigueMultiplier(4), 1.0E-6F);
         assertEquals(0.0027F, HarvestSpeedRules.modernMiningFatigueMultiplier(2));
     }
 }

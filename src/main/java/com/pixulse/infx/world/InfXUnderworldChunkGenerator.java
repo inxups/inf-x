@@ -26,7 +26,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.WorldGenerationContext;
 import net.minecraft.world.level.levelgen.blending.Blender;
 
-/** Applies the Underworld's dry lower fluid rule, ancient-city caves and MITE-style internal bedrock. */
+/** Applies the Underworld's dry lower fluid rule, ancient-city caves and InfX-style internal bedrock. */
 public final class InfXUnderworldChunkGenerator extends NoiseBasedChunkGenerator {
     public static final MapCodec<InfXUnderworldChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(

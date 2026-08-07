@@ -9,7 +9,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * MITE fences and walls collide only one block high, letting players jump them.
+ * InfX fences and walls collide only one block high, letting players jump them.
  * Capped shapes are cached per state; full-height shapes stay for minecarts.
  */
 public final class FenceWallCollisions {

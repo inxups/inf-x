@@ -9,7 +9,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.BowItem;
 
 /** Skeleton bow goal whose INFX radius is a hard draw-and-release boundary. */
-final class InfxHardLimitedBowAttackGoal<T extends Mob & RangedAttackMob> extends Goal {
+final class InfxHardCappedBowAttackGoal<T extends Mob & RangedAttackMob> extends Goal {
     private final T mob;
     private final double speedModifier;
     private final double attackRadiusSqr;
@@ -21,7 +21,7 @@ final class InfxHardLimitedBowAttackGoal<T extends Mob & RangedAttackMob> extend
     private int strafingTime = -1;
     private boolean targetWasOutOfRange;
 
-    InfxHardLimitedBowAttackGoal(T mob, double speedModifier, int attackInterval, float attackRadius) {
+    InfxHardCappedBowAttackGoal(T mob, double speedModifier, int attackInterval, float attackRadius) {
         this.mob = mob;
         this.speedModifier = speedModifier;
         this.attackInterval = attackInterval;

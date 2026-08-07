@@ -146,17 +146,17 @@ public final class ModEquipmentGameTests {
         ItemStack bone = Items.BONE.getDefaultInstance();
         var stickRange = stick.get(DataComponents.ATTACK_RANGE);
         var boneRange = bone.get(DataComponents.ATTACK_RANGE);
-        helper.assertTrue(stick.getMaxStackSize() == 32, "MITE sticks must stack to 32");
+        helper.assertTrue(stick.getMaxStackSize() == 32, "InfX sticks must stack to 32");
         helper.assertTrue(
                 stickRange != null
                         && stickRange.maxReach() == 2.0F
                         && stickRange.maxCreativeReach() == 5.0F,
-                "MITE sticks must add 0.5 melee reach only");
+                "InfX sticks must add 0.5 melee reach only");
         helper.assertTrue(
                 boneRange != null
                         && boneRange.maxReach() == 2.0F
                         && boneRange.maxCreativeReach() == 5.0F,
-                "MITE bones must add 0.5 melee reach only");
+                "InfX bones must add 0.5 melee reach only");
         for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
             EquipmentKey key = entry.key();
             ItemStack stack = entry.holder().value().getDefaultInstance();
@@ -200,8 +200,8 @@ public final class ModEquipmentGameTests {
         ItemStack stick = new ItemStack(Items.STICK, 2);
         ItemStack bone = new ItemStack(Items.BONE, 2);
 
-        helper.assertTrue(stick.getMaxStackSize() == 32, "MITE sticks must stack to 32 at runtime");
-        helper.assertTrue(bone.getMaxStackSize() == 16, "MITE bones must stack to 16 at runtime");
+        helper.assertTrue(stick.getMaxStackSize() == 32, "InfX sticks must stack to 32 at runtime");
+        helper.assertTrue(bone.getMaxStackSize() == 16, "InfX bones must stack to 16 at runtime");
         assertMeleeAttackRange(helper, player, stick, "stick");
         assertMeleeAttackRange(helper, player, bone, "bone");
         assertEmptyHandAttackRange(helper, player);
@@ -271,10 +271,10 @@ public final class ModEquipmentGameTests {
                 component != null
                         && component.maxReach() == 2.0F
                         && component.maxCreativeReach() == 5.0F,
-                description + " ItemStack must carry the MITE attack range component");
+                description + " ItemStack must carry the InfX attack range component");
         helper.assertTrue(
                 playerRange.maxReach() == 2.0F && playerRange.maxCreativeReach() == 5.0F,
-                description + " Player#getAttackRangeWith must return the MITE attack range");
+                description + " Player#getAttackRangeWith must return the InfX attack range");
     }
 
     private static void attackWithGuaranteedBreak(
@@ -598,9 +598,9 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(HarvestTier.ADAMANTIUM.satisfies(HarvestTier.FLINT), "top tier must satisfy flint");
         helper.assertFalse(HarvestTier.FLINT.satisfies(HarvestTier.COPPER), "flint must not satisfy copper");
         helper.assertTrue(HarvestTier.IRON.satisfies(HarvestTier.ANCIENT_METAL),
-                "iron and ancient metal share MITE level three");
+                "iron and ancient metal share InfX level three");
         helper.assertTrue(HarvestTier.ANCIENT_METAL.satisfies(HarvestTier.IRON),
-                "ancient metal and iron share MITE level three");
+                "ancient metal and iron share InfX level three");
 
         assertHarvestLevel(helper, Blocks.COAL_BLOCK, 0);
         assertHarvestLevel(helper, Blocks.GLOWSTONE, 0);
@@ -628,27 +628,27 @@ public final class ModEquipmentGameTests {
 
         ItemStack pickaxe = equipmentStack(InfxMaterial.IRON, EquipmentType.PICKAXE);
         helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.GLOWSTONE.defaultBlockState()),
-                "MITE glass material makes pickaxes effective against glowstone");
+                "InfX glass material makes pickaxes effective against glowstone");
         helper.assertTrue(pickaxe.isCorrectToolForDrops(Blocks.TORCH.defaultBlockState()),
-                "MITE circuit material makes pickaxes effective against torches");
+                "InfX circuit material makes pickaxes effective against torches");
         helper.assertFalse(pickaxe.isCorrectToolForDrops(Blocks.PISTON.defaultBlockState()),
-                "MITE piston material has no effective tool");
+                "InfX piston material has no effective tool");
         helper.assertFalse(pickaxe.isCorrectToolForDrops(Blocks.ANVIL.defaultBlockState()),
-                "MITE anvil material has no effective tool and relies on portability");
+                "InfX anvil material has no effective tool and relies on portability");
 
         ItemStack axe = equipmentStack(InfxMaterial.FLINT, EquipmentType.AXE);
         helper.assertTrue(axe.isCorrectToolForDrops(Blocks.SANDSTONE.defaultBlockState()),
-                "axes must harvest the MITE sandstone block");
+                "axes must harvest the InfX sandstone block");
         helper.assertTrue(axe.isCorrectToolForDrops(Blocks.SANDSTONE_SLAB.defaultBlockState()),
-                "MITE explicitly extends axe effectiveness to sandstone slabs");
+                "InfX explicitly extends axe effectiveness to sandstone slabs");
         helper.assertFalse(axe.isCorrectToolForDrops(Blocks.SANDSTONE_STAIRS.defaultBlockState()),
-                "sandstone stairs retain their stone level and are not axe-effective in MITE");
+                "sandstone stairs retain their stone level and are not axe-effective in InfX");
         helper.assertTrue(
                 Math.abs(axe.getDestroySpeed(Blocks.SANDSTONE.defaultBlockState()) * 2.0F
                         - axe.getDestroySpeed(Blocks.SANDSTONE_SLAB.defaultBlockState())) < 1.0E-6F,
-                "only the sandstone block receives MITE's half axe speed");
+                "only the sandstone block receives InfX's half axe speed");
         helper.assertTrue(axe.isCorrectToolForDrops(Blocks.INFESTED_STONE.defaultBlockState()),
-                "MITE infested blocks use axe-effective clay material");
+                "InfX infested blocks use axe-effective clay material");
         helper.assertTrue(axe.isCorrectToolForDrops(
                 InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst().flint().get().defaultBlockState()),
                 "all tiered workbenches retain their wood-material axe effectiveness");
@@ -687,12 +687,12 @@ public final class ModEquipmentGameTests {
 
         ItemStack hammer = equipmentStack(InfxMaterial.COPPER, EquipmentType.WAR_HAMMER);
         helper.assertTrue(hammer.isCorrectToolForDrops(Blocks.CAKE.defaultBlockState()),
-                "war hammers retain their MITE cake override");
+                "war hammers retain their InfX cake override");
         ItemStack cudgel = equipmentStack(InfxMaterial.WOOD, EquipmentType.CUDGEL);
         helper.assertTrue(cudgel.isCorrectToolForDrops(Blocks.CAKE.defaultBlockState()),
-                "wooden cudgels retain their MITE cake effectiveness");
+                "wooden cudgels retain their InfX cake effectiveness");
         helper.assertTrue(cudgel.isCorrectToolForDrops(Blocks.GLOWSTONE.defaultBlockState()),
-                "wooden cudgels can harvest level-zero MITE glass material");
+                "wooden cudgels can harvest level-zero InfX glass material");
         helper.assertFalse(cudgel.isCorrectToolForDrops(Blocks.GLASS.defaultBlockState()),
                 "wooden cudgels cannot meet full glass level one");
         helper.assertFalse(cudgel.isCorrectToolForDrops(Blocks.ICE.defaultBlockState()),
@@ -705,9 +705,9 @@ public final class ModEquipmentGameTests {
         ItemStack sword = equipmentStack(InfxMaterial.COPPER, EquipmentType.SWORD);
         ItemStack shears = equipmentStack(InfxMaterial.COPPER, EquipmentType.SHEARS);
         helper.assertTrue(sword.isCorrectToolForDrops(Blocks.HAY_BLOCK.defaultBlockState()),
-                "swords must inherit MITE plant-material effectiveness");
+                "swords must inherit InfX plant-material effectiveness");
         helper.assertTrue(shears.isCorrectToolForDrops(Blocks.NETHER_WART.defaultBlockState()),
-                "shears must inherit MITE plant-material effectiveness");
+                "shears must inherit InfX plant-material effectiveness");
 
         for (Block block : BuiltInRegistries.BLOCK) {
             BlockState state = block.defaultBlockState();
@@ -722,7 +722,7 @@ public final class ModEquipmentGameTests {
                         .filter(family -> family != MiningFamily.NONE)
                         .anyMatch(family -> state.is(InfXBlockTags.effectiveWith(family)));
                 helper.assertTrue(portable || hasEffectiveTool,
-                        block + " level " + level + " has neither a MITE tool family nor portability");
+                        block + " level " + level + " has neither a InfX tool family nor portability");
             }
         }
         helper.succeed();
@@ -902,7 +902,7 @@ public final class ModEquipmentGameTests {
             helper.assertTrue(player.fishing == null, material.path() + " retrieve must clear hook");
             helper.assertTrue(player.getMainHandItem().is(rod), material.path() + " rod identity");
         }
-        // MITE forbids casting with the head under liquid or while airborne.
+        // InfX forbids casting with the head under liquid or while airborne.
         BlockPos waterPos = new BlockPos(1, 2, 4);
         helper.setBlock(waterPos, Blocks.WATER);
         helper.setBlock(waterPos.above(), Blocks.WATER);
@@ -944,7 +944,7 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(
                 swordRange.maxReach() == 1.5F && swordRange.maxCreativeReach() == 5.0F,
                 "sword must inherit the INFX 1.5-block attack reach");
-        // The MITE height advantage still applies to items carrying an attack-range component
+        // The InfX height advantage still applies to items carrying an attack-range component
         // (sticks and bones). A pig two blocks below stands with its top about 2.7 blocks under
         // the player's eye: beyond the 2.0-block stick reach, inside the height-advantaged reach.
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STICK));
@@ -952,7 +952,7 @@ public final class ModEquipmentGameTests {
         Vec3 pigTopBelow = player.getEyePosition().add(0.0, -2.7, 0.0);
         helper.assertTrue(
                 stickRange.isInRange(player, pigTopBelow),
-                "stick must hit a target two blocks below via the MITE height advantage");
+                "stick must hit a target two blocks below via the InfX height advantage");
         helper.assertTrue(
                 stickRange.isInRange(player, player.getEyePosition()),
                 "eye-level target must stay in range");
