@@ -311,10 +311,10 @@ class TextureProvenanceTest {
                 Map.entry("textures/entity/fire_elemental.png", "entity/fire_elemental.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/clay/earth_elemental_clay.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_clay.png"),
+                        "entity/earth_elemental/clay/earth_elemental_clay.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/clay/earth_elemental_clay_hardened.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_hardened_clay.png"),
+                        "entity/earth_elemental/clay/earth_elemental_clay_hardened.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/earth_elemental_glow.png",
                         "entity/earth_elemental/earth_elemental_glow.png"),
@@ -323,28 +323,28 @@ class TextureProvenanceTest {
                         "entity/earth_elemental/earth_elemental_magma_glow.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/end_stone/earth_elemental_end_stone.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_endstone.png"),
+                        "entity/earth_elemental/end_stone/earth_elemental_end_stone.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_endstone_magma.png"),
+                        "entity/earth_elemental/end_stone/earth_elemental_end_stone_magma.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/netherrack/earth_elemental_netherrack.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_netherrack.png"),
+                        "entity/earth_elemental/netherrack/earth_elemental_netherrack.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_netherrack_magma.png"),
+                        "entity/earth_elemental/netherrack/earth_elemental_netherrack_magma.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/obsidian/earth_elemental_obsidian.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_obsidian.png"),
+                        "entity/earth_elemental/obsidian/earth_elemental_obsidian.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_obsidian_magma.png"),
+                        "entity/earth_elemental/obsidian/earth_elemental_obsidian_magma.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/stone/earth_elemental_stone.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_cobblestone.png"),
+                        "entity/earth_elemental/stone/earth_elemental_stone.png"),
                 Map.entry(
                         "textures/entity/earth_elemental/stone/earth_elemental_stone_magma.png",
-                        "owner-provided:/Users/inxups/Downloads/土元素.zip#贴图/earth_element_cobblestone_magma.png"),
+                        "entity/earth_elemental/stone/earth_elemental_stone_magma.png"),
                 Map.entry(
                         "textures/item/earth_elemental_spawn_egg.png",
                         "item/spawn_egg/spawn_egg_earth_element_clay.png"),
