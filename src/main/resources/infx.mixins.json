@@ -43,7 +43,6 @@
     "HopperBlockEntityMixin",
     "InfXFireBlockMixin",
     "PlayerExperienceMixin",
-    "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
     "PlayerListMixin",
     "PlayerReachMixin",
