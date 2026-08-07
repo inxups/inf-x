@@ -11,15 +11,17 @@ import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXMobEffects;
 import com.pixulse.infx.item.Catalog;
-import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.registry.InfXItems;
 
 import java.util.List;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -52,6 +54,7 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.player.SweepAttackEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
@@ -100,6 +103,14 @@ public final class EnchantmentEvents {
     }
 
     @SubscribeEvent
+    public static void onSweepAttack(SweepAttackEvent event) {
+        if (isMiteSweepWeapon(event.getEntity().getMainHandItem())) {
+            // MITE applies its own sweep ratio from the post-damage event.
+            event.setSweeping(false);
+        }
+    }
+
+    @SubscribeEvent
     public static void onDamagePost(LivingDamageEvent.Post event) {
         if (event.getHealthDamage() <= 0.0F
                 || event.getSource().is(net.minecraft.world.damagesource.DamageTypes.THORNS)) return;
@@ -111,14 +122,14 @@ public final class EnchantmentEvents {
                 && event.getSource().getDirectEntity() == attacker) {
             if (!sweeping) {
                 applyMeleeEffects(attacker, event.getEntity(), event.getHealthDamage());
+                applySweep(attacker, event.getEntity(), event.getHealthDamage());
             }
-            applySweep(attacker, event.getEntity(), event.getHealthDamage());
         }
         applyThorns(event);
     }
 
     /**
-     * MITE swords, daggers, knives and scythes sweep one block around the struck target for
+     * MITE swords and scythes sweep one block around the struck target for
      * 50% of the hit, plus 25% per sweeping edge level. Swept targets do not re-trigger effects.
      */
     private static void applySweep(LivingEntity attacker, LivingEntity target, float healthDamage) {
@@ -127,18 +138,22 @@ public final class EnchantmentEvents {
             return;
         }
         ItemStack weapon = attacker.getMainHandItem();
-        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(weapon);
-        if (entry == null) return;
-        EquipmentType type = entry.key().type();
-        if (type != EquipmentType.SWORD
-                && type != EquipmentType.DAGGER
-                && type != EquipmentType.KNIFE
-                && type != EquipmentType.SCYTHE) {
-            return;
-        }
+        if (!isMiteSweepWeapon(weapon)) return;
+        // Align with vanilla Player#isSweepAttack gates: grounded, non-sprint, unmounted hits
+        // only; jump crits are airborne, so !onGround() excludes them as well.
+        if (!player.onGround() || player.isSprinting() || player.isPassenger()) return;
         int sweepingLevel = Enchantments.level(level, weapon, InfXEnchantments.VANILLA_SWEEPING_EDGE);
         float ratio = 0.5F + 0.25F * Math.clamp(sweepingLevel, 0, 3);
         float damage = healthDamage * ratio;
+        level.playSound(
+                null,
+                attacker.getX(),
+                attacker.getY(),
+                attacker.getZ(),
+                SoundEvents.PLAYER_ATTACK_SWEEP,
+                attacker.getSoundSource(),
+                1.0F,
+                1.0F);
         SWEEPING.set(true);
         try {
             for (LivingEntity nearby : level.getEntitiesOfClass(
@@ -154,6 +169,24 @@ public final class EnchantmentEvents {
         } finally {
             SWEEPING.remove();
         }
+        double angle = attacker.getYRot() * (Math.PI / 180.0F);
+        double xDirection = -Mth.sin((float) angle);
+        double zDirection = Mth.cos((float) angle);
+        level.sendParticles(
+                ParticleTypes.SWEEP_ATTACK,
+                attacker.getX() + xDirection,
+                attacker.getY(0.5),
+                attacker.getZ() + zDirection,
+                0,
+                xDirection,
+                0.0,
+                zDirection,
+                0.0);
+    }
+
+    private static boolean isMiteSweepWeapon(ItemStack weapon) {
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(weapon);
+        return entry != null && entry.key().type().supportsSweepAttack();
     }
 
     /** MITE thorns retaliates against melee attackers and arrow shooters, wearing the cuirass. */

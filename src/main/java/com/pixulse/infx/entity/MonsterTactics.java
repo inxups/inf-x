@@ -133,7 +133,8 @@ public final class MonsterTactics {
         if (mob instanceof InfxSpider
                 || mob instanceof InfxZombifiedPiglin
                 || mob instanceof InfxBlaze
-                || mob instanceof FireElemental) {
+                || mob instanceof FireElemental
+                || mob instanceof InfxCreeper) {
             return false;
         }
         if (mob instanceof InfxZombie zombie) {

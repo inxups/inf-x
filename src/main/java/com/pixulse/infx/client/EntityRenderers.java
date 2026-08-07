@@ -34,6 +34,7 @@ import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
 import net.minecraft.client.renderer.entity.state.ChickenRenderState;
 import net.minecraft.client.renderer.entity.state.CowRenderState;
@@ -262,28 +263,6 @@ public final class EntityRenderers {
         }
     }
 
-    /**
-     * MITE zombie pigmen are humanoid zombies with the pack's 64x64 sheet, not modern piglin models.
-     */
-    public static final class ZombiePigmanTexture extends ZombieRenderer {
-        public ZombiePigmanTexture(EntityRendererProvider.Context context) {
-            super(context);
-        }
-
-        @Override
-        public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
-            return state.isBaby ? babyTexture() : texture();
-        }
-
-        static Identifier texture() {
-            return mite("textures/entity/zombie_pigman.png");
-        }
-
-        static Identifier babyTexture() {
-            return mite("textures/entity/zombie_pigman_baby.png");
-        }
-    }
-
     public static final class SkeletonTexture extends SkeletonRenderer {
         private final Identifier texture;
 
@@ -320,6 +299,11 @@ public final class EntityRenderers {
             super(context);
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
+            // MITE glow textures: phase spiders glow green, everything else red. The phase body sheet
+            // already paints green eyes, so the vanilla red spider_eyes layer must not cover them.
+            if (variant == InfxSpider.Variant.PHASE) {
+                this.layers.removeIf(layer -> layer instanceof SpiderEyesLayer<?>);
+            }
         }
 
         @Override

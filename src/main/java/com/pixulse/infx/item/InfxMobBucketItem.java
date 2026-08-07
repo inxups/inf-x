@@ -2,17 +2,19 @@ package com.pixulse.infx.item;
 
 import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.function.Supplier;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 /** Material-preserving mob bucket that returns the matching empty INFX bucket. */
 public final class InfxMobBucketItem extends MobBucketItem {
@@ -57,7 +59,18 @@ public final class InfxMobBucketItem extends MobBucketItem {
     }
 
     @Override
-    public @Nullable ItemStackTemplate getCraftingRemainder(net.minecraft.world.item.@NonNull ItemInstance instance) {
-        return new ItemStackTemplate(emptyBucket.get());
+    public boolean emptyContents(
+            @org.jspecify.annotations.Nullable LivingEntity user,
+            @NonNull Level level,
+            @NonNull BlockPos pos,
+            @org.jspecify.annotations.Nullable BlockHitResult hitResult,
+            @org.jspecify.annotations.Nullable ItemStack containerItem) {
+        boolean placed = super.emptyContents(user, level, pos, hitResult, containerItem);
+        // MITE bucket rule: unpaid placed water degrades to flowing; mob-bucket water follows suit
+        // instead of staying a permanent source.
+        if (placed && level.getBlockState(pos).getFluidState().is(Fluids.WATER)) {
+            InfxBucketItem.scheduleWaterDecay(level, pos);
+        }
+        return placed;
     }
 }

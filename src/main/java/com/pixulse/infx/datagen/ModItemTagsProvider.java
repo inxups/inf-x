@@ -73,6 +73,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 InfXItems.GRAY_GELATINOUS_SPHERE.getKey(),
                 InfXItems.BLACK_GELATINOUS_SPHERE.getKey());
         addCurseTags();
+        tag(InfXItemTags.INFX_SHARPNESS_ENCHANTABLE).addTag(ItemTags.SWORDS);
 
         for (Catalog.RawEntry entry : InfXItems.catalog().rawEntries()) {
             entry.definition().material().ifPresent(material -> add(InfXItemTags.material(material), entry));
@@ -282,8 +283,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 && material != InfxMaterial.MITHRIL) {
             add(InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE, entry);
         }
-        if (type == EquipmentType.SWORD
-                || type == EquipmentType.BATTLE_AXE
+        if (type == EquipmentType.BATTLE_AXE
                 || type == EquipmentType.SCYTHE) {
             add(InfXItemTags.INFX_SLAUGHTER_ENCHANTABLE, entry);
         }
@@ -324,6 +324,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.KNIFE;
         if (swordFamily || type == EquipmentType.SCYTHE) {
             add(InfXItemTags.INFX_SHARPNESS_ENCHANTABLE, entry);
+        }
+        if (type == EquipmentType.SWORD || type == EquipmentType.SCYTHE) {
             add(InfXItemTags.INFX_SWEEPING_ENCHANTABLE, entry);
         }
         if (swordFamily) {

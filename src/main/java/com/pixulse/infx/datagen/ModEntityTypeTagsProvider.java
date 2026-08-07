@@ -108,6 +108,13 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
                 InfXEntityTypes.NIGHTWING.getKey(),
                 InfXEntityTypes.GIANT_VAMPIRE_BAT.getKey());
 
+        // 26.1 equips saddles and horse armor only for entity types listed in these tags;
+        // the INFX replacements must inherit the vanilla equipping privileges.
+        tag(EntityTypeTags.CAN_EQUIP_SADDLE).add(
+                InfXEntityTypes.INFX_PIG.getKey(),
+                InfXEntityTypes.INFX_HORSE.getKey());
+        tag(EntityTypeTags.CAN_WEAR_HORSE_ARMOR).add(InfXEntityTypes.INFX_HORSE.getKey());
+
         tag(EntityTypeTags.FROG_FOOD).add(
                 InfXEntityTypes.INFX_SLIME.getKey(),
                 InfXEntityTypes.JELLY.getKey(),

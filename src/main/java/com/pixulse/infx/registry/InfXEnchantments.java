@@ -225,25 +225,11 @@ public final class InfXEnchantments {
             HolderGetter<Enchantment> enchantments) {
         HolderGetter<EntityType<?>> entityTypes = context.lookup(Registries.ENTITY_TYPE);
         register(context, items, enchantments, VANILLA_FIRE_PROTECTION, ItemTags.ARMOR_ENCHANTABLE,
-                EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR,
-                builder -> builder.withEffect(
-                        EnchantmentEffectComponents.ATTRIBUTES,
-                        new EnchantmentAttributeEffect(
-                                Identifier.withDefaultNamespace("enchantment.fire_protection"),
-                                Attributes.BURNING_TIME,
-                                LevelBasedValue.perLevel(-EnchantmentRules.FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL),
-                                AttributeModifier.Operation.ADD_MULTIPLIED_BASE)));
+                EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
         register(context, items, enchantments, VANILLA_FEATHER_FALLING, ItemTags.FOOT_ARMOR_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.FEET);
         register(context, items, enchantments, VANILLA_BLAST_PROTECTION, InfXItemTags.INFX_SOLID_METAL_TORSO_ENCHANTABLE,
-                EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR,
-                builder -> builder.withEffect(
-                        EnchantmentEffectComponents.ATTRIBUTES,
-                        new EnchantmentAttributeEffect(
-                                Identifier.withDefaultNamespace("enchantment.blast_protection"),
-                                Attributes.EXPLOSION_KNOCKBACK_RESISTANCE,
-                                LevelBasedValue.perLevel(EnchantmentRules.BLAST_PROTECTION_KNOCKBACK_REDUCTION_PER_LEVEL),
-                                AttributeModifier.Operation.ADD_VALUE)));
+                EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
         register(context, items, enchantments, VANILLA_PROJECTILE_PROTECTION, InfXItemTags.INFX_SOLID_METAL_TORSO_ENCHANTABLE,
                 EnchantmentRules.PROTECTION_MAX_LEVEL, EquipmentSlotGroup.ARMOR);
         register(context, items, enchantments, VANILLA_RESPIRATION, ItemTags.HEAD_ARMOR_ENCHANTABLE,
@@ -409,10 +395,20 @@ public final class InfXEnchantments {
 
     /**
      * MITE's canApplyTogether allows any two distinct enchantments except silk touch with
-     * fortune, so every set contains the enchantment itself plus that one special pair.
+     * fortune and the damage-enchantment group.
      */
     private static HolderSet<Enchantment> exclusiveSet(
             HolderGetter<Enchantment> enchantments, ResourceKey<Enchantment> key) {
+        if (key.equals(SLAUGHTER)
+                || key.equals(VANILLA_SHARPNESS)
+                || key.equals(VANILLA_SMITE)
+                || key.equals(VANILLA_BANE_OF_ARTHROPODS)) {
+            return HolderSet.direct(
+                    enchantments.getOrThrow(SLAUGHTER),
+                    enchantments.getOrThrow(VANILLA_SHARPNESS),
+                    enchantments.getOrThrow(VANILLA_SMITE),
+                    enchantments.getOrThrow(VANILLA_BANE_OF_ARTHROPODS));
+        }
         if (key.equals(FORTUNE)) {
             return HolderSet.direct(
                     enchantments.getOrThrow(key), enchantments.getOrThrow(VANILLA_SILK_TOUCH));
@@ -420,6 +416,16 @@ public final class InfXEnchantments {
         if (key.equals(VANILLA_SILK_TOUCH)) {
             return HolderSet.direct(
                     enchantments.getOrThrow(key), enchantments.getOrThrow(FORTUNE));
+        }
+        if (key.equals(PROTECTION)
+                || key.equals(VANILLA_FIRE_PROTECTION)
+                || key.equals(VANILLA_BLAST_PROTECTION)
+                || key.equals(VANILLA_PROJECTILE_PROTECTION)) {
+            return HolderSet.direct(
+                    enchantments.getOrThrow(PROTECTION),
+                    enchantments.getOrThrow(VANILLA_FIRE_PROTECTION),
+                    enchantments.getOrThrow(VANILLA_BLAST_PROTECTION),
+                    enchantments.getOrThrow(VANILLA_PROJECTILE_PROTECTION));
         }
         return HolderSet.direct(enchantments.getOrThrow(key));
     }

@@ -7,6 +7,7 @@ import com.pixulse.infx.entity.InfxSilverfish;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.network.Network;
 import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.registry.InfXSounds;
 import com.pixulse.infx.world.FluidDecayData;
 import java.util.function.Supplier;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -32,9 +33,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.DispensibleContainerItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Consumable;
@@ -608,6 +607,18 @@ public final class InfxBucketItem extends BucketItem {
         serverLevel.scheduleTick(pos, content, delay);
     }
 
+    /**
+     * MITE scheduleBlockChange delay: an unpaid water cell placed by any vessel degrades to flowing
+     * after {@value #WATER_DECAY_DELAY} ticks instead of staying a permanent source.
+     */
+    public static void scheduleWaterDecay(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        FluidDecayData.get(serverLevel).schedule(pos, false, serverLevel.getGameTime() + WATER_DECAY_DELAY);
+        serverLevel.scheduleTick(pos, Fluids.WATER, WATER_DECAY_DELAY);
+    }
+
     /** Drops any queued degrade for a cell, so a paid source stays permanent. */
     private static void cancelSourceDecay(Level level, BlockPos pos) {
         if (level instanceof ServerLevel serverLevel) {
@@ -656,6 +667,14 @@ public final class InfxBucketItem extends BucketItem {
         }
         if (player.getPersistentData().getBooleanOr(Network.CTRL_USE, false)) {
             player.giveExperiencePoints(-SOURCE_EXPERIENCE_COST);
+            // MITE EntityPlayer#addExperience: spending experience plays the level-drain sound.
+            player.level().playSound(
+                    null,
+                    player.blockPosition(),
+                    InfXSounds.LEVEL_DRAIN.get(),
+                    SoundSource.PLAYERS,
+                    1.0F,
+                    1.0F);
         }
     }
 
@@ -741,10 +760,5 @@ public final class InfxBucketItem extends BucketItem {
         player.awardStat(Stats.ITEM_USED.get(this));
         player.setItemInHand(hand, ItemUtils.createFilledResult(held, player, new ItemStack(emptyBucket.get())));
         return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public @Nullable ItemStackTemplate getCraftingRemainder(@NonNull ItemInstance instance) {
-        return contents == Contents.EMPTY ? null : new ItemStackTemplate(emptyBucket.get());
     }
 }

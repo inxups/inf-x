@@ -57,6 +57,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -91,6 +92,7 @@ public final class ModEquipmentGameTests {
 
     private static final List<String> TEST_NAMES = List.of(
             "equipment_components",
+            "infx_equipment_components",
             "tool_actions_and_wear",
             "harvest_tier_catalog",
             "material_arrows",
@@ -104,6 +106,7 @@ public final class ModEquipmentGameTests {
 
     static {
         TEST_FUNCTIONS.register("equipment_components", () -> ModEquipmentGameTests::equipmentComponents);
+        TEST_FUNCTIONS.register("infx_equipment_components", () -> ModEquipmentGameTests::stickBoneAttackBehavior);
         TEST_FUNCTIONS.register("tool_actions_and_wear", () -> ModEquipmentGameTests::toolActionsAndWear);
         TEST_FUNCTIONS.register("harvest_tier_catalog", () -> ModEquipmentGameTests::harvestTierCatalog);
         TEST_FUNCTIONS.register("material_arrows", () -> ModEquipmentGameTests::materialArrows);
@@ -173,6 +176,10 @@ public final class ModEquipmentGameTests {
             if (melee) {
                 helper.assertTrue(stack.has(DataComponents.WEAPON), key.path() + " weapon component");
                 helper.assertTrue(stack.has(DataComponents.ATTRIBUTE_MODIFIERS), key.path() + " attributes");
+                // Melee reach derives from the shared component-less rule (1.5 blocks) like vanilla
+                // weapons; the vanilla pick path also excludes the player's own mount this way.
+                helper.assertFalse(
+                        stack.has(DataComponents.ATTACK_RANGE), key.path() + " must use vanilla attack reach");
             }
             if (key.type().armorForm() != EquipmentType.ArmorForm.NONE) {
                 helper.assertTrue(stack.has(DataComponents.EQUIPPABLE), key.path() + " equippable component");
@@ -186,6 +193,106 @@ public final class ModEquipmentGameTests {
             }
         }
         helper.succeed();
+    }
+
+    private static void stickBoneAttackBehavior(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        ItemStack stick = new ItemStack(Items.STICK, 2);
+        ItemStack bone = new ItemStack(Items.BONE, 2);
+
+        helper.assertTrue(stick.getMaxStackSize() == 32, "MITE sticks must stack to 32 at runtime");
+        helper.assertTrue(bone.getMaxStackSize() == 16, "MITE bones must stack to 16 at runtime");
+        assertMeleeAttackRange(helper, player, stick, "stick");
+        assertMeleeAttackRange(helper, player, bone, "bone");
+        assertEmptyHandAttackRange(helper, player);
+
+        double blockInteractionRange = player.blockInteractionRange();
+        double entityInteractionRange = player.entityInteractionRange();
+        BlockPos interactionBlock = helper.absolutePos(new BlockPos(4, 2, 1));
+        var farTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 2, 1));
+        boolean emptyHandBlockRange = player.isWithinBlockInteractionRange(interactionBlock, 0.0D);
+        boolean emptyHandEntityRange = player.isWithinEntityInteractionRange(farTarget, 0.0D);
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, stick);
+        var nearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 1));
+        helper.assertTrue(
+                player.isWithinAttackRange(stick, nearTarget.getBoundingBox(), 0.0D),
+                "a stick must reach a target within two blocks");
+        helper.assertFalse(
+                player.isWithinAttackRange(stick, farTarget.getBoundingBox(), 0.0D),
+                "a stick must not extend beyond its two-block melee reach");
+        helper.assertTrue(
+                player.blockInteractionRange() == blockInteractionRange
+                        && player.entityInteractionRange() == entityInteractionRange,
+                "a stick must not change block or entity interaction attributes");
+        helper.assertTrue(
+                player.isWithinBlockInteractionRange(interactionBlock, 0.0D) == emptyHandBlockRange
+                        && player.isWithinEntityInteractionRange(farTarget, 0.0D) == emptyHandEntityRange,
+                "a stick must not change block or entity interaction reach");
+
+        attackWithGuaranteedBreak(helper, player, nearTarget, 50);
+        helper.assertTrue(stick.getCount() == 1, "a successful stick hit must consume one stick on a 1/50 roll");
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, bone);
+        var boneTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        attackWithGuaranteedBreak(helper, player, boneTarget, 100);
+        helper.assertTrue(bone.getCount() == 1, "a successful bone hit must consume one bone on a 1/100 roll");
+
+        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
+        ItemStack creativeStick = new ItemStack(Items.STICK, 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, creativeStick);
+        var creativeReachTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 2, 1));
+        helper.assertTrue(
+                player.isWithinAttackRange(creativeStick, creativeReachTarget.getBoundingBox(), 0.0D),
+                "creative sticks must retain the five-block attack reach");
+        attackWithGuaranteedBreak(helper, player, creativeReachTarget, 50);
+        helper.assertTrue(creativeStick.getCount() == 1, "creative stick attacks must not consume sticks");
+
+        farTarget.discard();
+        nearTarget.discard();
+        boneTarget.discard();
+        creativeReachTarget.discard();
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void assertEmptyHandAttackRange(GameTestHelper helper, ServerPlayer player) {
+        var playerRange = player.getAttackRangeWith(ItemStack.EMPTY);
+        helper.assertTrue(
+                playerRange.maxReach() == 1.5F && playerRange.maxCreativeReach() == 5.0F,
+                "empty hand must carry the INFX 1.5-block attack reach");
+    }
+
+    private static void assertMeleeAttackRange(
+            GameTestHelper helper, ServerPlayer player, ItemStack stack, String description) {
+        var component = stack.get(DataComponents.ATTACK_RANGE);
+        var playerRange = player.getAttackRangeWith(stack);
+        helper.assertTrue(
+                component != null
+                        && component.maxReach() == 2.0F
+                        && component.maxCreativeReach() == 5.0F,
+                description + " ItemStack must carry the MITE attack range component");
+        helper.assertTrue(
+                playerRange.maxReach() == 2.0F && playerRange.maxCreativeReach() == 5.0F,
+                description + " Player#getAttackRangeWith must return the MITE attack range");
+    }
+
+    private static void attackWithGuaranteedBreak(
+            GameTestHelper helper,
+            ServerPlayer player,
+            LivingEntity target,
+            int denominator) {
+        for (int tick = 0; tick < 20; tick++) {
+            player.doTick();
+        }
+        long seed = 0L;
+        while (RandomSource.create(seed++).nextInt(denominator) != 0) {
+            // Find a deterministic seed so the runtime test exercises the break branch.
+        }
+        player.getRandom().setSeed(seed - 1L);
+        float healthBefore = target.getHealth();
+        player.attack(target);
+        helper.assertTrue(target.getHealth() < healthBefore, "the seeded attack must damage its target");
     }
 
     private static void toolActionsAndWear(GameTestHelper helper) {
@@ -386,6 +493,13 @@ public final class ModEquipmentGameTests {
                 .forEach(ItemEntity::discard);
         helper.assertTrue(blockShears.getDamageValue() > 0, "right-click block shearing must consume durability");
 
+        assertNotRightClickShearable(helper, player, new BlockPos(11, 1, 1), Blocks.RED_BED, blockShears, "beds");
+        assertNotRightClickShearable(helper, player, new BlockPos(12, 1, 1), Blocks.BAMBOO, blockShears, "bamboo");
+        assertNotRightClickShearable(
+                helper, player, new BlockPos(13, 1, 1), Blocks.BAMBOO_SAPLING, blockShears, "bamboo saplings");
+        assertNotRightClickShearable(
+                helper, player, new BlockPos(14, 1, 1), Blocks.SUGAR_CANE, blockShears, "sugar cane");
+
         helper.setBlock(wearPos, Blocks.OAK_LOG);
         BlockPos absoluteWearPos = helper.absolutePos(wearPos);
         BlockState state = helper.getBlockState(wearPos);
@@ -421,6 +535,26 @@ public final class ModEquipmentGameTests {
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
         InteractionResult result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
         helper.assertTrue(result.consumesAction(), stack.getItem() + " use action must succeed");
+    }
+
+    private static void assertNotRightClickShearable(
+            GameTestHelper helper,
+            ServerPlayer player,
+            BlockPos relativePos,
+            Block block,
+            ItemStack stack,
+            String description) {
+        helper.setBlock(relativePos.below(), Blocks.STONE);
+        helper.setBlock(relativePos, block.defaultBlockState());
+        helper.setBlock(relativePos.above(), Blocks.AIR);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        BlockPos absolute = helper.absolutePos(relativePos);
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absolute), Direction.UP, absolute, false);
+        int damageBefore = stack.getDamageValue();
+        InteractionResult result = stack.getItem().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+        helper.assertFalse(result.consumesAction(), "right-click shears must not cut " + description);
+        helper.assertTrue(helper.getBlockState(relativePos).is(block), description + " must remain in place");
+        helper.assertTrue(stack.getDamageValue() == damageBefore, description + " must not consume shears durability");
     }
 
     private static int itemCount(GameTestHelper helper, BlockPos relativePos, Item item) {
@@ -480,6 +614,9 @@ public final class ModEquipmentGameTests {
         assertHarvestLevel(helper, Blocks.PETRIFIED_OAK_SLAB, 2);
         assertHarvestLevel(helper, Blocks.SANDSTONE_STAIRS, 2);
         assertHarvestLevel(helper, Blocks.SANDSTONE_WALL, 2);
+        assertHarvestLevel(helper, Blocks.NETHERRACK, 3);
+        assertHarvestLevel(helper, Blocks.CRIMSON_NYLIUM, 3);
+        assertHarvestLevel(helper, Blocks.WARPED_NYLIUM, 3);
         assertHarvestLevel(helper, Blocks.COPPER_BLOCK, 3);
         assertHarvestLevel(helper, Blocks.IRON_BARS, 3);
         assertHarvestLevel(helper, Blocks.REDSTONE_BLOCK, 3);
@@ -521,6 +658,13 @@ public final class ModEquipmentGameTests {
         ItemStack copperPickaxe = equipmentStack(InfxMaterial.COPPER, EquipmentType.PICKAXE);
         ItemStack flintAxe = equipmentStack(InfxMaterial.FLINT, EquipmentType.AXE);
         BlockState gravel = InfXBlocks.GRAVEL.get().defaultBlockState();
+        for (Block block : List.of(Blocks.NETHERRACK, Blocks.CRIMSON_NYLIUM, Blocks.WARPED_NYLIUM)) {
+            BlockState state = block.defaultBlockState();
+            helper.assertFalse(copperPickaxe.isCorrectToolForDrops(state),
+                    block + " must reject copper pickaxes");
+            helper.assertTrue(pickaxe.isCorrectToolForDrops(state),
+                    block + " must accept iron pickaxes");
+        }
         helper.assertTrue(gravel.requiresCorrectToolForDrops(), "gravel requires a correct tool for drops");
         helper.assertTrue(flintShovel.isCorrectToolForDrops(gravel), "flint shovels must harvest gravel");
         helper.assertTrue(copperShovel.isCorrectToolForDrops(gravel), "higher-tier shovels must harvest gravel");
@@ -793,16 +937,24 @@ public final class ModEquipmentGameTests {
                 .holder()
                 .toStack();
         player.setItemInHand(InteractionHand.MAIN_HAND, sword);
-        var range = sword.get(DataComponents.ATTACK_RANGE);
-        helper.assertTrue(range != null, "sword must carry an attack range");
-        // A pig two blocks below stands with its top about 2.7 blocks under the player's eye;
-        // that is beyond the vanilla 2.25 reach but inside the MITE height-advantaged reach.
+        // INFX tools must use the vanilla component-less attack reach (and pick path), so
+        // swords carry no attack-range component and inherit the INFX 1.5-block melee reach.
+        helper.assertFalse(sword.has(DataComponents.ATTACK_RANGE), "sword must not carry an attack range");
+        var swordRange = player.getAttackRangeWith(sword);
+        helper.assertTrue(
+                swordRange.maxReach() == 1.5F && swordRange.maxCreativeReach() == 5.0F,
+                "sword must inherit the INFX 1.5-block attack reach");
+        // The MITE height advantage still applies to items carrying an attack-range component
+        // (sticks and bones). A pig two blocks below stands with its top about 2.7 blocks under
+        // the player's eye: beyond the 2.0-block stick reach, inside the height-advantaged reach.
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STICK));
+        var stickRange = player.getAttackRangeWith(new ItemStack(Items.STICK));
         Vec3 pigTopBelow = player.getEyePosition().add(0.0, -2.7, 0.0);
         helper.assertTrue(
-                range.isInRange(player, pigTopBelow),
-                "sword must hit a target two blocks below via the MITE height advantage");
+                stickRange.isInRange(player, pigTopBelow),
+                "stick must hit a target two blocks below via the MITE height advantage");
         helper.assertTrue(
-                range.isInRange(player, player.getEyePosition()),
+                stickRange.isInRange(player, player.getEyePosition()),
                 "eye-level target must stay in range");
         removePlayer(player);
         helper.succeed();

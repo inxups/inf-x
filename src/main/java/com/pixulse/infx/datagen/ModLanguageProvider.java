@@ -349,7 +349,12 @@ final class ModLanguageProvider extends LanguageProvider {
                     "item.infx." + hookMaterial.path() + "_carrot_on_a_stick",
                     locale == Locale.EN_US
                             ? hookMaterial.englishEquipmentPrefix() + " Carrot on a Stick"
-                            : "胡萝卜" + hookMaterial.chinesePrefix() + "钓竿");
+                            : "胡萝卜钓竿");
+            add(
+                    "item.infx." + hookMaterial.path() + "_warped_fungus_on_a_stick",
+                    locale == Locale.EN_US
+                            ? hookMaterial.englishEquipmentPrefix() + " Warped Fungus on a Stick"
+                            : "诡异菌钓竿");
         }
         CURSE_NAMES.forEach((path, names) ->
                 add("curse.infx." + path + ".name", names[locale == Locale.EN_US ? 0 : 1]));
@@ -553,6 +558,7 @@ final class ModLanguageProvider extends LanguageProvider {
                     locale == Locale.EN_US ? material.englishNoun() : material.chinesePrefix());
         }
         add("tooltip.infx.material", locale == Locale.EN_US ? "Material: %s" : "材料：%s");
+        add("tooltip.infx.fishing_rod_hook", locale == Locale.EN_US ? "%s Hook" : "%s钓钩");
         add("tooltip.infx.crafting_experience", locale == Locale.EN_US
                 ? "Experience cost: %s XP"
                 : "经验消耗：%s 点");

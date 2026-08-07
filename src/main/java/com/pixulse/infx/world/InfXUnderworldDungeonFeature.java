@@ -138,7 +138,7 @@ public final class InfXUnderworldDungeonFeature extends Feature<NoneFeatureConfi
 
     private static EntityType<?> randomSpawnerEntity(RandomSource random) {
         return isGuardianRoll(random.nextInt(6))
-                ? InfXEntityTypes.ANCIENT_BONE_LORD.get()
+                ? InfXEntityTypes.LONGDEAD_GUARDIAN.get()
                 : InfXEntityTypes.LONGDEAD.get();
     }
 }

@@ -24,6 +24,7 @@ import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -52,6 +53,17 @@ public final class HarvestEvents {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void allowMetalAnvilHandHarvest(PlayerEvent.HarvestCheck event) {
         if (event.getTargetBlock().getBlock() instanceof MetalAnvilBlock) {
+            event.setCanHarvest(true);
+        }
+    }
+
+    /**
+     * MITE furnaces drop their block when broken by hand, so every furnace
+     * (infx and vanilla) must pass the harvest check regardless of tool.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void allowFurnaceHandHarvest(PlayerEvent.HarvestCheck event) {
+        if (event.getTargetBlock().getBlock() instanceof AbstractFurnaceBlock) {
             event.setCanHarvest(true);
         }
     }

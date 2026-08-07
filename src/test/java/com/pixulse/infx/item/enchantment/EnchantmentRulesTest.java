@@ -104,8 +104,13 @@ class EnchantmentRulesTest {
         assertEquals(25, EnchantmentRules.stunningAmplifier(5));
         assertEquals(.2F, EnchantmentRules.disarmingChance(1), .0001F);
         assertEquals(.5F, EnchantmentRules.vampirismChance(5), .0001F);
+        assertEquals(0.0F, EnchantmentRules.slaughterDamageBonus(0), .0001F);
         assertEquals(1.0F, EnchantmentRules.slaughterDamageBonus(1), .0001F);
-        assertEquals(5.0F, EnchantmentRules.slaughterDamageBonus(5), .0001F);
+        assertEquals(1.75F, EnchantmentRules.slaughterDamageBonus(2), .0001F);
+        assertEquals(2.5F, EnchantmentRules.slaughterDamageBonus(3), .0001F);
+        assertEquals(3.25F, EnchantmentRules.slaughterDamageBonus(4), .0001F);
+        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(5), .0001F);
+        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(6), .0001F);
         assertEquals(1, EnchantmentRules.vampirismHealing(1.0F, 0.0F));
         assertEquals(2, EnchantmentRules.vampirismHealing(10.0F, .5F));
     }
@@ -139,6 +144,12 @@ class EnchantmentRulesTest {
     @Test
     void vanillaMiteRulesFollowTheOriginalFormulas() {
         assertEquals(0.15F, EnchantmentRules.FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL, .0001F);
+        assertEquals(85, EnchantmentRules.fireProtectionTicks(100, 1));
+        assertEquals(40, EnchantmentRules.fireProtectionTicks(100, 4));
+        assertEquals(17, EnchantmentRules.fireProtectionTicks(20, 1));
+        assertEquals(1.0D, EnchantmentRules.blastProtectionKnockback(1.0D, 1), .0001D);
+        assertEquals(9.0D, EnchantmentRules.blastProtectionKnockback(10.0D, 1), .0001D);
+        assertEquals(4.0D, EnchantmentRules.blastProtectionKnockback(10.0D, 4), .0001D);
         assertEquals(2.0F, EnchantmentRules.SMITE_DAMAGE_PER_LEVEL, .0001F);
         assertEquals(2.0F, EnchantmentRules.typedProtectionPoints(8.0F, 1), .0001F);
         assertEquals(8.0F, EnchantmentRules.typedProtectionPoints(8.0F, 4), .0001F);

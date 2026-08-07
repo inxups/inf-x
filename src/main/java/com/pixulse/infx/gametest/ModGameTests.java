@@ -185,6 +185,7 @@ public final class ModGameTests {
             "stone_shovel",
             "stone_spear",
             "stone_sword",
+            "stick",
             "warped_planks",
             "wooden_axe",
             "wooden_hoe",
@@ -296,6 +297,8 @@ public final class ModGameTests {
             functionKey("extreme_difficulty");
     private static final ResourceKey<Consumer<GameTestHelper>> HOT_FLOOR =
             functionKey("hot_floor");
+    private static final ResourceKey<Consumer<GameTestHelper>> MITE_BLOCK_HARDNESS =
+            functionKey("mite_block_hardness");
 
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
@@ -319,6 +322,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
         TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
         TEST_FUNCTIONS.register("hot_floor", () -> ModGameTests::hotFloor);
+        TEST_FUNCTIONS.register("mite_block_hardness", () -> ModGameTests::miteBlockHardness);
     }
 
     private ModGameTests() {}
@@ -352,6 +356,7 @@ public final class ModGameTests {
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
         registerTest(event, EXTREME_DIFFICULTY, environment, 40);
         registerTest(event, HOT_FLOOR, environment, 40);
+        registerTest(event, MITE_BLOCK_HARDNESS, environment, 40);
     }
 
     private static void registerTest(
@@ -452,6 +457,23 @@ public final class ModGameTests {
             }
         } finally {
             removePlayer(player);
+        }
+        helper.succeed();
+    }
+
+    private static void miteBlockHardness(GameTestHelper helper) {
+        for (Block block : List.of(Blocks.COBWEB, Blocks.OBSIDIAN, Blocks.CRYING_OBSIDIAN)) {
+            float expected = 8.0F;
+            float defaultDestroyTime = block.defaultDestroyTime();
+            float destroySpeed = block.defaultBlockState()
+                    .getDestroySpeed(helper.getLevel(), helper.absolutePos(WORK_POS));
+            String blockName = BuiltInRegistries.BLOCK.getKey(block).getPath();
+            helper.assertTrue(
+                    defaultDestroyTime == expected,
+                    blockName + " default hardness must match MITE obsidian hardness: " + defaultDestroyTime);
+            helper.assertTrue(
+                    destroySpeed == expected,
+                    blockName + " runtime destroy speed must match MITE obsidian hardness: " + destroySpeed);
         }
         helper.succeed();
     }
@@ -908,6 +930,7 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
+        helper.assertTrue(recipes.byKey(recipeKey("infx", "stick")) != null, "InfiniteX stick recipe must exist");
         for (String material : METAL_MATERIALS) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", material + "_ingot_from_nuggets")) != null,
@@ -990,9 +1013,11 @@ public final class ModGameTests {
         helper.assertTrue(
                 recipes.byKey(recipeKey("infx", "glass_bottle")) != null,
                 "InfiniteX glass bottle recipe must exist");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("infx", "red_sandstone_to_glass")) != null,
-                "InfiniteX red sandstone to glass recipe must exist");
+        for (String removed : List.of("sandstone_to_glass", "red_sandstone_to_glass")) {
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("infx", removed)) == null,
+                    "Sandstone must not smelt into glass: " + removed);
+        }
         for (String material : METAL_MATERIALS) {
             for (String conversion : List.of("chain_from_nuggets", "nuggets_from_chain")) {
                 String path = material + "_" + conversion;
@@ -1625,8 +1650,17 @@ public final class ModGameTests {
         player.closeContainer();
 
         player.setItemSlot(
+                EquipmentSlot.HEAD,
+                equipment(InfxMaterial.LEATHER, EquipmentType.HELMET).getDefaultInstance());
+        player.setItemSlot(
                 EquipmentSlot.CHEST,
                 equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE).getDefaultInstance());
+        player.setItemSlot(
+                EquipmentSlot.LEGS,
+                equipment(InfxMaterial.LEATHER, EquipmentType.LEGGINGS).getDefaultInstance());
+        player.setItemSlot(
+                EquipmentSlot.FEET,
+                equipment(InfxMaterial.LEATHER, EquipmentType.BOOTS).getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> assertAdvancementDone(
                         helper, player, "leather_armor", "wearing leather armor must grant Suiting Up"))

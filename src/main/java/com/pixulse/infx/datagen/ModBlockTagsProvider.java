@@ -452,6 +452,9 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                 .add(
                         blockKey(Blocks.OBSIDIAN),
                         blockKey(Blocks.CRYING_OBSIDIAN),
+                        blockKey(Blocks.NETHERRACK),
+                        blockKey(Blocks.CRIMSON_NYLIUM),
+                        blockKey(Blocks.WARPED_NYLIUM),
                         blockKey(Blocks.RESPAWN_ANCHOR),
                         blockKey(Blocks.GOLD_BLOCK),
                         blockKey(Blocks.REDSTONE_BLOCK),

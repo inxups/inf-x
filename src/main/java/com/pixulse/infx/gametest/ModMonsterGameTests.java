@@ -13,6 +13,7 @@ import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -61,6 +62,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Runtime coverage for roster construction and vanilla natural-spawn replacement. */
@@ -82,6 +84,7 @@ public final class ModMonsterGameTests {
     private static final String EXPLOSION_RANGES = "infx_explosion_ranges";
     private static final String LONGDEAD_DROPS = "infx_longdead_drops";
     private static final String SPAWN_EQUIPMENT = "infx_spawn_equipment";
+    private static final String SKELETON_DROPS = "infx_skeleton_drops";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -101,6 +104,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(EXPLOSION_RANGES, () -> ModMonsterGameTests::explosionRanges);
         FUNCTIONS.register(LONGDEAD_DROPS, () -> ModMonsterGameTests::longdeadDrops);
         FUNCTIONS.register(SPAWN_EQUIPMENT, () -> ModMonsterGameTests::spawnEquipment);
+        FUNCTIONS.register(SKELETON_DROPS, () -> ModMonsterGameTests::skeletonDrops);
     }
 
     private ModMonsterGameTests() {}
@@ -129,7 +133,8 @@ public final class ModMonsterGameTests {
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
                 EXPLOSION_RANGES,
-                SPAWN_EQUIPMENT)) {
+                SPAWN_EQUIPMENT,
+                SKELETON_DROPS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -1123,9 +1128,14 @@ public final class ModMonsterGameTests {
 
         for (var batType : List.of(
                 InfXEntityTypes.VAMPIRE_BAT, InfXEntityTypes.NIGHTWING, InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
-            helper.setBlock(new BlockPos(2, 86, 2), Blocks.STONE);
             var bat = helper.spawn(batType.get(), new BlockPos(2, 84, 2));
             bat.setNoGravity(true);
+            // MITE nightwings die to direct sunlight and this test world is at day. Give the bat
+            // enough health to survive the sunlight ticks; the attack lands before the sun check.
+            if (batType == InfXEntityTypes.NIGHTWING) {
+                bat.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2000.0);
+                bat.setHealth(2000.0F);
+            }
             var prey = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 84, 2));
             prey.setNoGravity(true);
             float health = prey.getHealth();
@@ -1586,8 +1596,8 @@ public final class ModMonsterGameTests {
     /**
      * MITE strips vanilla spawn equipment from the zombie and skeleton families: the INFX
      * replacements never wear vanilla weapons or armor (world-age gear is MITE equipment and
-     * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray,
-     * wither skeleton) get no vanilla weapons or armor at all.
+     * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
+     * parched, wither skeleton) keep only MITE world-age gear, never vanilla weapons or armor.
      */
     private static void spawnEquipment(GameTestHelper helper) {
         var zombie = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
@@ -1599,14 +1609,47 @@ public final class ModMonsterGameTests {
                 "replacement skeletons must spawn with only MITE weapons");
         assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
 
-        for (EntityType<?> type : List.of(EntityType.HUSK, EntityType.DROWNED, EntityType.STRAY)) {
+        for (EntityType<?> type : List.of(
+                EntityType.HUSK, EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             assertVanillaVariantBare(helper, type);
         }
         assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
+        // Vanilla drowned randomizes a nautilus shell into the offhand in 3% of spawns; that
+        // item is neither a weapon nor armor, so only the main hand and armor slots are banned.
+        assertVanillaVariantBare(helper, EntityType.DROWNED, EquipmentSlot.OFFHAND);
         helper.succeed();
     }
 
-    private static void assertVanillaVariantBare(GameTestHelper helper, EntityType<?> type) {
+    private static void skeletonDrops(GameTestHelper helper) {
+        for (EntityType<?> type : List.of(EntityType.SKELETON, EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
+            @SuppressWarnings("unchecked")
+            Mob skeleton = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
+            List<ItemEntity> drops = new ArrayList<>(List.of(
+                    new ItemEntity(
+                            skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(),
+                            new ItemStack(Items.ARROW, 2)),
+                    new ItemEntity(
+                            skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(),
+                            new ItemStack(Items.TIPPED_ARROW)),
+                    new ItemEntity(
+                            skeleton.level(), skeleton.getX(), skeleton.getY(), skeleton.getZ(),
+                            new ItemStack(Items.BONE))));
+            NeoForge.EVENT_BUS.post(new LivingDropsEvent(
+                    skeleton, helper.getLevel().damageSources().generic(), drops, false));
+            helper.assertTrue(
+                    drops.stream().noneMatch(drop -> drop.getItem().is(Items.ARROW)
+                            || drop.getItem().is(Items.TIPPED_ARROW)),
+                    type + " must not drop vanilla arrows");
+            helper.assertTrue(
+                    drops.stream().anyMatch(drop -> drop.getItem().is(Items.BONE)),
+                    type + " must preserve unrelated skeleton drops");
+            skeleton.discard();
+        }
+        helper.succeed();
+    }
+
+    /** The vanilla variant may wear INFX world-age gear; only vanilla equipment is banned. */
+    private static void assertVanillaVariantBare(GameTestHelper helper, EntityType<?> type, EquipmentSlot... skippedSlots) {
         @SuppressWarnings("unchecked")
         Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
         mob.finalizeSpawn(
@@ -1614,9 +1657,7 @@ public final class ModMonsterGameTests {
                 helper.getLevel().getCurrentDifficultyAt(mob.blockPosition()),
                 EntitySpawnReason.COMMAND,
                 null);
-        helper.assertTrue(
-                mob.getMainHandItem().isEmpty(), type + " must not spawn with vanilla weapons");
-        assertNoArmor(helper, mob, type.toString());
+        assertNoVanillaEquipment(helper, mob, type.toString(), skippedSlots);
         mob.discard();
     }
 
@@ -1631,10 +1672,13 @@ public final class ModMonsterGameTests {
         return mob;
     }
 
-    private static void assertNoVanillaEquipment(GameTestHelper helper, Mob mob, String description) {
+    private static void assertNoVanillaEquipment(GameTestHelper helper, Mob mob, String description, EquipmentSlot... skippedSlots) {
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             if (slot.getType() != EquipmentSlot.Type.HAND
                     && slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) {
+                continue;
+            }
+            if (java.util.Arrays.asList(skippedSlots).contains(slot)) {
                 continue;
             }
             ItemStack stack = mob.getItemBySlot(slot);
@@ -1650,15 +1694,5 @@ public final class ModMonsterGameTests {
                         .getKey(stack.getItem())
                         .getNamespace()
                         .equals("minecraft");
-    }
-
-    private static void assertNoArmor(GameTestHelper helper, Mob mob, String description) {
-        for (EquipmentSlot slot : List.of(
-                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
-            ItemStack stack = mob.getItemBySlot(slot);
-            helper.assertTrue(
-                    stack.isEmpty(),
-                    description + " must not spawn with vanilla armor in " + slot + "; found " + stack);
-        }
     }
 }

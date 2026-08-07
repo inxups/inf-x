@@ -24,12 +24,14 @@ import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.event.ItemAttributeModifierEvent;
 import net.neoforged.neoforge.event.entity.ProjectileImpactEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.level.ExplosionKnockbackEvent;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -39,6 +41,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import java.util.List;
+import net.minecraft.world.phys.Vec3;
 import com.pixulse.infx.block.InfxFurnaceBlock;
 import com.pixulse.infx.data.furnace.FurnaceHeatPolicy;
 import net.minecraft.tags.ItemTags;
@@ -161,7 +164,7 @@ public final class EquipmentBehaviors {
                 recoveryChance(material), recoveryEnchantmentLevel);
     }
 
-   @SubscribeEvent
+    @SubscribeEvent
     public static void applyArmorDecay(ItemAttributeModifierEvent event) {
         ItemStack stack = event.getItemStack();
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
@@ -187,39 +190,58 @@ public final class EquipmentBehaviors {
         if (maxDamage <= 0) {
             return 1.0F;
         }
+        if (maxDamage > 1 && damage >= maxDamage - 1) {
+            return 0.0F;
+        }
         float remaining = Math.clamp((maxDamage - damage) / (float) maxDamage, 0.0F, 1.0F);
         return Math.min(1.0F, remaining * 2.0F);
     }
 
-   @SubscribeEvent
+    @SubscribeEvent
     public static void applyFixedPointArmor(LivingIncomingDamageEvent event) {
-        if (!(event.getEntity() instanceof Player player)
-                || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+        LivingEntity entity = event.getEntity();
+        if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return;
         }
         // MITE: fire and armor-bypassing damage skip mundane armor, but the typed protection
         // enchantments (fire/blast/projectile protection, feather falling) still contribute.
-        boolean bypassesMundaneArmor = event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)
-                || event.getSource().is(DamageTypeTags.IS_FIRE);
-        float typed = typedProtectionPoints(player, event);
+        boolean bypassesMundaneArmor = bypassesMundaneArmor(event);
+        float typed = typedProtectionPoints(entity, event);
+        float resistanceArmor = resistanceProtectionPoints(entity);
+        float resistanceProtection = resistanceProtectionPoints(entity, event);
         float base = bypassesMundaneArmor
                 ? 0.0F
-                : (float) player.getAttributeValue(Attributes.ARMOR)
-                        + protectionBonus(player)
+                : mundaneArmorPoints(entity) - resistanceArmor
+                        + protectionBonus(entity)
                         - penetrationPoints(event);
         float armorPoints = Math.max(0.0F, base) + typed;
-        if (armorPoints <= 0.0F && !bypassesMundaneArmor) {
+        if (entity instanceof Player && !bypassesMundaneArmor) {
+            armorPoints += resistanceProtection;
+        }
+        if (bypassesMundaneArmor) {
+            float reduction = fixedArmorReduction(event.getAmount(), armorPoints);
+            if (reduction > 0.0F) {
+                event.setAmount(event.getAmount() - reduction);
+            }
+            // Fire and BYPASSES_ARMOR damage must not receive a second vanilla armor reduction.
+            event.getContainer().addModifier(
+                    DamageContainer.Reduction.ARMOR,
+                    (container, vanillaReduction) -> 0.0F);
             return;
         }
+        if (armorPoints <= 0.0F && resistanceArmor <= 0.0F) {
+            return;
+        }
+        float fixedArmorPoints = armorPoints;
         event.getContainer().addModifier(
                 DamageContainer.Reduction.ARMOR,
                 (container, vanillaReduction) -> fixedArmorReduction(
-                        container.getNewDamage(), armorPoints));
+                        container.getNewDamage(), fixedArmorPoints));
     }
 
     /** Sums MITE's typed protection points from the four armor pieces for a matching source. */
-    private static float typedProtectionPoints(Player player, LivingIncomingDamageEvent event) {
-        boolean fire = event.getSource().is(DamageTypeTags.IS_FIRE);
+    private static float typedProtectionPoints(LivingEntity entity, LivingIncomingDamageEvent event) {
+        boolean fire = isMiteFireDamage(event);
         boolean fall = event.getSource().is(DamageTypeTags.IS_FALL);
         boolean explosion = event.getSource().is(DamageTypeTags.IS_EXPLOSION);
         boolean projectile = event.getSource().is(DamageTypeTags.IS_PROJECTILE);
@@ -229,16 +251,16 @@ public final class EquipmentBehaviors {
         float total = 0.0F;
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
-            ItemStack stack = player.getItemBySlot(slot);
+            ItemStack stack = entity.getItemBySlot(slot);
             Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
             if (entry == null || entry.key().type().armorForm() == EquipmentType.ArmorForm.NONE) {
                 continue;
             }
-            float durabilityFactor = armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
+            float durabilityFactor = armorDamageFactor(entity, stack);
             if (fall) {
                 total += EnchantmentRules.featherFallingPoints(
                         Enchantments.level(
-                                player.level(), stack, InfXEnchantments.VANILLA_FEATHER_FALLING),
+                                entity.level(), stack, InfXEnchantments.VANILLA_FEATHER_FALLING),
                         durabilityFactor);
                 continue;
             }
@@ -246,27 +268,55 @@ public final class EquipmentBehaviors {
             if (fire) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, InfXEnchantments.VANILLA_FIRE_PROTECTION));
+                                entity.level(), stack, InfXEnchantments.VANILLA_FIRE_PROTECTION));
             }
             if (explosion) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, InfXEnchantments.VANILLA_BLAST_PROTECTION));
+                                entity.level(), stack, InfXEnchantments.VANILLA_BLAST_PROTECTION));
             }
             if (projectile) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
-                                player.level(), stack, InfXEnchantments.VANILLA_PROJECTILE_PROTECTION));
+                                entity.level(), stack, InfXEnchantments.VANILLA_PROJECTILE_PROTECTION));
             }
         }
         return total;
     }
 
-    private static float protectionBonus(Player player) {
+    private static float mundaneArmorPoints(LivingEntity entity) {
+        float armor = (float) entity.getAttributeValue(Attributes.ARMOR);
+        if (entity instanceof Player) {
+            return armor;
+        }
+        // MITE gives non-player armor a fixed 0.5 damage factor. The item attribute still uses
+        // the player's durability curve, so replace that contribution before the fixed armor step.
+        for (EquipmentSlot slot : List.of(
+                EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
+            ItemStack stack = entity.getItemBySlot(slot);
+            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
+            if (entry == null
+                    || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
+                            && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)) {
+                continue;
+            }
+            armor += entry.key().armorProtection()
+                    * (0.5F - armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage()));
+        }
+        return armor;
+    }
+
+    private static float armorDamageFactor(LivingEntity entity, ItemStack stack) {
+        return entity instanceof Player
+                ? armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage())
+                : 0.5F;
+    }
+
+    private static float protectionBonus(LivingEntity entity) {
         float bonus = 0.0F;
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
-            ItemStack stack = player.getItemBySlot(slot);
+            ItemStack stack = entity.getItemBySlot(slot);
             Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
             if (entry == null
                     || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
@@ -274,11 +324,40 @@ public final class EquipmentBehaviors {
                 continue;
             }
             float currentProtection = entry.key().armorProtection()
-                    * armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage());
-            int level = Enchantments.level(player.level(), stack, InfXEnchantments.PROTECTION);
+                    * armorDamageFactor(entity, stack);
+            int level = Enchantments.level(entity.level(), stack, InfXEnchantments.PROTECTION);
             bonus += EnchantmentRules.protectionBonus(currentProtection, level);
         }
         return bonus;
+    }
+
+    private static boolean bypassesMundaneArmor(LivingIncomingDamageEvent event) {
+        return event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)
+                || event.getSource().is(DamageTypeTags.IS_FIRE)
+                || event.getSource().is(DamageTypes.LAVA);
+    }
+
+    private static boolean isMiteFireDamage(LivingIncomingDamageEvent event) {
+        return event.getSource().is(DamageTypeTags.IS_FIRE)
+                && !event.getSource().is(DamageTypes.LAVA);
+    }
+
+    @SubscribeEvent
+    public static void applyBlastProtection(ExplosionKnockbackEvent event) {
+        if (!(event.getAffectedEntity() instanceof LivingEntity entity)) {
+            return;
+        }
+        int level = Enchantments.maxArmorLevel(entity, InfXEnchantments.VANILLA_BLAST_PROTECTION);
+        if (level <= 0) {
+            return;
+        }
+        Vec3 knockback = event.getKnockbackVelocity();
+        double magnitude = knockback.length();
+        if (magnitude <= 0.0D) {
+            return;
+        }
+        double reducedMagnitude = EnchantmentRules.blastProtectionKnockback(magnitude, level);
+        event.setKnockbackVelocity(knockback.scale(reducedMagnitude / magnitude));
     }
 
     private static float penetrationPoints(LivingIncomingDamageEvent event) {
@@ -299,22 +378,44 @@ public final class EquipmentBehaviors {
         return Math.min(armorPoints, incomingDamage - 1.0F);
     }
 
-    /** Replaces modern percentage resistance with INFX's five fixed protection points per level. */
-   @SubscribeEvent
-    public static void applyFixedResistance(LivingIncomingDamageEvent event) {
-        var resistance = event.getEntity().getEffect(MobEffects.RESISTANCE);
-        if (resistance == null
-                || event.getSource().is(DamageTypeTags.BYPASSES_EFFECTS)
-                || event.getSource().is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+    /**
+     * MITE adds Resistance to total protection as fixed points. Players use the attribute in
+     * the custom armor stage; other entities and armor-bypassing damage need a mob-effect-stage
+     * fallback because vanilla does not run the armor reduction in those cases.
+     */
+    @SubscribeEvent
+    public static void applyMiteResistanceProtection(LivingIncomingDamageEvent event) {
+        float protection = resistanceProtectionPoints(event.getEntity(), event);
+        if (protection <= 0.0F) {
             return;
         }
-        float protection = (resistance.getAmplifier() + 1) * 5.0F;
+        if (!(event.getEntity() instanceof Player)
+                || bypassesMundaneArmor(event)) {
+            event.getContainer().addModifier(
+                    DamageContainer.Reduction.MOB_EFFECTS,
+                    (container, vanillaReduction) -> fixedArmorReduction(
+                            container.getNewDamage(), protection));
+            return;
+        }
         event.getContainer().addModifier(
                 DamageContainer.Reduction.MOB_EFFECTS,
-                (container, vanillaReduction) -> fixedArmorReduction(container.getNewDamage(), protection));
+                (container, vanillaReduction) -> 0.0F);
     }
 
-   @SubscribeEvent
+    private static float resistanceProtectionPoints(LivingEntity entity) {
+        var resistance = entity.getEffect(MobEffects.RESISTANCE);
+        return resistance == null ? 0.0F : (resistance.getAmplifier() + 1) * 5.0F;
+    }
+
+    private static float resistanceProtectionPoints(LivingEntity entity, LivingIncomingDamageEvent event) {
+        if (event.getSource().is(DamageTypeTags.BYPASSES_EFFECTS)
+                || event.getSource().is(DamageTypeTags.BYPASSES_RESISTANCE)) {
+            return 0.0F;
+        }
+        return resistanceProtectionPoints(entity);
+    }
+
+    @SubscribeEvent
     public static void applyElementalCorrosion(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) {
             return;
@@ -383,6 +484,12 @@ public final class EquipmentBehaviors {
    @SubscribeEvent
     public static void addQualityTooltip(ItemTooltipEvent event) {
         ItemStack stack = event.getItemStack();
+        InfxMaterial hookMaterial = fishingRodHookMaterial(stack);
+        if (hookMaterial != null) {
+            event.getToolTip().add(Component.translatable(
+                    "tooltip.infx.fishing_rod_hook",
+                    Component.translatable("material.infx." + hookMaterial.path())));
+        }
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry != null) {
             EquipmentKey key = entry.key();
@@ -417,8 +524,8 @@ public final class EquipmentBehaviors {
                     "tooltip.infx.material", Component.translatable("material.infx." + key.material().path())));
             if (key.type().baseDamage() > 0.0F) {
                 event.getToolTip().add(Component.translatable("tooltip.infx.damage", key.meleeDamage()));
-                event.getToolTip().add(Component.translatable(
-                        "tooltip.infx.reach", 1.5F + key.type().reachBonus()));
+                // INFX tools use the vanilla component-less attack reach like any other melee item.
+                event.getToolTip().add(Component.translatable("tooltip.infx.reach", 1.5F));
             }
             if (key.armorProtection() > 0.0F) {
                 event.getToolTip().add(Component.translatable("tooltip.infx.protection", key.armorProtection()));
@@ -437,6 +544,30 @@ public final class EquipmentBehaviors {
                 && blockItem.getBlock() instanceof InfxFurnaceBlock furnace) {
             event.getToolTip().add(Component.translatable("tooltip.infx.furnace_heat", furnace.maximumHeat()));
         }
+    }
+
+    static InfxMaterial fishingRodHookMaterial(ItemStack stack) {
+        return fishingRodHookMaterial(stack.getItem());
+    }
+
+    static InfxMaterial fishingRodHookMaterial(Item item) {
+        if (item instanceof InfxFishingRodItem fishingRod) {
+            return fishingRod.key().material();
+        }
+        if (item instanceof InfxCarrotOnAStickItem carrotOnAStick) {
+            return carrotOnAStick.hookMaterial();
+        }
+        if (item instanceof InfxWarpedFungusOnAStickItem warpedOnAStick) {
+            return warpedOnAStick.hookMaterial();
+        }
+        // MITE's vanilla fishing rod and carrot-on-a-stick use an iron hook; warped fungus
+        // on a stick is the modern equivalent of the carrot item.
+        if (item == Items.FISHING_ROD
+                || item == Items.CARROT_ON_A_STICK
+                || item == Items.WARPED_FUNGUS_ON_A_STICK) {
+            return InfxMaterial.IRON;
+        }
+        return null;
     }
 
     static boolean shouldAddExtendedTooltips(boolean testMode) {

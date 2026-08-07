@@ -99,6 +99,7 @@ class GeneratedResourceTest {
     void miteChineseNamesForMilkAndPoisonDeath() throws Exception {
         JsonObject zh = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertEquals("铁奶桶", zh.get("item.infx.iron_milk_bucket").getAsString());
+        assertEquals("胡萝卜钓竿", zh.get("item.infx.iron_carrot_on_a_stick").getAsString());
         assertEquals("%s 毒发身亡", zh.get("death.infx.poison").getAsString());
     }
 
@@ -160,6 +161,76 @@ class GeneratedResourceTest {
                         .map(JsonElement::getAsString)
                         .anyMatch("minecraft:silk_touch"::equals),
                 "fortune stays exclusive with silk touch");
+
+        Set<String> protectionSet = json(GENERATED.resolve("data/infx/enchantment/protection.json"))
+                .getAsJsonArray("exclusive_set").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> typedProtectionSet = Set.of(
+                "infx:protection",
+                "minecraft:fire_protection",
+                "minecraft:blast_protection",
+                "minecraft:projectile_protection");
+        assertEquals(typedProtectionSet, protectionSet, "MITE protection enchantments must be mutually exclusive");
+        for (String path : List.of("fire_protection", "blast_protection", "projectile_protection")) {
+            Set<String> exclusiveSet = json(GENERATED.resolve(
+                            "data/minecraft/enchantment/" + path + ".json"))
+                    .getAsJsonArray("exclusive_set").asList().stream()
+                    .map(JsonElement::getAsString)
+                    .collect(Collectors.toSet());
+            assertEquals(typedProtectionSet, exclusiveSet, path + " must use the shared MITE protection set");
+        }
+        String featherFallingSet = json(GENERATED.resolve(
+                        "data/minecraft/enchantment/feather_falling.json"))
+                .get("exclusive_set")
+                .getAsString();
+        assertEquals("minecraft:feather_falling", featherFallingSet,
+                "feather falling must remain compatible with the other protection enchantments");
+    }
+
+    @Test
+    void sharpnessTargetsVanillaAndInfiniteXSwords() throws Exception {
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/infx_sharpness.json"));
+        Set<String> values = tag.getAsJsonArray("values").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> swords = EquipmentKey.all().stream()
+                .filter(key -> key.type() == EquipmentType.SWORD)
+                .map(key -> "infx:" + key.path())
+                .collect(Collectors.toSet());
+        assertTrue(values.contains("#minecraft:swords"), "sharpness must target vanilla swords");
+        assertTrue(values.containsAll(swords), "sharpness must target InfiniteX swords");
+    }
+
+    @Test
+    void slaughterUsesTheDamageExclusiveSetAndExcludesSwords() throws Exception {
+        JsonObject slaughter = json(GENERATED.resolve("data/infx/enchantment/slaughter.json"));
+        Set<String> exclusiveSet = slaughter.getAsJsonArray("exclusive_set").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        assertTrue(exclusiveSet.contains("infx:slaughter"), "slaughter stays self-exclusive");
+        assertTrue(exclusiveSet.contains("minecraft:sharpness"), "slaughter excludes sharpness");
+        assertTrue(exclusiveSet.contains("minecraft:smite"), "slaughter excludes smite");
+        assertTrue(
+                exclusiveSet.contains("minecraft:bane_of_arthropods"),
+                "slaughter excludes bane of arthropods");
+
+        JsonObject tag = json(GENERATED.resolve("data/infx/tags/item/enchantable/infx_slaughter.json"));
+        Set<String> supported = tag.getAsJsonArray("values").asList().stream()
+                .map(JsonElement::getAsString)
+                .collect(Collectors.toSet());
+        Set<String> swords = EquipmentKey.all().stream()
+                .filter(key -> key.type() == EquipmentType.SWORD)
+                .map(key -> "infx:" + key.path())
+                .collect(Collectors.toSet());
+        assertTrue(swords.stream().noneMatch(supported::contains), "slaughter must exclude swords");
+        assertTrue(
+                EquipmentKey.all().stream()
+                        .filter(key -> key.type() == EquipmentType.BATTLE_AXE
+                                || key.type() == EquipmentType.SCYTHE)
+                        .map(key -> "infx:" + key.path())
+                        .allMatch(supported::contains),
+                "slaughter must retain battle axe and scythe targets");
     }
 
     @Test
@@ -2569,6 +2640,7 @@ class GeneratedResourceTest {
     @Test
     void miteRecipeTableOverridesMatchTheReferenceRecipes() throws Exception {
         Map<String, String> shapedPatterns = Map.ofEntries(
+                Map.entry("stick", "[\"P\",\"P\"]"),
                 Map.entry("sugar_from_sugar_cane", "[\"C\"]"),
                 Map.entry("flour", "[\"WWW\"]"),
                 Map.entry("dough_from_water_bucket", "[\"F F\",\" W \",\"F F\"]"),
@@ -2599,6 +2671,7 @@ class GeneratedResourceTest {
 
         JsonObject dough = json(GENERATED.resolve("data/infx/recipe/dough.json"));
         JsonObject boneMeal = json(GENERATED.resolve("data/infx/recipe/bone_meal.json"));
+        JsonObject stick = json(GENERATED.resolve("data/infx/recipe/stick.json"));
         JsonObject sugar = json(GENERATED.resolve("data/infx/recipe/sugar_from_sugar_cane.json"));
         JsonObject flintFromChips = json(GENERATED.resolve("data/infx/recipe/flint_from_flint_chips.json"));
         JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
@@ -2612,6 +2685,14 @@ class GeneratedResourceTest {
         assertAll(
                 "MITE recipe table",
                 () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
+                () -> assertEquals("infx:crafting_shaped", stick.get("type").getAsString()),
+                () -> assertEquals("hand", stick.get("required_bench").getAsString()),
+                () -> assertEquals(160.0F, stick.get("difficulty").getAsFloat()),
+                () -> assertEquals(
+                        "#minecraft:planks", stick.getAsJsonObject("key").get("P").getAsString()),
+                () -> assertEquals(
+                        "minecraft:stick", stick.getAsJsonObject("result").get("id").getAsString()),
+                () -> assertEquals(4, stick.getAsJsonObject("result").get("count").getAsInt()),
                 () -> assertEquals("infx:crafting_shapeless", boneMeal.get("type").getAsString()),
                 () -> assertEquals("hand", boneMeal.get("required_bench").getAsString()),
                 () -> assertEquals(100.0F, boneMeal.get("difficulty").getAsFloat()),
@@ -2646,7 +2727,8 @@ class GeneratedResourceTest {
                 () -> assertEquals(
                         "infx:snow_slab",
                         snowSlab.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertEquals(4, saddle.getAsJsonObject("result").get("count").getAsInt()),
+                () -> assertFalse(saddle.getAsJsonObject("result").has("count"),
+                        "MITE saddle outputs a single item"),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/blockstates/snow_slab.json"))),
                 () -> assertTrue(Files.isRegularFile(
@@ -2677,6 +2759,7 @@ class GeneratedResourceTest {
                 "saddle",
                 "snow",
                 "snow_block",
+                "stick",
                 "stone",
                 "stone_bricks")) {
             JsonObject recipe = json(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json"));
@@ -2728,7 +2811,7 @@ class GeneratedResourceTest {
                             chinese.get("container.infx." + path).getAsString(),
                             "Chinese block and menu names must match"));
         }
-        for (String recipe : List.of("sand_batch", "sandstone_to_glass")) {
+        for (String recipe : List.of("sand_batch", "red_sand_batch")) {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")));
         }
         for (String disabled : List.of("glass", "sandstone", "smooth_sandstone")) {
@@ -2761,9 +2844,10 @@ class GeneratedResourceTest {
         // Longdead Guardian egg, and 22 stripped-log workbench variants add one item definition each; gravel and
         // furnace blocks add item definitions, while the workbench item definitions reference their block models.
         // Leather items reference vanilla Minecraft models and do not generate InfX model files.
-        // The nine carrot-on-a-stick variants add item definitions and flat models each.
-        assertEquals(477, jsonCount(GENERATED.resolve("assets/infx/items")));
-        assertEquals(518, jsonCount(GENERATED.resolve("assets/infx/models/item")));
+        // The nine carrot-on-a-stick and nine warped-fungus-on-a-stick variants add item
+        // definitions and flat models each.
+        assertEquals(486, jsonCount(GENERATED.resolve("assets/infx/items")));
+        assertEquals(527, jsonCount(GENERATED.resolve("assets/infx/models/item")));
         assertEquals(17, jsonCount(GENERATED.resolve("assets/infx/equipment")));
     }
 
@@ -2801,6 +2885,7 @@ class GeneratedResourceTest {
     void restoredVanillaRecipesExistWithMiteCounts() throws Exception {
         record Expectation(String path, String result, int count) {}
         List<Expectation> expectations = List.of(
+                new Expectation("stick", "minecraft:stick", 4),
                 new Expectation("bowl", "minecraft:bowl", 4),
                 new Expectation("white_wool_from_string", "minecraft:white_wool", 1),
                 new Expectation("raw_copper_block", "minecraft:raw_copper_block", 1),
