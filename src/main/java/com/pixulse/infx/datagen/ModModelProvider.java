@@ -231,8 +231,9 @@ final class ModModelProvider extends ModelProvider {
         itemModels.generateFlatItem(InfXItems.BOTTLE_OF_DISENCHANTING.value(), ModelTemplates.FLAT_ITEM);
         generateInfxFoodModels(itemModels);
         // InfX carrot-on-a-stick variants share the single approved carrot-on-a-stick sprite.
+        // The handheld_rod parent gives them the vanilla rod pose when held in hand.
         for (DeferredItem<InfxCarrotOnAStickItem> stick : InfXItems.CARROT_ON_A_STICKS.values()) {
-            Identifier model = ModelTemplates.FLAT_ITEM.create(
+            Identifier model = ModelTemplates.FLAT_HANDHELD_ROD_ITEM.create(
                     ModelLocationUtils.getModelLocation(stick.value()),
                     TextureMapping.layer0(new Material(InfiniteX.id("item/carrot_on_a_stick"))),
                     itemModels.modelOutput);
@@ -240,7 +241,7 @@ final class ModModelProvider extends ModelProvider {
         }
         // Warped-fungus-on-a-stick variants share the single vanilla warped-fungus sprite.
         for (DeferredItem<InfxWarpedFungusOnAStickItem> stick : InfXItems.WARPED_FUNGUS_ON_A_STICKS.values()) {
-            Identifier model = ModelTemplates.FLAT_ITEM.create(
+            Identifier model = ModelTemplates.FLAT_HANDHELD_ROD_ITEM.create(
                     ModelLocationUtils.getModelLocation(stick.value()),
                     TextureMapping.layer0(new Material(InfiniteX.id("item/warped_fungus_on_a_stick"))),
                     itemModels.modelOutput);

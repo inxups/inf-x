@@ -16,6 +16,8 @@ import com.pixulse.infx.item.EquipmentCategory;
 import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.InfxFishingRodItem;
+import com.pixulse.infx.item.InfxCarrotOnAStickItem;
+import com.pixulse.infx.item.InfxWarpedFungusOnAStickItem;
 import com.pixulse.infx.item.MiningFamily;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
@@ -100,7 +102,8 @@ public final class ModEquipmentGameTests {
             "fishing_rods",
             "armor_and_horse_armor",
             "horse_armor_loot",
-            "height_advantage");
+            "height_advantage",
+            "carrot_stick_boost");
 
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -115,6 +118,7 @@ public final class ModEquipmentGameTests {
         TEST_FUNCTIONS.register("armor_and_horse_armor", () -> ModEquipmentGameTests::armorAndHorseArmor);
         TEST_FUNCTIONS.register("horse_armor_loot", () -> ModEquipmentGameTests::horseArmorLoot);
         TEST_FUNCTIONS.register("height_advantage", () -> ModEquipmentGameTests::heightAdvantage);
+        TEST_FUNCTIONS.register("carrot_stick_boost", () -> ModEquipmentGameTests::carrotStickBoost);
     }
 
     private ModEquipmentGameTests() {}
@@ -959,6 +963,56 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(
                 stickRange.isInRange(player, player.getEyePosition()),
                 "eye-level target must stay in range");
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void carrotStickBoost(GameTestHelper helper) {
+        var pig = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(4, 2, 1));
+        pig.setItemSlot(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
+        ServerPlayer player = createPlayer(helper);
+        InfxCarrotOnAStickItem stick = InfXItems.CARROT_ON_A_STICKS.get(InfxMaterial.IRON).value();
+        ItemStack stack = stick.getDefaultInstance();
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        player.startRiding(pig, true, false);
+        helper.assertTrue(
+                pig.getControllingPassenger() == player,
+                "INFX pig must be controlled by a rider holding an InfX carrot stick");
+        var result = stick.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                result.consumesAction(),
+                "carrot stick use on INFX pig must succeed, got " + result);
+        helper.assertTrue(
+                player.getMainHandItem().getDamageValue() > 0,
+                "carrot stick must take boost damage, got " + player.getMainHandItem().getDamageValue());
+        // vanilla pig path
+        var vanillaPig = helper.spawn(EntityType.PIG, new BlockPos(6, 2, 1));
+        vanillaPig.setItemSlot(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
+        player.stopRiding();
+        player.startRiding(vanillaPig, true, false);
+        helper.assertTrue(
+                vanillaPig.getControllingPassenger() == player,
+                "vanilla pig must be controlled by a rider holding an InfX carrot stick");
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        var result2 = stick.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                result2.consumesAction(),
+                "carrot stick use on vanilla pig must succeed, got " + result2);
+        // warped fungus on a stick / strider path
+        var strider = helper.spawn(EntityType.STRIDER, new BlockPos(8, 2, 1));
+        strider.setItemSlot(EquipmentSlot.SADDLE, new ItemStack(Items.SADDLE));
+        player.stopRiding();
+        player.startRiding(strider, true, false);
+        InfxWarpedFungusOnAStickItem fungusStick =
+                InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(InfxMaterial.IRON).value();
+        player.setItemInHand(InteractionHand.MAIN_HAND, fungusStick.getDefaultInstance());
+        helper.assertTrue(
+                strider.getControllingPassenger() == player,
+                "strider must be controlled by a rider holding an InfX fungus stick");
+        var result3 = fungusStick.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        helper.assertTrue(
+                result3.consumesAction(),
+                "fungus stick use on strider must succeed, got " + result3);
         removePlayer(player);
         helper.succeed();
     }
