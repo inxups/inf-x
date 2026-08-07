@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Separates INFX's 1.5-block empty-hand attack reach from its 2.5-block entity interaction reach. */
+/** Matches INFX's empty-hand attack reach to its 2.5-block entity interaction reach. */
 @Mixin(LivingEntity.class)
 public abstract class PlayerAttackRangeMixin {
     @Inject(method = "getAttackRangeWith", at = @At("HEAD"), cancellable = true)
@@ -19,7 +19,7 @@ public abstract class PlayerAttackRangeMixin {
         if (!InfiniteXTestMode.isEnabled()
                 && (Object) this instanceof Player
                 && !stack.has(DataComponents.ATTACK_RANGE)) {
-            callback.setReturnValue(new AttackRange(0.0F, 1.5F, 0.0F, 5.0F, 0.0F, 1.0F));
+            callback.setReturnValue(new AttackRange(0.0F, 2.5F, 0.0F, 5.0F, 0.0F, 1.0F));
         }
     }
 }
