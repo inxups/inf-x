@@ -63,7 +63,9 @@
     "VanillaMobEquipmentMixin",
     "WallBlockCollisionMixin",
     "WolfAccessor",
-    "WorldDimensionsMixin"
+    "WorldDimensionsMixin",
+    "PigCarrotControlMixin",
+    "StriderFungusControlMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
