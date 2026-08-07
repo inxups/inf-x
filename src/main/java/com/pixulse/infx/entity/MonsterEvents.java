@@ -1023,7 +1023,13 @@ public final class MonsterEvents {
     static boolean participatesInGenericTargeting(Mob mob) {
         // Pig zombies own their InfX 6/24-block player awareness and must not receive the
         // broad player-noise, illuminated-player, or cross-family target propagation rules.
-        return mob instanceof Enemy && !(mob instanceof InfxEnderman || mob instanceof InfxZombifiedPiglin);
+        // Dire wolves share the Enemy flag with hellhounds but are tameable near-neutral
+        // animals: the generic rules would make a sitting tamed dire wolf target lit players
+        // and path toward the brightest block or a flank point via the cooperate hook,
+        // bypassing the vanilla sit goal and following the player anyway.
+        return mob instanceof Enemy
+                && !(mob instanceof InfxEnderman || mob instanceof InfxZombifiedPiglin)
+                && !(mob instanceof InfxWolf wolf && wolf.variant() == InfxWolf.Variant.DIRE_WOLF);
     }
 
     @SubscribeEvent
