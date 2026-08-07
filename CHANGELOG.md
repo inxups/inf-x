@@ -32,83 +32,108 @@
 - 抗性提升效果按 MITE 机制转换为护甲值：抗性 I/II 分别增加 5/10 点，并移除重复的原版百分比减伤。
 
 ## 0t7
-### 模组问题修复
-- 木棍与骨头恢复 MITE 近战行为：生存模式成功命中后分别按 1/50 与 1/100 概率消耗，创造模式不消耗。
-- 修复木棍与骨头默认组件注册，使两者近战攻击距离为 2.0 格（创造模式 5.0 格），且不改变方块或实体交互距离。
-- 修复原版剑无法附魔锋利的问题。
-- 下界岩、绯红菌岩与诡异菌岩现在要求铁镐及以上等级才能挖掘。
+## Bug Fixes
+- Pigs and horses (including the INFX replacement types) can now equip saddles again, and horses can equip horse armor; the horse inventory saddle and armor slots are visible again (26.1 gates equipping by entity-type tags).
+- Tamed wolves and dire wolves can now equip wolf armor and repair it with armadillo scutes (26.1 restricts wolf armor to the exact minecraft:wolf type, so the replacement entities handle the equip branch themselves).
+- Feeding bones to a wolf/dire wolf during its taming cooldown no longer consumes them.
+- Breeding inheritance fixes: warm (tropical) pigs breed warm piglets; cow and chicken coat variants, sheep wool colors, and horse coats/markings are inherited again; foals inherit the parents' health/speed/jump attributes; tamed wolf/dire-wolf pups inherit the coat, sound variant, collar, ownership and tame state; dire wolves now breed dire wolves instead of vanilla wolves.
+- Llamas and donkeys (including mules) now follow the untamed remount and feed intervals like horses: 4000 ticks after being thrown off they refuse to be mounted again, and 4000 ticks after accepting food they refuse further feedings.
+- Livestock now forage dropped breeding food: they walk to and eat edible items on the ground whenever their food meter is not full (previously they only path-find when desperately hungry and the passive pickup radius was too small); ground eating restores the food meter.
 
-## 0t6
-### 模组问题修复
-- 修复中毒效果刚获得时立即扣血的问题；首次服务端 tick 不再造成伤害，之后仍按 MITE 的 `100 >> 等级` tick 间隔生效。
-- 调整杀害附魔：剑不可适用，与锋利、亡灵杀手、节肢杀手互斥；第一级增加 1 点伤害，之后每级增加 0.75 点，最高 V 级。
-- 玩家获得 Hunger buff 时，食物条切换为专用的饥饿状态图标；效果结束后恢复普通图标。
+## 0t5-0v2
+## Bug Fixes
+- Swords with Fire Aspect can now right-click to ignite TNT and unlit campfires, including soul campfires. Each use consumes 1 durability.
+- Enchanting-table bookshelf detection now supports corner positions (±2, ±2), matching modern vanilla behavior. Emerald and diamond enchanting tables still reach full power at 50/100.
+- Metal safe opening and closing sounds now use the vanilla copper chest sounds.
+- Saddle crafting now produces 1 saddle, matching MITE: 5 leather + 2 iron nuggets.
+- Restored the lead recipe: string/sinew + slimeball produces 2 leads.
+- Added nine warped-fungus fishing-rod variants with different metal hooks. They are crafted from the corresponding metal fishing rod and warped fungus, and can be dismantled back into fishing rods. Hook-material tooltips and Creative tabs are synchronized.
+- Water bottles enchanted at an enchanting table now produce Bottles o’ Enchanting instead of Bottles of Disenchanting. Bottles of Disenchanting remain craftable.
+- Thrown Bottles o’ Enchanting now always grant 200 experience instead of the vanilla random 3–11 XP.
+- Added a recipe for enchanted golden apples: golden apple + Bottle o’ Enchanting.
+- Blocks destroyed by explosions now drop MITE-specific items: wool drops string, wood drops sticks, bricks drop 1 brick, lapis lazuli blocks have a 50% chance to drop 9 lapis lazuli, stone and end stone drop cobblestone, coal blocks have a 50% chance to drop 9 coal, and terracotta and netherrack drop nothing. Cobblestone and mossy cobblestone now drop gravel when destroyed by any explosion, not only TNT.
+- Metal buckets and bowls now interact correctly with cauldrons. Empty buckets can draw water from full water cauldrons, lowering the level by 3; water buckets can refill them by 3 levels. Empty bowls draw 1 level of water, and water bowls return 1 level.
+- Full buckets of water, lava, milk, or stone, as well as fish buckets and powder snow buckets, now return the corresponding empty bucket as a crafting remainder according to MITE rules. Stone-bucket dismantling recipes also return an empty bucket.
+- Water placed from metal buckets containing entities, such as fish buckets, now behaves like ordinary bucket water: after 16 ticks it becomes flowing water and dissipates.
+- Paid source-liquid placement using Ctrl + 100 XP now plays MITE’s XP-drain sound (`level_drain`).
+- Phase Spiders no longer render the vanilla red glowing-eye layer over their own green eyes.
+- Bricks, nether bricks, and resin bricks can now be thrown by right-clicking. They consume 1 item, deal 2 throwing damage, and break glass panes on impact. The MITE stack limit of 8 is unchanged.
+- Blue and brown eggs from vanilla 1.26.2 can now be eaten like regular eggs. Their MITE food values are satiation 1, nutrition 3, and protein.
+- Throwing slimeballs at sheep, including black and gray acid balls, immediately corrodes and removes their wool. Slime monsters now have the same effect in melee attacks.
+- Beetroot soup and rabbit stew recipes now use water bowls instead of ordinary bowls.
+- Removed the sandstone/red sandstone-to-glass smelting recipes. Instead, 4 sand or 4 red sand can be batch-smelted: wood-level heat produces sandstone/red sandstone, while coal-level heat or higher produces glass.
+- Flint and steel durability is now 16, matching MITE.
+- Torches, soul torches, redstone torches, and copper torches can now be used as furnace fuel. Each burns for 800 ticks.
+- Creative-mode players now have a 5-block reach for blocks and entities.
+- Fences, bars, and various walls now have a 1-block collision height for ordinary entities and can be jumped over. Minecart collision height is unchanged.
+- Obsidian furnaces, netherrack furnaces, stone furnaces, blast furnaces, and smokers now drop themselves when broken bare-handed.
+- Failed wolf/dire-wolf taming attempts now trigger a 5-second feeding cooldown. The worst result can also probabilistically make the wolf hostile, except during blue-moon nights.
+- Hellhounds can no longer be fed bones or tamed. Their maximum health remains 20.
+- Vanilla wolves, including those spawned by spawn eggs or commands, now also drop 1 leather when killed.
+- Wild horses now enter a 4,000-tick feeding cooldown after each food item. Tamed horses are unaffected.
+- Zombie Pigmen have been restored as modern Zombified Piglins, using the Piglin model and vanilla textures. Their name is now “Zombified Piglin.”
+- Spawners in simple Underground World dungeons no longer generate Ancient Skeleton Lords and now generate MITE’s Ancient Corpse Guards.
+- Creepers and Hell Creepers no longer gain equipment based on world age.
+- Swords and scythes now declare vanilla sweeping capability, allowing real-player attacks to trigger sweeping attacks.
+- Strays, Bogged, Charred Skeletons, and other vanilla skeleton variants no longer spawn with vanilla weapons or armor, nor drop vanilla arrows or tipped arrows when killed. MITE material-arrow drops are unchanged.
+- Spider webs, obsidian, and crying obsidian now all have MITE obsidian hardness: `8.0`.
+- Fixed shears incorrectly shearing beds, bamboo—including bamboo shoots—and sugar cane when right-clicked. These blocks remain normally effective targets for shears.
+- Restored the MITE stick recipe: 2 vertically arranged planks produce 4 sticks.
+- Fixed Protection enchantment differences. Protection-family incompatibility, critical armor durability, non-player armor factors, and maximum-level calculations for Fire Protection and Blast Protection now follow MITE rules.
+- Resistance now converts to armor value according to MITE mechanics: Resistance I and II add 5 and 10 armor points respectively, while the duplicated vanilla percentage damage reduction is removed.
+- Sticks and bones now use MITE melee behavior again. Successful survival-mode hits have a 1/50 chance for sticks and a 1/100 chance for bones to be consumed. Creative-mode attacks never consume them.
+- Fixed default component registration for sticks and bones. Their melee attack reach is now 2.0 blocks, or 5.0 blocks in Creative mode, without changing their block or entity interaction reach.
+- Fixed vanilla swords being unable to receive Sharpness.
+- Netherrack, Crimson Nylium, and Warped Nylium now require an iron pickaxe or better to mine.
+- Fixed Poison dealing damage immediately when first applied. The first server tick no longer causes damage; subsequent damage still occurs at MITE’s `100 >> level` tick interval.
+- Adjusted the Slaying enchantment: it cannot apply to swords and is mutually exclusive with Sharpness, Smite, and Bane of Arthropods. Level I adds 1 damage, each subsequent level adds 0.75 damage, and the maximum level is V.
+- When players receive the Hunger effect, the food bar now switches to the dedicated Hunger icon and returns to the normal icon when the effect ends.
+- Replaced 139 block, entity, and item textures.
+- Replaced the entity textures for the Earth Element’s clay, cobblestone, end stone, netherrack, and obsidian forms, as well as its lava form.
+- Replaced the entity equipment textures for forged metals and chainmail, including baby-entity equipment layers.
+- Added the red sandstone-to-glass smelting recipe to match the sandstone-to-glass recipe.
+- Restored the glass bottle recipe: 3 glass produce 3 glass bottles.
+- Removed Ancient Metal Ingot drops from Ancient Corpses, Ancient Corpse Guards, and Ancient Bone Kings. Their Ancient Metal equipment drops remain.
+- Wolves, dire wolves, and hellhounds once again drop MITE experience: 5, 10, and 15 XP respectively. Other animals still provide no experience.
+- Added nine shapeless dismantling recipes for metal/material arrows: 1 arrow produces 1 nugget or fragment, matching MITE dismantling rules.
+- Fertilizer use on farmland and crops is now consumed on both sides. The client provides arm-swing feedback and ensures the request reaches the server, while the server records farmland fertility.
+- Fixed golden apples and water bottles not activating the level options on the right side of the enchanting table. Conversion options now activate correctly according to their cost and currency.
+- Donkeys and mules now drop 1–3 beef on death, matching horses. The Looting enchantment also applies to them.
+- Onions can now be planted directly as seeds. Mature onions yield 2 items, with a 25% chance to yield 1 additional item.
+- Sheep wool drop chance on death has been reduced from 100% to MITE’s 50%. Sheep hide remains at 50%.
+- Vanilla goats can now be milked with empty buckets, including empty metal buckets, and share the cow’s daily limit of 4 units of milk.
+- Pigs can now eat brown mushrooms for breeding, temptation, and nearby foraging.
+- Corrected the anvil recipe to match MITE: a full row of metal blocks on top, 1 ingot in the center of the middle row, and 3 ingots across the bottom row.
+- Added nine material fishing-rod recipes using a nugget/fragment, a stick, and string in the MITE fishing-rod pattern. Added the corresponding carrot-on-a-stick items and recipes; carrot-on-a-stick items can be dismantled back into fishing rods.
+- Zombies, husks, drowned, zombie villagers, skeletons, strays, and wither skeletons no longer spawn with vanilla weapons or armor. Zombies instead spawn unequipped, with world-age equipment assigned separately by the existing system. Skeletons now use MITE wooden bows, with a 25% chance to use sticks.
+- Overworld structure loot tables no longer contain Ancient Metal items. These items can still be found in Nether and Underground World loot.
+- Animals killed by Fire Aspect or other fire damage now drop their corresponding cooked meat: beef, porkchops, chicken, or mutton.
+- Azalea bushes and flowering azalea bushes now have 0.02 hardness, matching MITE shrubs.
+- Stained glass and stained glass panes now drop glass shards like ordinary glass: 6 shards from glass blocks and 1 shard from glass panes.
+- Ashen soil, mycelium, dirt paths, clay, and rooted dirt are no longer gravity blocks and no longer collapse when suspended.
+- Bone meal no longer grows saplings and is not consumed in that case. Other block-use functions, such as growing grass and seagrass in water, remain available.
+- Fishing mechanics have been completed: rods can only be cast while standing in a boat, on horseback, or on dry ground; casting while in water is impossible. Bite wait time now varies with MITE’s day/night cycle, with dawn and dusk being fastest. Rain and earthworm bait halve the wait time.
+- Weapons and tools now receive MITE’s height advantage when attacking targets below the player. For every 0.5 blocks the target is more than 0.5 blocks below the player, attack reach increases by `(height difference - 0.5) × 0.5`, up to +1 block. Targets above the player reduce reach symmetrically.
+- Restored deleted vanilla basic recipes: bowls, using 3 planks to produce 4 bowls, and wool, using 4 string to produce 1 wool.
+- Restored the 16 basic and mixed dye recipes: bone meal for white, ink sacs for black, plants for their respective colors, and two- or three-color combinations.
+- Restored the two-way 3×3 crafting and dismantling recipes for blocks of raw copper, raw iron, and raw gold.
+- Restored recipes for beetroot soup, rabbit stew, cookies producing 8 items, melon seeds, and wheat seeds.
+- Short dead grass, tall dead grass, shrubs, firefly bushes, weeping vines, and twisting vines now have 0.02 hardness.
+- Left-clicking with shears now only intercepts blocks on which shears are ineffective. Leaves, wool, plants, cobwebs, and similar blocks can be broken with shears by left-clicking.
+- In Creative mode, right-clicking with shears can now correctly harvest block drops without consuming durability.
+- In Creative mode, holding a sword no longer allows ordinary blocks to be broken. Swords retain their ability to break blocks they are effective against.
+- Cobwebs can be broken by hand or with swords but no longer drop anything. Only shears make them drop 1 string.
+- Carving pumpkins with shears now drops only 1 pumpkin seed.
+- Rotten flesh has an 80% chance, and raw chicken a 30% chance, to apply MITE Poison I for 200 ticks when eaten. Their Hunger effect is retained.
+- Poison damage now occurs every `100 >> level` ticks, matching MITE. Death by poison now displays the dedicated message “Died of Poison.”
+- Item entities dropped on lit campfires now cook at 1 progress per tick and become cooked at 100 progress. Cooked food no longer burns on campfires.
+- The Chinese display name for milk buckets has been unified from “牛奶” to “奶,” such as “Iron Milk Bucket.”
+- Restored the vanilla Sharpness, Sweeping Edge, and Swift Sneak enchantments. Swords and scythes can receive Sharpness and Sweeping Edge, while boots can receive Swift Sneak.
+- Sword and scythe attacks now inherently sweep for 50% damage. Each level of Sweeping Edge adds 25%.
+- Silver-weapon tooltips now always display their +25% damage against undead. Each piece of silver armor reduces the duration of negative effects by 15%.
+- Warhammers and short wooden clubs/wooden clubs now deal +2 damage to skeleton-type creatures, with this bonus described in their tooltips.
 
-### 材质
-- 使用 `textures.rar` 替换 139 个方块、实体与物品材质，并记录压缩包内部路径与 SHA-256 来源信息。
-
-## 0t5
-### 材质
-- 替换土元素黏土、圆石、末地石、下界岩与黑曜石形态及熔岩形态的实体材质。
-- 替换锻造金属与链甲的实体装备材质，并同步覆盖幼年实体装备层。
-
-## 0v4
-### 模组问题修复（第三批）
-- 砧的合成配方修正为 MITE 摆法：顶部一行金属块、中间一行中央 1 锭、底部整行 3 锭。
-- 新增 9 种材料金属钓竿配方（粒/碎片 + 木棍 + 线，MITE 钓竿形状），并新增对应的胡萝卜钓竿物品与配方（钓竿 + 胡萝卜），胡萝卜钓竿可拆回钓竿。
-- 僵尸、尸壳、溺尸、僵尸村民、骷髅、流浪者、凋零骷髅生成时不再携带原版武器与护甲；替代僵尸裸装生成（世界天数装备由原有机制另行赋予），替代骷髅改持 MITE 木弓（25% 为木棍）。
-- 主世界结构战利品表移除全部远古金属物品（仍可通过下界/地下世界战利品获得）。
-- 动物被火焰附加等火烧死时掉落对应熟肉（牛/猪/鸡/羊）。
-- 杜鹃花丛与盛开的杜鹃花丛补上 0.02 硬度，与 MITE 灌木一致。
-- 染色玻璃与染色玻璃板破坏时与普通玻璃一致掉落玻璃碎片（玻璃 6 片/玻璃板 1 片）。
-- 灰化土、菌丝体、草径、黏土、缠根泥土不再是重力方块（移除悬空塌落行为）。
-- 骨粉不再催熟树苗（也不消耗），草方块长草、水中长海草等对方块使用功能保留。
-- 钓鱼机制补齐：只能在船上、马背或干燥地面站立时抛竿（水中不可抛竿），咬钩等待时间按 MITE 随昼夜时间变化（黎明与黄昏最快），雨天与携带蚯蚓饵减半。
-- 手持武器/工具攻击下方目标时获得 MITE 高度优势：目标每低于玩家 0.5 格以上，攻击距离按 (落差-0.5)×0.5 增加（上限 +1），上方目标对称缩短。
-
-## 0v3
-### 模组问题修复（第二批）
-- 补充红砂岩→玻璃的熔炉烧炼配方，与砂岩→玻璃一致。
-- 补回玻璃瓶合成配方（3 玻璃→3 玻璃瓶）。
-- 移除古尸、古尸守卫、远古骨王的远古金属锭掉落（仍保留其远古金属装备掉落）。
-- 狼、惧狼、地狱犬恢复 MITE 经验掉落（狼 5、惧狼 10、地狱犬 15）；其他动物仍不提供经验。
-- 新增 9 种金属/材料箭的无序分解配方（1 箭→1 粒/碎片），与 MITE 拆解规则一致。
-- 肥料右键耕地/作物时交互在双端消费：客户端挥臂反馈并保证请求到达服务器，服务器记录耕地肥力。
-- 修复金苹果、水瓶放入附魔台时右侧等级选项不亮起的问题（转换选项现在按费用与货币正常亮起）。
-- 驴与骡死亡时与马一致掉落牛肉（1-3 个），屠宰附魔对其同样生效。
-
-## 0v2
-### 模组问题修复（作物与家畜）
-- 新增洋葱作物：洋葱本身即可作为种子种植，成熟收获 2 个，并有 25% 几率额外获得 1 个。
-- 羊死亡时羊毛掉落率从 100% 调整为 MITE 的 50%（羊皮仍为 50%）。
-- 原版山羊现在可以用空桶（含金属空桶）挤奶，与牛共用每日 4 单位的奶配额。
-- 猪现在会吃棕色蘑菇（繁殖、诱惑与就近觅食均生效）。
-
-### 模组问题修复（合成配方）
-- 补回被删除的原版基础配方：碗（3 木板→4）、羊毛（4 线→1）。
-- 恢复 16 色主染料与组合染料配方（骨粉→白、墨囊→黑、植物→各色、双色/三色合成）。
-- 补回粗铜/粗铁/粗金块的 3×3 合成与拆回 9 个原材料的双向配方。
-- 补回甜菜汤、兔肉煲、曲奇（8 个）、西瓜种子、小麦种子配方。
-
-### 模组问题修复（方块与挖掘）
-- 矮枯草丛、高枯草丛、灌木丛、萤火虫灌木丛、垂泪藤、缠怨藤现在拥有 0.02 硬度。
-- 剪刀左键现在只拦截非剪刀有效方块；树叶、羊毛、植物与蜘蛛网等可用剪刀左键破坏。
-- 创造模式下右键剪刀可正常精准采集掉落，且不消耗剪刀耐久。
-- 创造模式手持剑不再能破坏普通方块，只保留剑有效方块的破坏能力。
-- 蜘蛛网可以被空手或剑破坏但不再掉落；只有剪刀破坏时才掉落 1 根线。
-- 用剪刀雕刻南瓜现在只掉落 1 个南瓜种子。
-
-### 模组问题修复（食物与生存）
-- 腐肉（80% 几率）与生鸡肉（30% 几率）食用后现在会附加 MITE 中毒 I（200 tick），并保留饥饿效果。
-- 中毒生效间隔改为 MITE 的 100 >> 等级 tick/次，被毒死时显示专属死亡文案“毒发身亡”。
-- 物品实体落在点燃的营火上时会以 1 进度/tick 烹饪，100 进度烤熟；熟食在营火上不再烧毁。
-- 牛奶桶中文名由“牛奶”统一改为“奶”（如铁奶桶）。
-
-### 模组问题修复（附魔与装备）
-- 恢复原版锋利、横扫之刃、迅捷潜行附魔：剑与镰刀可附锋利/横扫，靴子可附迅捷潜行。
-- 剑与镰刀攻击现在自带横扫效果（50% 伤害），横扫之刃每级 +25%。
-- 银制武器对亡灵 +25% 伤害的提示现在常驻显示；银制盔甲每件使负面效果时长缩短 15%。
-- 战锤与短木棒/木棒对骷髅类生物额外 +2 伤害，并在物品提示中说明。
+---
 
 ## 0v1
 ### Progress
@@ -131,10 +156,6 @@
 - Metal coins can be used directly with a right-click.
 ### Server
 - Permissions can only be fully opened in test mode.
-
-### Git 工作流
-
-- Git 工作流统一为 Rebase and merge，禁止直接提交 master，PR 合并后强制清理分支与 worktree；本次同时清理了历史遗留的重复分支与失效 worktree。
 
 ---
 

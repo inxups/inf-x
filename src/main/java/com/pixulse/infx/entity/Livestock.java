@@ -76,6 +76,8 @@ public final class Livestock {
                     AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     static final String HORSE_RETRY = "infx_horse_tame_retry";
     static final long HORSE_RETRY_TICKS = 4_000L;
+    static final String HORSE_FEED_RETRY = "infx_horse_feed_retry";
+    static final long HORSE_FEED_RETRY_TICKS = 4_000L;
 
     private Livestock() {}
 
@@ -225,6 +227,17 @@ public final class Livestock {
     public static void markHorseDismount(AbstractHorse horse, long now) {
         if (!horse.isTamed()) {
             horse.getPersistentData().putLong(HORSE_RETRY, now + HORSE_RETRY_TICKS);
+        }
+    }
+
+    /** MITE wild horses refuse every further feed for 4000 ticks after accepting one. */
+    public static boolean isHorseFeedBlocked(AbstractHorse horse, long now) {
+        return !horse.isTamed() && horse.getPersistentData().getLong(HORSE_FEED_RETRY).orElse(0L) > now;
+    }
+
+    public static void markHorseFed(AbstractHorse horse, long now) {
+        if (!horse.isTamed()) {
+            horse.getPersistentData().putLong(HORSE_FEED_RETRY, now + HORSE_FEED_RETRY_TICKS);
         }
     }
 
@@ -511,7 +524,7 @@ public final class Livestock {
     private static void consumeNearbyFood(ServerLevel level, Animal animal) {
         ItemEntity food = level.getEntitiesOfClass(
                         ItemEntity.class,
-                        animal.getBoundingBox().inflate(1.4),
+                        animal.getBoundingBox().inflate(2.5),
                         item -> item.isAlive() && animal.isFood(item.getItem()))
                 .stream()
                 .min(Comparator.comparingDouble(animal::distanceToSqr))
@@ -652,8 +665,10 @@ public final class Livestock {
             food = null;
             target = null;
             path = null;
-            if (wellness.food() < NEEDY_THRESHOLD) {
-                target = findFood(level, searchRange(wellness.food()));
+            // MITE livestock seek dropped breeding food whenever they are not full; only truly
+            // needy animals also forage grass and other block sources.
+            if (wellness.food() < 1.0F) {
+                target = findFood(level, searchRange(wellness.food()), wellness.food() < NEEDY_THRESHOLD);
             }
             if (target == null && wellness.water() < NEEDY_THRESHOLD) {
                 target = findWater(level, searchRange(wellness.water()));
@@ -697,7 +712,7 @@ public final class Livestock {
             path = null;
         }
 
-        private @Nullable BlockPos findFood(ServerLevel level, int range) {
+        private @Nullable BlockPos findFood(ServerLevel level, int range, boolean includeBlockSources) {
             BlockPos origin = animal.blockPosition();
             Map<BlockPos, ItemEntity> itemTargets = new LinkedHashMap<>();
             level.getEntitiesOfClass(
@@ -710,13 +725,18 @@ public final class Livestock {
 
             Set<BlockPos> targets = new LinkedHashSet<>(itemTargets.keySet());
             int sources = 0;
-            int verticalRange = Math.max(2, range / 8);
-            int sourceLimit =
-                    range == DESPERATE_SEARCH_RANGE ? 24 : range == VERY_NEEDY_SEARCH_RANGE ? 16 : 8;
-            for (BlockPos pos : BlockPos.withinManhattan(origin, range, verticalRange, range)) {
-                if (!level.hasChunkAt(pos) || !isFoodSource(animal, level.getBlockState(pos))) continue;
-                addStandableApproaches(level, pos, targets);
-                if (++sources >= sourceLimit) break;
+            if (includeBlockSources) {
+                int verticalRange = Math.max(2, range / 8);
+                int sourceLimit = range == DESPERATE_SEARCH_RANGE
+                        ? 24
+                        : range == VERY_NEEDY_SEARCH_RANGE ? 16 : 8;
+                for (BlockPos pos : BlockPos.withinManhattan(origin, range, verticalRange, range)) {
+                    if (!level.hasChunkAt(pos) || !isFoodSource(animal, level.getBlockState(pos))) {
+                        continue;
+                    }
+                    addStandableApproaches(level, pos, targets);
+                    if (++sources >= sourceLimit) break;
+                }
             }
 
             path = preferredPath(createPaths(targets), origin);

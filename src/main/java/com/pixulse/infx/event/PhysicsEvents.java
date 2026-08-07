@@ -19,11 +19,11 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.item.PrimedTnt;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.FallingBlock;
@@ -132,21 +132,9 @@ public final class PhysicsEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Vec3 center = event.getExplosion().center();
         float radius = event.getExplosion().radius();
-        boolean tnt = event.getExplosion().getDirectSourceEntity() instanceof PrimedTnt;
-        if (tnt) {
-            event.getAffectedBlocks().removeIf(pos -> {
-                if (!level.getBlockState(pos).is(Blocks.COBBLESTONE)
-                        || Vec3.atCenterOf(pos).distanceTo(center) > Math.min(3.0F, radius)) return false;
-                level.setBlockAndUpdate(pos, Blocks.GRAVEL.defaultBlockState());
-                return true;
-            });
-            for (ItemEntity item : level.getEntitiesOfClass(
-                    ItemEntity.class, new AABB(center, center).inflate(Math.min(3.0F, radius)))) {
-                if (item.getItem().is(Items.COBBLESTONE)) {
-                    item.setItem(new ItemStack(Items.GRAVEL, item.getItem().getCount()));
-                }
-            }
-        }
+        // MITE Block#dropBlockAsEntityItem: blocks destroyed by any explosion drop their exploded
+        // forms instead of themselves (wool -> string, wood -> sticks, stone -> cobblestone, ...).
+        event.getAffectedBlocks().removeIf(pos -> convertExplodedBlock(level, pos));
         for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, new AABB(center, center).inflate(radius))) {
             damageEquipment(item, center, radius);
         }
@@ -155,6 +143,61 @@ public final class PhysicsEvents {
                 for (Direction direction : Direction.values()) tryFall(level, affected.relative(direction));
             }
         });
+    }
+
+    /**
+     * MITE Block#dropBlockAsEntityItem exploded forms: wool->string, wood->sticks, brick->1 brick,
+     * lapis block->9 blue dye at 50%, stone/end stone->cobblestone, coal block->9 coal at 50%,
+     * terracotta and netherrack->nothing. Destroys the block and pops the replacement. Returns
+     * true when the explosion entry was consumed.
+     */
+    private static boolean convertExplodedBlock(ServerLevel level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (state.is(Blocks.BRICKS)) {
+            return explodeInto(level, pos, new ItemStack(Items.BRICK));
+        }
+        if (state.is(Blocks.COBBLESTONE) || state.is(Blocks.MOSSY_COBBLESTONE)) {
+            return explodeInto(level, pos, new ItemStack(Items.GRAVEL));
+        }
+        if (state.is(Blocks.LAPIS_BLOCK)) {
+            return explodeInto(level, pos, dropQuantity(level, Items.LAPIS_LAZULI, 9, 0.5F));
+        }
+        if (state.is(BlockTags.WOOL)) {
+            return explodeInto(level, pos, new ItemStack(Items.STRING));
+        }
+        if (state.is(BlockTags.LOGS) || state.is(BlockTags.PLANKS)) {
+            return explodeInto(level, pos, new ItemStack(Items.STICK));
+        }
+        if (state.is(BlockTags.TERRACOTTA) || state.is(Blocks.NETHERRACK)) {
+            return explodeInto(level, pos, ItemStack.EMPTY);
+        }
+        if (state.is(Blocks.STONE) || state.is(Blocks.END_STONE)) {
+            return explodeInto(level, pos, new ItemStack(Blocks.COBBLESTONE));
+        }
+        if (state.is(Blocks.COAL_BLOCK)) {
+            return explodeInto(level, pos, dropQuantity(level, Items.COAL, 9, 0.5F));
+        }
+        return false;
+    }
+
+    /** MITE quantity/chance roll: each of {@code quantity} units drops with {@code chance}. */
+    private static ItemStack dropQuantity(ServerLevel level, net.minecraft.world.item.Item item, int quantity, float chance) {
+        int count = 0;
+        for (int i = 0; i < quantity; i++) {
+            if (level.getRandom().nextFloat() < chance) {
+                count++;
+            }
+        }
+        return new ItemStack(item, count);
+    }
+
+    /** Destroys the block without drops and pops the replacement item, if any. */
+    private static boolean explodeInto(ServerLevel level, BlockPos pos, ItemStack drop) {
+        level.destroyBlock(pos, false);
+        if (!drop.isEmpty()) {
+            Block.popResource(level, pos, drop);
+        }
+        return true;
     }
 
     private static void damageEquipment(ItemEntity entity, Vec3 center, float radius) {

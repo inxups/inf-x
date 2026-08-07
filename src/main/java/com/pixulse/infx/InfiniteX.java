@@ -6,6 +6,8 @@ import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.gametest.ModMonsterGameTests;
 import com.pixulse.infx.gametest.ModCompletionGameTests;
 import com.pixulse.infx.gametest.ModStructureLootGameTests;
+import com.pixulse.infx.gametest.ModMechanicsGameTests;
+import com.pixulse.infx.event.CauldronEvents;
 import com.pixulse.infx.item.StickBoneItems;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXAttachments;
@@ -59,11 +61,13 @@ public final class InfiniteX {
         InfXMenus.register(modBus);
         InfXMobEffects.register(modBus);
         InfXCreativeTabs.register(modBus);
+        modBus.addListener(CauldronEvents::registerCauldronInteractions);
         ModGameTests.register(modBus);
         ModEquipmentGameTests.register(modBus);
         ModStructureLootGameTests.register(modBus);
         ModCompletionGameTests.register(modBus);
         ModMonsterGameTests.register(modBus);
+        ModMechanicsGameTests.register(modBus);
         if (InfiniteXTestMode.isEnabled()) {
             LOGGER.warn("InfiniteX test mode is active; development overrides and vanilla server administration are enabled");
         }

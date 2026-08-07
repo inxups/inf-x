@@ -350,6 +350,11 @@ final class ModLanguageProvider extends LanguageProvider {
                     locale == Locale.EN_US
                             ? hookMaterial.englishEquipmentPrefix() + " Carrot on a Stick"
                             : "胡萝卜钓竿");
+            add(
+                    "item.infx." + hookMaterial.path() + "_warped_fungus_on_a_stick",
+                    locale == Locale.EN_US
+                            ? hookMaterial.englishEquipmentPrefix() + " Warped Fungus on a Stick"
+                            : "诡异菌钓竿");
         }
         CURSE_NAMES.forEach((path, names) ->
                 add("curse.infx." + path + ".name", names[locale == Locale.EN_US ? 0 : 1]));

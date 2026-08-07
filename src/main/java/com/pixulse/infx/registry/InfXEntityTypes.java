@@ -2,6 +2,7 @@ package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.InfxBat;
+import com.pixulse.infx.entity.InfxBrickProjectile;
 import com.pixulse.infx.entity.InfxBlaze;
 import com.pixulse.infx.entity.InfxChicken;
 import com.pixulse.infx.entity.ClayGolem;
@@ -73,7 +74,7 @@ public final class InfXEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<InfxWitch>> INFX_WITCH = register(
             "infx_witch", "Witch", "女巫", InfxWitch::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxZombifiedPiglin>> INFX_ZOMBIFIED_PIGLIN = register(
-            "infx_zombified_piglin", "Zombie Pigman", "僵尸猪人", InfxZombifiedPiglin::new, 0.6F, 1.8F, true);
+            "infx_zombified_piglin", "Zombified Piglin", "僵尸猪灵", InfxZombifiedPiglin::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxBlaze>> INFX_BLAZE = register(
             "infx_blaze", "Blaze", "烈焰人", InfxBlaze::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxGhast>> INFX_GHAST = register(
@@ -144,6 +145,12 @@ public final class InfXEntityTypes {
             ENTITIES.registerEntityType(
                     "gelatinous_sphere",
                     GelatinousSphere::new,
+                    MobCategory.MISC,
+                    builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+    public static final DeferredHolder<EntityType<?>, EntityType<InfxBrickProjectile>> BRICK_PROJECTILE =
+            ENTITIES.registerEntityType(
+                    "brick_projectile",
+                    InfxBrickProjectile::new,
                     MobCategory.MISC,
                     builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
     public static final DeferredHolder<EntityType<?>, EntityType<InfxMagmaCube>> MAGMA_CUBE = register(

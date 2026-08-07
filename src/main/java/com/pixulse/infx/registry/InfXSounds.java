@@ -63,6 +63,12 @@ public final class InfXSounds {
                     "entity.gelatinous_cube.corrosion",
                     () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.gelatinous_cube.corrosion")));
 
+    /** MITE EntityPlayer#addExperience: experience points spent play the imported level-drain sound. */
+    public static final DeferredHolder<SoundEvent, SoundEvent> LEVEL_DRAIN =
+            SOUNDS.register(
+                    "random.level_drain",
+                    () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("random.level_drain")));
+
     private InfXSounds() {}
 
     private static DeferredHolder<SoundEvent, SoundEvent> record(String name) {

@@ -1,7 +1,9 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.mixin.HorseAccessor;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -9,7 +11,11 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.equine.AbstractHorse;
+import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.entity.animal.equine.Horse;
+import net.minecraft.world.entity.animal.equine.Markings;
+import net.minecraft.world.entity.animal.equine.Mule;
+import net.minecraft.world.entity.animal.equine.Variant;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -68,6 +74,29 @@ public final class InfxHorse extends Horse {
         return super.mobInteract(player, hand);
     }
 
+    /**
+     * MITE wild horses rear and refuse any food for 4000 ticks after accepting one,
+     * unless the food actually healed them (then they eat freely until full).
+     */
+    @Override
+    protected boolean handleEating(@NonNull Player player, @NonNull ItemStack itemStack) {
+        if (!isTamed()
+                && level() instanceof ServerLevel serverLevel
+                && Livestock.isHorseFeedBlocked(this, serverLevel.getGameTime())) {
+            makeMad();
+            return false;
+        }
+        float healthBefore = getHealth();
+        boolean ate = super.handleEating(player, itemStack);
+        if (ate
+                && !isTamed()
+                && level() instanceof ServerLevel serverLevel
+                && (getHealth() <= healthBefore || getHealth() >= getMaxHealth())) {
+            Livestock.markHorseFed(this, serverLevel.getGameTime());
+        }
+        return ate;
+    }
+
     @Override
     public void removePassenger(@NonNull Entity passenger) {
         super.removePassenger(passenger);
@@ -93,6 +122,40 @@ public final class InfxHorse extends Horse {
 
     @Override
     public @Nullable AgeableMob getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        return InfXEntityTypes.INFX_HORSE.get().create(level, EntitySpawnReason.BREEDING);
+        if (partner instanceof Donkey) {
+            // Horse x donkey keeps the vanilla mule, inheriting the parents' attributes.
+            Mule baby = EntityType.MULE.create(level, EntitySpawnReason.BREEDING);
+            if (baby != null) {
+                this.setOffspringAttributes(partner, baby);
+            }
+            return baby;
+        }
+        // MITE foals inherit the coat/markings table and the parents' attributes like the vanilla
+        // horse instead of spawning a blank coat with base stats.
+        Horse horsePartner = (Horse) partner;
+        Horse baby = InfXEntityTypes.INFX_HORSE.get().create(level, EntitySpawnReason.BREEDING);
+        if (baby != null) {
+            int selectSkin = this.random.nextInt(9);
+            Variant variant;
+            if (selectSkin < 4) {
+                variant = this.getVariant();
+            } else if (selectSkin < 8) {
+                variant = horsePartner.getVariant();
+            } else {
+                variant = Util.getRandom(Variant.values(), this.random);
+            }
+            int selectMarking = this.random.nextInt(5);
+            Markings markings;
+            if (selectMarking < 2) {
+                markings = this.getMarkings();
+            } else if (selectMarking < 4) {
+                markings = horsePartner.getMarkings();
+            } else {
+                markings = Util.getRandom(Markings.values(), this.random);
+            }
+            ((HorseAccessor) baby).infx$setVariantAndMarkings(variant, markings);
+            this.setOffspringAttributes(partner, baby);
+        }
+        return baby;
     }
 }
