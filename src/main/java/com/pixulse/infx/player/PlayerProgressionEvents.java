@@ -5,7 +5,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
-import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.data.harvest.HarvestSpeedRules;
 import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.registry.InfXAttachments;
@@ -16,12 +15,10 @@ import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -37,20 +34,6 @@ public final class PlayerProgressionEvents {
     private static final int AUTO_RESPAWN_TICKS = 120 * 20;
 
     private PlayerProgressionEvents() {}
-
-    private static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
-        boolean testMode = InfiniteXTestMode.isEnabled();
-        event.add(EntityType.PLAYER, Attributes.BLOCK_INTERACTION_RANGE, blockInteractionRange(testMode));
-        event.add(EntityType.PLAYER, Attributes.ENTITY_INTERACTION_RANGE, entityInteractionRange(testMode));
-    }
-
-    static double blockInteractionRange(boolean testMode) {
-        return testMode ? Player.DEFAULT_BLOCK_INTERACTION_RANGE : 1.5;
-    }
-
-    static double entityInteractionRange(boolean testMode) {
-        return testMode ? Player.DEFAULT_ENTITY_INTERACTION_RANGE : 1.5;
-    }
 
     @SubscribeEvent
     public static void onExperienceChange(PlayerXpEvent.XpChange event) {
@@ -183,12 +166,5 @@ public final class PlayerProgressionEvents {
         }
         Catalog.EquipmentEntry held = InfXItems.catalog().equipment(player.getMainHandItem());
         return held == null && player.getAttributeValue(Attributes.ATTACK_DAMAGE) <= 2.0;
-    }
-    @EventBusSubscriber(modid = InfiniteX.MOD_ID)
-    private static final class ModEvents {
-        @SubscribeEvent
-        public static void modifyPlayerRanges(EntityAttributeModificationEvent event) {
-            PlayerProgressionEvents.modifyPlayerRanges(event);
-        }
     }
 }

@@ -11,14 +11,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Player.class)
 public abstract class PlayerReachMixin {
     @Inject(method = "blockInteractionRange", at = @At("HEAD"), cancellable = true)
-    private void infx$creativeBlockReach(CallbackInfoReturnable<Double> callback) {
+    private void blockInteractionRange(CallbackInfoReturnable<Double> callback) {
         if (!InfiniteXTestMode.isEnabled() && ((Player) (Object) this).getAbilities().instabuild) {
             callback.setReturnValue(5.0);
         }
     }
 
     @Inject(method = "entityInteractionRange", at = @At("HEAD"), cancellable = true)
-    private void infx$creativeEntityReach(CallbackInfoReturnable<Double> callback) {
+    private void entityInteractionRange(CallbackInfoReturnable<Double> callback) {
         if (!InfiniteXTestMode.isEnabled() && ((Player) (Object) this).getAbilities().instabuild) {
             callback.setReturnValue(5.0);
         }
