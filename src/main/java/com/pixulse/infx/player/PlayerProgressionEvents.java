@@ -45,11 +45,11 @@ public final class PlayerProgressionEvents {
     }
 
     static double blockInteractionRange(boolean testMode) {
-        return testMode ? Player.DEFAULT_BLOCK_INTERACTION_RANGE : 2.75;
+        return testMode ? Player.DEFAULT_BLOCK_INTERACTION_RANGE : 1.5;
     }
 
     static double entityInteractionRange(boolean testMode) {
-        return testMode ? Player.DEFAULT_ENTITY_INTERACTION_RANGE : 2.5;
+        return testMode ? Player.DEFAULT_ENTITY_INTERACTION_RANGE : 1.5;
     }
 
     @SubscribeEvent

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** INFX empty-hand attack reach is 1.5 blocks, separate from the 2.5-block entity interaction reach. */
+/** INFX empty-hand attack and basic interaction reach are both 1.5 blocks. */
 @Mixin(LivingEntity.class)
 public abstract class PlayerAttackRangeMixin {
     @Inject(method = "getAttackRangeWith", at = @At("HEAD"), cancellable = true)
