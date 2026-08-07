@@ -16,7 +16,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.component.AttackRange;
 import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.component.BlocksAttacks;
 import java.util.List;
@@ -51,7 +50,6 @@ public final class ItemProperties {
         var p = commonDamageable(key, properties)
                 .component(DataComponents.TOOL, key.type().miningFamily().createTool(key))
                 .attributes(toolAttributes(key))
-                .component(DataComponents.ATTACK_RANGE, attackRange(key.type()))
                 .component(
                         DataComponents.WEAPON,
                         new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
@@ -60,11 +58,6 @@ public final class ItemProperties {
             p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
         }
         return p;
-    }
-
-    static AttackRange attackRange(EquipmentType type) {
-        float maximum = 1.5F + type.reachBonus();
-        return new AttackRange(0.0F, maximum, 0.0F, 5.0F + type.reachBonus(), 0.0F, 0.6F);
     }
 
     private static BlocksAttacks toolBlocking() {

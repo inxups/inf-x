@@ -176,6 +176,10 @@ public final class ModEquipmentGameTests {
             if (melee) {
                 helper.assertTrue(stack.has(DataComponents.WEAPON), key.path() + " weapon component");
                 helper.assertTrue(stack.has(DataComponents.ATTRIBUTE_MODIFIERS), key.path() + " attributes");
+                // Melee reach derives from the shared component-less rule (1.5 blocks) like vanilla
+                // weapons; the vanilla pick path also excludes the player's own mount this way.
+                helper.assertFalse(
+                        stack.has(DataComponents.ATTACK_RANGE), key.path() + " must use vanilla attack reach");
             }
             if (key.type().armorForm() != EquipmentType.ArmorForm.NONE) {
                 helper.assertTrue(stack.has(DataComponents.EQUIPPABLE), key.path() + " equippable component");
@@ -933,16 +937,24 @@ public final class ModEquipmentGameTests {
                 .holder()
                 .toStack();
         player.setItemInHand(InteractionHand.MAIN_HAND, sword);
-        var range = sword.get(DataComponents.ATTACK_RANGE);
-        helper.assertTrue(range != null, "sword must carry an attack range");
-        // A pig two blocks below stands with its top about 2.7 blocks under the player's eye;
-        // that is beyond the vanilla 2.25 reach but inside the MITE height-advantaged reach.
+        // INFX tools must use the vanilla component-less attack reach (and pick path), so
+        // swords carry no attack-range component and inherit the INFX 1.5-block melee reach.
+        helper.assertFalse(sword.has(DataComponents.ATTACK_RANGE), "sword must not carry an attack range");
+        var swordRange = player.getAttackRangeWith(sword);
+        helper.assertTrue(
+                swordRange.maxReach() == 1.5F && swordRange.maxCreativeReach() == 5.0F,
+                "sword must inherit the INFX 1.5-block attack reach");
+        // The MITE height advantage still applies to items carrying an attack-range component
+        // (sticks and bones). A pig two blocks below stands with its top about 2.7 blocks under
+        // the player's eye: beyond the 2.0-block stick reach, inside the height-advantaged reach.
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STICK));
+        var stickRange = player.getAttackRangeWith(new ItemStack(Items.STICK));
         Vec3 pigTopBelow = player.getEyePosition().add(0.0, -2.7, 0.0);
         helper.assertTrue(
-                range.isInRange(player, pigTopBelow),
-                "sword must hit a target two blocks below via the MITE height advantage");
+                stickRange.isInRange(player, pigTopBelow),
+                "stick must hit a target two blocks below via the MITE height advantage");
         helper.assertTrue(
-                range.isInRange(player, player.getEyePosition()),
+                stickRange.isInRange(player, player.getEyePosition()),
                 "eye-level target must stay in range");
         removePlayer(player);
         helper.succeed();

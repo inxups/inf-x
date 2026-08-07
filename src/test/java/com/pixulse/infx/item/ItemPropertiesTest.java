@@ -50,15 +50,25 @@ class ItemPropertiesTest {
     }
 
     @Test
-    void toolAttackRangeStartsAtTheR196MeleeBaselineAndKeepsItsReachBonus() {
-        assertEquals(1.5F, ItemProperties.attackRange(EquipmentType.FISHING_ROD).maxReach());
-        assertEquals(2.5F, ItemProperties.attackRange(EquipmentType.SCYTHE).maxReach());
-        assertEquals(1.75F, ItemProperties.attackRange(EquipmentType.KNIFE).maxReach());
-        assertEquals(5.0F, ItemProperties.attackRange(EquipmentType.FISHING_ROD).maxCreativeReach());
-        assertEquals(6.0F, ItemProperties.attackRange(EquipmentType.SCYTHE).maxCreativeReach());
-        assertEquals(0.6F, ItemProperties.attackRange(EquipmentType.SWORD).mobFactor());
-        assertEquals(0.6F, ItemProperties.attackRange(EquipmentType.KNIFE).mobFactor());
-        assertEquals(0.6F, ItemProperties.attackRange(EquipmentType.SCYTHE).mobFactor());
+    void toolReachBonusStillDifferentiatesTheEntityInteractionRange() {
+        // INFX tools carry no ATTACK_RANGE component, so melee reach follows the shared
+        // component-less 1.5-block rule; the per-type reach bonus keeps differentiating
+        // the entity interaction range instead.
+        var sword = ItemProperties.toolAttributes(key(InfxMaterial.IRON, EquipmentType.SWORD));
+        var scythe = ItemProperties.toolAttributes(key(InfxMaterial.COPPER, EquipmentType.SCYTHE));
+        var knife = ItemProperties.toolAttributes(key(InfxMaterial.FLINT, EquipmentType.KNIFE));
+        assertEquals(
+                3.25,
+                sword.compute(Attributes.ENTITY_INTERACTION_RANGE, 2.5, EquipmentSlot.MAINHAND),
+                1.0E-6);
+        assertEquals(
+                3.5,
+                scythe.compute(Attributes.ENTITY_INTERACTION_RANGE, 2.5, EquipmentSlot.MAINHAND),
+                1.0E-6);
+        assertEquals(
+                2.75,
+                knife.compute(Attributes.ENTITY_INTERACTION_RANGE, 2.5, EquipmentSlot.MAINHAND),
+                1.0E-6);
     }
 
 }
