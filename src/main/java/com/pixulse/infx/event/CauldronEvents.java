@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +32,7 @@ import net.neoforged.neoforge.event.RegisterCauldronInteractionEvent;
  */
 public final class CauldronEvents {
     private static final Identifier WATER = Identifier.withDefaultNamespace("water");
+    private static final Identifier LAVA = Identifier.withDefaultNamespace("lava");
     private static final Identifier EMPTY = Identifier.withDefaultNamespace("empty");
 
     private CauldronEvents() {}
@@ -39,9 +41,13 @@ public final class CauldronEvents {
         for (InfxMaterial material : InfXItems.BUCKET_MATERIALS) {
             Item emptyBucket = InfXItems.bucket(material, InfxBucketItem.Contents.EMPTY).value();
             Item waterBucket = InfXItems.bucket(material, InfxBucketItem.Contents.WATER).value();
+            Item lavaBucket = InfXItems.bucket(material, InfxBucketItem.Contents.LAVA).value();
             event.register(WATER, emptyBucket, CauldronEvents::fillBucket);
             event.register(WATER, waterBucket, CauldronEvents::emptyWaterBucket);
             event.register(EMPTY, waterBucket, CauldronEvents::emptyWaterBucket);
+            event.register(LAVA, emptyBucket, CauldronEvents::fillLavaBucket);
+            // InfX mirrors the vanilla lava bucket, which pours into any cauldron variant.
+            event.registerToAll(lavaBucket, CauldronEvents::emptyLavaBucket);
         }
         event.register(WATER, Items.BOWL, CauldronEvents::fillBowl);
         event.register(WATER, InfXItems.WATER_BOWL.value(), CauldronEvents::emptyBowl);
@@ -145,6 +151,54 @@ public final class CauldronEvents {
         return state.hasProperty(LayeredCauldronBlock.LEVEL)
                 ? state.getValue(LayeredCauldronBlock.LEVEL)
                 : 0;
+    }
+
+    /** InfX: an empty vessel takes lava from a lava cauldron, like the vanilla lava bucket. */
+    private static InteractionResult fillLavaBucket(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            ItemStack itemInHand) {
+        if (!level.isClientSide()) {
+            Item usedItem = itemInHand.getItem();
+            Item lavaBucket = InfXItems.bucket(
+                            ((InfxBucketItem) usedItem).material(), InfxBucketItem.Contents.LAVA)
+                    .value();
+            player.setItemInHand(hand, ItemUtils.createFilledResult(itemInHand, player, new ItemStack(lavaBucket)));
+            player.awardStat(Stats.USE_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(usedItem));
+            level.setBlockAndUpdate(pos, Blocks.CAULDRON.defaultBlockState());
+            level.playSound(null, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    /** InfX: a lava vessel empties into any cauldron unless the mouth is under water. */
+    private static InteractionResult emptyLavaBucket(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            ItemStack itemInHand) {
+        if (isUnderWater(level, pos)) {
+            return InteractionResult.CONSUME;
+        }
+        return emptyVessel(
+                level,
+                pos,
+                player,
+                hand,
+                itemInHand,
+                Blocks.LAVA_CAULDRON.defaultBlockState(),
+                SoundEvents.BUCKET_EMPTY_LAVA);
+    }
+
+    private static boolean isUnderWater(Level level, BlockPos pos) {
+        return level.getFluidState(pos.above()).is(FluidTags.WATER);
     }
 
     private static InteractionResult emptyVessel(

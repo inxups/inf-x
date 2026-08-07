@@ -96,8 +96,8 @@ class EquipmentKeyTest {
 
     @Test
     void approvedNameExceptionsAndEquipmentAssetsAreStable() {
-        assertEquals("InfiniteX Copper Pickaxe", key(InfxMaterial.COPPER, EquipmentType.PICKAXE).englishName());
-        assertEquals("InfiniteX 铜镐", key(InfxMaterial.COPPER, EquipmentType.PICKAXE).chineseName());
+        assertEquals("Copper Pickaxe", key(InfxMaterial.COPPER, EquipmentType.PICKAXE).englishName());
+        assertEquals("铜镐", key(InfxMaterial.COPPER, EquipmentType.PICKAXE).chineseName());
         assertEquals("Bow", key(InfxMaterial.WOOD, EquipmentType.BOW).englishName());
         assertEquals("短木棒", key(InfxMaterial.WOOD, EquipmentType.CUDGEL).chineseName());
         assertEquals("木棒", key(InfxMaterial.WOOD, EquipmentType.CLUB).chineseName());

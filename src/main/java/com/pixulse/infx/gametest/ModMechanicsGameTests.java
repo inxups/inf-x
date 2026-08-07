@@ -181,6 +181,23 @@ public final class ModMechanicsGameTests {
                 "a water bowl refills one cauldron level");
         helper.assertTrue(player.getMainHandItem().is(Items.BOWL), "the bowl comes back empty");
 
+        // Lava: an empty bucket takes lava from a lava cauldron; a lava bucket refills it.
+        Item lavaIron = InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.LAVA).value();
+        level.setBlock(cauldron, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
+        CauldronInteractions.LAVA.get(new ItemStack(emptyIron))
+                .interact(level.getBlockState(cauldron), level, cauldron, player, InteractionHand.MAIN_HAND, new ItemStack(emptyIron));
+        helper.assertTrue(
+                player.getMainHandItem().is(lavaIron),
+                "an empty bucket must fill from a lava cauldron");
+        helper.assertTrue(level.getBlockState(cauldron).is(Blocks.CAULDRON), "the cauldron empties into the lava bucket");
+
+        CauldronInteractions.EMPTY.get(player.getMainHandItem())
+                .interact(level.getBlockState(cauldron), level, cauldron, player, InteractionHand.MAIN_HAND, player.getMainHandItem());
+        helper.assertTrue(
+                level.getBlockState(cauldron).is(Blocks.LAVA_CAULDRON),
+                "a lava bucket must refill the empty cauldron");
+        helper.assertTrue(player.getMainHandItem().is(emptyIron), "the lava bucket comes back empty");
+
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }

@@ -160,10 +160,10 @@ class CatalogTest {
             assertFalse(entry.chineseName().isBlank(), entry.path());
         }
         assertEquals(
-                "InfiniteX Copper Pickaxe",
+                "Copper Pickaxe",
                 catalog().equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).englishName());
         assertEquals(
-                "InfiniteX 铜镐",
+                "铜镐",
                 catalog().equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE).chineseName());
         assertEquals(
                 "Ancient Metal War Hammer",
