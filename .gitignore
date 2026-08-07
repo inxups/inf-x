@@ -3,6 +3,7 @@ codex
 .codex
 .claude/
 .codex-worktrees
+.worktrees
 
 ### Gradle ###
 .gradle
