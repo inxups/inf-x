@@ -488,6 +488,9 @@ public final class ModCompletionGameTests {
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
         bystander.invulnerableTime = 0;
+        // The game test world spawns tests in the void, so the player never lands on real ground;
+        // mark the player grounded to satisfy the sweep gate (vanilla Player#isSweepAttack).
+        player.setOnGround(true);
         before = bystander.getHealth();
         target.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
         helper.assertTrue(
@@ -509,6 +512,7 @@ public final class ModCompletionGameTests {
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
         bystander.invulnerableTime = 0;
+        player.setOnGround(true);
         float targetBefore = target.getHealth();
         before = bystander.getHealth();
         player.attack(target);
@@ -532,6 +536,7 @@ public final class ModCompletionGameTests {
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
         bystander.invulnerableTime = 0;
+        player.setOnGround(true);
         targetBefore = target.getHealth();
         before = bystander.getHealth();
         player.attack(target);
