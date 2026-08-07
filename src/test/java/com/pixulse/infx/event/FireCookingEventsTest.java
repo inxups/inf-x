@@ -10,18 +10,18 @@ import org.junit.jupiter.api.Test;
 
 class FireCookingEventsTest {
     @Test
-    void mapsOnlyMiteOpenFireCookingPairs() {
+    void mapsOnlyOpenFireCookingPairs() {
         assertEquals(Items.COOKED_BEEF, FireCookingEvents.cookedResult(Items.BEEF));
         assertEquals(Items.COOKED_MUTTON, FireCookingEvents.cookedResult(Items.MUTTON));
         assertEquals(Items.COOKED_COD, FireCookingEvents.cookedResult(Items.COD));
         assertEquals(Items.COOKED_SALMON, FireCookingEvents.cookedResult(Items.SALMON));
         assertEquals(Items.BAKED_POTATO, FireCookingEvents.cookedResult(Items.POTATO));
         assertNull(FireCookingEvents.cookedResult(Items.RABBIT));
-        assertFalse(FireCookingEvents.isMiteCooked(Items.COOKED_RABBIT));
+        assertFalse(FireCookingEvents.isCooked(Items.COOKED_RABBIT));
     }
 
     @Test
-    void keepsMiteCookingExperienceValues() {
+    void keepsCookingExperienceValues() {
         assertEquals(4, FireCookingEvents.cookingExperience(Items.COOKED_BEEF));
         assertEquals(3, FireCookingEvents.cookingExperience(Items.COOKED_COD));
         assertEquals(4, FireCookingEvents.cookingExperience(Items.COOKED_SALMON));
@@ -31,14 +31,14 @@ class FireCookingEventsTest {
     }
 
     @Test
-    void addsMiteProgressPerFireDamage() {
+    void addsProgressPerFireDamage() {
         assertEquals(3.0F, FireCookingEvents.addCookingProgress(0.0F, 1.0F));
         assertEquals(100.0F, FireCookingEvents.addCookingProgress(97.0F, 1.0F));
         assertTrue(FireCookingEvents.addCookingProgress(99.0F, 1.0F) >= 100.0F);
     }
 
     @Test
-    void usesMiteExponentialBulkCookingExtinguishChance() {
+    void usesExponentialBulkCookingExtinguishChance() {
         assertEquals(0.0F, FireCookingEvents.extinguishChance(1));
         assertEquals(0.04F, FireCookingEvents.extinguishChance(2));
         assertEquals(0.32F, FireCookingEvents.extinguishChance(5));

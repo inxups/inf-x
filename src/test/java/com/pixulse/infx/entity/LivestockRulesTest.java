@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 
 class LivestockRulesTest {
     @Test
-    void wellnessUsesTheMiteMinimumThreshold() {
+    void wellnessUsesTheMinimumThreshold() {
         assertTrue(Livestock.isWell(0.25F, 0.25F, 0.25F));
         assertFalse(Livestock.isWell(0.249F, 1.0F, 1.0F));
         assertFalse(Livestock.isWell(1.0F, 0.249F, 1.0F));
@@ -23,7 +23,7 @@ class LivestockRulesTest {
     }
 
     @Test
-    void wellnessGainsAndLossesMatchMiteRates() {
+    void wellnessGainsAndLossesMatchRates() {
         assertEquals(0.9F, Livestock.adjustNeed(0.8F, true), 1.0E-6F);
         assertEquals(0.795F, Livestock.adjustNeed(0.8F, false), 1.0E-6F);
         assertEquals(1.0F, Livestock.adjustNeed(0.95F, true), 1.0E-6F);
@@ -31,7 +31,7 @@ class LivestockRulesTest {
     }
 
     @Test
-    void onlyExtremeHungerStopsMiteManure() {
+    void onlyExtremeHungerStopsManure() {
         assertFalse(Livestock.isDesperateForFood(0.05F));
         assertTrue(Livestock.isDesperateForFood(0.049F));
     }
@@ -71,7 +71,7 @@ class LivestockRulesTest {
     }
 
     @Test
-    void needSearchRangeExpandsWithTheMiteWellnessThresholds() {
+    void needSearchRangeExpandsWithTheWellnessThresholds() {
         assertEquals(16, Livestock.searchRange(0.5F));
         assertEquals(32, Livestock.searchRange(0.249F));
         assertEquals(48, Livestock.searchRange(0.049F));

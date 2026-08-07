@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * MITE fishing bite timing: the base lure wait scales with the time of day (fastest at dawn and
+ * InfX fishing bite timing: the base lure wait scales with the time of day (fastest at dawn and
  * dusk), halves while it rains and when the angler carries a worm as bait.
  */
 public final class FishingRules {
@@ -15,7 +15,7 @@ public final class FishingRules {
 
     private FishingRules() {}
 
-    public static int miteLureDelay(ServerLevel level, Player player, int rolledDelay) {
+    public static int lureDelay(ServerLevel level, Player player, int rolledDelay) {
         long timeOfDay = Math.floorMod(level.getOverworldClockTime(), 24_000L);
         float timeFactor =
                 Math.min(Math.abs(timeOfDay - BEST_BITE_TICKS), Math.abs(timeOfDay - SECOND_BEST_BITE_TICKS))
@@ -34,7 +34,7 @@ public final class FishingRules {
     }
 
     private static boolean hasWormBait(Player player) {
-        // MITE consumes the worm from the hotbar, so only hotbar slots count as bait.
+        // InfX consumes the worm from the hotbar, so only hotbar slots count as bait.
         for (int slot = 0; slot < 9; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
             if (stack.is(InfXItems.WORM.get())) {

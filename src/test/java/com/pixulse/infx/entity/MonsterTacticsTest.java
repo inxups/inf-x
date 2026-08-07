@@ -27,14 +27,14 @@ class MonsterTacticsTest {
     }
 
     @Test
-    void ordinarySpawnersBypassTorchLightButKeepMiteSunlightAndPlacementGates() {
-        assertTrue(MonsterTactics.allowsMiteSpawnerLightBypass(
+    void ordinarySpawnersBypassTorchLightButKeepSunlightAndPlacementGates() {
+        assertTrue(MonsterTactics.allowsSpawnerLightBypass(
                 EntitySpawnReason.SPAWNER, false, true, false));
-        assertFalse(MonsterTactics.allowsMiteSpawnerLightBypass(
+        assertFalse(MonsterTactics.allowsSpawnerLightBypass(
                 EntitySpawnReason.SPAWNER, false, true, true));
-        assertFalse(MonsterTactics.allowsMiteSpawnerLightBypass(
+        assertFalse(MonsterTactics.allowsSpawnerLightBypass(
                 EntitySpawnReason.SPAWNER, false, false, false));
-        assertFalse(MonsterTactics.allowsMiteSpawnerLightBypass(
+        assertFalse(MonsterTactics.allowsSpawnerLightBypass(
                 EntitySpawnReason.TRIAL_SPAWNER, false, true, false));
     }
 

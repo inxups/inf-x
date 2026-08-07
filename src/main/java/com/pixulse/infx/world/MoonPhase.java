@@ -13,10 +13,10 @@ public enum MoonPhase {
     YELLOW,
     PHANTOM;
 
-    /** MITE uses a 24,000-tick day and an eight-day base moon cycle. */
+    /** InfX uses a 24,000-tick day and an eight-day base moon cycle. */
     public static final long DAY_TICKS = 24_000L;
     public static final int BASE_CYCLE_DAYS = 8;
-    /** MITE daytime ends at 13:00 and begins again just after 23:00. */
+    /** InfX daytime ends at 13:00 and begins again just after 23:00. */
     public static final long NIGHT_START_TICK = 13_000L;
     public static final long NIGHT_END_TICK_EXCLUSIVE = 23_001L;
 
@@ -29,7 +29,7 @@ public enum MoonPhase {
     }
 
     /**
-     * Keeps the data-generated celestial texture in lockstep with MITE's {@code getMoonPhase}.
+     * Keeps the data-generated celestial texture in lockstep with InfX's {@code getMoonPhase}.
      * Day one starts on the waning-gibbous sprite, while day eight is a full moon.
      */
     public static net.minecraft.world.level.MoonPhase visualPhaseAtTime(long overworldClockTime) {
@@ -64,7 +64,7 @@ public enum MoonPhase {
         return isOverworld(level) && at(level) == this;
     }
 
-    /** True only while this phase is visible during a MITE Overworld night. */
+    /** True only while this phase is visible during a InfX Overworld night. */
     public boolean isActiveInOverworldAtNight(Level level) {
         return isActiveInOverworld(level) && isNight(level);
     }
@@ -74,7 +74,7 @@ public enum MoonPhase {
         if ((day + 8L) % 128L == 0L) return PHANTOM;
         if (day % 32L == 0L) return BLOOD;
         if ((day + 8L) % 32L == 0L) return YELLOW;
-        // MITE: getMoonPhase() == (day % 8) with 0 = full moon, so day 8 is full, day 12 new.
+        // InfX: getMoonPhase() == (day % 8) with 0 = full moon, so day 8 is full, day 12 new.
         int vanillaPhase = (int) Math.floorMod(day, BASE_CYCLE_DAYS);
         if (vanillaPhase == 0) return FULL;
         if (vanillaPhase == 4) return NEW;

@@ -13,7 +13,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.levelgen.feature.OreFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
 
-/** Modern ore-shaped gravel that keeps MITE's support requirement for every block. */
+/** Modern ore-shaped gravel that keeps InfX's support requirement for every block. */
 public final class InfXUnderworldSupportedGravelFeature extends OreFeature {
     public InfXUnderworldSupportedGravelFeature(Codec<OreConfiguration> codec) {
         super(codec);

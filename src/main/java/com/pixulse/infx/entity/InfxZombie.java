@@ -86,7 +86,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
         };
     }
 
-    /** MITE stalkers, zombies, and ghouls can force a path through closed doors. */
+    /** InfX stalkers, zombies, and ghouls can force a path through closed doors. */
     static boolean breaksDoors(Variant variant) {
         return variant == Variant.ZOMBIE || variant == Variant.INVISIBLE_STALKER || variant == Variant.GHOUL;
     }
@@ -103,7 +103,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
         return variant != Variant.INVISIBLE_STALKER;
     }
 
-    /** MITE stores villager zombies as a flagged normal zombie, not a separate modern entity type. */
+    /** InfX stores villager zombies as a flagged normal zombie, not a separate modern entity type. */
     public boolean isVillagerZombie() {
         return villagerZombie;
     }
@@ -172,7 +172,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
             @NonNull DifficultyInstance difficulty,
             @NonNull EntitySpawnReason reason,
             @Nullable SpawnGroupData groupData) {
-        // MITE zombies never spawn as babies, so chicken jockeys cannot appear either.
+        // InfX zombies never spawn as babies, so chicken jockeys cannot appear either.
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, new ZombieGroupData(false, false));
         setBaby(false);
         AttributeInstance reinforcements = getAttribute(Attributes.SPAWN_REINFORCEMENTS_CHANCE);
@@ -228,11 +228,11 @@ public final class InfxZombie extends Zombie implements InfxMob {
 
     @Override
     protected void populateDefaultEquipmentSlots(@NonNull RandomSource random, @NonNull DifficultyInstance difficulty) {
-        // MITE zombies never spawn with vanilla weapons or armor. The plain zombie instead
-        // receives MITE world-age gear through MonsterTactics, and the revenant its fixed kit.
+        // InfX zombies never spawn with vanilla weapons or armor. The plain zombie instead
+        // receives InfX world-age gear through MonsterTactics, and the revenant its fixed kit.
     }
 
-    /** MITE revenants always spawn in full rusted-iron armor with a weighted rusted weapon. */
+    /** InfX revenants always spawn in full rusted-iron armor with a weighted rusted weapon. */
     private void equipRevenantKit(ServerLevel level) {
         long day = MonsterTactics.survivalDay(level);
         int bound = 2 + (day >= 10L ? 1 : 0) + (day >= 20L ? 1 : 0);
@@ -293,7 +293,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
         };
     }
 
-    /** MITE stalkers and shadows move silently. */
+    /** InfX stalkers and shadows move silently. */
     @Override
     protected float getSoundVolume() {
         return variant() == Variant.INVISIBLE_STALKER || variant() == Variant.SHADOW ? 0.2F : super.getSoundVolume();
@@ -328,7 +328,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
             case INVISIBLE_STALKER, REVENANT, ZOMBIE -> {
             }
         }
-        // MITE ghouls are the only family member that heals from feeding on flesh.
+        // InfX ghouls are the only family member that heals from feeding on flesh.
         if (variant() == Variant.GHOUL && living instanceof Animal && !living.isAlive()) {
             heal(getMaxHealth() * 0.5F);
         }
@@ -372,7 +372,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
     public void aiStep() {
         super.aiStep();
         if (variant() == Variant.INVISIBLE_STALKER && isInvisible()) {
-            // Older saves used vanilla invisibility. MITE instead renders a visible 5% silhouette.
+            // Older saves used vanilla invisibility. InfX instead renders a visible 5% silhouette.
             setInvisible(false);
         }
         if (!(level() instanceof ServerLevel level)) {
@@ -380,7 +380,7 @@ public final class InfxZombie extends Zombie implements InfxMob {
         }
         if (variant() == Variant.SHADOW) {
             if (level.isBrightOutside() && level.canSeeSky(blockPosition()) && !level.isRaining()) {
-                // MITE shadows take 1000 sunlight damage: certain death, no helmet protection.
+                // InfX shadows take 1000 sunlight damage: certain death, no helmet protection.
                 hurtServer(level, damageSources().genericKill(), 1000.0F);
             } else if (tickCount % 40 == 0) {
                 int darknessHeal = (int) ((0.4F - getLightLevelDependentMagicValue()) * 10.0F);

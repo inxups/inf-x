@@ -218,7 +218,7 @@ public final class ModMonsterGameTests {
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             helper.assertTrue(
                     type.get().getCategory() == MobCategory.AMBIENT && type.get().isAllowedInPeaceful(),
-                    type.getId() + " must retain MITE's ambient, non-IMob spawn semantics");
+                    type.getId() + " must retain InfX's ambient, non-IMob spawn semantics");
         }
         helper.assertTrue(
                 InfXEntityTypes.DIRE_WOLF.get().getCategory() == MobCategory.CREATURE
@@ -226,7 +226,7 @@ public final class ModMonsterGameTests {
                 "dire wolves must use animal spawning rather than the hostile cap");
         helper.assertTrue(
                 experienceAfterDropEvent(helper, InfXEntityTypes.INFX_WOLF.get(), 5),
-                "vanilla wolves must keep MITE's base experience");
+                "vanilla wolves must keep InfX's base experience");
         helper.assertTrue(
                 experienceAfterDropEvent(helper, InfXEntityTypes.DIRE_WOLF.get(), 10),
                 "dire wolves must keep double the base experience");
@@ -293,7 +293,7 @@ public final class ModMonsterGameTests {
         enderman.setTarget(piglinTarget);
         helper.assertTrue(
                 Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 6.50D) < DAMAGE_EPSILON,
-                "INFX endermen must retain MITE's 6.50 chase-speed total");
+                "INFX endermen must retain InfX's 6.50 chase-speed total");
         enderman.setTarget(null);
         helper.assertTrue(
                 Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.30D) < DAMAGE_EPSILON,
@@ -523,7 +523,7 @@ public final class ModMonsterGameTests {
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             helper.assertTrue(
                     SpawnPlacements.getPlacementType(type.get()) == SpawnPlacementTypes.NO_RESTRICTIONS,
-                    type.getId() + " must spawn in MITE cave air without a modern ground-tag requirement");
+                    type.getId() + " must spawn in InfX cave air without a modern ground-tag requirement");
         }
 
         MobSpawnSettings ocean = biomes.getOrThrow(Biomes.OCEAN).value().getMobSettings();
@@ -722,7 +722,7 @@ public final class ModMonsterGameTests {
             net.minecraft.world.level.block.state.BlockState ground,
             boolean heated,
             EarthElemental.Form expected) {
-        elemental.initializeMiteForm(ground, heated);
+        elemental.initializeElementalForm(ground, heated);
         helper.assertTrue(
                 elemental.form() == expected && elemental.isMagma() == expected.isMagmaForm(),
                 "earth elemental form must match " + expected);
@@ -836,7 +836,7 @@ public final class ModMonsterGameTests {
                 earth.form() == EarthElemental.Form.END_STONE_NORMAL && earth.heat() == 0,
                 "quenching must restore the matching normal mineral form");
 
-        earth.initializeMiteForm(Blocks.NETHERRACK.defaultBlockState(), true);
+        earth.initializeElementalForm(Blocks.NETHERRACK.defaultBlockState(), true);
         float earthHealth = earth.getHealth();
         Snowball earthSnowball = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
         helper.assertTrue(
@@ -846,7 +846,7 @@ public final class ModMonsterGameTests {
                 "snowballs must quench mineral bodies without dealing damage");
 
         var clay = helper.spawnWithNoFreeWill(InfXEntityTypes.CLAY_GOLEM.get(), new BlockPos(8, 2, 1));
-        clay.initializeMiteForm(Blocks.CLAY.defaultBlockState(), false);
+        clay.initializeElementalForm(Blocks.CLAY.defaultBlockState(), false);
         helper.assertTrue(
                 clay.form() == EarthElemental.Form.CLAY_NORMAL && !clay.isMagma()
                         && clay.doorBreakTicks(true) == 480 && clay.fireImmune()
@@ -914,7 +914,7 @@ public final class ModMonsterGameTests {
         helper.assertTrue(fire.isOnFire(), "fire elementals must always render as burning");
         helper.assertTrue(
                 !fire.isSensitiveToWater(),
-                "fire elementals must not stack the modern per-tick water damage on MITE's own drain");
+                "fire elementals must not stack the modern per-tick water damage on InfX's own drain");
 
         var enderman = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ENDERMAN.get(), new BlockPos(8, 2, 1));
         Arrow endermanArrow = EntityType.ARROW.create(level, EntitySpawnReason.COMMAND);
@@ -1015,7 +1015,7 @@ public final class ModMonsterGameTests {
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
                         infernalSwell.getSwellDir() > 0,
-                        "infernal creepers must begin swelling from MITE's expanded no-path range"))
+                        "infernal creepers must begin swelling from InfX's expanded no-path range"))
                 .thenExecute(() -> {
                     float cowHealthBefore = cow.getHealth();
                     level.explode(
@@ -1130,7 +1130,7 @@ public final class ModMonsterGameTests {
                 InfXEntityTypes.VAMPIRE_BAT, InfXEntityTypes.NIGHTWING, InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             var bat = helper.spawn(batType.get(), new BlockPos(2, 84, 2));
             bat.setNoGravity(true);
-            // MITE nightwings die to direct sunlight and this test world is at day. Give the bat
+            // InfX nightwings die to direct sunlight and this test world is at day. Give the bat
             // enough health to survive the sunlight ticks; the attack lands before the sun check.
             if (batType == InfXEntityTypes.NIGHTWING) {
                 bat.getAttribute(Attributes.MAX_HEALTH).setBaseValue(2000.0);
@@ -1139,11 +1139,11 @@ public final class ModMonsterGameTests {
             var prey = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(4, 84, 2));
             prey.setNoGravity(true);
             float health = prey.getHealth();
-            helper.assertFalse(bat.hasMiteAttackContact(prey), batType.getId() + " must reject ranged contact");
+            helper.assertFalse(bat.hasAttackContact(prey), batType.getId() + " must reject ranged contact");
             bat.tick();
             helper.assertTrue(prey.getHealth() == health, batType.getId() + " must not attack before contact");
             prey.snapTo(bat.getX(), bat.getY(), bat.getZ(), 0.0F, 0.0F);
-            helper.assertTrue(bat.hasMiteAttackContact(prey), batType.getId() + " must accept half-box contact");
+            helper.assertTrue(bat.hasAttackContact(prey), batType.getId() + " must accept half-box contact");
             bat.tick();
             helper.assertTrue(prey.getHealth() < health, batType.getId() + " must attack after half-box contact");
             if (batType == InfXEntityTypes.NIGHTWING) {
@@ -1214,7 +1214,7 @@ public final class ModMonsterGameTests {
         skeleton.reassessWeaponGoal();
         helper.assertTrue(
                 skeleton.goalSelector.getAvailableGoals().stream()
-                        .anyMatch(goal -> goal.getGoal().getClass().getSimpleName().equals("InfxHardLimitedBowAttackGoal")),
+                        .anyMatch(goal -> goal.getGoal().getClass().getSimpleName().equals("InfxHardCappedBowAttackGoal")),
                 "skeletons holding bows must register the INFX bow goal");
         placePlayerAtDistance(helper, skeleton, player, skeletonPos, 30.5);
         skeleton.setTarget(player);
@@ -1460,7 +1460,7 @@ public final class ModMonsterGameTests {
 
     private static void witchCurse(GameTestHelper helper) {
         InfxWitch witch = helper.spawn(InfXEntityTypes.INFX_WITCH.get(), new BlockPos(7, 2, 7));
-        // MITE only excludes a creative/disable-damage player. A survival player with the
+        // InfX only excludes a creative/disable-damage player. A survival player with the
         // entity-level Invulnerable flag must remain eligible for the one-in-four curse roll.
         ServerPlayer curseDeliveryProbe = ModCompletionGameTests.createPlayer(helper);
         curseDeliveryProbe.setInvulnerable(true);
@@ -1505,7 +1505,7 @@ public final class ModMonsterGameTests {
                             "Netherspawn must accept snowball damage");
                     helper.assertTrue(
                             Math.abs(snowballTarget.getHealth() - (healthBefore - 2.0F)) < DAMAGE_EPSILON,
-                            "MITE snowballs must deal two damage to netherspawn");
+                            "InfX snowballs must deal two damage to netherspawn");
                     waterTarget.hurtServer(level, level.damageSources().drown(), 8.0F);
                     helper.assertFalse(waterTarget.isAlive(), "drowning-source water damage must kill netherspawn safely");
                     level.explode(
@@ -1594,19 +1594,19 @@ public final class ModMonsterGameTests {
     }
 
     /**
-     * MITE strips vanilla spawn equipment from the zombie and skeleton families: the INFX
-     * replacements never wear vanilla weapons or armor (world-age gear is MITE equipment and
+     * InfX strips vanilla spawn equipment from the zombie and skeleton families: the INFX
+     * replacements never wear vanilla weapons or armor (world-age gear is InfX equipment and
      * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
-     * parched, wither skeleton) keep only MITE world-age gear, never vanilla weapons or armor.
+     * parched, wither skeleton) keep only InfX world-age gear, never vanilla weapons or armor.
      */
     private static void spawnEquipment(GameTestHelper helper) {
-        var zombie = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
+        var zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
         assertNoVanillaEquipment(helper, zombie, "replacement zombie");
 
-        var skeleton = spawnWithMiteFinalize(helper, InfXEntityTypes.INFX_SKELETON.get());
+        var skeleton = spawnWithFinalize(helper, InfXEntityTypes.INFX_SKELETON.get());
         helper.assertTrue(
                 !isVanillaItem(skeleton.getMainHandItem()),
-                "replacement skeletons must spawn with only MITE weapons");
+                "replacement skeletons must spawn with only InfX weapons");
         assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
 
         for (EntityType<?> type : List.of(
@@ -1661,7 +1661,7 @@ public final class ModMonsterGameTests {
         mob.discard();
     }
 
-    private static Mob spawnWithMiteFinalize(GameTestHelper helper, EntityType<?> type) {
+    private static Mob spawnWithFinalize(GameTestHelper helper, EntityType<?> type) {
         @SuppressWarnings("unchecked")
         Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
         mob.finalizeSpawn(

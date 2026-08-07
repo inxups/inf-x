@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** MITE walls collide only one block high so players can jump them; minecarts keep full height. */
+/** InfX walls collide only one block high so players can jump them; minecarts keep full height. */
 @Mixin(WallBlock.class)
 public abstract class WallBlockCollisionMixin {
     @Inject(method = "getCollisionShape", at = @At("RETURN"), cancellable = true)

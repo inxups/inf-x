@@ -16,7 +16,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Bridges {@link SwimRules} to the live world: reads the blocks MITE's
+ * Bridges {@link SwimRules} to the live world: reads the blocks InfX's
  * {@code World.handleMaterialAcceleration} and {@code EntityLivingBase.onLivingUpdate} inspected and
  * feeds the results back as motion changes.
  */
@@ -24,7 +24,7 @@ public final class SwimPhysics {
     private SwimPhysics() {}
 
     /**
-     * MITE {@code World.handleMaterialAcceleration}: sum every touched fluid block's unit flow, then
+     * InfX {@code World.handleMaterialAcceleration}: sum every touched fluid block's unit flow, then
      * normalise once and scale. Unlike vanilla there is no shallow-depth taper and no minimum
      * magnitude, so a one-deep stream pushes exactly as hard as a full block.
      */
@@ -34,7 +34,7 @@ public final class SwimPhysics {
     }
 
     /**
-     * Raw, un-normalised sum of every touched water block's unit flow, as MITE's
+     * Raw, un-normalised sum of every touched water block's unit flow, as InfX's
      * {@code World.handleMaterialAcceleration} computes it before normalising. Exposed separately so
      * callers that only need the current's direction (not its impulse) don't repeat the scan.
      */
@@ -65,7 +65,7 @@ public final class SwimPhysics {
     }
 
     /**
-     * MITE has no counter-current sprint model; scales {@code sprintSlowDown} back toward
+     * InfX has no counter-current sprint model; scales {@code sprintSlowDown} back toward
      * {@code normalSlowDown} proportionally to how directly the entity's own movement opposes the
      * surrounding current, so a sprinting player can no longer trivially out-swim it upstream.
      */
@@ -75,13 +75,13 @@ public final class SwimPhysics {
         return SwimRules.antiCurrentSprintDrag(sprintSlowDown, normalSlowDown, movement, current);
     }
 
-    /** Quadruples the effective gravity so vanilla's {@code baseGravity / 16} becomes MITE's 0.02. */
+    /** Quadruples the effective gravity so vanilla's {@code baseGravity / 16} becomes InfX's 0.02. */
     public static double waterGravity(double baseGravity) {
         return SwimRules.waterGravity(baseGravity);
     }
 
     /**
-     * Restores MITE's water pull for a sprinting player in a falling water column. Vanilla omits
+     * Restores InfX's water pull for a sprinting player in a falling water column. Vanilla omits
      * this pull while sprinting, which would otherwise let the reduced waterfall swim-up impulse
      * accumulate into upward movement.
      */
@@ -94,13 +94,13 @@ public final class SwimPhysics {
                 movement.z);
     }
 
-    /** Adds MITE's factored swim-up impulse in place of vanilla's flat 0.04. */
+    /** Adds InfX's factored swim-up impulse in place of vanilla's flat 0.04. */
     public static void swimUp(LivingEntity entity) {
         entity.addDeltaMovement(new Vec3(0.0D, swimUpImpulse(entity), 0.0D));
     }
 
     /**
-     * MITE {@code EntityLivingBase.onLivingUpdate}: the upward push while holding jump underwater,
+     * InfX {@code EntityLivingBase.onLivingUpdate}: the upward push while holding jump underwater,
      * cut to 7/16 at the surface and inside a falling column so waterfalls cannot be climbed.
      */
     public static double swimUpImpulse(LivingEntity entity) {
@@ -124,7 +124,7 @@ public final class SwimPhysics {
         return SwimRules.swimUpImpulse(factor);
     }
 
-    /** MITE {@code getSpeedBoostVsSlowDown} without the paralysis-resistance term, which has no port. */
+    /** InfX {@code getSpeedBoostVsSlowDown} without the paralysis-resistance term, which has no port. */
     public static float speedModifier(LivingEntity entity) {
         MobEffectInstance slowness = entity.getEffect(MobEffects.SLOWNESS);
         MobEffectInstance speed = entity.getEffect(MobEffects.SPEED);
@@ -142,7 +142,7 @@ public final class SwimPhysics {
 
     /**
      * Returns whether both the entity's feet and head are inside falling water. This mirrors the
-     * MITE metadata-9 check used for waterfall swim penalties.
+     * InfX metadata-9 check used for waterfall swim penalties.
      */
     public static boolean isFallingWaterColumn(LivingEntity entity) {
         BlockGetter level = entity.level();

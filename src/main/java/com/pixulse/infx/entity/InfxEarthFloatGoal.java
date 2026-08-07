@@ -5,7 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.ai.goal.Goal;
 
-/** MITE earth elementals sink normally and only buoy themselves when blocked or hunting in deep lava. */
+/** InfX earth elementals sink normally and only buoy themselves when blocked or hunting in deep lava. */
 final class InfxEarthFloatGoal extends Goal {
     private final EarthElemental elemental;
 

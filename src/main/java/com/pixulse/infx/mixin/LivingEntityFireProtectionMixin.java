@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/** MITE applies the highest fire protection level once to every ignition request. */
+/** InfX applies the highest fire protection level once to every ignition request. */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityFireProtectionMixin {
     @ModifyVariable(method = "igniteForTicks(I)V", at = @At("HEAD"), argsOnly = true)

@@ -126,7 +126,7 @@ public final class InfxChicken extends Chicken {
 
     @Override
     public @Nullable Chicken getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        // MITE newborns inherit the coat of one parent instead of re-rolling by biome.
+        // InfX newborns inherit the coat of one parent instead of re-rolling by biome.
         Chicken baby = InfXEntityTypes.INFX_CHICKEN.get().create(level, EntitySpawnReason.BREEDING);
         if (baby != null && partner instanceof Chicken partnerChicken) {
             baby.setVariant(

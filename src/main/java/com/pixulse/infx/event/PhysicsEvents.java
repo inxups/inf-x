@@ -85,7 +85,7 @@ public final class PhysicsEvents {
         }
     }
 
-    /** MITE EntityItem.spentTickInWater: lava solidifies; other vessels fill with water. */
+    /** InfX EntityItem.spentTickInWater: lava solidifies; other vessels fill with water. */
     private static void wetDroppedBucket(ItemEntity entity) {
         ItemStack stack = entity.getItem();
         if (stack.getItem() instanceof InfxBucketItem bucket) {
@@ -132,7 +132,7 @@ public final class PhysicsEvents {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         Vec3 center = event.getExplosion().center();
         float radius = event.getExplosion().radius();
-        // MITE Block#dropBlockAsEntityItem: blocks destroyed by any explosion drop their exploded
+        // InfX Block#dropBlockAsEntityItem: blocks destroyed by any explosion drop their exploded
         // forms instead of themselves (wool -> string, wood -> sticks, stone -> cobblestone, ...).
         event.getAffectedBlocks().removeIf(pos -> convertExplodedBlock(level, pos));
         for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, new AABB(center, center).inflate(radius))) {
@@ -146,7 +146,7 @@ public final class PhysicsEvents {
     }
 
     /**
-     * MITE Block#dropBlockAsEntityItem exploded forms: wool->string, wood->sticks, brick->1 brick,
+     * InfX Block#dropBlockAsEntityItem exploded forms: wool->string, wood->sticks, brick->1 brick,
      * lapis block->9 blue dye at 50%, stone/end stone->cobblestone, coal block->9 coal at 50%,
      * terracotta and netherrack->nothing. Destroys the block and pops the replacement. Returns
      * true when the explosion entry was consumed.
@@ -180,7 +180,7 @@ public final class PhysicsEvents {
         return false;
     }
 
-    /** MITE quantity/chance roll: each of {@code quantity} units drops with {@code chance}. */
+    /** InfX quantity/chance roll: each of {@code quantity} units drops with {@code chance}. */
     private static ItemStack dropQuantity(ServerLevel level, net.minecraft.world.item.Item item, int quantity, float chance) {
         int count = 0;
         for (int i = 0; i < quantity; i++) {

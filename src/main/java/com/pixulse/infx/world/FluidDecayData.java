@@ -17,7 +17,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 /**
- * MITE World#scheduleBlockChange for bucket pours. A poured cell is written as a source so it spreads
+ * InfX World#scheduleBlockChange for bucket pours. A poured cell is written as a source so it spreads
  * once, then degrades to flowing after the material's delay unless the player paid the source cost.
  * Persisted so a save/quit cannot strand a permanent free source.
  */

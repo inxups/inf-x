@@ -18,7 +18,7 @@ import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
-/** One of MITE's five throwable gelatinous spheres. */
+/** One of InfX's five throwable gelatinous spheres. */
 public final class GelatinousSphereItem extends Item implements ProjectileItem {
     public enum Color {
         GREEN("green", CorrosionType.PEPSIN, 1),
@@ -82,7 +82,7 @@ public final class GelatinousSphereItem extends Item implements ProjectileItem {
                 0.5F,
                 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F));
         if (level instanceof ServerLevel serverLevel) {
-            // MITE launches gelatinous spheres at 1.2, slower than a snowball's 1.5.
+            // InfX launches gelatinous spheres at 1.2, slower than a snowball's 1.5.
             Projectile.spawnProjectileFromRotation(
                     GelatinousSphere::new, serverLevel, stack, player, 0.0F, 1.2F, 1.0F);
         }

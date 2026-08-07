@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class PortalParticlesTest {
     @Test
-    void colorsAndBrightnessMatchMitePortalFamilies() {
+    void colorsAndBrightnessMatchPortalFamilies() {
         assertEquals(0x4401B4, PortalParticles.UNDERWORLD_PORTAL_RGB);
         assertEquals(0xBE250B, PortalParticles.NETHER_PORTAL_RGB);
         assertEquals(0x359FFF, PortalParticles.RUNEGATE_RGB);

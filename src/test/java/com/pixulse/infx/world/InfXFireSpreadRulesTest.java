@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class InfXFireSpreadRulesTest {
     @Test
-    void miteRatesCoverLegacyFireMaterials() {
+    void ratesCoverLegacyFireMaterials() {
         assertEquals(5, InfXFireSpreadRules.chanceToEncourageFire(Blocks.OAK_PLANKS));
         assertEquals(20, InfXFireSpreadRules.abilityToCatchFire(Blocks.OAK_PLANKS));
         assertEquals(30, InfXFireSpreadRules.chanceToEncourageFire(Blocks.OAK_LEAVES));
@@ -25,7 +25,7 @@ class InfXFireSpreadRulesTest {
     }
 
     @Test
-    void miteSpreadArithmeticUsesIntegerBoundaries() {
+    void spreadArithmeticUsesIntegerBoundaries() {
         assertEquals(100, InfXFireSpreadRules.airSpreadDenominator(-1));
         assertEquals(100, InfXFireSpreadRules.airSpreadDenominator(1));
         assertEquals(200, InfXFireSpreadRules.airSpreadDenominator(2));
@@ -39,7 +39,7 @@ class InfXFireSpreadRulesTest {
     }
 
     @Test
-    void miteAgeRollsAreBoundedAndInherited() {
+    void ageRollsAreBoundedAndInherited() {
         assertEquals(4, InfXFireSpreadRules.nextAge(4, 0));
         assertEquals(4, InfXFireSpreadRules.nextAge(4, 1));
         assertEquals(5, InfXFireSpreadRules.nextAge(4, 2));

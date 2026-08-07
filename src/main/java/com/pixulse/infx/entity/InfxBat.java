@@ -72,7 +72,7 @@ public final class InfxBat extends Bat implements InfxMob {
                 .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
-    /** MITE nightwings only fall to silver, magic or sunlight. */
+    /** InfX nightwings only fall to silver, magic or sunlight. */
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
         if (variant() == Variant.NIGHTWING && !MobDamageRules.silverMagicGateAccepts(source)) {
@@ -119,7 +119,7 @@ public final class InfxBat extends Bat implements InfxMob {
                 setDeltaMovement(getDeltaMovement().scale(0.65).add(direction.normalize().scale(speed)));
             }
 
-            if (hasMiteAttackContact(target) && attackCooldown == 0) {
+            if (hasAttackContact(target) && attackCooldown == 0) {
                 float before = target.getHealth();
                 if (doHurtTarget(level, target)) {
                     float dealt = Math.max(0.0F, before - target.getHealth());
@@ -145,7 +145,7 @@ public final class InfxBat extends Bat implements InfxMob {
 
         if (variant == Variant.NIGHTWING) {
             if (level.isBrightOutside() && level.canSeeSky(blockPosition()) && !level.isRaining()) {
-                // MITE nightwings take 1000 sunlight damage: certain death.
+                // InfX nightwings take 1000 sunlight damage: certain death.
                 hurtServer(level, damageSources().genericKill(), 1000.0F);
             } else if (tickCount % 40 == 0) {
                 int darknessHeal = (int) ((0.4F - getLightLevelDependentMagicValue()) * 10.0F);
@@ -157,11 +157,11 @@ public final class InfxBat extends Bat implements InfxMob {
     }
 
     /** Shared INFX half-width contact predicate for all three hostile bat variants. */
-    public boolean hasMiteAttackContact(LivingEntity target) {
+    public boolean hasAttackContact(LivingEntity target) {
         return AttackRanges.scaledHorizontalContact(this, target, 0.5);
     }
 
-    /** MITE shadow resistance is half of the worn silver armor coverage. */
+    /** InfX shadow resistance is half of the worn silver armor coverage. */
     static float nightwingDimmingAmount(Player player) {
         float silverCoverage = 0.0F;
         for (EquipmentSlot slot : List.of(
@@ -188,7 +188,7 @@ public final class InfxBat extends Bat implements InfxMob {
         return 1.25F * (1.0F - resistance);
     }
 
-    /** MITE bats hunt the closest non-creative player, animal or villager within 32 blocks. */
+    /** InfX bats hunt the closest non-creative player, animal or villager within 32 blocks. */
     private @Nullable LivingEntity findPrey(ServerLevel level) {
         LivingEntity best = null;
         double bestDistance = Double.MAX_VALUE;
@@ -237,7 +237,7 @@ public final class InfxBat extends Bat implements InfxMob {
         return ATTACK_COOLDOWN_TICKS;
     }
 
-    /** MITE vampire bats need a full minute of full health before resuming animal feeding. */
+    /** InfX vampire bats need a full minute of full health before resuming animal feeding. */
     static int feedCooldownTicks() {
         return FEED_COOLDOWN_TICKS;
     }

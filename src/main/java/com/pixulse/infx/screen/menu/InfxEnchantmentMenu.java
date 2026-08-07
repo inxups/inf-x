@@ -169,7 +169,7 @@ public final class InfxEnchantmentMenu extends EnchantmentMenu {
     }
 
     private static ItemStack conversionResult(ItemStack stack) {
-        // MITE ContainerEnchantment: a water bottle becomes a bottle o' enchanting on the
+        // InfX ContainerEnchantment: a water bottle becomes a bottle o' enchanting on the
         // table; the bottle of disenchanting is only obtained from its own crafting recipe.
         return isWaterBottle(stack) ? Items.EXPERIENCE_BOTTLE.getDefaultInstance() : Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance();
     }
@@ -288,7 +288,7 @@ public final class InfxEnchantmentMenu extends EnchantmentMenu {
         for (int y = 0; y <= 1; y++) {
             for (int x = -2; x <= 2; x++) {
                 for (int z = -2; z <= 2; z++) {
-                    // Modern vanilla includes the corner shelves at (+-2, +-2); MITE's
+                    // Modern vanilla includes the corner shelves at (+-2, +-2); InfX's
                     // accessibility grid accepts them too. The 24-shelf cap keeps the
                     // emerald (50) and diamond (100) table maxima unchanged.
                     if (Math.abs(x) == 2 || Math.abs(z) == 2) {

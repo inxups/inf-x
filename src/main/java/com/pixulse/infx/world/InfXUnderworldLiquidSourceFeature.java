@@ -12,7 +12,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-/** Restores MITE's tightly enclosed Underworld water and lava source attempts. */
+/** Restores InfX's tightly enclosed Underworld water and lava source attempts. */
 public final class InfXUnderworldLiquidSourceFeature extends Feature<NoneFeatureConfiguration> {
     private static final int SOURCE_COLUMN_SIZE = 16;
     private static final int SOURCE_COLUMN_OFFSET = 8;

@@ -23,7 +23,7 @@ public final class EnchantmentSelector {
     private EnchantmentSelector() {}
 
     /**
-     * MITE's table uses a strength floor for an enchantment level, rather than vanilla's bounded
+     * InfX's table uses a strength floor for an enchantment level, rather than vanilla's bounded
      * level range. This keeps a 100-strength option eligible for its highest applicable levels.
      */
     public static List<EnchantmentInstance> select(

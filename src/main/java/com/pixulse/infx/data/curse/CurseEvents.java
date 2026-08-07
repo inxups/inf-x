@@ -164,7 +164,7 @@ public final class CurseEvents {
             return;
         }
         CurseType curse = fearFor(target);
-        // The target's random source and short-circuit order match MITE's canBeAttackedBy methods.
+        // The target's random source and short-circuit order match InfX's canBeAttackedBy methods.
         if (curse == null
                 || target.getRandom().nextInt(4) == 0
                 || !CurseManager.hasCurse(player, curse)) {

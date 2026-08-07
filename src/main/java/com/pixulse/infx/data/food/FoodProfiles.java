@@ -11,62 +11,62 @@ import net.minecraft.world.item.Items;
  * items use the nearest INFX counterpart rather than a new independent nutrition model.
  */
 public final class FoodProfiles {
-    private static final FoodProfile APPLE = mite(2, 1, 1_000, false, false, true);
-    private static final FoodProfile MUSHROOM_STEW = mite(2, 4, 0, false, false, false);
-    private static final FoodProfile BREAD = mite(8, 2, 0, false, false, false);
-    private static final FoodProfile RAW_PORK = mite(4, 4, 0, true, false, false);
-    private static final FoodProfile COOKED_PORK = mite(8, 8, 0, true, false, false);
-    private static final FoodProfile GOLDEN_APPLE = mite(2, 1, 1_000, false, false, true, 0, true);
-    private static final FoodProfile EGG = mite(1, 3, 0, true, false, false);
-    private static final FoodProfile RAW_COD = mite(3, 3, 0, true, true, false);
-    private static final FoodProfile COOKED_COD = mite(6, 6, 0, true, true, false);
-    private static final FoodProfile RAW_SALMON = mite(5, 5, 0, true, true, false);
-    private static final FoodProfile COOKED_SALMON = mite(10, 10, 0, true, true, false);
-    private static final FoodProfile SUGAR = mite(1, 0, 1_000, false, false, false);
-    private static final FoodProfile COOKIE = mite(3, 1, 250, false, false, false);
-    private static final FoodProfile MELON = mite(1, 1, 1_000, false, false, true);
-    private static final FoodProfile RAW_BEEF = mite(5, 5, 0, true, false, false);
-    private static final FoodProfile COOKED_BEEF = mite(10, 10, 0, true, false, false);
-    private static final FoodProfile RAW_CHICKEN = mite(3, 3, 0, true, false, false);
-    private static final FoodProfile COOKED_CHICKEN = mite(6, 6, 0, true, false, false);
-    private static final FoodProfile ROTTEN_FLESH = mite(2, 1, 0, true, false, false);
-    private static final FoodProfile SPIDER_EYE = mite(0, 1, 0, true, false, false);
-    private static final FoodProfile CARROT = mite(1, 2, 0, false, false, true);
-    private static final FoodProfile POTATO = mite(3, 1, 0, false, false, false);
-    private static final FoodProfile BAKED_POTATO = mite(6, 2, 0, false, false, false);
-    private static final FoodProfile POISONOUS_POTATO = mite(2, 0, 0, false, false, false);
-    private static final FoodProfile PUMPKIN_PIE = mite(10, 6, 1_000, true, false, true);
-    private static final FoodProfile MUSHROOM = mite(1, 1, 0, false, false, false);
-    private static final FoodProfile DRIED_KELP = mite(0, 1, 0, false, false, false);
-    private static final FoodProfile WHEAT_SEEDS = mite(1, 0, 0, false, true, false, 2_000, false);
-    private static final FoodProfile PUMPKIN_SEEDS = mite(1, 2, 0, false, true, false);
-    private static final FoodProfile MELON_SEEDS = mite(1, 1, 0, false, true, false);
-    private static final FoodProfile NETHER_WART = mite(1, 1, 0, false, false, false);
-    private static final FoodProfile MILK_BOWL = mite(0, 1, 0, true, false, false, 0, true);
-    private static final FoodProfile MILK_BUCKET = mite(0, 4, 0, true, false, false, 0, true);
-    private static final FoodProfile RAW_LAMB = mite(3, 3, 0, true, false, false);
-    private static final FoodProfile COOKED_LAMB = mite(6, 6, 0, true, false, false);
-    private static final FoodProfile CHEESE = mite(3, 3, 0, true, false, false);
-    private static final FoodProfile DOUGH = mite(6, 2, 0, false, false, false);
-    private static final FoodProfile CHOCOLATE = mite(3, 3, 1_000, false, false, false);
-    private static final FoodProfile ONION = mite(1, 1, 0, false, false, true);
-    private static final FoodProfile BEEF_STEW = mite(16, 16, 0, true, false, true);
-    private static final FoodProfile CHICKEN_SOUP = mite(10, 10, 0, true, false, true);
-    private static final FoodProfile VEGETABLE_SOUP = mite(6, 6, 0, false, false, true);
-    private static final FoodProfile ICE_CREAM = mite(5, 4, 1_000, true, false, false);
-    private static final FoodProfile SALAD = mite(1, 1, 0, false, false, true);
-    private static final FoodProfile CREAM_OF_MUSHROOM_SOUP = mite(3, 5, 0, true, false, false);
-    private static final FoodProfile CREAM_OF_VEGETABLE_SOUP = mite(7, 7, 0, true, false, true);
-    private static final FoodProfile PUMPKIN_SOUP = mite(1, 2, 0, false, false, true);
-    private static final FoodProfile ORANGE = mite(2, 1, 1_000, false, false, true);
-    private static final FoodProfile MASHED_POTATO = mite(12, 8, 0, true, false, false);
-    private static final FoodProfile FRUIT_ICE = mite(4, 2, 2_000, false, false, true);
-    private static final FoodProfile BLUEBERRIES = mite(1, 1, 1_000, false, false, true);
-    private static final FoodProfile BLUEBERRY_PORRIDGE = mite(4, 2, 2_000, false, false, true);
-    private static final FoodProfile CEREAL_PORRIDGE = mite(4, 2, 1_000, true, false, false);
-    private static final FoodProfile WORM = mite(0, 1, 0, true, false, false);
-    private static final FoodProfile COOKED_WORM = mite(1, 1, 0, true, false, false);
-    private static final FoodProfile CAKE_SLICE = mite(2, 2, 1_000 / 6, true, false, false);
+    private static final FoodProfile APPLE = of(2, 1, 1_000, false, false, true);
+    private static final FoodProfile MUSHROOM_STEW = of(2, 4, 0, false, false, false);
+    private static final FoodProfile BREAD = of(8, 2, 0, false, false, false);
+    private static final FoodProfile RAW_PORK = of(4, 4, 0, true, false, false);
+    private static final FoodProfile COOKED_PORK = of(8, 8, 0, true, false, false);
+    private static final FoodProfile GOLDEN_APPLE = of(2, 1, 1_000, false, false, true, 0, true);
+    private static final FoodProfile EGG = of(1, 3, 0, true, false, false);
+    private static final FoodProfile RAW_COD = of(3, 3, 0, true, true, false);
+    private static final FoodProfile COOKED_COD = of(6, 6, 0, true, true, false);
+    private static final FoodProfile RAW_SALMON = of(5, 5, 0, true, true, false);
+    private static final FoodProfile COOKED_SALMON = of(10, 10, 0, true, true, false);
+    private static final FoodProfile SUGAR = of(1, 0, 1_000, false, false, false);
+    private static final FoodProfile COOKIE = of(3, 1, 250, false, false, false);
+    private static final FoodProfile MELON = of(1, 1, 1_000, false, false, true);
+    private static final FoodProfile RAW_BEEF = of(5, 5, 0, true, false, false);
+    private static final FoodProfile COOKED_BEEF = of(10, 10, 0, true, false, false);
+    private static final FoodProfile RAW_CHICKEN = of(3, 3, 0, true, false, false);
+    private static final FoodProfile COOKED_CHICKEN = of(6, 6, 0, true, false, false);
+    private static final FoodProfile ROTTEN_FLESH = of(2, 1, 0, true, false, false);
+    private static final FoodProfile SPIDER_EYE = of(0, 1, 0, true, false, false);
+    private static final FoodProfile CARROT = of(1, 2, 0, false, false, true);
+    private static final FoodProfile POTATO = of(3, 1, 0, false, false, false);
+    private static final FoodProfile BAKED_POTATO = of(6, 2, 0, false, false, false);
+    private static final FoodProfile POISONOUS_POTATO = of(2, 0, 0, false, false, false);
+    private static final FoodProfile PUMPKIN_PIE = of(10, 6, 1_000, true, false, true);
+    private static final FoodProfile MUSHROOM = of(1, 1, 0, false, false, false);
+    private static final FoodProfile DRIED_KELP = of(0, 1, 0, false, false, false);
+    private static final FoodProfile WHEAT_SEEDS = of(1, 0, 0, false, true, false, 2_000, false);
+    private static final FoodProfile PUMPKIN_SEEDS = of(1, 2, 0, false, true, false);
+    private static final FoodProfile MELON_SEEDS = of(1, 1, 0, false, true, false);
+    private static final FoodProfile NETHER_WART = of(1, 1, 0, false, false, false);
+    private static final FoodProfile MILK_BOWL = of(0, 1, 0, true, false, false, 0, true);
+    private static final FoodProfile MILK_BUCKET = of(0, 4, 0, true, false, false, 0, true);
+    private static final FoodProfile RAW_LAMB = of(3, 3, 0, true, false, false);
+    private static final FoodProfile COOKED_LAMB = of(6, 6, 0, true, false, false);
+    private static final FoodProfile CHEESE = of(3, 3, 0, true, false, false);
+    private static final FoodProfile DOUGH = of(6, 2, 0, false, false, false);
+    private static final FoodProfile CHOCOLATE = of(3, 3, 1_000, false, false, false);
+    private static final FoodProfile ONION = of(1, 1, 0, false, false, true);
+    private static final FoodProfile BEEF_STEW = of(16, 16, 0, true, false, true);
+    private static final FoodProfile CHICKEN_SOUP = of(10, 10, 0, true, false, true);
+    private static final FoodProfile VEGETABLE_SOUP = of(6, 6, 0, false, false, true);
+    private static final FoodProfile ICE_CREAM = of(5, 4, 1_000, true, false, false);
+    private static final FoodProfile SALAD = of(1, 1, 0, false, false, true);
+    private static final FoodProfile CREAM_OF_MUSHROOM_SOUP = of(3, 5, 0, true, false, false);
+    private static final FoodProfile CREAM_OF_VEGETABLE_SOUP = of(7, 7, 0, true, false, true);
+    private static final FoodProfile PUMPKIN_SOUP = of(1, 2, 0, false, false, true);
+    private static final FoodProfile ORANGE = of(2, 1, 1_000, false, false, true);
+    private static final FoodProfile MASHED_POTATO = of(12, 8, 0, true, false, false);
+    private static final FoodProfile FRUIT_ICE = of(4, 2, 2_000, false, false, true);
+    private static final FoodProfile BLUEBERRIES = of(1, 1, 1_000, false, false, true);
+    private static final FoodProfile BLUEBERRY_PORRIDGE = of(4, 2, 2_000, false, false, true);
+    private static final FoodProfile CEREAL_PORRIDGE = of(4, 2, 1_000, true, false, false);
+    private static final FoodProfile WORM = of(0, 1, 0, true, false, false);
+    private static final FoodProfile COOKED_WORM = of(1, 1, 0, true, false, false);
+    private static final FoodProfile CAKE_SLICE = of(2, 2, 1_000 / 6, true, false, false);
 
     private FoodProfiles() {}
 
@@ -147,14 +147,14 @@ public final class FoodProfiles {
         return FoodProfile.EMPTY;
     }
 
-    private static FoodProfile mite(
+    private static FoodProfile of(
             double satiation,
             double nutrition,
             int sugarContent,
             boolean hasProtein,
             boolean hasEssentialFats,
             boolean hasPhytonutrients) {
-        return FoodProfile.mite(
+        return FoodProfile.of(
                 satiation,
                 nutrition,
                 sugarContent,
@@ -163,7 +163,7 @@ public final class FoodProfiles {
                 hasPhytonutrients);
     }
 
-    private static FoodProfile mite(
+    private static FoodProfile of(
             double satiation,
             double nutrition,
             int sugarContent,
@@ -172,7 +172,7 @@ public final class FoodProfiles {
             boolean hasPhytonutrients,
             int extraEssentialFats,
             boolean alwaysEdible) {
-        return FoodProfile.mite(
+        return FoodProfile.of(
                 satiation,
                 nutrition,
                 sugarContent,

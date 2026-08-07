@@ -3,7 +3,7 @@ package com.pixulse.infx.datagen;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.loot.GravelLootModifier;
 import com.pixulse.infx.loot.GlassShardLootModifier;
-import com.pixulse.infx.loot.MiteProgressionLootFilter;
+import com.pixulse.infx.loot.LegacyProgressionLootFilter;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
@@ -35,10 +35,10 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
         addHorseArmor("stronghold_corridor");
         addRustedIron("simple_dungeon");
         addRustedIron("abandoned_mineshaft");
-        for (String structure : ModMiteStructureLootSubProvider.TARGETS) {
-            addMiteStructure(structure);
+        for (String structure : ModLegacyStructureLootSubProvider.TARGETS) {
+            addStructure(structure);
         }
-        add("mite_progression_filter", new MiteProgressionLootFilter(new LootItemCondition[0], 900));
+        add("progression_filter", new LegacyProgressionLootFilter(new LootItemCondition[0], 900));
     }
 
     private void addHorseArmor(String structure) {
@@ -67,7 +67,7 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                         ModRustedIronLootSubProvider.tableKey(structure)));
     }
 
-    private void addMiteStructure(String structure) {
+    private void addStructure(String structure) {
         Identifier target = Identifier.withDefaultNamespace("chests/" + structure);
         LootItemCondition[] conditions = {
             LootTableIdCondition.builder(target).build()
@@ -77,6 +77,6 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
                 new AddTableLootModifier(
                         conditions,
                         1000,
-                        ModMiteStructureLootSubProvider.tableKey(structure)));
+                        ModLegacyStructureLootSubProvider.tableKey(structure)));
     }
 }

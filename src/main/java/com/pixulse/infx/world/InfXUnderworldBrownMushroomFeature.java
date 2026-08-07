@@ -11,7 +11,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 
-/** Places MITE's single one-in-four brown mushroom candidate for each decorated chunk. */
+/** Places InfX's single one-in-four brown mushroom candidate for each decorated chunk. */
 public final class InfXUnderworldBrownMushroomFeature extends Feature<NoneFeatureConfiguration> {
     private static final int CHUNK_SIZE = 16;
     private static final int CHUNK_OFFSET = 8;

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * MITE fences and bars collide only one block high so players can jump them;
+ * InfX fences and bars collide only one block high so players can jump them;
  * minecarts keep full height.
  */
 @Mixin(CrossCollisionBlock.class)

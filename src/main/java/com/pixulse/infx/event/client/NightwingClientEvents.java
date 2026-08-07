@@ -11,7 +11,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 
-/** Client half of MITE's Nightwing black-screen vision dimming. */
+/** Client half of InfX's Nightwing black-screen vision dimming. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class NightwingClientEvents {
     private static final float DIMMING_DECAY_PER_TICK = 0.01F;

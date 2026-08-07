@@ -20,7 +20,7 @@ class EnchantmentRulesTest {
     }
 
     @Test
-    void tablePowerUsesMiteTiersAndBookshelfLimit() {
+    void tablePowerUsesTiersAndBookshelfLimit() {
         assertEquals(2, EnchantmentRules.enchantingTablePower(0, 2, 50));
         assertEquals(4, EnchantmentRules.enchantingTablePower(0, 4, 100));
         assertEquals(50, EnchantmentRules.enchantingTablePower(24, 2, 50));
@@ -30,7 +30,7 @@ class EnchantmentRulesTest {
     }
 
     @Test
-    void itemEnchantabilityUsesMiteDiminishingReturns() {
+    void itemEnchantabilityUsesDiminishingReturns() {
         assertEquals(0, EnchantmentRules.effectiveEnchantmentPower(100, 0));
         assertEquals(10, EnchantmentRules.effectiveEnchantmentPower(10, 10));
         assertEquals(15, EnchantmentRules.effectiveEnchantmentPower(20, 10));
@@ -47,7 +47,7 @@ class EnchantmentRulesTest {
     }
 
     @Test
-    void optionPowerUsesMiteFractionsAndRandomness() {
+    void optionPowerUsesFractionsAndRandomness() {
         assertEquals(23, EnchantmentRules.enchantmentOptionPower(100, 0, 0.0F));
         assertEquals(33, EnchantmentRules.enchantmentOptionPower(100, 0, 0.5F));
         assertEquals(43, EnchantmentRules.enchantmentOptionPower(100, 0, 1.0F));
@@ -142,7 +142,7 @@ class EnchantmentRulesTest {
     }
 
     @Test
-    void vanillaMiteRulesFollowTheOriginalFormulas() {
+    void vanillaRulesFollowTheOriginalFormulas() {
         assertEquals(0.15F, EnchantmentRules.FIRE_PROTECTION_BURN_REDUCTION_PER_LEVEL, .0001F);
         assertEquals(85, EnchantmentRules.fireProtectionTicks(100, 1));
         assertEquals(40, EnchantmentRules.fireProtectionTicks(100, 4));
@@ -171,7 +171,7 @@ class EnchantmentRulesTest {
     }
 
     @Test
-    void butcheringAndFortuneHelpersKeepTheirTargetedMiteRanges() {
+    void butcheringAndFortuneHelpersKeepTheirTargetedRanges() {
         assertEquals(0, EnchantmentRules.butcheringExtraCount(0, RandomSource.create(1L)));
         int horseBeef = EnchantmentRules.horseButcheringBeefCount(3, RandomSource.create(1L));
         assertTrue(horseBeef >= 1 && horseBeef <= 5);

@@ -57,12 +57,12 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
     @Override
     public void generate() {
-        // MITE zombie flesh: one piece at 50% for player kills, 25% otherwise. Rare drops
-        // are procedural because a villager zombie uses a different MITE item pool.
+        // InfX zombie flesh: one piece at 50% for player kills, 25% otherwise. Rare drops
+        // are procedural because a villager zombie uses a different InfX item pool.
         zombieDrops(InfXEntityTypes.INFX_ZOMBIE.get());
         zombieDrops(InfXEntityTypes.WIGHT.get());
         zombieDrops(InfXEntityTypes.REVENANT.get());
-        // MITE ghouls, stalkers and shadows drop nothing at all.
+        // InfX ghouls, stalkers and shadows drop nothing at all.
         emptyDrops(InfXEntityTypes.INVISIBLE_STALKER.get());
         emptyDrops(InfXEntityTypes.GHOUL.get());
         emptyDrops(InfXEntityTypes.SHADOW.get());
@@ -87,7 +87,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 InfXEntityTypes.PHASE_SPIDER.get(),
                 LootTable.lootTable().withPool(spiderEyePool()));
 
-        // MITE creepers keep their powder for player kills and yield a disc to skeleton kills.
+        // InfX creepers keep their powder for player kills and yield a disc to skeleton kills.
         add(
                 InfXEntityTypes.INFX_CREEPER.get(),
                 LootTable.lootTable()
@@ -108,7 +108,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 InfXEntityTypes.PUDDING)) {
             emptyDrops(type.get());
         }
-        // MITE magma cubes only leak cream from size two and up: nextInt(4 + looting) - 2.
+        // InfX magma cubes only leak cream from size two and up: nextInt(4 + looting) - 2.
         add(
                 InfXEntityTypes.MAGMA_CUBE.get(),
                 LootTable.lootTable().withPool(
@@ -123,7 +123,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                                 EntityPredicate.Builder.entity()
                                                         .subPredicate(SlimePredicate.sized(MinMaxBounds.Ints.atLeast(2))))))));
 
-        // MITE endermen roll nextInt(2 + looting), so the normal 0-1 pearl roll
+        // InfX endermen roll nextInt(2 + looting), so the normal 0-1 pearl roll
         // receives the same per-level random count increase as blaze rods.
         add(
                 InfXEntityTypes.INFX_ENDERMAN.get(),
@@ -134,7 +134,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
                                         .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
                                                 lookup, UniformGenerator.between(0.0F, 1.0F))))));
-        // MITE squid surrender exactly one ink sac, and only to player kills.
+        // InfX squid surrender exactly one ink sac, and only to player kills.
         add(
                 InfXEntityTypes.INFX_SQUID.get(),
                 LootTable.lootTable().withPool(killedByPlayerPool(Items.INK_SAC, 1.0F, 1.0F)));
@@ -145,7 +145,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
         witchDrops();
 
-        // MITE pig zombies: flesh like zombies, loose nuggets, and a rare gold ingot.
+        // InfX pig zombies: flesh like zombies, loose nuggets, and a rare gold ingot.
         add(
                 InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get(),
                 LootTable.lootTable()
@@ -163,7 +163,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                         lookup, 0.025F, 0.01F))
                                 .add(LootItem.lootTableItem(Items.GOLD_INGOT))));
 
-        // MITE blaze rods: nextInt(2 + looting), player kills only.
+        // InfX blaze rods: nextInt(2 + looting), player kills only.
         add(
                 InfXEntityTypes.INFX_BLAZE.get(),
                 LootTable.lootTable().withPool(
@@ -174,9 +174,9 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 1.0F)))
                                         .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
                                                 lookup, UniformGenerator.between(0.0F, 1.0F))))));
-        // MITE fire elementals leave nothing behind.
+        // InfX fire elementals leave nothing behind.
         emptyDrops(InfXEntityTypes.FIRE_ELEMENTAL.get());
-        // MITE ghasts carry both powder and the tear the brewing chain depends on.
+        // InfX ghasts carry both powder and the tear the brewing chain depends on.
         add(
                 InfXEntityTypes.INFX_GHAST.get(),
                 LootTable.lootTable()
@@ -200,7 +200,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             add(type.get(), LootTable.lootTable());
         }
-        // MITE: hellhounds drop nothing; wolves and dire wolves leave one piece of leather.
+        // InfX: hellhounds drop nothing; wolves and dire wolves leave one piece of leather.
         emptyDrops(InfXEntityTypes.HELLHOUND.get());
         drops(InfXEntityTypes.DIRE_WOLF.get(), Items.LEATHER, 1.0F, 1.0F);
 
@@ -227,7 +227,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
         drops(InfXEntityTypes.INFX_WOLF.get(), Items.LEATHER, 1.0F, 1.0F);
     }
 
-    /** MITE witches roll 1-5 draws from an 18-slot table (stick twice, one slot of six potions). */
+    /** InfX witches roll 1-5 draws from an 18-slot table (stick twice, one slot of six potions). */
     private void witchDrops() {
         LootPool.Builder pool = LootPool.lootPool().setRolls(UniformGenerator.between(1.0F, 5.0F));
         Item[] singles = {

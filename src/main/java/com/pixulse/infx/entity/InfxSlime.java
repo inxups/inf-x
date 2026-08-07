@@ -130,7 +130,7 @@ public final class InfxSlime extends Slime implements InfxMob {
     }
 
     static double movementSpeedForSize(int size) {
-        // MITE's old cube AI used a fixed 0.1 movement throttle; the inherited 0.7
+        // the old cube AI used a fixed 0.1 movement throttle; the inherited 0.7
         // attribute was not a modern-speed value.  Keep 26.2's cube size curve.
         return MODERN_BASE_MOVEMENT_SPEED + MODERN_MOVEMENT_SPEED_PER_SIZE * Math.max(1, size);
     }
@@ -175,7 +175,7 @@ public final class InfxSlime extends Slime implements InfxMob {
         }
 
         goalSelector.addGoal(0, new FloatGoal(this));
-        // Keep the crawl goal for pursuit only. MITE ooze damage is dispatched by the
+        // Keep the crawl goal for pursuit only. InfX ooze damage is dispatched by the
         // slime collision callback, never by a hitbox-expanded melee-goal check.
         goalSelector.addGoal(2, new OozePursuitGoal(this));
         goalSelector.addGoal(5, new OozeRandomMovementGoal(this));
@@ -192,19 +192,19 @@ public final class InfxSlime extends Slime implements InfxMob {
         }
     }
 
-    /** MITE cubes never climb ladders; only the ooze creeps up walls it presses against. */
+    /** InfX cubes never climb ladders; only the ooze creeps up walls it presses against. */
     @Override
     public boolean onClimbable() {
         return variant() == Variant.OOZE && horizontalCollision;
     }
 
-    /** MITE jump cadence: 40-120 ticks at rest, an effective 10 while chasing (30 / 3). */
+    /** InfX jump cadence: 40-120 ticks at rest, an effective 10 while chasing (30 / 3). */
     @Override
     protected int getJumpDelay() {
         return getTarget() != null ? 30 : random.nextInt(81) + 40;
     }
 
-    /** MITE spawn sizes are uniform 1/2/4 with no difficulty bias. */
+    /** InfX spawn sizes are uniform 1/2/4 with no difficulty bias. */
     @Override
     public @org.jspecify.annotations.Nullable SpawnGroupData finalizeSpawn(
             @NonNull ServerLevelAccessor level,
@@ -212,12 +212,12 @@ public final class InfxSlime extends Slime implements InfxMob {
             @NonNull EntitySpawnReason spawnReason,
             @org.jspecify.annotations.Nullable SpawnGroupData groupData) {
         SpawnGroupData result = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
-        // Unlike vanilla's difficulty-biased size roll, MITE uses a uniform 1/2/4 choice.
+        // Unlike vanilla's difficulty-biased size roll, InfX uses a uniform 1/2/4 choice.
         setSize(1 << level.getRandom().nextInt(3), true);
         return result;
     }
 
-    /** MITE cubes damage the animals and villagers they collide with, not only players. */
+    /** InfX cubes damage the animals and villagers they collide with, not only players. */
     @Override
     public void push(@NonNull Entity entity) {
         super.push(entity);
@@ -367,7 +367,7 @@ public final class InfxSlime extends Slime implements InfxMob {
         return gelatinousSphere(variant().landingParticleColor());
     }
 
-    /** Modern equivalent of MITE's five colored slime-ball squish particles. */
+    /** Modern equivalent of InfX's five colored slime-ball squish particles. */
     @Override
     protected @NonNull ParticleOptions getParticleType() {
         return new ItemParticleOption(
@@ -408,7 +408,7 @@ public final class InfxSlime extends Slime implements InfxMob {
                 || source.getDirectEntity() instanceof Snowball) {
             return true;
         }
-        // MITE counts every enchanted weapon (melee or bow) as magic, the main way to kill these.
+        // InfX counts every enchanted weapon (melee or bow) as magic, the main way to kill these.
         if (MobDamageRules.hasMagicAspect(source)) {
             return true;
         }

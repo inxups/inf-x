@@ -10,7 +10,7 @@ import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.util.Mth;
 
 /**
- * MITE's 64x32 stalker silhouette keeps its arms raised even while idle.
+ * InfX's 64x32 stalker silhouette keeps its arms raised even while idle.
  */
 public final class InvisibleStalkerModel extends HumanoidModel<ZombieRenderState> {
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(InfiniteX.id("invisible_stalker"), "main");

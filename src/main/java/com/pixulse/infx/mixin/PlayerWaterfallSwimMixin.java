@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * MITE has no modern camera-directed sprint-swim lift. Leaving it active in a falling column lets
- * a player looking upward overcome the reduced MITE jump impulse and water pull.
+ * InfX has no modern camera-directed sprint-swim lift. Leaving it active in a falling column lets
+ * a player looking upward overcome the reduced InfX jump impulse and water pull.
  */
 @Mixin(Player.class)
 abstract class PlayerWaterfallSwimMixin {

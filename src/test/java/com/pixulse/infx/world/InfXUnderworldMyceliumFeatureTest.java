@@ -21,7 +21,7 @@ class InfXUnderworldMyceliumFeatureTest {
             new InfXUnderworldMyceliumFeature(NoneFeatureConfiguration.CODEC);
 
     @Test
-    void usesAOneInSixteenPostRollAndMitePairHash() {
+    void usesAOneInSixteenPostRollAndPairHash() {
         assertAll(
                 () -> assertTrue(InfXUnderworldMyceliumFeature.isPostRoll(0.0F)),
                 () -> assertTrue(InfXUnderworldMyceliumFeature.isPostRoll(0.0624F)),
@@ -48,7 +48,7 @@ class InfXUnderworldMyceliumFeatureTest {
     }
 
     @Test
-    void includesMitesRadiusToleranceAtThePostBoundary() {
+    void includesRadiusToleranceAtThePostBoundary() {
         InfXUnderworldMyceliumFeature.MyceliumPost post =
                 new InfXUnderworldMyceliumFeature.MyceliumPost(0L, 0, 0, 0, 0, 144, 1);
 

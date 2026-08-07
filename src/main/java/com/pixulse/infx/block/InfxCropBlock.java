@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 /**
- * MITE row crop implementation. Disease and death are synchronized block-state properties so
+ * InfX row crop implementation. Disease and death are synchronized block-state properties so
  * their supplied textures represent the actual server state rather than hidden saved data.
  */
 public final class InfxCropBlock extends CropBlock {
@@ -59,7 +59,7 @@ public final class InfxCropBlock extends CropBlock {
 
     @Override
     protected boolean isRandomlyTicking(BlockState state) {
-        // MITE keeps mature crops ticking so they can blight; dead crops never tick again.
+        // InfX keeps mature crops ticking so they can blight; dead crops never tick again.
         return !state.getValue(DEAD);
     }
 
@@ -122,7 +122,7 @@ public final class InfxCropBlock extends CropBlock {
 
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
-        // White dye in MITE cures blight; it does not accelerate healthy row crops.
+        // White dye in InfX cures blight; it does not accelerate healthy row crops.
         return !state.getValue(DEAD) && state.getValue(BLIGHTED);
     }
 

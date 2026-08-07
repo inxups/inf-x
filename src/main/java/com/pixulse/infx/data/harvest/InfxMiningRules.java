@@ -8,7 +8,7 @@ import com.pixulse.infx.registry.tag.InfXBlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** MITE INFX tool-family and harvest-level checks for InfiniteX equipment. */
+/** INFX tool-family and harvest-level checks for InfiniteX equipment. */
 public final class InfxMiningRules {
     private InfxMiningRules() {}
 

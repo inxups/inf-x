@@ -13,7 +13,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
-/** Restores MITE stack limits for vanilla items that are not ordinary block items. */
+/** Restores InfX stack limits for vanilla items that are not ordinary block items. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class InfXVanillaItemStackLimits {
     private static final int DEFAULT_ITEM_LIMIT = 16;
@@ -80,12 +80,12 @@ public final class InfXVanillaItemStackLimits {
             }
         }
 
-        int miteLimit = sourceLimit(item);
+        int limit = sourceLimit(item);
         if (STACK_FOUR.contains(item)) {
-            // MITE's ItemBowl uses four slots for every filled bowl meal.
-            return OptionalInt.of(miteLimit);
+            // InfX's ItemBowl uses four slots for every filled bowl meal.
+            return OptionalInt.of(limit);
         }
-        return OptionalInt.of(Math.min(miteLimit, currentLimit));
+        return OptionalInt.of(Math.min(limit, currentLimit));
     }
 
     private static boolean isVanilla(Identifier id) {

@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** MITE flint and steel has 16 durability instead of the modern 64. */
+/** InfX flint and steel has 16 durability instead of the modern 64. */
 @Mixin(IItemExtension.class)
 public interface FlintAndSteelDurabilityMixin {
     @Inject(method = "getMaxDamage", at = @At("HEAD"), cancellable = true)

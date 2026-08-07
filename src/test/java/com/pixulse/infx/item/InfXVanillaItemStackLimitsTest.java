@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class InfXVanillaItemStackLimitsTest {
     @Test
-    void restoresVanillaMiteStackTiers() {
+    void restoresVanillaStackTiers() {
         assertLimit(1, Items.WRITTEN_BOOK);
         assertLimit(4, Items.MUSHROOM_STEW, Items.RABBIT_STEW, Items.BEETROOT_SOUP, Items.SUSPICIOUS_STEW);
         assertLimit(

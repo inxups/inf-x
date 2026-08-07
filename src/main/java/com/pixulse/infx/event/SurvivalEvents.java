@@ -81,7 +81,7 @@ public final class SurvivalEvents {
         event.modify(Items.EGG, (components, context, item) -> components
                 .set(DataComponents.FOOD, egg)
                 .set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD));
-        // 26.2 blue and brown eggs follow the same MITE egg profile as the plain egg.
+        // 26.2 blue and brown eggs follow the same InfX egg profile as the plain egg.
         event.modify(Items.BLUE_EGG, (components, context, item) -> components
                 .set(DataComponents.FOOD, egg)
                 .set(DataComponents.CONSUMABLE, Consumables.DEFAULT_FOOD));

@@ -9,7 +9,7 @@ import net.minecraft.world.entity.monster.RangedAttackMob;
 import org.jspecify.annotations.Nullable;
 
 /** Modern ranged pursuit with INFX's real firing cutoff instead of a stopping-distance hint. */
-final class InfxHardLimitedRangedAttackGoal extends Goal {
+final class InfxHardCappedRangedAttackGoal extends Goal {
     private final Mob mob;
     private final RangedAttackMob rangedMob;
     private final double speedModifier;
@@ -20,7 +20,7 @@ final class InfxHardLimitedRangedAttackGoal extends Goal {
     private int attackTime = -1;
     private int seeTime;
 
-    InfxHardLimitedRangedAttackGoal(
+    InfxHardCappedRangedAttackGoal(
             RangedAttackMob rangedMob, double speedModifier, int attackInterval, float attackRadius) {
         if (!(rangedMob instanceof Mob mob)) {
             throw new IllegalArgumentException("INFX ranged attacker must also be a Mob");

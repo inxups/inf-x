@@ -20,10 +20,10 @@ import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
 
 /**
- * MITE INFX crafting difficulty and workbench-level rules adapted to the
+ * INFX crafting difficulty and workbench-level rules adapted to the
  * modern 26.2 recipe API.
  *
- * <p>MITE stores a difficulty on each recipe at registration time.  Modern
+ * <p>InfX stores a difficulty on each recipe at registration time.  Modern
  * ingredients can be tags and special recipes can produce an output based on
  * the actual stacks, so the adapter computes the value for the matched input
  * on the server.  This is equivalent for ordinary recipes and is more precise
@@ -44,7 +44,7 @@ public final class InfxCraftingRules {
      *
      * <p>Recipe slots, rather than the stack count in a slot, are counted. A
      * vanilla crafting recipe consumes one item from each occupied slot; this
-     * also mirrors MITE's expansion of counted shapeless components into
+     * also mirrors InfX's expansion of counted shapeless components into
      * one-item entries.</p>
      */
     public static float componentDifficulty(ItemStack stack) {
@@ -81,13 +81,13 @@ public final class InfxCraftingRules {
         }
 
         // INFX assigns 25 to the large family of simple drops (seeds, dyes,
-        // food, paper, sticks, etc.).  New 26.2 items without an old MITE
+        // food, paper, sticks, etc.).  New 26.2 items without an old InfX
         // counterpart use the same conservative leaf value instead of making
         // them free or bypassing the timed-crafting path.
         return MINIMUM_DIFFICULTY;
     }
 
-    /** Sums occupied input slots, as MITE's RecipeHelper does. */
+    /** Sums occupied input slots, as InfX's RecipeHelper does. */
     public static float recipeDifficulty(CraftingInput input) {
         float result = 0.0F;
         for (ItemStack stack : input.items()) {
@@ -99,7 +99,7 @@ public final class InfxCraftingRules {
     /**
      * Computes a representative difficulty for recipe displays/JEI when no
      * concrete input is available. The cheapest member of a tag is used,
-     * matching MITE's lowest-producible-component convention.
+     * matching InfX's lowest-producible-component convention.
      */
     public static float representativeDifficulty(CraftingRecipe recipe) {
         float result = 0.0F;
@@ -142,7 +142,7 @@ public final class InfxCraftingRules {
     }
 
     /**
-     * Returns the workbench bonus used by MITE's EntityPlayerSP. Ordinary
+     * Returns the workbench bonus used by InfX's EntityPlayerSP. Ordinary
      * recipes receive 20% on any workbench; material-gated recipes use the
      * actual workbench tier. Hand crafting has no bench bonus.
      */
@@ -217,13 +217,13 @@ public final class InfxCraftingRules {
             return false;
         }
 
-        // MITE marks planks as wood products even though wood is not a metal;
+        // InfX marks planks as wood products even though wood is not a metal;
         // in modern InfiniteX this is the flint-level woodworking gate.
         if (path.contains("plank") || path.endsWith("_workbench")) {
             return true;
         }
 
-        // The output, rather than an arbitrary ingredient, determines MITE's
+        // The output, rather than an arbitrary ingredient, determines InfX's
         // hardness check.  This prevents iron rails or redstone components
         // from being promoted solely because their recipe happens to consume
         // an ingot, while still covering modern metal hardware by name.

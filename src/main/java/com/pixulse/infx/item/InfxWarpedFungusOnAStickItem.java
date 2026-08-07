@@ -8,7 +8,7 @@ import net.minecraft.world.item.FoodOnAStickItem;
 import net.minecraft.world.entity.monster.Strider;
 
 /**
- * MITE warped-fungus-on-a-stick equivalent: the modern counterpart of the
+ * InfX warped-fungus-on-a-stick equivalent: the modern counterpart of the
  * carrot-on-a-stick, with one stick per fishing-hook material for steering
  * striders. The vanilla strider entity is used, so the base class behavior
  * (one durability point of damage per boost) is kept.

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 class SoundResourceTest {
     @Test
-    void gelatinousCubeCorrosionUsesTheMiteVanillaFizz() throws Exception {
+    void gelatinousCubeCorrosionUsesTheVanillaFizz() throws Exception {
         Path sounds = findProjectRoot().resolve("src/main/resources/assets/infx/sounds.json");
         try (Reader reader = Files.newBufferedReader(sounds, UTF_8)) {
             JsonObject event = JsonParser.parseReader(reader)

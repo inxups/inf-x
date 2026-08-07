@@ -19,7 +19,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 
-/** MITE INFX's ordinary stick and bone item behavior. */
+/** INFX's ordinary stick and bone item behavior. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class StickBoneItems {
     static final int STICK_STACK_LIMIT = 32;
@@ -37,7 +37,7 @@ public final class StickBoneItems {
     }
 
     /**
-     * MITE {@code Item.stick}/{@code Item.bone}: both extend only melee reach by 0.5 blocks.
+     * InfX {@code Item.stick}/{@code Item.bone}: both extend only melee reach by 0.5 blocks.
      * They do not extend block reach or entity-interaction reach.
      */
     public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {

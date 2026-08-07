@@ -22,7 +22,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.NonNull;
 
-/** MITE EntityBrick: the throwable counterpart of the brick, nether brick and resin brick items. */
+/** InfX EntityBrick: the throwable counterpart of the brick, nether brick and resin brick items. */
 public final class InfxBrickProjectile extends ThrowableItemProjectile {
     public InfxBrickProjectile(EntityType<? extends InfxBrickProjectile> type, Level level) {
         super(type, level);
@@ -53,7 +53,7 @@ public final class InfxBrickProjectile extends ThrowableItemProjectile {
             return;
         }
         Entity target = hitResult.getEntity();
-        // MITE EntityBrick#onImpact: 2.0 thrown damage.
+        // InfX EntityBrick#onImpact: 2.0 thrown damage.
         target.hurtServer(level, damageSources().thrown(this, getOwner()), 2.0F);
     }
 
@@ -63,7 +63,7 @@ public final class InfxBrickProjectile extends ThrowableItemProjectile {
         if (level() instanceof ServerLevel level) {
             BlockPos pos = hitResult.getBlockPos();
             BlockState state = level.getBlockState(pos);
-            // MITE EntityBrick#onImpact: a brick breaks thin glass (panes) on impact.
+            // InfX EntityBrick#onImpact: a brick breaks thin glass (panes) on impact.
             if (BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath().endsWith("glass_pane")) {
                 level.destroyBlock(pos, false);
             }

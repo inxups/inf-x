@@ -57,8 +57,8 @@ public final class MonsterTactics {
         return nearbyMatchingMobs >= 20;
     }
 
-    /** MITE block spawners ignore torch light but do not create a mob that sunlight would burn. */
-    public static boolean allowsMiteSpawnerLightBypass(
+    /** InfX block spawners ignore torch light but do not create a mob that sunlight would burn. */
+    public static boolean allowsSpawnerLightBypass(
             net.minecraft.world.entity.EntitySpawnReason spawnReason,
             boolean vanillaPlacementAllowed,
             boolean placementAllowedIgnoringLight,
@@ -107,7 +107,7 @@ public final class MonsterTactics {
         }
     }
 
-    /** MITE mobs drop naturally carried equipment at the default 8.5% chance. */
+    /** InfX mobs drop naturally carried equipment at the default 8.5% chance. */
     public static void equip(
             ServerLevel level,
             Mob mob,
@@ -125,9 +125,9 @@ public final class MonsterTactics {
     }
 
     /**
-     * MITE carve-outs from world-age gear: arachnids, blazes, fire elementals and pig zombies
+     * InfX carve-outs from world-age gear: arachnids, blazes, fire elementals and pig zombies
      * never carry scaled equipment, and the zombie/skeleton variants either spawn bare or bring
-     * their own fixed MITE kit which must not be overwritten.
+     * their own fixed InfX kit which must not be overwritten.
      */
     static boolean wearsWorldAgeGear(Mob mob) {
         if (mob instanceof InfxSpider
@@ -189,7 +189,7 @@ public final class MonsterTactics {
 
         ItemStack tool = mob.getMainHandItem();
         float speed = Math.max(1.0F, tool.getDestroySpeed(state));
-        // MITE bare-handed diggers only clear soft blocks; stone (hardness 1.5) requires a tool.
+        // InfX bare-handed diggers only clear soft blocks; stone (hardness 1.5) requires a tool.
         float maximumHardness = speed > 1.0F ? 12.0F : 1.4F;
         if (hardness > maximumHardness) return stopDigging(level, mob);
         int required = Math.clamp(Mth.ceil(40.0F * Math.max(0.25F, hardness) / speed), 10, 240);
@@ -209,10 +209,10 @@ public final class MonsterTactics {
         return true;
     }
 
-    /** True while a MITE monster is actively progressing through this module's block-dig task. */
+    /** True while a InfX monster is actively progressing through this module's block-dig task. */
     public static boolean isDigging(Mob mob) {
         return mob instanceof EarthElemental elemental
-                ? elemental.isMiteDigging()
+                ? elemental.isDigging()
                 : mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
     }
 

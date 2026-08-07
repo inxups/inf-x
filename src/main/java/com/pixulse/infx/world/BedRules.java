@@ -1,6 +1,6 @@
 package com.pixulse.infx.world;
 
-/** Time boundaries used by MITE INFX's cooperative bed fast-forward. */
+/** Time boundaries used by INFX's cooperative bed fast-forward. */
 public final class BedRules {
     public static final int DAY_LENGTH = 24_000;
     public static final int ADJUSTED_TIME_OFFSET = 6_000;

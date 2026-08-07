@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 class GrassTramplingTest {
     @Test
-    void tramplingEffectMatchesMiteCurve() {
+    void tramplingEffectMatchesCurve() {
         assertEquals(0.0F, GrassTrampling.tramplingEffect(0), 1.0e-6F);
         assertEquals(0.0F, GrassTrampling.tramplingEffect(3), 1.0e-6F);
         assertEquals(0.05F, GrassTrampling.tramplingEffect(4), 1.0e-6F);

@@ -10,7 +10,7 @@ import org.jspecify.annotations.Nullable;
 /**
  * One server-tick's Nightwing vision-dimming value, synchronized only to the struck player.
  *
- * <p>MITE sends the maximum dimming accumulated during a server tick and lets the client fade
+ * <p>InfX sends the maximum dimming accumulated during a server tick and lets the client fade
  * it. The revision preserves that packet-like behavior when a player is struck again later.
  */
 public record NightwingDimming(float amount, long updatedAt, long revision) {

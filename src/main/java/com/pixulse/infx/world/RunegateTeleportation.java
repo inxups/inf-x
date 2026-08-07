@@ -16,7 +16,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-/** Coordinates MITE's client-led rune-gate fade before committing the teleport. */
+/** Coordinates InfX's client-led rune-gate fade before committing the teleport. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class RunegateTeleportation {
     public static final int LOADING_TICKS = 20;

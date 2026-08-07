@@ -18,7 +18,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Shared INFX/MITE combat vulnerability helpers for special mobs. */
+/** Shared INFX combat vulnerability helpers for special mobs. */
 public final class MobDamageRules {
     private MobDamageRules() {}
 
@@ -43,14 +43,14 @@ public final class MobDamageRules {
     }
 
     /**
-     * MITE magma cubes / earth elementals accept tools that are effective against stone
+     * InfX magma cubes / earth elementals accept tools that are effective against stone
      * (pickaxes and war hammers), not only the vanilla pickaxe item tag.
      */
     public static boolean isStoneMiningTool(ItemStack stack) {
         return isEffectiveMiningTool(stack, Blocks.STONE.defaultBlockState());
     }
 
-    /** Returns whether a held tool is effective against a specific MITE earth-elemental body. */
+    /** Returns whether a held tool is effective against a specific InfX earth-elemental body. */
     public static boolean isEffectiveMiningTool(ItemStack stack, BlockState state) {
         if (stack.isEmpty()) {
             return false;
@@ -67,7 +67,7 @@ public final class MobDamageRules {
 
     /**
      * Magma-cube gate: water/snowball/explosion, or a stone-mining tool in the attacker's hand.
-     * MITE blocks every other source, including melee from mobs without an effective tool.
+     * InfX blocks every other source, including melee from mobs without an effective tool.
      */
     public static boolean magmaCubeAccepts(DamageSource source) {
         if (source.getDirectEntity() instanceof Snowball
@@ -84,7 +84,7 @@ public final class MobDamageRules {
 
     /**
      * Earth-elemental gate: explosions and falls always land; iron-golem melee is exempt; every
-     * other attacker needs a stone-mining tool. MITE grants no free pass to mob melee or hazards.
+     * other attacker needs a stone-mining tool. InfX grants no free pass to mob melee or hazards.
      */
     public static boolean earthElementalAccepts(EarthElemental elemental, DamageSource source) {
         if (elemental.isNormalClay()) {
@@ -107,7 +107,7 @@ public final class MobDamageRules {
     }
 
     /**
-     * MITE blaze vulnerability: only snowball and water damage always hurt; fire damage and
+     * InfX blaze vulnerability: only snowball and water damage always hurt; fire damage and
      * fire-aspect / flame weapons never do; other enchanted weapons do. Attacker ignition is ignored.
      */
     public static boolean blazeAccepts(ServerLevel level, DamageSource source) {
@@ -122,14 +122,14 @@ public final class MobDamageRules {
     }
 
     /**
-     * MITE fire elemental uses the same immunity shape as blaze: water/snowball always hurt;
+     * InfX fire elemental uses the same immunity shape as blaze: water/snowball always hurt;
      * only non-fire enchanted weapons land otherwise.
      */
     public static boolean fireElementalAccepts(ServerLevel level, DamageSource source) {
         return blazeAccepts(level, source);
     }
 
-    /** MITE silver aspect: silver-headed arrows in flight or a silver weapon in the attacker's hand. */
+    /** InfX silver aspect: silver-headed arrows in flight or a silver weapon in the attacker's hand. */
     public static boolean hasSilverAspect(DamageSource source) {
         if (source.getDirectEntity() instanceof AbstractArrow arrow
                 && arrow.getPickupItemStackOrigin().getItem() instanceof InfxArrowItem arrowItem) {
@@ -144,7 +144,7 @@ public final class MobDamageRules {
         return false;
     }
 
-    /** MITE magic aspect: magic-typed damage, or any enchanted weapon (melee hand or firing bow). */
+    /** InfX magic aspect: magic-typed damage, or any enchanted weapon (melee hand or firing bow). */
     public static boolean hasMagicAspect(DamageSource source) {
         if (source.is(DamageTypeTags.WITCH_RESISTANT_TO)) {
             return true;
@@ -154,7 +154,7 @@ public final class MobDamageRules {
     }
 
     /**
-     * MITE shadow/nightwing gate: immune to everything except silver, magic and sunlight; the
+     * InfX shadow/nightwing gate: immune to everything except silver, magic and sunlight; the
      * sunlight instant-kill arrives as generic-kill damage, covered by BYPASSES_INVULNERABILITY.
      */
     public static boolean silverMagicGateAccepts(DamageSource source) {
@@ -163,7 +163,7 @@ public final class MobDamageRules {
                 || hasMagicAspect(source);
     }
 
-    /** MITE wight gate: immune to everything except fire, lava, silver and magic. */
+    /** InfX wight gate: immune to everything except fire, lava, silver and magic. */
     public static boolean wightAccepts(DamageSource source) {
         return source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 || source.is(DamageTypeTags.IS_FIRE)

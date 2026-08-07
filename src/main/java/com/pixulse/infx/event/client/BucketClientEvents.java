@@ -13,7 +13,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * MITE ctrl_is_down for buckets. An empty bucket takes the liquid cell it scoops from; a filled one
+ * InfX ctrl_is_down for buckets. An empty bucket takes the liquid cell it scoops from; a filled one
  * places a permanent source for 100 XP. Both need the server to know Ctrl was held, so the use is
  * cancelled client-side and replayed server-side under the flag.
  */

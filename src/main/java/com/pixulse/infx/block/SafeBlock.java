@@ -29,7 +29,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 public final class SafeBlock extends BarrelBlock {
-    /** MITE strongbox bounds: 1–15 on X/Z, 0–14 on Y. */
+    /** InfX strongbox bounds: 1–15 on X/Z, 0–14 on Y. */
     private static final VoxelShape SHAPE = Shapes.box(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
 
     private final InfxMaterial material;

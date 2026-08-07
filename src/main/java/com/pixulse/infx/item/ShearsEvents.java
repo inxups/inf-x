@@ -31,7 +31,7 @@ public final class ShearsEvents {
     }
 
     /**
-     * MITE shears harvest one piece of string from cobwebs instead of the modern cobweb block.
+     * InfX shears harvest one piece of string from cobwebs instead of the modern cobweb block.
      * Every other tool (including the hand) destroys cobwebs without dropping anything.
      */
     @SubscribeEvent

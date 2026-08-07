@@ -93,7 +93,7 @@ public final class ModMechanicsGameTests {
         }
     }
 
-    /** MITE Block#dropBlockAsEntityItem: exploded wool, brick and stone drop their exploded forms. */
+    /** InfX Block#dropBlockAsEntityItem: exploded wool, brick and stone drop their exploded forms. */
     private static void explosionDrops(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         BlockPos wool = helper.absolutePos(new BlockPos(2, 2, 2));
@@ -137,7 +137,7 @@ public final class ModMechanicsGameTests {
         });
     }
 
-    /** MITE BlockCauldron ItemVessel branch: buckets move three levels, bowls one. */
+    /** InfX BlockCauldron ItemVessel branch: buckets move three levels, bowls one. */
     private static void cauldronVessels(GameTestHelper helper) {
         ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
         ServerLevel level = helper.getLevel();
@@ -185,7 +185,7 @@ public final class ModMechanicsGameTests {
         helper.succeed();
     }
 
-    /** MITE ItemBrick#onItemRightClick: brick throws a projectile and consumes one. */
+    /** InfX ItemBrick#onItemRightClick: brick throws a projectile and consumes one. */
     private static void brickThrow(GameTestHelper helper) {
         ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
         ServerLevel level = helper.getLevel();
@@ -203,7 +203,7 @@ public final class ModMechanicsGameTests {
         helper.succeed();
     }
 
-    /** 26.2 blue and brown eggs follow the INFX/MITE egg profile. */
+    /** 26.2 blue and brown eggs follow the INFX egg profile. */
     private static void coloredEggs(GameTestHelper helper) {
         ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
         FoodProfile egg = FoodProfiles.forStack(Items.EGG.getDefaultInstance());
@@ -216,13 +216,13 @@ public final class ModMechanicsGameTests {
                     profile.satiation() == egg.satiation()
                             && profile.nutrition() == egg.nutrition()
                             && profile.protein() == egg.protein(),
-                    eggItem + " must use the egg's MITE food profile");
+                    eggItem + " must use the egg's InfX food profile");
         }
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 
-    /** MITE EntitySheep: a gelatinous sphere hit instantly corrodes the wool. */
+    /** InfX EntitySheep: a gelatinous sphere hit instantly corrodes the wool. */
     private static void sphereSheep(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         var sheep = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_SHEEP.get(), new BlockPos(2, 2, 2));

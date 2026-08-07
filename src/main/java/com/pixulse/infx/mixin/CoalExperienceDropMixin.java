@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** MITE coal ore yields no experience when mined. */
+/** InfX coal ore yields no experience when mined. */
 @Mixin(DropExperienceBlock.class)
 public abstract class CoalExperienceDropMixin {
     @Inject(method = "getExpDrop", at = @At("HEAD"), cancellable = true)

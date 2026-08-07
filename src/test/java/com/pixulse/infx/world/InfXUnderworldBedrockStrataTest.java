@@ -25,7 +25,7 @@ class InfXUnderworldBedrockStrataTest {
     }
 
     @Test
-    void higherStrataUseTheConfiguredCentersAndMitePriorityOrder() {
+    void higherStrataUseTheConfiguredCentersAndPriorityOrder() {
         var second = values(-1.0, -1.0, -0.75, -1.0, -1.0);
         var third = values(-1.0, -1.0, -10.0, 1.0, 0.0);
         var fourth = values(-1.0, -1.0, -10.0, 0.0, 1.0);

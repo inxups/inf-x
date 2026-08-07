@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/** Uses raw experience for MITE enchanting menus and hides their vanilla option clue tooltip. */
+/** Uses raw experience for InfX enchanting menus and hides their vanilla option clue tooltip. */
 @Mixin(EnchantmentScreen.class)
 public abstract class EnchantmentScreenMixin {
     @Redirect(
@@ -30,7 +30,7 @@ public abstract class EnchantmentScreenMixin {
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;setComponentTooltipForNextFrame(Lnet/minecraft/client/gui/Font;Ljava/util/List;II)V"))
-    private void infx$hideMiteEnchantmentTooltip(
+    private void infx$hideEnchantmentTooltip(
             GuiGraphicsExtractor graphics, Font font, List<Component> tooltip, int mouseX, int mouseY) {
         if (!(((EnchantmentScreen) (Object) this).getMenu() instanceof InfxEnchantmentMenu)) {
             graphics.setComponentTooltipForNextFrame(font, tooltip, mouseX, mouseY);

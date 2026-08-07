@@ -53,7 +53,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
         tamingCooldown = ticks;
     }
 
-    /** MITE experience: hellhounds are worth triple, dire wolves double the base value. */
+    /** InfX experience: hellhounds are worth triple, dire wolves double the base value. */
     @Override
     public int getBaseExperienceReward(@NonNull ServerLevel level) {
         return variant() == Variant.HELLHOUND ? 15 : 10;
@@ -117,7 +117,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
     @Override
     protected void registerGoals() {
         super.registerGoals();
-        // MITE: only hellhounds hunt players on sight; dire wolves are near-neutral (see aiStep).
+        // InfX: only hellhounds hunt players on sight; dire wolves are near-neutral (see aiStep).
         if (variant() == Variant.HELLHOUND) {
             targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(
                     this,
@@ -131,7 +131,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        // MITE hellhounds cannot be fed, tamed, or sat down.
+        // InfX hellhounds cannot be fed, tamed, or sat down.
         if (variant() == Variant.HELLHOUND) {
             return InteractionResult.PASS;
         }
@@ -162,7 +162,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
             return super.mobInteract(player, hand);
         }
         if (!level().isClientSide() && itemStack.is(Items.BONE) && !isAngry()) {
-            // MITE dire wolves refuse feeding during the taming cooldown without consuming the bone.
+            // InfX dire wolves refuse feeding during the taming cooldown without consuming the bone.
             if (tamingCooldown() > 0) {
                 return InteractionResult.PASS;
             }
@@ -179,7 +179,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
         if (tamingCooldown > 0) {
             tamingCooldown--;
         }
-        // MITE dire wolves snap at players within 4 blocks at 0.4% per tick, sparing pups,
+        // InfX dire wolves snap at players within 4 blocks at 0.4% per tick, sparing pups,
         // breeding pairs and blue-moon nights.
         if (variant() == Variant.DIRE_WOLF
                 && !isTame()
@@ -196,7 +196,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
         }
     }
 
-    /** MITE: untamed wolves fade out after two minutes; hellhounds despawn like any monster. */
+    /** InfX: untamed wolves fade out after two minutes; hellhounds despawn like any monster. */
     @Override
     public boolean removeWhenFarAway(double distance) {
         return variant() == Variant.HELLHOUND || (!isTame() && tickCount > 2400);
@@ -224,7 +224,7 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
         return baby;
     }
 
-    /** MITE wolves shrug off half the damage from non-player, non-arrow attackers. */
+    /** InfX wolves shrug off half the damage from non-player, non-arrow attackers. */
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         if (source.getEntity() != null

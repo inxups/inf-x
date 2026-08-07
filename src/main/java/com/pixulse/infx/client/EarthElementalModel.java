@@ -12,7 +12,7 @@ import net.minecraft.util.Mth;
  * INFX's 64x32 ModelInvisibleStalker geometry and its permanently raised-arm animation.
  *
  * <p>The old model was otherwise the normal biped layout, so the modern humanoid mesh keeps the
- * authored MITE UV placement while this override reproduces its distinctive arm pose.
+ * authored InfX UV placement while this override reproduces its distinctive arm pose.
  */
 public final class EarthElementalModel extends HumanoidModel<EarthElementalRenderState> {
     public static final ModelLayerLocation LAYER = new ModelLayerLocation(InfiniteX.id("earth_elemental"), "main");

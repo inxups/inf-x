@@ -24,7 +24,7 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
 
 /**
- * MITE fire elemental: melee, fireproof, lava-healing, and only vulnerable to water, snowballs,
+ * InfX fire elemental: melee, fireproof, lava-healing, and only vulnerable to water, snowballs,
  * and non-fire enchanted weapons — not a blaze fireball clone.
  */
 public final class FireElemental extends Blaze implements InfxMob {
@@ -62,37 +62,37 @@ public final class FireElemental extends Blaze implements InfxMob {
         goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
         goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        // MITE fire elementals only retaliate and hunt players; villagers are not sought out.
+        // InfX fire elementals only retaliate and hunt players; villagers are not sought out.
         targetSelector.addGoal(1, new HurtByTargetGoal(this));
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
     @Override
     protected void customServerAiStep(@NonNull ServerLevel level) {
-        // Skip Blaze hover offset; MITE fire elementals are ground melee mobs.
+        // Skip Blaze hover offset; InfX fire elementals are ground melee mobs.
     }
 
     @Override
     public void aiStep() {
         if (level() instanceof ServerLevel serverLevel) {
-            tickMiteEffects(serverLevel);
+            tickElementalEffects(serverLevel);
         }
-        // isSilent() suppresses Blaze BLAZE_BURN; explicit MITE fire/fizz playback below.
+        // isSilent() suppresses Blaze BLAZE_BURN; explicit InfX fire/fizz playback below.
         super.aiStep();
     }
 
-    private void tickMiteEffects(ServerLevel serverLevel) {
+    private void tickElementalEffects(ServerLevel serverLevel) {
         if (isInWaterOrRain()) {
             if (shouldApplyWaterAttrition(tickCount, true)) {
                 hurtServer(serverLevel, damageSources().drown(), WATER_DAMAGE);
             }
             if (--ticksUntilNextFizzSound <= 0) {
-                playMiteSound(
+                playElementalSound(
                         SoundEvents.FIRE_EXTINGUISH,
                         0.7F,
                         1.6F + (random.nextFloat() - random.nextFloat()) * 0.4F);
                 if (random.nextInt(4) == 0) {
-                    playMiteSound(InfXSounds.FIRE_ELEMENTAL_SIZZLE.get(), 1.0F, 1.0F);
+                    playElementalSound(InfXSounds.FIRE_ELEMENTAL_SIZZLE.get(), 1.0F, 1.0F);
                 }
                 ticksUntilNextFizzSound = random.nextInt(7) + 2;
                 if (random.nextInt(isInWater() ? 1 : 4) == 0) {
@@ -100,7 +100,7 @@ public final class FireElemental extends Blaze implements InfxMob {
                 }
             }
         } else if (--ticksUntilNextFireSound <= 0) {
-            playMiteSound(
+            playElementalSound(
                     SoundEvents.FIRE_AMBIENT,
                     1.0F + random.nextFloat(),
                     random.nextFloat() * 0.7F + 0.3F);
@@ -118,8 +118,8 @@ public final class FireElemental extends Blaze implements InfxMob {
         return inWaterOrRain && tickCount % WATER_TICK_INTERVAL == 0;
     }
 
-    private void playMiteSound(SoundEvent sound, float volume, float pitch) {
-        // Use level().playSound directly so isSilent() does not suppress MITE fire/fizz.
+    private void playElementalSound(SoundEvent sound, float volume, float pitch) {
+        // Use level().playSound directly so isSilent() does not suppress InfX fire/fizz.
         level().playSound(null, getX(), getY(), getZ(), sound, SoundSource.HOSTILE, volume, pitch);
     }
 
@@ -162,14 +162,14 @@ public final class FireElemental extends Blaze implements InfxMob {
 
     @Override
     public boolean isSensitiveToWater() {
-        // MITE water attrition is fully modelled in tickMiteEffects; the modern per-tick
+        // InfX water attrition is fully modelled in tickElementalEffects; the modern per-tick
         // water damage would roughly double the drain in rain.
         return false;
     }
 
     @Override
     public boolean isSilent() {
-        // Suppress Blaze client BLAZE_BURN loop; MITE fire/fizz uses direct level playSound.
+        // Suppress Blaze client BLAZE_BURN loop; InfX fire/fizz uses direct level playSound.
         return true;
     }
 }

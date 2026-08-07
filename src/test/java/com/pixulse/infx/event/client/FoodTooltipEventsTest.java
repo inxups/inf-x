@@ -17,7 +17,7 @@ class FoodTooltipEventsTest {
     @Test
     void advancedFoodTooltipsListEveryR196Gain() {
         List<Component> tooltip = new ArrayList<>();
-        FoodProfile apple = FoodProfile.mite(2, 1, 1_000, false, false, true);
+        FoodProfile apple = FoodProfile.of(2, 1, 1_000, false, false, true);
 
         FoodTooltipEvents.appendFoodGains(tooltip, apple);
 
@@ -40,7 +40,7 @@ class FoodTooltipEventsTest {
 
     @Test
     void onlyAdvancedTooltipsForKnownFoodReceiveGains() {
-        FoodProfile apple = FoodProfile.mite(2, 1, 1_000, false, false, true);
+        FoodProfile apple = FoodProfile.of(2, 1, 1_000, false, false, true);
 
         assertTrue(FoodTooltipEvents.shouldAddFoodGains(true, true, apple));
         assertFalse(FoodTooltipEvents.shouldAddFoodGains(false, true, apple));

@@ -45,7 +45,7 @@ class QualitySystemTest {
     }
 
     @Test
-    void minimumQualityUsesOnlyWitchClumsinessForTheMiteLevelPenalty() {
+    void minimumQualityUsesOnlyWitchClumsinessForTheLevelPenalty() {
         assertEquals(
                 QualitySystem.toCode(Quality.WRETCHED),
                 QualitySystem.clumsyFallbackCode(0, true));

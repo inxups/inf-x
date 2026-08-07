@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * FishingHook exposes no event before its lure timer is chosen. INFX baiting changes that timer
- * by 10% per level and the MITE bite timing scales it with the time of day, rain and worm bait,
+ * by 10% per level and the InfX bite timing scales it with the time of day, rain and worm bait,
  * so this scoped redirect changes only the lure-delay random roll.
  */
 @Mixin(FishingHook.class)
@@ -26,13 +26,13 @@ abstract class FishingHookMixin {
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/Mth;nextInt(Lnet/minecraft/util/RandomSource;II)I",
                     ordinal = 2))
-    private int infx$miteLureDelay(RandomSource random, int minimum, int maximum) {
+    private int infx$LureDelay(RandomSource random, int minimum, int maximum) {
         int delay = Mth.nextInt(random, minimum, maximum);
         FishingHook hook = (FishingHook) (Object) this;
         Player player = hook.getPlayerOwner();
         if (player == null) return delay;
         if (player.level() instanceof ServerLevel level) {
-            delay = FishingRules.miteLureDelay(level, player, delay);
+            delay = FishingRules.lureDelay(level, player, delay);
         }
         int baiting = Enchantments.level(player.level(), player.getMainHandItem(), InfXEnchantments.BAITING);
         if (baiting == 0) {

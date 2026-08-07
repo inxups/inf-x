@@ -38,7 +38,7 @@ import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
 import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
 
-/** MITE INFX stack limits for block inventory objects and their modern structural equivalents. */
+/** INFX stack limits for block inventory objects and their modern structural equivalents. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class BlockStackLimits {
     private static final int DEFAULT_BLOCK_LIMIT = 4;
@@ -78,10 +78,10 @@ public final class BlockStackLimits {
             return OptionalInt.empty();
         }
 
-        int miteLimit = sourceLimit(item, blockItem.getBlock(), itemId.getPath());
+        int limit = sourceLimit(item, blockItem.getBlock(), itemId.getPath());
         int safeLimit = item == Items.CAKE
-                ? miteLimit
-                : Math.min(miteLimit, currentLimit);
+                ? limit
+                : Math.min(limit, currentLimit);
         return OptionalInt.of(safeLimit);
     }
 

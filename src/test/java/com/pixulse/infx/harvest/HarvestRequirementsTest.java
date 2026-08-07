@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class HarvestRequirementsTest {
     @Test
-    void explicitMiteLevelOverridesModernFallbacks() {
+    void explicitLevelOverridesModernFallbacks() {
         assertEquals(0, HarvestRequirements.inferLevel(OptionalInt.of(0), true, true));
         assertEquals(1, HarvestRequirements.inferLevel(OptionalInt.of(1), false, true));
         assertEquals(6, HarvestRequirements.inferLevel(OptionalInt.of(6), false, true));

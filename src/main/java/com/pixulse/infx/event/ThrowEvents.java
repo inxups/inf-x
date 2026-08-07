@@ -17,7 +17,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
-/** MITE ItemBrick#onItemRightClick: brick, nether brick and resin brick throw on right-click. */
+/** InfX ItemBrick#onItemRightClick: brick, nether brick and resin brick throw on right-click. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ThrowEvents {
     private static final Set<Item> BRICKS = Set.of(Items.BRICK, Items.NETHER_BRICK, Items.RESIN_BRICK);
@@ -38,7 +38,7 @@ public final class ThrowEvents {
         }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
-        // MITE ItemBrick: bow sound at 0.5 volume, then a 1.5-speed throwable.
+        // InfX ItemBrick: bow sound at 0.5 volume, then a 1.5-speed throwable.
         level.playSound(
                 null,
                 player.getX(),

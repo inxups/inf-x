@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Applies MITE's damage-based dropped-food cooking immediately before vanilla subtracts item health.
+ * Applies InfX's damage-based dropped-food cooking immediately before vanilla subtracts item health.
  * NeoForge's public invulnerability event exposes the damage source but not its amount, so it cannot
- * reproduce MITE's per-hit progress calculation without this narrow injection.
+ * reproduce InfX's per-hit progress calculation without this narrow injection.
  */
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityFireCookingMixin {

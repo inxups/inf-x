@@ -51,19 +51,19 @@ public final class InfXSounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_HURT = mob("witch", "hurt");
     public static final DeferredHolder<SoundEvent, SoundEvent> WITCH_DEATH = mob("witch", "death");
 
-    /** MITE imported sizzle for fire elemental. */
+    /** Imported sizzle for fire elemental. */
     public static final DeferredHolder<SoundEvent, SoundEvent> FIRE_ELEMENTAL_SIZZLE =
             SOUNDS.register(
                     "entity.fire_elemental.sizzle",
                     () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.fire_elemental.sizzle")));
 
-    /** MITE 1.6's vanilla fizz played for acid gelatinous-cube and sphere corrosion. */
+    /** The 1.6-era vanilla fizz played for acid gelatinous-cube and sphere corrosion. */
     public static final DeferredHolder<SoundEvent, SoundEvent> GELATINOUS_CUBE_CORROSION =
             SOUNDS.register(
                     "entity.gelatinous_cube.corrosion",
                     () -> SoundEvent.createVariableRangeEvent(InfiniteX.id("entity.gelatinous_cube.corrosion")));
 
-    /** MITE EntityPlayer#addExperience: experience points spent play the imported level-drain sound. */
+    /** EntityPlayer#addExperience: experience points spent play the imported level-drain sound. */
     public static final DeferredHolder<SoundEvent, SoundEvent> LEVEL_DRAIN =
             SOUNDS.register(
                     "random.level_drain",

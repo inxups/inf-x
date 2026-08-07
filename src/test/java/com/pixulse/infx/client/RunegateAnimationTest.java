@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class RunegateAnimationTest {
     @Test
-    void animationUsesMiteTwentyTickFadeAndThirtyTickExitCounter() {
+    void animationUsesTwentyTickFadeAndThirtyTickExitCounter() {
         assertEquals(1, RunegateAnimation.nextCounter(true, 0));
         assertEquals(RunegateTeleportation.LOADING_TICKS, RunegateAnimation.nextCounter(true, 19));
         assertEquals(30, RunegateAnimation.nextCounter(true, RunegateTeleportation.LOADING_TICKS));
@@ -18,7 +18,7 @@ class RunegateAnimationTest {
     }
 
     @Test
-    void animationUsesMiteDimensionColorsAndOpacity() {
+    void animationUsesDimensionColorsAndOpacity() {
         assertEquals(0x80359FFF, RunegateAnimation.overlayColor(Level.OVERWORLD, 10));
         assertEquals(0xFF4401B4, RunegateAnimation.overlayColor(Underworld.LEVEL, 30));
         assertEquals(0xFFBE250B, RunegateAnimation.overlayColor(Level.NETHER, 20));

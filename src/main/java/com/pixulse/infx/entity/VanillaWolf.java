@@ -45,7 +45,7 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
         tamingCooldown = ticks;
     }
 
-    /** MITE wolves are worth the base experience value. */
+    /** InfX wolves are worth the base experience value. */
     @Override
     public int getBaseExperienceReward(@NonNull ServerLevel level) {
         return 5;
@@ -80,7 +80,7 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
             return super.mobInteract(player, hand);
         }
         if (!level().isClientSide() && itemStack.is(Items.BONE) && !isAngry()) {
-            // MITE wolves refuse feeding during the taming cooldown without consuming the bone.
+            // InfX wolves refuse feeding during the taming cooldown without consuming the bone.
             if (tamingCooldown() > 0) {
                 return InteractionResult.PASS;
             }
@@ -112,7 +112,7 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
         return AttackRanges.withinWolfReach(this, target);
     }
 
-    /** MITE tamed wolves cap at 12 health and 32 follow range, not the modern 40 health. */
+    /** InfX tamed wolves cap at 12 health and 32 follow range, not the modern 40 health. */
     @Override
     public void setTame(boolean tame, boolean applySideEffects) {
         super.setTame(tame, applySideEffects);
@@ -132,13 +132,13 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
         }
     }
 
-    /** MITE: untamed wolves may fade out after two minutes. */
+    /** InfX: untamed wolves may fade out after two minutes. */
     @Override
     public boolean removeWhenFarAway(double distance) {
         return !isTame() && tickCount > 2400;
     }
 
-    /** MITE wolves shrug off half the damage from non-player, non-arrow attackers. */
+    /** InfX wolves shrug off half the damage from non-player, non-arrow attackers. */
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
         if (source.getEntity() != null
@@ -151,7 +151,7 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
 
     @Override
     public @Nullable Wolf getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        // MITE pups inherit the coat, sounds, and tamed collar of their parents.
+        // InfX pups inherit the coat, sounds, and tamed collar of their parents.
         Wolf baby = InfXEntityTypes.INFX_WOLF.get().create(level, EntitySpawnReason.BREEDING);
         if (baby != null && partner instanceof Wolf partnerWolf) {
             WolfAccessor babyAccessor = (WolfAccessor) baby;

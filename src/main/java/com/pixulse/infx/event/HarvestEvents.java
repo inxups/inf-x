@@ -49,7 +49,7 @@ public final class HarvestEvents {
         }
     }
 
-    /** Metal anvils are portable MITE blocks: hand recovery must produce the anvil item. */
+    /** Metal anvils are portable InfX blocks: hand recovery must produce the anvil item. */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void allowMetalAnvilHandHarvest(PlayerEvent.HarvestCheck event) {
         if (event.getTargetBlock().getBlock() instanceof MetalAnvilBlock) {
@@ -58,7 +58,7 @@ public final class HarvestEvents {
     }
 
     /**
-     * MITE furnaces drop their block when broken by hand, so every furnace
+     * InfX furnaces drop their block when broken by hand, so every furnace
      * (infx and vanilla) must pass the harvest check regardless of tool.
      */
     @SubscribeEvent(priority = EventPriority.HIGHEST)
@@ -103,7 +103,7 @@ public final class HarvestEvents {
         if (entry != null
                 && entry.key().type().miningFamily() == MiningFamily.SWORD
                 && !InfxMiningRules.isEffective(entry.key(), state)) {
-            // MITE swords cut plants and webs but cannot mine ordinary blocks.
+            // InfX swords cut plants and webs but cannot mine ordinary blocks.
             return false;
         }
         return HarvestPolicy.allows(

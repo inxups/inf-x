@@ -321,7 +321,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('G', Ingredient.of(Items.GOLD_NUGGET), 'A', Ingredient.of(Items.APPLE)),
                 List.of("GGG", "GAG", "GGG"));
-        // MITE RecipesMITE: golden apple + bottle o' enchanting makes an enchanted golden apple.
+        // InfX recipe: golden apple + bottle o' enchanting makes an enchanted golden apple.
         addShapeless(
                 "enchanted_golden_apple",
                 BenchTier.HAND,
@@ -439,7 +439,7 @@ final class ModRecipeProvider extends RecipeProvider {
         addShardRecipes("diamond", raw("diamond_shard"), Items.DIAMOND, 1600.0F);
         addShardRecipes("nether_quartz", raw("nether_quartz_shard"), Items.QUARTZ, 900.0F);
         addShardRecipes("glass", raw("glass_shard"), Blocks.GLASS_PANE, 200.0F);
-        addMiteBlockRecipes();
+        addBlockRecipes();
 
         addShaped(
                 "clay_furnace",
@@ -965,7 +965,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 25600.0F / 9.0F + 50.0F,
                 InfXItems.ADAMANTIUM_NUGGET);
 
-        // MITE: every hook material has a carrot on a stick, craftable from its rod and back again.
+        // InfX: every hook material has a carrot on a stick, craftable from its rod and back again.
         for (InfxMaterial hookMaterial : InfXItems.FISHING_HOOK_MATERIALS) {
             addShapeless(
                     hookMaterial.path() + "_carrot_on_a_stick",
@@ -989,7 +989,7 @@ final class ModRecipeProvider extends RecipeProvider {
                     List.of(Ingredient.of(InfXItems.CARROT_ON_A_STICKS.get(hookMaterial).get())));
         }
 
-        // MITE warped-fungus-on-a-stick variants follow the same rod-and-back pattern.
+        // InfX warped-fungus-on-a-stick variants follow the same rod-and-back pattern.
         for (InfxMaterial hookMaterial : InfXItems.FISHING_HOOK_MATERIALS) {
             addShapeless(
                     hookMaterial.path() + "_warped_fungus_on_a_stick",
@@ -1290,7 +1290,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of(Ingredient.of(whole)));
     }
 
-    private void addMiteBlockRecipes() {
+    private void addBlockRecipes() {
         addShaped(
                 "stone_from_cobblestone",
                 BenchTier.HAND,
@@ -1441,7 +1441,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('L', Ingredient.of(Items.LEATHER), 'N', Ingredient.of(Items.IRON_NUGGET)),
                 List.of("LLL", "L L", "N N"));
-        // MITE CraftingManager: two leads per silk/string or sinew leash, with a slime ball knot.
+        // InfX CraftingManager: two leads per silk/string or sinew leash, with a slime ball knot.
         addShaped(
                 "lead",
                 BenchTier.HAND,
@@ -1464,7 +1464,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of("~~ ", "~O ", "  ~"));
 
         // -----------------------------------------------------------------------------------
-        // Vanilla basics removed by VanillaCraftingRecipeRemoval but required by MITE gameplay.
+        // Vanilla basics removed by VanillaCraftingRecipeRemoval but required by InfX gameplay.
         // -----------------------------------------------------------------------------------
         addShaped(
                 "stick",
@@ -2165,7 +2165,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of("H", "S", "F"));
     }
 
-    /** MITE fishing rods: hook material, two sticks and two silk strands in the rod shape. */
+    /** InfX fishing rods: hook material, two sticks and two silk strands in the rod shape. */
     private void addFishingRod(
             String material,
             InfxMaterial equipmentMaterial,
@@ -2191,7 +2191,7 @@ final class ModRecipeProvider extends RecipeProvider {
         return InfXItems.catalog().equipment(material, type).holder();
     }
 
-    /** MITE dismantles one arrow back into its single arrowhead material. */
+    /** InfX dismantles one arrow back into its single arrowhead material. */
     private void addArrowDismantling(String material, InfxMaterial arrowMaterial, ItemLike arrowhead) {
         addShapeless(
                 material + "_arrow_dismantling",
@@ -2290,7 +2290,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 InfXBlocks.metalAnvil(material),
                 1,
                 Map.of('B', Ingredient.of(storageBlock), 'I', Ingredient.of(ingot)),
-                // MITE anvils: a full storage-block top, one centered ingot, and a full ingot base.
+                // InfX anvils: a full storage-block top, one centered ingot, and a full ingot base.
                 List.of("BBB", " I ", "III"));
     }
 

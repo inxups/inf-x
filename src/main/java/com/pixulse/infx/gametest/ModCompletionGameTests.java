@@ -199,7 +199,7 @@ public final class ModCompletionGameTests {
             "infx_fulltext_systems",
             "infx_harvest_rules",
             "infx_enchantment_combat",
-            "infx_mite_recipes",
+            "infx_legacy_recipes",
             "infx_experience_bottle");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -231,7 +231,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
         FUNCTIONS.register("infx_harvest_rules", () -> ModCompletionGameTests::harvestRules);
         FUNCTIONS.register("infx_enchantment_combat", () -> ModCompletionGameTests::enchantmentCombat);
-        FUNCTIONS.register("infx_mite_recipes", () -> ModCompletionGameTests::miteRecipes);
+        FUNCTIONS.register("infx_legacy_recipes", () -> ModCompletionGameTests::legacyRecipes);
         FUNCTIONS.register("infx_experience_bottle", () -> ModCompletionGameTests::experienceBottle);
     }
 
@@ -353,12 +353,12 @@ public final class ModCompletionGameTests {
         double resistanceOneArmor = player.getAttributeValue(Attributes.ARMOR);
         helper.assertTrue(
                 Math.abs(resistanceOneArmor - (fullArmor + 5.0)) < .001,
-                "resistance I must add five MITE protection points to armor");
+                "resistance I must add five InfX protection points to armor");
         player.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 200, 1));
         double resistanceTwoArmor = player.getAttributeValue(Attributes.ARMOR);
         helper.assertTrue(
                 Math.abs(resistanceTwoArmor - (fullArmor + 10.0)) < .001,
-                "resistance II must add ten MITE protection points to armor");
+                "resistance II must add ten InfX protection points to armor");
         player.removeEffect(MobEffects.RESISTANCE);
         helper.assertTrue(
                 Math.abs(player.getAttributeValue(Attributes.ARMOR) - fullArmor) < .001,
@@ -1142,12 +1142,12 @@ public final class ModCompletionGameTests {
                 cow, level.damageSources().playerAttack(player), unwellCowDrops, true));
         helper.assertTrue(
                 itemCount(unwellCowDrops, Items.BEEF) == 0 && itemCount(unwellCowDrops, Items.LEATHER) == 1,
-                "unwell MITE livestock keep leather but lose their meat yield");
+                "unwell InfX livestock keep leather but lose their meat yield");
         setLivestockWellness(cow, 1.0F, 1.0F, 1.0F);
 
         Sheep sheep = helper.spawn(InfXEntityTypes.INFX_SHEEP.get(), new BlockPos(4, 2, 8));
         setLivestockWellness(sheep, 0.24F, 1.0F, 1.0F);
-        helper.assertTrue(sheep.readyForShearing(), "MITE wool is gated by shearing state, not wellness");
+        helper.assertTrue(sheep.readyForShearing(), "InfX wool is gated by shearing state, not wellness");
         setLivestockWellness(sheep, 1.0F, 1.0F, 1.0F);
         helper.assertTrue(sheep.readyForShearing(), "well sheep must be shearable");
         sheep.hurtServer(level, level.damageSources().inFire(), 1.0F);
@@ -1161,7 +1161,7 @@ public final class ModCompletionGameTests {
         setLivestockWellness(pig, 0.2F, 1.0F, 1.0F);
         helper.assertTrue(
                 Livestock.update(level, pig).food() > 0.2F,
-                "grass beneath livestock must improve the MITE food meter without a dropped breeding item");
+                "grass beneath livestock must improve the InfX food meter without a dropped breeding item");
 
         helper.setBlock(new BlockPos(5, 1, 6), Blocks.STONE);
         Pig feedingPig = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(5, 2, 6));
@@ -1191,7 +1191,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 player.getMainHandItem().isEmpty()
                         && mushroomPig.getPersistentData().getFloatOr("infx_livestock_food", 0.0F) > 0.2F,
-                "MITE pigs must eat brown mushrooms to restore the food meter");
+                "InfX pigs must eat brown mushrooms to restore the food meter");
         mushroomPig.discard();
 
         Goat goat = helper.spawn(EntityType.GOAT, new BlockPos(3, 2, 7));
@@ -1229,7 +1229,7 @@ public final class ModCompletionGameTests {
         setLivestockWellness(chicken, 1.0F, 0.4F, 1.0F);
         helper.assertTrue(
                 Livestock.update(level, chicken).water() >= 0.5F,
-                "a nearby filled water cauldron must improve the MITE water meter");
+                "a nearby filled water cauldron must improve the InfX water meter");
         helper.setBlock(cauldron, Blocks.STONE);
 
         // Keep the panic assertion on settled animals with a deterministic open floor.
@@ -1318,7 +1318,7 @@ public final class ModCompletionGameTests {
                             "the panic source must accept the test hit");
                     helper.assertTrue(
                             Livestock.isWell(panickedChicken) == wellBeforePanic,
-                            "panic must not alter MITE food, water, or freedom");
+                            "panic must not alter InfX food, water, or freedom");
                     helper.assertTrue(
                             Livestock.isPanicked(panicSource, level.getGameTime()),
                             "a successfully attacked INFX livestock animal must enter panic");
@@ -1463,7 +1463,7 @@ public final class ModCompletionGameTests {
         direA.discard();
         direB.discard();
 
-        // 14: untamed donkeys respect the MITE 4000-tick remount cooldown.
+        // 14: untamed donkeys respect the InfX 4000-tick remount cooldown.
         Donkey donkey = helper.spawn(EntityType.DONKEY, new BlockPos(7, 2, 2));
         donkey.getPersistentData().putLong("infx_horse_tame_retry", level.getGameTime() + 4_000L);
         helper.assertTrue(
@@ -1599,7 +1599,7 @@ public final class ModCompletionGameTests {
 
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 2, 1, 1, 1, 0, 0));
         SurvivalData egg = player.getData(InfXAttachments.SURVIVAL)
-                .eat(FoodProfile.mite(1, 3, 0, true, false, false), 8);
+                .eat(FoodProfile.of(1, 3, 0, true, false, false), 8);
         helper.assertTrue(egg.satiation() == 1.0D && egg.nutrition() == 5.0D,
                 "egg fills both energy layers");
         helper.assertTrue(egg.phytonutrients() == 1, "egg cannot cure phytonutrient malnutrition");
@@ -1873,7 +1873,7 @@ public final class ModCompletionGameTests {
                 .toStack());
         helper.setBlock(miningRelative, Blocks.STONE);
         helper.assertFalse(player.getMainHandItem().isCorrectToolForDrops(helper.getBlockState(miningRelative)),
-                "a shovel is the wrong MITE tool family for stone");
+                "a shovel is the wrong InfX tool family for stone");
         resetBehaviorHunger(player);
         PlayerInteractEvent.LeftClickBlock wrongToolMiningStart = new PlayerInteractEvent.LeftClickBlock(
                 player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
@@ -2101,7 +2101,7 @@ public final class ModCompletionGameTests {
                 Math.abs(ownerSafeProgress - 1.0F / 128.0F) < 1.0E-6F,
                 "a strongbox owner must receive the portable 128-tick progress: " + ownerSafeProgress);
         helper.assertTrue(owner.gameMode.destroyBlock(helper.absolutePos(safePos)),
-                "MITE strongbox owners can carry their safe by hand");
+                "InfX strongbox owners can carry their safe by hand");
         List<ItemEntity> ownerSafeDrops = helper.getLevel().getEntities(
                 EntityType.ITEM,
                 new AABB(helper.absolutePos(safePos)).inflate(2.0),
@@ -2132,10 +2132,10 @@ public final class ModCompletionGameTests {
                 .getDestroyProgress(visitor, helper.getLevel(), helper.absolutePos(safePos));
         helper.assertTrue(
                 Math.abs(visitorProgress - expectedVisitorProgress) < 1.0E-6F,
-                "a qualified visitor must keep MITE /512 progress without losing harvest capability: "
+                "a qualified visitor must keep InfX /512 progress without losing harvest capability: "
                         + visitorProgress);
         helper.assertTrue(visitor.gameMode.destroyBlock(helper.absolutePos(safePos)),
-                "a foreign copper safe accepts MITE level-three iron");
+                "a foreign copper safe accepts InfX level-three iron");
         helper.assertTrue(
                 helper.getLevel()
                         .getEntities(
@@ -2143,7 +2143,7 @@ public final class ModCompletionGameTests {
                                 new AABB(helper.absolutePos(safePos)).inflate(2.0),
                                 entity -> entity.getItem().is(InfXBlocks.COPPER_SAFE.get().asItem()))
                         .isEmpty(),
-                "MITE foreign strongboxes break without dropping the safe item");
+                "InfX foreign strongboxes break without dropping the safe item");
 
         helper.setBlock(safePos, InfXBlocks.COPPER_SAFE.get());
         safe = helper.getBlockEntity(safePos, SafeBlockEntity.class);
@@ -2153,14 +2153,14 @@ public final class ModCompletionGameTests {
                 safe.getSlotsForFace(Direction.DOWN).length == 0
                         && !safe.canTakeItemThroughFace(0, safe.getItem(0), Direction.DOWN)
                         && !safe.canPlaceItemThroughFace(0, new ItemStack(Items.IRON_INGOT), Direction.UP),
-                "MITE strongboxes expose no hopper slots");
+                "InfX strongboxes expose no hopper slots");
         helper.assertTrue(
                 !SafeEvents.mayDropSafeItem(null, safe),
                 "explosions must not drop the safe block item");
         var safeShape = helper.getBlockState(safePos).getShape(helper.getLevel(), helper.absolutePos(safePos));
         helper.assertTrue(
                 Math.abs(safeShape.max(net.minecraft.core.Direction.Axis.Y) - 0.875D) < 1.0E-6D,
-                "safe collision height matches MITE chest bounds: " + safeShape.max(net.minecraft.core.Direction.Axis.Y));
+                "safe collision height matches InfX chest bounds: " + safeShape.max(net.minecraft.core.Direction.Axis.Y));
 
         BlockPos tableRelative = new BlockPos(8, 2, 8);
         helper.setBlock(tableRelative, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
@@ -2241,7 +2241,7 @@ public final class ModCompletionGameTests {
 
         menu.getSlot(0).setByPlayer(Items.BOOK.getDefaultInstance());
         helper.assertTrue(menu.costs[2] == EnchantmentRules.experienceCost(53),
-                "books must use MITE's fixed enchantability of 30 instead of vanilla's value of one");
+                "books must use InfX's fixed enchantability of 30 instead of vanilla's value of one");
 
         helper.setBlock(tableRelative, InfXBlocks.EMERALD_ENCHANTING_TABLE.get());
         InfxEnchantmentMenu emeraldMenu = new InfxEnchantmentMenu(
@@ -2251,7 +2251,7 @@ public final class ModCompletionGameTests {
                 InfxEnchantmentMenu.Kind.EMERALD);
         emeraldMenu.getSlot(0).setByPlayer(mithrilTool.copy());
         helper.assertTrue(emeraldMenu.costs[2] == EnchantmentRules.experienceCost(50),
-                "the same mithril tool must be limited to 50 power at a full emerald table");
+                "the same mithril tool must cap at 50 power at a full emerald table");
 
         helper.setBlock(tableRelative, InfXBlocks.DIAMOND_ENCHANTING_TABLE.get());
         ItemStack enchantingTool = InfXItems.catalog()
@@ -2310,7 +2310,7 @@ public final class ModCompletionGameTests {
         helper.succeed();
     }
 
-    /** Modern vanilla counts the corner shelves at (+-2, +-2); MITE allows them too. */
+    /** Modern vanilla counts the corner shelves at (+-2, +-2); InfX allows them too. */
     private static void assertCornerBookshelves(GameTestHelper helper, BlockPos table) {
         for (int x = -2; x <= 2; x++) {
             for (int z = -2; z <= 2; z++) {
@@ -2333,11 +2333,11 @@ public final class ModCompletionGameTests {
                 "corner shelves must count toward the INFX table power");
     }
 
-    /** MITE saddle, lead and enchanted-golden-apple recipes restored on the timed grid. */
-    private static void miteRecipes(GameTestHelper helper) {
+    /** InfX saddle, lead and enchanted-golden-apple recipes restored on the timed grid. */
+    private static void legacyRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         BlockPos workbench = helper.absolutePos(new BlockPos(8, 2, 4));
-        // The inventory menu has a 2x2 grid; MITE's saddle needs the full 3x3 table.
+        // The inventory menu has a 2x2 grid; InfX's saddle needs the full 3x3 table.
         net.minecraft.world.inventory.CraftingMenu menu = new net.minecraft.world.inventory.CraftingMenu(
                 96, player.getInventory(), ContainerLevelAccess.create(helper.getLevel(), workbench));
         player.containerMenu = menu;
@@ -2351,12 +2351,12 @@ public final class ModCompletionGameTests {
         grid.setItem(5, new ItemStack(Items.LEATHER));
         grid.setItem(6, new ItemStack(Items.IRON_NUGGET));
         grid.setItem(8, new ItemStack(Items.IRON_NUGGET));
-        assertMiteCraft(
+        assertLegacyCraft(
                 helper,
                 player,
                 crafting,
                 new ItemStack(Items.SADDLE, 1),
-                "MITE saddle (five leather, two iron nuggets)");
+                "InfX saddle (five leather, two iron nuggets)");
 
         grid.clearContent();
         grid.setItem(0, new ItemStack(Items.STRING));
@@ -2364,7 +2364,7 @@ public final class ModCompletionGameTests {
         grid.setItem(3, new ItemStack(Items.STRING));
         grid.setItem(4, new ItemStack(Items.SLIME_BALL));
         grid.setItem(8, new ItemStack(Items.STRING));
-        assertMiteCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "MITE string lead");
+        assertLegacyCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "InfX string lead");
 
         grid.clearContent();
         grid.setItem(0, InfXItems.SINEW.toStack());
@@ -2372,12 +2372,12 @@ public final class ModCompletionGameTests {
         grid.setItem(3, InfXItems.SINEW.toStack());
         grid.setItem(4, new ItemStack(Items.SLIME_BALL));
         grid.setItem(8, InfXItems.SINEW.toStack());
-        assertMiteCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "MITE sinew lead");
+        assertLegacyCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "InfX sinew lead");
 
         grid.clearContent();
         grid.setItem(0, new ItemStack(Items.GOLDEN_APPLE));
         grid.setItem(1, new ItemStack(Items.EXPERIENCE_BOTTLE));
-        assertMiteCraft(
+        assertLegacyCraft(
                 helper,
                 player,
                 crafting,
@@ -2391,7 +2391,7 @@ public final class ModCompletionGameTests {
         grid.clearContent();
         grid.setItem(0, copperRod.copy());
         grid.setItem(1, new ItemStack(Items.WARPED_FUNGUS));
-        assertMiteCraft(
+        assertLegacyCraft(
                 helper,
                 player,
                 crafting,
@@ -2400,7 +2400,7 @@ public final class ModCompletionGameTests {
 
         grid.clearContent();
         grid.setItem(0, InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(InfxMaterial.COPPER).get().getDefaultInstance());
-        assertMiteCraft(
+        assertLegacyCraft(
                 helper,
                 player,
                 crafting,
@@ -2410,7 +2410,7 @@ public final class ModCompletionGameTests {
         helper.succeed();
     }
 
-    private static void assertMiteCraft(
+    private static void assertLegacyCraft(
             GameTestHelper helper,
             ServerPlayer player,
             TimedCraftingMenu crafting,
@@ -2426,7 +2426,7 @@ public final class ModCompletionGameTests {
                 message + " must output " + expected.getCount() + " but got " + preview.getCount());
     }
 
-    /** MITE bottle o' enchanting always shatters into a fixed 200 XP. */
+    /** InfX bottle o' enchanting always shatters into a fixed 200 XP. */
     private static void experienceBottle(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         BlockPos ground = helper.absolutePos(new BlockPos(4, 2, 4));
@@ -2446,7 +2446,7 @@ public final class ModCompletionGameTests {
         int total = orbs.stream().mapToInt(ExperienceOrb::getValue).sum();
         helper.assertTrue(
                 total == 200,
-                "MITE bottle o' enchanting must grant exactly 200 XP, got " + total);
+                "InfX bottle o' enchanting must grant exactly 200 XP, got " + total);
         orbs.forEach(orb -> orb.discard());
         removePlayer(player);
         helper.succeed();
@@ -2472,7 +2472,7 @@ public final class ModCompletionGameTests {
             var actual = enchantments.getOrThrow(source);
             helper.assertTrue(
                     actual.size() == expected.size(),
-                    source.location() + " has exactly 39 INFX and vanilla MITE entries");
+                    source.location() + " has exactly 39 INFX and vanilla InfX entries");
             helper.assertTrue(actual.stream().allMatch(expected::contains), source.location() + " excludes modern entries");
         }
         for (ResourceKey<Enchantment> key : InfXEnchantments.ALL) {
@@ -2737,7 +2737,7 @@ public final class ModCompletionGameTests {
                 found = true;
             }
         }
-        helper.assertTrue(found, description + " receives its MITE butchering drop");
+        helper.assertTrue(found, description + " receives its InfX butchering drop");
         target.discard();
     }
 
@@ -2786,7 +2786,7 @@ public final class ModCompletionGameTests {
             NeoForge.EVENT_BUS.post(new BlockDropsEvent(helper.getLevel(), pos, state, null, drops, player, tool));
             found = itemCount(drops, product) > 1;
         }
-        helper.assertTrue(found, description + " receives MITE fortune bonus drops");
+        helper.assertTrue(found, description + " receives InfX fortune bonus drops");
     }
 
     private static void assertNetherWartFortune(
@@ -2800,13 +2800,13 @@ public final class ModCompletionGameTests {
             NeoForge.EVENT_BUS.post(new BlockDropsEvent(helper.getLevel(), pos, state, null, drops, player, tool));
             found = itemCount(drops, Items.NETHER_WART) > 1;
         }
-        helper.assertTrue(found, "mature nether wart receives MITE fortune bonus drops");
+        helper.assertTrue(found, "mature nether wart receives InfX fortune bonus drops");
     }
 
     private static void assertGrassFortune(GameTestHelper helper, ServerPlayer player, ItemStack tool, BlockPos pos) {
         helper.assertTrue(
                 helper.getLevel().getBiome(pos).value().getBaseTemperature() > 0.15F,
-                "GameTest grass position supports MITE worm drops");
+                "GameTest grass position supports InfX worm drops");
         boolean found = false;
         for (long randomSeed = 0; randomSeed < 256 && !found; randomSeed++) {
             helper.getLevel().getRandom().setSeed(dropRandomSeed(randomSeed));
@@ -2990,7 +2990,7 @@ public final class ModCompletionGameTests {
 
         assertStackLimit(helper, 1, Items.SHULKER_BOX);
         assertStackLimit(helper, 64, Items.WHEAT_SEEDS);
-        // MITE defaults: ItemSeeds stack 64, everything else without an override 16 (carrot is
+        // InfX defaults: ItemSeeds stack 64, everything else without an override 16 (carrot is
         // ItemSeedFood, redstone an ordinary item).
         assertStackLimit(helper, 16, Items.CARROT);
         assertStackLimit(helper, 64, Items.NETHER_WART);
@@ -3131,7 +3131,7 @@ public final class ModCompletionGameTests {
         ServerLevel level = helper.getLevel();
 
         // A shallow west-to-east channel. Vanilla tapers the push by the 0.333 fluid height and would
-        // apply roughly 0.0047; MITE normalises the summed flow and always applies 0.014.
+        // apply roughly 0.0047; InfX normalises the summed flow and always applies 0.014.
         for (int x = 3; x <= 7; x++) helper.setBlock(new BlockPos(x, 1, 2), Blocks.STONE);
         helper.setBlock(new BlockPos(4, 2, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 4));
         helper.setBlock(new BlockPos(5, 2, 2), Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 5));
@@ -3147,7 +3147,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(push.x > 0.0D, "the push must follow the channel's descending flow");
         helper.assertTrue(Math.abs(push.y) < 1.0E-6D, "a level channel must not push vertically");
 
-        // The same channel through a live tick, which proves EntitySwimMixin is wired: MITE's
+        // The same channel through a live tick, which proves EntitySwimMixin is wired: InfX's
         // 0.014 survives the 0.8 water drag as 0.0112, where vanilla's tapered push leaves 0.0037.
         player.snapTo(channel.x, channel.y, channel.z, 0.0F, 0.0F);
         player.setDeltaMovement(Vec3.ZERO);
@@ -3155,7 +3155,7 @@ public final class ModCompletionGameTests {
         double drift = player.getDeltaMovement().x;
         helper.assertTrue(
                 drift > 0.008D,
-                "a live tick must carry MITE's untapered current, measured " + drift);
+                "a live tick must carry InfX's untapered current, measured " + drift);
 
         // A falling column cuts the swim-up impulse to 7/16 so waterfalls cannot be climbed.
         helper.setBlock(new BlockPos(9, 1, 2), Blocks.STONE);
@@ -3182,7 +3182,7 @@ public final class ModCompletionGameTests {
                         + player.getDeltaMovement().y);
 
         // Modern Player.travel gives sprint swimmers an extra upward pull toward their camera
-        // direction. MITE has no equivalent, so looking straight up in a waterfall must not
+        // direction. InfX has no equivalent, so looking straight up in a waterfall must not
         // restore the climb that the reduced jump impulse prevents.
         player.setSwimming(true);
         player.setXRot(-90.0F);
@@ -3211,7 +3211,7 @@ public final class ModCompletionGameTests {
                 Math.abs(SwimPhysics.swimUpImpulse(player) - SwimRules.SWIM_UP_IMPULSE) < 1.0E-6D,
                 "still water must keep the full swim-up impulse");
 
-        // Submerged sinking: MITE's 0.02/tick settles near -0.1, vanilla's 0.005/tick near -0.025.
+        // Submerged sinking: InfX's 0.02/tick settles near -0.1, vanilla's 0.005/tick near -0.025.
         // Driving doTick directly also proves the travelInWater gravity mixin is wired.
         player.setDeltaMovement(Vec3.ZERO);
         for (int tick = 0; tick < 20; tick++) player.doTick();
@@ -3220,7 +3220,7 @@ public final class ModCompletionGameTests {
                 level.getFluidState(player.blockPosition()).is(FluidTags.WATER),
                 "the sink measurement must stay inside the water column");
         helper.assertTrue(
-                sink < -0.06D, "a submerged player must sink at MITE's 0.02/tick, measured " + sink);
+                sink < -0.06D, "a submerged player must sink at InfX's 0.02/tick, measured " + sink);
 
         // Sprinting upstream against the channel's current must bleed the 0.9 sprint drag back
         // toward the non-sprint 0.8 factor; sprinting downstream keeps the full 0.9 benefit.
@@ -3273,7 +3273,7 @@ public final class ModCompletionGameTests {
                         InfXItems.mobBucket(InfxMaterial.IRON, MobBucketKind.COD).value()),
                 "the mob bucket registers its own dispenser behavior");
 
-        // MITE ItemBucket: scooping leaves the liquid cell in place unless Ctrl is held.
+        // InfX ItemBucket: scooping leaves the liquid cell in place unless Ctrl is held.
         BlockPos water = new BlockPos(2, 2, 2);
         helper.setBlock(water.below(), Blocks.STONE);
         helper.setBlock(water, Blocks.WATER);
@@ -3286,14 +3286,14 @@ public final class ModCompletionGameTests {
                 "scooping water yields the same-material water bucket");
         helper.assertBlockPresent(Blocks.WATER, water);
 
-        // MITE: pouring a liquid back into itself spends the vessel and changes nothing.
+        // InfX: pouring a liquid back into itself spends the vessel and changes nothing.
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         helper.assertTrue(
                 player.getMainHandItem().is(emptyIron),
                 "pouring water back into water empties the bucket");
         helper.assertBlockPresent(Blocks.WATER, water);
 
-        // MITE ctrl_is_down while filling: the source cell is consumed.
+        // InfX ctrl_is_down while filling: the source cell is consumed.
         player.getPersistentData().putBoolean(Network.CTRL_USE, true);
         player.gameMode.useItem(player, level, player.getMainHandItem(), InteractionHand.MAIN_HAND);
         player.getPersistentData().remove(Network.CTRL_USE);
@@ -3356,7 +3356,7 @@ public final class ModCompletionGameTests {
         BucketItem lavaBucket =
                 InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.LAVA).value();
 
-        // MITE tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
+        // InfX tryPlaceContainedLiquid: a dousing liquid aimed at fire only extinguishes it.
         BlockPos fire = helper.absolutePos(new BlockPos(4, 2, 2));
         level.setBlock(fire.below(), Blocks.NETHERRACK.defaultBlockState(), 3);
         level.setBlock(fire, Blocks.FIRE.defaultBlockState(), 3);
@@ -3365,7 +3365,7 @@ public final class ModCompletionGameTests {
                 "water aimed at fire reports a successful pour");
         helper.assertTrue(level.getBlockState(fire).isAir(), "the fire cell is cleared, not flooded");
 
-        // MITE tryConvertLavaToCobblestoneOrObsidian: a full lava source becomes obsidian.
+        // InfX tryConvertLavaToCobblestoneOrObsidian: a full lava source becomes obsidian.
         BlockPos lava = helper.absolutePos(new BlockPos(6, 2, 2));
         level.setBlock(lava.below(), Blocks.STONE.defaultBlockState(), 3);
         level.setBlock(lava, Blocks.LAVA.defaultBlockState(), 3);
@@ -3376,7 +3376,7 @@ public final class ModCompletionGameTests {
                 level.getBlockState(lava).is(Blocks.OBSIDIAN),
                 "water on a full lava source sets obsidian");
 
-        // MITE tryConvertWaterToCobblestone: lava poured onto water always sets cobblestone.
+        // InfX tryConvertWaterToCobblestone: lava poured onto water always sets cobblestone.
         BlockPos pool = helper.absolutePos(new BlockPos(8, 2, 2));
         level.setBlock(pool.below(), Blocks.STONE.defaultBlockState(), 3);
         level.setBlock(pool, Blocks.WATER.defaultBlockState(), 3);
@@ -3390,7 +3390,7 @@ public final class ModCompletionGameTests {
 
     private static void bucketSourceDecay(
             GameTestHelper helper, ServerPlayer player, ServerLevel level, BucketItem waterBucket) {
-        // MITE scheduleBlockChange: an unpaid pour lands as a source, then degrades to flowing.
+        // InfX scheduleBlockChange: an unpaid pour lands as a source, then degrades to flowing.
         BlockPos poured = helper.absolutePos(new BlockPos(2, 2, 6));
         level.setBlock(poured.below(), Blocks.STONE.defaultBlockState(), 3);
         level.setBlock(poured, Blocks.AIR.defaultBlockState(), 3);
@@ -3402,7 +3402,7 @@ public final class ModCompletionGameTests {
                 level.getFluidState(poured).isSource(), "the pour lands as a source so it spreads once");
         helper.assertTrue(
                 FluidDecayData.get(level).pending() > pendingBefore,
-                "an unpaid pour queues the MITE degrade");
+                "an unpaid pour queues the InfX degrade");
 
         helper.startSequence()
                 .thenExecuteAfter(InfxBucketItem.WATER_DECAY_DELAY + 1, () -> helper.assertFalse(
@@ -3417,7 +3417,7 @@ public final class ModCompletionGameTests {
             GameTestHelper helper, ServerPlayer player, ServerLevel level, BucketItem waterBucket) {
         Item emptyIron = InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.EMPTY).value();
 
-        // MITE ItemVessel#tryEntityInteraction: water satisfies a thirsty animal and spends the vessel.
+        // InfX ItemVessel#tryEntityInteraction: water satisfies a thirsty animal and spends the vessel.
         var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_COW.get(), new BlockPos(4, 2, 6));
         setLivestockWellness(cow, 1.0F, 0.2F, 1.0F);
         helper.assertTrue(
@@ -3430,7 +3430,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 player.getMainHandItem().is(emptyIron), "watering an animal spends the water bucket");
 
-        // MITE ItemVessel: water quenches a fire elemental for 20 damage.
+        // InfX ItemVessel: water quenches a fire elemental for 20 damage.
         var elemental = helper.spawnWithNoFreeWill(InfXEntityTypes.FIRE_ELEMENTAL.get(), new BlockPos(6, 2, 6));
         float before = elemental.getHealth();
         player.setItemInHand(InteractionHand.MAIN_HAND, waterBucket.getDefaultInstance());

@@ -134,12 +134,12 @@ public final class ModWorldGen {
     private static final int OVERWORLD_HEIGHT = 336;
     private static final int UNDERWORLD_MIN_Y = Underworld.MIN_Y;
     private static final int UNDERWORLD_HEIGHT = Underworld.HEIGHT;
-    private static final int MITE_TERRAIN_SAMPLE_COUNT = 17;
-    private static final int MITE_TERRAIN_CELL_HEIGHT = 8;
-    private static final int MITE_TOP_SLIDE_START_SAMPLE = 13;
+    private static final int TERRAIN_SAMPLE_COUNT = 17;
+    private static final int TERRAIN_CELL_HEIGHT = 8;
+    private static final int TOP_SLIDE_START_SAMPLE = 13;
     private static final int UNDERWORLD_GRAY_COLOR = 0x303030;
     private static final int UNDERWORLD_LUSH_AMBER_COLOR = 0x6B4630;
-    private static final double MITE_PROFILE_FREQUENCY = Math.PI * 6.0 / MITE_TERRAIN_SAMPLE_COUNT;
+    private static final double PROFILE_FREQUENCY = Math.PI * 6.0 / TERRAIN_SAMPLE_COUNT;
     private static final ResourceKey<DensityFunction> UNDERWORLD_TERRAIN =
             ResourceKey.create(Registries.DENSITY_FUNCTION, InfiniteX.id("underworld_terrain"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> UNDERWORLD_DUNGEON_CONFIGURED =
@@ -371,7 +371,7 @@ public final class ModWorldGen {
     }
 
     /**
-     * Replaces the 26.1 moon timeline so its data-driven sprite starts at MITE's day-one
+     * Replaces the 26.1 moon timeline so its data-driven sprite starts at InfX's day-one
      * waning-gibbous phase rather than vanilla's full moon.  Keep the surface-slime track in the
      * same override: it derives from the rendered phase in vanilla and must not drift a day apart.
      */
@@ -1485,10 +1485,10 @@ public final class ModWorldGen {
         DensityFunction rawDensity = DensityFunctions.add(
                 scaledNoise,
                 DensityFunctions.mul(
-                        DensityFunctions.constant(-1.0), miteTerrainVerticalProfile()));
+                        DensityFunctions.constant(-1.0), terrainVerticalProfile()));
 
         int topSlideStartY = Underworld.TERRAIN_MIN_Y
-                + MITE_TOP_SLIDE_START_SAMPLE * MITE_TERRAIN_CELL_HEIGHT;
+                + TOP_SLIDE_START_SAMPLE * TERRAIN_CELL_HEIGHT;
         DensityFunction topSlide = DensityFunctions.yClampedGradient(
                 topSlideStartY,
                 Underworld.TERRAIN_MAX_Y_EXCLUSIVE,
@@ -1508,26 +1508,26 @@ public final class ModWorldGen {
                 DensityFunctions.constant(1.0));
     }
 
-    private static DensityFunction miteTerrainVerticalProfile() {
+    private static DensityFunction terrainVerticalProfile() {
         DensityFunction y = absoluteUnderworldY();
         DensityFunction profile = DensityFunctions.constant(
-                miteTerrainProfileValue(MITE_TERRAIN_SAMPLE_COUNT - 1));
-        for (int sample = MITE_TERRAIN_SAMPLE_COUNT - 2; sample >= 0; sample--) {
-            int fromY = Underworld.TERRAIN_MIN_Y + sample * MITE_TERRAIN_CELL_HEIGHT;
-            int toY = fromY + MITE_TERRAIN_CELL_HEIGHT;
+                terrainProfileValue(TERRAIN_SAMPLE_COUNT - 1));
+        for (int sample = TERRAIN_SAMPLE_COUNT - 2; sample >= 0; sample--) {
+            int fromY = Underworld.TERRAIN_MIN_Y + sample * TERRAIN_CELL_HEIGHT;
+            int toY = fromY + TERRAIN_CELL_HEIGHT;
             DensityFunction segment = DensityFunctions.yClampedGradient(
                     fromY,
                     toY,
-                    miteTerrainProfileValue(sample),
-                    miteTerrainProfileValue(sample + 1));
+                    terrainProfileValue(sample),
+                    terrainProfileValue(sample + 1));
             profile = DensityFunctions.rangeChoice(y, fromY, toY, segment, profile);
         }
         return profile;
     }
 
-    private static double miteTerrainProfileValue(int sample) {
-        double value = Math.cos(sample * MITE_PROFILE_FREQUENCY) * 2.0;
-        int edgeDistance = Math.min(sample, MITE_TERRAIN_SAMPLE_COUNT - 1 - sample);
+    private static double terrainProfileValue(int sample) {
+        double value = Math.cos(sample * PROFILE_FREQUENCY) * 2.0;
+        int edgeDistance = Math.min(sample, TERRAIN_SAMPLE_COUNT - 1 - sample);
         if (edgeDistance < 4) {
             int capDepth = 4 - edgeDistance;
             value -= capDepth * capDepth * capDepth * 10.0;

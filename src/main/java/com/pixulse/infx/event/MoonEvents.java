@@ -71,7 +71,7 @@ public final class MoonEvents {
         if (MoonPhase.BLUE.isActiveInOverworld(level)) {
             setWeather(level, false, false);
         } else if (MoonPhase.BLOOD.isActiveInOverworld(level) && !MoonPhase.isNight(level)) {
-            // This is the existing lunar weather cue. MITE's deterministic WeatherEvent scheduler
+            // This is the existing lunar weather cue. InfX's deterministic WeatherEvent scheduler
             // also owns forecasts, wind, and event merging, so it is intentionally out of scope here.
             setWeather(level, true, true);
         }
@@ -81,7 +81,7 @@ public final class MoonEvents {
     public static void modifyFishing(ItemFishedEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         // ItemFishedEvent is raised after vanilla has chosen the catch. Keep this as a scoped
-        // INFX loot bonus; strict MITE fishing would need to replace FishingHook's bite timing.
+        // INFX loot bonus; strict InfX fishing would need to replace FishingHook's bite timing.
         MoonPhase phase = MoonPhase.isOverworld(player.level())
                 ? MoonPhase.at(player.level())
                 : MoonPhase.NORMAL;

@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 /**
- * MITE's two fire rates and the arithmetic used by its fire update.
+ * InfX's two fire rates and the arithmetic used by its fire update.
  *
  * <p>The first value is the chance that a block encourages fire in a neighbouring air cell
  * ({@code chanceToEncourageFire}); the second is the chance that a fire directly consumes the
@@ -36,30 +36,30 @@ public final class InfXFireSpreadRules {
     private static final int DIFFICULTY_BONUS = 7;
     private static final int HUMIDITY_PENALTY = 50;
 
-    private static final Map<Block, FireRate> MITE_RATES = createRates();
+    private static final Map<Block, FireRate> RATES = createRates();
 
     private InfXFireSpreadRules() {}
 
-    /** The immutable MITE rate table, keyed by block identity. */
+    /** The immutable InfX rate table, keyed by block identity. */
     public static Map<Block, FireRate> rates() {
-        return MITE_RATES;
+        return RATES;
     }
 
-    /** Returns MITE's chance-to-encourage-fire value, or zero for an unlisted block. */
+    /** Returns InfX's chance-to-encourage-fire value, or zero for an unlisted block. */
     public static int chanceToEncourageFire(Block block) {
         FireRate rate = rate(block);
         return rate == null ? 0 : rate.encouragement();
     }
 
-    /** Returns MITE's ability-to-catch-fire value, or zero for an unlisted block. */
+    /** Returns InfX's ability-to-catch-fire value, or zero for an unlisted block. */
     public static int abilityToCatchFire(Block block) {
         FireRate rate = rate(block);
         return rate == null ? 0 : rate.flammability();
     }
 
-    /** Resolves a vanilla or InfX block to its MITE rate without loading deferred registers early. */
+    /** Resolves a vanilla or InfX block to its InfX rate without loading deferred registers early. */
     public static FireRate rate(Block block) {
-        FireRate rate = MITE_RATES.get(block);
+        FireRate rate = RATES.get(block);
         if (rate != null) return rate;
 
         var id = BuiltInRegistries.BLOCK.getKey(block);
@@ -71,32 +71,32 @@ public final class InfXFireSpreadRules {
         };
     }
 
-    /** Returns the InfX/MITE spread speed for a listed state, preserving waterlogged blocks as inert. */
+    /** Returns the InfX/InfX spread speed for a listed state, preserving waterlogged blocks as inert. */
     public static int fireSpreadSpeed(BlockState state) {
         if (isWaterlogged(state)) return 0;
         return chanceToEncourageFire(state.getBlock());
     }
 
-    /** Returns the InfX/MITE flammability for a listed state, preserving waterlogged blocks as inert. */
+    /** Returns the InfX/InfX flammability for a listed state, preserving waterlogged blocks as inert. */
     public static int flammability(BlockState state) {
         if (isWaterlogged(state)) return 0;
         return abilityToCatchFire(state.getBlock());
     }
 
-    /** MITE's direct six-direction denominator, including the high-humidity penalty. */
+    /** InfX's direct six-direction denominator, including the high-humidity penalty. */
     public static int directCatchDenominator(Direction direction, boolean humid) {
         int base = direction.getAxis() == Direction.Axis.Y ? 250 : 300;
         return Math.max(1, base - (humid ? HUMIDITY_PENALTY : 0));
     }
 
-    /** MITE's height-scaled denominator for an air cell relative to the source fire. */
+    /** InfX's height-scaled denominator for an air cell relative to the source fire. */
     public static int airSpreadDenominator(int relativeY) {
         return AIR_SPREAD_BASE_DENOMINATOR
                 + Math.max(0, relativeY - 1) * AIR_SPREAD_HEIGHT_STEP;
     }
 
     /**
-     * MITE's air-spread numerator. Integer division is deliberate: this is the original game's
+     * InfX's air-spread numerator. Integer division is deliberate: this is the original game's
      * integer probability calculation, not a floating-point approximation.
      */
     public static int airSpreadOdds(int maximumEncouragement, int age, Difficulty difficulty, boolean humid) {
@@ -109,18 +109,18 @@ public final class InfXFireSpreadRules {
         return humid ? odds / 2 : odds;
     }
 
-    /** MITE advances a flame by one age with one of the three random rolls. */
+    /** InfX advances a flame by one age with one of the three random rolls. */
     public static int nextAge(int age, int randomRoll) {
         int increment = Math.floorDiv(Math.max(0, randomRoll), 2);
         return Math.min(MAX_FIRE_AGE, Math.max(0, age) + increment);
     }
 
-    /** MITE's inherited age for a newly spread flame (four rolls keep the source age unchanged). */
+    /** InfX's inherited age for a newly spread flame (four rolls keep the source age unchanged). */
     public static int inheritedAge(int age, int randomRoll) {
         return Math.min(MAX_FIRE_AGE, Math.max(0, age) + Math.floorDiv(Math.max(0, randomRoll), 4));
     }
 
-    /** Finds the maximum MITE encouragement around an empty air cell. */
+    /** Finds the maximum InfX encouragement around an empty air cell. */
     public static int maximumNeighbourEncouragement(LevelReader level, BlockPos pos) {
         if (!level.isEmptyBlock(pos)) return 0;
 
@@ -134,7 +134,7 @@ public final class InfXFireSpreadRules {
         return maximum;
     }
 
-    /** MITE's exposed-rain check for the source and all four horizontal neighbours. */
+    /** InfX's exposed-rain check for the source and all four horizontal neighbours. */
     public static boolean isNearRain(Level level, BlockPos pos) {
         return level.isRainingAt(pos)
                 || level.isRainingAt(pos.west())
@@ -143,7 +143,7 @@ public final class InfXFireSpreadRules {
                 || level.isRainingAt(pos.south());
     }
 
-    /** Runs the MITE fire update; called from the smallest possible FireBlock mixin. */
+    /** Runs the InfX fire update; called from the smallest possible FireBlock mixin. */
     public static void tick(FireBlock fire, BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         level.scheduleTick(pos, fire, 30 + level.getRandom().nextInt(10));
         if (!level.canSpreadFireAround(pos)) return;
@@ -217,7 +217,7 @@ public final class InfXFireSpreadRules {
         }
     }
 
-    /** MITE's direct ignition helper, including TNT priming and the small chance to leave fire. */
+    /** InfX's direct ignition helper, including TNT priming and the small chance to leave fire. */
     public static boolean tryToCatchBlockOnFire(
             FireBlock fire,
             ServerLevel level,
@@ -248,7 +248,7 @@ public final class InfXFireSpreadRules {
 
     private static boolean canEncourageFire(BlockGetter level, BlockPos pos, Direction face) {
         BlockState state = level.getBlockState(pos);
-        // MITE treats netherrack as a valid neighbour even though it has no spread-speed entry.
+        // InfX treats netherrack as a valid neighbour even though it has no spread-speed entry.
         return state.is(Blocks.NETHERRACK) || rateForSpread(state, level, pos, face) > 0;
     }
 

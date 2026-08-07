@@ -102,33 +102,33 @@ class SurvivalRulesTest {
 
     @Test
     void sourceFoodFlagsDeriveLongTermNutrientsAndInsulinResponse() {
-        FoodProfile fish = FoodProfile.mite(3, 3, 1_000, true, true, false);
+        FoodProfile fish = FoodProfile.of(3, 3, 1_000, true, true, false);
         assertEquals(24_000, fish.protein());
         assertEquals(24_000, fish.essentialFats());
         assertEquals(0, fish.phytonutrients());
         assertEquals(4_800, fish.insulinResponse());
 
-        FoodProfile wheatSeeds = FoodProfile.mite(1, 0, 0, false, true, false, 2_000, false);
+        FoodProfile wheatSeeds = FoodProfile.of(1, 0, 0, false, true, false, 2_000, false);
         assertEquals(2_000, wheatSeeds.essentialFats());
 
         SurvivalData moderate = new SurvivalData(0, 0, 1, 1, 1, 96_000, 0);
-        SurvivalData afterApple = moderate.eat(FoodProfile.mite(2, 1, 1_000, false, false, true), 20);
+        SurvivalData afterApple = moderate.eat(FoodProfile.of(2, 1, 1_000, false, false, true), 20);
         assertEquals(1.0D, afterApple.satiation(), 1.0E-9D);
         assertEquals(100_800, afterApple.insulinResponse());
         assertFalse(afterApple.canMetabolizeFoodSugars());
 
         SurvivalData capped = new SurvivalData(0, 0, 1, 1, 1, 191_999, 0)
-                .eat(FoodProfile.mite(1, 0, 1_000, false, false, false), 20);
+                .eat(FoodProfile.of(1, 0, 1_000, false, false, false), 20);
         assertEquals(192_000, capped.insulinResponse());
     }
 
     @Test
     void ingestionGateHonorsFoodContentAndNutrientDeficits() {
-        FoodProfile protein = FoodProfile.mite(1, 1, 0, true, false, false);
-        FoodProfile phytonutrients = FoodProfile.mite(1, 1, 0, false, false, true);
-        FoodProfile satiationOnly = FoodProfile.mite(1, 0, 0, false, false, false);
-        FoodProfile nutritionOnly = FoodProfile.mite(0, 1, 0, false, false, false);
-        FoodProfile milk = FoodProfile.mite(0, 1, 0, true, false, false, 0, true);
+        FoodProfile protein = FoodProfile.of(1, 1, 0, true, false, false);
+        FoodProfile phytonutrients = FoodProfile.of(1, 1, 0, false, false, true);
+        FoodProfile satiationOnly = FoodProfile.of(1, 0, 0, false, false, false);
+        FoodProfile nutritionOnly = FoodProfile.of(0, 1, 0, false, false, false);
+        FoodProfile milk = FoodProfile.of(0, 1, 0, true, false, false, 0, true);
 
         SurvivalData proteinDeficit = new SurvivalData(6, 6, 0, 1, 1, 0, 0);
         assertTrue(FoodIngestion.canIngest(proteinDeficit, 6, protein));

@@ -311,13 +311,13 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         if (type == EquipmentType.CHESTPLATE || type == EquipmentType.CHAINMAIL_CHESTPLATE) {
             add(InfXItemTags.INFX_CHEST_ARMOR_ENCHANTABLE, entry);
         }
-        addVanillaMiteEnchantmentTags(entry, type, material);
+        addVanillaEnchantmentTags(entry, type, material);
     }
 
-    /** Item targets for the vanilla-derived MITE enchantments, following MITE's class checks. */
-    private void addVanillaMiteEnchantmentTags(
+    /** Item targets for the vanilla-derived enchantments, following the original class checks. */
+    private void addVanillaEnchantmentTags(
             Catalog.EquipmentEntry entry, EquipmentType type, InfxMaterial material) {
-        // MITE ItemKnife extends ItemDagger extends ItemSword, so "instanceof ItemSword"
+        // InfX ItemKnife extends ItemDagger extends ItemSword, so "instanceof ItemSword"
         // checks (bane of arthropods, fire aspect, looting) cover all three.
         boolean swordFamily = type == EquipmentType.SWORD
                 || type == EquipmentType.DAGGER
@@ -340,7 +340,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
             add(InfXItemTags.INFX_KNOCKBACK_ENCHANTABLE, entry);
         }
-        // MITE efficiency: pickaxe class (war hammers excluded), the axe family, shovels
+        // InfX efficiency: pickaxe class (war hammers excluded), the axe family, shovels
         // (mattock extends ItemShovel) and hoes.
         if (type == EquipmentType.PICKAXE
                 || type == EquipmentType.HATCHET
@@ -351,7 +351,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.HOE) {
             add(InfXItemTags.INFX_EFFICIENCY_ENCHANTABLE, entry);
         }
-        // MITE silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
+        // InfX silk touch: exact pickaxe/shovel classes plus shears, knives and daggers.
         if (type == EquipmentType.PICKAXE
                 || type == EquipmentType.SHOVEL
                 || type == EquipmentType.SHEARS

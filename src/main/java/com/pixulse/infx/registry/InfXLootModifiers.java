@@ -5,7 +5,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.loot.GravelLootModifier;
 import com.pixulse.infx.loot.GlassShardLootModifier;
 import com.pixulse.infx.loot.ModernProgressionLootFilter;
-import com.pixulse.infx.loot.MiteProgressionLootFilter;
+import com.pixulse.infx.loot.LegacyProgressionLootFilter;
 import com.pixulse.infx.loot.CreationBookLootModifier;
 
 import net.neoforged.bus.api.IEventBus;
@@ -29,9 +29,9 @@ public final class InfXLootModifiers {
             MODERN_PROGRESSION_FILTER = SERIALIZERS.register(
                     "modern_progression_filter", () -> ModernProgressionLootFilter.CODEC);
     public static final DeferredHolder<
-                    MapCodec<? extends IGlobalLootModifier>, MapCodec<MiteProgressionLootFilter>>
-            MITE_PROGRESSION_FILTER = SERIALIZERS.register(
-                    "mite_progression_filter", () -> MiteProgressionLootFilter.CODEC);
+                    MapCodec<? extends IGlobalLootModifier>, MapCodec<LegacyProgressionLootFilter>>
+            PROGRESSION_FILTER = SERIALIZERS.register(
+                    "progression_filter", () -> LegacyProgressionLootFilter.CODEC);
     public static final DeferredHolder<
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<CreationBookLootModifier>>
             CREATION_BOOK = SERIALIZERS.register("creation_book", () -> CreationBookLootModifier.CODEC);

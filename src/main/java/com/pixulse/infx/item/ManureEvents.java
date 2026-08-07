@@ -46,7 +46,7 @@ public final class ManureEvents {
         data.putInt(COUNTDOWN_TAG, countdown);
     }
 
-    /** Prefer class checks so INFX replacements (subclasses) share MITE manure periods. */
+    /** Prefer class checks so INFX replacements (subclasses) share InfX manure periods. */
     static int interval(Entity entity) {
         if (entity instanceof AbstractCow) {
             return 24_000;

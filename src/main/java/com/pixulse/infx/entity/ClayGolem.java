@@ -6,7 +6,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.Level;
 
 /**
- * MITE's clay golem is a separate natural monster that shares the earth-elemental material and
+ * InfX's clay golem is a separate natural monster that shares the earth-elemental material and
  * heat machinery. Fire and lava permanently harden it rather than creating a magma state.
  */
 public final class ClayGolem extends EarthElemental {

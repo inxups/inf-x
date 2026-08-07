@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class MoonCelestialRendererTest {
     @Test
-    void specialMoonTintsMatchMiteAndPreserveRainAlpha() {
+    void specialMoonTintsMatchExpectedAndPreserveRainAlpha() {
         Vector4fc source = new Vector4f(1.0F, 1.0F, 1.0F, 0.65F);
         assertColor(MoonCelestialRenderer.tintFor(MoonPhase.BLOOD, true, source), 0.6F, 0.2F, 0.1F, 0.65F);
         assertColor(MoonCelestialRenderer.tintFor(MoonPhase.YELLOW, true, source), 1.0F, 0.8F, 0.45F, 0.65F);

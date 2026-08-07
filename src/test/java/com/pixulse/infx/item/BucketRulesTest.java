@@ -72,8 +72,8 @@ class BucketRulesTest {
     }
 
     /**
-     * MITE derives the chance from material durability rather than a table, so a metal twice as
-     * durable must melt half as often. Gold is exempt: MITE hardcodes it at 20%.
+     * InfX derives the chance from material durability rather than a table, so a metal twice as
+     * durable must melt half as often. Gold is exempt: InfX hardcodes it at 20%.
      */
     @Test
     void lavaMeltingScalesInverselyWithDurability() {
@@ -94,17 +94,17 @@ class BucketRulesTest {
         assertEquals(3200, InfxBucketItem.LAVA_BURN_TIME);
     }
 
-    /** MITE scheduleBlockChange delays and the melt pickup grace, all in ticks. */
+    /** InfX scheduleBlockChange delays and the melt pickup grace, all in ticks. */
     @Test
-    void pourDecayAndMeltDelaysMatchMite() {
+    void pourDecayAndMeltDelaysMatchLegacy() {
         assertEquals(16, InfxBucketItem.WATER_DECAY_DELAY);
         assertEquals(48, InfxBucketItem.LAVA_DECAY_DELAY);
         assertEquals(30, InfxBucketItem.MELT_PICKUP_DELAY);
     }
 
-    /** MITE ItemVessel water damage tiers for a bucket-sized vessel. */
+    /** InfX ItemVessel water damage tiers for a bucket-sized vessel. */
     @Test
-    void quenchDamageMatchesMiteVesselTiers() {
+    void quenchDamageMatchesVesselTiers() {
         assertEquals(20.0F, InfxBucketItem.FIRE_ELEMENTAL_QUENCH_DAMAGE);
         assertEquals(8.0F, InfxBucketItem.NETHERSPAWN_QUENCH_DAMAGE);
     }

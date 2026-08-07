@@ -104,8 +104,8 @@ public final class EnchantmentEvents {
 
     @SubscribeEvent
     public static void onSweepAttack(SweepAttackEvent event) {
-        if (isMiteSweepWeapon(event.getEntity().getMainHandItem())) {
-            // MITE applies its own sweep ratio from the post-damage event.
+        if (isSweepWeapon(event.getEntity().getMainHandItem())) {
+            // InfX applies its own sweep ratio from the post-damage event.
             event.setSweeping(false);
         }
     }
@@ -129,7 +129,7 @@ public final class EnchantmentEvents {
     }
 
     /**
-     * MITE swords and scythes sweep one block around the struck target for
+     * InfX swords and scythes sweep one block around the struck target for
      * 50% of the hit, plus 25% per sweeping edge level. Swept targets do not re-trigger effects.
      */
     private static void applySweep(LivingEntity attacker, LivingEntity target, float healthDamage) {
@@ -138,7 +138,7 @@ public final class EnchantmentEvents {
             return;
         }
         ItemStack weapon = attacker.getMainHandItem();
-        if (!isMiteSweepWeapon(weapon)) return;
+        if (!isSweepWeapon(weapon)) return;
         // Align with vanilla Player#isSweepAttack gates: grounded, non-sprint, unmounted hits
         // only; jump crits are airborne, so !onGround() excludes them as well.
         if (!player.onGround() || player.isSprinting() || player.isPassenger()) return;
@@ -184,12 +184,12 @@ public final class EnchantmentEvents {
                 0.0);
     }
 
-    private static boolean isMiteSweepWeapon(ItemStack weapon) {
+    private static boolean isSweepWeapon(ItemStack weapon) {
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(weapon);
         return entry != null && entry.key().type().supportsSweepAttack();
     }
 
-    /** MITE thorns retaliates against melee attackers and arrow shooters, wearing the cuirass. */
+    /** InfX thorns retaliates against melee attackers and arrow shooters, wearing the cuirass. */
     private static void applyThorns(LivingDamageEvent.Post event) {
         LivingEntity target = event.getEntity();
         if (!(target.level() instanceof ServerLevel level)

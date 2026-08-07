@@ -177,7 +177,7 @@ public final class QualitySystem {
                     : Quality.POOR;
         }
 
-        // MITE uses Java's truncation toward zero for the cursed -20 level penalty.
+        // InfX uses Java's truncation toward zero for the cursed -20 level penalty.
         int effectiveLevel = experienceLevel - (witchClumsiness ? 20 : 0);
         int qualityOrdinal = Math.clamp(AVERAGE_ORDINAL + effectiveLevel / 10, 0, AVERAGE_ORDINAL);
         return switch (qualityOrdinal) {

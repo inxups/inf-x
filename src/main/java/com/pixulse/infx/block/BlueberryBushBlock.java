@@ -25,7 +25,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.NonNull;
 
-/** MITE-style three-stage bush that yields one blueberry and regrows after harvesting. */
+/** InfX-style three-stage bush that yields one blueberry and regrows after harvesting. */
 public final class BlueberryBushBlock extends SweetBerryBushBlock {
     public static final MapCodec<SweetBerryBushBlock> CODEC = simpleCodec(BlueberryBushBlock::new);
     private static final float GROWTH_CHANCE = 0.025F;
@@ -76,7 +76,7 @@ public final class BlueberryBushBlock extends SweetBerryBushBlock {
             @NonNull Entity entity,
             @NonNull InsideBlockEffectApplier effectApplier,
             boolean isPrecise) {
-        // MITE blueberry bushes are harmless; do not inherit Sweet Berry Bush slowing or damage.
+        // InfX blueberry bushes are harmless; do not inherit Sweet Berry Bush slowing or damage.
     }
 
     @Override

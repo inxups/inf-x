@@ -66,7 +66,7 @@ public final class InfxMobBucketItem extends MobBucketItem {
             @org.jspecify.annotations.Nullable BlockHitResult hitResult,
             @org.jspecify.annotations.Nullable ItemStack containerItem) {
         boolean placed = super.emptyContents(user, level, pos, hitResult, containerItem);
-        // MITE bucket rule: unpaid placed water degrades to flowing; mob-bucket water follows suit
+        // InfX bucket rule: unpaid placed water degrades to flowing; mob-bucket water follows suit
         // instead of staying a permanent source.
         if (placed && level.getBlockState(pos).getFluidState().is(Fluids.WATER)) {
             InfxBucketItem.scheduleWaterDecay(level, pos);

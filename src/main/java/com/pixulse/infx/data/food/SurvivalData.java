@@ -160,7 +160,7 @@ public record SurvivalData(
     }
 
     /**
-     * Adds MITE-style hunger while keeping both sub-unit accumulators persistent. Every fourth
+     * Adds InfX-style hunger while keeping both sub-unit accumulators persistent. Every fourth
      * baseline food unit is reserved for Nutrition even while Satiation remains available.
      */
     public SurvivalData metabolize(

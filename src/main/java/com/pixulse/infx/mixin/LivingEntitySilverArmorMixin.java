@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/** MITE silver armor shortens harmful effect durations by 15% per worn piece. */
+/** InfX silver armor shortens harmful effect durations by 15% per worn piece. */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntitySilverArmorMixin {
     @ModifyVariable(

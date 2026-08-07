@@ -31,7 +31,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterGameTestsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Runtime checks that the MITE supplements are reachable through real vanilla chest tables. */
+/** Runtime checks that the InfX supplements are reachable through real vanilla chest tables. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ModStructureLootGameTests {
     private static final DeferredRegister<Consumer<GameTestHelper>> TEST_FUNCTIONS =

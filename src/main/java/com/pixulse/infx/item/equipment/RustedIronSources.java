@@ -44,7 +44,7 @@ public final class RustedIronSources {
         if (event.loadedFromDisk() || !(event.getLevel() instanceof ServerLevel)) {
             return;
         }
-        // MITE only arms plain zombies this way: the zombie variants spawn bare (the revenant
+        // InfX only arms plain zombies this way: the zombie variants spawn bare (the revenant
         // brings its fixed kit) and pig zombies carry their golden weapon instead.
         if (event.getEntity() instanceof Zombie zombie
                 && !(zombie instanceof InfxZombifiedPiglin)
@@ -74,14 +74,14 @@ public final class RustedIronSources {
         if (!(event.getEntity() instanceof AbstractSkeleton skeleton)) {
             return;
         }
-        // Vanilla skeleton variants use the modern arrow and tipped-arrow loot tables. MITE
+        // Vanilla skeleton variants use the modern arrow and tipped-arrow loot tables. InfX
         // skeletons use material arrows instead, so strip only the two vanilla item types before
         // the material-arrow roll below; unrelated drops and INFX arrows remain untouched.
         event.getDrops().removeIf(RustedIronSources::isVanillaArrow);
         if (skeleton instanceof WitherSkeleton || !event.isRecentlyHit()) {
             return;
         }
-        // MITE: skeletons shed nextInt(2) rusted arrows; longdead shed an ancient-metal arrow
+        // InfX: skeletons shed nextInt(2) rusted arrows; longdead shed an ancient-metal arrow
         // one time in six.
         InfxMaterial material = InfxMaterial.RUSTED_IRON;
         int count;

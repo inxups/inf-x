@@ -73,8 +73,8 @@ public final class MonsterEvents {
     private MonsterEvents() {}
 
     /**
-     * MITE frenzy: during blood-moon nights (and under bone-lord inspiration) monster melee
-     * gains half its base attack again. Endermen are explicitly exempt in MITE.
+     * InfX frenzy: during blood-moon nights (and under bone-lord inspiration) monster melee
+     * gains half its base attack again. Endermen are explicitly exempt in InfX.
      */
     @SubscribeEvent
     public static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
@@ -99,12 +99,12 @@ public final class MonsterEvents {
     }
 
     /**
-     * MITE projectile numbers: blaze small fireballs hit for a flat 2; skeleton arrows carry a
+     * InfX projectile numbers: blaze small fireballs hit for a flat 2; skeleton arrows carry a
      * per-variant floor (rusted 5, longdead's ancient 9) and stay at the floor unless the bow
      * is enchanted.
      */
     @SubscribeEvent
-    public static void applyMiteProjectileDamage(LivingIncomingDamageEvent event) {
+    public static void applyProjectileDamage(LivingIncomingDamageEvent event) {
         if (event.getSource().getDirectEntity()
                         instanceof net.minecraft.world.entity.projectile.hurtingprojectile.SmallFireball fireball
                 && fireball.getOwner() instanceof InfxBlaze) {
@@ -125,7 +125,7 @@ public final class MonsterEvents {
     }
 
     /**
-     * MITE melee retaliation: punching a blaze or fire elemental without a tool always burns the
+     * InfX melee retaliation: punching a blaze or fire elemental without a tool always burns the
      * hand for one point; any other monster currently fighting back has a 1-in-8 chance.
      */
     @SubscribeEvent
@@ -152,7 +152,7 @@ public final class MonsterEvents {
         }
     }
 
-    /** MITE's conspicuous-cactus trigger, mapped to a real cactus hit in the modern damage pipeline. */
+    /** InfX's conspicuous-cactus trigger, mapped to a real cactus hit in the modern damage pipeline. */
     @SubscribeEvent
     public static void armCreeperFromCactus(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof InfxCreeper creeper)
@@ -427,7 +427,7 @@ public final class MonsterEvents {
     }
 
     /**
-     * MITE bats spawn in empty cave air, not on the modern {@code BATS_SPAWNABLE_ON} ground tag.
+     * InfX bats spawn in empty cave air, not on the modern {@code BATS_SPAWNABLE_ON} ground tag.
      * Their light check walks downward to the first opaque block, exactly as INFX did.
      */
     static boolean checkR196BatSpawnRules(
@@ -442,7 +442,7 @@ public final class MonsterEvents {
                 || !checkR196BatDepth(type, level, pos)) {
             return false;
         }
-        boolean halloween = isMiteBatHalloween(LocalDate.now());
+        boolean halloween = isBatHalloweenWindow(LocalDate.now());
         if (!halloween && random.nextBoolean()) {
             return false;
         }
@@ -450,7 +450,7 @@ public final class MonsterEvents {
         return maximumR196BatBlockLight(serverLevel, pos) <= random.nextInt(lightBound);
     }
 
-    static boolean isMiteBatHalloween(LocalDate date) {
+    static boolean isBatHalloweenWindow(LocalDate date) {
         return (date.getMonthValue() == 10 && date.getDayOfMonth() >= 20)
                 || (date.getMonthValue() == 11 && date.getDayOfMonth() <= 3);
     }
@@ -543,7 +543,7 @@ public final class MonsterEvents {
     public static void finalizeSpawn(FinalizeSpawnEvent event) {
         if (event.getEntity() instanceof EarthElemental elemental
                 && event.getSpawnType() != EntitySpawnReason.LOAD) {
-            elemental.initializeMiteForm();
+            elemental.initializeElementalForm();
         }
         if (event.getEntity() instanceof Monster monster
                 && monster.level() instanceof ServerLevel level
@@ -569,7 +569,7 @@ public final class MonsterEvents {
                 new AABB(event.getEventPosition(), event.getEventPosition()).inflate(radius),
                 candidate -> participatesInGenericTargeting(candidate)
                         && candidate.isAlive()
-                        // MITE base spiders are peaceful in daylight; noise must not override that.
+                        // InfX base spiders are peaceful in daylight; noise must not override that.
                         && !(candidate instanceof InfxSpider spider
                                 && spider.variant() == InfxSpider.Variant.SPIDER
                                 && spider.getLightLevelDependentMagicValue() >= 0.5F))) {
@@ -587,7 +587,7 @@ public final class MonsterEvents {
                 || !(mob.level() instanceof ServerLevel level)) {
             return;
         }
-        // MITE idle regeneration: non-undead monsters recover 10% of max health every 1000
+        // InfX idle regeneration: non-undead monsters recover 10% of max health every 1000
         // ticks; fire elementals are the explicit exception.
         if (mob.tickCount % 1000 == 999
                 && !(mob instanceof FireElemental)
@@ -660,12 +660,12 @@ public final class MonsterEvents {
     }
 
     /**
-     * MITE's regular block spawners skip ordinary darkness checks, including torch light. Reusing
+     * InfX's regular block spawners skip ordinary darkness checks, including torch light. Reusing
      * the trial-spawner reason for the second predicate check preserves every non-light placement
      * condition because both reasons remain spawner reasons in vanilla.
      */
     @SubscribeEvent
-    public static void allowMiteSpawnerLight(MobSpawnEvent.SpawnPlacementCheck event) {
+    public static void allowSpawnerLight(MobSpawnEvent.SpawnPlacementCheck event) {
         if (event.getSpawnType() != EntitySpawnReason.SPAWNER
                 || event.getDefaultResult()
                 || !(event.getLevel() instanceof ServerLevel level)) {
@@ -680,8 +680,8 @@ public final class MonsterEvents {
         boolean burnsInDirectSunlight = BuiltInRegistries.ENTITY_TYPE
                         .wrapAsHolder(event.getEntityType())
                         .is(EntityTypeTags.BURN_IN_DAYLIGHT)
-                && isExposedToMiteSunlight(level, event.getPos());
-        if (MonsterTactics.allowsMiteSpawnerLightBypass(
+                && isExposedToSunlight(level, event.getPos());
+        if (MonsterTactics.allowsSpawnerLightBypass(
                 event.getSpawnType(),
                 event.getDefaultResult(),
                 allowedIgnoringModernLight,
@@ -690,7 +690,7 @@ public final class MonsterEvents {
         }
     }
 
-    private static boolean isExposedToMiteSunlight(ServerLevel level, BlockPos pos) {
+    private static boolean isExposedToSunlight(ServerLevel level, BlockPos pos) {
         BlockPos head = pos.above();
         return level.isBrightOutside() && !level.isRainingAt(head) && level.canSeeSky(head);
     }
@@ -769,7 +769,7 @@ public final class MonsterEvents {
     }
 
     private static EntityType<? extends Mob> replacementForSpawn(ServerLevel level, Mob original) {
-        // MITE has a single witch implementation. Unlike the other replacements, a manually
+        // InfX has a single witch implementation. Unlike the other replacements, a manually
         // summoned or spawn-egg witch must not retain the modern vanilla class, because that
         // class has no INFX curse lifecycle. Leave loaded entities alone to avoid silently
         // replacing persisted vanilla-witch state in existing worlds.
@@ -784,7 +784,7 @@ public final class MonsterEvents {
         if (isWorldSpawn(original.getSpawnType())) {
             if (original.getType() == EntityType.CREEPER) {
                 int y = original.blockPosition().getY();
-                // MITE caps the infernal replacement odds at 50% even far below y=0.
+                // InfX caps the infernal replacement odds at 50% even far below y=0.
                 if (y < 40 && original.getRandom().nextFloat() < Math.min(0.5F, Math.max(0, 40 - y) / 80.0F)) {
                     return InfXEntityTypes.INFERNAL_CREEPER.get();
                 }
@@ -1021,7 +1021,7 @@ public final class MonsterEvents {
     }
 
     static boolean participatesInGenericTargeting(Mob mob) {
-        // Pig zombies own their MITE 6/24-block player awareness and must not receive the
+        // Pig zombies own their InfX 6/24-block player awareness and must not receive the
         // broad player-noise, illuminated-player, or cross-family target propagation rules.
         return mob instanceof Enemy && !(mob instanceof InfxEnderman || mob instanceof InfxZombifiedPiglin);
     }
@@ -1037,7 +1037,7 @@ public final class MonsterEvents {
         creeper.setAmplifyingExplosion(true);
         try {
             float radius = creeper.isPowered() ? 12.0F : 6.0F;
-            // MITE infernal creeper explosions are always flaming.
+            // InfX infernal creeper explosions are always flaming.
             event.getLevel().explode(
                     creeper,
                     creeper.getX(),
@@ -1067,7 +1067,7 @@ public final class MonsterEvents {
         return hardness < 0.0F || (variant != InfxCreeper.Variant.INFERNAL && hardness >= 1.5F);
     }
 
-    /** MITE netherspawn blasts leave their native netherrack and gold/quartz ore veins intact. */
+    /** InfX netherspawn blasts leave their native netherrack and gold/quartz ore veins intact. */
     @SubscribeEvent
     public static void protectNetherspawnTerrain(ExplosionEvent.Detonate event) {
         if (!(event.getExplosion().getDirectSourceEntity() instanceof InfxSilverfish silverfish)

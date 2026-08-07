@@ -19,7 +19,7 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.structure.StructurePiece;
 
-/** MITE-style Underworld monster rooms with Longdead spawners and dedicated loot. */
+/** InfX-style Underworld monster rooms with Longdead spawners and dedicated loot. */
 public final class InfXUnderworldDungeonFeature extends Feature<NoneFeatureConfiguration> {
     private static final BlockState AIR = Blocks.CAVE_AIR.defaultBlockState();
 

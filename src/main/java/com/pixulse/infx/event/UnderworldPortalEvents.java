@@ -106,7 +106,7 @@ public final class UnderworldPortalEvents {
         return frameRestsOnBottomMaterial(level, origin, InfXBlocks.MANTLE.get());
     }
 
-    /** MITE permits a bottom gate only when its lower frame is in the lowest eight block layers. */
+    /** InfX permits a bottom gate only when its lower frame is in the lowest eight block layers. */
     private static boolean frameRestsOnBottomMaterial(ServerLevel level, BlockPos origin, Block material) {
         int maximumFrameY = level.getMinY() + BOTTOM_FRAME_MAX_OFFSET;
         return frameHasSupport(

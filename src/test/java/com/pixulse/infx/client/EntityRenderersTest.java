@@ -82,7 +82,7 @@ class EntityRenderersTest {
     }
 
     @Test
-    void gelatinousVariantsUseTheirMatchingMiteEntityTextures() {
+    void gelatinousVariantsUseTheirMatchingEntityTextures() {
         assertEquals(
                 "infx:textures/entity/slime/slime.png",
                 EntityRenderers.SlimeTexture.textureFor(InfxSlime.Variant.SLIME).toString());
@@ -106,7 +106,7 @@ class EntityRenderersTest {
     /**
      * Vanilla SlimeRenderer owns an outer layer that unconditionally binds
      * minecraft:textures/entity/slime/slime.png. The INFX renderer must own both layers so the
-     * supplied MITE sheet is applied consistently.
+     * supplied InfX sheet is applied consistently.
      */
     @Test
     void gelatinousRenderersDoNotInheritVanillaOuterLayer() {
@@ -116,7 +116,7 @@ class EntityRenderersTest {
     }
 
     @Test
-    void newMonsterVariantsUseAuthorizedMiteEntityTextures() {
+    void newMonsterVariantsUseAuthorizedEntityTextures() {
         assertEquals(
                 "infx:textures/entity/wight.png", InvisibleStalkerRenderer.texture().toString());
         assertEquals(
@@ -260,12 +260,12 @@ class EntityRenderersTest {
     }
 
     /**
-     * Pixel audit vs minecraft_26.2_client.jar: the MITE pack's zombie, skeleton, creeper(+armor),
+     * Pixel audit vs minecraft_26.2_client.jar: the imported pack's zombie, skeleton, creeper(+armor),
      * enderman(+eyes), witch, and spider-eyes sheets are identical to vanilla 26.2, so those stay
      * on vanilla ids. Only the audited divergences bind infx sheets.
      */
     @Test
-    void baseMonstersBindOnlyTheAuditedMiteDivergences() {
+    void baseMonstersBindOnlyTheAuditedDivergences() {
         assertEquals(
                 "infx:textures/entity/spider/spider.png",
                 EntityRenderers.SpiderTexture.textureFor(InfxSpider.Variant.SPIDER).toString());

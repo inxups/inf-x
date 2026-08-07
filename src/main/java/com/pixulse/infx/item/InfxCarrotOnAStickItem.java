@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * MITE carrot on a stick: each hook material has its own stick that boosts the ridden pig.
+ * InfX carrot on a stick: each hook material has its own stick that boosts the ridden pig.
  * The INFX pig replacement uses its own entity type, so the vanilla type check is widened.
  */
 public final class InfxCarrotOnAStickItem extends FoodOnAStickItem<Pig> {

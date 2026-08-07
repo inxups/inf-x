@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 class InfXEnchantmentsTest {
     @Test
-    void r196ProfilesPreserveEveryMiteRarityAndDifficulty() {
+    void r196ProfilesPreserveEveryRarityAndDifficulty() {
         Map<ResourceKey<Enchantment>, ExpectedProfile> expected = Map.ofEntries(
                 Map.entry(InfXEnchantments.DURABILITY, expected(InfXEnchantments.Rarity.UNCOMMON, 10)),
                 Map.entry(InfXEnchantments.DISARMING, expected(InfXEnchantments.Rarity.RARE, 10)),
@@ -49,7 +49,7 @@ class InfXEnchantmentsTest {
     }
 
     @Test
-    void profileCostsUseTheMiteDifficultyWindow() {
+    void profileCostsUseTheDifficultyWindow() {
         for (ResourceKey<Enchantment> key : InfXEnchantments.INFX) {
             InfXEnchantments.EnchantmentProfile profile = InfXEnchantments.profile(key);
             for (int level = 1; level <= 5; level++) {
@@ -62,9 +62,9 @@ class InfXEnchantmentsTest {
         }
     }
 
-    /** The 17 vanilla-derived enchantments keep MITE's rarity and difficulty exactly. */
+    /** The 17 vanilla-derived enchantments keep their rarity and difficulty exactly. */
     @Test
-    void vanillaProfilesPreserveEveryMiteRarityAndDifficulty() {
+    void vanillaProfilesPreserveEveryRarityAndDifficulty() {
         Map<ResourceKey<Enchantment>, ExpectedProfile> expected = Map.ofEntries(
                 Map.entry(InfXEnchantments.VANILLA_FIRE_PROTECTION, expected(InfXEnchantments.Rarity.UNCOMMON, 10)),
                 Map.entry(InfXEnchantments.VANILLA_FEATHER_FALLING, expected(InfXEnchantments.Rarity.UNCOMMON, 10)),

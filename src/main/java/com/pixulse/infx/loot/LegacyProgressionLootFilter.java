@@ -17,16 +17,16 @@ import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootModifier;
 import org.jspecify.annotations.NonNull;
 
-/** Applies the MITE day and height gates after structure supplements have been rolled. */
-public final class MiteProgressionLootFilter extends LootModifier {
+/** Applies the InfX day and height gates after structure supplements have been rolled. */
+public final class LegacyProgressionLootFilter extends LootModifier {
     public static final long AXE_UNLOCK_DAY = 10L;
     public static final long INGOT_UNLOCK_DAY = 20L;
     public static final int LOW_HEIGHT = 48;
 
-    public static final MapCodec<MiteProgressionLootFilter> CODEC = RecordCodecBuilder.mapCodec(instance ->
-            codecStart(instance).apply(instance, MiteProgressionLootFilter::new));
+    public static final MapCodec<LegacyProgressionLootFilter> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            codecStart(instance).apply(instance, LegacyProgressionLootFilter::new));
 
-    public MiteProgressionLootFilter(LootItemCondition[] conditions, int priority) {
+    public LegacyProgressionLootFilter(LootItemCondition[] conditions, int priority) {
         super(conditions, priority);
     }
 
@@ -77,6 +77,6 @@ public final class MiteProgressionLootFilter extends LootModifier {
 
     @Override
     public @NonNull MapCodec<? extends IGlobalLootModifier> codec() {
-        return InfXLootModifiers.MITE_PROGRESSION_FILTER.get();
+        return InfXLootModifiers.PROGRESSION_FILTER.get();
     }
 }

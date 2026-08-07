@@ -6,7 +6,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.event.EventHooks;
 
 /**
- * MITE wolf taming: three-tier outcome, a 5-second cooldown after failure, and
+ * InfX wolf taming: three-tier outcome, a 5-second cooldown after failure, and
  * hostile retaliation on the worst roll (except on blue-moon nights).
  */
 public final class WolfTaming {

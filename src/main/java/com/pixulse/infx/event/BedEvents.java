@@ -271,7 +271,7 @@ public final class BedEvents {
         BlockPos bed = player.getSleepingPos().orElse(null);
         if (bed == null) return null;
         // Beds are not pathfindable blocks in 26.2. Permit a two-block target radius, then retain
-        // MITE's tighter final-node check below so only a genuine bedside route counts.
+        // InfX's tighter final-node check below so only a genuine bedside route counts.
         Path path = mob.getNavigation().createPath(bed, 2, maxPathLength);
         if (path == null || !path.canReach()) return null;
         Node end = path.getEndNode();

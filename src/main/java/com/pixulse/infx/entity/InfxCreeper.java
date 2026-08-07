@@ -29,7 +29,7 @@ public final class InfxCreeper extends Creeper implements InfxMob {
     public InfxCreeper(EntityType<? extends Creeper> type, Level level) {
         super(type, level);
         if (variant() == Variant.INFERNAL) {
-            // MITE infernal creepers are worth triple the base experience.
+            // InfX infernal creepers are worth triple the base experience.
             xpReward = 15;
         }
     }
@@ -91,7 +91,7 @@ public final class InfxCreeper extends Creeper implements InfxMob {
         }
     }
 
-    /** MITE's first {@code nextInt(4)} roll with its zero fallback and non-player reduction. */
+    /** InfX's first {@code nextInt(4)} roll with its zero fallback and non-player reduction. */
     static int infernalPowderDropCount(
             int firstRoll, int fallbackRoll, int lootingRoll, boolean killedByPlayer, int nonPlayerReduction) {
         int count = firstRoll == 0 ? fallbackRoll : firstRoll;
@@ -99,18 +99,18 @@ public final class InfxCreeper extends Creeper implements InfxMob {
         return !killedByPlayer && count > 0 ? count - nonPlayerReduction : count;
     }
 
-    /** Player kills always keep powder; other kills retain MITE's one-in-three item roll. */
+    /** Player kills always keep powder; other kills retain InfX's one-in-three item roll. */
     static boolean shouldDropInfernalPowder(boolean killedByPlayer, int nonPlayerItemRoll) {
         return killedByPlayer || nonPlayerItemRoll == 0;
     }
 
-    /** MITE varies ignition distance by path state and doubles it for infernal creepers. */
+    /** InfX varies ignition distance by path state and doubles it for infernal creepers. */
     static double swellStartDistanceSqr(Variant variant, boolean navigationDone, float healthFraction) {
         double ordinary = navigationDone ? 16.0 : healthFraction < 1.0F ? 9.0 : 4.5;
         return variant == Variant.INFERNAL ? ordinary * 2.0 : ordinary;
     }
 
-    /** MITE preserves the swell while any visible player is within this health-scaled squared range. */
+    /** InfX preserves the swell while any visible player is within this health-scaled squared range. */
     static double swellContinueDistanceSqr(Variant variant, float healthFraction) {
         double base = variant == Variant.INFERNAL ? 36.0 : 16.0;
         double clampedHealth = healthFraction <= 0.4F ? 0.4 : Math.min(healthFraction, 1.0F);
