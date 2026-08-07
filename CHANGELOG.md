@@ -1,6 +1,6 @@
 # Changelog
 
-## 0t7
+## 0t6
 ## Bug Fixes
 - Swords, scythes, axes, and all other melee weapons no longer carry the `ATTACK_RANGE` component. Melee reach now follows the 1.5-block rule used by bare hands and vanilla weapons, or 5 blocks in Creative mode. Client-side targeting also follows the vanilla path again: while mounted, the crosshair no longer targets the mount, and attacks no longer accidentally hit it.
 - Bare-handed attacks and all items without `ATTACK_RANGE` now use a 1.5-block melee range, or 5 blocks in Creative mode, and this works correctly for client-side left-click attacks. Base block and entity interaction reach is also 1.5 blocks; tools with reach bonuses still extend it.
