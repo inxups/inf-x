@@ -3352,7 +3352,7 @@ class GeneratedResourceTest {
                         + "|textures/entity/zombie_pigman(_baby)?\\.png"
                         + "|textures/entity/ghast/(ghast|ghast_shooting)\\.png"
                         + "|textures/entity/skeleton/(longdead|longdead_guardian|bone_lord)\\.png"
-                        + "|textures/entity/spider/(spider|black_widow|cave_spider|demon_spider|wood_spider|phase_spider)\\.png"
+                        + "|textures/entity/spider/(spider|black_widow|cave_spider|demon_spider|wood_spider|phase_spider(_eyes)?)\\.png"
                         + "|textures/entity/creeper/infernal_creeper\\.png"
                         + "|textures/entity/earth_elemental/(earth_elemental(_magma)?_glow"
                         + "|clay/earth_elemental_clay(_hardened)?"

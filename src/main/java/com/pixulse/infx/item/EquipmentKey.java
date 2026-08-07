@@ -77,9 +77,6 @@ public record EquipmentKey(InfxMaterial material, EquipmentType type) {
     }
 
     public String englishName() {
-        if (material == InfxMaterial.COPPER && type == EquipmentType.PICKAXE) {
-            return "InfiniteX Copper Pickaxe";
-        }
         if (type == EquipmentType.FISHING_ROD) {
             return "Fishing Rod";
         }
@@ -93,9 +90,6 @@ public record EquipmentKey(InfxMaterial material, EquipmentType type) {
     }
 
     public String chineseName() {
-        if (material == InfxMaterial.COPPER && type == EquipmentType.PICKAXE) {
-            return "InfiniteX 铜镐";
-        }
         if (type == EquipmentType.FISHING_ROD) {
             return "钓鱼竿";
         }

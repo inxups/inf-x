@@ -14,6 +14,7 @@ import com.pixulse.infx.entity.InfxZombie;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.monster.slime.SlimeModel;
+import net.minecraft.client.model.monster.spider.SpiderModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.BatRenderer;
 import net.minecraft.client.renderer.entity.BlazeRenderer;
@@ -47,6 +48,7 @@ import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
 import net.minecraft.client.renderer.entity.state.SlimeRenderState;
 import net.minecraft.client.renderer.entity.state.WolfRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.minecraft.resources.Identifier;
@@ -287,6 +289,21 @@ public final class EntityRenderers {
         }
     }
 
+    /** Green emissive eyes for the phase spider, mirroring the vanilla red spider eyes layer. */
+    public static final class PhaseSpiderEyesLayer extends SpiderEyesLayer<SpiderModel> {
+        private static final RenderType GREEN_EYES =
+                RenderTypes.eyes(InfiniteX.id("textures/entity/spider/phase_spider_eyes.png"));
+
+        public PhaseSpiderEyesLayer(RenderLayerParent<LivingEntityRenderState, SpiderModel> renderer) {
+            super(renderer);
+        }
+
+        @Override
+        public RenderType renderType() {
+            return GREEN_EYES;
+        }
+    }
+
     public static final class SpiderTexture extends SpiderRenderer<InfxSpider> {
         private final Identifier texture;
         private final float renderScale;
@@ -300,9 +317,10 @@ public final class EntityRenderers {
             this.texture = textureFor(variant);
             this.renderScale = renderScale;
             // Glow textures: phase spiders glow green, everything else red. The phase body sheet
-            // already paints green eyes, so the vanilla red spider_eyes layer must not cover them.
+            // paints green eyes, so it needs a green eyes glow layer instead of the vanilla red one.
             if (variant == InfxSpider.Variant.PHASE) {
                 this.layers.removeIf(layer -> layer instanceof SpiderEyesLayer<?>);
+                this.addLayer(new PhaseSpiderEyesLayer(this));
             }
         }
 
