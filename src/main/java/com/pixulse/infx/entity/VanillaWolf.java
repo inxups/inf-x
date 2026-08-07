@@ -1,7 +1,9 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.mixin.WolfAccessor;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -12,8 +14,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.animal.wolf.WolfSoundVariants;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -51,9 +55,35 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (isTame()) {
+            // 26.1 wolf armor only equips on the exact minecraft:wolf type, so the INFX
+            // replacement must apply the armor and repair branches itself. The slot must be
+            // checked directly: Mob#isWearingBodyArmor is gated by the same type restriction.
+            if (itemStack.is(Items.WOLF_ARMOR)
+                    && isOwnedBy(player)
+                    && getBodyArmorItem().isEmpty()
+                    && !isBaby()) {
+                setBodyArmorItem(itemStack.copyWithCount(1));
+                itemStack.consume(1, player);
+                return InteractionResult.SUCCESS;
+            }
+            if (isInSittingPose()
+                    && !getBodyArmorItem().isEmpty()
+                    && getBodyArmorItem().isDamaged()
+                    && getBodyArmorItem().isValidRepairItem(itemStack)) {
+                itemStack.shrink(1);
+                playSound(SoundEvents.WOLF_ARMOR_REPAIR);
+                ItemStack armor = getBodyArmorItem();
+                int repairUnit = (int) (armor.getMaxDamage() * 0.125F);
+                armor.setDamageValue(Math.max(0, armor.getDamageValue() - repairUnit));
+                return InteractionResult.SUCCESS;
+            }
             return super.mobInteract(player, hand);
         }
         if (!level().isClientSide() && itemStack.is(Items.BONE) && !isAngry()) {
+            // MITE wolves refuse feeding during the taming cooldown without consuming the bone.
+            if (tamingCooldown() > 0) {
+                return InteractionResult.PASS;
+            }
             itemStack.consume(1, player);
             WolfTaming.attempt(this, WolfTaming.Kind.VANILLA, player, this);
             return InteractionResult.SUCCESS_SERVER;
@@ -121,6 +151,23 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
 
     @Override
     public @Nullable Wolf getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        return InfXEntityTypes.INFX_WOLF.get().create(level, EntitySpawnReason.BREEDING);
+        // MITE pups inherit the coat, sounds, and tamed collar of their parents.
+        Wolf baby = InfXEntityTypes.INFX_WOLF.get().create(level, EntitySpawnReason.BREEDING);
+        if (baby != null && partner instanceof Wolf partnerWolf) {
+            WolfAccessor babyAccessor = (WolfAccessor) baby;
+            Wolf self = this;
+            babyAccessor.infx$setVariant(this.random.nextBoolean()
+                    ? ((WolfAccessor) self).infx$getVariant()
+                    : ((WolfAccessor) partnerWolf).infx$getVariant());
+            if (this.isTame()) {
+                baby.setOwnerReference(this.getOwnerReference());
+                baby.setTame(true, true);
+                babyAccessor.infx$setCollarColor(DyeColor.getMixedColor(
+                        level, this.getCollarColor(), partnerWolf.getCollarColor()));
+            }
+            babyAccessor.infx$setSoundVariant(
+                    WolfSoundVariants.pickRandomSoundVariant(this.registryAccess(), this.random));
+        }
+        return baby;
     }
 }
