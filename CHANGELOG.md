@@ -1,19 +1,29 @@
 # Changelog
 
 ## 0t7
-### Project Direction
-- MITE alignment is abandoned: development now benchmarks against vanilla 26.1.2 / NeoForge behaviour while keeping all existing behaviour changes. MITE wording was removed from code comments, test text and identifiers (provenance manifests, resource paths, NBT keys and the vanilla Smite enchantment are intentionally unchanged).
-
 ## Bug Fixes
-- Strays, parched skeletons, bogged skeletons and wither skeletons no longer spawn bare-handed: these un-replaced skeleton variants trade the vanilla bow for an InfX iron sword (zombies and drowned stay bare, and natural vanilla skeleton spawns are still replaced by the INFX skeleton).
-- Every InfX carrot-on-a-stick and warped-fungus-on-a-stick material variant now controls and boosts its mount again: vanilla 26.1 pigs and striders only accept the exact vanilla `carrot_on_a_stick`/`warped_fungus_on_a_stick` as their control item, so riding with an InfX stick in hand neither steered the mount nor triggered the boost; the check now accepts every InfX stick (covering vanilla pigs and striders as well as the INFX pig replacement).
-- InfX carrot-on-a-stick and warped-fungus-on-a-stick items are now held with the vanilla rod pose (`handheld_rod` model) instead of the flat generated-item pose.
-- Pigs and horses (including the INFX replacement types) can now equip saddles again, and horses can equip horse armor; the horse inventory saddle and armor slots are visible again (26.1 gates equipping by entity-type tags).
-- Tamed wolves and dire wolves can now equip wolf armor and repair it with armadillo scutes (26.1 restricts wolf armor to the exact minecraft:wolf type, so the replacement entities handle the equip branch themselves).
-- Feeding bones to a wolf/dire wolf during its taming cooldown no longer consumes them.
-- Breeding inheritance fixes: warm (tropical) pigs breed warm piglets; cow and chicken coat variants, sheep wool colors, and horse coats/markings are inherited again; foals inherit the parents' health/speed/jump attributes; tamed wolf/dire-wolf pups inherit the coat, sound variant, collar, ownership and tame state; dire wolves now breed dire wolves instead of vanilla wolves.
-- Llamas and donkeys (including mules) now follow the untamed remount and feed intervals like horses: 4000 ticks after being thrown off they refuse to be mounted again, and 4000 ticks after accepting food they refuse further feedings.
-- Livestock now forage dropped breeding food: they walk to and eat edible items on the ground whenever their food meter is not full (previously they only path-find when desperately hungry and the passive pickup radius was too small); ground eating restores the food meter.
+- Swords, scythes, axes, and all other melee weapons no longer carry the `ATTACK_RANGE` component. Melee reach now follows the 1.5-block rule used by bare hands and vanilla weapons, or 5 blocks in Creative mode. Client-side targeting also follows the vanilla path again: while mounted, the crosshair no longer targets the mount, and attacks no longer accidentally hit it.
+- Bare-handed attacks and all items without `ATTACK_RANGE` now use a 1.5-block melee range, or 5 blocks in Creative mode, and this works correctly for client-side left-click attacks. Base block and entity interaction reach is also 1.5 blocks; tools with reach bonuses still extend it.
+- Sword and scythe sweep attacks no longer trigger while mounted, sprinting, or performing a critical jump attack. They now match the vanilla 26.1.2 `isSweepAttack` conditions: only grounded, non-sprinting, non-mounted normal attacks can sweep.
+- Updated the Earth Element spawn egg texture.
+- Reverted the Earth Element entity texture and emissive texture to the pre-replacement MITE vanilla versions. The source list and SHA-256 hashes were synchronized accordingly; equipment textures are unaffected.
+- During player default-attribute creation, a Mixin now directly sets the base block and entity interaction reach to 1.5 blocks. Tool-provided reach bonuses continue to stack through the vanilla attribute system, and Creative mode remains at 5 blocks.
+- Strays, Parched, Bogged, and Wither Skeletons no longer spawn empty-handed. These variants without INFX replacements no longer use vanilla bows and instead carry INFX Iron Swords. Zombies and Drowned remain unarmed, while naturally spawned vanilla Skeletons are replaced by INFX Skeletons.
+- Carrot-on-a-stick and warped-fungus-on-a-stick variants made from all materials can now properly control and accelerate mounts, including vanilla and INFX Pigs and Striders. Vanilla 26.1 previously recognized only the exact vanilla items.
+- Carrot-on-a-stick and warped-fungus-on-a-stick items now use the vanilla `handheld_rod` model, instead of being held like ordinary items.
+- Pigs and horses, including INFX replacement entities, can now properly equip saddles. Horses can also equip horse armor, and the saddle and horse-armor slots are visible again in horse inventories.
+- Tamed Wolves and Dread Wolves can equip wolf armor and repair it with scutes. Vanilla 26.1 restricts wolf armor to the exact `minecraft:wolf` type, so replacement entities now handle this separately.
+- Feeding bones to Wolves or Dread Wolves during the taming cooldown no longer consumes the bones.
+- Fixed breeding inheritance: Warm Pig breeding continues to produce Warm Pigs; warm, cold, and temperate Cow variants, Chicken variants, Sheep wool colors, and Horse coat colors and markings are now inherited by offspring. Foals also inherit their parents’ health, speed, and jump attributes. Offspring of tamed Wolves and Dread Wolves inherit the variant, sounds, collar color, taming status, and owner. Breeding Dread Wolves now produces Dread Wolves instead of vanilla Wolves.
+- Llamas and Donkeys, including Mules, now follow the same untamed mounting and feeding cooldown rules as Horses. After throwing off a rider, they refuse mounting for 4,000 ticks; after accepting food, they refuse further feeding for 4,000 ticks.
+- Livestock now actively seek out breeding food dropped on the ground whenever their food value is not full. Previously, they only pathfound for food when extremely hungry, and their passive pickup range was too small. Eating from the ground now restores their food value.
+- Removed the redundant `InfiniteX` prefix from the Copper Pickaxe display name, restoring it to `Copper Pickaxe`.
+- Lava buckets made from different metals can now interact with cauldrons. Empty buckets can draw lava from lava cauldrons, and lava buckets can fill empty cauldrons, including other cauldron variants, matching the vanilla 26.1.2 lava-bucket rules.
+- Ender Pearl teleportation no longer deals 5 points of teleport damage. Vanilla reports this damage with the `fall` death message, causing players to mistake it for fall damage.
+- Fixed Phase Spider eyes not glowing by adding a green emissive eye layer. The original red emissive layer had been removed without a replacement; the green eyes now glow like vanilla Spider eyes.
+- Fixed tamed Dread Wolves continuing to follow players while sitting. Dread Wolves and Hellhounds shared the `Enemy` marker, causing generic enemy rules—such as targeting players in lit areas within 48 blocks, pathfinding toward the brightest block, and flanking or digging toward targets—to bypass the sitting state and directly control navigation. Dread Wolves, whether tamed or not, no longer participate in these generic enemy rules, so sitting Dread Wolves will not follow players or light sources.
+
+---
 
 ## 0t5-0v2
 ## Bug Fixes
