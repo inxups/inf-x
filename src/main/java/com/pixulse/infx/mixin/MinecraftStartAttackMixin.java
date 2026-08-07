@@ -11,9 +11,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
  * Vanilla only re-checks the attack range when the held item carries an ATTACK_RANGE component, so
- * empty-hand and component-less items attack as far as the entity interaction raycast (2.5 blocks).
+ * empty-hand and component-less items attack as far as the entity interaction raycast (1.5 blocks).
  * Falls back to {@link net.minecraft.world.entity.LivingEntity#getAttackRangeWith} so INFX's 1.5-block
- * empty-hand attack reach is actually enforced, while right-click interaction keeps its 2.5-block reach.
+ * empty-hand attack reach is actually enforced, while right-click interaction uses the same 1.5-block base.
  */
 @Mixin(Minecraft.class)
 public abstract class MinecraftStartAttackMixin {

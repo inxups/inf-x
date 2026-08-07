@@ -14,8 +14,8 @@ class PlayerProgressionEventsTest {
 
     @Test
     void survivalModeUsesR196InteractionRanges() {
-        assertEquals(2.75, PlayerProgressionEvents.blockInteractionRange(false));
-        assertEquals(2.5, PlayerProgressionEvents.entityInteractionRange(false));
+        assertEquals(1.5, PlayerProgressionEvents.blockInteractionRange(false));
+        assertEquals(1.5, PlayerProgressionEvents.entityInteractionRange(false));
     }
 
     @Test

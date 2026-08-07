@@ -208,6 +208,9 @@ public final class ModEquipmentGameTests {
 
         double blockInteractionRange = player.blockInteractionRange();
         double entityInteractionRange = player.entityInteractionRange();
+        helper.assertTrue(
+                blockInteractionRange == 1.5 && entityInteractionRange == 1.5,
+                "survival reach must use 1.5 blocks for block and entity interaction");
         BlockPos interactionBlock = helper.absolutePos(new BlockPos(4, 2, 1));
         var farTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 2, 1));
         boolean emptyHandBlockRange = player.isWithinBlockInteractionRange(interactionBlock, 0.0D);

@@ -58,16 +58,16 @@ class ItemPropertiesTest {
         var scythe = ItemProperties.toolAttributes(key(InfxMaterial.COPPER, EquipmentType.SCYTHE));
         var knife = ItemProperties.toolAttributes(key(InfxMaterial.FLINT, EquipmentType.KNIFE));
         assertEquals(
-                3.25,
-                sword.compute(Attributes.ENTITY_INTERACTION_RANGE, 2.5, EquipmentSlot.MAINHAND),
+                2.25,
+                sword.compute(Attributes.ENTITY_INTERACTION_RANGE, 1.5, EquipmentSlot.MAINHAND),
                 1.0E-6);
         assertEquals(
-                3.5,
-                scythe.compute(Attributes.ENTITY_INTERACTION_RANGE, 2.5, EquipmentSlot.MAINHAND),
+                2.5,
+                scythe.compute(Attributes.ENTITY_INTERACTION_RANGE, 1.5, EquipmentSlot.MAINHAND),
                 1.0E-6);
         assertEquals(
-                2.75,
-                knife.compute(Attributes.ENTITY_INTERACTION_RANGE, 2.5, EquipmentSlot.MAINHAND),
+                1.75,
+                knife.compute(Attributes.ENTITY_INTERACTION_RANGE, 1.5, EquipmentSlot.MAINHAND),
                 1.0E-6);
     }
 
