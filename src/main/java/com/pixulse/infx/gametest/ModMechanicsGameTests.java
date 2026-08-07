@@ -6,6 +6,7 @@ import com.pixulse.infx.data.food.FoodProfiles;
 import com.pixulse.infx.entity.GelatinousSphere;
 import com.pixulse.infx.entity.InfxBrickProjectile;
 import com.pixulse.infx.entity.InfxSheep;
+import com.pixulse.infx.entity.InfxWolf;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
@@ -27,6 +28,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -54,6 +56,9 @@ public final class ModMechanicsGameTests {
     private static final List<String> NAMES = List.of(
             "infx_explosion_drops",
             "infx_cauldron_vessels",
+            "infx_dire_wolf_sit",
+            "infx_dire_wolf_sit_mid_follow",
+            "infx_dire_wolf_sit_ignores_generic_rules",
             "infx_brick_throw",
             "infx_colored_eggs",
             "infx_sphere_sheep");
@@ -61,6 +66,9 @@ public final class ModMechanicsGameTests {
     static {
         FUNCTIONS.register("infx_explosion_drops", () -> ModMechanicsGameTests::explosionDrops);
         FUNCTIONS.register("infx_cauldron_vessels", () -> ModMechanicsGameTests::cauldronVessels);
+        FUNCTIONS.register("infx_dire_wolf_sit", () -> ModMechanicsGameTests::direWolfSit);
+        FUNCTIONS.register("infx_dire_wolf_sit_mid_follow", () -> ModMechanicsGameTests::direWolfSitMidFollow);
+        FUNCTIONS.register("infx_dire_wolf_sit_ignores_generic_rules", () -> ModMechanicsGameTests::direWolfSitIgnoresGenericMonsterRules);
         FUNCTIONS.register("infx_brick_throw", () -> ModMechanicsGameTests::brickThrow);
         FUNCTIONS.register("infx_colored_eggs", () -> ModMechanicsGameTests::coloredEggs);
         FUNCTIONS.register("infx_sphere_sheep", () -> ModMechanicsGameTests::sphereSheep);
@@ -133,6 +141,96 @@ public final class ModMechanicsGameTests {
             helper.assertTrue(
                     stacks.stream().anyMatch(stack -> stack.is(Items.COBBLESTONE)),
                     "stone must explode into cobblestone");
+            helper.succeed();
+        });
+    }
+
+    /** InfX: a tamed dire wolf ordered to sit stays put and never follows or teleports to its owner. */
+    private static void direWolfSit(GameTestHelper helper) {
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        ServerLevel level = helper.getLevel();
+        // Floor the wolf's spawn cell so it lands and grounds before the sit goal can run.
+        for (BlockPos floor : List.of(new BlockPos(3, 1, 2), new BlockPos(3, 0, 2))) {
+            level.setBlock(helper.absolutePos(floor), Blocks.STONE.defaultBlockState(), 3);
+        }
+        InfxWolf wolf = helper.spawn(InfXEntityTypes.DIRE_WOLF.get(), new BlockPos(3, 2, 2));
+        wolf.setTame(true, true);
+        wolf.setOwner(player);
+        // Right-click with an empty hand, exactly like the player toggling the sit pose.
+        wolf.mobInteract(player, InteractionHand.MAIN_HAND);
+        Vec3 start = wolf.position();
+        // Move the owner beyond the follow start distance (10) and teleport distance (12).
+        player.snapTo(player.getX() + 24.0, player.getY(), player.getZ() + 24.0, 0.0F, 0.0F);
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(
+                    wolf.isOrderedToSit(), "the dire wolf must remain ordered to sit");
+            helper.assertTrue(
+                    wolf.isInSittingPose(), "the dire wolf must remain in the sitting pose");
+            helper.assertTrue(
+                    wolf.distanceToSqr(start) < 0.5,
+                    "a sitting dire wolf must not follow or teleport to its owner");
+            ModCompletionGameTests.removePlayer(player);
+            helper.succeed();
+        });
+    }
+
+    /** InfX: sitting while mid-follow holds; walking away after a sit toggle must not resume the chase. */
+    private static void direWolfSitMidFollow(GameTestHelper helper) {
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        ServerLevel level = helper.getLevel();
+        for (BlockPos floor : List.of(new BlockPos(3, 1, 2), new BlockPos(3, 0, 2))) {
+            level.setBlock(helper.absolutePos(floor), Blocks.STONE.defaultBlockState(), 3);
+        }
+        InfxWolf wolf = helper.spawn(InfXEntityTypes.DIRE_WOLF.get(), new BlockPos(3, 2, 2));
+        wolf.setTame(true, true);
+        wolf.setOwner(player);
+        // Owner far away so the follow goal is eligible, then right-click to sit.
+        player.snapTo(player.getX() + 24.0, player.getY(), player.getZ() + 24.0, 0.0F, 0.0F);
+        wolf.mobInteract(player, InteractionHand.MAIN_HAND);
+        Vec3 start = wolf.position();
+        helper.runAfterDelay(60, () -> {
+            helper.assertTrue(
+                    wolf.isOrderedToSit(), "the mid-follow right-click must order the wolf to sit");
+            helper.assertTrue(
+                    wolf.isInSittingPose(), "the mid-follow right-click must pose the wolf");
+            helper.assertTrue(
+                    wolf.distanceToSqr(start) < 0.5,
+                    "a wolf sat down mid-follow must not keep following");
+            ModCompletionGameTests.removePlayer(player);
+            helper.succeed();
+        });
+    }
+
+    /**
+     * MonsterEvents must not treat dire wolves as generic Enemy monsters: a sitting tamed
+     * dire wolf must not target the lit player or path after targets or the player's light.
+     */
+    private static void direWolfSitIgnoresGenericMonsterRules(GameTestHelper helper) {
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        ServerLevel level = helper.getLevel();
+        // Floor the wolf cell and the lamp cell; bright lamp beside the player.
+        for (BlockPos floor : List.of(new BlockPos(3, 1, 2), new BlockPos(2, 1, 1))) {
+            level.setBlock(helper.absolutePos(floor), Blocks.STONE.defaultBlockState(), 3);
+        }
+        level.setBlock(helper.absolutePos(new BlockPos(2, 2, 1)), Blocks.SEA_LANTERN.defaultBlockState(), 3);
+        InfxWolf wolf = helper.spawn(InfXEntityTypes.DIRE_WOLF.get(), new BlockPos(3, 2, 2));
+        wolf.setTame(true, true);
+        wolf.setOwner(player);
+        wolf.setOrderedToSit(true);
+        // The empty test platform does not always resolve the fall collision, leaving the
+        // spawn airborne; the sit goal refuses to start until the mob is grounded.
+        wolf.setOnGround(true);
+        Vec3 start = wolf.position();
+        helper.runAfterDelay(100, () -> {
+            helper.assertTrue(
+                    !(wolf.getTarget() instanceof Player),
+                    "a sitting tamed dire wolf must not target the lit player");
+            helper.assertTrue(
+                    wolf.isInSittingPose(), "the dire wolf must remain sitting");
+            helper.assertTrue(
+                    wolf.distanceToSqr(start) < 2.0,
+                    "a sitting tamed dire wolf must not path after targets or light");
+            ModCompletionGameTests.removePlayer(player);
             helper.succeed();
         });
     }
