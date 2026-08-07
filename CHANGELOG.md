@@ -5,6 +5,7 @@
 - MITE alignment is abandoned: development now benchmarks against vanilla 26.1.2 / NeoForge behaviour while keeping all existing behaviour changes. MITE wording was removed from code comments, test text and identifiers (provenance manifests, resource paths, NBT keys and the vanilla Smite enchantment are intentionally unchanged).
 
 ## Bug Fixes
+- Strays, parched skeletons, bogged skeletons and wither skeletons no longer spawn bare-handed: these un-replaced skeleton variants trade the vanilla bow for an InfX iron sword (zombies and drowned stay bare, and natural vanilla skeleton spawns are still replaced by the INFX skeleton).
 - Every InfX carrot-on-a-stick and warped-fungus-on-a-stick material variant now controls and boosts its mount again: vanilla 26.1 pigs and striders only accept the exact vanilla `carrot_on_a_stick`/`warped_fungus_on_a_stick` as their control item, so riding with an InfX stick in hand neither steered the mount nor triggered the boost; the check now accepts every InfX stick (covering vanilla pigs and striders as well as the INFX pig replacement).
 - InfX carrot-on-a-stick and warped-fungus-on-a-stick items are now held with the vanilla rod pose (`handheld_rod` model) instead of the flat generated-item pose.
 - Pigs and horses (including the INFX replacement types) can now equip saddles again, and horses can equip horse armor; the horse inventory saddle and armor slots are visible again (26.1 gates equipping by entity-type tags).

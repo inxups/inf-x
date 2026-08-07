@@ -1597,7 +1597,8 @@ public final class ModMonsterGameTests {
      * InfX strips vanilla spawn equipment from the zombie and skeleton families: the INFX
      * replacements never wear vanilla weapons or armor (world-age gear is InfX equipment and
      * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
-     * parched, wither skeleton) keep only InfX world-age gear, never vanilla weapons or armor.
+     * parched, wither skeleton) keep only InfX gear, never vanilla weapons or armor. The
+     * un-replaced skeleton variants spawn with an InfX iron sword instead of the vanilla bow.
      */
     private static void spawnEquipment(GameTestHelper helper) {
         var zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
@@ -1614,6 +1615,15 @@ public final class ModMonsterGameTests {
             assertVanillaVariantBare(helper, type);
         }
         assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
+        // The un-replaced skeleton variants trade the vanilla bow for an InfX iron sword.
+        for (EntityType<?> type : List.of(
+                EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED, EntityType.WITHER_SKELETON)) {
+            Mob variant = spawnWithFinalize(helper, type);
+            helper.assertTrue(
+                    variant.getMainHandItem().is(InfXItems.IRON_SWORD.get()),
+                    type + " must spawn with an InfX iron sword, got " + variant.getMainHandItem());
+            variant.discard();
+        }
         // Vanilla drowned randomizes a nautilus shell into the offhand in 3% of spawns; that
         // item is neither a weapon nor armor, so only the main hand and armor slots are banned.
         assertVanillaVariantBare(helper, EntityType.DROWNED, EquipmentSlot.OFFHAND);
