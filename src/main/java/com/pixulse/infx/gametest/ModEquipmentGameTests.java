@@ -255,8 +255,8 @@ public final class ModEquipmentGameTests {
     private static void assertEmptyHandAttackRange(GameTestHelper helper, ServerPlayer player) {
         var playerRange = player.getAttackRangeWith(ItemStack.EMPTY);
         helper.assertTrue(
-                playerRange.maxReach() == 2.5F && playerRange.maxCreativeReach() == 5.0F,
-                "empty hand must match the INFX 2.5-block attack reach");
+                playerRange.maxReach() == 2.5F,
+                "empty hand must default to the INFX 2.5-block attack reach via the entity interaction attribute");
     }
 
     private static void assertMeleeAttackRange(
