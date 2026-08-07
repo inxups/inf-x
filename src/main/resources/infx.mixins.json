@@ -44,6 +44,7 @@
     "HopperBlockEntityMixin",
     "InfXFireBlockMixin",
     "PlayerExperienceMixin",
+    "PlayerAttackRangeMixin",
     "PlayerFoodMixin",
     "PlayerListMixin",
     "PlayerReachMixin",
@@ -72,6 +73,7 @@
     "GuiExperienceMixin",
     "InventoryScreenMixin",
     "MinecraftMiningInputMixin",
+    "MinecraftStartAttackMixin",
     "SkyRendererMixin",
     "WorldCreationUiStateMixin"
   ],
