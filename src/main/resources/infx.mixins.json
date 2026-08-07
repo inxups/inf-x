@@ -31,6 +31,7 @@
     "FurnaceInputSlotMixin",
     "FoodDataMixin",
     "GameTestServerMixin",
+    "HorseAccessor",
     "InventoryMenuMixin",
     "ItemEntityFireCookingMixin",
     "ItemEntityPickupMixin",
@@ -47,6 +48,7 @@
     "PlayerListMixin",
     "PlayerReachMixin",
     "PlayerWaterfallSwimMixin",
+    "PigAccessor",
     "MobEffectInstanceMixin",
     "PoisonMobEffectMixin",
     "PrimaryLevelDataMixin",
@@ -59,6 +61,7 @@
     "ThrownExperienceBottleMixin",
     "VanillaMobEquipmentMixin",
     "WallBlockCollisionMixin",
+    "WolfAccessor",
     "WorldDimensionsMixin"
   ],
   "client": [

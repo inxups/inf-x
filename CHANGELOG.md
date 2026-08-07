@@ -1,5 +1,14 @@
 # Changelog
 
+## 0t7
+## Bug Fixes
+- Pigs and horses (including the INFX replacement types) can now equip saddles again, and horses can equip horse armor; the horse inventory saddle and armor slots are visible again (26.1 gates equipping by entity-type tags).
+- Tamed wolves and dire wolves can now equip wolf armor and repair it with armadillo scutes (26.1 restricts wolf armor to the exact minecraft:wolf type, so the replacement entities handle the equip branch themselves).
+- Feeding bones to a wolf/dire wolf during its taming cooldown no longer consumes them.
+- Breeding inheritance fixes: warm (tropical) pigs breed warm piglets; cow and chicken coat variants, sheep wool colors, and horse coats/markings are inherited again; foals inherit the parents' health/speed/jump attributes; tamed wolf/dire-wolf pups inherit the coat, sound variant, collar, ownership and tame state; dire wolves now breed dire wolves instead of vanilla wolves.
+- Llamas and donkeys (including mules) now follow the untamed remount and feed intervals like horses: 4000 ticks after being thrown off they refuse to be mounted again, and 4000 ticks after accepting food they refuse further feedings.
+- Livestock now forage dropped breeding food: they walk to and eat edible items on the ground whenever their food meter is not full (previously they only path-find when desperately hungry and the passive pickup radius was too small); ground eating restores the food meter.
+
 ## 0t5-0v2
 ## Bug Fixes
 - Swords with Fire Aspect can now right-click to ignite TNT and unlit campfires, including soul campfires. Each use consumes 1 durability.

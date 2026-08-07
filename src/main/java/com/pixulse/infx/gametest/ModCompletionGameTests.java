@@ -14,6 +14,9 @@ import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.entity.InfxChicken;
+import com.pixulse.infx.entity.InfxWolf;
+import com.pixulse.infx.entity.VanillaWolf;
+import com.pixulse.infx.mixin.PigAccessor;
 import com.pixulse.infx.item.equipment.EquipmentBehaviors;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.enchantment.Enchantments;
@@ -99,9 +102,12 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.chicken.Chicken;
+import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.entity.animal.pig.Pig;
+import net.minecraft.world.entity.animal.pig.PigVariants;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownExperienceBottle;
@@ -172,6 +178,7 @@ public final class ModCompletionGameTests {
             "infx_underworld",
             "infx_portals",
             "infx_livestock",
+            "infx_animal_interactions",
             "infx_onion_crop",
             "infx_gravel_loot",
             "infx_hopper_xp",
@@ -203,6 +210,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_underworld", () -> ModCompletionGameTests::underworld);
         FUNCTIONS.register("infx_portals", () -> ModCompletionGameTests::portals);
         FUNCTIONS.register("infx_livestock", () -> ModCompletionGameTests::livestock);
+        FUNCTIONS.register("infx_animal_interactions", () -> ModCompletionGameTests::animalInteractions);
         FUNCTIONS.register("infx_onion_crop", () -> ModCompletionGameTests::onionCrop);
         FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
@@ -1397,6 +1405,97 @@ public final class ModCompletionGameTests {
                     panickedChicken.discard();
                 })
                 .thenSucceed();
+    }
+
+    private static void animalInteractions(GameTestHelper helper) {
+        var level = helper.getLevel();
+        ServerPlayer player = createPlayer(helper);
+
+        // 9: breeding two warm (tropical) pigs must keep the warm coat, not re-roll by biome.
+        var pigVariants = level.registryAccess().lookupOrThrow(Registries.PIG_VARIANT);
+        Pig warmPigA = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(2, 2, 2));
+        Pig warmPigB = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(3, 2, 2));
+        ((PigAccessor) warmPigA).infx$setVariant(pigVariants.getOrThrow(PigVariants.WARM));
+        ((PigAccessor) warmPigB).infx$setVariant(pigVariants.getOrThrow(PigVariants.WARM));
+        Pig piglet = warmPigA.getBreedOffspring(level, warmPigB);
+        helper.assertTrue(
+                piglet != null && piglet.getVariant().is(PigVariants.WARM),
+                "breeding two warm pigs must produce a warm piglet, not a biome-rolled normal pig");
+        if (piglet != null) piglet.discard();
+        warmPigA.discard();
+        warmPigB.discard();
+
+        // 8: wolves refuse bones during the taming cooldown without consuming them.
+        VanillaWolf wolf = helper.spawn(InfXEntityTypes.INFX_WOLF.get(), new BlockPos(4, 2, 2));
+        wolf.setTamingCooldown(100);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.BONE, 3));
+        interactAt(player, wolf);
+        helper.assertTrue(
+                player.getMainHandItem().getCount() == 3,
+                "feeding a wolf during its taming cooldown must not consume the bone");
+
+        // 7: tamed INFX wolves equip wolf armor even though 26.1 restricts it to minecraft:wolf.
+        wolf.setTamingCooldown(0);
+        wolf.tame(player);
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.WOLF_ARMOR));
+        interactAt(player, wolf);
+        helper.assertTrue(
+                wolf.getBodyArmorItem().is(Items.WOLF_ARMOR),
+                "tamed INFX wolves must equip wolf armor");
+        helper.assertTrue(
+                player.getMainHandItem().isEmpty(),
+                "equipping wolf armor must consume the held armor");
+        wolf.discard();
+
+        // 9: dire wolves breed dire wolves, not vanilla wolves, and pups inherit ownership.
+        InfxWolf direA = helper.spawn(InfXEntityTypes.DIRE_WOLF.get(), new BlockPos(5, 2, 2));
+        InfxWolf direB = helper.spawn(InfXEntityTypes.DIRE_WOLF.get(), new BlockPos(6, 2, 2));
+        direA.tame(player);
+        direB.tame(player);
+        Wolf direPup = direA.getBreedOffspring(level, direB);
+        helper.assertTrue(
+                direPup != null && direPup.getType() == InfXEntityTypes.DIRE_WOLF.get(),
+                "two dire wolves must breed a dire wolf pup, not a vanilla wolf");
+        helper.assertTrue(
+                direPup != null && direPup.isTame() && player.equals(direPup.getOwner()),
+                "tamed dire wolf pups must inherit ownership");
+        if (direPup != null) direPup.discard();
+        direA.discard();
+        direB.discard();
+
+        // 14: untamed donkeys respect the MITE 4000-tick remount cooldown.
+        Donkey donkey = helper.spawn(EntityType.DONKEY, new BlockPos(7, 2, 2));
+        donkey.getPersistentData().putLong("infx_horse_tame_retry", level.getGameTime() + 4_000L);
+        helper.assertTrue(
+                !player.startRiding(donkey),
+                "an untamed donkey must refuse mounting during its remount cooldown");
+        donkey.discard();
+
+        // 16: livestock forage dropped breeding food whenever they are not full.
+        for (int x = 2; x <= 4; x++) {
+            for (int z = 4; z <= 6; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+            }
+        }
+        Pig forager = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(3, 2, 5));
+        setLivestockWellness(forager, 0.9F, 1.0F, 1.0F);
+        forager.setDeltaMovement(Vec3.ZERO);
+        forager.setOnGround(true);
+        ItemEntity carrot = new ItemEntity(
+                level, forager.getX(), forager.getY(), forager.getZ() - 1.0, new ItemStack(Items.CARROT));
+        level.addFreshEntity(carrot);
+        Livestock.NeedsGoal forageGoal = new Livestock.NeedsGoal(forager);
+        helper.assertTrue(
+                forageGoal.canUse(),
+                "a merely not-full pig must seek dropped breeding food");
+        Livestock.update(level, forager);
+        helper.assertTrue(
+                carrot.getItem().isEmpty() || !carrot.isAlive(),
+                "livestock must consume dropped breeding food");
+        forager.discard();
+
+        removePlayer(player);
+        helper.succeed();
     }
 
     private static void onionCrop(GameTestHelper helper) {

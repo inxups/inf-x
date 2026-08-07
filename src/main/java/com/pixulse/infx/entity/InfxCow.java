@@ -138,6 +138,11 @@ public final class InfxCow extends Cow {
 
     @Override
     public @Nullable Cow getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
-        return InfXEntityTypes.INFX_COW.get().create(level, EntitySpawnReason.BREEDING);
+        // MITE newborns inherit the coat of one parent instead of re-rolling by biome.
+        Cow baby = InfXEntityTypes.INFX_COW.get().create(level, EntitySpawnReason.BREEDING);
+        if (baby != null && partner instanceof Cow partnerCow) {
+            baby.setVariant(this.random.nextBoolean() ? this.getVariant() : partnerCow.getVariant());
+        }
+        return baby;
     }
 }

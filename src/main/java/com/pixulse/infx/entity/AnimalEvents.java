@@ -13,18 +13,21 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.entity.animal.equine.Mule;
 import net.minecraft.world.entity.animal.goat.Goat;
 import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import java.util.List;
+import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
@@ -98,6 +101,67 @@ public final class AnimalEvents {
         player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         goat.playSound(SoundEvents.GOAT_MILK, 1.0F, 1.0F);
         return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * MITE applies the 4000-tick untamed remount and feed intervals to every equine: the INFX
+     * horse self-handles in its class, while vanilla donkeys, mules and llamas are gated here.
+     */
+    @SubscribeEvent
+    public static void onHorseRetryInteract(PlayerInteractEvent.EntityInteract event) {
+        InteractionResult result =
+                refuseBlockedHorseInteract(event.getTarget(), event.getLevel(), event.getItemStack());
+        if (result != null) {
+            event.setCancellationResult(result);
+            event.setCanceled(true);
+        }
+    }
+
+    /** The "interact at" path used by clients and GameTest helpers fires the specific event. */
+    @SubscribeEvent
+    public static void onHorseRetryInteractSpecific(PlayerInteractEvent.EntityInteractSpecific event) {
+        InteractionResult result =
+                refuseBlockedHorseInteract(event.getTarget(), event.getLevel(), event.getItemStack());
+        if (result != null) {
+            event.setCancellationResult(result);
+            event.setCanceled(true);
+        }
+    }
+
+    private static @org.jspecify.annotations.Nullable InteractionResult refuseBlockedHorseInteract(
+            Entity target, net.minecraft.world.level.Level level, ItemStack stack) {
+        if (!(target instanceof AbstractHorse horse) || horse instanceof InfxHorse || horse.isTamed()) {
+            return null;
+        }
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return null;
+        }
+        if (Livestock.isHorseMountBlocked(horse, serverLevel.getGameTime())) {
+            return InteractionResult.CONSUME;
+        }
+        if (horse.isFood(stack) && Livestock.isHorseFeedBlocked(horse, serverLevel.getGameTime())) {
+            return InteractionResult.CONSUME;
+        }
+        return null;
+    }
+
+    @SubscribeEvent
+    public static void onHorseMount(EntityMountEvent event) {
+        if (!(event.getEntityBeingMounted() instanceof AbstractHorse horse)
+                || horse instanceof InfxHorse
+                || horse.isTamed()) {
+            return;
+        }
+        if (!(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        if (event.isMounting()) {
+            if (Livestock.isHorseMountBlocked(horse, level.getGameTime())) {
+                event.setCanceled(true);
+            }
+        } else if (event.getEntityMounting() instanceof Player) {
+            Livestock.markHorseDismount(horse, level.getGameTime());
+        }
     }
 
     @SubscribeEvent

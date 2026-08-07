@@ -1,13 +1,18 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.mixin.WolfAccessor;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXSounds;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -15,12 +20,15 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.wolf.Wolf;
+import net.minecraft.world.entity.animal.wolf.WolfSoundVariants;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Dire wolves retain wolf taming, while hellhounds remain permanently wild and hostile. */
 public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameableWolf {
@@ -129,9 +137,35 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
         }
         ItemStack itemStack = player.getItemInHand(hand);
         if (isTame()) {
+            // 26.1 wolf armor only equips on the exact minecraft:wolf type, so the INFX
+            // replacement must apply the armor and repair branches itself. The slot must be
+            // checked directly: Mob#isWearingBodyArmor is gated by the same type restriction.
+            if (itemStack.is(Items.WOLF_ARMOR)
+                    && isOwnedBy(player)
+                    && getBodyArmorItem().isEmpty()
+                    && !isBaby()) {
+                setBodyArmorItem(itemStack.copyWithCount(1));
+                itemStack.consume(1, player);
+                return InteractionResult.SUCCESS;
+            }
+            if (isInSittingPose()
+                    && !getBodyArmorItem().isEmpty()
+                    && getBodyArmorItem().isDamaged()
+                    && getBodyArmorItem().isValidRepairItem(itemStack)) {
+                itemStack.shrink(1);
+                playSound(SoundEvents.WOLF_ARMOR_REPAIR);
+                ItemStack armor = getBodyArmorItem();
+                int repairUnit = (int) (armor.getMaxDamage() * 0.125F);
+                armor.setDamageValue(Math.max(0, armor.getDamageValue() - repairUnit));
+                return InteractionResult.SUCCESS;
+            }
             return super.mobInteract(player, hand);
         }
         if (!level().isClientSide() && itemStack.is(Items.BONE) && !isAngry()) {
+            // MITE dire wolves refuse feeding during the taming cooldown without consuming the bone.
+            if (tamingCooldown() > 0) {
+                return InteractionResult.PASS;
+            }
             itemStack.consume(1, player);
             WolfTaming.attempt(this, WolfTaming.Kind.DIRE_WOLF, player, this);
             return InteractionResult.SUCCESS_SERVER;
@@ -166,6 +200,28 @@ public final class InfxWolf extends Wolf implements Enemy, InfxMob, InfxTameable
     @Override
     public boolean removeWhenFarAway(double distance) {
         return variant() == Variant.HELLHOUND || (!isTame() && tickCount > 2400);
+    }
+
+    /** Dire wolves must breed dire wolves, inheriting coat, sounds and the tamed collar. */
+    @Override
+    public @Nullable Wolf getBreedOffspring(@NonNull ServerLevel level, @NonNull AgeableMob partner) {
+        Wolf baby = InfXEntityTypes.DIRE_WOLF.get().create(level, EntitySpawnReason.BREEDING);
+        if (baby != null && partner instanceof Wolf partnerWolf) {
+            WolfAccessor babyAccessor = (WolfAccessor) baby;
+            Wolf self = this;
+            babyAccessor.infx$setVariant(this.random.nextBoolean()
+                    ? ((WolfAccessor) self).infx$getVariant()
+                    : ((WolfAccessor) partnerWolf).infx$getVariant());
+            if (this.isTame()) {
+                baby.setOwnerReference(this.getOwnerReference());
+                baby.setTame(true, true);
+                babyAccessor.infx$setCollarColor(DyeColor.getMixedColor(
+                        level, this.getCollarColor(), partnerWolf.getCollarColor()));
+            }
+            babyAccessor.infx$setSoundVariant(
+                    WolfSoundVariants.pickRandomSoundVariant(this.registryAccess(), this.random));
+        }
+        return baby;
     }
 
     /** MITE wolves shrug off half the damage from non-player, non-arrow attackers. */
