@@ -303,7 +303,11 @@ final class ModModelProvider extends ModelProvider {
             default -> "stripped_" + wood + "_log";
         };
         Material strippedLog = new Material(Identifier.withDefaultNamespace("block/" + strippedLogPath));
-        Material workbenchTop = new Material(InfiniteX.id("block/" + workbenchType + "_workbench_top"));
+        // 燧石工具台顶面为每树种独立合成贴图(去皮原木底 + 刻线 + 燧石小刀);黑曜石工具台保持共享贴图
+        String topTexture = "flint".equals(workbenchType)
+                ? workbenchType + "_workbench_top_" + wood
+                : workbenchType + "_workbench_top";
+        Material workbenchTop = new Material(InfiniteX.id("block/" + topTexture));
         Identifier model = ModelTemplates.CUBE.create(
                 block,
                 new TextureMapping()

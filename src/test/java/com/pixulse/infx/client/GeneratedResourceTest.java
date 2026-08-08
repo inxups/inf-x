@@ -2858,9 +2858,11 @@ class GeneratedResourceTest {
             for (String type : List.of("flint", "obsidian")) {
                 JsonObject model = json(GENERATED.resolve(
                         "assets/infx/models/block/" + prefix + "_" + type + "_workbench.json"));
-                assertEquals(
-                        "infx:block/" + type + "_workbench_top",
-                        model.getAsJsonObject("textures").get("up").getAsString());
+                // 燧石工具台顶面为每树种独立合成贴图;黑曜石工具台保持共享贴图
+                String expectedTop = "flint".equals(type)
+                        ? "infx:block/flint_workbench_top_" + workbench.wood()
+                        : "infx:block/obsidian_workbench_top";
+                assertEquals(expectedTop, model.getAsJsonObject("textures").get("up").getAsString());
             }
         }
     }
@@ -3297,7 +3299,8 @@ class GeneratedResourceTest {
                 path -> path.matches("textures/item/leather_(helmet|chestplate|leggings|boots)_overlay\\.png")));
         assertTrue(destinations.removeIf(path -> path.startsWith("textures/entity/equipment/")));
         assertTrue(destinations.removeIf(path -> path.matches(
-                "textures/block/(flint|obsidian)_workbench_top\\.png"
+                "textures/block/flint_workbench_top_(oak|spruce|birch|jungle|acacia|cherry|pale_oak|dark_oak|mangrove|crimson|warped)\\.png"
+                        + "|textures/block/obsidian_workbench_top\\.png"
                         + "|textures/block/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_workbench_(front|side)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(clay|hardened_clay|sandstone|obsidian|netherrack)_furnace_(front|front_on|side|top)\\.png")));

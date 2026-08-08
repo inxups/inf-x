@@ -1,4 +1,15 @@
 source_root	source	destination	sha256
+derived	vanilla:assets/minecraft/textures/block/stripped_oak_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_oak.png	c27f3096688ad798e9ab23110f2c1d71bbfd92270fb9e53d36b0c57c7cdb64e8
+derived	vanilla:assets/minecraft/textures/block/stripped_spruce_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_spruce.png	61a7eb1c4b85b9169dd9dd28bb09ff2af7e22a09c6add9f8d8a1d98a40950cf1
+derived	vanilla:assets/minecraft/textures/block/stripped_birch_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_birch.png	c280388e5956ab08cb48f309effa09e1c96ed8678232eda10fce93ba80e86287
+derived	vanilla:assets/minecraft/textures/block/stripped_jungle_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_jungle.png	5d7b7887cb0a1ef328428649091e8a77c9d7d62393f11e12f3661471e3f24358
+derived	vanilla:assets/minecraft/textures/block/stripped_acacia_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_acacia.png	435b1f90102cb4a11f63fc03bbaf53ae83ed9bdfe7a40f89ad7dd6bc271441b1
+derived	vanilla:assets/minecraft/textures/block/stripped_cherry_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_cherry.png	7d185170162082509fa880a7c1189088f21ac650957c4ee71eb9e40f61cfa1a1
+derived	vanilla:assets/minecraft/textures/block/stripped_pale_oak_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_pale_oak.png	cb39f7ec80ea596ffb98e62b621922b21ef643722f82aaa313ddc9791315c053
+derived	vanilla:assets/minecraft/textures/block/stripped_dark_oak_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_dark_oak.png	04ee0c60a6e8bedc26790878042eb4fe0a6ffe740bd7ea6a202a8a9cda2a344f
+derived	vanilla:assets/minecraft/textures/block/stripped_mangrove_log.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_mangrove.png	7a84b3bdd954f27a4d225477c1c86c99402f91f9b6404bb374cf5dae01393f5e
+derived	vanilla:assets/minecraft/textures/block/stripped_crimson_stem.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_crimson.png	0bf7449af91274f0e78b604fd2950e4dc4c44bb6487b6e0f48f83ab24e1c279b
+derived	vanilla:assets/minecraft/textures/block/stripped_warped_stem.png + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)	textures/block/flint_workbench_top_warped.png	b11709114747775480844138c1c778a967bd9c53af2fc23bac7c2f5072330bff
 resource-pack	textures/environment/halo_256.png	textures/environment/celestial/moon_halo.png	a56b03b076b6abe6624814dafa0ed04101d3ed192806db428d3128c4a8643095
 resource-pack	textures/environment/ring_128.png	textures/environment/celestial/moon_ring.png	65cad5ba4deba74e862d6d0a4215f2602840f061c75f86252dc9ce4f003022d5
 resource-pack	blocks/adamantium_block.png	textures/block/adamantium_block.png	490fa64c7f5c68ea682ed1c3f0c63724aa2a201e0a7c7565e4627e983b79fa2f
@@ -104,7 +115,6 @@ resource-pack	blocks/crops/wheat/dead/5.png	textures/block/crops/wheat/dead/5.pn
 resource-pack	blocks/crops/wheat/dead/6.png	textures/block/crops/wheat/dead/6.png	4ca9524db6bb086e8a603c12bac6fba6fa8ef9a9b954dc51a45df0443419dc06
 resource-pack	blocks/emerald_enchanting_table_side.png	textures/block/emerald_enchanting_table_side.png	3a644b50bf397c43f4228099acd592bd65a8e6d02bd6bcf59875034ebea34c57
 resource-pack	blocks/emerald_enchanting_table_top.png	textures/block/emerald_enchanting_table_top.png	45de9bda6f7dbee36226be497c121a8ffdf40b994895626d09bd3f5a5ee4408f
-resource-pack	blocks/crafting_table/flint/top.png	textures/block/flint_workbench_top.png	efe8aa262dccb6ea5d8c694638bf82837682130a51c9a541b324cb8c850c1e8b
 resource-pack	blocks/crafting_table/gold/front.png	textures/block/gold_workbench_front.png	91907dbeeb8e5a39046f3d827d57ab72f2a615df833b96bb21b49ee714f8ef51
 resource-pack	blocks/crafting_table/gold/side.png	textures/block/gold_workbench_side.png	3dc7f4560dc34b7e23913a992bfa2de45db04b258fd2ed0eb921bf41f55a4ab3
 resource-pack	blocks/furnace/hardened_clay/front_off.png	textures/block/hardened_clay_furnace_front.png	c4cca7db4cc15130aa87a9bc9b512537720b8d82c3c8ea7d6ae51db50f3aef31
