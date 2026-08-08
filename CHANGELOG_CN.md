@@ -1,6 +1,18 @@
 # Changelog
 
 ## 0t6
+### 内部重构
+- 移除 10 个 Mixin，改用 NeoForge 公共事件/机制实现，功能保持不变：
+  - 煤矿石不再掉落经验：改用 `BlockDropsEvent`（原 `CoalExperienceDropMixin`）。
+  - 打火石耐久 16：改用物品默认组件修改 `ModifyDefaultComponentsEvent`（原 `FlintAndSteelDurabilityMixin`）。
+  - 熔化的 INFX 桶拾取冷却：改用 `ItemEntityPickupEvent.Pre`（原 `ItemEntityPickupMixin`）。
+  - 鸡蛋优先食用：改用 `PlayerInteractEvent.RightClickItem`（原 `EggItemMixin`）。
+  - INFX 水桶捕捞鱼/蝾螈/蝌蚪：改用 `PlayerInteractEvent.EntityInteract`（原 `BucketableMixin`）。
+  - 经验负债等级 HUD 渲染：改用 HUD 图层事件 `RenderGuiLayerEvent.Pre`（原 `GuiExperienceMixin`）。
+  - 定时合成经验消耗提示：改用 `ItemTooltipEvent`（原 `AbstractContainerScreenMixin`）。
+  - 猪/狼繁殖遗传：改用公开的 `Pig#getVariant`/`Entity#get`/`setComponent` 组件接口（原 `PigAccessor`/`WolfAccessor`）。
+  - 中毒死亡信息：改用 NeoForge 枚举扩展 `enumextender.json` 新增 `DeathMessageType`，并通过数据生成覆盖 `minecraft:magic` 伤害类型的死亡信息类型（原 `DamageSourcePoisonDeathMixin`）。
+
 ### 问题修复
 - 剑、镰刀、斧等所有目录武器不再携带 ATTACK_RANGE 组件，近战攻击距离遵循与空手/原版武器相同的 1.5 格规则（创造模式 5 格），客户端拾取回归原版路径：骑乘时准星不再选中自己的坐骑，攻击不会再误伤坐骑。
 - 空手及所有无 ATTACK_RANGE 组件的物品近战攻击距离改为 1.5 格（创造模式 5 格），并在客户端左键攻击时真实生效；基础方块与实体交互距离同样为 1.5 格，带触及加成的工具仍会增加交互距离。

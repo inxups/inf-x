@@ -12,11 +12,11 @@ import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.block.entity.SafeBlockEntity;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
+import com.pixulse.infx.event.ItemEvents;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
 import com.pixulse.infx.entity.InfxChicken;
 import com.pixulse.infx.entity.InfxWolf;
 import com.pixulse.infx.entity.VanillaWolf;
-import com.pixulse.infx.mixin.PigAccessor;
 import com.pixulse.infx.item.equipment.EquipmentBehaviors;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.enchantment.Enchantments;
@@ -1415,8 +1415,8 @@ public final class ModCompletionGameTests {
         var pigVariants = level.registryAccess().lookupOrThrow(Registries.PIG_VARIANT);
         Pig warmPigA = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(2, 2, 2));
         Pig warmPigB = helper.spawn(InfXEntityTypes.INFX_PIG.get(), new BlockPos(3, 2, 2));
-        ((PigAccessor) warmPigA).infx$setVariant(pigVariants.getOrThrow(PigVariants.WARM));
-        ((PigAccessor) warmPigB).infx$setVariant(pigVariants.getOrThrow(PigVariants.WARM));
+        warmPigA.setComponent(DataComponents.PIG_VARIANT, pigVariants.getOrThrow(PigVariants.WARM));
+        warmPigB.setComponent(DataComponents.PIG_VARIANT, pigVariants.getOrThrow(PigVariants.WARM));
         Pig piglet = warmPigA.getBreedOffspring(level, warmPigB);
         helper.assertTrue(
                 piglet != null && piglet.getVariant().is(PigVariants.WARM),
@@ -1996,6 +1996,10 @@ public final class ModCompletionGameTests {
 
     private static void survivalFixes(GameTestHelper helper) {
         var level = helper.getLevel();
+        ItemStack flintAndSteel = new ItemStack(Items.FLINT_AND_STEEL);
+        helper.assertTrue(
+                flintAndSteel.getMaxDamage() == ItemEvents.FLINT_AND_STEEL_DURABILITY,
+                "flint and steel must carry the INFX 16 durability, got " + flintAndSteel.getMaxDamage());
         PoisonMobEffect poison = (PoisonMobEffect) MobEffects.POISON.value();
         helper.assertFalse(poison.shouldApplyEffectTickThisTick(99, 0), "poison I must wait 100 ticks");
         helper.assertTrue(poison.shouldApplyEffectTickThisTick(100, 0), "poison I ticks at 100");
@@ -2035,14 +2039,24 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 zombie.hasEffect(MobEffects.POISON),
                 "poisoned victim keeps poison after death: " + zombie.getHealth());
-        String deathMessage = level.damageSources()
-                .magic()
-                .getLocalizedDeathMessage(zombie)
+        // die() clears the combat tracker, so record the killing blow again to evaluate the
+        // message exactly like the player-death broadcast path (CombatTracker#getDeathMessage).
+        zombie.getCombatTracker().recordDamage(level.damageSources().magic(), 1.0F);
+        String deathMessage = zombie.getCombatTracker().getDeathMessage()
                 .getString()
                 .toLowerCase(java.util.Locale.ROOT);
         helper.assertTrue(
                 deathMessage.contains("poison") || deathMessage.contains("毒发"),
                 "poison deaths must use the INFX message: " + deathMessage);
+
+        BlockPos coalPos = new BlockPos(3, 2, 2);
+        helper.setBlock(coalPos, Blocks.COAL_ORE);
+        level.destroyBlock(helper.absolutePos(coalPos), true);
+        boolean coalOrb = !level
+                .getEntitiesOfClass(
+                        ExperienceOrb.class, new AABB(helper.absolutePos(coalPos)).inflate(3.0))
+                .isEmpty();
+        helper.assertFalse(coalOrb, "coal ore must drop no experience");
 
         BlockPos campfirePos = new BlockPos(3, 2, 3);
         helper.setBlock(campfirePos, Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true));

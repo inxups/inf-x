@@ -8,6 +8,7 @@ import com.pixulse.infx.gametest.ModCompletionGameTests;
 import com.pixulse.infx.gametest.ModStructureLootGameTests;
 import com.pixulse.infx.gametest.ModMechanicsGameTests;
 import com.pixulse.infx.event.CauldronEvents;
+import com.pixulse.infx.event.ItemEvents;
 import com.pixulse.infx.item.StickBoneItems;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXAttachments;
@@ -62,6 +63,7 @@ public final class InfiniteX {
         InfXMobEffects.register(modBus);
         InfXCreativeTabs.register(modBus);
         modBus.addListener(CauldronEvents::registerCauldronInteractions);
+        modBus.addListener(ItemEvents::modifyDefaultComponents);
         ModGameTests.register(modBus);
         ModEquipmentGameTests.register(modBus);
         ModStructureLootGameTests.register(modBus);
