@@ -128,28 +128,11 @@ def encode_png(img, path: Path):
                      + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
-# Overlay pixels from the owner-provided pattern (transparent pixels keep the wood base).
-# The artwork carries blue-white translucent residue (half-erased background from the
-# authoring tool, incl. a #f606fb placeholder and scattered low-alpha noise). Those are
-# remapped to warm wood highlight tones and alpha-blended over the wood so the bench
-# frame reads as wood highlights instead of blue. Fully opaque dark pixels are kept.
+# Overlay pixels from the owner-provided pattern are composited directly over the wood
+# base with standard alpha-over blending (colors kept as-is). Low-alpha noise (alpha <
+# ALPHA_KEEP) from the authoring tool is dropped; the single #f606fb placeholder pixel
+# is replaced by its left neighbour so the frame gradient stays continuous.
 ALPHA_KEEP = 128
-WARM = {  # blue-white -> warm wood highlight
-    (0xFB, 0xFB, 0xFB): (0xEB, 0xDE, 0xC0),  # white
-    (0xEE, 0xE6, 0xDD): (0xE2, 0xD0, 0xAE),
-    (0xEA, 0xF2, 0xFB): (0xD8, 0xC6, 0xA6),  # pale blue
-    (0xDD, 0xDD, 0xDD): (0xCE, 0xBE, 0x9E),
-    (0xD9, 0xC9, 0xD4): (0xC8, 0xB8, 0x98),
-    (0xD4, 0xD4, 0xD4): (0xC6, 0xB6, 0x98),
-    (0xC8, 0xC0, 0xD4): (0xBE, 0xAE, 0x90),
-    (0xCA, 0xB1, 0x93): (0xBA, 0xA4, 0x84),
-    (0x69, 0xC0, 0xFC): (0xC4, 0xA6, 0x6E),  # bright blue
-    (0x84, 0xB5, 0xDD): (0xB6, 0x9C, 0x70),
-    (0x87, 0xC0, 0xDD): (0xBA, 0xA0, 0x74),
-    (0x5C, 0xAB, 0xDE): (0xAC, 0x94, 0x68),
-    (0x31, 0x8E, 0xEB): (0xC4, 0xA6, 0x68),
-    (0xF6, 0x06, 0xFB): (0xC6, 0xB6, 0x98),  # placeholder magenta
-}
 
 def blend_over(base_rgb, a, b):
     if a is None:
@@ -166,8 +149,9 @@ for y in range(h):
     for x in range(w):
         p = tuple(rows[y][x * 4:(x + 1) * 4])
         if p[3] >= ALPHA_KEEP:
-            color = WARM.get(p[:3], p[:3])
-            overlay[(x, y)] = (color, p[3])
+            if p[:3] == (0xF6, 0x06, 0xFB) and x > 0:  # placeholder -> neighbour
+                p = tuple(rows[y][(x - 1) * 4:x * 4])
+            overlay[(x, y)] = (p[:3], p[3])
 
 for wood in WOODS:
     stem = "stem" if wood in ("crimson", "warped") else "log"
