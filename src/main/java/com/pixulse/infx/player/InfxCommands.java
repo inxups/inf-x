@@ -8,8 +8,6 @@ import com.pixulse.infx.InfiniteX;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.pixulse.infx.world.VillageProgression;
-import com.pixulse.infx.world.WorldData;
 import java.util.List;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -21,7 +19,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class InfxCommands {
     public static final String ROOT = "infx";
-    public static final List<String> NAMES = List.of("infx day", "infx villages", "infx xp");
+    public static final List<String> NAMES = List.of("infx day", "infx xp");
 
     private InfxCommands() {}
 
@@ -31,14 +29,6 @@ public final class InfxCommands {
         dispatcher.register(Commands.literal(ROOT)
                 .then(Commands.literal("day").executes(context -> reply(
                         context, "Survival day: " + InfxMonsterDay.day(player(context)))))
-                .then(Commands.literal("villages").executes(context -> {
-                    ServerPlayer player = player(context);
-                    long day = VillageProgression.day(player.level());
-                    boolean ironTool = WorldData.get(player.level()).ironToolCrafted();
-                    return reply(context, "Village generation: day " + day + "/60; world iron-tier milestone: "
-                            + (ironTool ? "yes" : "no") + "; unlocked: "
-                            + VillageProgression.generationUnlocked(player.level()));
-                }))
                 .then(Commands.literal("xp").executes(context -> {
                     ServerPlayer player = player(context);
                     return reply(context, experienceMessage(
