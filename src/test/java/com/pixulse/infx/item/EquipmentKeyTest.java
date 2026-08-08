@@ -43,17 +43,17 @@ class EquipmentKeyTest {
                 Map.entry(EquipmentType.PICKAXE, -2.8F),
                 Map.entry(EquipmentType.SHOVEL, -3.0F),
                 Map.entry(EquipmentType.MATTOCK, -3.0F),
-                Map.entry(EquipmentType.HATCHET, -3.2F),
+                Map.entry(EquipmentType.HATCHET, -2.8F),
                 Map.entry(EquipmentType.AXE, -3.1F),
                 Map.entry(EquipmentType.BATTLE_AXE, -3.1F),
                 Map.entry(EquipmentType.WAR_HAMMER, -3.4F),
-                Map.entry(EquipmentType.CLUB, -3.4F),
-                Map.entry(EquipmentType.CUDGEL, -3.4F),
+                Map.entry(EquipmentType.CLUB, -2.4F),
+                Map.entry(EquipmentType.CUDGEL, -1.5F),
                 Map.entry(EquipmentType.HOE, -1.0F),
                 Map.entry(EquipmentType.SCYTHE, -1.0F),
                 Map.entry(EquipmentType.SWORD, -2.4F),
-                Map.entry(EquipmentType.DAGGER, -2.4F),
-                Map.entry(EquipmentType.KNIFE, -2.4F));
+                Map.entry(EquipmentType.DAGGER, -1.5F),
+                Map.entry(EquipmentType.KNIFE, -1.0F));
         expected.forEach((type, speed) -> assertEquals(speed, type.attackSpeedModifier(), type.path()));
         assertFalse(EquipmentType.SHEARS.hasAttackSpeedModifier());
         assertFalse(EquipmentType.BOW.hasAttackSpeedModifier());
