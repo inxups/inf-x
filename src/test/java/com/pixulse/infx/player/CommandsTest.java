@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 class CommandsTest {
     @Test
-    void commandRosterUsesInfxRootWithDayVillagesAndXp() {
+    void commandRosterUsesInfxRootWithDayAndXp() {
         assertEquals("infx", InfxCommands.ROOT);
-        assertEquals(List.of("infx day", "infx villages", "infx xp"), InfxCommands.NAMES);
-        assertEquals(3, new HashSet<>(InfxCommands.NAMES).size());
+        assertEquals(List.of("infx day", "infx xp"), InfxCommands.NAMES);
+        assertEquals(2, new HashSet<>(InfxCommands.NAMES).size());
     }
 
     @Test
