@@ -30,7 +30,7 @@ public final class Network {
     public static final String FORCE_EGG_THROW = "infx_force_egg_throw";
     public static final String CTRL_USE = "infx_ctrl_use";
     public static final String TEST_MODE_MISMATCH_KEY = "disconnect.infx.test_mode_mismatch";
-    private static final String PROTOCOL_VERSION = "3";
+    private static final String PROTOCOL_VERSION = "4";
 
     private Network() {}
 
@@ -78,6 +78,10 @@ public final class Network {
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
                         Network::handleClientRecipeRulesConfiguration)
+                .configurationToServer(
+                        RecipeRulesAckPayload.TYPE,
+                        RecipeRulesAckPayload.STREAM_CODEC,
+                        Network::handleServerRecipeRulesAck)
                 .playToClient(
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
@@ -100,8 +104,14 @@ public final class Network {
                 new RecipeRulesPayload(RecipeRules.resolvedRules())));
     }
 
-    private static void handleClientRecipeRulesConfiguration(RecipeRulesPayload payload, IPayloadContext context) {
+    // Configuration tasks live on the server: the client applies the rules and
+    // acknowledges; the server-side ack handler completes the task.
+    static void handleClientRecipeRulesConfiguration(RecipeRulesPayload payload, IPayloadContext context) {
         RecipeRules.setClientRules(payload.resolvedRules());
+        context.reply(RecipeRulesAckPayload.INSTANCE);
+    }
+
+    static void handleServerRecipeRulesAck(RecipeRulesAckPayload payload, IPayloadContext context) {
         context.finishCurrentTask(RecipeRulesConfigurationTask.TYPE);
     }
 
@@ -193,6 +203,19 @@ public final class Network {
         public static final RunegateFinishedPayload INSTANCE = new RunegateFinishedPayload();
         public static final Type<RunegateFinishedPayload> TYPE = new Type<>(InfiniteX.id("runegate_finished"));
         public static final StreamCodec<RegistryFriendlyByteBuf, RunegateFinishedPayload> STREAM_CODEC =
+                StreamCodec.unit(INSTANCE);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /** Client acknowledgment that completes the server's recipe-rules configuration task. */
+    public record RecipeRulesAckPayload() implements CustomPacketPayload {
+        public static final RecipeRulesAckPayload INSTANCE = new RecipeRulesAckPayload();
+        public static final Type<RecipeRulesAckPayload> TYPE = new Type<>(InfiniteX.id("recipe_rules_ack"));
+        public static final StreamCodec<FriendlyByteBuf, RecipeRulesAckPayload> STREAM_CODEC =
                 StreamCodec.unit(INSTANCE);
 
         @Override
