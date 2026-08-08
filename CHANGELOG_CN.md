@@ -1,5 +1,9 @@
 # Changelog
 
+## 0t7
+### 新功能
+- 移除全部原版合成配方：`VanillaCraftingRecipeRemoval` 在配方反序列化前移除 `minecraft` 命名空间下整个合成家族（`crafting_shaped`/`crafting_shapeless`/`crafting_special_*`/`crafting_transmute` 等所有 `crafting_*` 序列化器），木板/木棍/火把/熔炉/盔甲/鞍/铜铁金锭粒转换等原版合成全部不可用（含原版工作台配方），合成格只认 INFX 配方（`infx` 命名空间，使用标准 `minecraft:crafting_*` 序列化器，不受移除影响）；烧炼/锻造/切石等非合成类原版配方保持原样，仅下界合金武器/工具锻造继续通过生成的 `neoforge:never` 覆盖文件禁用。GameTest `vanilla_recipe_removal` / `recipe_boundaries` 改为断言运行时配方表中不存在任何原版合成配方。
+
 ## 0t6
 ### 新功能
 - 合成难度与工作台等级改为数据驱动（`recipe_rules` 数据包规则）：规则文件位于 `data/<namespace>/recipe_rules/<name>.json`，`target` 字段声明作用配方（支持单个 ID、ID 数组与 `#配方标签`），可覆盖 `difficulty`（难度）与 `workbench_tier`（所需工作台等级）；未命中规则时回退到 `InfxCraftingRules` 运行时推断。配方标签从 `data/<namespace>/tags/recipe/<name>.json` 加载，支持嵌套与循环引用。服务器在数据包重载时解析规则并随配方同步发送客户端（JEI 分组/难度显示与服务器一致），解析错误带完整资源 ID 输出到日志。

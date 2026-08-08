@@ -14,8 +14,8 @@ import org.jspecify.annotations.NonNull;
 /**
  * Disables vanilla recipes whose serializer cannot be stripped by
  * {@code VanillaCraftingRecipeRemoval} (which only touches the crafting
- * family). Only the netherite weapon/tool smithing upgrades remain disabled;
- * everything else has been restored to vanilla.
+ * family). Only the netherite weapon/tool smithing upgrades are disabled;
+ * every other non-crafting vanilla recipe keeps its vanilla behavior.
  */
 final class DisabledVanillaRecipesProvider implements DataProvider {
     private static final List<String> DISABLED_RECIPES = List.of(
