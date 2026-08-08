@@ -7,6 +7,7 @@ import com.pixulse.infx.gametest.ModMonsterGameTests;
 import com.pixulse.infx.gametest.ModCompletionGameTests;
 import com.pixulse.infx.gametest.ModStructureLootGameTests;
 import com.pixulse.infx.gametest.ModMechanicsGameTests;
+import com.pixulse.infx.gametest.ModJadeDisplayGameTests;
 import com.pixulse.infx.event.CauldronEvents;
 import com.pixulse.infx.event.ItemEvents;
 import com.pixulse.infx.item.StickBoneItems;
@@ -70,6 +71,7 @@ public final class InfiniteX {
         ModCompletionGameTests.register(modBus);
         ModMonsterGameTests.register(modBus);
         ModMechanicsGameTests.register(modBus);
+        ModJadeDisplayGameTests.register(modBus);
         if (InfiniteXTestMode.isEnabled()) {
             LOGGER.warn("InfiniteX test mode is active; development overrides and vanilla server administration are enabled");
         }
