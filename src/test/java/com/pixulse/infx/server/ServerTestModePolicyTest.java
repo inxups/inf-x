@@ -9,10 +9,12 @@ class ServerTestModePolicyTest {
     @Test
     void onlyTestModeAllowsOperatorsAndServerManagement() {
         assertTrue(ServerTestModePolicy.allowsPlayerOperators(true));
+        assertTrue(ServerTestModePolicy.allowsPlayerPermissions(true));
         assertTrue(ServerTestModePolicy.allowsPlayerLimitBypass(true));
         assertTrue(ServerTestModePolicy.allowsServerManagement(true));
 
         assertFalse(ServerTestModePolicy.allowsPlayerOperators(false));
+        assertFalse(ServerTestModePolicy.allowsPlayerPermissions(false));
         assertFalse(ServerTestModePolicy.allowsPlayerLimitBypass(false));
         assertFalse(ServerTestModePolicy.allowsServerManagement(false));
     }
