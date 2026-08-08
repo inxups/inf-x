@@ -2,7 +2,7 @@
 
 ## 0t8
 ### 新功能
-- 移除原版工作台（`minecraft:crafting_table`）配方：原版工作台不再可通过合成获得，3x3 合成改用 INFX 工作台（去皮原木燧石/黑曜石工作台与各金属工作台，由 `VanillaCraftingRecipeRemoval` 在配方加载前移除）；世界生成中自然存在的工作台方块与创造模式获取不受影响。
+- 移除原版工作台（`minecraft:crafting_table`）配方：原版工作台不再可通过合成获得，3x3 合成改用 INFX 工作台（去皮原木燧石/黑曜石工作台与各金属工作台，由 `VanillaCraftingRecipeRemoval` 在配方加载前移除）；世界生成中自然存在的工作台方块与创造模式获取不受影响。GameTest 的 `vanilla_recipe_removal` / `recipe_boundaries` 同步断言该配方在运行时已不在配方表中。
 
 ## 0t7
 ### 问题修复
