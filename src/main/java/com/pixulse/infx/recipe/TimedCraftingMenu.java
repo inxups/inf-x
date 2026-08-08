@@ -15,7 +15,9 @@ public interface TimedCraftingMenu {
     int DATA_RUNE = 5;
     int DATA_CYCLE_SEQUENCE = 6;
     int DATA_EXPERIENCE_COST = 7;
-    int DATA_COUNT = 8;
+    /** Logical recipe output count, which may exceed the physical stack in the result slot. */
+    int DATA_RESULT_COUNT = 8;
+    int DATA_COUNT = 9;
 
     BenchTier infx$benchTier();
 
@@ -71,6 +73,19 @@ public interface TimedCraftingMenu {
         infx$craftingData().set(DATA_EXPERIENCE_COST, Math.max(0, cost));
     }
 
+    /**
+     * Returns the full recipe output count.  The result slot itself always
+     * contains a legal stack, so this value is used for the client decoration
+     * and for delivery after timed crafting completes.
+     */
+    default int infx$logicalResultCount() {
+        return infx$craftingData().get(DATA_RESULT_COUNT);
+    }
+
+    default void infx$setLogicalResultCount(int count) {
+        infx$craftingData().set(DATA_RESULT_COUNT, Math.max(0, count));
+    }
+
     default void infx$cycleResult(Player player) {
         if (player instanceof ServerPlayer serverPlayer) {
             TimedCraftingEngine.cycleResult(this, serverPlayer);
@@ -84,6 +99,7 @@ public interface TimedCraftingMenu {
     default void infx$resetTimedCrafting() {
         infx$craftingState().reset();
         infx$setExperienceCost(0);
+        infx$setLogicalResultCount(0);
         infx$syncCraftingData();
     }
 
