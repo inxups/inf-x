@@ -270,7 +270,7 @@ class StructureGenerationGatesTest {
                 .getResourceAsStream("infx.mixins.json")) {
             assertNotNull(stream);
             String mixins = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-            assertTrue(mixins.contains("\"ChunkGeneratorMixin\""));
+            assertTrue(mixins.contains("\"world.level.chunk.ChunkGeneratorMixin\""));
         }
     }
 

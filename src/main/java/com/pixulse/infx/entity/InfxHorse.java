@@ -1,6 +1,6 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.mixin.HorseAccessor;
+import com.pixulse.infx.mixin.world.entity.animal.equine.HorseAccessor;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Util;
