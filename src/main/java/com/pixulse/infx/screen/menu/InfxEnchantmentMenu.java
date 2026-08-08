@@ -2,7 +2,7 @@ package com.pixulse.infx.screen.menu;
 
 import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.enchantment.EnchantmentSelector;
-import com.pixulse.infx.mixin.EnchantmentMenuAccessor;
+import com.pixulse.infx.mixin.world.inventory.EnchantmentMenuAccessor;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXMenus;
 import java.util.ArrayList;

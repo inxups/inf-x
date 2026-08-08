@@ -169,7 +169,7 @@ class WorldDimensionSelectionPolicyTest {
                 .getResourceAsStream("infx.mixins.json")) {
             assertTrue(stream != null);
             String mixins = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-            assertTrue(mixins.contains("\"WorldDimensionsMixin\""));
+            assertTrue(mixins.contains("\"world.level.levelgen.WorldDimensionsMixin\""));
         }
     }
 

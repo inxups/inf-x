@@ -2,6 +2,7 @@
 
 ## 0t6
 ### 内部重构
+- Mixin 源码按被注入目标类的所在目录重新组织：`src/main/java/com/pixulse/infx/mixin/` 下新增与 `net.minecraft` 包结构一一对应的子目录（如 `world/entity/LivingEntitySwimMixin`、`client/gui/screens/inventory/EnchantmentScreenMixin`、`server/level/ServerLevelSleepMixin`），`infx.mixins.json` 条目同步改为点号路径；仅调整代码组织，行为不变。
 - 移除 10 个 Mixin，改用 NeoForge 公共事件/机制实现，功能保持不变：
   - 煤矿石不再掉落经验：改用 `BlockDropsEvent`（原 `CoalExperienceDropMixin`）。
   - 打火石耐久 16：改用物品默认组件修改 `ModifyDefaultComponentsEvent`（原 `FlintAndSteelDurabilityMixin`）。
