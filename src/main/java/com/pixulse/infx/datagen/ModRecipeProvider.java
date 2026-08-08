@@ -60,6 +60,8 @@ final class ModRecipeProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes() {
+        addInfXVanillaDoorOverrides();
+
         // Flour is an INFX ingredient; the vanilla sugar and bone-meal recipes
         // are restored from the vanilla pack and need no replacement here.
         addShaped(
@@ -1605,6 +1607,32 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of("MMM", "MCM", "MMM"));
     }
 
+    private void addInfXVanillaDoorOverrides() {
+        addInfXVanillaDoorOverride("acacia_door", Items.ACACIA_PLANKS, Items.ACACIA_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("bamboo_door", Items.BAMBOO_PLANKS, Items.BAMBOO_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("birch_door", Items.BIRCH_PLANKS, Items.BIRCH_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("cherry_door", Items.CHERRY_PLANKS, Items.CHERRY_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("copper_door", Items.COPPER_INGOT, Items.COPPER_DOOR, "");
+        addInfXVanillaDoorOverride("crimson_door", Items.CRIMSON_PLANKS, Items.CRIMSON_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("dark_oak_door", Items.DARK_OAK_PLANKS, Items.DARK_OAK_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("iron_door", Items.IRON_INGOT, Items.IRON_DOOR, "");
+        addInfXVanillaDoorOverride("jungle_door", Items.JUNGLE_PLANKS, Items.JUNGLE_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("mangrove_door", Items.MANGROVE_PLANKS, Items.MANGROVE_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("oak_door", Items.OAK_PLANKS, Items.OAK_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("pale_oak_door", Items.PALE_OAK_PLANKS, Items.PALE_OAK_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("spruce_door", Items.SPRUCE_PLANKS, Items.SPRUCE_DOOR, "wooden_door");
+        addInfXVanillaDoorOverride("warped_door", Items.WARPED_PLANKS, Items.WARPED_DOOR, "wooden_door");
+    }
+
+    private void addInfXVanillaDoorOverride(String name, ItemLike material, ItemLike result, String group) {
+        ShapedRecipe recipe = new ShapedRecipe(
+                new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.REDSTONE, group),
+                ShapedRecipePattern.of(Map.of('#', Ingredient.of(material)), List.of("##", "##", "##")),
+                new ItemStackTemplate(result.asItem(), 1));
+        output.accept(vanillaRecipeKey(name), recipe, null);
+    }
+
     private void addShaped(
             String name,
             BenchTier requiredBench,
@@ -1650,6 +1678,10 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private static ResourceKey<Recipe<?>> recipeKey(String path) {
         return ResourceKey.create(Registries.RECIPE, InfiniteX.id(path));
+    }
+
+    private static ResourceKey<Recipe<?>> vanillaRecipeKey(String path) {
+        return ResourceKey.create(Registries.RECIPE, net.minecraft.resources.Identifier.withDefaultNamespace(path));
     }
 
     static final class Runner extends RecipeProvider.Runner {

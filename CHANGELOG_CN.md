@@ -4,6 +4,7 @@
 ### 新功能
 - 恢复全部原版配方：移除加载期的 `VanillaCraftingRecipeRemoval` 及下界合金武器/工具锻造的 `neoforge:never` 数据覆盖；原版工作台、基础物品、武器、工具、盔甲、特殊合成（修理/盾牌装饰/药箭）与 6 个下界合金武器/工具锻造配方均重新进入运行时配方表。INFX 配方继续使用标准合成类型和独立 `infx` ID；同一合成格同时命中原版与 INFX 配方时，带显式 `recipe_rules` 的 INFX 配方仍优先，未冲突的原版配方按推断出的难度与工作台等级执行计时合成。
 ### 问题修复
+- 修复恢复原版配方后各种门无法合成：所有 14 种直接合成的木门、竹门、铁门与铜门配方保持原版 6 材料布局，但产量由 3 扇调整为 1 扇，与 INFX 的门类物品单组上限一致。
 - 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
 
 ## 0t6

@@ -590,16 +590,47 @@ class GeneratedResourceTest {
     }
 
     @Test
-    void vanillaRecipesHaveNoInfiniteXOverrides() throws IOException {
-        for (Path root : List.of(STATIC, GENERATED)) {
-            Path recipes = root.resolve("data/minecraft/recipe");
-            if (!Files.exists(recipes)) {
-                continue;
+    void onlyVanillaDoorRecipesAreOverriddenAndEachProducesOne() throws IOException {
+        Set<String> expected = Set.of(
+                "acacia_door",
+                "bamboo_door",
+                "birch_door",
+                "cherry_door",
+                "copper_door",
+                "crimson_door",
+                "dark_oak_door",
+                "iron_door",
+                "jungle_door",
+                "mangrove_door",
+                "oak_door",
+                "pale_oak_door",
+                "spruce_door",
+                "warped_door");
+        Path staticRecipes = STATIC.resolve("data/minecraft/recipe");
+        if (Files.exists(staticRecipes)) {
+            try (Stream<Path> paths = Files.walk(staticRecipes)) {
+                assertTrue(
+                        paths.noneMatch(Files::isRegularFile),
+                        "vanilla recipe overrides must be generated rather than maintained by hand");
             }
-            try (Stream<Path> paths = Files.walk(recipes)) {
-                List<Path> overrides = paths.filter(Files::isRegularFile).toList();
-                assertTrue(overrides.isEmpty(), "vanilla recipe overrides must be absent: " + overrides);
-            }
+        }
+
+        Path generatedRecipes = GENERATED.resolve("data/minecraft/recipe");
+        try (Stream<Path> paths = Files.list(generatedRecipes)) {
+            Set<String> actual = paths
+                    .filter(Files::isRegularFile)
+                    .map(path -> path.getFileName().toString().replaceFirst("\\.json$", ""))
+                    .collect(Collectors.toSet());
+            assertEquals(expected, actual, "only direct door recipes may override vanilla");
+        }
+        for (String door : expected) {
+            JsonObject recipe = json(generatedRecipes.resolve(door + ".json"));
+            JsonObject result = recipe.getAsJsonObject("result");
+            assertAll(
+                    door,
+                    () -> assertEquals("minecraft:crafting_shaped", recipe.get("type").getAsString()),
+                    () -> assertEquals("minecraft:" + door, result.get("id").getAsString()),
+                    () -> assertTrue(!result.has("count") || result.get("count").getAsInt() == 1));
         }
     }
 
