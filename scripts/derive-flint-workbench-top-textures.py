@@ -2,12 +2,10 @@
 """Derive per-wood flint workbench top textures.
 
 Composition (16x16):
-- base: vanilla stripped_<wood>_log / stripped_<wood>_stem texture (already used for the
-  workbench side faces, so the top matches the block it sits on)
-- grid: 3x3 workbench grid lines (x/y at 3/7/11, span 2..13), color dark #2b1a0c on light
-  woods and bright per-wood colors on dark woods so the carving stays visible
-- knife: the flint knife pixels from owner-provided items/tools/flint_knife.png, laid
-  diagonally in the center with a 1px AO shadow ring
+- base: vanilla stripped_<wood>_log_top / stripped_<wood>_stem_top (the stripped log end
+  grain), so the top reads as a stripped log block viewed from above
+- overlay: owner-provided flint_workbench_top.png pattern (bench frame with highlight
+  gradient + flint knife) composited over the base; transparent pixels keep the wood
 
 Outputs textures/block/flint_workbench_top_<wood>.png for every stripped-log workbench
 wood and refreshes their manifest rows (source_root=derived).
@@ -29,19 +27,13 @@ CLIENT_JAR = Path(os.environ.get(
 BLOCK_DIR = ROOT / "src/main/resources/assets/infx/textures/block"
 ITEM_DIR = ROOT / "src/main/resources/assets/infx/textures/item"
 MANIFEST = ROOT / "src/main/resources/assets/infx/infx_texture_manifest.tsv"
+# 项目所有者提供的台面图案(透明背景:立体框 + 燧石小刀)
+USER_TOP = Path(os.environ.get(
+    "INFX_USER_FLINT_TOP",
+    "/Users/inxups/Downloads/原木工作台/flint_workbench_top.png"))
 
 WOODS = ["oak", "spruce", "birch", "jungle", "acacia", "cherry", "pale_oak", "dark_oak",
          "mangrove", "crimson", "warped"]
-# Dark woods need bright carving lines / knife shadow ring to stay visible.
-DARK_WOOD_COLOR = {
-    "dark_oak": (138, 106, 58),
-    "mangrove": (143, 106, 60),
-    "crimson": (200, 138, 106),
-}
-GRID_DARK = (43, 26, 12)    # dark carving line on light woods
-SHADOW_DARK = (75, 43, 24)  # knife AO ring on light woods
-
-
 def decode_png(path: Path):
     data = path.read_bytes()
     pos = 8
@@ -118,16 +110,7 @@ def read_vanilla_grid(path_in_jar: str):
 
 def compose(base, wood):
     img = [row[:] for row in base]
-    line_color = DARK_WOOD_COLOR.get(wood, GRID_DARK)
-    shadow_color = DARK_WOOD_COLOR.get(wood, SHADOW_DARK)
-    for i in (3, 7, 11):
-        for t in range(2, 14):
-            img[i][t] = line_color
-            img[t][i] = line_color
-    for (x, y) in shadow_ring:
-        if 0 <= x < 16 and 0 <= y < 16:
-            img[y][x] = shadow_color
-    for (x, y), c in knife.items():
+    for (x, y), c in overlay.items():  # 用户图案:不透明像素覆盖原木
         img[y][x] = c
     return img
 
@@ -145,24 +128,23 @@ def encode_png(img, path: Path):
                      + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
 
 
-# Knife pixels from owner-provided items/tools/flint_knife.png + 1px AO ring.
-w, h, bd, ct, pal, rows = decode_png(ITEM_DIR / "flint_knife.png")
-knife = {}
+# Overlay pixels from the owner-provided pattern (transparent pixels keep the wood base).
+# A single #f606fb placeholder pixel (editor "unfinished" marker) is replaced with its
+# left neighbour so the frame gradient stays continuous.
+w, h, bd, ct, pal, rows = decode_png(USER_TOP)
+overlay = {}
 for y in range(h):
     for x in range(w):
         p = raw_px(rows, x, y, bd, ct, pal)
         if p is not None:
-            knife[(x, y)] = p
-shadow_ring = set()
-for (x, y) in knife:
-    for dx in (-1, 0, 1):
-        for dy in (-1, 0, 1):
-            if (x + dx, y + dy) not in knife:
-                shadow_ring.add((x + dx, y + dy))
+            if p[:3] == (0xF6, 0x06, 0xFB):
+                left = raw_px(rows, x - 1, y, bd, ct, pal)
+                p = left if left is not None else (0xD4, 0xD4, 0xD4)
+            overlay[(x, y)] = p
 
 for wood in WOODS:
     stem = "stem" if wood in ("crimson", "warped") else "log"
-    base = read_vanilla_grid(f"assets/minecraft/textures/block/stripped_{wood}_{stem}.png")
+    base = read_vanilla_grid(f"assets/minecraft/textures/block/stripped_{wood}_{stem}_top.png")
     out = BLOCK_DIR / f"flint_workbench_top_{wood}.png"
     encode_png(compose(base, wood), out)
     print("wrote", out.name)
@@ -178,8 +160,8 @@ for wood in WOODS:
     stem = "stem" if wood in ("crimson", "warped") else "log"
     dest = f"textures/block/flint_workbench_top_{wood}.png"
     digest = hashlib.sha256((BLOCK_DIR / dest.rsplit("/", 1)[-1]).read_bytes()).hexdigest()
-    source = (f"vanilla:assets/minecraft/textures/block/stripped_{wood}_{stem}.png"
-              f" + infx:assets/infx/textures/item/flint_knife.png(composed; grid hand-drawn)")
+    source = (f"owner-provided:/Users/inxups/Downloads/原木工作台/flint_workbench_top.png"
+              f" + vanilla:assets/minecraft/textures/block/stripped_{wood}_{stem}_top.png(composed)")
     new_rows.append(f"derived\t{source}\t{dest}\t{digest}")
 header, *body = rows_manifest
 inserted = False
