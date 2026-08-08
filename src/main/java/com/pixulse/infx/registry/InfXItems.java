@@ -5,6 +5,7 @@ import com.pixulse.infx.item.Catalog;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.InfxCarrotOnAStickItem;
 import com.pixulse.infx.item.InfxWarpedFungusOnAStickItem;
+import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.GelatinousSphereItem;
 import com.pixulse.infx.item.InfxMobBucketItem;
@@ -532,7 +533,7 @@ public final class InfXItems {
                     ITEMS.registerItem(
                             material.path() + "_carrot_on_a_stick",
                             properties -> new InfxCarrotOnAStickItem(material, properties),
-                            properties -> properties.stacksTo(1).durability(25)));
+                            properties -> properties.stacksTo(1).durability(EquipmentKey.fishingRodDurability(material))));
         }
         return Map.copyOf(sticks);
     }
@@ -545,7 +546,7 @@ public final class InfXItems {
                     ITEMS.registerItem(
                             material.path() + "_warped_fungus_on_a_stick",
                             properties -> new InfxWarpedFungusOnAStickItem(material, properties),
-                            properties -> properties.stacksTo(1).durability(100)));
+                            properties -> properties.stacksTo(1).durability(EquipmentKey.fishingRodDurability(material))));
         }
         return Map.copyOf(sticks);
     }

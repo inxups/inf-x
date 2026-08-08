@@ -68,6 +68,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.item.enchantment.Enchantable;
+import net.minecraft.world.item.enchantment.Repairable;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -103,7 +105,8 @@ public final class ModEquipmentGameTests {
             "armor_and_horse_armor",
             "horse_armor_loot",
             "height_advantage",
-            "carrot_stick_boost");
+            "carrot_stick_boost",
+            "crossbow_components");
 
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
@@ -119,6 +122,7 @@ public final class ModEquipmentGameTests {
         TEST_FUNCTIONS.register("horse_armor_loot", () -> ModEquipmentGameTests::horseArmorLoot);
         TEST_FUNCTIONS.register("height_advantage", () -> ModEquipmentGameTests::heightAdvantage);
         TEST_FUNCTIONS.register("carrot_stick_boost", () -> ModEquipmentGameTests::carrotStickBoost);
+        TEST_FUNCTIONS.register("crossbow_components", () -> ModEquipmentGameTests::crossbowComponents);
     }
 
     private ModEquipmentGameTests() {}
@@ -977,6 +981,10 @@ public final class ModEquipmentGameTests {
         ServerPlayer player = createPlayer(helper);
         InfxCarrotOnAStickItem stick = InfXItems.CARROT_ON_A_STICKS.get(InfxMaterial.IRON).value();
         ItemStack stack = stick.getDefaultInstance();
+        // InfX on-a-stick items share the same-material fishing rod durability.
+        helper.assertTrue(
+                stack.getMaxDamage() == 16,
+                "iron carrot stick must match the iron rod's 16 durability, got " + stack.getMaxDamage());
         player.setItemInHand(InteractionHand.MAIN_HAND, stack);
         player.startRiding(pig, true, false);
         helper.assertTrue(
@@ -1018,6 +1026,24 @@ public final class ModEquipmentGameTests {
                 result3.consumesAction(),
                 "fungus stick use on strider must succeed, got " + result3);
         removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void crossbowComponents(GameTestHelper helper) {
+        ItemStack crossbow = Items.CROSSBOW.getDefaultInstance();
+        helper.assertTrue(
+                crossbow.getMaxDamage() == 64,
+                "crossbow durability must be 64, got " + crossbow.getMaxDamage());
+        Repairable repairable = crossbow.get(DataComponents.REPAIRABLE);
+        helper.assertTrue(
+                repairable != null
+                        && repairable.items().contains(Items.IRON_NUGGET.builtInRegistryHolder()),
+                "crossbow must be anvil-repairable with iron nuggets");
+        Enchantable enchantable = crossbow.get(DataComponents.ENCHANTABLE);
+        helper.assertTrue(
+                enchantable != null && enchantable.value() == 30,
+                "crossbow enchantability must be 30 for the 5300-xp top enchant, got "
+                        + (enchantable == null ? "none" : enchantable.value()));
         helper.succeed();
     }
 
