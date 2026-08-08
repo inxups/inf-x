@@ -13,63 +13,43 @@ import org.junit.jupiter.api.Test;
 
 class VanillaCraftingRecipeRemovalTest {
     @Test
-    void removesVanillaWeaponToolAndCraftingTableRecipes() {
+    void removesEveryVanillaCraftingRecipe() {
         Map<Identifier, JsonElement> recipes = new LinkedHashMap<>();
         recipes.put(minecraft("crafting_table"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("wooden_sword"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("iron_pickaxe"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("diamond_spear"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("bow"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("arrow"), recipe("minecraft:crafting_shapeless"));
-        recipes.put(minecraft("shield"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("shears"), recipe("minecraft:crafting_shaped"));
-        recipes.put(minecraft("tipped_arrow"), recipe("minecraft:crafting_imbue"));
-        recipes.put(minecraft("shield_decoration"), recipe("minecraft:crafting_special_shielddecoration"));
+        recipes.put(minecraft("oak_planks"), recipe("minecraft:crafting_shapeless"));
+        recipes.put(minecraft("torch"), recipe("minecraft:crafting_shaped"));
+        recipes.put(minecraft("stick"), recipe("minecraft:crafting_shaped"));
+        recipes.put(minecraft("iron_helmet"), recipe("minecraft:crafting_shaped"));
+        recipes.put(minecraft("iron_ingot_from_nuggets"), recipe("minecraft:crafting_shapeless"));
+        recipes.put(minecraft("saddle"), recipe("minecraft:crafting_shaped"));
+        recipes.put(minecraft("leather_boots_dyed"), recipe("minecraft:crafting_dye"));
+        recipes.put(minecraft("gray_bundle"), recipe("minecraft:crafting_transmute"));
+        recipes.put(minecraft("banner_duplicate"), recipe("minecraft:crafting_special_bannerduplicate"));
         recipes.put(minecraft("repair_item"), recipe("minecraft:crafting_special_repairitem"));
+        recipes.put(minecraft("tipped_arrow"), recipe("minecraft:crafting_imbue"));
 
-        assertEquals(11, VanillaCraftingRecipeRemoval.removeVanillaCraftingRecipes(recipes));
+        assertEquals(12, VanillaCraftingRecipeRemoval.removeVanillaCraftingRecipes(recipes));
         assertTrue(recipes.isEmpty());
-    }
-
-    @Test
-    void restoresEveryOtherVanillaRecipe() {
-        Map<Identifier, JsonElement> recipes = new LinkedHashMap<>();
-        Identifier planks = minecraft("oak_planks");
-        Identifier torch = minecraft("torch");
-        Identifier helmet = minecraft("iron_helmet");
-        Identifier dye = minecraft("leather_boots_dyed");
-        Identifier transmute = minecraft("gray_bundle");
-        Identifier banner = minecraft("banner_duplicate");
-        recipes.put(planks, recipe("minecraft:crafting_shapeless"));
-        recipes.put(torch, recipe("minecraft:crafting_shaped"));
-        recipes.put(helmet, recipe("minecraft:crafting_shaped"));
-        recipes.put(dye, recipe("minecraft:crafting_dye"));
-        recipes.put(transmute, recipe("minecraft:crafting_transmute"));
-        recipes.put(banner, recipe("minecraft:crafting_special_bannerduplicate"));
-        recipes.put(minecraft("copper_ingot_from_smelting_copper_ore"), recipe("minecraft:smelting"));
-        recipes.put(minecraft("netherite_helmet_smithing"), recipe("minecraft:smithing_transform"));
-
-        assertEquals(0, VanillaCraftingRecipeRemoval.removeVanillaCraftingRecipes(recipes));
-        assertTrue(recipes.containsKey(planks));
-        assertTrue(recipes.containsKey(torch));
-        assertTrue(recipes.containsKey(helmet));
-        assertTrue(recipes.containsKey(dye));
-        assertTrue(recipes.containsKey(transmute));
-        assertTrue(recipes.containsKey(banner));
     }
 
     @Test
     void retainsNonCraftingAndNonVanillaRecipes() {
         Map<Identifier, JsonElement> recipes = new LinkedHashMap<>();
-        Identifier smelting = minecraft("smelting");
-        Identifier infxCrafting = Identifier.fromNamespaceAndPath("infx", "custom");
+        Identifier smelting = minecraft("copper_ingot_from_smelting_copper_ore");
+        Identifier smithing = minecraft("netherite_helmet_smithing");
+        Identifier stonecutting = minecraft("stone_bricks_from_stone_stonecutting");
+        Identifier infxCrafting = Identifier.fromNamespaceAndPath("infx", "flint_knife");
         Identifier conditionalOverride = minecraft("disabled_override");
         recipes.put(smelting, recipe("minecraft:smelting"));
+        recipes.put(smithing, recipe("minecraft:smithing_transform"));
+        recipes.put(stonecutting, recipe("minecraft:stonecutting"));
         recipes.put(infxCrafting, recipe("minecraft:crafting_shaped"));
         recipes.put(conditionalOverride, JsonParser.parseString("{\"neoforge:conditions\":[]}"));
 
         assertEquals(0, VanillaCraftingRecipeRemoval.removeVanillaCraftingRecipes(recipes));
         assertTrue(recipes.containsKey(smelting));
+        assertTrue(recipes.containsKey(smithing));
+        assertTrue(recipes.containsKey(stonecutting));
         assertTrue(recipes.containsKey(infxCrafting));
         assertTrue(recipes.containsKey(conditionalOverride));
         assertFalse(VanillaCraftingRecipeRemoval.isVanillaCraftingRecipe(

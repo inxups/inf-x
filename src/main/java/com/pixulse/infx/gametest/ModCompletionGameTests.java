@@ -2376,29 +2376,16 @@ public final class ModCompletionGameTests {
                 "corner shelves must count toward the INFX table power");
     }
 
-    /** Restored vanilla and INFX recipes coexisting on the timed grid. */
+    /** INFX recipes running on the timed grid; vanilla crafting recipes are all removed. */
     private static void legacyRecipes(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         BlockPos workbench = helper.absolutePos(new BlockPos(8, 2, 4));
-        // The inventory menu has a 2x2 grid; the saddle needs the full 3x3 table.
+        // The inventory menu has a 2x2 grid; the lead needs the full 3x3 table.
         net.minecraft.world.inventory.CraftingMenu menu = new net.minecraft.world.inventory.CraftingMenu(
                 96, player.getInventory(), ContainerLevelAccess.create(helper.getLevel(), workbench));
         player.containerMenu = menu;
         TimedCraftingMenu crafting = (TimedCraftingMenu) menu;
         var grid = crafting.infx$craftingContainer();
-        grid.clearContent();
-        // Restored vanilla saddle: one leather over leather-iron-leather.
-        grid.setItem(1, new ItemStack(Items.LEATHER));
-        grid.setItem(3, new ItemStack(Items.LEATHER));
-        grid.setItem(4, new ItemStack(Items.IRON_INGOT));
-        grid.setItem(5, new ItemStack(Items.LEATHER));
-        assertLegacyCraft(
-                helper,
-                player,
-                crafting,
-                new ItemStack(Items.SADDLE, 1),
-                "restored vanilla saddle");
-
         grid.clearContent();
         grid.setItem(0, new ItemStack(Items.STRING));
         grid.setItem(1, new ItemStack(Items.STRING));
