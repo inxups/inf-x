@@ -1205,8 +1205,8 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('S', Ingredient.of(Items.SNOWBALL)),
                 List.of("SS", "SS"));
-        // The vanilla flint-and-steel recipe stays disabled (tool), so the
-        // INFX variant made from iron nuggets keeps the item craftable.
+        // Keep the INFX iron-nugget alternative alongside the restored
+        // vanilla flint-and-steel recipe, which uses a full iron ingot.
         addShaped(
                 "flint_and_steel",
                 BenchTier.FLINT,

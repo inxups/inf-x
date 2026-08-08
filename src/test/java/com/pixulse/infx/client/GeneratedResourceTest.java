@@ -575,23 +575,30 @@ class GeneratedResourceTest {
         for (String restored : List.of(
                 "iron_ingot_from_blasting_deepslate_iron_ore",
                 "iron_ingot_from_blasting_iron_ore",
-                "iron_ingot_from_blasting_raw_iron")) {
+                "iron_ingot_from_blasting_raw_iron",
+                "netherite_axe_smithing",
+                "netherite_hoe_smithing",
+                "netherite_pickaxe_smithing",
+                "netherite_shovel_smithing",
+                "netherite_sword_smithing",
+                "netherite_spear_smithing",
+                "iron_pickaxe")) {
             assertFalse(
                     Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must be restored to vanilla");
+                    restored + " must use the vanilla recipe without an INFX override");
         }
-        for (String disabled : List.of(
-                "netherite_axe_smithing",
-                "netherite_sword_smithing",
-                "iron_pickaxe")) {
-            if (disabled.endsWith("_smithing")) {
-                assertTrue(
-                        Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                        disabled);
-            } else {
-                assertFalse(
-                        Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                        disabled + " must be disabled by the recipe removal instead");
+    }
+
+    @Test
+    void vanillaRecipesHaveNoInfiniteXOverrides() throws IOException {
+        for (Path root : List.of(STATIC, GENERATED)) {
+            Path recipes = root.resolve("data/minecraft/recipe");
+            if (!Files.exists(recipes)) {
+                continue;
+            }
+            try (Stream<Path> paths = Files.walk(recipes)) {
+                List<Path> overrides = paths.filter(Files::isRegularFile).toList();
+                assertTrue(overrides.isEmpty(), "vanilla recipe overrides must be absent: " + overrides);
             }
         }
     }
@@ -630,10 +637,10 @@ class GeneratedResourceTest {
                             GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
                     advancement);
         }
-        for (String disabled : List.of("iron_axe", "iron_hoe", "iron_shovel", "iron_sword")) {
+        for (String restored : List.of("iron_axe", "iron_hoe", "iron_shovel", "iron_sword")) {
             assertFalse(
-                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled + " must be disabled by the recipe removal instead");
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must use the vanilla recipe without an INFX override");
         }
     }
 
@@ -740,17 +747,17 @@ class GeneratedResourceTest {
                             nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
-        // The gold/iron conversion recipes are restored vanilla recipes; the
-        // golden weapon/tool recipes stay disabled through the recipe removal.
+        // The gold/iron conversion and golden weapon/tool recipes all come
+        // from the vanilla data pack; InfX does not override their IDs.
         for (String restored : List.of("gold_ingot_from_nuggets", "gold_nugget", "iron_ingot_from_nuggets", "iron_nugget")) {
             assertFalse(
                     Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must be restored to vanilla");
+                    restored + " must use the vanilla recipe without an INFX override");
         }
-        for (String disabled : List.of("golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword")) {
+        for (String restored : List.of("golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword")) {
             assertFalse(
-                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled + " must be disabled by the recipe removal instead");
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must use the vanilla recipe without an INFX override");
         }
 
         Map<String, List<String>> advancementRecipes = Map.of(
@@ -839,7 +846,7 @@ class GeneratedResourceTest {
                             recipe.getAsJsonObject("result").get("id").getAsString()));
         }
         assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/shears.json")),
-                "shears must be disabled by the recipe removal instead");
+                "shears must use the vanilla recipe without an INFX override");
 
         Map<String, List<String>> advancementRecipes = Map.of(
                 "flint_kit",
@@ -961,9 +968,9 @@ class GeneratedResourceTest {
                     () -> assertEquals(1, count));
         }
 
-        for (String disabled : List.of("arrow", "bow")) {
-            assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled + " must be disabled by the recipe removal instead");
+        for (String restored : List.of("arrow", "bow")) {
+            assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must use the vanilla recipe without an INFX override");
         }
         String flintKit = Files.readString(
                 GENERATED.resolve("data/infx/advancement/progression/flint_kit.json"), UTF_8);
@@ -1100,8 +1107,8 @@ class GeneratedResourceTest {
         for (String material : ingotDifficulties.keySet()) {
             assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/" + material + "_horse_armor.json")));
         }
-        // Vanilla armor crafting recipes are restored; only the netherite
-        // weapon/tool smithing upgrades keep a disabled override file.
+        // Vanilla armor crafting recipes are inherited directly from the
+        // vanilla data pack and have no InfX override files.
         for (String restored : List.of(
                 "leather_helmet",
                 "leather_chestplate",
@@ -2780,8 +2787,8 @@ class GeneratedResourceTest {
                     Files.exists(GENERATED.resolve("data/infx/recipe/" + restored + ".json")),
                     "infx:" + restored + " duplicate must be gone");
         }
-        // flint_and_steel stays an INFX recipe because the vanilla tool recipe
-        // remains disabled by the recipe removal.
+        // The InfX flint-and-steel recipe remains as an alternate recipe while
+        // the original vanilla tool recipe is restored as well.
         assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/flint_and_steel.json")));
         assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/flint_and_steel.json")));
     }
@@ -2826,10 +2833,10 @@ class GeneratedResourceTest {
         for (String recipe : List.of("sand_batch", "red_sand_batch")) {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")));
         }
-        for (String disabled : List.of("glass", "sandstone", "smooth_sandstone")) {
+        for (String restored : List.of("glass", "sandstone", "smooth_sandstone")) {
             assertFalse(
-                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled + " must be restored to vanilla");
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must be restored to vanilla");
         }
 
         JsonObject clay = json(GENERATED.resolve("data/infx/recipe/clay_furnace.json"));
@@ -2947,7 +2954,7 @@ class GeneratedResourceTest {
 
 
     @Test
-    void runeStonesHaveR196NuggetRecipesAndModernBypassesStayDisabled() throws Exception {
+    void runeStonesHaveR196NuggetRecipesAndModernRecipesStayVanilla() throws Exception {
         Map<String, Map<String, Object>> runes = Map.of(
                 "mithril",
                 Map.of("bench", "mithril", "difficulty", 3_200.0F, "nugget", "infx:mithril_nugget"),

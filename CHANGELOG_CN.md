@@ -2,7 +2,7 @@
 
 ## 0t7
 ### 新功能
-- 移除全部原版合成配方：`VanillaCraftingRecipeRemoval` 在配方反序列化前移除 `minecraft` 命名空间下整个合成家族（`crafting_shaped`/`crafting_shapeless`/`crafting_special_*`/`crafting_transmute` 等所有 `crafting_*` 序列化器），木板/木棍/火把/熔炉/盔甲/鞍/铜铁金锭粒转换等原版合成全部不可用（含原版工作台配方），合成格只认 INFX 配方（`infx` 命名空间，使用标准 `minecraft:crafting_*` 序列化器，不受移除影响）；烧炼/锻造/切石等非合成类原版配方保持原样，仅下界合金武器/工具锻造继续通过生成的 `neoforge:never` 覆盖文件禁用。GameTest `vanilla_recipe_removal` / `recipe_boundaries` 改为断言运行时配方表中不存在任何原版合成配方。
+- 恢复全部原版配方：移除加载期的 `VanillaCraftingRecipeRemoval` 及下界合金武器/工具锻造的 `neoforge:never` 数据覆盖；原版工作台、基础物品、武器、工具、盔甲、特殊合成（修理/盾牌装饰/药箭）与 6 个下界合金武器/工具锻造配方均重新进入运行时配方表。INFX 配方继续使用标准合成类型和独立 `infx` ID；同一合成格同时命中原版与 INFX 配方时，带显式 `recipe_rules` 的 INFX 配方仍优先，未冲突的原版配方按推断出的难度与工作台等级执行计时合成。
 ### 问题修复
 - 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
 
