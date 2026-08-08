@@ -1,5 +1,6 @@
 package com.pixulse.infx.world;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -216,6 +217,40 @@ class StructureGenerationGatesTest {
         assertFalse(any.test(progress(1L)));
         assertTrue(any.test(progress(1L, Set.of("bookcase"))));
         assertTrue(any.test(progress(1L, StructureGenerationGates.WorldMilestone.END_CONQUERED)));
+    }
+
+    @Test
+    void conditionsReportHumanReadableLinesWithCurrentSatisfaction() {
+        StructureGenerationGates.GateCondition villageRequirements = StructureGenerationGates.Conditions.allOf(
+                StructureGenerationGates.Conditions.afterDay(VillageProgression.VILLAGE_DAY),
+                StructureGenerationGates.Conditions.milestone(
+                        StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED));
+
+        List<StructureGenerationGates.ConditionReport> early = villageRequirements.report(progress(34L));
+        assertEquals(2, early.size());
+        assertEquals("Survival day 60 or later (current: 34)", early.getFirst().description());
+        assertFalse(early.getFirst().satisfied());
+        assertEquals("World iron-tier tool crafted", early.get(1).description());
+        assertFalse(early.get(1).satisfied());
+
+        List<StructureGenerationGates.ConditionReport> met = villageRequirements.report(
+                progress(60L, StructureGenerationGates.WorldMilestone.IRON_TOOL_CRAFTED));
+        assertTrue(met.stream().allMatch(StructureGenerationGates.ConditionReport::satisfied));
+
+        assertFalse(StructureGenerationGates.Conditions.never()
+                .report(progress(Long.MAX_VALUE))
+                .getFirst()
+                .satisfied());
+        assertEquals(
+                "Never unlocks",
+                StructureGenerationGates.Conditions.never().report(progress(1L)).getFirst().description());
+    }
+
+    @Test
+    void ruleLookupReturnsOnlyBuiltInGates() {
+        assertTrue(StructureGenerationGates.rule(InfiniteX.id("village")).isPresent());
+        assertTrue(StructureGenerationGates.rule(InfiniteX.id("trial_chambers")).isPresent());
+        assertTrue(StructureGenerationGates.rule(InfiniteX.id("no_such_gate")).isEmpty());
     }
 
     @Test

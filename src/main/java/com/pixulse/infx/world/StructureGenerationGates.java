@@ -5,8 +5,10 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import net.minecraft.core.Holder;
@@ -126,17 +128,29 @@ public final class StructureGenerationGates {
 
     /** Returns the published status of a named rule without touching live world state. */
     public static boolean isUnlocked(Identifier ruleId) {
-        return rule(ruleId).condition().test(snapshot);
+        return rule(ruleId)
+                .orElseThrow(() -> unknownRule(ruleId))
+                .condition()
+                .test(snapshot);
     }
 
     /** Evaluates a named rule against the current server-thread world state. */
     public static boolean isUnlocked(Identifier ruleId, ServerLevel level) {
-        return rule(ruleId).condition().test(snapshot(level.getServer().overworld()));
+        return rule(ruleId)
+                .orElseThrow(() -> unknownRule(ruleId))
+                .condition()
+                .test(progress(level.getServer().overworld()));
+    }
+
+    /** Looks up a built-in rule by its stable identifier, if it exists. */
+    public static Optional<StructureGate> rule(Identifier ruleId) {
+        Objects.requireNonNull(ruleId, "ruleId");
+        return Optional.ofNullable(RULES_BY_ID.get(ruleId));
     }
 
     /** Publishes the current shared-world progression after a server-thread state change. */
     public static void refresh(ServerLevel level) {
-        snapshot = snapshot(level.getServer().overworld());
+        snapshot = progress(level.getServer().overworld());
     }
 
     /** Returns the shared survival day used by world progression rules. */
@@ -164,13 +178,12 @@ public final class StructureGenerationGates {
         snapshot = WorldProgressSnapshot.locked();
     }
 
-    private static StructureGate rule(Identifier ruleId) {
-        StructureGate rule = RULES_BY_ID.get(ruleId);
-        if (rule == null) throw new IllegalArgumentException("Unknown structure generation rule: " + ruleId);
-        return rule;
+    private static IllegalArgumentException unknownRule(Identifier ruleId) {
+        return new IllegalArgumentException("Unknown structure generation rule: " + ruleId);
     }
 
-    private static WorldProgressSnapshot snapshot(ServerLevel level) {
+    /** Builds the current world-progress snapshot for a server level (server thread). */
+    public static WorldProgressSnapshot progress(ServerLevel level) {
         WorldData data = WorldData.get(level);
         EnumSet<WorldMilestone> milestones = EnumSet.noneOf(WorldMilestone.class);
         if (data.ironToolCrafted()) milestones.add(WorldMilestone.IRON_TOOL_CRAFTED);
@@ -233,11 +246,27 @@ public final class StructureGenerationGates {
     @FunctionalInterface
     public interface GateCondition {
         boolean test(WorldProgressSnapshot progress);
+
+        /**
+         * Breaks this condition into one or more human-readable lines with current satisfaction.
+         * Built-in {@link Conditions} carry real text; ad-hoc lambdas fall back to their string form.
+         */
+        default List<ConditionReport> report(WorldProgressSnapshot progress) {
+            return List.of(new ConditionReport(toString(), test(progress)));
+        }
+    }
+
+    /** A single human-readable condition line with its current satisfaction. */
+    public record ConditionReport(String description, boolean satisfied) {
+        public ConditionReport {
+            Objects.requireNonNull(description, "description");
+        }
     }
 
     /** Built-in, composable conditions for structure generation rules. */
     public static final class Conditions {
-        private static final GateCondition NEVER = progress -> false;
+        private static final GateCondition NEVER = described(
+                progress -> "Never unlocks", progress -> false);
 
         private Conditions() {}
 
@@ -248,45 +277,95 @@ public final class StructureGenerationGates {
 
         public static GateCondition afterDay(long day) {
             if (day < 1L) throw new IllegalArgumentException("Minimum day must be positive");
-            return progress -> progress.day() >= day;
+            return described(
+                    progress -> "Survival day " + day + " or later (current: " + progress.day() + ")",
+                    progress -> progress.day() >= day);
         }
 
         public static GateCondition milestone(WorldMilestone milestone) {
             Objects.requireNonNull(milestone, "milestone");
-            return progress -> progress.hasMilestone(milestone);
+            return described(progress -> milestone.description(), progress -> progress.hasMilestone(milestone));
         }
 
         public static GateCondition firstCompletion(String advancement) {
             if (advancement == null || advancement.isBlank()) {
                 throw new IllegalArgumentException("World advancement must not be blank");
             }
-            return progress -> progress.hasFirstCompletion(advancement);
+            return described(
+                    progress -> "World first completion: " + advancement,
+                    progress -> progress.hasFirstCompletion(advancement));
         }
 
         public static GateCondition allOf(GateCondition... conditions) {
             List<GateCondition> all = conditions(conditions);
-            return progress -> all.stream().allMatch(condition -> condition.test(progress));
+            return composite(all, progress -> all.stream().allMatch(condition -> condition.test(progress)));
         }
 
         public static GateCondition anyOf(GateCondition... conditions) {
             List<GateCondition> any = conditions(conditions);
-            return progress -> any.stream().anyMatch(condition -> condition.test(progress));
+            return composite(any, progress -> any.stream().anyMatch(condition -> condition.test(progress)));
         }
 
         private static List<GateCondition> conditions(GateCondition[] conditions) {
             if (conditions.length == 0) throw new IllegalArgumentException("A composite condition must not be empty");
             return List.of(conditions);
         }
+
+        private static GateCondition described(
+                Function<WorldProgressSnapshot, String> description,
+                Predicate<WorldProgressSnapshot> predicate) {
+            Objects.requireNonNull(description, "description");
+            Objects.requireNonNull(predicate, "predicate");
+            return new GateCondition() {
+                @Override
+                public boolean test(WorldProgressSnapshot progress) {
+                    return predicate.test(progress);
+                }
+
+                @Override
+                public List<ConditionReport> report(WorldProgressSnapshot progress) {
+                    return List.of(new ConditionReport(description.apply(progress), predicate.test(progress)));
+                }
+            };
+        }
+
+        private static GateCondition composite(
+                List<GateCondition> children, Predicate<WorldProgressSnapshot> predicate) {
+            return new GateCondition() {
+                @Override
+                public boolean test(WorldProgressSnapshot progress) {
+                    return predicate.test(progress);
+                }
+
+                @Override
+                public List<ConditionReport> report(WorldProgressSnapshot progress) {
+                    return children.stream()
+                            .flatMap(child -> child.report(progress).stream())
+                            .toList();
+                }
+            };
+        }
     }
 
     /** Shared world-progress milestones exposed to structure-gate conditions. */
     public enum WorldMilestone {
-        IRON_TOOL_CRAFTED,
-        END_CONQUERED,
-        MANSION_EXPERIENCE_HELD,
-        NETHER_ENTERED,
-        NETHER_FORTRESS_ENTERED,
-        MONUMENT_GUARDIAN_KILLED
+        IRON_TOOL_CRAFTED("World iron-tier tool crafted"),
+        END_CONQUERED("End conquered"),
+        MANSION_EXPERIENCE_HELD("Any online player holds " + MANSION_EXPERIENCE_REQUIREMENT + " XP or more"),
+        NETHER_ENTERED("Any player entered the Nether"),
+        NETHER_FORTRESS_ENTERED("Any player entered a Nether fortress"),
+        MONUMENT_GUARDIAN_KILLED("Any player killed a guardian");
+
+        private final String description;
+
+        WorldMilestone(String description) {
+            this.description = description;
+        }
+
+        /** Human-readable text describing what this milestone requires. */
+        public String description() {
+            return description;
+        }
     }
 
     /** Immutable, thread-safe projection of world data and player state used by gates. */
