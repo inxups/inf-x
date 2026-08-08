@@ -47,6 +47,13 @@ public final class InfXHarvestToolProvider implements IBlockComponentProvider {
     }
 
     @Override
+    public boolean isRequired() {
+        // This replacement deliberately shares Jade's vanilla harvest-tool toggles in appendTooltip.
+        // Do not register a second plugin config entry: Jade audits every such entry on the title screen.
+        return true;
+    }
+
+    @Override
     public int getDefaultPriority() {
         // Must run after Jade's vanilla HarvestToolProvider (8000) so the vanilla line can be removed.
         return 8001;
