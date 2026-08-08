@@ -77,7 +77,7 @@ public final class Network {
                 .configurationToClient(
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
-                        Network::handleClientRecipeRules)
+                        Network::handleClientRecipeRulesConfiguration)
                 .playToClient(
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
@@ -100,9 +100,14 @@ public final class Network {
                 new RecipeRulesPayload(RecipeRules.resolvedRules())));
     }
 
-    private static void handleClientRecipeRules(RecipeRulesPayload payload, IPayloadContext context) {
+    private static void handleClientRecipeRulesConfiguration(RecipeRulesPayload payload, IPayloadContext context) {
         RecipeRules.setClientRules(payload.resolvedRules());
         context.finishCurrentTask(RecipeRulesConfigurationTask.TYPE);
+    }
+
+    /** Play-phase variant (datapack reload): no configuration task is running. */
+    private static void handleClientRecipeRules(RecipeRulesPayload payload, IPayloadContext context) {
+        RecipeRules.setClientRules(payload.resolvedRules());
     }
 
     private static void handleServerTestMode(TestModePayload payload, IPayloadContext context) {
