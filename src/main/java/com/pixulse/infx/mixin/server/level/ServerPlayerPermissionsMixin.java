@@ -20,8 +20,7 @@ public abstract class ServerPlayerPermissionsMixin {
     @Inject(method = "permissions", at = @At("HEAD"), cancellable = true)
     private void restrictPlayerPermissionsOutsideTestMode(
             CallbackInfoReturnable<PermissionSet> callback) {
-        if (!ServerTestModePolicy.allowsPlayerPermissions(InfiniteXTestMode.isEnabled())
-                && !(((ServerPlayer) (Object) this).level().getServer() instanceof GameTestServer)) {
+        if (!ServerTestModePolicy.allowsPlayerPermissions(InfiniteXTestMode.isEnabled())) {
             callback.setReturnValue(PermissionSet.NO_PERMISSIONS);
         }
     }

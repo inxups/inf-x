@@ -30,7 +30,7 @@ public final class TimedCraftingTooltipEvents {
         if (!(minecraft.screen instanceof AbstractContainerScreen<?> screen)) {
             return;
         }
-        Slot hovered = screen.getSlotUnderMouse();
+        Slot hovered = screen.getHoveredSlot();
         if (hovered == null || !(hovered.container instanceof ResultContainer)) {
             return;
         }
