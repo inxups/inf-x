@@ -68,6 +68,7 @@
     "client.MinecraftMiningInputMixin",
     "client.MinecraftStartAttackMixin",
     "client.gui.components.DebugScreenOverlayMixin",
+    "client.gui.screens.ShareToLanScreenMixin",
     "client.gui.screens.inventory.EnchantmentScreenMixin",
     "client.gui.screens.inventory.InventoryScreenMixin",
     "client.gui.screens.options.DifficultyButtonsMixin",
