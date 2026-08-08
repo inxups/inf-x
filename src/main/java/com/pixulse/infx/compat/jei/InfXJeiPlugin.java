@@ -11,7 +11,7 @@ import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.event.client.ClientEvents;
 import com.pixulse.infx.screen.gui.TimedWorkbenchScreen;
 import com.pixulse.infx.recipe.BenchTier;
-import com.pixulse.infx.recipe.TimedCraftingRecipe;
+import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXMenus;
@@ -32,6 +32,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
@@ -73,7 +74,7 @@ public final class InfXJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipes(@NonNull IRecipeRegistration registration) {
-        Map<BenchTier, List<RecipeHolder<TimedCraftingRecipe>>> recipesByBench =
+        Map<BenchTier, List<RecipeHolder<CraftingRecipe>>> recipesByBench =
                 new EnumMap<>(BenchTier.class);
         for (BenchTier benchTier : BenchTier.values()) {
             if (benchTier.isRecipeTier()) {
@@ -81,8 +82,10 @@ public final class InfXJeiPlugin implements IModPlugin {
             }
         }
 
-        for (RecipeHolder<TimedCraftingRecipe> holder : ClientEvents.timedCraftingRecipes()) {
-            recipesByBench.get(holder.value().requiredBench().recipeTier()).add(holder);
+        for (RecipeHolder<CraftingRecipe> holder : ClientEvents.timedCraftingRecipes()) {
+            recipesByBench
+                    .get(RecipeRules.displayProfile(holder).requiredBench().recipeTier())
+                    .add(holder);
         }
 
         int recipeCount = recipesByBench.values().stream().mapToInt(List::size).sum();
@@ -150,7 +153,7 @@ public final class InfXJeiPlugin implements IModPlugin {
     private static void addTransferHandler(
             IRecipeTransferRegistration registration,
             net.minecraft.world.inventory.MenuType<TimedWorkbenchMenu> menuType,
-            IRecipeHolderType<TimedCraftingRecipe> recipeType) {
+            IRecipeHolderType<CraftingRecipe> recipeType) {
         registration.addRecipeTransferHandler(
                 TimedWorkbenchMenu.class,
                 menuType,

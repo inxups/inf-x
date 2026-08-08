@@ -3,7 +3,11 @@ package com.pixulse.infx.recipe;
 import java.util.List;
 import java.util.Optional;
 
-import com.pixulse.infx.registry.InfXRecipes;
+import com.pixulse.infx.block.RuneStoneBlock;
+import com.pixulse.infx.item.CoinItem;
+import com.pixulse.infx.item.equipment.QualitySystem;
+import com.pixulse.infx.item.material.Quality;
+import com.pixulse.infx.registry.InfXAttachments;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.ResourceKey;
@@ -21,11 +25,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
-import com.pixulse.infx.block.RuneStoneBlock;
-import com.pixulse.infx.item.CoinItem;
-import com.pixulse.infx.item.equipment.QualitySystem;
-import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.InfXAttachments;
 
 public final class TimedCraftingEngine {
     private TimedCraftingEngine() {}
@@ -169,22 +168,26 @@ public final class TimedCraftingEngine {
     private static Optional<CraftingMatch> findRecipe(
             TimedCraftingMenu timedMenu, ServerLevel level) {
         CraftingInput input = timedMenu.infx$craftingContainer().asCraftInput();
-        Optional<CraftingMatch> explicit = level.recipeAccess()
-                .recipeMap()
-                .getRecipesFor(InfXRecipes.CRAFTING.get(), input, level)
-                .filter(holder -> timedMenu.infx$benchTier().supports(holder.value().requiredBench()))
-                .findFirst()
-                .map(holder -> CraftingMatch.explicit(holder, input));
-        if (explicit.isPresent()) {
-            return explicit;
-        }
-
-        return level.recipeAccess()
+        // Every crafting recipe now uses the standard CRAFTING type; the INFX
+        // profile (difficulty, workbench tier) comes from the data-driven
+        // recipe rules with InfxCraftingRules inference as the fallback.
+        //
+        // Restored vanilla recipes share the crafting grid with INFX recipes
+        // for items that have both (buckets, armor, anvils, chains, ...).
+        // Recipes with an explicit rule win such ties so that the INFX item
+        // stays craftable; unmatched recipes keep the map (ID) order.
+        List<CraftingMatch> matches = level.recipeAccess()
                 .recipeMap()
                 .getRecipesFor(RecipeType.CRAFTING, input, level)
                 .map(holder -> CraftingMatch.vanilla(holder, input))
                 .filter(match -> timedMenu.infx$benchTier().supports(match.profile().requiredBench()))
-                .findFirst();
+                .toList();
+        for (CraftingMatch match : matches) {
+            if (RecipeRules.ruleFor(match.holder().id()).isPresent()) {
+                return Optional.of(match);
+            }
+        }
+        return matches.stream().findFirst();
     }
 
     private static void complete(
@@ -353,44 +356,23 @@ public final class TimedCraftingEngine {
         return id.identifier().toString();
     }
 
-    private record CraftingMatch(RecipeHolder<?> holder, CraftingProfile profile) {
-        static CraftingMatch explicit(
-                RecipeHolder<TimedCraftingRecipe> holder,
-                CraftingInput input) {
-            TimedCraftingRecipe recipe = holder.value();
-            CraftingProfile profile = new CraftingProfile(
-                    recipe.requiredBench(), recipe.difficulty(input), recipe.materialGated());
-            return new CraftingMatch(holder, profile);
-        }
-
+    private record CraftingMatch(RecipeHolder<CraftingRecipe> holder, CraftingProfile profile) {
         static CraftingMatch vanilla(
                 RecipeHolder<CraftingRecipe> holder,
                 CraftingInput input) {
-            return new CraftingMatch(holder, InfxCraftingRules.profile(holder.value(), input));
+            return new CraftingMatch(holder, RecipeRules.profile(holder, input));
         }
 
         boolean matches(CraftingInput input, ServerLevel level) {
-            Recipe<?> recipe = holder.value();
-            if (recipe instanceof TimedCraftingRecipe timed) {
-                return timed.matches(input, level);
-            }
-            return ((CraftingRecipe) recipe).matches(input, level);
+            return holder.value().matches(input, level);
         }
 
         ItemStack assemble(CraftingInput input) {
-            Recipe<?> recipe = holder.value();
-            if (recipe instanceof TimedCraftingRecipe timed) {
-                return timed.assemble(input);
-            }
-            return ((CraftingRecipe) recipe).assemble(input);
+            return holder.value().assemble(input);
         }
 
         NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
-            Recipe<?> recipe = holder.value();
-            if (recipe instanceof TimedCraftingRecipe timed) {
-                return timed.getRemainingItems(input);
-            }
-            return ((CraftingRecipe) recipe).getRemainingItems(input);
+            return holder.value().getRemainingItems(input);
         }
     }
 }

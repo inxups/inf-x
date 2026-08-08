@@ -1,7 +1,13 @@
 package com.pixulse.infx.recipe;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import io.netty.buffer.ByteBuf;
 import java.util.Locale;
 import java.util.Optional;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ByIdMap;
 
 public enum BenchTier {
     HAND(0, 0.0),
@@ -22,6 +28,16 @@ public enum BenchTier {
         this.capability = capability;
         this.speedBonus = speedBonus;
     }
+
+    public static final Codec<BenchTier> CODEC = Codec.STRING.comapFlatMap(
+            name -> fromSerializedName(name)
+                    .map(DataResult::success)
+                    .orElseGet(() -> DataResult.error(() -> "Unknown workbench tier: " + name)),
+            BenchTier::serializedName);
+
+    public static final StreamCodec<ByteBuf, BenchTier> STREAM_CODEC = ByteBufCodecs.idMapper(
+            ByIdMap.continuous(BenchTier::ordinal, BenchTier.values(), ByIdMap.OutOfBoundsStrategy.ZERO),
+            BenchTier::ordinal);
 
     public double speedBonus() {
         return speedBonus;

@@ -556,10 +556,14 @@ class GeneratedResourceTest {
 
     @Test
     void copperToIronProgressionDataIsComplete() {
-        for (String recipe : List.of("flint_shovel", "cobblestone_furnace", "iron_pickaxe")) {
+        for (String recipe : List.of("flint_shovel", "iron_pickaxe")) {
             assertTrue(
                     Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")),
                     recipe);
+            assertTrue(
+                    Files.isRegularFile(
+                            GENERATED.resolve("data/infx/recipe_rules/" + recipe + ".json")),
+                    recipe + " rule");
         }
         for (String advancement : List.of(
                 "flint_kit", "first_furnace", "copper_workbench", "iron_age")) {
@@ -568,14 +572,27 @@ class GeneratedResourceTest {
                             GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
                     advancement);
         }
-        for (String disabled : List.of(
+        for (String restored : List.of(
                 "iron_ingot_from_blasting_deepslate_iron_ore",
                 "iron_ingot_from_blasting_iron_ore",
-                "iron_ingot_from_blasting_raw_iron",
+                "iron_ingot_from_blasting_raw_iron")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must be restored to vanilla");
+        }
+        for (String disabled : List.of(
+                "netherite_axe_smithing",
+                "netherite_sword_smithing",
                 "iron_pickaxe")) {
-            assertTrue(
-                    Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled);
+            if (disabled.endsWith("_smithing")) {
+                assertTrue(
+                        Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                        disabled);
+            } else {
+                assertFalse(
+                        Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                        disabled + " must be disabled by the recipe removal instead");
+            }
         }
     }
 
@@ -596,11 +613,13 @@ class GeneratedResourceTest {
         for (var entry : difficulties.entrySet()) {
             String recipeName = entry.getKey();
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
             String requiredBench = recipeName.substring(0, recipeName.indexOf('_'));
             assertAll(
                     recipeName,
-                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals(requiredBench, recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), recipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(requiredBench, recipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "infx:" + recipeName,
                             recipe.getAsJsonObject("result").get("id").getAsString()));
@@ -612,9 +631,9 @@ class GeneratedResourceTest {
                     advancement);
         }
         for (String disabled : List.of("iron_axe", "iron_hoe", "iron_shovel", "iron_sword")) {
-            assertTrue(
-                    Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled);
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must be disabled by the recipe removal instead");
         }
     }
 
@@ -648,80 +667,90 @@ class GeneratedResourceTest {
             for (String tool : ingotCounts.keySet()) {
                 String recipeName = material.getKey() + "_" + tool;
                 JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
                 float expectedDifficulty = material.getValue() * ingotCounts.get(tool) + 25.0F * stickCounts.get(tool);
                 assertAll(
                         recipeName,
-                        () -> assertEquals(expectedDifficulty, recipe.get("difficulty").getAsFloat()),
-                        () -> assertEquals(toolBenches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                        () -> assertEquals(expectedDifficulty, recipeRule.get("difficulty").getAsFloat()),
+                        () -> assertEquals(toolBenches.get(material.getKey()), recipeRule.get("workbench_tier").getAsString()),
                         () -> assertEquals(
                                 "infx:" + recipeName,
                                 recipe.getAsJsonObject("result").get("id").getAsString()));
             }
         }
 
-        Map<String, Float> allMetalDifficulties = Map.ofEntries(
-                Map.entry("copper", 400.0F),
+        Map<String, Float> infxMetalDifficulties = Map.ofEntries(
                 Map.entry("silver", 400.0F),
-                Map.entry("gold", 400.0F),
-                Map.entry("iron", 800.0F),
                 Map.entry("ancient_metal", 1600.0F),
                 Map.entry("mithril", 6400.0F),
                 Map.entry("adamantium", 25600.0F));
-        Set<String> vanillaMetals = Set.of("copper", "gold", "iron");
-        for (var material : allMetalDifficulties.entrySet()) {
-            String namespace = vanillaMetals.contains(material.getKey()) ? "minecraft" : "infx";
+        for (var material : infxMetalDifficulties.entrySet()) {
             JsonObject ingotRecipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + material.getKey() + "_ingot_from_nuggets.json"));
+                    JsonObject ingotRecipeRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + material.getKey() + "_ingot_from_nuggets.json"));
             JsonObject nuggetRecipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + material.getKey() + "_nuggets_from_ingot.json"));
+                    JsonObject nuggetRecipeRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + material.getKey() + "_nuggets_from_ingot.json"));
             assertAll(
                     material.getKey() + " conversions",
-                    () -> assertEquals(material.getValue(), ingotRecipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals("flint", ingotRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(material.getValue(), ingotRecipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("flint", ingotRecipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
-                            namespace + ":" + material.getKey() + "_ingot",
+                            "infx:" + material.getKey() + "_ingot",
                             ingotRecipe.getAsJsonObject("result").get("id").getAsString()),
-                    () -> assertEquals(material.getValue(), nuggetRecipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals("hand", nuggetRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(material.getValue(), nuggetRecipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", nuggetRecipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(9, nuggetRecipe.getAsJsonObject("result").get("count").getAsInt()),
                     () -> assertEquals(
-                            namespace + ":" + material.getKey() + "_nugget",
+                            "infx:" + material.getKey() + "_nugget",
                             nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
+        }
+        // Copper, gold and iron conversions are restored vanilla recipes now.
+        for (String vanillaMetal : List.of("copper", "gold", "iron")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve(
+                            "data/infx/recipe/" + vanillaMetal + "_ingot_from_nuggets.json")),
+                    vanillaMetal + " ingot conversion must come from vanilla");
         }
 
         for (String material : List.of("copper", "silver", "gold", "ancient_metal", "mithril", "adamantium")) {
-            String nuggetNamespace = vanillaMetals.contains(material) ? "minecraft" : "infx";
+            String nuggetNamespace = Set.of("copper", "gold", "iron").contains(material) ? "minecraft" : "infx";
             JsonObject coinRecipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + material + "_coin_from_nugget.json"));
+                    JsonObject coinRecipeRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + material + "_coin_from_nugget.json"));
             JsonObject nuggetRecipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + material + "_nugget_from_coin.json"));
+                    JsonObject nuggetRecipeRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + material + "_nugget_from_coin.json"));
             assertAll(
                     material + " coin conversions",
-                    () -> assertEquals(100.0F, coinRecipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals("hand", coinRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(100.0F, coinRecipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", coinRecipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "infx:" + material + "_coin",
                             coinRecipe.getAsJsonObject("result").get("id").getAsString()),
-                    () -> assertEquals(25.0F, nuggetRecipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals("hand", nuggetRecipe.get("required_bench").getAsString()),
+                    () -> assertEquals(25.0F, nuggetRecipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", nuggetRecipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             nuggetNamespace + ":" + material + "_nugget",
                             nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
-        for (String disabled : List.of(
-                "gold_ingot_from_nuggets",
-                "gold_nugget",
-                "iron_ingot_from_nuggets",
-                "iron_nugget",
-                "golden_axe",
-                "golden_hoe",
-                "golden_pickaxe",
-                "golden_shovel",
-                "golden_sword")) {
-            assertTrue(
-                    Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
-                    disabled);
+        // The gold/iron conversion recipes are restored vanilla recipes; the
+        // golden weapon/tool recipes stay disabled through the recipe removal.
+        for (String restored : List.of("gold_ingot_from_nuggets", "gold_nugget", "iron_ingot_from_nuggets", "iron_nugget")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must be restored to vanilla");
+        }
+        for (String disabled : List.of("golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must be disabled by the recipe removal instead");
         }
 
         Map<String, List<String>> advancementRecipes = Map.of(
@@ -779,12 +808,14 @@ class GeneratedResourceTest {
             for (String type : ingotCounts.keySet()) {
                 String recipeName = material.getKey() + "_" + type;
                 JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
                 float expectedDifficulty = material.getValue() * ingotCounts.get(type)
                         + 25.0F * stickCounts.get(type);
                 assertAll(
                         recipeName,
-                        () -> assertEquals(expectedDifficulty, recipe.get("difficulty").getAsFloat()),
-                        () -> assertEquals(benches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                        () -> assertEquals(expectedDifficulty, recipeRule.get("difficulty").getAsFloat()),
+                        () -> assertEquals(benches.get(material.getKey()), recipeRule.get("workbench_tier").getAsString()),
                         () -> assertEquals(
                                 "infx:" + recipeName,
                                 recipe.getAsJsonObject("result").get("id").getAsString()));
@@ -797,16 +828,18 @@ class GeneratedResourceTest {
                 "obsidian_axe", 795.0F);
         for (var entry : obsidianDifficulties.entrySet()) {
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + entry.getKey() + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve("data/infx/recipe_rules/" + entry.getKey() + ".json"));
             String requiredBench = entry.getKey().equals("obsidian_hatchet") ? "hand" : "flint";
             assertAll(
                     entry.getKey(),
-                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals(requiredBench, recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), recipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(requiredBench, recipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "infx:" + entry.getKey(),
                             recipe.getAsJsonObject("result").get("id").getAsString()));
         }
-        assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/shears.json")));
+        assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/shears.json")),
+                "shears must be disabled by the recipe removal instead");
 
         Map<String, List<String>> advancementRecipes = Map.of(
                 "flint_kit",
@@ -852,10 +885,12 @@ class GeneratedResourceTest {
         for (var entry : fixedDifficulties.entrySet()) {
             String recipeName = entry.getKey();
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
             assertAll(
                     recipeName,
-                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals(fixedBenches.get(recipeName), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), recipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(fixedBenches.get(recipeName), recipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "infx:" + recipeName,
                             recipe.getAsJsonObject("result").get("id").getAsString()));
@@ -880,10 +915,12 @@ class GeneratedResourceTest {
         for (var material : ingotDifficulties.entrySet()) {
             String recipeName = material.getKey() + "_dagger";
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
             assertAll(
                     recipeName,
-                    () -> assertEquals(material.getValue() + 25.0F, recipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals(benches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(material.getValue() + 25.0F, recipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(benches.get(material.getKey()), recipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "infx:" + recipeName,
                             recipe.getAsJsonObject("result").get("id").getAsString()));
@@ -912,18 +949,21 @@ class GeneratedResourceTest {
         for (var material : arrowheadDifficulties.entrySet()) {
             String recipeName = material.getKey() + "_arrow";
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
             JsonObject result = recipe.getAsJsonObject("result");
             int count = result.has("count") ? result.get("count").getAsInt() : 1;
             assertAll(
                     recipeName,
-                    () -> assertEquals(material.getValue() + 50.0F, recipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals(arrowBenches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(material.getValue() + 50.0F, recipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(arrowBenches.get(material.getKey()), recipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals("infx:" + recipeName, result.get("id").getAsString()),
                     () -> assertEquals(1, count));
         }
 
         for (String disabled : List.of("arrow", "bow")) {
-            assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")));
+            assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must be disabled by the recipe removal instead");
         }
         String flintKit = Files.readString(
                 GENERATED.resolve("data/infx/advancement/progression/flint_kit.json"), UTF_8);
@@ -969,17 +1009,21 @@ class GeneratedResourceTest {
             float expectedDifficulty = material.getValue() * 4.0F / 9.0F;
             JsonObject chain = json(GENERATED.resolve(
                     "data/infx/recipe/" + material.getKey() + "_chain_from_nuggets.json"));
+                    JsonObject chainRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + material.getKey() + "_chain_from_nuggets.json"));
             JsonObject nuggets = json(GENERATED.resolve(
                     "data/infx/recipe/" + material.getKey() + "_nuggets_from_chain.json"));
+            JsonObject nuggetsRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + material.getKey() + "_nuggets_from_chain.json"));
             assertAll(
                     material.getKey() + " chain conversions",
-                    () -> assertEquals(expectedDifficulty, chain.get("difficulty").getAsFloat()),
-                    () -> assertEquals(benches.get(material.getKey()), chain.get("required_bench").getAsString()),
+                    () -> assertEquals(expectedDifficulty, chainRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(benches.get(material.getKey()), chainRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "infx:" + material.getKey() + "_chain",
                             chain.getAsJsonObject("result").get("id").getAsString()),
-                    () -> assertEquals(expectedDifficulty, nuggets.get("difficulty").getAsFloat()),
-                    () -> assertEquals("hand", nuggets.get("required_bench").getAsString()),
+                    () -> assertEquals(expectedDifficulty, nuggetsRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", nuggetsRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(4, nuggets.getAsJsonObject("result").get("count").getAsInt()));
         }
 
@@ -1001,6 +1045,8 @@ class GeneratedResourceTest {
             for (var piece : platePieces.entrySet()) {
                 String recipeName = material.getKey() + "_" + piece.getKey();
                 JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
                 String expectedBench = material.getKey().equals("leather")
                         ? "flint"
                         : benches.get(material.getKey());
@@ -1008,8 +1054,8 @@ class GeneratedResourceTest {
                         recipeName,
                         () -> assertEquals(
                                 material.getValue() * piece.getValue(),
-                                recipe.get("difficulty").getAsFloat()),
-                        () -> assertEquals(expectedBench, recipe.get("required_bench").getAsString()),
+                                recipeRule.get("difficulty").getAsFloat()),
+                        () -> assertEquals(expectedBench, recipeRule.get("workbench_tier").getAsString()),
                         () -> assertEquals(
                                 "infx:" + recipeName,
                                 recipe.getAsJsonObject("result").get("id").getAsString()));
@@ -1034,12 +1080,14 @@ class GeneratedResourceTest {
             for (var piece : chainPieces.entrySet()) {
                 String recipeName = material.getKey() + "_" + piece.getKey();
                 JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + recipeName + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + recipeName + ".json"));
                 assertAll(
                         recipeName,
                         () -> assertEquals(
                                 material.getValue() * piece.getValue(),
-                                recipe.get("difficulty").getAsFloat()),
-                        () -> assertEquals(benches.get(material.getKey()), recipe.get("required_bench").getAsString()),
+                                recipeRule.get("difficulty").getAsFloat()),
+                        () -> assertEquals(benches.get(material.getKey()), recipeRule.get("workbench_tier").getAsString()),
                         () -> assertEquals(
                                 "infx:" + recipeName,
                                 recipe.getAsJsonObject("result").get("id").getAsString()));
@@ -1052,7 +1100,9 @@ class GeneratedResourceTest {
         for (String material : ingotDifficulties.keySet()) {
             assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/" + material + "_horse_armor.json")));
         }
-        for (String disabled : List.of(
+        // Vanilla armor crafting recipes are restored; only the netherite
+        // weapon/tool smithing upgrades keep a disabled override file.
+        for (String restored : List.of(
                 "leather_helmet",
                 "leather_chestplate",
                 "leather_leggings",
@@ -1065,7 +1115,8 @@ class GeneratedResourceTest {
                 "iron_chestplate",
                 "iron_leggings",
                 "iron_boots")) {
-            assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")));
+            assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must be restored to vanilla");
         }
 
         String metalArmor = Files.readString(
@@ -2566,6 +2617,8 @@ class GeneratedResourceTest {
         for (var entry : difficulties.entrySet()) {
             String path = entry.getKey() + "_anvil";
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + path + ".json"));
+            JsonObject recipeRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + path + ".json"));
             assertAll(
                     path,
                     () -> assertTrue(Files.isRegularFile(
@@ -2582,8 +2635,8 @@ class GeneratedResourceTest {
                             GENERATED.resolve("assets/infx/models/block/" + path + "_stage_2.json"))),
                     () -> assertTrue(english.has("block.infx." + path)),
                     () -> assertTrue(chinese.has("block.infx." + path)),
-                    () -> assertEquals(entry.getValue(), recipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals(entry.getKey(), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), recipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals(entry.getKey(), recipeRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             "[\"BBB\",\" I \",\"III\"]",
                             recipe.getAsJsonArray("pattern").toString()),
@@ -2600,13 +2653,17 @@ class GeneratedResourceTest {
         for (var entry : storageDifficulties.entrySet()) {
             JsonObject blockRecipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + entry.getKey() + "_block.json"));
+                    JsonObject blockRecipeRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + entry.getKey() + "_block.json"));
             JsonObject ingotRecipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + entry.getKey() + "_block_to_ingots.json"));
+                    JsonObject ingotRecipeRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + entry.getKey() + "_block_to_ingots.json"));
             assertAll(
                     entry.getKey() + " storage",
-                    () -> assertEquals(entry.getValue(), blockRecipe.get("difficulty").getAsFloat()),
-                    () -> assertEquals("flint", blockRecipe.get("required_bench").getAsString()),
-                    () -> assertEquals(entry.getValue(), ingotRecipe.get("difficulty").getAsFloat()),
+                    () -> assertEquals(entry.getValue(), blockRecipeRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("flint", blockRecipeRule.get("workbench_tier").getAsString()),
+                    () -> assertEquals(entry.getValue(), ingotRecipeRule.get("difficulty").getAsFloat()),
                     () -> assertEquals(9, ingotRecipe.getAsJsonObject("result").get("count").getAsInt()));
         }
 
@@ -2623,16 +2680,20 @@ class GeneratedResourceTest {
         for (var entry : shardDifficulties.entrySet()) {
             JsonObject combine = json(GENERATED.resolve(
                     "data/infx/recipe/" + entry.getKey() + "_from_shards.json"));
+                    JsonObject combineRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + entry.getKey() + "_from_shards.json"));
             JsonObject split = json(GENERATED.resolve(
                     "data/infx/recipe/" + entry.getKey() + "_to_shards.json"));
+                    JsonObject splitRule = json(GENERATED.resolve(
+                            "data/infx/recipe_rules/" + entry.getKey() + "_to_shards.json"));
             assertAll(
                     entry.getKey() + " shards",
-                    () -> assertEquals(entry.getValue(), combine.get("difficulty").getAsFloat()),
-                    () -> assertEquals("flint", combine.get("required_bench").getAsString()),
+                    () -> assertEquals(entry.getValue(), combineRule.get("difficulty").getAsFloat()),
+                    () -> assertEquals("flint", combineRule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
                             shardResults.get(entry.getKey()),
                             combine.getAsJsonObject("result").get("id").getAsString()),
-                    () -> assertEquals(entry.getValue(), split.get("difficulty").getAsFloat()),
+                    () -> assertEquals(entry.getValue(), splitRule.get("difficulty").getAsFloat()),
                     () -> assertEquals(9, split.getAsJsonObject("result").get("count").getAsInt()));
         }
     }
@@ -2640,95 +2701,44 @@ class GeneratedResourceTest {
     @Test
     void recipeTableOverridesMatchTheReferenceRecipes() throws Exception {
         Map<String, String> shapedPatterns = Map.ofEntries(
-                Map.entry("stick", "[\"P\",\"P\"]"),
-                Map.entry("sugar_from_sugar_cane", "[\"C\"]"),
                 Map.entry("flour", "[\"WWW\"]"),
                 Map.entry("dough_from_water_bucket", "[\"F F\",\" W \",\"F F\"]"),
                 Map.entry("flint_from_flint_chips", "[\"FF\",\"FF\"]"),
-                Map.entry("pumpkin_pie", "[\"PF\",\"SE\"]"),
-                Map.entry("cake", "[\"FS\",\"EM\"]"),
-                Map.entry("cake_from_milk_bowl", "[\"FS\",\"EM\"]"),
-                Map.entry("mushroom_stew", "[\"RB\",\"W \"]"),
-                Map.entry("stone_from_cobblestone", "[\"CC\",\"CC\"]"),
-                Map.entry("stone_bricks", "[\"SS\",\"SS\"]"),
-                Map.entry("compass", "[\"NNN\",\"NRN\",\"NNN\"]"),
-                Map.entry("clock", "[\"NNN\",\"NRN\",\"NNN\"]"),
-                Map.entry("flint_and_steel", "[\"N \",\" F\"]"),
-                Map.entry("glass_pane", "[\"G\"]"),
-                Map.entry("bricks", "[\"BBB\",\"BSB\",\"BBB\"]"),
-                Map.entry("snow", "[\"S\"]"),
                 Map.entry("snow_slab", "[\"SS\",\"SS\"]"),
-                Map.entry("snow_block", "[\"S\",\"S\"]"),
-                Map.entry("oak_sign", "[\"W\",\"S\"]"),
-                Map.entry("oak_fence", "[\"SSS\",\"SSS\"]"),
-                Map.entry("ladder", "[\"S S\",\"S S\",\"S S\"]"),
-                Map.entry("nether_bricks", "[\"BBB\",\"BSB\",\"BBB\"]"),
-                Map.entry("saddle", "[\"LLL\",\"L L\",\"N N\"]"));
+                Map.entry("flint_and_steel", "[\"N \",\" F\"]"),
+                Map.entry("lead", "[\"~~ \",\"~O \",\"  ~\"]"),
+                Map.entry("lead_from_sinew", "[\"~~ \",\"~O \",\"  ~\"]"));
         for (var entry : shapedPatterns.entrySet()) {
             JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + entry.getKey() + ".json"));
             assertEquals(entry.getValue(), recipe.getAsJsonArray("pattern").toString(), entry.getKey());
+            JsonObject rule = json(GENERATED.resolve("data/infx/recipe_rules/" + entry.getKey() + ".json"));
+            assertEquals("\"infx:" + entry.getKey() + "\"", rule.get("target").toString(), entry.getKey() + " rule target");
         }
 
         JsonObject dough = json(GENERATED.resolve("data/infx/recipe/dough.json"));
-        JsonObject boneMeal = json(GENERATED.resolve("data/infx/recipe/bone_meal.json"));
-        JsonObject stick = json(GENERATED.resolve("data/infx/recipe/stick.json"));
-        JsonObject sugar = json(GENERATED.resolve("data/infx/recipe/sugar_from_sugar_cane.json"));
         JsonObject flintFromChips = json(GENERATED.resolve("data/infx/recipe/flint_from_flint_chips.json"));
-        JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
-        JsonObject cakeFromMilkBowl = json(GENERATED.resolve("data/infx/recipe/cake_from_milk_bowl.json"));
-        JsonObject mushroomStew = json(GENERATED.resolve("data/infx/recipe/mushroom_stew.json"));
         JsonObject snowSlab = json(GENERATED.resolve("data/infx/recipe/snow_slab.json"));
+        JsonObject snowSlabRule = json(GENERATED.resolve("data/infx/recipe_rules/snow_slab.json"));
+        JsonObject flintAndSteelRule = json(GENERATED.resolve("data/infx/recipe_rules/flint_and_steel.json"));
         JsonObject snowSlabModel = json(GENERATED.resolve("assets/infx/models/block/snow_slab.json"));
-        JsonObject saddle = json(GENERATED.resolve("data/infx/recipe/saddle.json"));
         JsonObject english = json(GENERATED.resolve("assets/infx/lang/en_us.json"));
         JsonObject chinese = json(GENERATED.resolve("assets/infx/lang/zh_cn.json"));
         assertAll(
                 "InfX recipe table",
-                () -> assertEquals("infx:crafting_shapeless", dough.get("type").getAsString()),
-                () -> assertEquals("infx:crafting_shaped", stick.get("type").getAsString()),
-                () -> assertEquals("hand", stick.get("required_bench").getAsString()),
-                () -> assertEquals(160.0F, stick.get("difficulty").getAsFloat()),
+                () -> assertEquals("minecraft:crafting_shapeless", dough.get("type").getAsString()),
                 () -> assertEquals(
-                        "#minecraft:planks", stick.getAsJsonObject("key").get("P").getAsString()),
-                () -> assertEquals(
-                        "minecraft:stick", stick.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertEquals(4, stick.getAsJsonObject("result").get("count").getAsInt()),
-                () -> assertEquals("infx:crafting_shapeless", boneMeal.get("type").getAsString()),
-                () -> assertEquals("hand", boneMeal.get("required_bench").getAsString()),
-                () -> assertEquals(100.0F, boneMeal.get("difficulty").getAsFloat()),
-                () -> assertEquals(
-                        "minecraft:bone",
-                        boneMeal.getAsJsonArray("ingredients").get(0).getAsString()),
-                () -> assertEquals(
-                        "minecraft:bone_meal",
-                        boneMeal.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertFalse(boneMeal.getAsJsonObject("result").has("count")),
-                () -> assertEquals(800.0F, sugar.get("difficulty").getAsFloat()),
-                () -> assertEquals("hand", sugar.get("required_bench").getAsString()),
-                () -> assertEquals(
-                        "minecraft:sugar_cane", sugar.getAsJsonObject("key").get("C").getAsString()),
-                () -> assertEquals(
-                        "minecraft:sugar", sugar.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertEquals(100.0F, flintFromChips.get("difficulty").getAsFloat()),
-                () -> assertEquals("hand", flintFromChips.get("required_bench").getAsString()),
+                        "infx:dough", dough.getAsJsonObject("result").get("id").getAsString()),
                 () -> assertEquals(
                         "infx:flint_chip", flintFromChips.getAsJsonObject("key").get("F").getAsString()),
                 () -> assertEquals(
                         "minecraft:flint", flintFromChips.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertEquals(
-                        "#infx:milk_buckets",
-                        cake.getAsJsonObject("key").get("M").getAsString()),
-                () -> assertEquals(
-                        "infx:milk_bowl",
-                        cakeFromMilkBowl.getAsJsonObject("key").get("M").getAsString()),
-                () -> assertEquals(
-                        "infx:water_bowl",
-                        mushroomStew.getAsJsonObject("key").get("W").getAsString()),
+                () -> assertEquals(100.0F, flintAndSteelRule.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", flintAndSteelRule.get("workbench_tier").getAsString()),
                 () -> assertEquals(
                         "infx:snow_slab",
                         snowSlab.getAsJsonObject("result").get("id").getAsString()),
-                () -> assertFalse(saddle.getAsJsonObject("result").has("count"),
-                        "InfX saddle outputs a single item"),
+                () -> assertEquals(100.0F, snowSlabRule.get("difficulty").getAsFloat()),
+                () -> assertEquals("hand", snowSlabRule.get("workbench_tier").getAsString()),
                 () -> assertTrue(Files.isRegularFile(
                         GENERATED.resolve("assets/infx/blockstates/snow_slab.json"))),
                 () -> assertTrue(Files.isRegularFile(
@@ -2743,13 +2753,14 @@ class GeneratedResourceTest {
                 () -> assertEquals("Snow Slab", english.get("block.infx.snow_slab").getAsString()),
                 () -> assertEquals("雪台阶", chinese.get("block.infx.snow_slab").getAsString()));
 
-        for (String disabled : List.of(
+        // Recipes that were re-generated under the INFX namespace are restored
+        // to vanilla and must not carry a disabled override file anymore.
+        for (String restored : List.of(
                 "bricks",
                 "bone_meal",
                 "chiseled_stone_bricks",
                 "clock",
                 "compass",
-                "flint_and_steel",
                 "glass_pane",
                 "ladder",
                 "melon",
@@ -2762,16 +2773,17 @@ class GeneratedResourceTest {
                 "stick",
                 "stone",
                 "stone_bricks")) {
-            JsonObject recipe = json(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json"));
-            assertEquals(
-                    "neoforge:never",
-                    recipe.getAsJsonArray("neoforge:conditions")
-                            .get(0)
-                            .getAsJsonObject()
-                            .get("type")
-                            .getAsString(),
-                    disabled);
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must be restored to vanilla");
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/infx/recipe/" + restored + ".json")),
+                    "infx:" + restored + " duplicate must be gone");
         }
+        // flint_and_steel stays an INFX recipe because the vanilla tool recipe
+        // remains disabled by the recipe removal.
+        assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/flint_and_steel.json")));
+        assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/flint_and_steel.json")));
     }
 
     @Test
@@ -2815,27 +2827,35 @@ class GeneratedResourceTest {
             assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/" + recipe + ".json")));
         }
         for (String disabled : List.of("glass", "sandstone", "smooth_sandstone")) {
-            assertTrue(Files.isRegularFile(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")));
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must be restored to vanilla");
         }
 
         JsonObject clay = json(GENERATED.resolve("data/infx/recipe/clay_furnace.json"));
         JsonObject sandstone = json(GENERATED.resolve("data/infx/recipe/sandstone_furnace.json"));
         JsonObject hardenedClay =
                 json(GENERATED.resolve("data/infx/recipe/hardened_clay_furnace.json"));
+        JsonObject hardenedClayRule =
+                json(GENERATED.resolve("data/infx/recipe_rules/hardened_clay_furnace.json"));
+        JsonObject clayRule = json(GENERATED.resolve("data/infx/recipe_rules/clay_furnace.json"));
+        JsonObject sandstoneRule = json(GENERATED.resolve("data/infx/recipe_rules/sandstone_furnace.json"));
+        JsonObject obsidianRule = json(GENERATED.resolve("data/infx/recipe_rules/obsidian_furnace.json"));
+        JsonObject netherrackRule = json(GENERATED.resolve("data/infx/recipe_rules/netherrack_furnace.json"));
         JsonObject obsidian = json(GENERATED.resolve("data/infx/recipe/obsidian_furnace.json"));
         JsonObject netherrack = json(GENERATED.resolve("data/infx/recipe/netherrack_furnace.json"));
         assertAll(
                 "INFX furnace crafting",
-                () -> assertEquals("hand", clay.get("required_bench").getAsString()),
-                () -> assertEquals(320.0F, clay.get("difficulty").getAsFloat()),
-                () -> assertEquals("flint", sandstone.get("required_bench").getAsString()),
-                () -> assertEquals(640.0F, sandstone.get("difficulty").getAsFloat()),
-                () -> assertEquals("flint", hardenedClay.get("required_bench").getAsString()),
-                () -> assertEquals(1440.0F, hardenedClay.get("difficulty").getAsFloat()),
-                () -> assertEquals("flint", obsidian.get("required_bench").getAsString()),
-                () -> assertEquals(1920.0F, obsidian.get("difficulty").getAsFloat()),
-                () -> assertEquals("flint", netherrack.get("required_bench").getAsString()),
-                () -> assertEquals(1280.0F, netherrack.get("difficulty").getAsFloat()));
+                () -> assertEquals("hand", clayRule.get("workbench_tier").getAsString()),
+                () -> assertEquals(320.0F, clayRule.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", sandstoneRule.get("workbench_tier").getAsString()),
+                () -> assertEquals(640.0F, sandstoneRule.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", hardenedClayRule.get("workbench_tier").getAsString()),
+                () -> assertEquals(1440.0F, hardenedClayRule.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", obsidianRule.get("workbench_tier").getAsString()),
+                () -> assertEquals(1920.0F, obsidianRule.get("difficulty").getAsFloat()),
+                () -> assertEquals("flint", netherrackRule.get("workbench_tier").getAsString()),
+                () -> assertEquals(1280.0F, netherrackRule.get("difficulty").getAsFloat()));
     }
 
     @Test
@@ -2880,52 +2900,51 @@ class GeneratedResourceTest {
                 || Files.isRegularFile(GENERATED.resolve(relativePath));
     }
 
-    /** The vanilla crafting table recipes removed for InfX must be restored as INFX timed recipes. */
+    /** The vanilla recipes once re-generated by InfX are restored and must not have INFX copies. */
     @Test
-    void restoredVanillaRecipesExistWithCounts() throws Exception {
-        record Expectation(String path, String result, int count) {}
-        List<Expectation> expectations = List.of(
-                new Expectation("stick", "minecraft:stick", 4),
-                new Expectation("bowl", "minecraft:bowl", 4),
-                new Expectation("white_wool_from_string", "minecraft:white_wool", 1),
-                new Expectation("raw_copper_block", "minecraft:raw_copper_block", 1),
-                new Expectation("raw_copper_block_to_raw_copper", "minecraft:raw_copper", 9),
-                new Expectation("raw_iron_block", "minecraft:raw_iron_block", 1),
-                new Expectation("raw_iron_block_to_raw_iron", "minecraft:raw_iron", 9),
-                new Expectation("raw_gold_block", "minecraft:raw_gold_block", 1),
-                new Expectation("raw_gold_block_to_raw_gold", "minecraft:raw_gold", 9),
-                new Expectation("beetroot_soup", "minecraft:beetroot_soup", 1),
-                new Expectation("rabbit_stew", "minecraft:rabbit_stew", 1),
-                new Expectation("cookie", "minecraft:cookie", 8),
-                new Expectation("melon_seeds", "minecraft:melon_seeds", 1),
-                new Expectation("wheat_seeds", "minecraft:wheat_seeds", 1),
-                new Expectation("white_dye_from_bone_meal", "minecraft:white_dye", 1),
-                new Expectation("black_dye_from_ink_sac", "minecraft:black_dye", 1),
-                new Expectation("brown_dye_from_cocoa_beans", "minecraft:brown_dye", 1),
-                new Expectation("red_dye_from_poppy", "minecraft:red_dye", 1),
-                new Expectation("yellow_dye_from_dandelion", "minecraft:yellow_dye", 1),
-                new Expectation("blue_dye_from_lapis_lazuli", "minecraft:blue_dye", 1),
-                new Expectation("gray_dye", "minecraft:gray_dye", 2),
-                new Expectation("light_gray_dye_from_gray_white_dye", "minecraft:light_gray_dye", 2),
-                new Expectation("cyan_dye", "minecraft:cyan_dye", 2),
-                new Expectation("lime_dye", "minecraft:lime_dye", 2),
-                new Expectation("purple_dye", "minecraft:purple_dye", 2),
-                new Expectation("magenta_dye_from_purple_and_pink", "minecraft:magenta_dye", 2),
-                new Expectation("orange_dye_from_red_yellow", "minecraft:orange_dye", 2),
-                new Expectation("pink_dye_from_red_white_dye", "minecraft:pink_dye", 2),
-                new Expectation("light_blue_dye_from_blue_white_dye", "minecraft:light_blue_dye", 2));
-        for (Expectation expectation : expectations) {
-            JsonObject recipe = json(GENERATED.resolve("data/infx/recipe/" + expectation.path + ".json"));
-            assertAll(
-                    expectation.path,
-                    () -> {
-                        JsonObject result = recipe.getAsJsonObject("result");
-                        assertEquals(expectation.result, result.get("id").getAsString());
-                        JsonElement count = result.get("count");
-                        assertEquals(expectation.count, count == null ? 1 : count.getAsInt());
-                    });
+    void restoredVanillaRecipesHaveNoInfiniteXCopies() {
+        List<String> restored = List.of(
+                "stick",
+                "bowl",
+                "white_wool_from_string",
+                "raw_copper_block",
+                "raw_copper_block_to_raw_copper",
+                "raw_iron_block",
+                "raw_iron_block_to_raw_iron",
+                "raw_gold_block",
+                "raw_gold_block_to_raw_gold",
+                "beetroot_soup",
+                "rabbit_stew",
+                "cookie",
+                "melon_seeds",
+                "wheat_seeds",
+                "white_dye_from_bone_meal",
+                "black_dye_from_ink_sac",
+                "brown_dye_from_cocoa_beans",
+                "red_dye_from_poppy",
+                "yellow_dye_from_dandelion",
+                "blue_dye_from_lapis_lazuli",
+                "gray_dye",
+                "light_gray_dye_from_gray_white_dye",
+                "cyan_dye",
+                "lime_dye",
+                "purple_dye",
+                "magenta_dye_from_purple_and_pink",
+                "orange_dye_from_red_yellow",
+                "pink_dye_from_red_white_dye",
+                "light_blue_dye_from_blue_white_dye",
+                "oak_planks",
+                "bone_meal",
+                "sugar_from_sugar_cane",
+                "glass_bottle");
+        for (String path : restored) {
+            assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/" + path + ".json")),
+                    "infx:" + path + " duplicate must be gone (vanilla restored)");
+            assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe_rules/" + path + ".json")),
+                    "infx:" + path + " rule must be gone with the duplicate");
         }
     }
+
 
     @Test
     void runeStonesHaveR196NuggetRecipesAndModernBypassesStayDisabled() throws Exception {
@@ -2937,12 +2956,14 @@ class GeneratedResourceTest {
         for (var entry : runes.entrySet()) {
             JsonObject recipe = json(GENERATED.resolve(
                     "data/infx/recipe/" + entry.getKey() + "_rune_stone.json"));
+            JsonObject rule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + entry.getKey() + "_rune_stone.json"));
             assertAll(
                     entry.getKey() + " rune stone",
-                    () -> assertEquals("infx:crafting_shaped", recipe.get("type").getAsString()),
-                    () -> assertEquals(entry.getValue().get("bench"), recipe.get("required_bench").getAsString()),
+                    () -> assertEquals("minecraft:crafting_shaped", recipe.get("type").getAsString()),
+                    () -> assertEquals(entry.getValue().get("bench"), rule.get("workbench_tier").getAsString()),
                     () -> assertEquals(
-                            (Float) entry.getValue().get("difficulty"), recipe.get("difficulty").getAsFloat()),
+                            (Float) entry.getValue().get("difficulty"), rule.get("difficulty").getAsFloat()),
                     () -> assertEquals(
                             entry.getValue().get("nugget"),
                             recipe.getAsJsonObject("key").get("N").getAsString()),
@@ -2954,7 +2975,9 @@ class GeneratedResourceTest {
                             recipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
-        for (String disabled : List.of(
+        // Modern bypass recipes are restored to vanilla and must not carry a
+        // disabled override file anymore.
+        for (String restored : List.of(
                 "bundle",
                 "blue_bundle",
                 "copper_block",
@@ -2972,15 +2995,9 @@ class GeneratedResourceTest {
                 "netherite_upgrade_smithing_template",
                 "raw_copper",
                 "raw_copper_block")) {
-            JsonObject recipe = json(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json"));
-            assertEquals(
-                    "neoforge:never",
-                    recipe.getAsJsonArray("neoforge:conditions")
-                            .get(0)
-                            .getAsJsonObject()
-                            .get("type")
-                            .getAsString(),
-                    disabled);
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must be restored to vanilla");
         }
     }
 

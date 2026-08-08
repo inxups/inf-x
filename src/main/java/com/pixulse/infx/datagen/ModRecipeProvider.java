@@ -1,23 +1,22 @@
 package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.recipe.BenchTier;
-import com.pixulse.infx.recipe.TimedShapedRecipe;
-import com.pixulse.infx.recipe.TimedShapelessRecipe;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.RecipeRule;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -48,32 +47,21 @@ import org.jspecify.annotations.NonNull;
 final class ModRecipeProvider extends RecipeProvider {
     private static final float STICK_DIFFICULTY = 25.0F;
 
-    private ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+    /** Crafting rules emitted alongside the recipes, keyed by rule/recipe ID. */
+    private final Map<ResourceKey<Recipe<?>>, RecipeRule> recipeRules = new HashMap<>();
+
+    ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
+    }
+
+    Map<ResourceKey<Recipe<?>>, RecipeRule> recipeRules() {
+        return recipeRules;
     }
 
     @Override
     protected void buildRecipes() {
-        // INFX RecipesDyes: one bone produces exactly one bone meal, rather than vanilla's three.
-        addShapeless(
-                "bone_meal",
-                BenchTier.HAND,
-                100.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.BONE_MEAL,
-                1,
-                List.of(Ingredient.of(Items.BONE)));
-        addShaped(
-                "sugar_from_sugar_cane",
-                BenchTier.HAND,
-                800.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.SUGAR,
-                1,
-                Map.of('C', Ingredient.of(Items.SUGAR_CANE)),
-                List.of("C"));
+        // Flour is an INFX ingredient; the vanilla sugar and bone-meal recipes
+        // are restored from the vanilla pack and need no replacement here.
         addShaped(
                 "flour",
                 BenchTier.HAND,
@@ -271,56 +259,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 List.of(Ingredient.of(InfXItems.CHOCOLATE), Ingredient.of(InfXItems.MILK_BOWL),
                         Ingredient.of(Items.SNOWBALL)));
-        addShaped(
-                "pumpkin_pie",
-                BenchTier.FLINT,
-                350.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.PUMPKIN_PIE,
-                1,
-                Map.of('P', Ingredient.of(Items.PUMPKIN), 'F', Ingredient.of(InfXItems.FLOUR),
-                        'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
-                List.of("PF", "SE"));
-        addShaped(
-                "cake",
-                BenchTier.FLINT,
-                600.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.CAKE,
-                1,
-                Map.of(
-                        'M',
-                        ingredient(InfXItemTags.MILK_BUCKETS),
-                        'F',
-                        Ingredient.of(InfXItems.FLOUR),
-                        'S',
-                        Ingredient.of(Items.SUGAR),
-                        'E',
-                        Ingredient.of(Items.EGG)),
-                List.of("FS", "EM"));
-        addShaped(
-                "cake_from_milk_bowl",
-                BenchTier.FLINT,
-                600.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.CAKE,
-                1,
-                Map.of('M', Ingredient.of(InfXItems.MILK_BOWL), 'F', Ingredient.of(InfXItems.FLOUR),
-                        'S', Ingredient.of(Items.SUGAR), 'E', Ingredient.of(Items.EGG)),
-                List.of("FS", "EM"));
-        addShaped(
-                "golden_apple",
-                BenchTier.HAND,
-                500.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.GOLDEN_APPLE,
-                1,
-                Map.of('G', Ingredient.of(Items.GOLD_NUGGET), 'A', Ingredient.of(Items.APPLE)),
-                List.of("GGG", "GAG", "GGG"));
         // InfX recipe: golden apple + bottle o' enchanting makes an enchanted golden apple.
         addShapeless(
                 "enchanted_golden_apple",
@@ -333,17 +271,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 List.of(
                         Ingredient.of(Items.GOLDEN_APPLE),
                         Ingredient.of(Items.EXPERIENCE_BOTTLE)));
-        addShaped(
-                "mushroom_stew",
-                BenchTier.HAND,
-                150.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.MUSHROOM_STEW,
-                1,
-                Map.of('B', Ingredient.of(Items.BROWN_MUSHROOM), 'R', Ingredient.of(Items.RED_MUSHROOM),
-                        'W', Ingredient.of(InfXItems.WATER_BOWL)),
-                List.of("RB", "W "));
         addShapeless(
                 "bottle_of_disenchanting",
                 BenchTier.HAND,
@@ -741,10 +668,7 @@ final class ModRecipeProvider extends RecipeProvider {
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of(" N ", "NON", " N "));
         addMetalAnvilRecipes();
-        addMetalConversions("copper", 400.0F, Items.COPPER_NUGGET, Items.COPPER_INGOT);
         addMetalConversions("silver", 400.0F, InfXItems.SILVER_NUGGET, InfXItems.SILVER_INGOT);
-        addMetalConversions("gold", 400.0F, Items.GOLD_NUGGET, Items.GOLD_INGOT);
-        addMetalConversions("iron", 800.0F, Items.IRON_NUGGET, Items.IRON_INGOT);
         addMetalConversions(
                 "ancient_metal",
                 1600.0F,
@@ -784,18 +708,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 25600.0F,
                 InfXItems.ADAMANTIUM_NUGGET);
 
-        addPlanks("acacia", Items.ACACIA_PLANKS, ItemTags.ACACIA_LOGS, 4);
-        addPlanks("bamboo", Items.BAMBOO_PLANKS, ItemTags.BAMBOO_BLOCKS, 2);
-        addPlanks("birch", Items.BIRCH_PLANKS, ItemTags.BIRCH_LOGS, 4);
-        addPlanks("cherry", Items.CHERRY_PLANKS, ItemTags.CHERRY_LOGS, 4);
-        addPlanks("crimson", Items.CRIMSON_PLANKS, ItemTags.CRIMSON_STEMS, 4);
-        addPlanks("dark_oak", Items.DARK_OAK_PLANKS, ItemTags.DARK_OAK_LOGS, 4);
-        addPlanks("jungle", Items.JUNGLE_PLANKS, ItemTags.JUNGLE_LOGS, 4);
-        addPlanks("mangrove", Items.MANGROVE_PLANKS, ItemTags.MANGROVE_LOGS, 4);
-        addPlanks("oak", Items.OAK_PLANKS, ItemTags.OAK_LOGS, 4);
-        addPlanks("pale_oak", Items.PALE_OAK_PLANKS, ItemTags.PALE_OAK_LOGS, 4);
-        addPlanks("spruce", Items.SPRUCE_PLANKS, ItemTags.SPRUCE_LOGS, 4);
-        addPlanks("warped", Items.WARPED_PLANKS, ItemTags.WARPED_STEMS, 4);
 
         addCoreMetalTools(
                 "copper",
@@ -807,16 +719,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 InfXItems.COPPER_AXE,
                 InfXItems.COPPER_HOE,
                 InfXItems.COPPER_SWORD);
-        addShaped(
-                "cobblestone_furnace",
-                BenchTier.COPPER,
-                800.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.FURNACE,
-                1,
-                Map.of('C', Ingredient.of(Blocks.COBBLESTONE)),
-                List.of("CCC", "C C", "CCC"));
         addCoreMetalTools(
                 "iron",
                 BenchTier.IRON,
@@ -1294,45 +1196,17 @@ final class ModRecipeProvider extends RecipeProvider {
 
     private void addBlockRecipes() {
         addShaped(
-                "stone_from_cobblestone",
+                "snow_slab",
                 BenchTier.HAND,
-                200.0F,
+                100.0F,
                 CraftingBookCategory.BUILDING,
                 "",
-                Blocks.STONE,
-                2,
-                Map.of('C', Ingredient.of(Blocks.COBBLESTONE)),
-                List.of("CC", "CC"));
-        addShaped(
-                "stone_bricks",
-                BenchTier.HAND,
-                200.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.STONE_BRICKS,
-                2,
-                Map.of('S', Ingredient.of(Blocks.STONE)),
+                InfXBlocks.SNOW_SLAB,
+                1,
+                Map.of('S', Ingredient.of(Items.SNOWBALL)),
                 List.of("SS", "SS"));
-        addShaped(
-                "compass",
-                BenchTier.FLINT,
-                400.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.COMPASS,
-                1,
-                Map.of('N', Ingredient.of(Items.IRON_NUGGET), 'R', Ingredient.of(Items.REDSTONE)),
-                List.of("NNN", "NRN", "NNN"));
-        addShaped(
-                "clock",
-                BenchTier.FLINT,
-                400.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.CLOCK,
-                1,
-                Map.of('N', Ingredient.of(Items.GOLD_NUGGET), 'R', Ingredient.of(Items.REDSTONE)),
-                List.of("NNN", "NRN", "NNN"));
+        // The vanilla flint-and-steel recipe stays disabled (tool), so the
+        // INFX variant made from iron nuggets keeps the item craftable.
         addShaped(
                 "flint_and_steel",
                 BenchTier.FLINT,
@@ -1343,108 +1217,9 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('N', Ingredient.of(Items.IRON_NUGGET), 'F', Ingredient.of(Items.FLINT)),
                 List.of("N ", " F"));
-        addShaped(
-                "glass_pane",
-                BenchTier.HAND,
-                200.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.GLASS_PANE,
-                6,
-                Map.of('G', Ingredient.of(Blocks.GLASS)),
-                List.of("G"));
-        addShaped(
-                "bricks",
-                BenchTier.FLINT,
-                800.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.BRICKS,
-                2,
-                Map.of('B', Ingredient.of(Items.BRICK), 'S', Ingredient.of(Blocks.SAND)),
-                List.of("BBB", "BSB", "BBB"));
-        addShaped(
-                "snow",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.SNOW,
-                1,
-                Map.of('S', Ingredient.of(Items.SNOWBALL)),
-                List.of("S"));
-        addShaped(
-                "snow_slab",
-                BenchTier.HAND,
-                100.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                InfXBlocks.SNOW_SLAB,
-                1,
-                Map.of('S', Ingredient.of(Items.SNOWBALL)),
-                List.of("SS", "SS"));
-        addShaped(
-                "snow_block",
-                BenchTier.HAND,
-                200.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.SNOW_BLOCK,
-                1,
-                Map.of('S', Ingredient.of(InfXBlocks.SNOW_SLAB)),
-                List.of("S", "S"));
-        addShaped(
-                "oak_sign",
-                BenchTier.FLINT,
-                50.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Items.OAK_SIGN,
-                1,
-                Map.of('W', ingredient(ItemTags.WOODEN_SLABS), 'S', Ingredient.of(Items.STICK)),
-                List.of("W", "S"));
-        addShaped(
-                "oak_fence",
-                BenchTier.FLINT,
-                150.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Items.OAK_FENCE,
-                2,
-                Map.of('S', Ingredient.of(Items.STICK)),
-                List.of("SSS", "SSS"));
-        addShaped(
-                "ladder",
-                BenchTier.FLINT,
-                175.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Items.LADDER,
-                2,
-                Map.of('S', Ingredient.of(Items.STICK)),
-                List.of("S S", "S S", "S S"));
-        addShaped(
-                "nether_bricks",
-                BenchTier.FLINT,
-                800.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Blocks.NETHER_BRICKS,
-                2,
-                Map.of('B', Ingredient.of(Items.NETHER_BRICK), 'S', Ingredient.of(Blocks.SOUL_SAND)),
-                List.of("BBB", "BSB", "BBB"));
-        addShaped(
-                "saddle",
-                BenchTier.FLINT,
-                600.0F,
-                CraftingBookCategory.EQUIPMENT,
-                "",
-                Items.SADDLE,
-                1,
-                Map.of('L', Ingredient.of(Items.LEATHER), 'N', Ingredient.of(Items.IRON_NUGGET)),
-                List.of("LLL", "L L", "N N"));
         // InfX CraftingManager: two leads per silk/string or sinew leash, knotted with an
         // INFX gelatinous sphere (the vanilla slime ball no longer drops in the INFX world).
+        // The restored vanilla lead recipe needs a slime ball and therefore stays inert.
         addShaped(
                 "lead",
                 BenchTier.HAND,
@@ -1465,491 +1240,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 2,
                 Map.of('~', Ingredient.of(InfXItems.SINEW), 'O', ingredient(InfXItemTags.GELATINOUS_SPHERES)),
                 List.of("~~ ", "~O ", "  ~"));
-
-        // -----------------------------------------------------------------------------------
-        // Vanilla basics removed by VanillaCraftingRecipeRemoval but required by InfX gameplay.
-        // -----------------------------------------------------------------------------------
-        addShaped(
-                "stick",
-                BenchTier.HAND,
-                160.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.STICK,
-                4,
-                Map.of('P', ingredient(ItemTags.PLANKS)),
-                List.of("P", "P"));
-        addShaped(
-                "bowl",
-                BenchTier.HAND,
-                75.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.BOWL,
-                4,
-                Map.of('P', ingredient(ItemTags.PLANKS)),
-                List.of("P P", " P "));
-        addShaped(
-                "glass_bottle",
-                BenchTier.FLINT,
-                600.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.GLASS_BOTTLE,
-                3,
-                Map.of('G', Ingredient.of(Items.GLASS)),
-                List.of("G G", " G "));
-        addShaped(
-                "white_wool_from_string",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.BUILDING,
-                "",
-                Items.WHITE_WOOL,
-                1,
-                Map.of('S', Ingredient.of(Items.STRING)),
-                List.of("SS", "SS"));
-
-        for (ItemLike raw : List.of(Items.RAW_COPPER, Items.RAW_IRON, Items.RAW_GOLD)) {
-            ItemLike block = raw == Items.RAW_COPPER
-                    ? Blocks.RAW_COPPER_BLOCK
-                    : raw == Items.RAW_IRON ? Blocks.RAW_IRON_BLOCK : Blocks.RAW_GOLD_BLOCK;
-            String path = BuiltInRegistries.ITEM.getKey(raw.asItem()).getPath();
-            addShaped(
-                    path + "_block",
-                    BenchTier.HAND,
-                    200.0F,
-                    CraftingBookCategory.BUILDING,
-                    "",
-                    block,
-                    1,
-                    Map.of('R', Ingredient.of(raw)),
-                    List.of("RRR", "RRR", "RRR"));
-            addShapeless(
-                    path + "_block_to_" + path,
-                    BenchTier.HAND,
-                    100.0F,
-                    CraftingBookCategory.MISC,
-                    "",
-                    raw,
-                    9,
-                    List.of(Ingredient.of(block)));
-        }
-
-        addShapeless(
-                "beetroot_soup",
-                BenchTier.HAND,
-                175.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.BEETROOT_SOUP,
-                1,
-                List.of(
-                        Ingredient.of(InfXItems.WATER_BOWL),
-                        Ingredient.of(Items.BEETROOT),
-                        Ingredient.of(Items.BEETROOT),
-                        Ingredient.of(Items.BEETROOT),
-                        Ingredient.of(Items.BEETROOT),
-                        Ingredient.of(Items.BEETROOT),
-                        Ingredient.of(Items.BEETROOT)));
-        addShapeless(
-                "rabbit_stew",
-                BenchTier.HAND,
-                250.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.RABBIT_STEW,
-                1,
-                List.of(
-                        Ingredient.of(InfXItems.WATER_BOWL),
-                        Ingredient.of(Items.COOKED_RABBIT),
-                        Ingredient.of(Items.CARROT),
-                        Ingredient.of(Items.BAKED_POTATO),
-                        Ingredient.of(Items.BROWN_MUSHROOM)));
-        addShapeless(
-                "cookie",
-                BenchTier.HAND,
-                100.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.COOKIE,
-                8,
-                List.of(
-                        Ingredient.of(Items.WHEAT),
-                        Ingredient.of(Items.WHEAT),
-                        Ingredient.of(Items.COCOA_BEANS)));
-        addShapeless(
-                "melon_seeds",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.MELON_SEEDS,
-                1,
-                List.of(Ingredient.of(Items.MELON_SLICE)));
-        addShapeless(
-                "wheat_seeds",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "",
-                Items.WHEAT_SEEDS,
-                1,
-                List.of(Ingredient.of(Items.WHEAT)));
-
-        addDyeRecipes();
-    }
-
-    private void addDyeRecipes() {
-        // Single-ingredient dyes restored from the vanilla crafting table.
-        addShapeless(
-                "white_dye_from_bone_meal",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "white_dye",
-                Items.WHITE_DYE,
-                1,
-                List.of(Ingredient.of(Items.BONE_MEAL)));
-        addShapeless(
-                "white_dye_from_lily_of_the_valley",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "white_dye",
-                Items.WHITE_DYE,
-                1,
-                List.of(Ingredient.of(Items.LILY_OF_THE_VALLEY)));
-        addShapeless(
-                "black_dye_from_ink_sac",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "black_dye",
-                Items.BLACK_DYE,
-                1,
-                List.of(Ingredient.of(Items.INK_SAC)));
-        addShapeless(
-                "black_dye_from_wither_rose",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "black_dye",
-                Items.BLACK_DYE,
-                1,
-                List.of(Ingredient.of(Items.WITHER_ROSE)));
-        addShapeless(
-                "brown_dye_from_cocoa_beans",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "brown_dye",
-                Items.BROWN_DYE,
-                1,
-                List.of(Ingredient.of(Items.COCOA_BEANS)));
-        addShapeless(
-                "red_dye_from_beetroot",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "red_dye",
-                Items.RED_DYE,
-                1,
-                List.of(Ingredient.of(Items.BEETROOT)));
-        addShapeless(
-                "red_dye_from_poppy",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "red_dye",
-                Items.RED_DYE,
-                1,
-                List.of(Ingredient.of(Items.POPPY)));
-        addShapeless(
-                "red_dye_from_tulip",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "red_dye",
-                Items.RED_DYE,
-                1,
-                List.of(Ingredient.of(Items.RED_TULIP)));
-        addShapeless(
-                "red_dye_from_rose_bush",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "red_dye",
-                Items.RED_DYE,
-                2,
-                List.of(Ingredient.of(Items.ROSE_BUSH)));
-        addShapeless(
-                "yellow_dye_from_dandelion",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "yellow_dye",
-                Items.YELLOW_DYE,
-                1,
-                List.of(Ingredient.of(Items.DANDELION)));
-        addShapeless(
-                "yellow_dye_from_sunflower",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "yellow_dye",
-                Items.YELLOW_DYE,
-                2,
-                List.of(Ingredient.of(Items.SUNFLOWER)));
-        addShapeless(
-                "blue_dye_from_lapis_lazuli",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "blue_dye",
-                Items.BLUE_DYE,
-                1,
-                List.of(Ingredient.of(Items.LAPIS_LAZULI)));
-        addShapeless(
-                "blue_dye_from_cornflower",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "blue_dye",
-                Items.BLUE_DYE,
-                1,
-                List.of(Ingredient.of(Items.CORNFLOWER)));
-        addShapeless(
-                "pink_dye_from_pink_tulip",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "pink_dye",
-                Items.PINK_DYE,
-                1,
-                List.of(Ingredient.of(Items.PINK_TULIP)));
-        addShapeless(
-                "pink_dye_from_peony",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "pink_dye",
-                Items.PINK_DYE,
-                2,
-                List.of(Ingredient.of(Items.PEONY)));
-        addShapeless(
-                "orange_dye_from_orange_tulip",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "orange_dye",
-                Items.ORANGE_DYE,
-                1,
-                List.of(Ingredient.of(Items.ORANGE_TULIP)));
-        addShapeless(
-                "orange_dye_from_open_eyeblossom",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "orange_dye",
-                Items.ORANGE_DYE,
-                1,
-                List.of(Ingredient.of(Items.OPEN_EYEBLOSSOM)));
-        addShapeless(
-                "magenta_dye_from_allium",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "magenta_dye",
-                Items.MAGENTA_DYE,
-                1,
-                List.of(Ingredient.of(Items.ALLIUM)));
-        addShapeless(
-                "magenta_dye_from_lilac",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "magenta_dye",
-                Items.MAGENTA_DYE,
-                2,
-                List.of(Ingredient.of(Items.LILAC)));
-        addShapeless(
-                "light_blue_dye_from_blue_orchid",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "light_blue_dye",
-                Items.LIGHT_BLUE_DYE,
-                1,
-                List.of(Ingredient.of(Items.BLUE_ORCHID)));
-        addShapeless(
-                "light_gray_dye_from_azure_bluet",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "light_gray_dye",
-                Items.LIGHT_GRAY_DYE,
-                1,
-                List.of(Ingredient.of(Items.AZURE_BLUET)));
-        addShapeless(
-                "light_gray_dye_from_oxeye_daisy",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "light_gray_dye",
-                Items.LIGHT_GRAY_DYE,
-                1,
-                List.of(Ingredient.of(Items.OXEYE_DAISY)));
-        addShapeless(
-                "light_gray_dye_from_white_tulip",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "light_gray_dye",
-                Items.LIGHT_GRAY_DYE,
-                1,
-                List.of(Ingredient.of(Items.WHITE_TULIP)));
-        addShapeless(
-                "gray_dye_from_closed_eyeblossom",
-                BenchTier.HAND,
-                25.0F,
-                CraftingBookCategory.MISC,
-                "gray_dye",
-                Items.GRAY_DYE,
-                1,
-                List.of(Ingredient.of(Items.CLOSED_EYEBLOSSOM)));
-
-        // Combination dyes restored from the vanilla crafting table.
-        addShapeless(
-                "gray_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "gray_dye",
-                Items.GRAY_DYE,
-                2,
-                List.of(Ingredient.of(Items.BLACK_DYE), Ingredient.of(Items.WHITE_DYE)));
-        addShapeless(
-                "light_gray_dye_from_gray_white_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "light_gray_dye",
-                Items.LIGHT_GRAY_DYE,
-                2,
-                List.of(Ingredient.of(Items.GRAY_DYE), Ingredient.of(Items.WHITE_DYE)));
-        addShapeless(
-                "light_gray_dye_from_black_white_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "light_gray_dye",
-                Items.LIGHT_GRAY_DYE,
-                3,
-                List.of(
-                        Ingredient.of(Items.BLACK_DYE),
-                        Ingredient.of(Items.WHITE_DYE),
-                        Ingredient.of(Items.WHITE_DYE)));
-        addShapeless(
-                "cyan_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "cyan_dye",
-                Items.CYAN_DYE,
-                2,
-                List.of(Ingredient.of(Items.BLUE_DYE), Ingredient.of(Items.GREEN_DYE)));
-        addShapeless(
-                "lime_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "lime_dye",
-                Items.LIME_DYE,
-                2,
-                List.of(Ingredient.of(Items.GREEN_DYE), Ingredient.of(Items.WHITE_DYE)));
-        addShapeless(
-                "purple_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "purple_dye",
-                Items.PURPLE_DYE,
-                2,
-                List.of(Ingredient.of(Items.BLUE_DYE), Ingredient.of(Items.RED_DYE)));
-        addShapeless(
-                "magenta_dye_from_purple_and_pink",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "magenta_dye",
-                Items.MAGENTA_DYE,
-                2,
-                List.of(Ingredient.of(Items.PURPLE_DYE), Ingredient.of(Items.PINK_DYE)));
-        addShapeless(
-                "magenta_dye_from_blue_red_pink",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "magenta_dye",
-                Items.MAGENTA_DYE,
-                3,
-                List.of(
-                        Ingredient.of(Items.BLUE_DYE),
-                        Ingredient.of(Items.RED_DYE),
-                        Ingredient.of(Items.PINK_DYE)));
-        addShapeless(
-                "magenta_dye_from_blue_red_white_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "magenta_dye",
-                Items.MAGENTA_DYE,
-                4,
-                List.of(
-                        Ingredient.of(Items.BLUE_DYE),
-                        Ingredient.of(Items.RED_DYE),
-                        Ingredient.of(Items.RED_DYE),
-                        Ingredient.of(Items.WHITE_DYE)));
-        addShapeless(
-                "orange_dye_from_red_yellow",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "orange_dye",
-                Items.ORANGE_DYE,
-                2,
-                List.of(Ingredient.of(Items.RED_DYE), Ingredient.of(Items.YELLOW_DYE)));
-        addShapeless(
-                "pink_dye_from_red_white_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "pink_dye",
-                Items.PINK_DYE,
-                2,
-                List.of(Ingredient.of(Items.RED_DYE), Ingredient.of(Items.WHITE_DYE)));
-        addShapeless(
-                "light_blue_dye_from_blue_white_dye",
-                BenchTier.HAND,
-                50.0F,
-                CraftingBookCategory.MISC,
-                "light_blue_dye",
-                Items.LIGHT_BLUE_DYE,
-                2,
-                List.of(Ingredient.of(Items.BLUE_DYE), Ingredient.of(Items.WHITE_DYE)));
-    }
-
-    private void addPlanks(String wood, ItemLike result, TagKey<Item> logs, int count) {
-        addShapeless(
-                wood + "_planks",
-                BenchTier.FLINT,
-                120.0F,
-                CraftingBookCategory.BUILDING,
-                "planks",
-                result,
-                count,
-                List.of(ingredient(logs)));
     }
 
     private void addCoreMetalTools(
@@ -2325,12 +1615,14 @@ final class ModRecipeProvider extends RecipeProvider {
             int count,
             Map<Character, Ingredient> key,
             List<String> pattern) {
-        ShapedRecipe delegate = new ShapedRecipe(
+        ShapedRecipe recipe = new ShapedRecipe(
                 new Recipe.CommonInfo(true),
                 new CraftingRecipe.CraftingBookInfo(category, group),
                 ShapedRecipePattern.of(key, pattern),
                 new ItemStackTemplate(result.asItem(), count));
-        output.accept(recipeKey(name), new TimedShapedRecipe(requiredBench, difficulty, delegate), null);
+        ResourceKey<Recipe<?>> key2 = recipeKey(name);
+        output.accept(key2, recipe, null);
+        recipeRules.put(key2, RecipeRule.of(key2, key2.identifier(), difficulty, requiredBench));
     }
 
     private void addShapeless(
@@ -2342,12 +1634,14 @@ final class ModRecipeProvider extends RecipeProvider {
             ItemLike result,
             int count,
             List<Ingredient> ingredients) {
-        ShapelessRecipe delegate = new ShapelessRecipe(
+        ShapelessRecipe recipe = new ShapelessRecipe(
                 new Recipe.CommonInfo(true),
                 new CraftingRecipe.CraftingBookInfo(category, group),
                 new ItemStackTemplate(result.asItem(), count),
                 ingredients);
-        output.accept(recipeKey(name), new TimedShapelessRecipe(requiredBench, difficulty, delegate), null);
+        ResourceKey<Recipe<?>> key2 = recipeKey(name);
+        output.accept(key2, recipe, null);
+        recipeRules.put(key2, RecipeRule.of(key2, key2.identifier(), difficulty, requiredBench));
     }
 
     private Ingredient ingredient(TagKey<Item> tag) {

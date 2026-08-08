@@ -3,13 +3,17 @@ package com.pixulse.infx.network;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.item.InfxBucketItem;
+import com.pixulse.infx.recipe.RecipeRule;
+import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.server.ServerTestModePolicy;
 import com.pixulse.infx.world.RunegateTeleportation;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -69,16 +73,36 @@ public final class Network {
                             }
                         })
                 .playToClient(RunegateStartPayload.TYPE, RunegateStartPayload.STREAM_CODEC)
-                .playToClient(RunegateFinishedPayload.TYPE, RunegateFinishedPayload.STREAM_CODEC);
+                .playToClient(RunegateFinishedPayload.TYPE, RunegateFinishedPayload.STREAM_CODEC)
+                .configurationToClient(
+                        RecipeRulesPayload.TYPE,
+                        RecipeRulesPayload.STREAM_CODEC,
+                        Network::handleClientRecipeRules)
+                .playToClient(
+                        RecipeRulesPayload.TYPE,
+                        RecipeRulesPayload.STREAM_CODEC,
+                        Network::handleClientRecipeRules);
     }
 
     @SubscribeEvent
     public static void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
         event.register(new TestModeConfigurationTask(InfiniteXTestMode.isEnabled()));
+        event.register(new RecipeRulesConfigurationTask());
     }
 
     static boolean testModesMatch(boolean serverTestMode, boolean clientTestMode) {
         return ServerTestModePolicy.modesMatch(serverTestMode, clientTestMode);
+    }
+
+    /** Sends the server-authoritative crafting rules during a datapack reload. */
+    public static void sendRecipeRules(ServerPlayer player) {
+        player.connection.send(new ClientboundCustomPayloadPacket(
+                new RecipeRulesPayload(RecipeRules.resolvedRules())));
+    }
+
+    private static void handleClientRecipeRules(RecipeRulesPayload payload, IPayloadContext context) {
+        RecipeRules.setClientRules(payload.resolvedRules());
+        context.finishCurrentTask(RecipeRulesConfigurationTask.TYPE);
     }
 
     private static void handleServerTestMode(TestModePayload payload, IPayloadContext context) {
@@ -165,6 +189,21 @@ public final class Network {
         public static final Type<RunegateFinishedPayload> TYPE = new Type<>(InfiniteX.id("runegate_finished"));
         public static final StreamCodec<RegistryFriendlyByteBuf, RunegateFinishedPayload> STREAM_CODEC =
                 StreamCodec.unit(INSTANCE);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    public record RecipeRulesPayload(java.util.List<RecipeRule.Resolved> resolvedRules)
+            implements CustomPacketPayload {
+        public static final Type<RecipeRulesPayload> TYPE = new Type<>(InfiniteX.id("recipe_rules"));
+        public static final StreamCodec<ByteBuf, RecipeRulesPayload> STREAM_CODEC =
+                StreamCodec.composite(
+                        RecipeRule.Resolved.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                        RecipeRulesPayload::resolvedRules,
+                        RecipeRulesPayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {

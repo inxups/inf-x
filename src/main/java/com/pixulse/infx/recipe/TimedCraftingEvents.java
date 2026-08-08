@@ -4,8 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-
-import com.pixulse.infx.registry.InfXRecipes;
+import com.pixulse.infx.network.Network;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -18,7 +17,12 @@ public final class TimedCraftingEvents {
 
     @SubscribeEvent
     public static void onDatapackSync(OnDatapackSyncEvent event) {
-        event.sendRecipes(InfXRecipes.CRAFTING.get(), RecipeType.CRAFTING);
+        event.sendRecipes(RecipeType.CRAFTING);
+        // Login-time rules travel through the configuration task; this
+        // play-phase send only refreshes clients after /reload.
+        if (event.getPlayer() == null) {
+            event.getRelevantPlayers().forEach(Network::sendRecipeRules);
+        }
     }
 
     @SubscribeEvent
