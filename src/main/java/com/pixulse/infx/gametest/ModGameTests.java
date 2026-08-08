@@ -32,6 +32,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
@@ -174,6 +175,8 @@ public final class ModGameTests {
             functionKey("vanilla_recipe_restoration");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
             functionKey("vanilla_crafting_menu");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_DOOR_RECIPES =
+            functionKey("vanilla_door_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> CRAFTING_PROFILES =
             functionKey("crafting_profiles");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_RESETS =
@@ -215,6 +218,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("coin_crafting", () -> ModGameTests::coinCrafting);
         TEST_FUNCTIONS.register("vanilla_recipe_restoration", () -> ModGameTests::vanillaRecipeRestoration);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
+        TEST_FUNCTIONS.register("vanilla_door_recipes", () -> ModGameTests::vanillaDoorRecipes);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
         TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
@@ -250,6 +254,7 @@ public final class ModGameTests {
         registerTest(event, COIN_CRAFTING, environment, 200);
         registerTest(event, VANILLA_RECIPE_RESTORATION, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
+        registerTest(event, VANILLA_DOOR_RECIPES, environment, 300);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
@@ -716,6 +721,66 @@ public final class ModGameTests {
                     helper.assertTrue(
                             timed.infx$resultContainer().getItem(0).get(InfXDataComponents.QUALITY.get()) == null,
                             "positive-level players without the witch curse cannot craft Poor tools");
+                    removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void vanillaDoorRecipes(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        grantMaximumExperience(player);
+        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_WORKBENCH.get());
+        TimedWorkbenchMenu menu = workbenchMenu(
+                player,
+                helper,
+                BenchTier.ADAMANTIUM,
+                InfXBlocks.ADAMANTIUM_WORKBENCH.get(),
+                9);
+        player.containerMenu = menu;
+        CraftingContainer grid = menu.infx$craftingContainer();
+
+        Map<Item, Item> doors = Map.ofEntries(
+                Map.entry(Items.ACACIA_PLANKS, Items.ACACIA_DOOR),
+                Map.entry(Items.BAMBOO_PLANKS, Items.BAMBOO_DOOR),
+                Map.entry(Items.BIRCH_PLANKS, Items.BIRCH_DOOR),
+                Map.entry(Items.CHERRY_PLANKS, Items.CHERRY_DOOR),
+                Map.entry(Items.COPPER_INGOT, Items.COPPER_DOOR),
+                Map.entry(Items.CRIMSON_PLANKS, Items.CRIMSON_DOOR),
+                Map.entry(Items.DARK_OAK_PLANKS, Items.DARK_OAK_DOOR),
+                Map.entry(Items.IRON_INGOT, Items.IRON_DOOR),
+                Map.entry(Items.JUNGLE_PLANKS, Items.JUNGLE_DOOR),
+                Map.entry(Items.MANGROVE_PLANKS, Items.MANGROVE_DOOR),
+                Map.entry(Items.OAK_PLANKS, Items.OAK_DOOR),
+                Map.entry(Items.PALE_OAK_PLANKS, Items.PALE_OAK_DOOR),
+                Map.entry(Items.SPRUCE_PLANKS, Items.SPRUCE_DOOR),
+                Map.entry(Items.WARPED_PLANKS, Items.WARPED_DOOR));
+        for (var entry : doors.entrySet()) {
+            clearGrid(grid);
+            fillDoor(grid, entry.getKey());
+            helper.assertTrue(
+                    TimedCraftingEngine.refreshResult(menu, player, true),
+                    entry.getValue() + " recipe must resolve");
+            ItemStack preview = menu.infx$resultContainer().getItem(0);
+            helper.assertTrue(
+                    preview.is(entry.getValue()) && preview.getCount() == 1,
+                    entry.getValue() + " recipe must preview one door; actual=" + preview);
+        }
+
+        clearGrid(grid);
+        fillDoor(grid, Items.OAK_PLANKS);
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true),
+                "oak door recipe must resolve before timed completion");
+        menu.clicked(0, 0, ContainerInput.PICKUP, player);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.OAK_DOOR) == 1,
+                        "the overridden vanilla door recipe must finish with one door"))
+                .thenExecute(() -> {
+                    helper.assertTrue(
+                            countGridItem(grid, Items.OAK_PLANKS) == 0,
+                            "door crafting must consume all six planks");
                     removePlayer(player);
                 })
                 .thenSucceed();
@@ -2058,6 +2123,12 @@ public final class ModGameTests {
     private static void fillFurnace(CraftingContainer grid) {
         for (int slot : List.of(0, 1, 2, 3, 5, 6, 7, 8)) {
             grid.setItem(slot, Blocks.COBBLESTONE.asItem().getDefaultInstance());
+        }
+    }
+
+    private static void fillDoor(CraftingContainer grid, Item material) {
+        for (int slot : List.of(0, 1, 3, 4, 6, 7)) {
+            grid.setItem(slot, material.getDefaultInstance());
         }
     }
 
