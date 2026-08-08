@@ -5,8 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.recipe.RecipeRule;
+import com.pixulse.infx.recipe.RecipeRules;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import net.minecraft.network.FriendlyByteBuf;
@@ -14,6 +18,7 @@ import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.network.ConfigurationTask;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
@@ -82,6 +87,33 @@ class NetworkTest {
 
             assertEquals(new Network.TestModePayload(clientTestMode), context.repliedPayload);
         }
+    }
+
+    @Test
+    void recipeRulesConfigurationAppliesRulesAndRepliesWithAck() {
+        var rule = new RecipeRule.Resolved(
+                Identifier.fromNamespaceAndPath("infx", "test_rule"),
+                List.of(Identifier.withDefaultNamespace("crafting_table")),
+                List.of(),
+                Optional.of(2.5f),
+                Optional.empty());
+        var context = new RecordingContext();
+
+        Network.handleClientRecipeRulesConfiguration(new Network.RecipeRulesPayload(List.of(rule)), context);
+
+        assertEquals(Network.RecipeRulesAckPayload.INSTANCE, context.repliedPayload);
+        assertNull(context.finishedTask);
+        assertEquals(List.of(rule), RecipeRules.resolvedRules());
+        RecipeRules.clearClientRules();
+    }
+
+    @Test
+    void serverFinishesRecipeRulesTaskOnAck() {
+        var context = new RecordingContext();
+
+        Network.handleServerRecipeRulesAck(Network.RecipeRulesAckPayload.INSTANCE, context);
+
+        assertEquals(RecipeRulesConfigurationTask.TYPE, context.finishedTask);
     }
 
     private static final class RecordingContext implements IPayloadContext {

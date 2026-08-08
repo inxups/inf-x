@@ -3,6 +3,8 @@
 ## 0t7
 ### 新功能
 - 移除全部原版合成配方：`VanillaCraftingRecipeRemoval` 在配方反序列化前移除 `minecraft` 命名空间下整个合成家族（`crafting_shaped`/`crafting_shapeless`/`crafting_special_*`/`crafting_transmute` 等所有 `crafting_*` 序列化器），木板/木棍/火把/熔炉/盔甲/鞍/铜铁金锭粒转换等原版合成全部不可用（含原版工作台配方），合成格只认 INFX 配方（`infx` 命名空间，使用标准 `minecraft:crafting_*` 序列化器，不受移除影响）；烧炼/锻造/切石等非合成类原版配方保持原样，仅下界合金武器/工具锻造继续通过生成的 `neoforge:never` 覆盖文件禁用。GameTest `vanilla_recipe_removal` / `recipe_boundaries` 改为断言运行时配方表中不存在任何原版合成配方。
+### 问题修复
+- 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
 
 ## 0t6
 ### 新功能
