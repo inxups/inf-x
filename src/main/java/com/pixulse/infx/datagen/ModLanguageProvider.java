@@ -252,7 +252,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("jei.infx.category.obsidian", "Obsidian Workbench"),
                 Map.entry("jei.infx.difficulty", "Difficulty: %s"),
                 Map.entry("jei.infx.required_bench", "Required: %s"),
-                Map.entry("message.infx.workbench_obstructed", "The workbench needs clear space above it")
+                Map.entry("message.infx.workbench_obstructed", "The workbench needs clear space above it"),
+                Map.entry("config.jade.plugin_infx.harvest_tool", "INFX Harvest Tool")
                 )) {
             @Override
             String name(Catalog.Entry entry) {
@@ -312,7 +313,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("jei.infx.category.obsidian", "黑曜石工具台"),
                 Map.entry("jei.infx.difficulty", "难度：%s"),
                 Map.entry("jei.infx.required_bench", "需要：%s"),
-                Map.entry("message.infx.workbench_obstructed", "工具台上方需要留出空间")
+                Map.entry("message.infx.workbench_obstructed", "工具台上方需要留出空间"),
+                Map.entry("config.jade.plugin_infx.harvest_tool", "INFX 挖掘工具")
                 )) {
             @Override
             String name(Catalog.Entry entry) {
