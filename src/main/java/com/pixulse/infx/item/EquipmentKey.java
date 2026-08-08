@@ -33,7 +33,7 @@ public record EquipmentKey(InfxMaterial material, EquipmentType type) {
             };
         }
         if (type == EquipmentType.FISHING_ROD) {
-            return (int) (2.0F * material.durabilityMultiplier()) + (material == InfxMaterial.FLINT ? 1 : 0);
+            return fishingRodDurability(material);
         }
         if (type.armorForm() == EquipmentType.ArmorForm.PLATE) {
             return (int) (type.durabilityComponents() * material.durabilityMultiplier() * 2.0F);
@@ -45,6 +45,14 @@ public record EquipmentKey(InfxMaterial material, EquipmentType type) {
             return 0;
         }
         return material.toolDurability(type.durabilityComponents());
+    }
+
+    /**
+     * Durability shared by the INFX fishing rod and both on-a-stick items, so every hook
+     * material keeps the same rod-style durability.
+     */
+    public static int fishingRodDurability(InfxMaterial material) {
+        return (int) (2.0F * material.durabilityMultiplier()) + (material == InfxMaterial.FLINT ? 1 : 0);
     }
 
     public float miningSpeed() {
