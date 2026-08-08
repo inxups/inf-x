@@ -23,7 +23,7 @@
 `infx:underworld_deep_dark` 为合法生物群系，并由地下世界生成器围绕成功的结构起点雕刻专属洞穴。
 它不受仅作用于主世界 `minecraft:ancient_city` 的永久禁用规则影响。
 
-实现位于 [`StructureGenerationGates.java`](../src/main/java/com/pixulse/infx/world/StructureGenerationGates.java)。村庄的铁级工具检测、农田枯萎和保险箱后处理仍位于 [`VillageProgression.java`](../src/main/java/com/pixulse/infx/world/VillageProgression.java)；其他结构进度由 [`StructureProgressionEvents.java`](../src/main/java/com/pixulse/infx/world/StructureProgressionEvents.java) 记录。`/infx villages` 仍可查询村庄规则的状态。
+实现位于 [`StructureGenerationGates.java`](../src/main/java/com/pixulse/infx/world/StructureGenerationGates.java)。村庄的铁级工具检测、农田枯萎和保险箱后处理仍位于 [`VillageProgression.java`](../src/main/java/com/pixulse/infx/world/VillageProgression.java)；其他结构进度由 [`StructureProgressionEvents.java`](../src/main/java/com/pixulse/infx/world/StructureProgressionEvents.java) 记录。`/infx structure <规则>` 可查询任意内置规则的当前解锁条件与是否已解锁，不带参数时列出全部门禁状态。
 
 ## 规则语义
 
@@ -81,6 +81,8 @@ StructureSelector.tag(StructureTags.VILLAGE)
 | `anyOf(a, b, ...)` | 至少一个子条件通过 |
 
 `allOf` 和 `anyOf` 至少需要一个条件。`firstCompletion(key)` 的键与 `WorldData.recordFirst(...)` 写入的世界首次完成记录一致，而不是某个玩家的个人进度。
+
+每个内置条件都可通过 `report(progress)` 输出一或多行人类可读的说明与当前满足状态（`ConditionReport`），`allOf`/`anyOf` 会展开为子条件的逐行报告；`/infx structure` 指令正是用它向玩家展示每个子条件的实时状态。
 
 例如，下面的条件要求第 45 天以后，且全世界首次完成过 `build_library`：
 
