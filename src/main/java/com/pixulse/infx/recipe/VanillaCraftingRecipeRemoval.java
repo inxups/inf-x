@@ -13,8 +13,8 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.event.ModifyRecipeJsonsEvent;
 
 /**
- * Removes Minecraft's weapon and tool crafting recipes before recipe
- * deserialization.
+ * Removes Minecraft's weapon and tool crafting recipes and the vanilla
+ * crafting table recipe before recipe deserialization.
  *
  * <p>All other vanilla recipes (planks, food, armor, smelting, ...) are
  * restored and matched through the standard crafting type; their INFX
@@ -22,14 +22,19 @@ import net.neoforged.neoforge.event.ModifyRecipeJsonsEvent;
  * {@link InfxCraftingRules} inference. Weapons and tools stay disabled
  * because InfiniteX provides its own equipment line for every material.
  * Tool-adjacent special recipes (grid repair, shield decoration, tipped
- * arrows) are removed with them.</p>
+ * arrows) are removed with them. The vanilla crafting table is removed as
+ * well: InfiniteX provides its own workbench line (stripped-log flint and
+ * obsidian workbenches plus the metal workbenches), so the vanilla
+ * workbench can no longer be crafted.</p>
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class VanillaCraftingRecipeRemoval {
     private static final String MINECRAFT_NAMESPACE = "minecraft";
 
-    /** Vanilla weapon and tool crafting recipes that remain disabled. */
-    private static final Set<String> RETAINED_WEAPON_TOOL_RECIPES = Set.of(
+    /** Vanilla crafting recipes that remain disabled. */
+    private static final Set<String> DISABLED_VANILLA_CRAFTING_RECIPES = Set.of(
+            // The vanilla workbench: replaced by the INFX workbench line.
+            "crafting_table",
             // Melee and ranged weapons.
             "wooden_sword",
             "stone_sword",
@@ -85,7 +90,7 @@ public final class VanillaCraftingRecipeRemoval {
      * Special crafting serializers that are weapon/tool adjacent and stay
      * disabled together with the weapon/tool recipes.
      */
-    private static final Set<String> RETAINED_SPECIAL_SERIALIZERS = Set.of(
+    private static final Set<String> DISABLED_SPECIAL_SERIALIZERS = Set.of(
             "crafting_special_repairitem",
             "crafting_special_shielddecoration",
             "crafting_imbue");
@@ -95,7 +100,7 @@ public final class VanillaCraftingRecipeRemoval {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void removeRecipes(ModifyRecipeJsonsEvent event) {
         int removed = removeVanillaCraftingRecipes(event.getRecipeJsons());
-        InfiniteX.LOGGER.info("Removed {} vanilla weapon/tool crafting recipes", removed);
+        InfiniteX.LOGGER.info("Removed {} disabled vanilla crafting recipes", removed);
     }
 
     static int removeVanillaCraftingRecipes(Map<Identifier, JsonElement> recipes) {
@@ -119,10 +124,10 @@ public final class VanillaCraftingRecipeRemoval {
             return false;
         }
         String serializer = type.getPath();
-        if (RETAINED_SPECIAL_SERIALIZERS.contains(serializer)) {
+        if (DISABLED_SPECIAL_SERIALIZERS.contains(serializer)) {
             return true;
         }
         return (serializer.equals("crafting_shaped") || serializer.equals("crafting_shapeless"))
-                && RETAINED_WEAPON_TOOL_RECIPES.contains(recipeId.getPath());
+                && DISABLED_VANILLA_CRAFTING_RECIPES.contains(recipeId.getPath());
     }
 }
