@@ -29,6 +29,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -37,9 +38,11 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.ServerExplosion;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -61,6 +64,8 @@ public final class ModMechanicsGameTests {
             "infx_dire_wolf_sit_ignores_generic_rules",
             "infx_brick_throw",
             "infx_colored_eggs",
+            "infx_leaves_projectile_pass",
+            "infx_leaves_item_pass",
             "infx_sphere_sheep");
 
     static {
@@ -71,6 +76,8 @@ public final class ModMechanicsGameTests {
         FUNCTIONS.register("infx_dire_wolf_sit_ignores_generic_rules", () -> ModMechanicsGameTests::direWolfSitIgnoresGenericMonsterRules);
         FUNCTIONS.register("infx_brick_throw", () -> ModMechanicsGameTests::brickThrow);
         FUNCTIONS.register("infx_colored_eggs", () -> ModMechanicsGameTests::coloredEggs);
+        FUNCTIONS.register("infx_leaves_projectile_pass", () -> ModMechanicsGameTests::leavesProjectilePass);
+        FUNCTIONS.register("infx_leaves_item_pass", () -> ModMechanicsGameTests::leavesItemPass);
         FUNCTIONS.register("infx_sphere_sheep", () -> ModMechanicsGameTests::sphereSheep);
     }
 
@@ -334,6 +341,107 @@ public final class ModMechanicsGameTests {
                     eggItem + " must use the egg's InfX food profile");
         }
         ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    /** INFX leaves: arrows pass straight through the leaves wall and stop in the stone wall. */
+    private static void leavesProjectilePass(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        // Self-contained floor (the test template itself is empty).
+        for (int x = 0; x <= 11; x++) {
+            for (int z = 1; z <= 3; z++) {
+                level.setBlock(helper.absolutePos(new BlockPos(x, 1, z)), Blocks.STONE.defaultBlockState(), 3);
+            }
+        }
+        // Leaves wall, then a stone wall further along +X as the control.
+        BlockState leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+        BlockPos leaf1 = helper.absolutePos(new BlockPos(4, 2, 2));
+        BlockPos leaf2 = helper.absolutePos(new BlockPos(5, 2, 2));
+        BlockPos stone1 = helper.absolutePos(new BlockPos(9, 2, 2));
+        BlockPos stone2 = helper.absolutePos(new BlockPos(10, 2, 2));
+        level.setBlock(leaf1, leaves, 3);
+        level.setBlock(leaf2, leaves, 3);
+        level.setBlock(stone1, Blocks.STONE.defaultBlockState(), 3);
+        level.setBlock(stone2, Blocks.STONE.defaultBlockState(), 3);
+        // Force-load the chunks so BlockCollisions (which silently skips unloaded chunks) sees every block.
+        level.getChunk(helper.absolutePos(new BlockPos(0, 1, 1)));
+        level.getChunk(helper.absolutePos(new BlockPos(11, 1, 3)));
+
+        // Entity-aware collision shapes: leaves are empty for an arrow, stone is not, and
+        // non-entity queries keep the normal full leaves shape.
+        Arrow probe = new Arrow(level, 0, 0, 0, Items.ARROW.getDefaultInstance(), null);
+        helper.assertTrue(
+                level.getBlockState(leaf1).getCollisionShape(level, leaf1, CollisionContext.of(probe)).isEmpty(),
+                "leaves must not collide with an arrow");
+        helper.assertTrue(
+                !level.getBlockState(stone1).getCollisionShape(level, stone1, CollisionContext.of(probe)).isEmpty(),
+                "stone must still collide with an arrow");
+        helper.assertTrue(
+                !level.getBlockState(leaf1).getCollisionShape(level, leaf1, CollisionContext.empty()).isEmpty(),
+                "leaves must keep their normal collision shape for non-entity queries");
+
+        // Deterministic flight: tick the arrow manually so the test does not depend on chunk
+        // ticking. It must pass both leaves blocks and stop inside the stone wall.
+        Vec3 spawn = Vec3.atCenterOf(helper.absolutePos(new BlockPos(2, 2, 2)));
+        Arrow arrow = new Arrow(level, 0, 0, 0, Items.ARROW.getDefaultInstance(), null);
+        arrow.snapTo(spawn.x, spawn.y, spawn.z, 0.0F, 0.0F);
+        arrow.shoot(1.0, 0.0, 0.0, 3.0F, 0.0F);
+        for (int i = 0; i < 40; i++) {
+            arrow.tick();
+        }
+        int x = arrow.blockPosition().getX();
+        helper.assertTrue(
+                x >= stone1.getX() - 1 && x <= stone2.getX(),
+                "the arrow must pass through the leaves wall and stop in the stone wall, but its block X is " + x);
+        helper.succeed();
+    }
+
+    /** INFX leaves: dropped items fall through the leaves pad and rest on the floor below. */
+    private static void leavesItemPass(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        // Full-width floor so a drifting item can never fall out of the test area. The leaves
+        // pad sits at rel x 5..8: the other test in this batch places its walls at rel x 3..4
+        // (from this origin), so no foreign stone block can sit under the pad.
+        for (int x = 0; x <= 15; x++) {
+            for (int z = 0; z <= 5; z++) {
+                level.setBlock(helper.absolutePos(new BlockPos(x, 1, z)), Blocks.STONE.defaultBlockState(), 3);
+            }
+        }
+        // 4x4 leaves pad, wider than the small random horizontal drift item entities pick up
+        // while falling, so the item stays over it until it has passed through.
+        BlockState leaves = Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true);
+        for (int x = 5; x <= 8; x++) {
+            for (int z = 1; z <= 4; z++) {
+                level.setBlock(helper.absolutePos(new BlockPos(x, 3, z)), leaves, 3);
+            }
+        }
+        BlockPos leafPad = helper.absolutePos(new BlockPos(6, 3, 2));
+        BlockPos stonePad = helper.absolutePos(new BlockPos(12, 3, 2));
+        level.setBlock(stonePad, Blocks.STONE.defaultBlockState(), 3);
+        // Force-load the chunks so BlockCollisions (which silently skips unloaded chunks) sees every block.
+        level.getChunk(helper.absolutePos(new BlockPos(0, 1, 0)));
+        level.getChunk(helper.absolutePos(new BlockPos(15, 1, 5)));
+
+        // Entity-aware collision shapes: leaves are empty for a dropped item, stone is not.
+        ItemEntity probe = new ItemEntity(level, 0, 0, 0, Items.APPLE.getDefaultInstance());
+        helper.assertTrue(
+                level.getBlockState(leafPad).getCollisionShape(level, leafPad, CollisionContext.of(probe)).isEmpty(),
+                "leaves must not collide with a dropped item");
+        helper.assertTrue(
+                !level.getBlockState(stonePad).getCollisionShape(level, stonePad, CollisionContext.of(probe)).isEmpty(),
+                "stone must still collide with a dropped item");
+
+        // Deterministic fall: tick the item manually so the test does not depend on chunk ticking.
+        Vec3 overLeaves = Vec3.atCenterOf(helper.absolutePos(new BlockPos(6, 5, 2)));
+        ItemEntity item = new ItemEntity(level, 0, 0, 0, Items.APPLE.getDefaultInstance());
+        item.snapTo(overLeaves.x, overLeaves.y, overLeaves.z, 0.0F, 0.0F);
+        for (int i = 0; i < 120; i++) {
+            item.tick();
+        }
+        double itemY = item.getY();
+        helper.assertTrue(
+                itemY < leafPad.getY(),
+                "the item must fall through the leaves pad and reach the floor, but it rests at y=" + itemY);
         helper.succeed();
     }
 
