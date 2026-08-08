@@ -97,6 +97,8 @@ public final class ModGameTests {
     private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
     private static final List<String> DISABLED_VANILLA_RECIPES = List.of(
+            // The vanilla workbench: replaced by the INFX workbench line.
+            "crafting_table",
             "wooden_sword",
             "wooden_axe",
             "wooden_pickaxe",
