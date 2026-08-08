@@ -1,6 +1,8 @@
 # Changelog
 
 ## 0t6
+### 新功能
+- Jade 提示框的“挖掘工具”行现在读取 INFX 挖掘规则而非原版标签：按 INFX 工具家族与收获等级显示对应最低可用工具图标（如秘银矿显示铁镐、原木显示燧石斧、钻石矿显示秘银镐），✓/✕ 判定与服务器端挖掘门控一致（含可徒手搬起的便携方块、无法被任何 INFX 工具开采的 6 级方块不再显示工具）；Jade 自身的收获工具开关/新行/创造模式等配置项仍然生效。
 ### 内部重构
 - Mixin 源码按被注入目标类的所在目录重新组织：`src/main/java/com/pixulse/infx/mixin/` 下新增与 `net.minecraft` 包结构一一对应的子目录（如 `world/entity/LivingEntitySwimMixin`、`client/gui/screens/inventory/EnchantmentScreenMixin`、`server/level/ServerLevelSleepMixin`），`infx.mixins.json` 条目同步改为点号路径；仅调整代码组织，行为不变。
 - 移除 10 个 Mixin，改用 NeoForge 公共事件/机制实现，功能保持不变：

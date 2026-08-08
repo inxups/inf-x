@@ -1,6 +1,8 @@
 # Changelog
 
 ## 0t6
+## New Features
+- The Jade tooltip's harvest-tool line now reads InfX mining rules instead of vanilla tags: it shows the cheapest InfX tool of every effective family for the block's harvest level (e.g. an iron pickaxe for mithril ore, a flint axe for logs, a mithril pickaxe for diamond ore), and the ✓/✕ mark matches the server-side mining gate (portable hand-harvest blocks count as minable; blocks whose required level exceeds every InfX tier show no tool). All of Jade's own harvest-tool config toggles (line, new line, Creative mode, etc.) keep working.
 ## Bug Fixes
 - Swords, scythes, axes, and all other melee weapons no longer carry the `ATTACK_RANGE` component. Melee reach now follows the 1.5-block rule used by bare hands and vanilla weapons, or 5 blocks in Creative mode. Client-side targeting also follows the vanilla path again: while mounted, the crosshair no longer targets the mount, and attacks no longer accidentally hit it.
 - Bare-handed attacks and all items without `ATTACK_RANGE` now use a 1.5-block melee range, or 5 blocks in Creative mode, and this works correctly for client-side left-click attacks. Base block and entity interaction reach is also 1.5 blocks; tools with reach bonuses still extend it.
