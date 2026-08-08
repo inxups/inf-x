@@ -73,12 +73,21 @@ public final class FireCookingEvents {
 
     /**
      * Applies one real InfX-style fire-damage increment and consumes vanilla item damage when the
-     * stack is an open-fire food. Lava deliberately remains destructive rather than cooking food.
+     * stack is an open-fire food. Damageable equipment burns durability instead of the vanilla
+     * item-health timer and is only destroyed once its durability runs out; fire-immune equipment
+     * never reaches this handler because {@code ItemEntity#hurtServer} rejects it earlier. Lava
+     * deliberately remains destructive rather than cooking food, but still burns equipment.
      */
     public static boolean handleFireDamage(ServerLevel level, ItemEntity entity, DamageSource source, float damage) {
-        if (!isCookingFireDamage(source) || damage <= 0.0F) return false;
+        if (damage <= 0.0F) return false;
 
         ItemStack stack = entity.getItem();
+        if (stack.isDamageableItem()) {
+            burnEquipmentDurability(level, entity, stack, damage);
+            return true;
+        }
+        if (!isCookingFireDamage(source)) return false;
+
         CookingResult result = cookingResult(stack.getItem());
         if (result != null) {
             scheduleExtinguishChecks(level, entity);
@@ -90,6 +99,16 @@ public final class FireCookingEvents {
             return true;
         }
         return false;
+    }
+
+    /** InfX equipment burns one durability point per fire hit (four per lava hit) instead of vanishing. */
+    private static void burnEquipmentDurability(ServerLevel level, ItemEntity entity, ItemStack stack, float damage) {
+        Item item = stack.getItem();
+        stack.hurtAndBreak(Math.max(1, (int) damage), level, null, broken -> {});
+        if (stack.isEmpty()) {
+            item.onDestroyed(entity);
+            entity.discard();
+        }
     }
 
     @SubscribeEvent

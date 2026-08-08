@@ -8,6 +8,7 @@ import com.pixulse.infx.gametest.ModCompletionGameTests;
 import com.pixulse.infx.gametest.ModStructureLootGameTests;
 import com.pixulse.infx.gametest.ModMechanicsGameTests;
 import com.pixulse.infx.gametest.ModJadeDisplayGameTests;
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.event.CauldronEvents;
 import com.pixulse.infx.event.ItemEvents;
 import com.pixulse.infx.item.StickBoneItems;
@@ -33,7 +34,9 @@ import com.pixulse.infx.registry.InfXParticles;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 
 @Mod(InfiniteX.MOD_ID)
@@ -42,6 +45,9 @@ public final class InfiniteX {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public InfiniteX(IEventBus modBus) {
+        ModLoadingContext.get()
+                .getActiveContainer()
+                .registerConfig(ModConfig.Type.SERVER, InfXConfig.SERVER_SPEC);
         InfXSounds.register(modBus);
         InfXChunkGeneratorTypes.register(modBus);
         InfXDensityFunctionTypes.register(modBus);

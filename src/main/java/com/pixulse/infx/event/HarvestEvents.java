@@ -102,8 +102,10 @@ public final class HarvestEvents {
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(tool);
         if (entry != null
                 && entry.key().type().miningFamily() == MiningFamily.SWORD
-                && !InfxMiningRules.isEffective(entry.key(), state)) {
-            // InfX swords cut plants and webs but cannot mine ordinary blocks.
+                && !InfxMiningRules.isEffective(entry.key(), state)
+                && state.requiresCorrectToolForDrops()) {
+            // InfX swords cut plants and webs but cannot mine blocks that need a real tool;
+            // blocks a bare hand can dig (dirt, sand, gravel, ...) stay diggable with a sword.
             return false;
         }
         return HarvestPolicy.allows(

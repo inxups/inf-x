@@ -43,6 +43,8 @@ class BlockStackLimitsTest {
                 Items.OAK_SIGN,
                 Items.PLAYER_HEAD,
                 Items.SUGAR_CANE,
+                Items.BAMBOO,
+                Items.RESIN_CLUMP,
                 Items.REPEATER,
                 Items.COMPARATOR,
                 Items.BREWING_STAND,

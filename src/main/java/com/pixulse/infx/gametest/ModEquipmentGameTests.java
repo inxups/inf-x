@@ -213,12 +213,12 @@ public final class ModEquipmentGameTests {
         double blockInteractionRange = player.blockInteractionRange();
         double entityInteractionRange = player.entityInteractionRange();
         helper.assertTrue(
-                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getBaseValue() == 1.5
-                        && player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).getBaseValue() == 1.5,
-                "player interaction attribute bases must be replaced with 1.5 blocks");
+                player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).getBaseValue() == 2.5
+                        && player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).getBaseValue() == 2.5,
+                "player interaction attribute bases must be replaced with 2.5 blocks");
         helper.assertTrue(
-                blockInteractionRange == 1.5 && entityInteractionRange == 1.5,
-                "survival reach must use 1.5 blocks for block and entity interaction");
+                blockInteractionRange == 2.5 && entityInteractionRange == 2.5,
+                "survival reach must use 2.5 blocks for block and entity interaction");
         BlockPos interactionBlock = helper.absolutePos(new BlockPos(4, 2, 1));
         var farTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 2, 1));
         boolean emptyHandBlockRange = player.isWithinBlockInteractionRange(interactionBlock, 0.0D);

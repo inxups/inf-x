@@ -389,6 +389,8 @@ final class ModRecipeProvider extends RecipeProvider {
                 Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(Items.EMERALD),
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of(" B ", "GOG", "OOO"));
+        // InfX: the diamond table is the mithril-tier enchanting station, so it is forged
+        // from mithril rather than diamonds; the mithril bench gate matches the material.
         addShaped(
                 "diamond_enchanting_table",
                 BenchTier.MITHRIL,
@@ -397,7 +399,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 InfXBlocks.DIAMOND_ENCHANTING_TABLE,
                 1,
-                Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(Items.DIAMOND),
+                Map.of('B', Ingredient.of(Items.BOOK), 'G', Ingredient.of(InfXItems.MITHRIL_INGOT),
                         'O', Ingredient.of(Blocks.OBSIDIAN)),
                 List.of(" B ", "GOG", "OOO"));
         addSafe("copper_safe", BenchTier.COPPER, InfXBlocks.COPPER_SAFE, Items.COPPER_INGOT, 3_600.0F);
@@ -1441,7 +1443,8 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('L', Ingredient.of(Items.LEATHER), 'N', Ingredient.of(Items.IRON_NUGGET)),
                 List.of("LLL", "L L", "N N"));
-        // InfX CraftingManager: two leads per silk/string or sinew leash, with a slime ball knot.
+        // InfX CraftingManager: two leads per silk/string or sinew leash, knotted with an
+        // INFX gelatinous sphere (the vanilla slime ball no longer drops in the INFX world).
         addShaped(
                 "lead",
                 BenchTier.HAND,
@@ -1450,7 +1453,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.LEAD,
                 2,
-                Map.of('~', Ingredient.of(Items.STRING), 'O', Ingredient.of(Items.SLIME_BALL)),
+                Map.of('~', Ingredient.of(Items.STRING), 'O', ingredient(InfXItemTags.GELATINOUS_SPHERES)),
                 List.of("~~ ", "~O ", "  ~"));
         addShaped(
                 "lead_from_sinew",
@@ -1460,7 +1463,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.LEAD,
                 2,
-                Map.of('~', Ingredient.of(InfXItems.SINEW), 'O', Ingredient.of(Items.SLIME_BALL)),
+                Map.of('~', Ingredient.of(InfXItems.SINEW), 'O', ingredient(InfXItemTags.GELATINOUS_SPHERES)),
                 List.of("~~ ", "~O ", "  ~"));
 
         // -----------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.HolderGetter;
@@ -54,7 +55,8 @@ public final class ItemProperties {
                         DataComponents.WEAPON,
                         new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
         // Shears do not block attacks; they use the normal weapon component for left-click melee.
-        if (key.type() != EquipmentType.SHEARS) {
+        // The INFX toolsBlockAttacks config removes the blocking component entirely.
+        if (key.type() != EquipmentType.SHEARS && InfXConfig.toolsBlockAttacks()) {
             p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
         }
         return p;
