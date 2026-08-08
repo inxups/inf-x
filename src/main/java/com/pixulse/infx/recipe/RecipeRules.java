@@ -51,7 +51,7 @@ import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
  * with the lexicographically largest rule ID wins, so a later rule file can
  * override an earlier one. When several recipes match one crafting grid, a
  * recipe covered by a rule wins over a recipe without one, which keeps the
- * rule-backed INFX items craftable next to recipes that rely on inference.</p>
+ * INFX items craftable next to their restored vanilla counterparts.</p>
  */
 public final class RecipeRules {
     private static final FileToIdConverter RULE_LISTER = FileToIdConverter.json("recipe_rules");

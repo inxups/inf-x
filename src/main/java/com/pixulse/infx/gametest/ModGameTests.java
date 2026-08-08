@@ -1,6 +1,5 @@
 package com.pixulse.infx.gametest;
 
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -96,7 +95,7 @@ public final class ModGameTests {
     private static final BlockPos WORK_POS = new BlockPos(1, 1, 1);
     private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
-    private static final List<String> DISABLED_NETHERITE_SMITHING = List.of(
+    private static final List<String> RESTORED_NETHERITE_SMITHING = List.of(
             "netherite_axe_smithing",
             "netherite_hoe_smithing",
             "netherite_pickaxe_smithing",
@@ -171,8 +170,8 @@ public final class ModGameTests {
             functionKey("timed_crafting");
     private static final ResourceKey<Consumer<GameTestHelper>> COIN_CRAFTING =
             functionKey("coin_crafting");
-    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_REMOVAL =
-            functionKey("vanilla_recipe_removal");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_RESTORATION =
+            functionKey("vanilla_recipe_restoration");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
             functionKey("vanilla_crafting_menu");
     private static final ResourceKey<Consumer<GameTestHelper>> CRAFTING_PROFILES =
@@ -214,7 +213,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
         TEST_FUNCTIONS.register("coin_crafting", () -> ModGameTests::coinCrafting);
-        TEST_FUNCTIONS.register("vanilla_recipe_removal", () -> ModGameTests::vanillaRecipeRemoval);
+        TEST_FUNCTIONS.register("vanilla_recipe_restoration", () -> ModGameTests::vanillaRecipeRestoration);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
@@ -249,7 +248,7 @@ public final class ModGameTests {
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
         registerTest(event, COIN_CRAFTING, environment, 200);
-        registerTest(event, VANILLA_RECIPE_REMOVAL, environment, 40);
+        registerTest(event, VANILLA_RECIPE_RESTORATION, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
@@ -574,7 +573,7 @@ public final class ModGameTests {
         return false;
     }
 
-    private static void vanillaRecipeRemoval(GameTestHelper helper) {
+    private static void vanillaRecipeRestoration(GameTestHelper helper) {
         var recipeMap = helper.getLevel().recipeAccess().recipeMap();
         List<String> vanillaCrafting = recipeMap.byType(RecipeType.CRAFTING).stream()
                 .map(holder -> holder.id().identifier())
@@ -583,12 +582,25 @@ public final class ModGameTests {
                 .sorted()
                 .toList();
         helper.assertTrue(
-                vanillaCrafting.isEmpty(),
-                "all vanilla crafting recipes must be removed; still loaded: " + vanillaCrafting);
-        for (String path : DISABLED_NETHERITE_SMITHING) {
+                vanillaCrafting.size() >= 1_000,
+                "the full vanilla crafting set must remain loaded; found only " + vanillaCrafting.size());
+        for (String path : List.of(
+                "crafting_table",
+                "oak_planks",
+                "stick",
+                "iron_pickaxe",
+                "bow",
+                "repair_item",
+                "shield_decoration",
+                "tipped_arrow")) {
             helper.assertTrue(
-                    recipeMap.byKey(recipeKey("minecraft", path)) == null,
-                    "minecraft:" + path + " (netherite weapon/tool smithing) must stay disabled");
+                    recipeMap.byKey(recipeKey("minecraft", path)) != null,
+                    "minecraft:" + path + " must be restored");
+        }
+        for (String path : RESTORED_NETHERITE_SMITHING) {
+            helper.assertTrue(
+                    recipeMap.byKey(recipeKey("minecraft", path)) != null,
+                    "minecraft:" + path + " must be restored");
         }
         helper.assertTrue(
                 recipeMap.byKey(recipeKey("infx", "flint_knife")) != null,
@@ -596,7 +608,7 @@ public final class ModGameTests {
         helper.assertTrue(
                 recipeMap.byType(RecipeType.SMELTING).stream()
                         .anyMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
-                "vanilla non-crafting recipes must remain unless separately disabled");
+                "vanilla non-crafting recipes must remain loaded");
         helper.succeed();
     }
 
@@ -616,14 +628,14 @@ public final class ModGameTests {
         TimedCraftingMenu timed = (TimedCraftingMenu) vanilla;
         CraftingContainer grid = timed.infx$craftingContainer();
 
-        // Use an INFX hand recipe (leather -> sinew) away from the top-left
-        // corner so the vanilla menu mixin is exercised through the timed
-        // engine; every vanilla crafting recipe is removed.
-        grid.setItem(4, Items.LEATHER.getDefaultInstance());
+        // Use a restored vanilla recipe (oak log -> oak planks) away from the
+        // top-left corner so the vanilla menu mixin is exercised through the
+        // timed engine with a real vanilla recipe.
+        grid.setItem(4, Items.OAK_LOG.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(timed, player, true),
-                "the vanilla 3x3 menu must resolve INFX recipes through the timed engine");
-        assertResult(helper, timed, InfXItems.SINEW.get(), "sinew timed preview");
+                "the vanilla 3x3 menu must resolve restored vanilla recipes through the timed engine");
+        assertResult(helper, timed, Items.OAK_PLANKS, "vanilla plank timed preview");
         vanilla.clicked(0, 0, ContainerInput.PICKUP, player);
         helper.assertTrue(timed.infx$craftingState().isRunning(), "crafting-table result must start a timer");
 
@@ -643,10 +655,10 @@ public final class ModGameTests {
                             "the vanilla crafting-table timer must receive player ticks");
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), InfXItems.SINEW.get()) == 4,
+                        countItem(player.getInventory(), Items.OAK_PLANKS) == 4,
                         "the vanilla crafting-table timer must complete"))
                 .thenExecute(() -> {
-                    helper.assertTrue(grid.getItem(4).isEmpty(), "offset leather slot must be consumed");
+                    helper.assertTrue(grid.getItem(4).isEmpty(), "offset log slot must be consumed");
                     grantMaximumExperience(player);
                     grid.setItem(0, Items.FLINT.getDefaultInstance());
                     grid.setItem(1, Items.STRING.getDefaultInstance());
@@ -736,8 +748,8 @@ public final class ModGameTests {
         var loadedCraftingRecipes = recipeMap.byType(RecipeType.CRAFTING);
         helper.assertTrue(
                 loadedCraftingRecipes.stream()
-                        .noneMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
-                "all vanilla crafting recipes must be removed from the loaded crafting set");
+                        .anyMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
+                "vanilla crafting recipes must be restored for inference");
         for (var holder : loadedCraftingRecipes) {
             try {
                 CraftingProfile profile = RecipeRules.displayProfile(holder);
@@ -772,10 +784,9 @@ public final class ModGameTests {
     }
 
     /**
-     * Grids that used to collide with restored vanilla recipes (snow block,
-     * bucket) now resolve to the ruled INFX recipes outright: every vanilla
-     * crafting recipe is removed before loading, so the INFX recipes are the
-     * only matches.
+     * Restored vanilla recipes share grids with INFX recipes for items that
+     * have both (buckets, armor, anvils, chains, snow). The INFX recipe must
+     * win such ties because it carries an explicit recipe rule.
      */
     private static void vanillaRecipeCollisions(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
@@ -880,30 +891,15 @@ public final class ModGameTests {
 
     private static void recipeBoundaries(GameTestHelper helper) {
         var recipes = helper.getLevel().recipeAccess().recipeMap();
-        for (var holder : recipes.byType(RecipeType.CRAFTING)) {
-            Identifier id = holder.id().identifier();
-            if (!"minecraft".equals(id.getNamespace())) {
-                continue;
-            }
-            List<String> sources = helper.getLevel()
-                    .getServer()
-                    .getResourceManager()
-                    .getResourceStack(Identifier.fromNamespaceAndPath("minecraft", "recipe/" + id.getPath() + ".json"))
-                    .stream()
-                    .map(Resource::sourcePackId)
-                    .toList();
-            helper.fail("vanilla crafting recipe " + id + " must be removed; loaded "
-                    + holder.value().getClass().getName() + " from resource stack " + sources);
-        }
         helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "crafting_table")) == null,
-                "the vanilla crafting table recipe must be removed");
+                recipes.byKey(recipeKey("minecraft", "crafting_table")) != null,
+                "the vanilla crafting table recipe must be restored");
         helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "oak_planks")) == null,
-                "the vanilla oak planks recipe must be removed");
+                recipes.byKey(recipeKey("minecraft", "oak_planks")) != null,
+                "the vanilla oak planks recipe must be restored");
         helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "stick")) == null,
-                "the vanilla stick recipe must be removed");
+                recipes.byKey(recipeKey("minecraft", "stick")) != null,
+                "the vanilla stick recipe must be restored");
         helper.assertTrue(
                 recipes.byKey(recipeKey("infx", "oak_planks")) == null,
                 "the INFX oak planks duplicate must be gone");
@@ -917,8 +913,8 @@ public final class ModGameTests {
         }
         for (String material : List.of("copper", "gold", "iron")) {
             helper.assertTrue(
-                    recipes.byKey(recipeKey("minecraft", material + "_ingot_from_nuggets")) == null,
-                    "vanilla ingot conversion must be removed: " + material);
+                    recipes.byKey(recipeKey("minecraft", material + "_ingot_from_nuggets")) != null,
+                    "vanilla ingot conversion must be restored: " + material);
         }
         for (String path : CORE_TOOL_RECIPES) {
             helper.assertTrue(
@@ -991,7 +987,7 @@ public final class ModGameTests {
         }
         helper.assertTrue(
                 recipes.byKey(recipeKey("infx", "glass_bottle")) == null,
-                "the INFX glass bottle duplicate must be gone");
+                "the INFX glass bottle duplicate must be gone (vanilla restored)");
         for (String removed : List.of("sandstone_to_glass", "red_sandstone_to_glass")) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", removed)) == null,
@@ -1023,8 +1019,8 @@ public final class ModGameTests {
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
         helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "furnace")) == null,
-                "the vanilla furnace recipe must be removed");
+                recipes.byKey(recipeKey("minecraft", "furnace")) != null,
+                "the vanilla furnace recipe must be restored");
         helper.assertTrue(
                 recipes.byKey(recipeKey("infx", "cobblestone_furnace")) == null,
                 "the INFX cobblestone furnace duplicate must be gone");
@@ -1044,7 +1040,7 @@ public final class ModGameTests {
         player.containerMenu = flint;
         CraftingContainer grid = flint.infx$craftingContainer();
         for (int slot = 0; slot < grid.getContainerSize(); slot++) {
-            grid.setItem(slot, new ItemStack(InfXItems.SILVER_NUGGET.get(), 4));
+            grid.setItem(slot, new ItemStack(Items.COPPER_NUGGET, 4));
         }
         helper.assertTrue(TimedCraftingEngine.refreshResult(flint, player, true), "36 nuggets must match the ingot recipe");
         flint.clicked(0, 0, ContainerInput.PICKUP, player);
@@ -1052,21 +1048,16 @@ public final class ModGameTests {
         TimedWorkbenchMenu[] copperMenu = new TimedWorkbenchMenu[1];
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), InfXItems.SILVER_INGOT.get()) == 4,
+                        countItem(player.getInventory(), Items.COPPER_INGOT) == 4,
                         "36 nuggets must continuously craft into exactly four ingots; actual="
-                                + countItem(player.getInventory(), InfXItems.SILVER_INGOT.get())
-                                + ", remainingNuggets=" + countGridItem(grid, InfXItems.SILVER_NUGGET.get())
+                                + countItem(player.getInventory(), Items.COPPER_INGOT)
+                                + ", remainingNuggets=" + countGridItem(grid, Items.COPPER_NUGGET)
                                 + ", progress=" + flint.infx$craftingState().progressTicks()
                                 + "/" + flint.infx$craftingState().requiredTicks()
                                 + ", running=" + flint.infx$craftingState().isRunning()
                                 + ", food=" + player.getFoodData().getFoodLevel()))
                 .thenExecute(() -> {
-                    helper.assertTrue(countGridItem(grid, InfXItems.SILVER_NUGGET.get()) == 0, "all 36 nuggets must be consumed");
-                    // Vanilla nugget conversions are removed with the rest of
-                    // the vanilla crafting recipes; the loop below continues
-                    // with smelted copper instead of freshly crafted ingots.
-                    takeItem(helper, player.getInventory(), InfXItems.SILVER_INGOT.get(), 4);
-                    player.getInventory().add(new ItemStack(Items.COPPER_INGOT, 4));
+                    helper.assertTrue(countGridItem(grid, Items.COPPER_NUGGET) == 0, "all 36 nuggets must be consumed");
                     ItemStack ingot = takeItem(helper, player.getInventory(), Items.COPPER_INGOT, 1);
                     grid.setItem(0, ingot);
                     grid.setItem(1, Items.LEATHER.getDefaultInstance());
@@ -1117,22 +1108,22 @@ public final class ModGameTests {
                 player, helper, BenchTier.COPPER, InfXBlocks.COPPER_WORKBENCH.get(), 3);
         player.containerMenu = copper;
         CraftingContainer grid = copper.infx$craftingContainer();
-        fillObsidianFurnace(grid);
+        fillFurnace(grid);
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(copper, player, true),
-                "eight obsidian must match the obsidian furnace recipe");
+                "eight cobblestone must match the copper-tier furnace recipe");
         copper.clicked(0, 0, ContainerInput.PICKUP, player);
 
-        InfxFurnaceBlockEntity[] furnace = new InfxFurnaceBlockEntity[1];
+        FurnaceBlockEntity[] furnace = new FurnaceBlockEntity[1];
         TimedWorkbenchMenu[] ironMenu = new TimedWorkbenchMenu[1];
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), InfXBlocks.OBSIDIAN_FURNACE.get().asItem()) == 1,
-                        "copper workbench must finish the obsidian furnace"))
+                        countItem(player.getInventory(), Items.FURNACE) == 1,
+                        "copper workbench must finish the cobblestone furnace"))
                 .thenExecute(() -> {
-                    takeItem(helper, player.getInventory(), InfXBlocks.OBSIDIAN_FURNACE.get().asItem(), 1);
-                    helper.setBlock(FURNACE_POS, InfXBlocks.OBSIDIAN_FURNACE.get());
-                    furnace[0] = helper.getBlockEntity(FURNACE_POS, InfxFurnaceBlockEntity.class);
+                    takeItem(helper, player.getInventory(), Items.FURNACE, 1);
+                    helper.setBlock(FURNACE_POS, Blocks.FURNACE);
+                    furnace[0] = helper.getBlockEntity(FURNACE_POS, FurnaceBlockEntity.class);
                     furnace[0].setItem(0, Items.RAW_IRON.getDefaultInstance());
                     furnace[0].setItem(1, Items.COAL.getDefaultInstance());
                 })
@@ -2064,9 +2055,9 @@ public final class ModGameTests {
         grid.setItem(7, Items.STICK.getDefaultInstance());
     }
 
-    private static void fillObsidianFurnace(CraftingContainer grid) {
+    private static void fillFurnace(CraftingContainer grid) {
         for (int slot : List.of(0, 1, 2, 3, 5, 6, 7, 8)) {
-            grid.setItem(slot, Blocks.OBSIDIAN.asItem().getDefaultInstance());
+            grid.setItem(slot, Blocks.COBBLESTONE.asItem().getDefaultInstance());
         }
     }
 
