@@ -13,8 +13,9 @@ import org.junit.jupiter.api.Test;
 
 class VanillaCraftingRecipeRemovalTest {
     @Test
-    void removesVanillaWeaponAndToolRecipes() {
+    void removesVanillaWeaponToolAndCraftingTableRecipes() {
         Map<Identifier, JsonElement> recipes = new LinkedHashMap<>();
+        recipes.put(minecraft("crafting_table"), recipe("minecraft:crafting_shaped"));
         recipes.put(minecraft("wooden_sword"), recipe("minecraft:crafting_shaped"));
         recipes.put(minecraft("iron_pickaxe"), recipe("minecraft:crafting_shaped"));
         recipes.put(minecraft("diamond_spear"), recipe("minecraft:crafting_shaped"));
@@ -26,7 +27,7 @@ class VanillaCraftingRecipeRemovalTest {
         recipes.put(minecraft("shield_decoration"), recipe("minecraft:crafting_special_shielddecoration"));
         recipes.put(minecraft("repair_item"), recipe("minecraft:crafting_special_repairitem"));
 
-        assertEquals(10, VanillaCraftingRecipeRemoval.removeVanillaCraftingRecipes(recipes));
+        assertEquals(11, VanillaCraftingRecipeRemoval.removeVanillaCraftingRecipes(recipes));
         assertTrue(recipes.isEmpty());
     }
 

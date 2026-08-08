@@ -1,5 +1,9 @@
 # Changelog
 
+## 0t8
+### 新功能
+- 移除原版工作台（`minecraft:crafting_table`）配方：原版工作台不再可通过合成获得，3x3 合成改用 INFX 工作台（去皮原木燧石/黑曜石工作台与各金属工作台，由 `VanillaCraftingRecipeRemoval` 在配方加载前移除）；世界生成中自然存在的工作台方块与创造模式获取不受影响。
+
 ## 0t7
 ### 问题修复
 - 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
