@@ -90,16 +90,6 @@ public final class EnchantmentEvents {
         int slaughter = Enchantments.level(
                 attacker.level(), attacker.getMainHandItem(), InfXEnchantments.SLAUGHTER);
         event.setAmount(event.getAmount() + EnchantmentRules.slaughterDamageBonus(slaughter));
-
-        // Vanilla sharpness only applies through the player stabAttack path; restore it for
-        // any direct melee hit so INFX swords/scythes behave like the vanilla enchantment.
-        if (!Boolean.TRUE.equals(SWEEPING.get())) {
-            int sharpness = Enchantments.level(
-                    attacker.level(), attacker.getMainHandItem(), InfXEnchantments.VANILLA_SHARPNESS);
-            if (sharpness > 0) {
-                event.setAmount(event.getAmount() + 1.0F + 0.5F * (sharpness - 1));
-            }
-        }
     }
 
     @SubscribeEvent

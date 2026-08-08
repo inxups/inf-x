@@ -436,6 +436,10 @@ public final class ModCompletionGameTests {
                 .equipment(InfxMaterial.COPPER, EquipmentType.SCYTHE)
                 .holder()
                 .toStack();
+        ItemStack battleAxe = InfXItems.catalog()
+                .equipment(InfxMaterial.MITHRIL, EquipmentType.BATTLE_AXE)
+                .holder()
+                .toStack();
         ItemStack dagger = InfXItems.catalog()
                 .equipment(InfxMaterial.COPPER, EquipmentType.DAGGER)
                 .holder()
@@ -456,6 +460,7 @@ public final class ModCompletionGameTests {
         helper.assertTrue(sharpness.value().isSupportedItem(scythe), "scythes must support sharpness");
         helper.assertFalse(slaughter.value().isSupportedItem(sword), "swords must not support slaughter");
         helper.assertTrue(slaughter.value().isSupportedItem(scythe), "scythes must support slaughter");
+        helper.assertTrue(slaughter.value().isSupportedItem(battleAxe), "battle axes must support slaughter");
         helper.assertTrue(sweeping.value().isSupportedItem(sword), "swords must support sweeping edge");
         helper.assertTrue(sweeping.value().isSupportedItem(scythe), "scythes must support sweeping edge");
         helper.assertFalse(sweeping.value().isSupportedItem(dagger), "daggers must not support sweeping edge");
@@ -474,16 +479,40 @@ public final class ModCompletionGameTests {
                 "knives must not advertise the native sweep action");
         helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
 
-        sword.enchant(sharpness, 1);
-        player.setItemInHand(InteractionHand.MAIN_HAND, sword);
+        // The real ServerPlayer attack path already applies data-driven sharpness before
+        // LivingIncomingDamageEvent. This guards against adding the same bonus a second time.
+        ItemStack sharpSword = InfXItems.catalog()
+                .equipment(InfxMaterial.MITHRIL, EquipmentType.SWORD)
+                .holder()
+                .toStack();
+        sharpSword.enchant(sharpness, 5);
+        player.setItemInHand(InteractionHand.MAIN_HAND, sharpSword);
         var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         zombie.invulnerableTime = 0;
+        for (int tick = 0; tick < 30; tick++) {
+            player.doTick();
+        }
         float before = zombie.getHealth();
-        zombie.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
+        player.attack(zombie);
         helper.assertTrue(
-                Math.abs((before - zombie.getHealth()) - 5.0F) < 0.001F,
-                "sharpness I must add one damage");
+                Math.abs((before - zombie.getHealth()) - 12.0F) < 0.001F,
+                "sharpness V must add three damage exactly once");
+        zombie.discard();
+
+        battleAxe.enchant(slaughter, 5);
+        player.setItemInHand(InteractionHand.MAIN_HAND, battleAxe);
+        zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
+        zombie.invulnerableTime = 0;
+        for (int tick = 0; tick < 30; tick++) {
+            player.doTick();
+        }
+        before = zombie.getHealth();
+        player.attack(zombie);
+        helper.assertTrue(
+                Math.abs((before - zombie.getHealth()) - 13.0F) < 0.001F,
+                "slaughter V must add four damage to a mithril battle axe");
         zombie.discard();
 
         player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
