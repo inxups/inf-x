@@ -18,7 +18,7 @@ resource-pack	textures/items/buckets/iron/empty.png	textures/item/iron_bucket.pn
 resource-pack	textures/items/buckets/iron/water.png	textures/item/iron_water_bucket.png	fa596b5e3cb39f8907355d04f4f1ebac50dc3204ab516ab7b32b79be7af9b480
 resource-pack	textures/items/buckets/iron/lava.png	textures/item/iron_lava_bucket.png	b432c2df8bae7325ba6aa23b02e0b115f87b3046e0a562156d8e0035bc7ae303
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/iron_milk_bucket.png	textures/item/iron_milk_bucket.png	20f5ba564e9e7115208e6e94cf022cb6d0fbcd738e050187d05d06d0eea921fa
-resource-pack	textures/items/buckets/iron/stone.png	textures/item/iron_stone_bucket.png	b89018223160a7b245313ea6c906b5b4793fc9a4f3b0c7f45833a6921308ab4a
+derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/补充.rar#补充/item/iron_stone_bucket.png	textures/item/iron_stone_bucket.png	0e1cb771b00c5f2a7c469246037bf7a69c51f11b2e7f1865bf5d8fee3291ef36
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/ancient_metal_bucket.png	textures/item/ancient_metal_bucket.png	4c2018017c004fc7374ba67bf99cbfa07c7bd520c87c144499c66b00bbc5df72
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/ancient_metal_water_bucket.png	textures/item/ancient_metal_water_bucket.png	3bf3cbe4852ddf993be5f6486da38175728db9fc35e514e38a6853b46e9a1e07
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/item/ancient_metal_lava_bucket.png	textures/item/ancient_metal_lava_bucket.png	b4dbb3b6e4945291d0c0c57ba3a85445b73bff899b3acace4db8b41f0eeff042
