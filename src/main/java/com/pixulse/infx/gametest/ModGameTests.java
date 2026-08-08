@@ -12,10 +12,11 @@ import com.pixulse.infx.block.entity.InfxFurnaceBlockEntity;
 import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.CraftingProfile;
 import com.pixulse.infx.recipe.InfxCraftingRules;
+import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.recipe.TimedCraftingEngine;
 import com.pixulse.infx.recipe.TimedCraftingMenu;
-import com.pixulse.infx.recipe.TimedShapedRecipe;
 import com.pixulse.infx.item.equipment.QualitySystem;
+import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.data.furnace.FurnaceHeatAccess;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
@@ -26,7 +27,6 @@ import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
-import com.pixulse.infx.registry.InfXRecipes;
 import com.pixulse.infx.event.server.ExtremeDifficulty;
 import com.pixulse.infx.data.food.SurvivalData;
 import io.netty.buffer.ByteBuf;
@@ -74,7 +74,9 @@ import net.minecraft.world.inventory.FurnaceResultSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
@@ -95,104 +97,60 @@ public final class ModGameTests {
     private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
     private static final List<String> DISABLED_VANILLA_RECIPES = List.of(
-            "acacia_planks",
-            "arrow",
-            "bamboo_planks",
-            "birch_planks",
-            "bow",
-            "bundle",
-            "cherry_planks",
-            "copper_axe",
-            "copper_boots",
-            "copper_chestplate",
-            "copper_helmet",
-            "copper_hoe",
-            "copper_ingot",
-            "copper_ingot_from_blasting_copper_ore",
-            "copper_ingot_from_blasting_deepslate_copper_ore",
-            "copper_ingot_from_blasting_raw_copper",
-            "copper_ingot_from_nuggets",
-            "copper_ingot_from_smelting_copper_ore",
-            "copper_ingot_from_smelting_deepslate_copper_ore",
-            "copper_ingot_from_smelting_raw_copper",
-            "copper_ingot_from_waxed_copper_block",
-            "copper_leggings",
-            "copper_nugget",
-            "copper_nugget_from_blasting",
-            "copper_nugget_from_smelting",
-            "copper_pickaxe",
-            "copper_shovel",
-            "copper_spear",
-            "copper_sword",
-            "crafter",
-            "crafting_table",
-            "crimson_planks",
-            "dark_oak_planks",
-            "diamond_spear",
-            "furnace",
-            "golden_spear",
-            "glass",
-            "gold_ingot_from_nuggets",
-            "gold_nugget",
-            "golden_axe",
-            "golden_boots",
-            "golden_chestplate",
-            "golden_helmet",
-            "golden_hoe",
-            "golden_leggings",
-            "golden_pickaxe",
-            "golden_shovel",
-            "golden_sword",
-            "iron_ingot_from_blasting_deepslate_iron_ore",
-            "iron_ingot_from_blasting_iron_ore",
-            "iron_ingot_from_blasting_raw_iron",
-            "iron_ingot_from_nuggets",
-            "iron_axe",
-            "iron_boots",
-            "iron_chestplate",
-            "iron_helmet",
-            "iron_hoe",
-            "iron_leggings",
-            "iron_pickaxe",
-            "iron_shovel",
-            "iron_spear",
-            "iron_sword",
-            "iron_nugget",
-            "jungle_planks",
-            "leather_boots",
-            "leather_chestplate",
-            "leather_helmet",
-            "leather_leggings",
-            "mangrove_planks",
-            "netherite_spear_smithing",
-            "netherite_block",
-            "netherite_ingot",
-            "netherite_ingot_from_netherite_block",
-            "netherite_scrap",
-            "netherite_scrap_from_blasting",
-            "netherite_upgrade_smithing_template",
-            "oak_planks",
-            "pale_oak_planks",
-            "raw_copper",
-            "raw_copper_block",
-            "sandstone",
-            "shears",
-            "smooth_sandstone",
-            "spruce_planks",
-            "stone_axe",
-            "stone_hoe",
-            "stone_pickaxe",
-            "stone_shovel",
-            "stone_spear",
-            "stone_sword",
-            "stick",
-            "warped_planks",
+            "wooden_sword",
             "wooden_axe",
-            "wooden_hoe",
             "wooden_pickaxe",
             "wooden_shovel",
+            "wooden_hoe",
             "wooden_spear",
-            "wooden_sword");
+            "stone_sword",
+            "stone_axe",
+            "stone_pickaxe",
+            "stone_shovel",
+            "stone_hoe",
+            "stone_spear",
+            "copper_sword",
+            "copper_axe",
+            "copper_pickaxe",
+            "copper_shovel",
+            "copper_hoe",
+            "copper_spear",
+            "iron_sword",
+            "iron_axe",
+            "iron_pickaxe",
+            "iron_shovel",
+            "iron_hoe",
+            "iron_spear",
+            "golden_sword",
+            "golden_axe",
+            "golden_pickaxe",
+            "golden_shovel",
+            "golden_hoe",
+            "golden_spear",
+            "diamond_sword",
+            "diamond_axe",
+            "diamond_pickaxe",
+            "diamond_shovel",
+            "diamond_hoe",
+            "diamond_spear",
+            "bow",
+            "arrow",
+            "crossbow",
+            "mace",
+            "shield",
+            "shears",
+            "fishing_rod",
+            "flint_and_steel",
+            "brush",
+            "spyglass",
+            "carrot_on_a_stick",
+            "warped_fungus_on_a_stick",
+            "netherite_axe_smithing",
+            "netherite_hoe_smithing",
+            "netherite_pickaxe_smithing",
+            "netherite_shovel_smithing",
+            "netherite_sword_smithing",
+            "netherite_spear_smithing");
     private static final List<String> WEAPON_RECIPES = List.of(
             "wood_cudgel",
             "wood_club",
@@ -310,6 +268,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
         TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
         TEST_FUNCTIONS.register("recipe_boundaries", () -> ModGameTests::recipeBoundaries);
+        TEST_FUNCTIONS.register("vanilla_recipe_collisions", () -> ModGameTests::vanillaRecipeCollisions);
         TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
         TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
         TEST_FUNCTIONS.register("core_tool_recipes", () -> ModGameTests::coreToolRecipes);
@@ -665,13 +624,23 @@ public final class ModGameTests {
 
     private static void vanillaRecipeRemoval(GameTestHelper helper) {
         var recipeMap = helper.getLevel().recipeAccess().recipeMap();
+        for (String path : DISABLED_VANILLA_RECIPES) {
+            helper.assertTrue(
+                    recipeMap.byKey(recipeKey("minecraft", path)) == null,
+                    "minecraft:" + path + " (weapon/tool) must stay disabled");
+        }
         helper.assertTrue(
-                recipeMap.byType(RecipeType.CRAFTING).stream()
-                        .noneMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
-                "no minecraft crafting recipe may survive recipe loading");
+                recipeMap.byKey(recipeKey("minecraft", "torch")) != null,
+                "the original torch crafting recipe must be restored");
         helper.assertTrue(
-                recipeMap.byKey(recipeKey("minecraft", "torch")) == null,
-                "the original torch crafting recipe must be removed");
+                recipeMap.byKey(recipeKey("minecraft", "oak_planks")) != null,
+                "the original plank crafting recipes must be restored");
+        helper.assertTrue(
+                recipeMap.byKey(recipeKey("minecraft", "stick")) != null,
+                "the original stick crafting recipe must be restored");
+        helper.assertTrue(
+                recipeMap.byKey(recipeKey("minecraft", "iron_helmet")) != null,
+                "vanilla armor crafting recipes must be restored");
         helper.assertTrue(
                 recipeMap.byType(RecipeType.SMELTING).stream()
                         .anyMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
@@ -695,14 +664,14 @@ public final class ModGameTests {
         TimedCraftingMenu timed = (TimedCraftingMenu) vanilla;
         CraftingContainer grid = timed.infx$craftingContainer();
 
-        // Use an InfiniteX replacement recipe away from the top-left corner.
-        // This keeps coverage for the vanilla menu mixin after all original
-        // minecraft crafting recipes have been removed.
+        // Use a restored vanilla recipe (oak log -> oak planks) away from the
+        // top-left corner so the vanilla menu mixin is exercised through the
+        // timed engine with a real vanilla recipe.
         grid.setItem(4, Items.OAK_LOG.getDefaultInstance());
         helper.assertTrue(
                 TimedCraftingEngine.refreshResult(timed, player, true),
-                "the vanilla 3x3 menu must resolve InfiniteX replacement recipes through the timed engine");
-        assertResult(helper, timed, Items.OAK_PLANKS, "InfiniteX plank timed preview");
+                "the vanilla 3x3 menu must resolve restored vanilla recipes through the timed engine");
+        assertResult(helper, timed, Items.OAK_PLANKS, "vanilla plank timed preview");
         vanilla.clicked(0, 0, ContainerInput.PICKUP, player);
         helper.assertTrue(timed.infx$craftingState().isRunning(), "crafting-table result must start a timer");
 
@@ -815,34 +784,77 @@ public final class ModGameTests {
         var loadedCraftingRecipes = recipeMap.byType(RecipeType.CRAFTING);
         helper.assertTrue(
                 loadedCraftingRecipes.stream()
-                        .noneMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
-                "all original minecraft crafting profiles must be removed");
+                        .anyMatch(holder -> holder.id().identifier().getNamespace().equals("minecraft")),
+                "vanilla crafting recipes must be restored for inference");
         for (var holder : loadedCraftingRecipes) {
             try {
-                CraftingProfile profile = InfxCraftingRules.displayProfile(holder.value());
+                CraftingProfile profile = RecipeRules.displayProfile(holder);
                 helper.assertTrue(
                         Float.isFinite(profile.difficulty()) && profile.difficulty() > 0.0F,
-                        holder.id().identifier() + " must have a finite positive inferred difficulty");
+                        holder.id().identifier() + " must have a finite positive difficulty");
                 helper.assertTrue(
                         BenchTier.ADAMANTIUM.supports(profile.requiredBench()),
                         holder.id().identifier() + " must map to a supported workbench tier");
             } catch (RuntimeException error) {
-                helper.fail("failed to infer crafting profile for " + holder.id().identifier() + ": " + error);
+                helper.fail("failed to resolve crafting profile for " + holder.id().identifier() + ": " + error);
             }
         }
 
-        var explicitRecipes = recipeMap.byType(InfXRecipes.CRAFTING.get());
-        helper.assertTrue(!explicitRecipes.isEmpty(), "InfiniteX explicit INFX crafting recipes must be loaded");
-        for (var holder : explicitRecipes) {
-            CraftingProfile profile = CraftingProfile.explicit(
-                    holder.value().requiredBench(), holder.value().difficulty());
-            helper.assertTrue(
-                    Float.isFinite(profile.difficulty()) && profile.difficulty() > 0.0F,
-                    holder.id().identifier() + " must retain a finite positive explicit difficulty");
-            helper.assertTrue(
-                    BenchTier.ADAMANTIUM.supports(profile.requiredBench()),
-                    holder.id().identifier() + " must retain a supported explicit workbench tier");
-        }
+        // Explicit recipe rules override the inferred values for INFX recipes.
+        var copperPickaxe = recipeMap.byKey(recipeKey("infx", "copper_pickaxe"));
+        helper.assertTrue(copperPickaxe != null, "the INFX copper pickaxe recipe must be loaded");
+        CraftingProfile ruleProfile = RecipeRules.displayProfile(
+                (RecipeHolder<CraftingRecipe>) copperPickaxe);
+        helper.assertTrue(ruleProfile.requiredBench() == BenchTier.COPPER,
+                "recipe rules must raise the copper pickaxe to the copper bench");
+        helper.assertTrue(
+                Math.abs(ruleProfile.difficulty() - 1250.0F) < 0.001F,
+                "recipe rules must keep the copper pickaxe difficulty at 1250");
+        var leatherToSinew = recipeMap.byKey(recipeKey("infx", "leather_to_sinew"));
+        helper.assertTrue(leatherToSinew != null, "the INFX sinew recipe must be loaded");
+        helper.assertTrue(
+                RecipeRules.displayProfile((RecipeHolder<CraftingRecipe>) leatherToSinew).requiredBench()
+                        == BenchTier.HAND,
+                "recipe rules must keep hand-tier recipes on the hand tier");
+        helper.succeed();
+    }
+
+    /**
+     * Restored vanilla recipes share grids with INFX recipes for items that
+     * have both (buckets, armor, anvils, chains, snow). The INFX recipe must
+     * win such ties because it carries an explicit recipe rule.
+     */
+    private static void vanillaRecipeCollisions(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.setBlock(WORK_POS, flintWorkbench());
+        TimedWorkbenchMenu flint = workbenchMenu(player, helper, BenchTier.FLINT, flintWorkbench(), 1);
+        player.containerMenu = flint;
+
+        CraftingContainer grid = flint.infx$craftingContainer();
+        grid.setItem(0, Items.SNOWBALL.getDefaultInstance());
+        grid.setItem(1, Items.SNOWBALL.getDefaultInstance());
+        grid.setItem(3, Items.SNOWBALL.getDefaultInstance());
+        grid.setItem(4, Items.SNOWBALL.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(flint, player, true),
+                "four snowballs must resolve to the ruled INFX snow slab");
+        assertResult(helper, flint, InfXBlocks.SNOW_SLAB.get().asItem(), "ruled snow slab must beat vanilla snow block");
+
+        clearGrid(grid);
+        grid.setItem(0, Items.IRON_INGOT.getDefaultInstance());
+        grid.setItem(2, Items.IRON_INGOT.getDefaultInstance());
+        grid.setItem(4, Items.IRON_INGOT.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(flint, player, true),
+                "three iron ingots must resolve to the ruled INFX iron bucket");
+        assertResult(
+                helper,
+                flint,
+                InfXItems.bucket(InfxMaterial.IRON, InfxBucketItem.Contents.EMPTY).asItem(),
+                "ruled INFX bucket must beat the vanilla bucket");
+
+        flint.removed(player);
+        removePlayer(player);
         helper.succeed();
     }
 
@@ -929,15 +941,27 @@ public final class ModGameTests {
                         + loaded.value().getClass().getName() + " from resource stack " + sources);
             }
         }
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "oak_planks")) != null, "InfiniteX plank recipe must exist");
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "stick")) != null, "InfiniteX stick recipe must exist");
-        for (String material : METAL_MATERIALS) {
+        helper.assertTrue(
+                recipes.byKey(recipeKey("minecraft", "oak_planks")) != null,
+                "the vanilla oak planks recipe must be restored");
+        helper.assertTrue(
+                recipes.byKey(recipeKey("minecraft", "stick")) != null,
+                "the vanilla stick recipe must be restored");
+        helper.assertTrue(
+                recipes.byKey(recipeKey("infx", "oak_planks")) == null,
+                "the INFX oak planks duplicate must be gone");
+        for (String material : List.of("silver", "ancient_metal", "mithril", "adamantium")) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", material + "_ingot_from_nuggets")) != null,
                     "InfiniteX ingot conversion must exist: " + material);
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", material + "_nuggets_from_ingot")) != null,
                     "InfiniteX nugget conversion must exist: " + material);
+        }
+        for (String material : List.of("copper", "gold", "iron")) {
+            helper.assertTrue(
+                    recipes.byKey(recipeKey("minecraft", material + "_ingot_from_nuggets")) != null,
+                    "vanilla ingot conversion must be restored: " + material);
         }
         for (String path : CORE_TOOL_RECIPES) {
             helper.assertTrue(
@@ -993,9 +1017,7 @@ public final class ModGameTests {
         for (String material : METAL_MATERIALS) {
             var recipe = recipes.byKey(recipeKey("infx", material + "_anvil"));
             helper.assertTrue(recipe != null, "InfiniteX anvil recipe must exist: " + material);
-            if (recipe != null
-                    && recipe.value() instanceof TimedShapedRecipe timed
-                    && timed.delegate() instanceof ShapedRecipe shaped) {
+            if (recipe != null && recipe.value() instanceof ShapedRecipe shaped) {
                 List<Optional<net.minecraft.world.item.crafting.Ingredient>> grid =
                         shaped.pattern.ingredients();
                 helper.assertTrue(
@@ -1011,8 +1033,8 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(
-                recipes.byKey(recipeKey("infx", "glass_bottle")) != null,
-                "InfiniteX glass bottle recipe must exist");
+                recipes.byKey(recipeKey("infx", "glass_bottle")) == null,
+                "the INFX glass bottle duplicate must be gone (vanilla restored)");
         for (String removed : List.of("sandstone_to_glass", "red_sandstone_to_glass")) {
             helper.assertTrue(
                     recipes.byKey(recipeKey("infx", removed)) == null,
@@ -1043,7 +1065,12 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "cobblestone_furnace")) != null, "InfiniteX furnace recipe must exist");
+        helper.assertTrue(
+                recipes.byKey(recipeKey("minecraft", "furnace")) != null,
+                "the vanilla furnace recipe must be restored");
+        helper.assertTrue(
+                recipes.byKey(recipeKey("infx", "cobblestone_furnace")) == null,
+                "the INFX cobblestone furnace duplicate must be gone");
         helper.assertTrue(
                 recipes.byKey(recipeKey("minecraft", "iron_ingot_from_smelting_raw_iron")) != null,
                 "raw iron must retain its furnace recipe");

@@ -3,7 +3,7 @@ package com.pixulse.infx.compat.jei;
 import java.util.List;
 
 import com.pixulse.infx.recipe.BenchTier;
-import com.pixulse.infx.recipe.TimedCraftingRecipe;
+import com.pixulse.infx.recipe.RecipeRules;
 
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawableStatic;
@@ -16,6 +16,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
@@ -23,8 +24,13 @@ import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.level.ItemLike;
 import org.jspecify.annotations.NonNull;
 
+/**
+ * JEI category for one workbench tier. Every entry is a normal crafting
+ * recipe; its INFX difficulty and required bench are resolved through
+ * {@link RecipeRules} (with {@code InfxCraftingRules} inference as fallback).
+ */
 final class TimedCraftingRecipeCategory
-        extends AbstractRecipeCategory<RecipeHolder<TimedCraftingRecipe>> {
+        extends AbstractRecipeCategory<RecipeHolder<CraftingRecipe>> {
     private static final int WIDTH = 116;
     private static final int HEIGHT = 76;
 
@@ -47,9 +53,9 @@ final class TimedCraftingRecipeCategory
     @Override
     public void setRecipe(
             @NonNull IRecipeLayoutBuilder builder,
-            RecipeHolder<TimedCraftingRecipe> recipeHolder,
+            RecipeHolder<CraftingRecipe> recipeHolder,
             @NonNull IFocusGroup focuses) {
-        RecipeDisplay display = getDisplay(recipeHolder.value());
+        RecipeDisplay display = getDisplay(recipeHolder);
         craftingGridHelper.createAndSetOutputs(builder, display.result());
 
         if (display instanceof ShapedCraftingRecipeDisplay shaped)
@@ -61,9 +67,9 @@ final class TimedCraftingRecipeCategory
     @Override
     public void createRecipeExtras(
             IRecipeExtrasBuilder builder,
-            RecipeHolder<TimedCraftingRecipe> recipeHolder,
+            RecipeHolder<CraftingRecipe> recipeHolder,
             @NonNull IFocusGroup focuses) {
-        String difficulty = formatDifficulty(recipeHolder.value().difficulty());
+        String difficulty = formatDifficulty(RecipeRules.displayProfile(recipeHolder).difficulty());
         builder.addText(Component.translatable("jei.infx.difficulty", difficulty), WIDTH, 9)
                 .setColor(0xFF808080)
                 .setTextAlignment(HorizontalAlignment.CENTER)
@@ -81,7 +87,7 @@ final class TimedCraftingRecipeCategory
 
     @Override
     public void draw(
-            RecipeHolder<TimedCraftingRecipe> recipeHolder,
+            RecipeHolder<CraftingRecipe> recipeHolder,
             @NonNull IRecipeSlotsView recipeSlotsView,
             @NonNull GuiGraphicsExtractor graphics,
             double mouseX,
@@ -90,8 +96,8 @@ final class TimedCraftingRecipeCategory
     }
 
     @Override
-    public boolean isHandled(RecipeHolder<TimedCraftingRecipe> recipeHolder) {
-        List<RecipeDisplay> displays = recipeHolder.value().delegate().display();
+    public boolean isHandled(RecipeHolder<CraftingRecipe> recipeHolder) {
+        List<RecipeDisplay> displays = recipeHolder.value().display();
         if (displays.isEmpty()) {
             return false;
         }
@@ -100,8 +106,8 @@ final class TimedCraftingRecipeCategory
                 || display instanceof ShapelessCraftingRecipeDisplay;
     }
 
-    private static RecipeDisplay getDisplay(TimedCraftingRecipe recipe) {
-        return recipe.delegate().display().getFirst();
+    private static RecipeDisplay getDisplay(RecipeHolder<CraftingRecipe> recipeHolder) {
+        return recipeHolder.value().display().getFirst();
     }
 
     private static String formatDifficulty(float difficulty) {

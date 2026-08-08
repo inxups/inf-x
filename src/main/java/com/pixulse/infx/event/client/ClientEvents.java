@@ -4,8 +4,7 @@ import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.client.*;
 import com.pixulse.infx.screen.gui.MetalAnvilScreen;
 import com.pixulse.infx.screen.gui.TimedWorkbenchScreen;
-import com.pixulse.infx.recipe.InferredTimedCraftingRecipe;
-import com.pixulse.infx.recipe.TimedCraftingRecipe;
+import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.entity.InfxBat;
 import com.pixulse.infx.entity.InfxCreeper;
 import com.pixulse.infx.entity.InfxSilverfish;
@@ -17,9 +16,7 @@ import com.pixulse.infx.entity.InfxZombie;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXMenus;
-import com.pixulse.infx.registry.InfXRecipes;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -236,8 +233,7 @@ public final class ClientEvents {
 
     @SubscribeEvent
     public static void receiveRecipes(RecipesReceivedEvent event) {
-        if (event.getRecipeTypes().contains(InfXRecipes.CRAFTING.get())
-                || event.getRecipeTypes().contains(RecipeType.CRAFTING)) {
+        if (event.getRecipeTypes().contains(RecipeType.CRAFTING)) {
             syncedRecipes = event.getRecipeMap();
         }
     }
@@ -245,19 +241,10 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void clearRecipes(ClientPlayerNetworkEvent.LoggingOut event) {
         syncedRecipes = RecipeMap.EMPTY;
+        RecipeRules.clearClientRules();
     }
 
-    public static Collection<RecipeHolder<TimedCraftingRecipe>> timedCraftingRecipes() {
-        Collection<RecipeHolder<TimedCraftingRecipe>> explicit =
-                syncedRecipes.byType(InfXRecipes.CRAFTING.get());
-        Collection<RecipeHolder<CraftingRecipe>> vanilla =
-                syncedRecipes.byType(RecipeType.CRAFTING);
-        ArrayList<RecipeHolder<TimedCraftingRecipe>> result =
-                new ArrayList<>(explicit.size() + vanilla.size());
-        result.addAll(explicit);
-        for (RecipeHolder<CraftingRecipe> holder : vanilla) {
-            result.add(new RecipeHolder<>(holder.id(), InferredTimedCraftingRecipe.of(holder.value())));
-        }
-        return List.copyOf(result);
+    public static Collection<RecipeHolder<CraftingRecipe>> timedCraftingRecipes() {
+        return syncedRecipes.byType(RecipeType.CRAFTING);
     }
 }

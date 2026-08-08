@@ -56,16 +56,20 @@ class FulltextGeneratedResourceTest {
             JsonObject shaped = json(GENERATED.resolve("data/infx/recipe/" + material + "_bucket.json"));
             JsonObject reclaimed = json(GENERATED.resolve(
                     "data/infx/recipe/" + material + "_bucket_from_stone_bucket.json"));
+            JsonObject shapedRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + material + "_bucket.json"));
+            JsonObject reclaimedRule = json(GENERATED.resolve(
+                    "data/infx/recipe_rules/" + material + "_bucket_from_stone_bucket.json"));
             assertAll(
                     material + " bucket recipes",
-                    () -> assertEquals(benches.get(material), shaped.get("required_bench").getAsString()),
-                    () -> assertEquals(difficulties.get(material), shaped.get("difficulty").getAsFloat()),
+                    () -> assertEquals(benches.get(material), shapedRule.get("workbench_tier").getAsString()),
+                    () -> assertEquals(difficulties.get(material), shapedRule.get("difficulty").getAsFloat()),
                     () -> assertEquals(List.of("I I", " I "), strings(shaped.getAsJsonArray("pattern"))),
                     () -> assertEquals(
                             "infx:" + material + "_bucket",
                             shaped.getAsJsonObject("result").get("id").getAsString()),
-                    () -> assertEquals("hand", reclaimed.get("required_bench").getAsString()),
-                    () -> assertEquals(100.0F, reclaimed.get("difficulty").getAsFloat()),
+                    () -> assertEquals("hand", reclaimedRule.get("workbench_tier").getAsString()),
+                    () -> assertEquals(100.0F, reclaimedRule.get("difficulty").getAsFloat()),
                     () -> assertEquals(
                             "infx:" + material + "_stone_bucket",
                             reclaimed.getAsJsonArray("ingredients").get(0).getAsString()));
