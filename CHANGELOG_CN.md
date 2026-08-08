@@ -1,13 +1,5 @@
 # Changelog
 
-## 0t8
-### 新功能
-- 移除原版工作台（`minecraft:crafting_table`）配方：原版工作台不再可通过合成获得，3x3 合成改用 INFX 工作台（去皮原木燧石/黑曜石工作台与各金属工作台，由 `VanillaCraftingRecipeRemoval` 在配方加载前移除）；世界生成中自然存在的工作台方块与创造模式获取不受影响。GameTest 的 `vanilla_recipe_removal` / `recipe_boundaries` 同步断言该配方在运行时已不在配方表中。
-
-## 0t7
-### 问题修复
-- 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
-
 ## 0t6
 ### 新功能
 - 合成难度与工作台等级改为数据驱动（`recipe_rules` 数据包规则）：规则文件位于 `data/<namespace>/recipe_rules/<name>.json`，`target` 字段声明作用配方（支持单个 ID、ID 数组与 `#配方标签`），可覆盖 `difficulty`（难度）与 `workbench_tier`（所需工作台等级）；未命中规则时回退到 `InfxCraftingRules` 运行时推断。配方标签从 `data/<namespace>/tags/recipe/<name>.json` 加载，支持嵌套与循环引用。服务器在数据包重载时解析规则并随配方同步发送客户端（JEI 分组/难度显示与服务器一致），解析错误带完整资源 ID 输出到日志。
