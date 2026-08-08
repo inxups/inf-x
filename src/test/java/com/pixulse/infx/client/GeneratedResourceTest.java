@@ -575,7 +575,12 @@ class GeneratedResourceTest {
         for (String restored : List.of(
                 "iron_ingot_from_blasting_deepslate_iron_ore",
                 "iron_ingot_from_blasting_iron_ore",
-                "iron_ingot_from_blasting_raw_iron",
+                "iron_ingot_from_blasting_raw_iron")) {
+            assertFalse(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
+                    restored + " must use the vanilla recipe without an INFX override");
+        }
+        for (String disabled : List.of(
                 "netherite_axe_smithing",
                 "netherite_hoe_smithing",
                 "netherite_pickaxe_smithing",
@@ -583,15 +588,15 @@ class GeneratedResourceTest {
                 "netherite_sword_smithing",
                 "netherite_spear_smithing",
                 "iron_pickaxe")) {
-            assertFalse(
-                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must use the vanilla recipe without an INFX override");
+            assertTrue(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
         }
     }
 
     @Test
-    void onlyVanillaDoorRecipesAreOverriddenAndEachProducesOne() throws IOException {
-        Set<String> expected = Set.of(
+    void vanillaRecipeOverridesHaveExpectedScopeAndShape() throws IOException {
+        Set<String> expectedDoors = Set.of(
                 "acacia_door",
                 "bamboo_door",
                 "birch_door",
@@ -606,12 +611,106 @@ class GeneratedResourceTest {
                 "pale_oak_door",
                 "spruce_door",
                 "warped_door");
+        Set<String> expectedDisabled = Set.of(
+                "wooden_sword",
+                "wooden_spear",
+                "wooden_axe",
+                "wooden_pickaxe",
+                "wooden_shovel",
+                "wooden_hoe",
+                "stone_sword",
+                "stone_spear",
+                "stone_axe",
+                "stone_pickaxe",
+                "stone_shovel",
+                "stone_hoe",
+                "copper_sword",
+                "copper_spear",
+                "copper_axe",
+                "copper_pickaxe",
+                "copper_shovel",
+                "copper_hoe",
+                "iron_sword",
+                "iron_spear",
+                "iron_axe",
+                "iron_pickaxe",
+                "iron_shovel",
+                "iron_hoe",
+                "golden_sword",
+                "golden_spear",
+                "golden_axe",
+                "golden_pickaxe",
+                "golden_shovel",
+                "golden_hoe",
+                "diamond_sword",
+                "diamond_spear",
+                "diamond_axe",
+                "diamond_pickaxe",
+                "diamond_shovel",
+                "diamond_hoe",
+                "bow",
+                "arrow",
+                "spectral_arrow",
+                "crossbow",
+                "mace",
+                "shield",
+                "shears",
+                "fishing_rod",
+                "flint_and_steel",
+                "brush",
+                "spyglass",
+                "carrot_on_a_stick",
+                "warped_fungus_on_a_stick",
+                "repair_item",
+                "shield_decoration",
+                "tipped_arrow",
+                "leather_helmet",
+                "leather_chestplate",
+                "leather_leggings",
+                "leather_boots",
+                "copper_helmet",
+                "copper_chestplate",
+                "copper_leggings",
+                "copper_boots",
+                "iron_helmet",
+                "iron_chestplate",
+                "iron_leggings",
+                "iron_boots",
+                "golden_helmet",
+                "golden_chestplate",
+                "golden_leggings",
+                "golden_boots",
+                "diamond_helmet",
+                "diamond_chestplate",
+                "diamond_leggings",
+                "diamond_boots",
+                "leather_helmet_dyed",
+                "leather_chestplate_dyed",
+                "leather_leggings_dyed",
+                "leather_boots_dyed",
+                "leather_horse_armor_dyed",
+                "wolf_armor_dyed",
+                "netherite_sword_smithing",
+                "netherite_spear_smithing",
+                "netherite_axe_smithing",
+                "netherite_pickaxe_smithing",
+                "netherite_hoe_smithing",
+                "netherite_shovel_smithing",
+                "netherite_helmet_smithing",
+                "netherite_chestplate_smithing",
+                "netherite_leggings_smithing",
+                "netherite_boots_smithing",
+                "netherite_nautilus_armor_smithing",
+                "netherite_horse_armor_smithing");
+        Set<String> expected = new HashSet<>(expectedDoors);
+        expected.addAll(expectedDisabled);
         Path staticRecipes = STATIC.resolve("data/minecraft/recipe");
         if (Files.exists(staticRecipes)) {
             try (Stream<Path> paths = Files.walk(staticRecipes)) {
                 assertTrue(
-                        paths.noneMatch(Files::isRegularFile),
-                        "vanilla recipe overrides must be generated rather than maintained by hand");
+                        paths.filter(Files::isRegularFile)
+                                .allMatch(path -> path.getFileName().toString().equals("crafting_table.json")),
+                        "only the main-line crafting-table override may be maintained by hand");
             }
         }
 
@@ -621,9 +720,9 @@ class GeneratedResourceTest {
                     .filter(Files::isRegularFile)
                     .map(path -> path.getFileName().toString().replaceFirst("\\.json$", ""))
                     .collect(Collectors.toSet());
-            assertEquals(expected, actual, "only direct door recipes may override vanilla");
+            assertEquals(expected, actual, "vanilla recipe override scope must be explicit");
         }
-        for (String door : expected) {
+        for (String door : expectedDoors) {
             JsonObject recipe = json(generatedRecipes.resolve(door + ".json"));
             JsonObject result = recipe.getAsJsonObject("result");
             assertAll(
@@ -631,6 +730,18 @@ class GeneratedResourceTest {
                     () -> assertEquals("minecraft:crafting_shaped", recipe.get("type").getAsString()),
                     () -> assertEquals("minecraft:" + door, result.get("id").getAsString()),
                     () -> assertTrue(!result.has("count") || result.get("count").getAsInt() == 1));
+        }
+        for (String disabled : expectedDisabled) {
+            JsonObject recipe = json(generatedRecipes.resolve(disabled + ".json"));
+            JsonArray conditions = recipe.getAsJsonArray("neoforge:conditions");
+            assertAll(
+                    disabled,
+                    () -> assertEquals(1, conditions.size()),
+                    () -> assertEquals(
+                            "neoforge:never",
+                            conditions.get(0).getAsJsonObject().get("type").getAsString()),
+                    () -> assertFalse(recipe.has("type")),
+                    () -> assertFalse(recipe.has("result")));
         }
     }
 
@@ -668,10 +779,10 @@ class GeneratedResourceTest {
                             GENERATED.resolve("data/infx/advancement/progression/" + advancement + ".json")),
                     advancement);
         }
-        for (String restored : List.of("iron_axe", "iron_hoe", "iron_shovel", "iron_sword")) {
-            assertFalse(
-                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must use the vanilla recipe without an INFX override");
+        for (String disabled : List.of("iron_axe", "iron_hoe", "iron_shovel", "iron_sword")) {
+            assertTrue(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
         }
     }
 
@@ -778,17 +889,17 @@ class GeneratedResourceTest {
                             nuggetRecipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
-        // The gold/iron conversion and golden weapon/tool recipes all come
-        // from the vanilla data pack; InfX does not override their IDs.
+        // The gold/iron conversions come from the vanilla data pack; InfX
+        // disables the vanilla golden weapon/tool recipes by their original IDs.
         for (String restored : List.of("gold_ingot_from_nuggets", "gold_nugget", "iron_ingot_from_nuggets", "iron_nugget")) {
             assertFalse(
                     Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
                     restored + " must use the vanilla recipe without an INFX override");
         }
-        for (String restored : List.of("golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword")) {
-            assertFalse(
-                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must use the vanilla recipe without an INFX override");
+        for (String disabled : List.of("golden_axe", "golden_hoe", "golden_pickaxe", "golden_shovel", "golden_sword")) {
+            assertTrue(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
         }
 
         Map<String, List<String>> advancementRecipes = Map.of(
@@ -876,8 +987,8 @@ class GeneratedResourceTest {
                             "infx:" + entry.getKey(),
                             recipe.getAsJsonObject("result").get("id").getAsString()));
         }
-        assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/shears.json")),
-                "shears must use the vanilla recipe without an INFX override");
+        assertTrue(Files.exists(GENERATED.resolve("data/minecraft/recipe/shears.json")),
+                "shears must have a disabled vanilla override");
 
         Map<String, List<String>> advancementRecipes = Map.of(
                 "flint_kit",
@@ -999,9 +1110,9 @@ class GeneratedResourceTest {
                     () -> assertEquals(1, count));
         }
 
-        for (String restored : List.of("arrow", "bow")) {
-            assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must use the vanilla recipe without an INFX override");
+        for (String disabled : List.of("arrow", "bow")) {
+            assertTrue(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
         }
         String flintKit = Files.readString(
                 GENERATED.resolve("data/infx/advancement/progression/flint_kit.json"), UTF_8);
@@ -1138,9 +1249,9 @@ class GeneratedResourceTest {
         for (String material : ingotDifficulties.keySet()) {
             assertFalse(Files.exists(GENERATED.resolve("data/infx/recipe/" + material + "_horse_armor.json")));
         }
-        // Vanilla armor crafting recipes are inherited directly from the
-        // vanilla data pack and have no InfX override files.
-        for (String restored : List.of(
+        // Vanilla armor crafting recipes are explicitly disabled by the
+        // generated neoforge:never overrides.
+        for (String disabled : List.of(
                 "leather_helmet",
                 "leather_chestplate",
                 "leather_leggings",
@@ -1153,8 +1264,8 @@ class GeneratedResourceTest {
                 "iron_chestplate",
                 "iron_leggings",
                 "iron_boots")) {
-            assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
-                    restored + " must be restored to vanilla");
+            assertTrue(Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
         }
 
         String metalArmor = Files.readString(
@@ -2819,8 +2930,8 @@ class GeneratedResourceTest {
                     "infx:" + restored + " duplicate must be gone");
         }
         // The InfX flint-and-steel recipe remains as an alternate recipe while
-        // the original vanilla tool recipe is restored as well.
-        assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/flint_and_steel.json")));
+        // the original vanilla tool recipe is disabled.
+        assertTrue(Files.exists(GENERATED.resolve("data/minecraft/recipe/flint_and_steel.json")));
         assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/flint_and_steel.json")));
     }
 
@@ -3013,8 +3124,8 @@ class GeneratedResourceTest {
                             recipe.getAsJsonObject("result").get("id").getAsString()));
         }
 
-        // Modern bypass recipes are restored to vanilla and must not carry a
-        // disabled override file anymore.
+        // Modern bypass recipes remain vanilla; selected equipment upgrades
+        // are disabled by explicit neoforge:never overrides.
         for (String restored : List.of(
                 "bundle",
                 "blue_bundle",
@@ -3024,10 +3135,8 @@ class GeneratedResourceTest {
                 "copper_ingot_from_waxed_copper_block",
                 "crafter",
                 "netherite_block",
-                "netherite_horse_armor_smithing",
                 "netherite_ingot",
                 "netherite_ingot_from_netherite_block",
-                "netherite_nautilus_armor_smithing",
                 "netherite_scrap",
                 "netherite_scrap_from_blasting",
                 "netherite_upgrade_smithing_template",
@@ -3036,6 +3145,11 @@ class GeneratedResourceTest {
             assertFalse(
                     Files.exists(GENERATED.resolve("data/minecraft/recipe/" + restored + ".json")),
                     restored + " must be restored to vanilla");
+        }
+        for (String disabled : List.of("netherite_horse_armor_smithing", "netherite_nautilus_armor_smithing")) {
+            assertTrue(
+                    Files.exists(GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
         }
     }
 

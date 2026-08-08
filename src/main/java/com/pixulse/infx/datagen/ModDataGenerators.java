@@ -31,6 +31,7 @@ public final class ModDataGenerators {
         event.createProvider(ModEquipmentAssetProvider::new);
         event.createProvider(ModRecipeProvider.Runner::new);
         event.createProvider(ModRecipeRulesProvider::new);
+        event.createProvider(DisabledVanillaRecipesProvider::new);
         event.createProvider(ModDataMapProvider::new);
         event.createProvider(VanillaLootTableOverridesProvider::new);
         event.createProvider(VanillaDamageTypeOverridesProvider::new);

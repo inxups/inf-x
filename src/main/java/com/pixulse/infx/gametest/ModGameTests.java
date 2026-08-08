@@ -96,13 +96,19 @@ public final class ModGameTests {
     private static final BlockPos WORK_POS = new BlockPos(1, 1, 1);
     private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
-    private static final List<String> RESTORED_NETHERITE_SMITHING = List.of(
+    private static final List<String> DISABLED_NETHERITE_SMITHING = List.of(
             "netherite_axe_smithing",
             "netherite_hoe_smithing",
             "netherite_pickaxe_smithing",
             "netherite_shovel_smithing",
             "netherite_sword_smithing",
-            "netherite_spear_smithing");
+            "netherite_spear_smithing",
+            "netherite_helmet_smithing",
+            "netherite_chestplate_smithing",
+            "netherite_leggings_smithing",
+            "netherite_boots_smithing",
+            "netherite_nautilus_armor_smithing",
+            "netherite_horse_armor_smithing");
     private static final List<String> WEAPON_RECIPES = List.of(
             "wood_cudgel",
             "wood_club",
@@ -171,8 +177,8 @@ public final class ModGameTests {
             functionKey("timed_crafting");
     private static final ResourceKey<Consumer<GameTestHelper>> COIN_CRAFTING =
             functionKey("coin_crafting");
-    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_RESTORATION =
-            functionKey("vanilla_recipe_restoration");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_POLICY =
+            functionKey("vanilla_recipe_policy");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
             functionKey("vanilla_crafting_menu");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_DOOR_RECIPES =
@@ -216,7 +222,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
         TEST_FUNCTIONS.register("coin_crafting", () -> ModGameTests::coinCrafting);
-        TEST_FUNCTIONS.register("vanilla_recipe_restoration", () -> ModGameTests::vanillaRecipeRestoration);
+        TEST_FUNCTIONS.register("vanilla_recipe_policy", () -> ModGameTests::vanillaRecipePolicy);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("vanilla_door_recipes", () -> ModGameTests::vanillaDoorRecipes);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
@@ -252,7 +258,7 @@ public final class ModGameTests {
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
         registerTest(event, COIN_CRAFTING, environment, 200);
-        registerTest(event, VANILLA_RECIPE_RESTORATION, environment, 40);
+        registerTest(event, VANILLA_RECIPE_POLICY, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, VANILLA_DOOR_RECIPES, environment, 300);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
@@ -578,7 +584,7 @@ public final class ModGameTests {
         return false;
     }
 
-    private static void vanillaRecipeRestoration(GameTestHelper helper) {
+    private static void vanillaRecipePolicy(GameTestHelper helper) {
         var recipeMap = helper.getLevel().recipeAccess().recipeMap();
         List<String> vanillaCrafting = recipeMap.byType(RecipeType.CRAFTING).stream()
                 .map(holder -> holder.id().identifier())
@@ -588,24 +594,34 @@ public final class ModGameTests {
                 .toList();
         helper.assertTrue(
                 vanillaCrafting.size() >= 1_000,
-                "the full vanilla crafting set must remain loaded; found only " + vanillaCrafting.size());
+                "the unrelated vanilla crafting set must remain loaded; found only " + vanillaCrafting.size());
         for (String path : List.of(
-                "crafting_table",
                 "oak_planks",
                 "stick",
+                "turtle_helmet",
+                "wolf_armor",
+                "leather_horse_armor")) {
+            helper.assertTrue(
+                    recipeMap.byKey(recipeKey("minecraft", path)) != null,
+                    "minecraft:" + path + " must remain available");
+        }
+        for (String path : List.of(
                 "iron_pickaxe",
                 "bow",
                 "repair_item",
                 "shield_decoration",
-                "tipped_arrow")) {
+                "tipped_arrow",
+                "leather_helmet",
+                "leather_horse_armor_dyed",
+                "wolf_armor_dyed")) {
             helper.assertTrue(
-                    recipeMap.byKey(recipeKey("minecraft", path)) != null,
-                    "minecraft:" + path + " must be restored");
+                    recipeMap.byKey(recipeKey("minecraft", path)) == null,
+                    "minecraft:" + path + " must be disabled");
         }
-        for (String path : RESTORED_NETHERITE_SMITHING) {
+        for (String path : DISABLED_NETHERITE_SMITHING) {
             helper.assertTrue(
-                    recipeMap.byKey(recipeKey("minecraft", path)) != null,
-                    "minecraft:" + path + " must be restored");
+                    recipeMap.byKey(recipeKey("minecraft", path)) == null,
+                    "minecraft:" + path + " must be disabled");
         }
         helper.assertTrue(
                 recipeMap.byKey(recipeKey("infx", "flint_knife")) != null,
