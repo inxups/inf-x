@@ -72,6 +72,7 @@
     "client.gui.screens.ShareToLanScreenMixin",
     "client.gui.screens.inventory.EnchantmentScreenMixin",
     "client.gui.screens.inventory.InventoryScreenMixin",
+    "client.gui.screens.inventory.TimedResultCountMixin",
     "client.gui.screens.options.DifficultyButtonsMixin",
     "client.gui.screens.worldselection.WorldCreationUiStateMixin",
     "client.renderer.SkyRendererMixin"

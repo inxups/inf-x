@@ -4,10 +4,12 @@ import com.pixulse.infx.player.Experience;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -154,12 +156,25 @@ public final class InfxCraftingRules {
     }
 
     private static ItemStack assembleSafely(CraftingRecipe recipe, CraftingInput input) {
+        if (recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe) {
+            ItemStack displayed = displayOutput(recipe);
+            if (!displayed.isEmpty()) {
+                return displayed;
+            }
+        }
         try {
             ItemStack output = recipe.assemble(input);
-            return output == null ? ItemStack.EMPTY : output;
+            if (output != null && !output.isEmpty()) {
+                return output;
+            }
         } catch (RuntimeException ignored) {
-            return ItemStack.EMPTY;
+            // Static vanilla recipes can fail strict ItemStack validation when
+            // their original result exceeds an InfX stack limit.  The display
+            // template below still provides a legal representative output.
         }
+        return recipe instanceof ShapedRecipe || recipe instanceof ShapelessRecipe
+                ? displayOutput(recipe)
+                : ItemStack.EMPTY;
     }
 
     private static BenchTier gridTier(CraftingRecipe recipe) {
@@ -291,8 +306,13 @@ public final class InfxCraftingRules {
         if (display instanceof SlotDisplay.ItemSlotDisplay(net.minecraft.core.Holder<Item> item1)) {
             return new ItemStack(item1.value());
         }
-        if (display instanceof SlotDisplay.ItemStackSlotDisplay(net.minecraft.world.item.ItemStackTemplate stack1)) {
-            return stack1.create();
+        if (display instanceof SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate template)) {
+            ItemStack single = template.apply(1, DataComponentPatch.EMPTY);
+            if (single.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            int count = Math.min(template.count(), Math.max(1, single.getMaxStackSize()));
+            return template.apply(count, DataComponentPatch.EMPTY);
         }
         if (display instanceof SlotDisplay.Composite(java.util.List<SlotDisplay> contents)) {
             for (SlotDisplay child : contents) {

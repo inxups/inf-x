@@ -10,6 +10,7 @@
 - 修复 Jade 替换原版挖掘工具 Provider 注册独立配置项导致首屏配置翻译检查崩溃：Provider 现在标记为必需并复用 Jade 原版挖掘工具开关，不再注册额外的 `infx:harvest_tool` 配置项。
 - 修复 Jade 初始化配置界面时因 INFX 挖掘工具配置项缺少翻译而崩溃的问题。
 - 修复恢复原版配方后各种门无法合成：所有 14 种直接合成的木门、竹门、铁门与铜门配方保持原版 6 材料布局，但产量由 3 扇调整为 1 扇，与 INFX 的门类物品单组上限一致。
+- 修复恢复原版配方后铁轨、脚手架、货架、金属锭分解和彩色方块等 67 组配方因产量超过 INFX 堆叠上限而无法合成：结果槽保存合法单组，客户端显示原版总数，完成时按物品上限拆分交付并保留原版总产量。
 - 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
 
 ## 0t6

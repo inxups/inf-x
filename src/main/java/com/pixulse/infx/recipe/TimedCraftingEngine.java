@@ -9,6 +9,7 @@ import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXAttachments;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -18,11 +19,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
 
@@ -32,6 +38,7 @@ public final class TimedCraftingEngine {
     public static boolean refreshResult(TimedCraftingMenu timedMenu, ServerPlayer player, boolean clearWhenMissing) {
         AbstractContainerMenu menu = asContainerMenu(timedMenu);
         timedMenu.infx$setExperienceCost(0);
+        timedMenu.infx$setLogicalResultCount(0);
         Optional<CraftingMatch> match = findRecipe(timedMenu, player.level());
         if (match.isEmpty()) {
             timedMenu.infx$setHasTimedResult(false);
@@ -52,9 +59,11 @@ public final class TimedCraftingEngine {
 
         ResultContainer result = timedMenu.infx$resultContainer();
         ItemStack preview = ItemStack.EMPTY;
+        int logicalResultCount = 0;
         if (result.setRecipeUsed(player, holder.holder())) {
-            ItemStack assembled = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
-            if (assembled.isItemEnabled(player.level().enabledFeatures())) {
+            CraftingResult assembledResult = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
+            ItemStack assembled = assembledResult.stack();
+            if (!assembled.isEmpty() && assembled.isItemEnabled(player.level().enabledFeatures())) {
                 boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
                 boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
                 int code = QualitySystem.clampCode(
@@ -68,11 +77,13 @@ public final class TimedCraftingEngine {
                 QualitySystem.applySelectedQuality(assembled, code);
                 applySelectedRune(timedMenu, assembled);
                 timedMenu.infx$setExperienceCost(craftingExperienceCost(
-                        assembled, holder.profile().difficulty(), code, clumsy));
+                        assembled, assembledResult.totalCount(), holder.profile().difficulty(), code, clumsy));
                 preview = assembled;
+                logicalResultCount = assembledResult.totalCount();
             }
         }
 
+        timedMenu.infx$setLogicalResultCount(logicalResultCount);
         timedMenu.infx$setHasTimedResult(!preview.isEmpty());
         timedMenu.infx$syncCraftingData();
         setPreview(menu, player, result, holder.holder(), preview);
@@ -113,7 +124,8 @@ public final class TimedCraftingEngine {
             return;
         }
         CraftingMatch holder = match.orElseThrow();
-        ItemStack output = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
+        CraftingResult assembledResult = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
+        ItemStack output = assembledResult.stack();
         if (RuneStoneBlock.isRuneStone(output)) {
             timedMenu.infx$setSelectedRune(RuneStoneBlock.nextRune(timedMenu.infx$selectedRune()));
             timedMenu.infx$resetTimedCrafting();
@@ -202,8 +214,9 @@ public final class TimedCraftingEngine {
             return;
         }
 
-        ItemStack output = holder.assemble(input);
-        if (output.isEmpty()) {
+        CraftingResult assembledResult = holder.assemble(input);
+        ItemStack output = assembledResult.stack();
+        if (assembledResult.isEmpty()) {
             timedMenu.infx$resetTimedCrafting();
             return;
         }
@@ -220,7 +233,7 @@ public final class TimedCraftingEngine {
         QualitySystem.applySelectedQuality(output, qualityCode);
         applySelectedRune(timedMenu, output);
         int craftingCost = craftingExperienceCost(
-                output, holder.profile().difficulty(), qualityCode, clumsy);
+                output, assembledResult.totalCount(), holder.profile().difficulty(), qualityCode, clumsy);
         timedMenu.infx$setExperienceCost(craftingCost);
         if (!canPayExperience(player, craftingCost)) {
             timedMenu.infx$resetTimedCrafting();
@@ -237,8 +250,11 @@ public final class TimedCraftingEngine {
         }
 
         List<ItemStack> inputsForCriterion = craftSlots.getItems();
-        output.onCraftedBy(player, output.getCount());
-        EventHooks.firePlayerCraftingEvent(player, output, craftSlots);
+        output.onCraftedBy(player, assembledResult.totalCount());
+        List<ItemStack> outputStacks = assembledResult.split();
+        for (ItemStack outputStack : outputStacks) {
+            EventHooks.firePlayerCraftingEvent(player, outputStack, craftSlots);
+        }
         timedMenu.infx$resultContainer().setRecipeUsed(holder.holder());
         timedMenu.infx$resultContainer().awardUsedRecipes(player, inputsForCriterion);
         if (craftingCost > 0) {
@@ -246,7 +262,9 @@ public final class TimedCraftingEngine {
         }
 
         consumeInputsAndReturnContainers(player, craftSlots, positioned, remaining);
-        player.getInventory().placeItemBackInInventory(output);
+        for (ItemStack outputStack : outputStacks) {
+            player.getInventory().placeItemBackInInventory(outputStack);
+        }
         if (coinExperience > 0) {
             player.giveExperiencePoints(coinExperience);
         }
@@ -272,6 +290,7 @@ public final class TimedCraftingEngine {
 
     private static int craftingExperienceCost(
             ItemStack output,
+            int outputCount,
             float difficulty,
             int qualityCode,
             boolean clumsy) {
@@ -280,7 +299,7 @@ public final class TimedCraftingEngine {
         if (!(output.getItem() instanceof CoinItem coin)) {
             return qualityCost;
         }
-        return Math.addExact(qualityCost, Math.multiplyExact(coin.experienceValue(), output.getCount()));
+        return Math.addExact(qualityCost, Math.multiplyExact(coin.experienceValue(), outputCount));
     }
 
     private static boolean canPayExperience(Player player, int cost) {
@@ -356,6 +375,87 @@ public final class TimedCraftingEngine {
         return id.identifier().toString();
     }
 
+    private static CraftingResult displayResult(CraftingRecipe recipe) {
+        for (RecipeDisplay display : recipe.display()) {
+            Optional<ItemStackTemplate> template = displayTemplate(display.result());
+            if (template.isPresent()) {
+                CraftingResult result = CraftingResult.fromTemplate(template.orElseThrow());
+                if (!result.isEmpty()) {
+                    return result;
+                }
+            }
+        }
+        return CraftingResult.EMPTY;
+    }
+
+    private static Optional<ItemStackTemplate> displayTemplate(SlotDisplay display) {
+        if (display instanceof SlotDisplay.ItemStackSlotDisplay itemStackDisplay) {
+            return Optional.of(itemStackDisplay.stack());
+        }
+        if (display instanceof SlotDisplay.Composite composite) {
+            for (SlotDisplay child : composite.contents()) {
+                Optional<ItemStackTemplate> template = displayTemplate(child);
+                if (template.isPresent()) {
+                    return template;
+                }
+            }
+        }
+        if (display instanceof SlotDisplay.WithRemainder remainder) {
+            return displayTemplate(remainder.input());
+        }
+        return Optional.empty();
+    }
+
+    private record CraftingResult(ItemStack stack, int totalCount) {
+        private static final CraftingResult EMPTY = new CraftingResult(ItemStack.EMPTY, 0);
+
+        private static CraftingResult fromStackStrict(ItemStack output) {
+            if (output == null || output.isEmpty()) {
+                return EMPTY;
+            }
+            int totalCount = output.getCount();
+            int maxStackSize = Math.max(1, output.getMaxStackSize());
+            if (totalCount > maxStackSize) {
+                return EMPTY;
+            }
+            ItemStack preview = output.copy();
+            return preview.isEmpty() ? EMPTY : new CraftingResult(preview, totalCount);
+        }
+
+        private static CraftingResult fromTemplate(ItemStackTemplate template) {
+            if (template == null || template.count() <= 0) {
+                return EMPTY;
+            }
+            ItemStack single = template.apply(1, DataComponentPatch.EMPTY);
+            if (single.isEmpty()) {
+                return EMPTY;
+            }
+            int maxStackSize = Math.max(1, single.getMaxStackSize());
+            int previewCount = Math.min(template.count(), maxStackSize);
+            ItemStack preview = template.apply(previewCount, DataComponentPatch.EMPTY);
+            return preview.isEmpty() ? EMPTY : new CraftingResult(preview, template.count());
+        }
+
+        private boolean isEmpty() {
+            return stack.isEmpty() || totalCount <= 0;
+        }
+
+        private List<ItemStack> split() {
+            if (isEmpty()) {
+                return List.of();
+            }
+            int maxStackSize = Math.max(1, stack.getMaxStackSize());
+            int remaining = totalCount;
+            List<ItemStack> result = new java.util.ArrayList<>((totalCount + maxStackSize - 1) / maxStackSize);
+            while (remaining > 0) {
+                int count = Math.min(remaining, maxStackSize);
+                result.add(stack.copyWithCount(count));
+                remaining -= count;
+            }
+            return List.copyOf(result);
+        }
+    }
+
     private record CraftingMatch(RecipeHolder<CraftingRecipe> holder, CraftingProfile profile) {
         static CraftingMatch vanilla(
                 RecipeHolder<CraftingRecipe> holder,
@@ -367,8 +467,31 @@ public final class TimedCraftingEngine {
             return holder.value().matches(input, level);
         }
 
-        ItemStack assemble(CraftingInput input) {
-            return holder.value().assemble(input);
+        CraftingResult assemble(CraftingInput input) {
+            if (holder.value() instanceof ShapedRecipe || holder.value() instanceof ShapelessRecipe) {
+                CraftingResult displayed = displayResult(holder.value());
+                if (!displayed.isEmpty()) {
+                    return displayed;
+                }
+            }
+            try {
+                // Special/dynamic recipes do not expose a stable original
+                // output template. Keep strict validation for them: only a
+                // result that already fits the InfX stack limit is safe to
+                // deliver.
+                CraftingResult assembled = CraftingResult.fromStackStrict(holder.value().assemble(input));
+                if (!assembled.isEmpty()) {
+                    return assembled;
+                }
+            } catch (RuntimeException ignored) {
+                // A static recipe can legitimately fail strict ItemStack
+                // validation when its vanilla result exceeds InfX's limit;
+                // the display template below retains the original quantity.
+            }
+            if (holder.value() instanceof ShapedRecipe || holder.value() instanceof ShapelessRecipe) {
+                return displayResult(holder.value());
+            }
+            return CraftingResult.EMPTY;
         }
 
         NonNullList<ItemStack> getRemainingItems(CraftingInput input) {

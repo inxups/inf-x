@@ -36,6 +36,9 @@ import java.util.Map;
 import java.util.Optional;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -183,6 +186,8 @@ public final class ModGameTests {
             functionKey("vanilla_crafting_menu");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_DOOR_RECIPES =
             functionKey("vanilla_door_recipes");
+    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_OVERFLOW_RECIPES =
+            functionKey("vanilla_overflow_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> CRAFTING_PROFILES =
             functionKey("crafting_profiles");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_RESETS =
@@ -225,6 +230,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("vanilla_recipe_policy", () -> ModGameTests::vanillaRecipePolicy);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("vanilla_door_recipes", () -> ModGameTests::vanillaDoorRecipes);
+        TEST_FUNCTIONS.register("vanilla_overflow_recipes", () -> ModGameTests::vanillaOverflowRecipes);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
         TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
@@ -261,6 +267,7 @@ public final class ModGameTests {
         registerTest(event, VANILLA_RECIPE_POLICY, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, VANILLA_DOOR_RECIPES, environment, 300);
+        registerTest(event, VANILLA_OVERFLOW_RECIPES, environment, 600);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
@@ -800,6 +807,158 @@ public final class ModGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
+    }
+
+    private static void vanillaOverflowRecipes(GameTestHelper helper) {
+        var recipes = helper.getLevel().recipeAccess().recipeMap().byType(RecipeType.CRAFTING);
+        int overflowRecipes = 0;
+        for (RecipeHolder<CraftingRecipe> holder : recipes) {
+            if (!holder.id().identifier().getNamespace().equals("minecraft")) {
+                continue;
+            }
+            if (holder.value().display().stream().anyMatch(ModGameTests::hasOverflowResult)) {
+                overflowRecipes++;
+            }
+        }
+        helper.assertTrue(
+                overflowRecipes == 67,
+                "all 67 vanilla overflow recipe groups must be discoverable; found " + overflowRecipes);
+
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        grantMaximumExperience(player);
+        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_WORKBENCH.get());
+        TimedWorkbenchMenu menu = workbenchMenu(
+                player,
+                helper,
+                BenchTier.ADAMANTIUM,
+                InfXBlocks.ADAMANTIUM_WORKBENCH.get(),
+                11);
+        player.containerMenu = menu;
+        CraftingContainer grid = menu.infx$craftingContainer();
+
+        clearGrid(grid);
+        fillRail(grid);
+        assertOverflowPreview(helper, menu, player, Items.RAIL, 16, "rail");
+
+        clearGrid(grid);
+        fillScaffolding(grid);
+        assertOverflowPreview(helper, menu, player, Items.SCAFFOLDING, 6, "scaffolding");
+
+        clearGrid(grid);
+        fillShelf(grid);
+        assertOverflowPreview(helper, menu, player, Items.OAK_SHELF, 6, "oak shelf");
+
+        clearGrid(grid);
+        fillConcretePowder(grid);
+        assertOverflowPreview(helper, menu, player, Items.WHITE_CONCRETE_POWDER, 8, "white concrete powder");
+
+        clearGrid(grid);
+        fillStainedGlass(grid);
+        assertOverflowPreview(helper, menu, player, Items.WHITE_STAINED_GLASS, 8, "white stained glass");
+
+        clearGrid(grid);
+        fillStainedTerracotta(grid);
+        assertOverflowPreview(helper, menu, player, Items.WHITE_TERRACOTTA, 8, "white stained terracotta");
+
+        clearGrid(grid);
+        grid.setItem(0, Items.COPPER_BLOCK.getDefaultInstance());
+        assertOverflowPreview(helper, menu, player, Items.COPPER_INGOT, 9, "copper block to ingots");
+
+        clearGrid(grid);
+        fillRail(grid);
+        helper.assertTrue(TimedCraftingEngine.refreshResult(menu, player, true), "rail completion must resolve");
+        menu.clicked(0, 0, ContainerInput.PICKUP, player);
+        ServerPlayer[] fullInventoryPlayer = new ServerPlayer[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), Items.RAIL) == 16,
+                        "rail completion must retain the original 16-item yield"))
+                .thenExecute(() -> {
+                    int railStacks = 0;
+                    for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
+                        if (stack.is(Items.RAIL)) {
+                            railStacks++;
+                            helper.assertTrue(
+                                    stack.getCount() <= stack.getMaxStackSize(),
+                                    "every delivered rail stack must respect the InfX maximum");
+                        }
+                    }
+                    helper.assertTrue(railStacks == 2, "16 rails must arrive as two legal stacks");
+                    removePlayer(player);
+                })
+                .thenExecute(() -> {
+                    ServerPlayer full = createPlayer(helper);
+                    fullInventoryPlayer[0] = full;
+                    helper.onEachTick(full::doTick);
+                    grantMaximumExperience(full);
+                    for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+                        int fillerCount = Items.COBBLESTONE.getDefaultInstance().getMaxStackSize();
+                        full.getInventory().setItem(slot, new ItemStack(Items.COBBLESTONE, fillerCount));
+                    }
+                    TimedWorkbenchMenu dropMenu = workbenchMenu(
+                            full,
+                            helper,
+                            BenchTier.ADAMANTIUM,
+                            InfXBlocks.ADAMANTIUM_WORKBENCH.get(),
+                            12);
+                    full.containerMenu = dropMenu;
+                    fillRail(dropMenu.infx$craftingContainer());
+                    helper.assertTrue(
+                            TimedCraftingEngine.refreshResult(dropMenu, full, true),
+                            "full inventory rail recipe must resolve");
+                    dropMenu.clicked(0, 0, ContainerInput.PICKUP, full);
+                })
+                .thenWaitUntil(() -> {
+                    ServerPlayer full = fullInventoryPlayer[0];
+                    var nearbyItems = helper.getLevel().getEntities(
+                            EntityType.ITEM, full.getBoundingBox().inflate(4.0), Entity::isAlive);
+                    helper.assertTrue(
+                            nearbyItems.stream().anyMatch(entity -> entity.getItem().is(Items.RAIL)),
+                            "a full inventory must drop every overflow rail stack");
+                    for (var entity : nearbyItems) {
+                        if (entity.getItem().is(Items.RAIL)) {
+                            helper.assertTrue(
+                                    entity.getItem().getCount() <= entity.getItem().getMaxStackSize(),
+                                    "dropped overflow rails must remain legal stacks");
+                        }
+                    }
+                })
+                .thenExecute(() -> removePlayer(fullInventoryPlayer[0]))
+                .thenSucceed();
+    }
+
+    private static boolean hasOverflowResult(RecipeDisplay display) {
+        if (display.result() instanceof SlotDisplay.ItemStackSlotDisplay itemStackDisplay) {
+            ItemStackTemplate template = itemStackDisplay.stack();
+            ItemStack single = template.apply(1, net.minecraft.core.component.DataComponentPatch.EMPTY);
+            return !single.isEmpty() && template.count() > single.getMaxStackSize();
+        }
+        return false;
+    }
+
+    private static void assertOverflowPreview(
+            GameTestHelper helper,
+            TimedCraftingMenu menu,
+            ServerPlayer player,
+            Item expected,
+            int logicalCount,
+            String description) {
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true),
+                description + " must resolve through the timed engine");
+        ItemStack preview = menu.infx$resultContainer().getItem(0);
+        helper.assertTrue(preview.is(expected), description + " must produce " + expected + "; actual=" + preview);
+        helper.assertTrue(
+                preview.getCount() == preview.getMaxStackSize(),
+                description + " must cap the physical preview at the item maximum; actual=" + preview);
+        helper.assertTrue(
+                menu.infx$logicalResultCount() == logicalCount,
+                description + " must retain the logical vanilla count " + logicalCount
+                        + "; actual=" + menu.infx$logicalResultCount());
+        helper.assertTrue(
+                preview.getCount() <= preview.getMaxStackSize(),
+                description + " must never expose an oversized ItemStack");
     }
 
     private static void craftingProfiles(GameTestHelper helper) {
@@ -2146,6 +2305,50 @@ public final class ModGameTests {
         for (int slot : List.of(0, 1, 3, 4, 6, 7)) {
             grid.setItem(slot, material.getDefaultInstance());
         }
+    }
+
+    private static void fillRail(CraftingContainer grid) {
+        for (int slot : List.of(0, 2, 3, 5, 6, 8)) {
+            grid.setItem(slot, Items.IRON_INGOT.getDefaultInstance());
+        }
+        grid.setItem(4, Items.STICK.getDefaultInstance());
+    }
+
+    private static void fillScaffolding(CraftingContainer grid) {
+        for (int slot : List.of(0, 2, 3, 5, 6, 8)) {
+            grid.setItem(slot, Items.BAMBOO.getDefaultInstance());
+        }
+        grid.setItem(1, Items.STRING.getDefaultInstance());
+    }
+
+    private static void fillShelf(CraftingContainer grid) {
+        for (int slot : List.of(0, 1, 2, 6, 7, 8)) {
+            grid.setItem(slot, Items.STRIPPED_OAK_LOG.getDefaultInstance());
+        }
+    }
+
+    private static void fillConcretePowder(CraftingContainer grid) {
+        grid.setItem(0, Items.WHITE_DYE.getDefaultInstance());
+        for (int slot : List.of(1, 2, 3, 4)) {
+            grid.setItem(slot, Items.SAND.getDefaultInstance());
+        }
+        for (int slot : List.of(5, 6, 7, 8)) {
+            grid.setItem(slot, Items.GRAVEL.getDefaultInstance());
+        }
+    }
+
+    private static void fillStainedGlass(CraftingContainer grid) {
+        for (int slot : List.of(0, 1, 2, 3, 5, 6, 7, 8)) {
+            grid.setItem(slot, Items.GLASS.getDefaultInstance());
+        }
+        grid.setItem(4, Items.WHITE_DYE.getDefaultInstance());
+    }
+
+    private static void fillStainedTerracotta(CraftingContainer grid) {
+        for (int slot : List.of(0, 1, 2, 3, 5, 6, 7, 8)) {
+            grid.setItem(slot, Items.TERRACOTTA.getDefaultInstance());
+        }
+        grid.setItem(4, Items.WHITE_DYE.getDefaultInstance());
     }
 
     private static void clearGrid(CraftingContainer grid) {
