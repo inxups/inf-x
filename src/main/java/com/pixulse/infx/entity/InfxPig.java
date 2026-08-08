@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.mixin.PigAccessor;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -98,7 +98,7 @@ public final class InfxPig extends Pig {
         // InfX newborns inherit the coat of one parent instead of re-rolling by biome.
         Pig baby = InfXEntityTypes.INFX_PIG.get().create(level, EntitySpawnReason.BREEDING);
         if (baby != null && partner instanceof Pig partnerPig) {
-            ((PigAccessor) baby).infx$setVariant(
+            baby.setComponent(DataComponents.PIG_VARIANT,
                     this.random.nextBoolean() ? this.getVariant() : partnerPig.getVariant());
         }
         return baby;

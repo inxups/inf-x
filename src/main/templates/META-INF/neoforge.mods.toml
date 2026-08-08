@@ -5,6 +5,7 @@ modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
 authors="inxups, IAFEnvoy"
+enumExtensions="META-INF/enumextender.json"
 description='''
 A not easy mod for minecraft.
 '''

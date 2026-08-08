@@ -1,7 +1,7 @@
 package com.pixulse.infx.entity;
 
-import com.pixulse.infx.mixin.WolfAccessor;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -154,18 +154,17 @@ public final class VanillaWolf extends Wolf implements InfxTameableWolf {
         // InfX pups inherit the coat, sounds, and tamed collar of their parents.
         Wolf baby = InfXEntityTypes.INFX_WOLF.get().create(level, EntitySpawnReason.BREEDING);
         if (baby != null && partner instanceof Wolf partnerWolf) {
-            WolfAccessor babyAccessor = (WolfAccessor) baby;
             Wolf self = this;
-            babyAccessor.infx$setVariant(this.random.nextBoolean()
-                    ? ((WolfAccessor) self).infx$getVariant()
-                    : ((WolfAccessor) partnerWolf).infx$getVariant());
+            baby.setComponent(DataComponents.WOLF_VARIANT, this.random.nextBoolean()
+                    ? self.get(DataComponents.WOLF_VARIANT)
+                    : partnerWolf.get(DataComponents.WOLF_VARIANT));
             if (this.isTame()) {
                 baby.setOwnerReference(this.getOwnerReference());
                 baby.setTame(true, true);
-                babyAccessor.infx$setCollarColor(DyeColor.getMixedColor(
+                baby.setComponent(DataComponents.WOLF_COLLAR, DyeColor.getMixedColor(
                         level, this.getCollarColor(), partnerWolf.getCollarColor()));
             }
-            babyAccessor.infx$setSoundVariant(
+            baby.setComponent(DataComponents.WOLF_SOUND_VARIANT,
                     WolfSoundVariants.pickRandomSoundVariant(this.registryAccess(), this.random));
         }
         return baby;

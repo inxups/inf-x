@@ -1,0 +1,121 @@
+package com.pixulse.infx.event;
+
+import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.data.food.FoodIngestion;
+import com.pixulse.infx.item.InfxBucketItem;
+import com.pixulse.infx.item.MobBucketKind;
+import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.network.Network;
+import com.pixulse.infx.util.BucketHelper;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.TriState;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.animal.Bucketable;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.EggItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.ModifyDefaultComponentsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+
+/** Item-level behavior that has a public NeoForge event equivalent. */
+@EventBusSubscriber(modid = InfiniteX.MOD_ID)
+public final class ItemEvents {
+    public static final int FLINT_AND_STEEL_DURABILITY = 16;
+
+    private ItemEvents() {}
+
+    /**
+     * InfX flint and steel has 16 durability instead of the modern 64. Applied to the default
+     * MAX_DAMAGE component on the mod event bus, so every stack reports the InfX value through
+     * {@link ItemStack#getMaxDamage()}.
+     */
+    public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
+        event.modify(Items.FLINT_AND_STEEL, (components, context, item) ->
+                components.set(DataComponents.MAX_DAMAGE, FLINT_AND_STEEL_DURABILITY));
+    }
+
+    /**
+     * Enforces InfX's player-specific pickup grace after a held INFX bucket melts.
+     * {@link ItemEntityPickupEvent.Pre} fires at the head of {@code ItemEntity#playerTouch}
+     * exactly where the old mixin cancelled, with the same server-only scope.
+     */
+    @SubscribeEvent
+    public static void blockPickupAfterBucketMelt(ItemEntityPickupEvent.Pre event) {
+        if (InfxBucketItem.isMeltPickupBlocked(event.getPlayer())) {
+            event.setCanPickup(TriState.FALSE);
+        }
+    }
+
+    /**
+     * EggItem hard-codes throwing; INFX gives eating priority while food is needed.
+     * {@link PlayerInteractEvent.RightClickItem} fires right before {@code ItemStack#use} on both
+     * the client prediction and the server, the same boundary the old mixin intercepted.
+     */
+    @SubscribeEvent
+    public static void eatBeforeThrowingEgg(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        ItemStack egg = player.getItemInHand(event.getHand());
+        if (!(egg.getItem() instanceof EggItem)
+                || player.getPersistentData().getBooleanOr(Network.FORCE_EGG_THROW, false)
+                || !FoodIngestion.canIngest(player, egg)) {
+            return;
+        }
+        Consumable consumable = egg.get(DataComponents.CONSUMABLE);
+        if (consumable != null) {
+            event.setCanceled(true);
+            event.setCancellationResult(consumable.startConsuming(player, egg, event.getHand()));
+        }
+    }
+
+    /**
+     * Vanilla {@link Bucketable} only accepts {@code Items.WATER_BUCKET}. INFX water buckets must
+     * also capture fish/axolotl/tadpole while preserving the bucket material.
+     * {@link PlayerInteractEvent.EntityInteract} fires before {@code Entity#interact}, which is
+     * where the vanilla bucket pickups normally run, so canceling there keeps the same result.
+     */
+    @SubscribeEvent
+    public static void captureMobWithInfxWaterBucket(PlayerInteractEvent.EntityInteract event) {
+        Player player = event.getEntity();
+        ItemStack held = player.getItemInHand(event.getHand());
+        if (!(held.getItem() instanceof InfxBucketItem bucket)
+                || bucket.contents() != InfxBucketItem.Contents.WATER) {
+            return;
+        }
+        if (!(event.getTarget() instanceof LivingEntity pickupEntity)
+                || !(pickupEntity instanceof Bucketable bucketable)
+                || !pickupEntity.isAlive()) {
+            return;
+        }
+        MobBucketKind kind = MobBucketKind.of(pickupEntity.getType());
+        if (kind == null) {
+            return;
+        }
+        InfxMaterial material = bucket.material();
+        pickupEntity.playSound(bucketable.getPickupSound(), 1.0F, 1.0F);
+        ItemStack filled = BucketHelper.mobBucket(material, kind);
+        bucketable.saveToBucketTag(filled);
+        ItemStack result = ItemUtils.createFilledResult(held, player, filled, false);
+        player.setItemInHand(event.getHand(), result);
+        Level level = pickupEntity.level();
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, filled);
+        }
+        if (pickupEntity instanceof Leashable leashable) {
+            leashable.dropLeash();
+        }
+        pickupEntity.discard();
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+    }
+}

@@ -1,0 +1,13 @@
+{
+  "entries": [
+    {
+      "enum": "net/minecraft/world/damagesource/DeathMessageType",
+      "name": "infx_poison",
+      "constructor": "(Ljava/lang/String;Lnet/neoforged/neoforge/common/damagesource/IDeathMessageProvider;)V",
+      "parameters": {
+        "class": "com/pixulse/infx/event/server/InfXDeathMessageTypes",
+        "field": "POISON"
+      }
+    }
+  ]
+}
