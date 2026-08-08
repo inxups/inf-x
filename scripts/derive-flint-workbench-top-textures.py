@@ -110,8 +110,8 @@ def read_vanilla_grid(path_in_jar: str):
 
 def compose(base, wood):
     img = [row[:] for row in base]
-    for (x, y), c in overlay.items():  # 用户图案:不透明像素覆盖原木
-        img[y][x] = c
+    for (x, y), (c, a) in overlay.items():  # 用户图案按 alpha 混合到原木上
+        img[y][x] = blend_over(img[y][x], c, a)
     return img
 
 
@@ -129,18 +129,45 @@ def encode_png(img, path: Path):
 
 
 # Overlay pixels from the owner-provided pattern (transparent pixels keep the wood base).
-# A single #f606fb placeholder pixel (editor "unfinished" marker) is replaced with its
-# left neighbour so the frame gradient stays continuous.
+# The artwork carries blue-white translucent residue (half-erased background from the
+# authoring tool, incl. a #f606fb placeholder and scattered low-alpha noise). Those are
+# remapped to warm wood highlight tones and alpha-blended over the wood so the bench
+# frame reads as wood highlights instead of blue. Fully opaque dark pixels are kept.
+ALPHA_KEEP = 128
+WARM = {  # blue-white -> warm wood highlight
+    (0xFB, 0xFB, 0xFB): (0xEB, 0xDE, 0xC0),  # white
+    (0xEE, 0xE6, 0xDD): (0xE2, 0xD0, 0xAE),
+    (0xEA, 0xF2, 0xFB): (0xD8, 0xC6, 0xA6),  # pale blue
+    (0xDD, 0xDD, 0xDD): (0xCE, 0xBE, 0x9E),
+    (0xD9, 0xC9, 0xD4): (0xC8, 0xB8, 0x98),
+    (0xD4, 0xD4, 0xD4): (0xC6, 0xB6, 0x98),
+    (0xC8, 0xC0, 0xD4): (0xBE, 0xAE, 0x90),
+    (0xCA, 0xB1, 0x93): (0xBA, 0xA4, 0x84),
+    (0x69, 0xC0, 0xFC): (0xC4, 0xA6, 0x6E),  # bright blue
+    (0x84, 0xB5, 0xDD): (0xB6, 0x9C, 0x70),
+    (0x87, 0xC0, 0xDD): (0xBA, 0xA0, 0x74),
+    (0x5C, 0xAB, 0xDE): (0xAC, 0x94, 0x68),
+    (0x31, 0x8E, 0xEB): (0xC4, 0xA6, 0x68),
+    (0xF6, 0x06, 0xFB): (0xC6, 0xB6, 0x98),  # placeholder magenta
+}
+
+def blend_over(base_rgb, a, b):
+    if a is None:
+        return base_rgb
+    out = []
+    for i in range(3):
+        out.append(round((a[i] * b + base_rgb[i] * (255 - b)) / 255))
+    return tuple(out)
+
 w, h, bd, ct, pal, rows = decode_png(USER_TOP)
+assert ct == 6, "owner-provided top must be RGBA"
 overlay = {}
 for y in range(h):
     for x in range(w):
-        p = raw_px(rows, x, y, bd, ct, pal)
-        if p is not None:
-            if p[:3] == (0xF6, 0x06, 0xFB):
-                left = raw_px(rows, x - 1, y, bd, ct, pal)
-                p = left if left is not None else (0xD4, 0xD4, 0xD4)
-            overlay[(x, y)] = p
+        p = tuple(rows[y][x * 4:(x + 1) * 4])
+        if p[3] >= ALPHA_KEEP:
+            color = WARM.get(p[:3], p[:3])
+            overlay[(x, y)] = (color, p[3])
 
 for wood in WOODS:
     stem = "stem" if wood in ("crimson", "warped") else "log"
