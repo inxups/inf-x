@@ -25,6 +25,7 @@
   - 中毒死亡信息：改用 NeoForge 枚举扩展 `enumextender.json` 新增 `DeathMessageType`，并通过数据生成覆盖 `minecraft:magic` 伤害类型的死亡信息类型（原 `DamageSourcePoisonDeathMixin`）。
 
 ### 问题修复
+- 修复客户端启动崩溃：`recipe_rules` 规则同步在登录配置阶段（需要完成配置任务）与 `/reload` 的 play 阶段（没有配置任务）共用同一客户端处理器，play 阶段调用 `finishCurrentTask` 会抛 `UnsupportedOperationException`；现拆分为配置/play 两个处理器，仅配置阶段完成配置任务。
 - 修复锋利附魔在真实玩家近战攻击中被事件层重复计算的问题；锋利 V 不再让秘银剑额外多出一份伤害。
 - 剑、镰刀、斧等所有目录武器不再携带 ATTACK_RANGE 组件，近战攻击距离遵循与空手/原版武器相同的 1.5 格规则（创造模式 5 格），客户端拾取回归原版路径：骑乘时准星不再选中自己的坐骑，攻击不会再误伤坐骑。
 - 空手及所有无 ATTACK_RANGE 组件的物品近战攻击距离改为 1.5 格（创造模式 5 格），并在客户端左键攻击时真实生效；基础方块与实体交互距离同样为 1.5 格，带触及加成的工具仍会增加交互距离。
