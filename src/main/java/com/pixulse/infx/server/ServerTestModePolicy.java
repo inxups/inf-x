@@ -50,6 +50,10 @@ public final class ServerTestModePolicy {
         return testMode;
     }
 
+    public static boolean allowsPlayerPermissions(boolean testMode) {
+        return testMode;
+    }
+
     public static boolean allowsPlayerLimitBypass(boolean testMode) {
         return testMode;
     }
