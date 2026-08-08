@@ -111,6 +111,9 @@ public final class PhysicsEvents {
             entity.setItem(new ItemStack(Items.OBSIDIAN, stack.getCount()));
         } else if (stack.is(Items.BUCKET) || stack.is(Items.MILK_BUCKET)) {
             entity.setItem(new ItemStack(Items.WATER_BUCKET, stack.getCount()));
+        } else if (stack.is(Items.BOWL)) {
+            entity.setItem(InfXItems.WATER_BOWL.toStack(
+                    Math.min(stack.getCount(), InfXItems.WATER_BOWL.get().getDefaultMaxStackSize())));
         }
     }
 

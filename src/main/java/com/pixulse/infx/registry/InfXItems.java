@@ -411,9 +411,13 @@ public final class InfXItems {
                         properties -> {
                             Item.Properties configured = properties.stacksTo(
                                     contents == InfxBucketItem.Contents.EMPTY ? 8 : 1);
-                            if (contents != InfxBucketItem.Contents.EMPTY) {
+                            if (contents == InfxBucketItem.Contents.WATER
+                                    || contents == InfxBucketItem.Contents.LAVA
+                                    || contents == InfxBucketItem.Contents.MILK) {
                                 // InfX ItemVessel#setContainerItem: a filled vessel used in crafting
-                                // returns the matching empty bucket as its remainder.
+                                // returns the matching empty bucket as its remainder. Stone buckets are
+                                // exempt: their 1:1 conversion recipe already yields the empty bucket,
+                                // and a remainder would return a second one.
                                 configured.craftRemainder(
                                         bucket(material, InfxBucketItem.Contents.EMPTY).value());
                             }

@@ -44,6 +44,8 @@ public final class BlockStackLimits {
     private static final int DEFAULT_BLOCK_LIMIT = 4;
     private static final Set<Item> STANDALONE_SIXTEEN = Set.of(
             Items.SUGAR_CANE,
+            Items.BAMBOO,
+            Items.RESIN_CLUMP,
             Items.REPEATER,
             Items.COMPARATOR,
             Items.BREWING_STAND,
@@ -99,7 +101,8 @@ public final class BlockStackLimits {
             return 1;
         }
         // ItemBlock inherits these overrides from BlockPane, BlockSapling and BlockTorch;
-        // signs, skulls and ItemReed-backed placers retain Item's INFX default of sixteen.
+        // signs, skulls, bamboo, resin clumps and ItemReed-backed placers retain Item's
+        // INFX default of sixteen.
         if (STANDALONE_SIXTEEN.contains(item)
                 || block instanceof IronBarsBlock
                 || block instanceof SaplingBlock

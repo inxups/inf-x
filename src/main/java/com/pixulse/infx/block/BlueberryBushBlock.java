@@ -109,7 +109,8 @@ public final class BlueberryBushBlock extends SweetBerryBushBlock {
     @Override
     public boolean isValidBonemealTarget(
             @NonNull LevelReader level, @NonNull BlockPos pos, @NonNull BlockState state) {
-        return state.getValue(AGE) < MAX_AGE;
+        // InfX berry bushes cannot be forced with bone meal; they grow only over time.
+        return false;
     }
 
     @Override

@@ -2376,7 +2376,7 @@ public final class ModCompletionGameTests {
         grid.setItem(0, new ItemStack(Items.STRING));
         grid.setItem(1, new ItemStack(Items.STRING));
         grid.setItem(3, new ItemStack(Items.STRING));
-        grid.setItem(4, new ItemStack(Items.SLIME_BALL));
+        grid.setItem(4, InfXItems.GREEN_GELATINOUS_SPHERE.toStack());
         grid.setItem(8, new ItemStack(Items.STRING));
         assertLegacyCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "InfX string lead");
 
@@ -2384,7 +2384,7 @@ public final class ModCompletionGameTests {
         grid.setItem(0, InfXItems.SINEW.toStack());
         grid.setItem(1, InfXItems.SINEW.toStack());
         grid.setItem(3, InfXItems.SINEW.toStack());
-        grid.setItem(4, new ItemStack(Items.SLIME_BALL));
+        grid.setItem(4, InfXItems.GREEN_GELATINOUS_SPHERE.toStack());
         grid.setItem(8, InfXItems.SINEW.toStack());
         assertLegacyCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "InfX sinew lead");
 

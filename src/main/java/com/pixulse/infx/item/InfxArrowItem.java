@@ -10,6 +10,7 @@ import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.DispenserBlock;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -19,6 +20,9 @@ public final class InfxArrowItem extends ArrowItem {
     public InfxArrowItem(EquipmentKey key, Properties properties) {
         super(properties);
         this.key = key;
+        // Vanilla only registers projectile behaviors for its own arrow items, so INFX arrows
+        // would otherwise be dropped by dispensers instead of fired.
+        DispenserBlock.registerProjectileBehavior(this);
     }
 
     public EquipmentKey key() {
