@@ -32,6 +32,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
+import net.minecraft.world.item.crafting.DyeRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -920,6 +921,9 @@ final class ModRecipeProvider extends RecipeProvider {
         }
 
         addArmorSet("leather", InfxMaterial.LEATHER, BenchTier.FLINT, 100.0F, Items.LEATHER, false);
+        for (EquipmentType piece : EquipmentType.platePieces()) {
+            addDyeRecipe("leather_" + piece.path() + "_dyed", equipment(InfxMaterial.LEATHER, piece));
+        }
         addMetalArmorSets(
                 "copper", InfxMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
         addMetalArmorSets(
@@ -1651,6 +1655,23 @@ final class ModRecipeProvider extends RecipeProvider {
         ResourceKey<Recipe<?>> key2 = recipeKey(name);
         output.accept(key2, recipe, null);
         recipeRules.put(key2, RecipeRule.of(key2, key2.identifier(), difficulty, requiredBench));
+    }
+
+    /**
+     * Vanilla-style armor dyeing ({@code crafting_dye}) for InfX leather
+     * armor. Dyeing is a trivial 2x2 hand craft: the armor piece and the dye
+     * contribute 25 difficulty each.
+     */
+    private void addDyeRecipe(String name, ItemLike target) {
+        DyeRecipe recipe = new DyeRecipe(
+                new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.MISC, "dyed_armor"),
+                Ingredient.of(target),
+                ingredient(ItemTags.DYES),
+                new ItemStackTemplate(target.asItem(), 1));
+        ResourceKey<Recipe<?>> key = recipeKey(name);
+        output.accept(key, recipe, null);
+        recipeRules.put(key, RecipeRule.of(key, key.identifier(), 50.0F, BenchTier.HAND));
     }
 
     private void addShapeless(

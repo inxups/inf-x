@@ -14,6 +14,8 @@
 - 修复登录配置阶段 `recipe_rules` 同步在客户端报错 `UnsupportedOperationException: Attempted to complete a configuration task on the client!`：配置任务只能由服务端完成，客户端处理器不再调用 `finishCurrentTask`，改为应用规则后回发新增的 `recipe_rules_ack` 确认包，由服务端收到确认后完成任务（与 `test_mode` 握手机制一致）；网络协议版本升级为 4。
 ### 平衡调整
 - 模组金属锭（银锭、秘银锭、艾德曼锭、远古金属锭）堆叠上限由 16 下调为 8，与原版铁锭、铜锭、金锭、下界合金锭的堆叠上限一致；其他模组原材料（金属粒、碎片、锁链、硬币等）仍为 16。
+### 新功能
+- 模组皮革盔甲（皮革头盔、胸甲、护腿、靴子）现在可以在 2×2 合成格中与任意染料合成染色（`crafting_dye` 配方，难度 50，徒手即可），颜色混合规则与原版皮革盔甲一致；已染色的模组皮革盔甲可在盛水炼药锅中洗去颜色（加入原版 `cauldron_can_remove_dye` 物品标签）。原版皮革盔甲的染色配方保持禁用。
 
 ## 0t6
 ### 新功能
