@@ -1,8 +1,36 @@
 # Changelog
 
+## 0t7
+### Balance Changes
+- The stack limit for mod metal ingots (silver, mithril, adamant, and ancient metal ingots) has been reduced from 16 to 8, matching the vanilla stack limit for iron, copper, gold, and netherite ingots. Other mod raw materials (metal nuggets, fragments, chains, coins, etc.) remain stackable to 16.
+- Attack speed adjustments: short wooden sticks and all daggers are now 2.5; all short axes are 1.2; wooden clubs are 1.6; flint knives and obsidian knives are 3.0.
+### New Features
+- Added Jade compatibility
+- Mod leather armor (leather helmets, chestplates, leggings, and boots) can now be dyed in a 2×2 crafting grid with any dye using `crafting_dye` recipes. The recipes have a difficulty of 50 and require no tools. Color mixing follows vanilla leather armor rules. Dyed mod leather armor can be washed in a water-filled cauldron by adding it to the vanilla `cauldron_can_remove_dye` item tag. Vanilla leather armor dyeing recipes remain disabled.
+- The “Allow Cheats” switch when sharing a world to LAN can now only be enabled in test mode (`-Dinfx.testMode=true`). In normal mode, it is forcibly disabled and cannot be toggled; its tooltip explains why. LAN worlds can no longer be opened with cheats enabled.
+### Bug Fixes
+- Vanilla crossbows now have 64 durability instead of 465, can be repaired with iron nuggets in an anvil, and have an enchantability of 30. With a fully upgraded diamond enchanting table, the maximum enchantment cost is 5,300 XP.
+- Newly added carrot and warped-fungus fishing rods now have the same durability as regular fishing rods made from the same material—for example, iron: 16, mithril: 128, and adamant: 512—instead of being fixed at 25 or 100.
+- Pillager patrols now use the same conditions as village generation: day 60 and iron-tier tools having been crafted somewhere in the world, replacing vanilla’s five-day threshold.
+- Bamboo and resin clumps now stack to 16 instead of 4.
+- The Diamond Enchanting Table recipe now uses mithril materials: Mithril Workbench + Mithril Ingot + Obsidian + Book. It no longer requires a Mithril Workbench while using only diamonds.
+- Feeding baby animals no longer consumes food or accelerates their growth. Babies can now grow only over time. Golden dandelions’ age-locking function is unaffected.
+- Added the server configuration option `toolsBlockAttacks`, enabled by default. When disabled, tools no longer have a blocking component, and right-clicking with tools will not block attacks like a shield. Changes require a restart.
+- Copper ore and deepslate copper ore now initially drop only 1 raw copper; Fortune can still increase the yield, replacing vanilla’s 2–5.
+- Blueberry bushes and sweet berry bushes can no longer be grown with bone meal.
+- The base survival-mode interaction distance for blocks and entities has been unified at 2.5 blocks. The block distance was previously 2.25 blocks. Tool and weapon reach bonuses now stack correctly through attributes instead of being bypassed by hardcoded interaction distances.
+- Swords can now mine blocks that are normally mineable by hand, such as dirt and sand, but still cannot mine blocks requiring the correct tool, such as stone and ores.
+- The slimeball in the lead recipe has been replaced with an INFX slimeball from the gel-ball tag; any color is accepted.
+- Crafting various metal and stone buckets back into empty buckets no longer returns an extra bucket. Stone buckets no longer provide a container remainder; previously, one stone bucket produced two empty buckets.
+- Equipment dropped into fire or lava now loses durability: 1 durability per fire damage and 4 per lava damage. It burns up only when its durability reaches zero. Fire-immune equipment, such as netherite and adamant equipment, is unaffected.
+- INFX arrows can now be fired normally by dispensers instead of merely being ejected.
+- Bowls thrown into water now become water bowls, just like buckets.
+- Fixed doors becoming uncraftable after vanilla recipes were restored. All 14 direct-crafting recipes for wooden, bamboo, iron, and copper doors retain vanilla’s six-material layout, but their output has been reduced from 3 doors to 1, matching the single-stack limit of INFX door items.
+- Fixed 67 recipe groups—including rails, scaffolding, shelves, metal-ingot uncrafting, and colored blocks—becoming uncraftable because their outputs exceeded INFX stack limits. The result slot now stores a legal single-stack quantity, the client displays the vanilla total, and completing the recipe delivers the full vanilla output split into valid stacks.
+
+---
+
 ## 0t6
-## New Features
-- The Jade tooltip's harvest-tool line now reads InfX mining rules instead of vanilla tags: it shows the cheapest InfX tool of every effective family for the block's harvest level (e.g. an iron pickaxe for mithril ore, a flint axe for logs, a mithril pickaxe for diamond ore), and the ✓/✕ mark matches the server-side mining gate (portable hand-harvest blocks count as minable; blocks whose required level exceeds every InfX tier show no tool). All of Jade's own harvest-tool config toggles (line, new line, Creative mode, etc.) keep working.
 ## Bug Fixes
 - Swords, scythes, axes, and all other melee weapons no longer carry the `ATTACK_RANGE` component. Melee reach now follows the 1.5-block rule used by bare hands and vanilla weapons, or 5 blocks in Creative mode. Client-side targeting also follows the vanilla path again: while mounted, the crosshair no longer targets the mount, and attacks no longer accidentally hit it.
 - Bare-handed attacks and all items without `ATTACK_RANGE` now use a 1.5-block melee range, or 5 blocks in Creative mode, and this works correctly for client-side left-click attacks. Base block and entity interaction reach is also 1.5 blocks; tools with reach bonuses still extend it.
