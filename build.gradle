@@ -44,6 +44,8 @@ dependencies {
     implementation "curse.maven:sodium-394468:8591754"
     // Jade-mc26.1-NeoForge-26.1.8
     implementation "curse.maven:jade-324717:8326300"
+    //jei_structures-26.1.2-neoforge-1.8
+    runtimeOnly "curse.maven:jei-structures-1568462:8581241"
 }
 
 base {
