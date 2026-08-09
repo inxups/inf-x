@@ -38,8 +38,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // JEI 29.6.2.31 is the 26.1.2
-    implementation "curse.maven:jei-238222:8108851"
+    // JEI 29.21.0.67 is the 26.1.2
+    implementation "curse.maven:jei-238222:8601603"
     // Sodium 0.9.2-alpha.4 for NeoForge 26.1.2
     implementation "curse.maven:sodium-394468:8591754"
     // Jade-mc26.1-NeoForge-26.1.8
