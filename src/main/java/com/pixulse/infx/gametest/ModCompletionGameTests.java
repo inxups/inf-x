@@ -3046,6 +3046,10 @@ public final class ModCompletionGameTests {
         InfXItems.ENCHANTING_TABLES.forEach(item -> assertStackLimit(helper, 4, item.value()));
         InfXItems.METAL_SAFES.forEach(item -> assertStackLimit(helper, 4, item.value()));
         assertStackLimit(helper, 4, InfXItems.NETHER_GRAVEL.value());
+        assertStackLimit(helper, 8, InfXItems.SILVER_INGOT.value());
+        assertStackLimit(helper, 8, InfXItems.MITHRIL_INGOT.value());
+        assertStackLimit(helper, 8, InfXItems.ADAMANTIUM_INGOT.value());
+        assertStackLimit(helper, 8, InfXItems.ANCIENT_METAL_INGOT.value());
         assertStackLimit(helper, 32, InfXItems.WITHERWOOD.value());
         assertStackLimit(helper, 8, InfXItems.BLUEBERRY_BUSH.value());
         assertStackLimit(helper, 4, InfXItems.CORE.value());

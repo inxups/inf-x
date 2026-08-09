@@ -68,7 +68,8 @@ public final class Catalog {
                                     ? new ManureItem(properties)
                                     : new Item(properties),
                     properties -> {
-                        Item.Properties configured = properties.stacksTo(16);
+                        Item.Properties configured = properties.stacksTo(
+                                definition.kind() == RawItem.Kind.INGOT ? 8 : 16);
                         return definition.material()
                                         .filter(material -> material.has(InfxMaterial.Flag.LAVA_SAFE))
                                         .isPresent()
