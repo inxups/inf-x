@@ -45,6 +45,7 @@ import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.ChatFormatting;
@@ -74,9 +75,12 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.CraftingMenu;
 import net.minecraft.world.inventory.FurnaceResultSlot;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -180,6 +184,8 @@ public final class ModGameTests {
             functionKey("timed_crafting");
     private static final ResourceKey<Consumer<GameTestHelper>> COIN_CRAFTING =
             functionKey("coin_crafting");
+    private static final ResourceKey<Consumer<GameTestHelper>> LEATHER_DYEING =
+            functionKey("leather_dyeing");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_RECIPE_POLICY =
             functionKey("vanilla_recipe_policy");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_CRAFTING_MENU =
@@ -227,6 +233,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
         TEST_FUNCTIONS.register("coin_crafting", () -> ModGameTests::coinCrafting);
+        TEST_FUNCTIONS.register("leather_dyeing", () -> ModGameTests::leatherDyeing);
         TEST_FUNCTIONS.register("vanilla_recipe_policy", () -> ModGameTests::vanillaRecipePolicy);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("vanilla_door_recipes", () -> ModGameTests::vanillaDoorRecipes);
@@ -264,6 +271,7 @@ public final class ModGameTests {
         registerTest(event, BENCH_HIERARCHY, environment, 80);
         registerTest(event, TIMED_CRAFTING, environment, 200);
         registerTest(event, COIN_CRAFTING, environment, 200);
+        registerTest(event, LEATHER_DYEING, environment, 80);
         registerTest(event, VANILLA_RECIPE_POLICY, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, VANILLA_DOOR_RECIPES, environment, 300);
@@ -518,6 +526,44 @@ public final class ModGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
+    }
+
+    private static void leatherDyeing(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        TimedCraftingMenu menu = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+
+        Item chestplate = equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE);
+        ItemStack undyed = chestplate.getDefaultInstance();
+        helper.assertFalse(undyed.has(DataComponents.DYED_COLOR), "fresh leather armor must be undyed");
+        helper.assertTrue(
+                undyed.is(ItemTags.CAULDRON_CAN_REMOVE_DYE),
+                "leather armor must be washable in a water cauldron");
+
+        menu.infx$craftingContainer().setItem(0, chestplate.getDefaultInstance());
+        menu.infx$craftingContainer().setItem(1, Items.RED_DYE.getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true),
+                "leather dye recipe must resolve in the 2x2 grid");
+        ItemStack preview = menu.infx$resultContainer().getItem(0);
+        helper.assertTrue(preview.is(chestplate), "dye preview must keep the leather armor piece");
+        DyedItemColor expected = DyedItemColor.applyDyes((DyedItemColor) null, List.of(DyeColor.RED));
+        helper.assertTrue(
+                expected.equals(preview.get(DataComponents.DYED_COLOR)),
+                "dye preview must carry the blended dye color");
+
+        // Re-dyeing an already dyed piece blends with its current color.
+        menu.infx$craftingContainer().setItem(0, preview.copy());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true), "re-dyeing a dyed piece must resolve");
+        ItemStack reDyed = menu.infx$resultContainer().getItem(0);
+        helper.assertTrue(
+                DyedItemColor.applyDyes(expected, List.of(DyeColor.RED))
+                        .equals(reDyed.get(DataComponents.DYED_COLOR)),
+                "re-dyeing must blend with the existing color");
+
+        removePlayer(player);
+        helper.succeed();
     }
 
     private static void coinCrafting(GameTestHelper helper) {

@@ -88,6 +88,12 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
             addR196EnchantmentTags(entry);
             addHarvestTierTag(entry);
         }
+
+        // Dyed InfX leather armor can be washed in a water cauldron, like vanilla leather armor.
+        var cauldronWashable = tag(ItemTags.CAULDRON_CAN_REMOVE_DYE);
+        for (EquipmentType piece : EquipmentType.platePieces()) {
+            cauldronWashable.add(InfXItems.catalog().equipment(InfxMaterial.LEATHER, piece).holder().getKey());
+        }
     }
 
     private void addCurseTags() {
