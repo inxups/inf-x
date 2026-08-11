@@ -563,8 +563,19 @@ final class ModLanguageProvider extends LanguageProvider {
         add("tooltip.infx.crafting_experience", locale == Locale.EN_US
                 ? "Experience cost: %s XP"
                 : "经验消耗：%s 点");
+        add("attribute.name.infx.item_interaction_range", locale == Locale.EN_US
+                ? "Item Interaction Range"
+                : "物品交互距离");
+        add("attribute.name.infx.item_melee_range", locale == Locale.EN_US
+                ? "Item Melee Range"
+                : "物品近战距离");
         add("tooltip.infx.damage", locale == Locale.EN_US ? "INFX damage: %s" : "INFX 伤害：%s");
-        add("tooltip.infx.reach", locale == Locale.EN_US ? "Melee reach: %s blocks" : "近战距离：%s 格");
+        add("tooltip.infx.interaction_reach", locale == Locale.EN_US
+                ? "Interaction reach: %s blocks"
+                : "交互距离：%s 格");
+        add("tooltip.infx.melee_reach", locale == Locale.EN_US
+                ? "Melee reach: %s blocks"
+                : "近战距离：%s 格");
         add("tooltip.infx.protection", locale == Locale.EN_US ? "Fixed protection: %s" : "固定防护：%s");
         add("tooltip.infx.repair", locale == Locale.EN_US ? "Repair with %s nuggets" : "使用%s粒修理");
         add("tooltip.infx.silver_undead_bonus", locale == Locale.EN_US

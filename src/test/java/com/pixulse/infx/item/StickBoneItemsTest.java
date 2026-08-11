@@ -2,22 +2,43 @@ package com.pixulse.infx.item;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.pixulse.infx.registry.InfXAttributes;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 
 class StickBoneItemsTest {
     @Test
-    void restoresStackLimitAndMeleeReach() {
+    void restoresStackLimitAndBothReachModifiers() {
         assertEquals(32, StickBoneItems.stackLimit(Items.STICK, 64));
         assertEquals(16, StickBoneItems.stackLimit(Items.BONE, 64));
 
-        var reach = StickBoneItems.meleeAttackRange();
-        assertEquals(0.0F, reach.minReach());
-        assertEquals(2.0F, reach.maxReach());
-        assertEquals(0.0F, reach.minCreativeReach());
-        assertEquals(5.0F, reach.maxCreativeReach());
-        assertEquals(0.0F, reach.hitboxMargin());
-        assertEquals(1.0F, reach.mobFactor());
+        var attributes = StickBoneItems.reachAttributes(ItemAttributeModifiers.EMPTY);
+        assertEquals(
+                3.0,
+                attributes.compute(
+                        InfXAttributes.ITEM_INTERACTION_RANGE,
+                        ItemReach.BASE_RANGE,
+                        EquipmentSlot.MAINHAND));
+        assertEquals(
+                3.0,
+                attributes.compute(
+                        InfXAttributes.ITEM_MELEE_RANGE,
+                        ItemReach.BASE_RANGE,
+                        EquipmentSlot.MAINHAND));
+        assertEquals(
+                ItemReach.BASE_RANGE,
+                attributes.compute(
+                        InfXAttributes.ITEM_INTERACTION_RANGE,
+                        ItemReach.BASE_RANGE,
+                        EquipmentSlot.OFFHAND));
+        assertEquals(
+                ItemReach.BASE_RANGE,
+                attributes.compute(
+                        InfXAttributes.ITEM_MELEE_RANGE,
+                        ItemReach.BASE_RANGE,
+                        EquipmentSlot.OFFHAND));
     }
 
     @Test

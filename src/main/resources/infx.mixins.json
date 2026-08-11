@@ -18,6 +18,7 @@
     "world.entity.EntitySwimMixin",
     "world.entity.LivingEntityCurseMixin",
     "world.entity.LivingEntityFireProtectionMixin",
+    "world.entity.LivingEntityReachMixin",
     "world.entity.LivingEntitySilverArmorMixin",
     "world.entity.LivingEntitySwimMixin",
     "world.entity.animal.equine.HorseAccessor",
@@ -30,7 +31,6 @@
     "world.entity.player.PlayerExperienceMixin",
     "world.entity.player.PlayerFoodMixin",
     "world.entity.player.PlayerReachMixin",
-    "world.entity.player.InfXPlayerAttributesMixin",
     "world.entity.player.PlayerWaterfallSwimMixin",
     "world.entity.projectile.arrow.AbstractArrowLeavesMixin",
     "world.entity.projectile.FishingHookMixin",
@@ -46,6 +46,8 @@
     "world.item.CrossbowItemProjectileMixin",
     "world.item.ItemStackCurseMixin",
     "world.item.component.AttackRangeMixin",
+    "world.item.component.KineticWeaponReachMixin",
+    "world.item.component.PiercingWeaponReachMixin",
     "world.item.component.ConsumableMixin",
     "world.level.ExplosionDamageCalculatorMixin",
     "world.level.LevelAccessorMixin",
@@ -72,6 +74,7 @@
   "client": [
     "client.MinecraftMiningInputMixin",
     "client.MinecraftStartAttackMixin",
+    "client.gui.GuiAttackIndicatorMixin",
     "client.gui.components.DebugScreenOverlayMixin",
     "client.gui.screens.ShareToLanScreenMixin",
     "client.gui.screens.inventory.EnchantmentScreenMixin",
@@ -79,6 +82,7 @@
     "client.gui.screens.inventory.TimedResultCountMixin",
     "client.gui.screens.options.DifficultyButtonsMixin",
     "client.gui.screens.worldselection.WorldCreationUiStateMixin",
+    "client.player.LocalPlayerReachMixin",
     "client.renderer.SkyRendererMixin"
   ],
   "injectors": {

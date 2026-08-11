@@ -200,6 +200,26 @@ public enum EquipmentType {
 
     public float reachBonus() { return reachBonus; }
 
+    public ReachMode reachMode() {
+        return switch (this) {
+            case PICKAXE, SHOVEL, HOE, MATTOCK, SHEARS -> ReachMode.INTERACTION;
+            case CUDGEL, CLUB, KNIFE, SWORD, DAGGER -> ReachMode.MELEE;
+            case HATCHET, AXE, BATTLE_AXE, WAR_HAMMER, SCYTHE -> ReachMode.BOTH;
+            case FISHING_ROD,
+                    BOW,
+                    ARROW,
+                    HELMET,
+                    CHESTPLATE,
+                    LEGGINGS,
+                    BOOTS,
+                    CHAINMAIL_HELMET,
+                    CHAINMAIL_CHESTPLATE,
+                    CHAINMAIL_LEGGINGS,
+                    CHAINMAIL_BOOTS,
+                    HORSE_ARMOR -> ReachMode.NONE;
+        };
+    }
+
     public float miningMultiplier() { return miningMultiplier; }
 
     public float attackSpeedModifier() { return attackSpeedModifier; }
