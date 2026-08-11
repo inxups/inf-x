@@ -18,6 +18,7 @@ import com.pixulse.infx.block.NetherrackFurnaceBlock;
 import com.pixulse.infx.block.ObsidianFurnaceBlock;
 import com.pixulse.infx.block.ObsidianWorkbenchBlock;
 import com.pixulse.infx.block.InfxPortalBlock;
+import com.pixulse.infx.block.InfxFertileFarmlandBlock;
 import com.pixulse.infx.block.InfxFurnaceBlock;
 import com.pixulse.infx.block.SandstoneFurnaceBlock;
 import com.pixulse.infx.block.SilverWorkbenchBlock;
@@ -120,6 +121,10 @@ public final class InfXBlocks {
                     .strength(0.05F)
                     .sound(SoundType.GRASS)
                     .offsetType(Block.OffsetType.XZ));
+    public static final DeferredBlock<InfxFertileFarmlandBlock> FERTILE_FARMLAND = BLOCKS.registerBlock(
+            "fertilized_farmland",
+            InfxFertileFarmlandBlock::new,
+            properties -> properties.ofFullCopy(net.minecraft.world.level.block.Blocks.FARMLAND));
     public static final DeferredBlock<InfxCropBlock> INFX_WHEAT = infxCrop(InfxCropType.WHEAT);
     public static final DeferredBlock<InfxCropBlock> INFX_CARROTS = infxCrop(InfxCropType.CARROTS);
     public static final DeferredBlock<InfxCropBlock> INFX_POTATOES = infxCrop(InfxCropType.POTATOES);

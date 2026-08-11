@@ -176,6 +176,8 @@ resource-pack	blocks/crafting_table/silver/front.png	textures/block/silver_workb
 resource-pack	blocks/crafting_table/silver/side.png	textures/block/silver_workbench_side.png	b5522f9fcff8314ea5c283cc339f5e119904452b5a4a58f2a8ccfc76b1200a48
 resource-pack	blocks/snow.png	textures/block/snow_slab.png	d9795b2b0646b7981292760a010a9fd6887d8656bf8901ef27a37ae543b19e33
 derived	owner-provided:/var/folders/m5/gv7_10k149l3j4l02mt548zr0000gp/T/codex-clipboard-04956ea9-35c1-4b9b-8a20-563074863589.png	textures/block/sgravel.png	6fcc1446766223d894df5fe474b7635d8c87dbf8fedacaa85c82d6b7748f75f5
+derived	owner-provided:/Users/inxups/Downloads/工作台顶.zip#工作台顶/farmland_dry_fertilized.png	textures/block/farmland_dry_fertilized.png	4055182c581a434e43250be11e7add970024a2c3cefd8a07b7200692095c4135
+derived	owner-provided:/Users/inxups/Downloads/工作台顶.zip#工作台顶/farmland_wet_fertilized.png	textures/block/farmland_wet_fertilized.png	32f1df226ff054fce4c362de574ab7fc76c09c5d9f78d5c4c6da742092f06c9a
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/bat.png	textures/entity/bat.png	6d13496ffff10bb9302825f0ba1845051f1d99246d873248a9686066ebdb8174
 derived	owner-provided:/Users/inxups/Downloads/nightwing.png	textures/entity/bat/nightwing.png	57d9365b8ae4c740a4311dd0146401fe531f071994fe5847d7ca3f7da8d7db3d
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/bat/vampire.png	textures/entity/bat/vampire.png	9406a46a557962b63568130400e2ebfbf0e30a20e8d2601ae349355cdc457032

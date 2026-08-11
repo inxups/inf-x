@@ -51,6 +51,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
         dropSelf(InfXBlocks.WITHERWOOD.get());
         add(InfXBlocks.BLUEBERRY_BUSH.get(), blueberryBushDrops(InfXBlocks.BLUEBERRY_BUSH.get()));
         InfXBlocks.INFX_CROPS.forEach(crop -> add(crop.get(), infxCropDrops(crop.get())));
+        dropOther(InfXBlocks.FERTILE_FARMLAND.get(), Items.DIRT);
         dropRuneStone(InfXBlocks.MITHRIL_RUNE_STONE.get());
         dropRuneStone(InfXBlocks.ADAMANTIUM_RUNE_STONE.get());
         add(InfXBlocks.MANTLE.get(), noDrop());
@@ -143,7 +144,8 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
                         InfXBlocks.METAL_SAFES.stream().map(block -> (Block) block.get()),
                         InfXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.get()),
                         InfXBlocks.INFX_RECIPE_BLOCKS.stream().map(block -> (Block) block.get()),
-                        InfXBlocks.INFX_CROPS.stream().map(block -> (Block) block.get()))
+                        InfXBlocks.INFX_CROPS.stream().map(block -> (Block) block.get()),
+                        Stream.of((Block) InfXBlocks.FERTILE_FARMLAND.get()))
                 .flatMap(stream -> stream)
                 .toList();
     }

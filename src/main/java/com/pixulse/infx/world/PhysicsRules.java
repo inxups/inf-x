@@ -13,6 +13,7 @@ public final class PhysicsRules {
                 || state.is(Blocks.COARSE_DIRT)
                 || state.is(Blocks.MUD)
                 || state.is(Blocks.FARMLAND)
+                || state.is(com.pixulse.infx.registry.InfXBlocks.FERTILE_FARMLAND)
                 || state.is(BlockTags.SAND)
                 || state.is(Blocks.GRAVEL);
     }

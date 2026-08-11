@@ -10,48 +10,31 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
-/** Persistent InfX farmland fertility and artificial-log bookkeeping. */
+/**
+ * Persistent InfX agricultural bookkeeping. Farmland fertility is a block state on
+ * {@code infx:fertilized_farmland} and is not stored here.
+ */
 public final class AgricultureData extends SavedData {
     private static final Codec<Map<String, Long>> POSITION_TIMES =
             Codec.unboundedMap(Codec.STRING, Codec.LONG);
     private static final Codec<AgricultureData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    POSITION_TIMES.optionalFieldOf("fertile", Map.of()).forGetter(data -> data.fertile),
                     POSITION_TIMES.optionalFieldOf("artificial_logs", Map.of()).forGetter(data -> data.artificialLogs))
             .apply(instance, AgricultureData::new));
     public static final SavedDataType<AgricultureData> TYPE = new SavedDataType<>(
             InfiniteX.id("infx_agriculture"), AgricultureData::new, CODEC);
 
-    private final Map<String, Long> fertile;
     private final Map<String, Long> artificialLogs;
 
     public AgricultureData() {
-        this(Map.of(), Map.of());
+        this(Map.of());
     }
 
-    private AgricultureData(Map<String, Long> fertile, Map<String, Long> artificialLogs) {
-        this.fertile = new HashMap<>(fertile);
+    private AgricultureData(Map<String, Long> artificialLogs) {
         this.artificialLogs = new HashMap<>(artificialLogs);
     }
 
     public static AgricultureData get(ServerLevel level) {
         return level.getDataStorage().computeIfAbsent(TYPE);
-    }
-
-    public boolean isFertile(BlockPos farmland) {
-        return fertile.containsKey(key(farmland));
-    }
-
-    public boolean fertilize(BlockPos farmland, long gameTime) {
-        boolean fresh = fertile.put(key(farmland), gameTime) == null;
-        setDirty();
-        return fresh;
-    }
-
-    /** InfX consumes the fertilized bit only after a successful crop growth roll. */
-    public boolean consumeFertility(BlockPos farmland) {
-        boolean consumed = fertile.remove(key(farmland)) != null;
-        if (consumed) setDirty();
-        return consumed;
     }
 
     public void markArtificialLog(BlockPos pos, long gameTime) {

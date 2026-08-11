@@ -5,7 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.tag.InfXItemTags;
-import com.pixulse.infx.data.agriculture.AgricultureData;
+import com.pixulse.infx.event.AgricultureEvents;
 import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXEnchantments;
@@ -46,6 +46,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.NetherWartBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
@@ -401,7 +402,7 @@ public final class EnchantmentEvents {
         if (crop instanceof InfxCropBlock infxCrop && !infxCrop.canYield(event.getState())) return;
         int fertility = Enchantments.level(level, event.getPlayer().getMainHandItem(), InfXEnchantments.FERTILITY);
         if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)) {
-            AgricultureData.get(level).fertilize(event.getPos().below(), level.getGameTime());
+            AgricultureEvents.fertilizeFarmland(level, event.getPos().below());
         }
     }
 
@@ -414,7 +415,18 @@ public final class EnchantmentEvents {
                 || !event.getFinalState().is(Blocks.FARMLAND)) return;
         int fertility = Enchantments.level(level, event.getHeldItemStack(), InfXEnchantments.FERTILITY);
         if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)) {
-            AgricultureData.get(level).fertilize(event.getPos(), level.getGameTime());
+            event.setFinalState(InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState()
+                    .setValue(FarmlandBlock.MOISTURE, event.getFinalState().getValue(FarmlandBlock.MOISTURE)));
+            level.sendParticles(
+                    ParticleTypes.HAPPY_VILLAGER,
+                    event.getPos().getX() + 0.5,
+                    event.getPos().getY() + 1.0,
+                    event.getPos().getZ() + 0.5,
+                    10,
+                    0.4,
+                    0.2,
+                    0.4,
+                    0.05);
         }
     }
 

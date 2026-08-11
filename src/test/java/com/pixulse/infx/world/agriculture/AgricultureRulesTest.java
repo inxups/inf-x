@@ -1,12 +1,10 @@
 package com.pixulse.infx.world.agriculture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.block.InfxCropType;
-import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.event.AgricultureEvents;
 import net.minecraft.core.BlockPos;
 import org.junit.jupiter.api.Test;
@@ -43,17 +41,6 @@ class AgricultureRulesTest {
         assertEquals(7, InfxCropType.BEETROOTS.ageFromVanilla(3));
         assertEquals(0.25F, InfxCropType.CARROTS.bonusYieldChance());
         assertEquals(0.5F, InfxCropType.BEETROOTS.bonusYieldChance());
-    }
-
-    @Test
-    void fertilityPersistsUntilTheCropConsumesIt() {
-        AgricultureData data = new AgricultureData();
-        BlockPos farmland = new BlockPos(3, 64, -7);
-        assertTrue(data.fertilize(farmland, 0L));
-        assertTrue(data.isFertile(farmland));
-        assertTrue(data.consumeFertility(farmland));
-        assertFalse(data.isFertile(farmland));
-        assertFalse(data.consumeFertility(farmland));
     }
 
     @Test

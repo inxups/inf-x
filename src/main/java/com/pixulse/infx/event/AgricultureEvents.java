@@ -6,6 +6,7 @@ import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.TriState;
@@ -108,16 +109,37 @@ public final class AgricultureEvents {
         }
 
         BlockPos farmlandPos = clicked.getBlock() instanceof CropBlock ? event.getPos().below() : event.getPos();
-        if (!level.getBlockState(farmlandPos).is(Blocks.FARMLAND)) {
+        if (!(level.getBlockState(farmlandPos).getBlock() instanceof FarmlandBlock)) {
             return;
         }
         if (!(level instanceof ServerLevel serverLevel)) {
             cancelInteraction(event);
             return;
         }
-        AgricultureData.get(serverLevel).fertilize(farmlandPos, serverLevel.getGameTime());
+        fertilizeFarmland(serverLevel, farmlandPos);
         if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
         cancelInteraction(event);
+    }
+
+    /** Marks a farmland patch fertilized: converts it to {@code infx:fertilized_farmland}. */
+    public static void fertilizeFarmland(ServerLevel level, BlockPos farmlandPos) {
+        BlockState state = level.getBlockState(farmlandPos);
+        if (state.is(Blocks.FARMLAND)) {
+            level.setBlockAndUpdate(
+                    farmlandPos,
+                    InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState()
+                            .setValue(FarmlandBlock.MOISTURE, state.getValue(FarmlandBlock.MOISTURE)));
+        }
+        level.sendParticles(
+                ParticleTypes.HAPPY_VILLAGER,
+                farmlandPos.getX() + 0.5,
+                farmlandPos.getY() + 1.0,
+                farmlandPos.getZ() + 0.5,
+                10,
+                0.4,
+                0.2,
+                0.4,
+                0.05);
     }
 
     private static void cancelInteraction(PlayerInteractEvent.RightClickBlock event) {
@@ -148,7 +170,9 @@ public final class AgricultureEvents {
         if (placed.is(Blocks.BROWN_MUSHROOM)) {
             BlockPos soil = pos.below();
             BlockState farmland = level.getBlockState(soil);
-            if (data.isFertile(soil) && isMoistFarmland(farmland) && level.getRawBrightness(pos, 0) < 8) {
+            if (farmland.is(InfXBlocks.FERTILE_FARMLAND)
+                    && isMoistFarmland(farmland)
+                    && level.getRawBrightness(pos, 0) < 8) {
                 level.setBlockAndUpdate(soil, Blocks.MYCELIUM.defaultBlockState());
             }
         }
@@ -188,7 +212,7 @@ public final class AgricultureEvents {
     }
 
     private static boolean isMoistFarmland(BlockState state) {
-        return state.is(Blocks.FARMLAND)
+        return state.getBlock() instanceof FarmlandBlock
                 && state.hasProperty(FarmlandBlock.MOISTURE)
                 && state.getValue(FarmlandBlock.MOISTURE) > 0;
     }
