@@ -210,6 +210,9 @@ public final class ModEquipmentGameTests {
 
         helper.assertTrue(stick.getMaxStackSize() == 32, "InfX sticks must stack to 32 at runtime");
         helper.assertTrue(bone.getMaxStackSize() == 16, "InfX bones must stack to 16 at runtime");
+        helper.assertTrue(
+                new ItemStack(Items.KELP).getMaxStackSize() == 16,
+                "InfX kelp must stack to 16 at runtime");
         assertMeleeAttackRange(helper, player, stick, "stick");
         assertMeleeAttackRange(helper, player, bone, "bone");
         assertEmptyHandAttackRange(helper, player);

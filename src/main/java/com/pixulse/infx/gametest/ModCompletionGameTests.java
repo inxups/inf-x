@@ -487,6 +487,18 @@ public final class ModCompletionGameTests {
                 "knives must not advertise the native sweep action");
         helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
 
+        ItemStack crossbow = Items.CROSSBOW.getDefaultInstance();
+        ItemStack bow = InfXItems.catalog()
+                .equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.BOW)
+                .holder()
+                .toStack();
+        var precision = registry.getOrThrow(InfXEnchantments.PRECISION);
+        var recovery = registry.getOrThrow(InfXEnchantments.RECOVERY);
+        helper.assertTrue(precision.value().isSupportedItem(bow), "bows must support precision");
+        helper.assertTrue(precision.value().isSupportedItem(crossbow), "crossbows must support precision");
+        helper.assertTrue(recovery.value().isSupportedItem(bow), "bows must support recovery");
+        helper.assertTrue(recovery.value().isSupportedItem(crossbow), "crossbows must support recovery");
+
         // The real ServerPlayer attack path already applies data-driven sharpness before
         // LivingIncomingDamageEvent. This guards against adding the same bonus a second time.
         ItemStack sharpSword = InfXItems.catalog()
@@ -3258,6 +3270,15 @@ public final class ModCompletionGameTests {
         helper.assertTrue(
                 sweetBerryBlueberries == 0,
                 "breaking a mature vanilla sweet berry bush never drops custom blueberries");
+
+        // InfX sweet berries survive only in taiga-family biomes; the blueberry bush is unrestricted.
+        boolean sweetBerryTaiga = level.getBiome(absoluteSweetBerry).is(BiomeTags.IS_TAIGA);
+        helper.assertTrue(
+                Blocks.SWEET_BERRY_BUSH.defaultBlockState().canSurvive(level, absoluteSweetBerry) == sweetBerryTaiga,
+                "sweet berries must survive only in taiga-family biomes");
+        helper.assertTrue(
+                InfXBlocks.BLUEBERRY_BUSH.get().defaultBlockState().canSurvive(level, absoluteBlueberry),
+                "blueberry bushes must survive in any biome");
 
         player.setItemInHand(
                 InteractionHand.MAIN_HAND,

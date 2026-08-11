@@ -8,7 +8,9 @@ import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.*;
 import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.RiverBiomes;
@@ -85,6 +87,7 @@ public final class ModMonsterGameTests {
     private static final String LONGDEAD_DROPS = "infx_longdead_drops";
     private static final String SPAWN_EQUIPMENT = "infx_spawn_equipment";
     private static final String SKELETON_DROPS = "infx_skeleton_drops";
+    private static final String WEAPON_DROPS = "infx_weapon_drops";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -105,6 +108,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(LONGDEAD_DROPS, () -> ModMonsterGameTests::longdeadDrops);
         FUNCTIONS.register(SPAWN_EQUIPMENT, () -> ModMonsterGameTests::spawnEquipment);
         FUNCTIONS.register(SKELETON_DROPS, () -> ModMonsterGameTests::skeletonDrops);
+        FUNCTIONS.register(WEAPON_DROPS, () -> ModMonsterGameTests::weaponDrops);
     }
 
     private ModMonsterGameTests() {}
@@ -134,7 +138,8 @@ public final class ModMonsterGameTests {
                 RANGED_ATTACK_RANGES,
                 EXPLOSION_RANGES,
                 SPAWN_EQUIPMENT,
-                SKELETON_DROPS)) {
+                SKELETON_DROPS,
+                WEAPON_DROPS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -1656,6 +1661,53 @@ public final class ModMonsterGameTests {
             skeleton.discard();
         }
         helper.succeed();
+    }
+
+    /** Pig zombies and wither skeletons always drop their worn poor-quality weapon. */
+    private static void weaponDrops(GameTestHelper helper) {
+        Level level = helper.getLevel();
+
+        Mob piglin = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get());
+        helper.assertTrue(isPiglinWeapon(piglin.getMainHandItem()), "pig zombies must carry a golden weapon");
+        helper.assertTrue(
+                piglin.getMainHandItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
+                "pig zombies must carry a poor-quality weapon");
+        piglin.kill(helper.getLevel());
+        List<ItemEntity> piglinDrops = dropsNear(helper, piglin.blockPosition(), ModMonsterGameTests::isPiglinWeapon);
+        helper.assertTrue(piglinDrops.size() == 1, "pig zombies must always drop their golden weapon");
+        helper.assertTrue(
+                piglinDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
+                "the dropped piglin weapon must be poor quality");
+        piglinDrops.forEach(ItemEntity::discard);
+
+        Mob witherSkeleton = spawnWithFinalize(helper, EntityType.WITHER_SKELETON);
+        helper.assertTrue(
+                witherSkeleton.getMainHandItem().is(InfXItems.IRON_SWORD.get()),
+                "wither skeletons must carry an InfX iron sword");
+        helper.assertTrue(
+                witherSkeleton.getMainHandItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
+                "wither skeletons must carry a poor-quality sword");
+        witherSkeleton.kill(helper.getLevel());
+        List<ItemEntity> skeletonDrops = dropsNear(helper, witherSkeleton.blockPosition(), stack -> stack.is(InfXItems.IRON_SWORD.get()));
+        helper.assertTrue(skeletonDrops.size() == 1, "wither skeletons must always drop their InfX iron sword");
+        helper.assertTrue(
+                skeletonDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
+                "the dropped wither-skeleton sword must be poor quality");
+        skeletonDrops.forEach(ItemEntity::discard);
+        helper.succeed();
+    }
+
+    private static boolean isPiglinWeapon(ItemStack stack) {
+        return stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.SWORD).holder())
+                || stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.AXE).holder())
+                || stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.PICKAXE).holder());
+    }
+
+    private static List<ItemEntity> dropsNear(GameTestHelper helper, BlockPos pos, java.util.function.Predicate<ItemStack> filter) {
+        return helper.getLevel().getEntities(
+                EntityType.ITEM,
+                new AABB(pos).inflate(3.0),
+                candidate -> filter.test(candidate.getItem()));
     }
 
     /** The vanilla variant may wear INFX world-age gear; only vanilla equipment is banned. */
