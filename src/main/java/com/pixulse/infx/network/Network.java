@@ -5,6 +5,7 @@ import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.recipe.RecipeRule;
 import com.pixulse.infx.recipe.RecipeRules;
+import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import com.pixulse.infx.server.ServerTestModePolicy;
 import com.pixulse.infx.world.RunegateTeleportation;
 import io.netty.buffer.ByteBuf;
@@ -85,7 +86,16 @@ public final class Network {
                 .playToClient(
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
-                        Network::handleClientRecipeRules);
+                        Network::handleClientRecipeRules)
+                .playToServer(
+                        MetalAnvilRenamePayload.TYPE,
+                        MetalAnvilRenamePayload.STREAM_CODEC,
+                        (payload, context) -> context.enqueueWork(() -> {
+                            if (!(context.player() instanceof ServerPlayer player)) return;
+                            if (player.containerMenu instanceof MetalAnvilMenu menu && menu.stillValid(player)) {
+                                menu.setItemName(payload.name());
+                            }
+                        }));
     }
 
     @SubscribeEvent
@@ -232,6 +242,18 @@ public final class Network {
                         RecipeRule.Resolved.STREAM_CODEC.apply(ByteBufCodecs.list()),
                         RecipeRulesPayload::resolvedRules,
                         RecipeRulesPayload::new);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /** Carries the metal-anvil name box input from the client to the server. */
+    public record MetalAnvilRenamePayload(String name) implements CustomPacketPayload {
+        public static final Type<MetalAnvilRenamePayload> TYPE = new Type<>(InfiniteX.id("metal_anvil_rename"));
+        public static final StreamCodec<RegistryFriendlyByteBuf, MetalAnvilRenamePayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.STRING_UTF8, MetalAnvilRenamePayload::name, MetalAnvilRenamePayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {
