@@ -182,7 +182,7 @@ resource-pack	blocks/furnace/sandstone/front_off.png	textures/block/sandstone_fu
 resource-pack	blocks/furnace/sandstone/front_on.png	textures/block/sandstone_furnace_front_on.png	a49e385d5f383c2e4ff468f9074c3bf29c9d1a1678ba6edaef0e7c0168974d1c
 resource-pack	blocks/furnace/sandstone/side.png	textures/block/sandstone_furnace_side.png	b75bbefe17e0f35b0346d618eb176a631114ad82d4698948c6c1a472eb7b8c40
 resource-pack	blocks/furnace/sandstone/top.png	textures/block/sandstone_furnace_top.png	56c98c1a626c00e8aaba959f1c09d39f22c10a90cbf560b8916943d67750244d
-derived	owner-provided:/var/folders/m5/gv7_10k149l3j4l02mt548zr0000gp/T/codex-clipboard-04956ea9-35c1-4b9b-8a20-563074863589.png	textures/block/sgravel.png	6fcc1446766223d894df5fe474b7635d8c87dbf8fedacaa85c82d6b7748f75f5
+workbench-top	sgravel.png	textures/block/sgravel.png	ced2470cdbef76e69a84daff9fc2634d03a359d370d62b4e0acc432e2cfac400
 resource-pack	blocks/silver_block.png	textures/block/silver_block.png	eab324c30fb294c0bcbc604f4657109b607bbf74325b66659874c1a9d0dfb496
 resource-pack	blocks/silver_ore.png	textures/block/silver_ore.png	f6e5aa659d4ae0889292a272829fc141957245b21f648b3d450b2c5c940feb1a
 resource-pack	blocks/crafting_table/silver/front.png	textures/block/silver_workbench_front.png	5f61e93ec67a7008df29c340195d25a9cb9f28c7c193174ebecc56fdbea8f660
@@ -347,7 +347,7 @@ derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Down
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/spider/wood_spider.png	textures/entity/spider/wood_spider.png	d5285130cb0ab6d83f51c94f036f891fd15e2885311888761714cd983a82dcc5
 derived	mite/entity/wight.png+expand64x64	textures/entity/wight.png	c04549ad117d8068c5fb15625ee9e80ecdac94077657b01de8d1590159ecd34d
 derived	mite/entity/wight.png+baby_uv	textures/entity/wight_baby.png	2ea3920a1c0032710f8f9e2c5852eeae897979dc04840a05bcab8c5123c12c12
-derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/zombie/revenant.png	textures/entity/zombie/revenant.png	84f0696eed9112938903f41af22728f55c5808c45e2f7a275ecc0b63fb18ee69
+workbench-top	zombie/revenant.png	textures/entity/zombie/revenant.png	72ef8a2fe7bcf687bddff5e23be35659a018a6d77f6a332948735dea49fc2c1a
 derived	owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/zombie/revenant_baby.png	textures/entity/zombie/revenant_baby.png	f0324792b26b94efc35fb846e4b3402b13caa41fb9ca39c0b1eb0d9d8083a92a
 resource-pack	entity/zombie/zombie_villager.png	textures/entity/zombie/zombie_villager.png	8f295f6799c5372873b6f901d93d180ccb2d87de3e05314b5a60fbf57d49e48c
 resource-pack	entity/zombie_pigman.png	textures/entity/zombie_pigman.png	d745f7ced8da24f67f2977f323f6d2241f9cf87086fd6827ad784dde6db81f94
