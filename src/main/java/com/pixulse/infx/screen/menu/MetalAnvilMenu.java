@@ -6,10 +6,13 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.item.repair.RepairPlan;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -19,8 +22,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 public final class MetalAnvilMenu extends ItemCombinerMenu {
+    public static final int MAX_NAME_LENGTH = 50;
     private static final ItemCombinerMenuSlotDefinition SLOTS = ItemCombinerMenuSlotDefinition.create()
             .withSlot(0, 27, 47, RepairPlan::supportsType)
             .withSlot(1, 76, 47, stack -> RepairPlan.isRepairMaterial(stack.getItem()))
@@ -29,6 +34,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
 
     private final InfxMaterial anvilMaterial;
     private final Block expectedBlock;
+    private @Nullable String itemName;
 
     private MetalAnvilMenu(
             int containerId,
@@ -70,22 +76,18 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
 
     @Override
     public void createResult() {
-        RepairPlan plan = currentPlan();
-        resultSlots.setItem(0, plan.valid() ? plan.output() : ItemStack.EMPTY);
+        resultSlots.setItem(0, computeResult());
         broadcastChanges();
     }
 
     @Override
     protected boolean mayPickup(@NonNull Player player, boolean hasItem) {
-        return hasItem && currentPlan().valid();
+        return hasItem && !computeResult().isEmpty();
     }
 
     @Override
     protected void onTake(@NonNull Player player, @NonNull ItemStack carried) {
         RepairPlan plan = currentPlan();
-        if (!plan.valid()) {
-            return;
-        }
         inputSlots.removeItem(0, 1);
         inputSlots.removeItem(1, plan.materialsUsed());
         access.execute((level, pos) -> {
@@ -96,6 +98,44 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
             }
         });
         createResult();
+    }
+
+    /** Free naming: applies, changes or clears the custom name, optionally combined with repair. */
+    public boolean setItemName(String name) {
+        String validated = validateName(name);
+        if (validated == null || validated.equals(itemName)) {
+            return false;
+        }
+        itemName = validated;
+        createResult();
+        return true;
+    }
+
+    private static @Nullable String validateName(String name) {
+        String filtered = StringUtil.filterText(name);
+        return filtered.length() <= MAX_NAME_LENGTH ? filtered : null;
+    }
+
+    private ItemStack computeResult() {
+        ItemStack input = inputSlots.getItem(0);
+        if (input.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        RepairPlan plan = currentPlan();
+        ItemStack result = plan.valid() ? plan.output() : input.copy();
+        boolean renamed = false;
+        if (itemName != null) {
+            if (!StringUtil.isBlank(itemName)) {
+                if (!itemName.equals(input.getHoverName().getString())) {
+                    result.set(DataComponents.CUSTOM_NAME, Component.literal(itemName));
+                    renamed = true;
+                }
+            } else if (input.has(DataComponents.CUSTOM_NAME)) {
+                result.remove(DataComponents.CUSTOM_NAME);
+                renamed = true;
+            }
+        }
+        return plan.valid() || renamed ? result : ItemStack.EMPTY;
     }
 
     @Override

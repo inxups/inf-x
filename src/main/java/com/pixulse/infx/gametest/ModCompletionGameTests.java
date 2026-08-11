@@ -800,6 +800,42 @@ public final class ModCompletionGameTests {
                 entity.damage() == beforeRodRepair + 10 * 22,
                 "metal fishing rod uses INFX anvil wear scaling");
 
+        int beforeRename = entity.damage();
+        ItemStack renameTarget = InfXItems.IRON_PICKAXE.toStack();
+        menu.getSlot(0).set(renameTarget);
+        menu.setItemName("Free Rename");
+        ItemStack renamedPickaxe = menu.getSlot(2).getItem();
+        helper.assertFalse(renamedPickaxe.isEmpty(), "free naming must produce a result");
+        helper.assertTrue(
+                renamedPickaxe.get(DataComponents.CUSTOM_NAME).equals(Component.literal("Free Rename")),
+                "naming applies the custom name");
+        menu.getSlot(2).onTake(player, renamedPickaxe);
+        helper.assertTrue(entity.damage() == beforeRename, "naming is free and must not wear the anvil");
+        helper.assertTrue(menu.getSlot(0).getItem().isEmpty(), "naming consumes the input stack");
+
+        ItemStack namedPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        namedPickaxe.set(DataComponents.CUSTOM_NAME, Component.literal("Old Name"));
+        menu.getSlot(0).set(namedPickaxe);
+        menu.setItemName("");
+        ItemStack clearedPickaxe = menu.getSlot(2).getItem();
+        helper.assertTrue(
+                !clearedPickaxe.isEmpty() && !clearedPickaxe.has(DataComponents.CUSTOM_NAME),
+                "clearing the name box removes the custom name");
+        menu.getSlot(2).onTake(player, clearedPickaxe);
+
+        ItemStack wornPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        wornPickaxe.setDamageValue(500);
+        menu.getSlot(0).set(wornPickaxe);
+        menu.getSlot(1).set(new ItemStack(Items.IRON_NUGGET, 2));
+        menu.setItemName("Sharp");
+        ItemStack repairedAndNamed = menu.getSlot(2).getItem();
+        helper.assertTrue(
+                !repairedAndNamed.isEmpty()
+                        && repairedAndNamed.getDamageValue() < 500
+                        && repairedAndNamed.get(DataComponents.CUSTOM_NAME).equals(Component.literal("Sharp")),
+                "repair and naming must combine into one result");
+        menu.getSlot(2).onTake(player, repairedAndNamed);
+
         entity.addDamage(helper.getLevel(), block.maximumDamage() / 2);
         helper.assertTrue(helper.getBlockState(relative).getValue(MetalAnvilBlock.DAMAGE_STAGE) == 1, "50% anvil damage stage");
 
