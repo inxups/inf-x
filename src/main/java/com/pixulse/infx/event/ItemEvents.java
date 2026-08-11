@@ -9,7 +9,11 @@ import com.pixulse.infx.network.Network;
 import com.pixulse.infx.util.BucketHelper;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -77,9 +81,32 @@ public final class ItemEvents {
         if (!event.getLevel().isClientSide()) {
             held.shrink(1);
             player.giveExperiencePoints(experience);
+            playExperienceFeedback((ServerLevel) event.getLevel(), player, experience);
         }
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS.heldItemTransformedTo(held));
+    }
+
+    private static void playExperienceFeedback(ServerLevel level, Player player, int experience) {
+        level.playSound(
+                null,
+                player.getX(),
+                player.getY() + player.getEyeHeight() * 0.5D,
+                player.getZ(),
+                SoundEvents.EXPERIENCE_ORB_PICKUP,
+                SoundSource.PLAYERS,
+                0.4F,
+                1.0F);
+        level.sendParticles(
+                ParticleTypes.ENCHANT,
+                player.getX(),
+                player.getY() + player.getEyeHeight() * 0.5D,
+                player.getZ(),
+                Math.clamp(experience / 10, 8, 40),
+                0.5D,
+                0.4D,
+                0.5D,
+                0.05D);
     }
 
     public static int gemExperience(Item item) {
