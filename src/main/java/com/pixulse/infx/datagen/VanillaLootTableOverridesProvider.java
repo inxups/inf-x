@@ -73,13 +73,15 @@ final class VanillaLootTableOverridesProvider implements DataProvider {
     private static JsonObject copperOre(String orePath) {
         JsonObject silkCondition = new JsonObject();
         silkCondition.addProperty("condition", "minecraft:match_tool");
-        JsonObject enchantmentPredicate = new JsonObject();
         JsonObject levels = new JsonObject();
-        levels.addProperty("min", 1.0);
+        levels.addProperty("min", 1);
+        JsonObject enchantmentPredicate = new JsonObject();
         enchantmentPredicate.addProperty("enchantments", "minecraft:silk_touch");
         enchantmentPredicate.add("levels", levels);
+        JsonArray enchantmentPredicates = new JsonArray();
+        enchantmentPredicates.add(enchantmentPredicate);
         JsonObject predicates = new JsonObject();
-        predicates.add("minecraft:enchantments", enchantmentPredicate);
+        predicates.add("minecraft:enchantments", enchantmentPredicates);
         JsonObject predicate = new JsonObject();
         predicate.add("predicates", predicates);
         silkCondition.add("predicate", predicate);
