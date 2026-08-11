@@ -85,7 +85,7 @@ public final class InfXEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<InfxChicken>> INFX_CHICKEN = register(
             "infx_chicken", "Chicken", "鸡", InfxChicken::new, MobCategory.CREATURE, 0.4F, 0.7F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSheep>> INFX_SHEEP = register(
-            "infx_sheep", "Sheep", "羊", InfxSheep::new, MobCategory.CREATURE, 0.9F, 1.3F, false, true);
+            "infx_sheep", "Sheep", "绵羊", InfxSheep::new, MobCategory.CREATURE, 0.9F, 1.3F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxPig>> INFX_PIG = register(
             "infx_pig", "Pig", "猪", InfxPig::new, MobCategory.CREATURE, 0.9F, 0.9F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxHorse>> INFX_HORSE = register(
@@ -100,7 +100,7 @@ public final class InfXEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> GHOUL = register(
             "ghoul", "Ghoul", "食尸鬼", InfxZombie::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> SHADOW = register(
-            "shadow", "Shadow", "黑色食尸鬼", InfxZombie::new, 0.6F, 1.8F, true);
+            "shadow", "Shadow", "暗影", InfxZombie::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> WIGHT = register(
             "wight", "Wight", "尸妖", InfxZombie::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> REVENANT = register(
@@ -125,7 +125,7 @@ public final class InfXEntityTypes {
             "phase_spider", "Phase Spider", "相位蜘蛛", InfxSpider::new, 0.84F, 0.54F, false);
 
     public static final DeferredHolder<EntityType<?>, EntityType<InfxCreeper>> INFERNAL_CREEPER = register(
-            "infernal_creeper", "Infernal Creeper", "地狱爬行者", InfxCreeper::new, 0.6F, 1.8F, true);
+            "infernal_creeper", "Infernal Creeper", "地狱苦力怕", InfxCreeper::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<FireElemental>> FIRE_ELEMENTAL = register(
             "fire_elemental", "Fire Elemental", "火元素", FireElemental::new, 0.6F, 1.8F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<EarthElemental>> EARTH_ELEMENTAL = register(

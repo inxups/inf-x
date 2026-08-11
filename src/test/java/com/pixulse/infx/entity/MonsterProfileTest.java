@@ -351,7 +351,7 @@ class MonsterProfileTest {
         add(names, "infx_ghast", "Ghast", "恶魂");
         add(names, "invisible_stalker", "Invisible Stalker", "影子潜伏者");
         add(names, "ghoul", "Ghoul", "食尸鬼");
-        add(names, "shadow", "Shadow", "黑色食尸鬼");
+        add(names, "shadow", "Shadow", "暗影");
         add(names, "wight", "Wight", "尸妖");
         add(names, "revenant", "Revenant", "亡魂");
         add(names, "longdead", "Longdead", "古尸");
@@ -362,7 +362,7 @@ class MonsterProfileTest {
         add(names, "demon_spider", "Demon Spider", "恶魔蜘蛛");
         add(names, "wood_spider", "Wood Spider", "木蜘蛛");
         add(names, "phase_spider", "Phase Spider", "相位蜘蛛");
-        add(names, "infernal_creeper", "Infernal Creeper", "地狱爬行者");
+        add(names, "infernal_creeper", "Infernal Creeper", "地狱苦力怕");
         add(names, "fire_elemental", "Fire Elemental", "火元素");
         add(names, "earth_elemental", "Earth Elemental", "土元素");
         add(names, "clay_golem", "Clay Golem", "黏土元素");
@@ -382,7 +382,7 @@ class MonsterProfileTest {
         add(names, "dire_wolf", "Dire Wolf", "惧狼");
         add(names, "infx_cow", "Cow", "牛");
         add(names, "infx_chicken", "Chicken", "鸡");
-        add(names, "infx_sheep", "Sheep", "羊");
+        add(names, "infx_sheep", "Sheep", "绵羊");
         add(names, "infx_pig", "Pig", "猪");
         add(names, "infx_horse", "Horse", "马");
         add(names, "infx_ocelot", "Ocelot", "豹猫");
