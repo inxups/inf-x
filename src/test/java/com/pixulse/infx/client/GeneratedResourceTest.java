@@ -664,6 +664,13 @@ class GeneratedResourceTest {
                 "repair_item",
                 "shield_decoration",
                 "tipped_arrow",
+                "cake",
+                "cookie",
+                "golden_apple",
+                "compass",
+                "clock",
+                "bricks",
+                "nether_bricks",
                 "leather_helmet",
                 "leather_chestplate",
                 "leather_leggings",
@@ -2906,15 +2913,11 @@ class GeneratedResourceTest {
         // Recipes that were re-generated under the INFX namespace are restored
         // to vanilla and must not carry a disabled override file anymore.
         for (String restored : List.of(
-                "bricks",
                 "bone_meal",
                 "chiseled_stone_bricks",
-                "clock",
-                "compass",
                 "glass_pane",
                 "ladder",
                 "melon",
-                "nether_bricks",
                 "oak_fence",
                 "oak_sign",
                 "saddle",
@@ -2934,6 +2937,72 @@ class GeneratedResourceTest {
         // the original vanilla tool recipe is disabled.
         assertTrue(Files.exists(GENERATED.resolve("data/minecraft/recipe/flint_and_steel.json")));
         assertTrue(Files.isRegularFile(GENERATED.resolve("data/infx/recipe/flint_and_steel.json")));
+    }
+
+    @Test
+    void miteFoodAndBlockRecipesReplaceTheirVanillaCounterparts() throws Exception {
+        // Vanilla recipes replaced by InfX shapes are disabled with an override.
+        for (String disabled : List.of(
+                "cake", "cookie", "golden_apple", "compass", "clock", "bricks", "nether_bricks")) {
+            assertTrue(
+                    Files.isRegularFile(
+                            GENERATED.resolve("data/minecraft/recipe/" + disabled + ".json")),
+                    disabled + " must have a disabled vanilla override");
+        }
+        // The vanilla stone smelting recipe stays available; the InfX crafting
+        // recipe is an addition, not a replacement.
+        assertFalse(Files.exists(GENERATED.resolve("data/minecraft/recipe/stone.json")));
+
+        Map<String, String> tiers = Map.of(
+                "cake", "flint",
+                "cake_from_milk_bowl", "flint",
+                "cookie", "hand",
+                "wheat_seeds", "hand",
+                "golden_apple", "hand",
+                "compass", "flint",
+                "clock", "flint",
+                "bricks", "flint",
+                "nether_bricks", "flint",
+                "stone_from_cobblestone", "hand");
+        Map<String, Float> difficulties = Map.of(
+                "cake", 600.0F,
+                "cake_from_milk_bowl", 600.0F,
+                "cookie", 100.0F,
+                "wheat_seeds", 50.0F,
+                "golden_apple", 500.0F,
+                "compass", 400.0F,
+                "clock", 400.0F,
+                "bricks", 800.0F,
+                "nether_bricks", 800.0F,
+                "stone_from_cobblestone", 200.0F);
+        for (String recipe : tiers.keySet()) {
+            assertAll(
+                    recipe,
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("data/infx/recipe/" + recipe + ".json"))),
+                    () -> assertTrue(Files.isRegularFile(
+                            GENERATED.resolve("data/infx/recipe_rules/" + recipe + ".json"))),
+                    () -> assertEquals(
+                            tiers.get(recipe),
+                            json(GENERATED.resolve(
+                                            "data/infx/recipe_rules/" + recipe + ".json"))
+                                    .get("workbench_tier")
+                                    .getAsString()),
+                    () -> assertEquals(
+                            difficulties.get(recipe),
+                            json(GENERATED.resolve(
+                                            "data/infx/recipe_rules/" + recipe + ".json"))
+                                    .get("difficulty")
+                                    .getAsFloat()));
+        }
+        // The cake egg slot accepts every vanilla egg type.
+        JsonObject cake = json(GENERATED.resolve("data/infx/recipe/cake.json"));
+        assertEquals(
+                "#minecraft:eggs",
+                cake.getAsJsonObject("key").get("E").getAsString());
+        assertEquals(
+                "#infx:milk_buckets",
+                cake.getAsJsonObject("key").get("M").getAsString());
     }
 
     @Test
@@ -3068,9 +3137,7 @@ class GeneratedResourceTest {
                 "raw_gold_block_to_raw_gold",
                 "beetroot_soup",
                 "rabbit_stew",
-                "cookie",
                 "melon_seeds",
-                "wheat_seeds",
                 "white_dye_from_bone_meal",
                 "black_dye_from_ink_sac",
                 "brown_dye_from_cocoa_beans",

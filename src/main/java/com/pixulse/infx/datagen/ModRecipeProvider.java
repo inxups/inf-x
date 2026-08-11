@@ -262,6 +262,65 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 List.of(Ingredient.of(InfXItems.CHOCOLATE), Ingredient.of(InfXItems.MILK_BOWL),
                         Ingredient.of(Items.SNOWBALL)));
+        // InfX cake: flour, sugar, egg and milk (bucket or bowl). The egg slot
+        // accepts every vanilla egg type via the eggs tag (egg, blue and brown).
+        addShaped(
+                "cake",
+                BenchTier.FLINT,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.CAKE,
+                1,
+                Map.of(
+                        'M', ingredient(InfXItemTags.MILK_BUCKETS),
+                        'F', Ingredient.of(InfXItems.FLOUR),
+                        'S', Ingredient.of(Items.SUGAR),
+                        'E', ingredient(ItemTags.EGGS)),
+                List.of("FS", "EM"));
+        addShaped(
+                "cake_from_milk_bowl",
+                BenchTier.FLINT,
+                600.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.CAKE,
+                1,
+                Map.of('M', Ingredient.of(InfXItems.MILK_BOWL), 'F', Ingredient.of(InfXItems.FLOUR),
+                        'S', Ingredient.of(Items.SUGAR), 'E', ingredient(ItemTags.EGGS)),
+                List.of("FS", "EM"));
+        addShapeless(
+                "cookie",
+                BenchTier.HAND,
+                100.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.COOKIE,
+                8,
+                List.of(
+                        Ingredient.of(Items.WHEAT),
+                        Ingredient.of(Items.WHEAT),
+                        Ingredient.of(Items.COCOA_BEANS)));
+        addShapeless(
+                "wheat_seeds",
+                BenchTier.HAND,
+                50.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.WHEAT_SEEDS,
+                1,
+                List.of(Ingredient.of(Items.WHEAT)));
+        // InfX golden apple: gold nuggets instead of vanilla's gold ingots.
+        addShaped(
+                "golden_apple",
+                BenchTier.HAND,
+                500.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.GOLDEN_APPLE,
+                1,
+                Map.of('G', Ingredient.of(Items.GOLD_NUGGET), 'A', Ingredient.of(Items.APPLE)),
+                List.of("GGG", "GAG", "GGG"));
         // InfX recipe: golden apple + bottle o' enchanting makes an enchanted golden apple.
         addShapeless(
                 "enchanted_golden_apple",
@@ -1212,6 +1271,18 @@ final class ModRecipeProvider extends RecipeProvider {
     }
 
     private void addBlockRecipes() {
+        // InfX: four cobblestone craft into two stone; the vanilla smelting
+        // recipe stays available as well.
+        addShaped(
+                "stone_from_cobblestone",
+                BenchTier.HAND,
+                200.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.STONE,
+                2,
+                Map.of('C', Ingredient.of(Blocks.COBBLESTONE)),
+                List.of("CC", "CC"));
         addShaped(
                 "snow_slab",
                 BenchTier.HAND,
@@ -1222,6 +1293,48 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('S', Ingredient.of(Items.SNOWBALL)),
                 List.of("SS", "SS"));
+        // InfX compass and clock: eight nuggets around one redstone dust.
+        addShaped(
+                "compass",
+                BenchTier.FLINT,
+                400.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.COMPASS,
+                1,
+                Map.of('N', Ingredient.of(Items.IRON_NUGGET), 'R', Ingredient.of(Items.REDSTONE)),
+                List.of("NNN", "NRN", "NNN"));
+        addShaped(
+                "clock",
+                BenchTier.FLINT,
+                400.0F,
+                CraftingBookCategory.MISC,
+                "",
+                Items.CLOCK,
+                1,
+                Map.of('N', Ingredient.of(Items.GOLD_NUGGET), 'R', Ingredient.of(Items.REDSTONE)),
+                List.of("NNN", "NRN", "NNN"));
+        // InfX brick blocks: eight bricks bound by one block of sand/soul sand.
+        addShaped(
+                "bricks",
+                BenchTier.FLINT,
+                800.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.BRICKS,
+                2,
+                Map.of('B', Ingredient.of(Items.BRICK), 'S', Ingredient.of(Blocks.SAND)),
+                List.of("BBB", "BSB", "BBB"));
+        addShaped(
+                "nether_bricks",
+                BenchTier.FLINT,
+                800.0F,
+                CraftingBookCategory.BUILDING,
+                "",
+                Blocks.NETHER_BRICKS,
+                2,
+                Map.of('B', Ingredient.of(Items.NETHER_BRICK), 'S', Ingredient.of(Blocks.SOUL_SAND)),
+                List.of("BBB", "BSB", "BBB"));
         // Keep the INFX iron-nugget alternative alongside the restored
         // vanilla flint-and-steel recipe, which uses a full iron ingot.
         addShaped(

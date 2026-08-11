@@ -76,6 +76,14 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "repair_item",
             "shield_decoration",
             "tipped_arrow",
+            // Vanilla food and utility recipes replaced by InfX ingredients and shapes.
+            "cake",
+            "cookie",
+            "golden_apple",
+            "compass",
+            "clock",
+            "bricks",
+            "nether_bricks",
             // Leather, copper, iron, gold and diamond player armor.
             "leather_helmet",
             "leather_chestplate",
