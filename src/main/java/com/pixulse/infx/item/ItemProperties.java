@@ -56,7 +56,7 @@ public final class ItemProperties {
                         new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
         // Shears do not block attacks; they use the normal weapon component for left-click melee.
         // The INFX toolsBlockAttacks config removes the blocking component entirely.
-        if (key.type() != EquipmentType.SHEARS && InfXConfig.toolsBlockAttacks()) {
+        if (key.type() != EquipmentType.SHEARS && key.type() != EquipmentType.HOE && InfXConfig.toolsBlockAttacks()) {
             p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
         }
         return p;
