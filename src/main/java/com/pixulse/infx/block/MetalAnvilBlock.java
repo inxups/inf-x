@@ -5,6 +5,7 @@ import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import java.util.List;
+import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -48,12 +49,12 @@ import org.jspecify.annotations.Nullable;
 public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty DAMAGE_STAGE = IntegerProperty.create("damage_stage", 0, 2);
-    private static final VoxelShape SHAPE_X = Shapes.or(
+    private static final VoxelShape SHAPE_Z = Shapes.or(
             Block.box(2, 0, 2, 14, 4, 14),
             Block.box(4, 4, 3, 12, 5, 13),
             Block.box(6, 5, 4, 10, 10, 12),
             Block.box(3, 10, 0, 13, 16, 16));
-    private static final VoxelShape SHAPE_Z = Shapes.rotateHorizontalAxis(SHAPE_X).get(Direction.Axis.Z);
+    private static final Map<Direction.Axis, VoxelShape> SHAPES = Shapes.rotateHorizontalAxis(SHAPE_Z);
 
     private final InfxMaterial material;
     private final MapCodec<MetalAnvilBlock> codec;
@@ -151,7 +152,7 @@ public final class MetalAnvilBlock extends FallingBlock implements EntityBlock {
 
     @Override
     protected @NonNull VoxelShape getShape(BlockState state, @NonNull BlockGetter level, @NonNull BlockPos pos, @NonNull CollisionContext context) {
-        return state.getValue(FACING).getAxis() == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
+        return SHAPES.get(state.getValue(FACING).getAxis());
     }
 
     @Override
