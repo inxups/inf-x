@@ -108,4 +108,53 @@ class EquipmentTypeTest {
         assertEquals(EquipmentType.FactoryKind.PLAIN, EquipmentType.HELMET.factoryKind());
         assertEquals(EquipmentType.FactoryKind.ORDINARY, EquipmentType.PICKAXE.factoryKind());
     }
+
+    @Test
+    void reachModesMatchTheApprovedToolWeaponAndHybridMatrix() {
+        assertEquals(
+                Set.of(
+                        EquipmentType.PICKAXE,
+                        EquipmentType.SHOVEL,
+                        EquipmentType.HOE,
+                        EquipmentType.MATTOCK,
+                        EquipmentType.SHEARS),
+                typesWithReachMode(ReachMode.INTERACTION));
+        assertEquals(
+                Set.of(
+                        EquipmentType.CUDGEL,
+                        EquipmentType.CLUB,
+                        EquipmentType.KNIFE,
+                        EquipmentType.SWORD,
+                        EquipmentType.DAGGER),
+                typesWithReachMode(ReachMode.MELEE));
+        assertEquals(
+                Set.of(
+                        EquipmentType.HATCHET,
+                        EquipmentType.AXE,
+                        EquipmentType.BATTLE_AXE,
+                        EquipmentType.WAR_HAMMER,
+                        EquipmentType.SCYTHE),
+                typesWithReachMode(ReachMode.BOTH));
+        assertEquals(
+                Set.of(
+                        EquipmentType.FISHING_ROD,
+                        EquipmentType.BOW,
+                        EquipmentType.ARROW,
+                        EquipmentType.HELMET,
+                        EquipmentType.CHESTPLATE,
+                        EquipmentType.LEGGINGS,
+                        EquipmentType.BOOTS,
+                        EquipmentType.CHAINMAIL_HELMET,
+                        EquipmentType.CHAINMAIL_CHESTPLATE,
+                        EquipmentType.CHAINMAIL_LEGGINGS,
+                        EquipmentType.CHAINMAIL_BOOTS,
+                        EquipmentType.HORSE_ARMOR),
+                typesWithReachMode(ReachMode.NONE));
+    }
+
+    private static Set<EquipmentType> typesWithReachMode(ReachMode mode) {
+        return Arrays.stream(EquipmentType.values())
+                .filter(type -> type.reachMode() == mode)
+                .collect(java.util.stream.Collectors.toSet());
+    }
 }

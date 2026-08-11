@@ -3,6 +3,7 @@ package com.pixulse.infx.item;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.registry.InfXAttributes;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.component.DataComponents;
@@ -93,15 +94,24 @@ public final class ItemProperties {
                     EquipmentSlotGroup.MAINHAND);
         }
         if (type.reachBonus() != 0.0F) {
-            Identifier reachId = InfiniteX.id("tool_reach");
-            attributes.add(
-                    Attributes.BLOCK_INTERACTION_RANGE,
-                    new AttributeModifier(reachId, type.reachBonus(), AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND);
-            attributes.add(
-                    Attributes.ENTITY_INTERACTION_RANGE,
-                    new AttributeModifier(reachId, type.reachBonus(), AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND);
+            if (type.reachMode().extendsInteraction()) {
+                attributes.add(
+                        InfXAttributes.ITEM_INTERACTION_RANGE,
+                        new AttributeModifier(
+                                InfiniteX.id("item_interaction_range"),
+                                type.reachBonus(),
+                                AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND);
+            }
+            if (type.reachMode().extendsMelee()) {
+                attributes.add(
+                        InfXAttributes.ITEM_MELEE_RANGE,
+                        new AttributeModifier(
+                                InfiniteX.id("item_melee_range"),
+                                type.reachBonus(),
+                                AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND);
+            }
         }
         return attributes.build();
     }

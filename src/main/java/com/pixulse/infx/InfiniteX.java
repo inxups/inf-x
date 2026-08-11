@@ -15,6 +15,7 @@ import com.pixulse.infx.item.StickBoneItems;
 import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXAttributes;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXBiomeModifiers;
 import com.pixulse.infx.registry.InfXBiomeSources;
@@ -55,6 +56,7 @@ public final class InfiniteX {
         InfXFeatures.register(modBus);
         InfXBiomeModifiers.register(modBus);
         InfXAttachments.register(modBus);
+        InfXAttributes.register(modBus);
         InfXParticles.register(modBus);
         InfXBlocks.register(modBus);
         InfXPoiTypes.register(modBus);

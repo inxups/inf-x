@@ -524,8 +524,13 @@ public final class EquipmentBehaviors {
                     "tooltip.infx.material", Component.translatable("material.infx." + key.material().path())));
             if (key.type().baseDamage() > 0.0F) {
                 event.getToolTip().add(Component.translatable("tooltip.infx.damage", key.meleeDamage()));
-                // INFX tools use the vanilla component-less attack reach like any other melee item.
-                event.getToolTip().add(Component.translatable("tooltip.infx.reach", 1.5F));
+            }
+            double reach = ItemReach.BASE_RANGE + key.type().reachBonus();
+            if (key.type().reachMode().extendsInteraction()) {
+                event.getToolTip().add(Component.translatable("tooltip.infx.interaction_reach", reach));
+            }
+            if (key.type().reachMode().extendsMelee()) {
+                event.getToolTip().add(Component.translatable("tooltip.infx.melee_reach", reach));
             }
             if (key.armorProtection() > 0.0F) {
                 event.getToolTip().add(Component.translatable("tooltip.infx.protection", key.armorProtection()));

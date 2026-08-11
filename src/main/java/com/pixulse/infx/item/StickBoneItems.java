@@ -1,16 +1,19 @@
 package com.pixulse.infx.item;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.registry.InfXAttributes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.component.AttackRange;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -24,8 +27,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 public final class StickBoneItems {
     static final int STICK_STACK_LIMIT = 32;
     static final int BONE_STACK_LIMIT = 16;
-    private static final float INFX_MELEE_REACH = 2.0F;
-    private static final float INFX_CREATIVE_MELEE_REACH = 5.0F;
+    static final float INFX_REACH_BONUS = 0.5F;
     private static final int STICK_BREAK_DENOMINATOR = 50;
     private static final int BONE_BREAK_DENOMINATOR = 100;
 
@@ -37,19 +39,26 @@ public final class StickBoneItems {
     }
 
     /**
-     * InfX {@code Item.stick}/{@code Item.bone}: both extend only melee reach by 0.5 blocks.
-     * They do not extend block reach or entity-interaction reach.
+     * InfX {@code Item.stick}/{@code Item.bone}: both extend interaction and melee reach by 0.5.
      */
     public static void modifyDefaultComponents(ModifyDefaultComponentsEvent event) {
         event.modify(Items.STICK, (components, context, item) -> {
             int currentLimit = components.getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
             components.set(DataComponents.MAX_STACK_SIZE, stackLimit(item, currentLimit));
-            components.set(DataComponents.ATTACK_RANGE, meleeAttackRange());
+            components.set(DataComponents.ATTACK_RANGE, null);
+            components.set(
+                    DataComponents.ATTRIBUTE_MODIFIERS,
+                    reachAttributes(components.getOrDefault(
+                            DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY)));
         });
         event.modify(Items.BONE, (components, context, item) -> {
             int currentLimit = components.getOrDefault(DataComponents.MAX_STACK_SIZE, 64);
             components.set(DataComponents.MAX_STACK_SIZE, stackLimit(item, currentLimit));
-            components.set(DataComponents.ATTACK_RANGE, meleeAttackRange());
+            components.set(DataComponents.ATTACK_RANGE, null);
+            components.set(
+                    DataComponents.ATTRIBUTE_MODIFIERS,
+                    reachAttributes(components.getOrDefault(
+                            DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY)));
         });
     }
 
@@ -90,14 +99,22 @@ public final class StickBoneItems {
         return currentLimit;
     }
 
-    static AttackRange meleeAttackRange() {
-        return new AttackRange(
-                0.0F,
-                INFX_MELEE_REACH,
-                0.0F,
-                INFX_CREATIVE_MELEE_REACH,
-                0.0F,
-                1.0F);
+    static ItemAttributeModifiers reachAttributes(ItemAttributeModifiers attributes) {
+        return attributes
+                .withModifierAdded(
+                        InfXAttributes.ITEM_INTERACTION_RANGE,
+                        new AttributeModifier(
+                                InfiniteX.id("stick_bone_interaction_range"),
+                                INFX_REACH_BONUS,
+                                AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND)
+                .withModifierAdded(
+                        InfXAttributes.ITEM_MELEE_RANGE,
+                        new AttributeModifier(
+                                InfiniteX.id("stick_bone_melee_range"),
+                                INFX_REACH_BONUS,
+                                AttributeModifier.Operation.ADD_VALUE),
+                        EquipmentSlotGroup.MAINHAND);
     }
 
     static int breakDenominator(Item item) {
