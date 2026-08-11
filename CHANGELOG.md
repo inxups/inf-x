@@ -1,5 +1,44 @@
 # Changelog
 
+
+## 0v3
+### New Features
+- Overworld river variants now generate according to their biome:
+    - Desert rivers generate in desert and badlands regions.
+    - Jungle rivers generate in jungle regions.
+    - Swamp rivers replace riverbeds within swamp biomes, while the rest of the swamp terrain remains unchanged.
+    - Temperate, cold, and dry regions retain vanilla rivers instead of using rough temperature/humidity thresholds.
+- Gems and quartz can now be right-clicked to exchange them for experience, using the same mechanic as coins. Each exchange consumes one item:
+    - Diamond: 500 XP
+    - Emerald: 250 XP
+    - Lapis Lazuli: 50 XP
+    - Nether Quartz: 25 XP  
+      The exchange plays the experience-orb pickup sound and releases upward-floating enchantment particles based on the XP amount.
+- Metal anvils now support naming. The interface includes a vanilla-style name field. Naming is free and does not reduce anvil durability. Items can be named, have custom names cleared, or renamed while being repaired.
+- Tool table tops now use separate materials for each wood type. The flint and obsidian tool tables each have dedicated tops for 11 stripped logs/stems: oak, spruce, birch, jungle, acacia, cherry, pale oak, dark oak, mangrove, crimson, and warped.
+- Crossbows now support the Precision and Recovery enchantments, using the same mechanics as bows. Precision reduces bolt spread, while Recovery increases the chance of retrieving fired projectiles. These enchantments still work with INFX bows.
+- Replaced the textures for the `sgravel` block and revenants with new owner-provided materials. The baby revenant texture remains unchanged.
+- Restored crafting recipes replaced by vanilla recipes:
+    - Cake: flour + sugar + egg + milk; either a bucket or milk bowl may be used, and the egg slot accepts all three vanilla eggs.
+    - Cookie: 2 wheat + cocoa beans → 8 cookies.
+    - Golden apple: restored to the gold-nugget recipe.
+    - Compass and clock: restored to iron-nugget/gold-nugget recipes surrounding redstone.
+    - Brick block: 1 sand + 8 bricks → 2 brick blocks.
+    - Nether brick block: 1 soul sand + 8 nether bricks → 2 nether brick blocks.  
+      The corresponding vanilla recipes have been disabled.
+- Restored the recipe for 1 wheat → 1 wheat seed.
+- Added a 2×2 recipe: 4 cobblestone → 2 stone. The vanilla stone-smelting recipe remains available.
+### Bug Fixes
+- Fixed metal anvil collision and selection boxes when facing east or west. Previously, both orientations used the same north-south shape, causing the top plate, steps, and pillars to be misaligned with the visible model. The east-west shape is now derived by rotating the north-south shape 90 degrees around its center, ensuring all four orientations match the model.
+- Zombified piglins and wither skeletons now drop the poor-quality weapons they carry. Gold swords, axes, and pickaxes carried by zombified piglins, as well as InfX iron swords carried by wither skeletons, are marked as `Poor`. They spawn carrying these weapons and are guaranteed to drop them on death. Vanilla 26.1.2 removed the equipment-drop mechanism, so these weapons previously neither dropped nor had Poor quality.
+- Sweet berry bushes can now only be planted in taiga and taiga-variant biomes (`#minecraft:is_taiga`). Their fruiting rate now matches blueberries: a 2.5% chance per random tick, requiring full sky brightness, replacing the vanilla 20% chance at light level 9.
+- Increased the maximum kelp stack size from 8 to 16, matching sugar cane, bamboo, and other standing plants. Dried kelp already stacked to 16.
+- Furnace-smelted potatoes no longer grant experience. The vanilla `baked_potato` smelting recipe is overridden with the same output and cooking time but zero XP. Campfire and smoker recipes are unaffected.
+- Brown mushrooms can now only be planted on moist, fertilized farmland at light levels below 8. They cannot be planted on other soil types, such as dirt or grass. When planted on moist, fertilized farmland, they convert it into mycelium.
+- Manure fertilization now only grows brown mushrooms planted on mycelium. Fertilizing brown mushrooms on other blocks still consumes the manure but does not grow them. Growth chances are now 1/3 for brown mushrooms and 1/5 for red mushrooms, replacing the previous 100% chance whenever sufficient space was available.
+
+---
+
 ## 0t7
 ### Balance Changes
 - The stack limit for mod metal ingots (silver, mithril, adamant, and ancient metal ingots) has been reduced from 16 to 8, matching the vanilla stack limit for iron, copper, gold, and netherite ingots. Other mod raw materials (metal nuggets, fragments, chains, coins, etc.) remain stackable to 16.
