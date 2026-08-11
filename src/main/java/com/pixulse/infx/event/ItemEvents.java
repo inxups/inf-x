@@ -17,6 +17,7 @@ import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EggItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
@@ -32,6 +33,10 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ItemEvents {
     public static final int FLINT_AND_STEEL_DURABILITY = 16;
+    public static final int DIAMOND_EXPERIENCE = 500;
+    public static final int EMERALD_EXPERIENCE = 250;
+    public static final int LAPIS_LAZULI_EXPERIENCE = 50;
+    public static final int QUARTZ_EXPERIENCE = 25;
 
     private ItemEvents() {}
 
@@ -55,6 +60,34 @@ public final class ItemEvents {
         if (InfxBucketItem.isMeltPickupBlocked(event.getPlayer())) {
             event.setCanPickup(TriState.FALSE);
         }
+    }
+
+    /**
+     * Gems and quartz can be redeemed for experience by right-clicking them in hand, consuming
+     * one item per use, following the same pattern as {@link com.pixulse.infx.item.CoinItem}.
+     * {@link PlayerInteractEvent.RightClickItem} fires right before {@code ItemStack#use} on both
+     * the client prediction and the server, the same boundary the coin item uses for its own use.
+     */
+    @SubscribeEvent
+    public static void redeemGemExperience(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        ItemStack held = player.getItemInHand(event.getHand());
+        int experience = gemExperience(held.getItem());
+        if (experience <= 0) return;
+        if (!event.getLevel().isClientSide()) {
+            held.shrink(1);
+            player.giveExperiencePoints(experience);
+        }
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS.heldItemTransformedTo(held));
+    }
+
+    public static int gemExperience(Item item) {
+        if (item == Items.DIAMOND) return DIAMOND_EXPERIENCE;
+        if (item == Items.EMERALD) return EMERALD_EXPERIENCE;
+        if (item == Items.LAPIS_LAZULI) return LAPIS_LAZULI_EXPERIENCE;
+        if (item == Items.QUARTZ) return QUARTZ_EXPERIENCE;
+        return 0;
     }
 
     /**

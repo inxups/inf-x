@@ -60,6 +60,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -147,6 +148,7 @@ import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.portal.PortalShape;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.CreativeModeTabRegistry;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.NeoForge;
@@ -174,6 +176,7 @@ public final class ModCompletionGameTests {
     private static final List<String> NAMES = List.of(
             "infx_special_behaviors",
             "infx_quality_coin",
+            "infx_gem_experience",
             "infx_metal_anvil",
             "infx_underworld",
             "infx_portals",
@@ -206,6 +209,7 @@ public final class ModCompletionGameTests {
     static {
         FUNCTIONS.register("infx_special_behaviors", () -> ModCompletionGameTests::specialBehaviors);
         FUNCTIONS.register("infx_quality_coin", () -> ModCompletionGameTests::qualityAndCoin);
+        FUNCTIONS.register("infx_gem_experience", () -> ModCompletionGameTests::gemExperience);
         FUNCTIONS.register("infx_metal_anvil", () -> ModCompletionGameTests::metalAnvil);
         FUNCTIONS.register("infx_underworld", () -> ModCompletionGameTests::underworld);
         FUNCTIONS.register("infx_portals", () -> ModCompletionGameTests::portals);
@@ -648,6 +652,28 @@ public final class ModCompletionGameTests {
                 "cudgels must add two damage against skeletons");
         skeleton.discard();
 
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static void gemExperience(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        Map<Item, Integer> gems = Map.of(
+                Items.DIAMOND, ItemEvents.DIAMOND_EXPERIENCE,
+                Items.EMERALD, ItemEvents.EMERALD_EXPERIENCE,
+                Items.LAPIS_LAZULI, ItemEvents.LAPIS_LAZULI_EXPERIENCE,
+                Items.QUARTZ, ItemEvents.QUARTZ_EXPERIENCE);
+        for (Map.Entry<Item, Integer> gem : gems.entrySet()) {
+            ItemStack stack = new ItemStack(gem.getKey(), 2);
+            player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+            int beforeXp = player.totalExperience;
+            InteractionResult use = CommonHooks.onItemRightClick(player, InteractionHand.MAIN_HAND);
+            helper.assertTrue(use instanceof InteractionResult.Success, "right-clicking a gem must succeed");
+            helper.assertTrue(player.getMainHandItem().getCount() == 1, "one gem must be consumed per use");
+            helper.assertTrue(
+                    player.totalExperience == beforeXp + gem.getValue(),
+                    gem.getKey() + " must grant its INFX experience");
+        }
         removePlayer(player);
         helper.succeed();
     }
