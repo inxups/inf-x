@@ -129,6 +129,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
@@ -186,6 +187,7 @@ public final class ModCompletionGameTests {
             "infx_animal_interactions",
             "infx_onion_crop",
             "infx_fertilized_farmland",
+            "infx_mushroom_planting",
             "infx_gravel_loot",
             "infx_hopper_xp",
             "infx_survival_core",
@@ -220,6 +222,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_animal_interactions", () -> ModCompletionGameTests::animalInteractions);
         FUNCTIONS.register("infx_onion_crop", () -> ModCompletionGameTests::onionCrop);
         FUNCTIONS.register("infx_fertilized_farmland", () -> ModCompletionGameTests::fertilizedFarmland);
+        FUNCTIONS.register("infx_mushroom_planting", () -> ModCompletionGameTests::mushroomPlanting);
         FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
         FUNCTIONS.register("infx_survival_core", () -> ModCompletionGameTests::survivalCore);
@@ -1694,6 +1697,119 @@ public final class ModCompletionGameTests {
             removePlayer(player);
         }
         helper.succeed();
+    }
+
+    private static void mushroomPlanting(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        try {
+            // The game-test server never propagates light updates after setBlock, so the light
+            // rule is exercised on pre-baked dark spots below the grid floor (sky light 0).
+            int darkY = darkY(helper, 3, 3);
+            BlockPos relative = new BlockPos(3, darkY, 3);
+            helper.setBlock(relative, Blocks.AIR);
+            BlockPos soil = relative.below();
+            helper.setBlock(soil, Blocks.AIR);
+            helper.setBlock(soil.below(), Blocks.STONE);
+            helper.setBlock(soil, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+
+            // A bright spot rejects planting even on moist fertilized farmland.
+            BlockPos brightSoil = new BlockPos(3, 3, 3).below();
+            helper.setBlock(brightSoil.below(), Blocks.STONE);
+            helper.setBlock(brightSoil, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+            BlockPos brightSoilAbsolute = helper.absolutePos(brightSoil);
+            BlockHitResult brightHit =
+                    new BlockHitResult(Vec3.atCenterOf(brightSoilAbsolute), Direction.UP, brightSoilAbsolute, false);
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, brightHit);
+            helper.assertTrue(
+                    helper.getBlockState(brightSoil).is(InfXBlocks.FERTILE_FARMLAND),
+                    "manure must fertilize the bright farmland too");
+            player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, brightHit);
+            helper.assertTrue(
+                    helper.getBlockState(brightSoil.above()).isAir(),
+                    "brown mushrooms must not plant on fertilized farmland when the light is too high");
+
+            // Manure fertilizes the farmland first.
+            BlockPos soilAbsolute = helper.absolutePos(soil);
+            BlockHitResult soilHit =
+                    new BlockHitResult(Vec3.atCenterOf(soilAbsolute), Direction.UP, soilAbsolute, false);
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, soilHit);
+            helper.assertTrue(
+                    helper.getBlockState(soil).is(InfXBlocks.FERTILE_FARMLAND),
+                    "manure must fertilize the farmland before brown mushroom planting");
+
+            // A brown mushroom may only be planted on moist fertilized farmland in the dark.
+            int plainY = darkY(helper, 6, 3);
+            BlockPos plainSoil = new BlockPos(6, plainY, 3);
+            helper.setBlock(plainSoil, Blocks.AIR);
+            helper.setBlock(plainSoil.below(), Blocks.AIR);
+            helper.setBlock(plainSoil.below(), Blocks.STONE);
+            helper.setBlock(plainSoil, Blocks.DIRT);
+            player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
+            BlockPos plainSoilAbsolute = helper.absolutePos(plainSoil);
+            BlockHitResult plainSoilHit =
+                    new BlockHitResult(Vec3.atCenterOf(plainSoilAbsolute), Direction.UP, plainSoilAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, plainSoilHit);
+            helper.assertTrue(
+                    helper.getBlockState(plainSoil).is(Blocks.DIRT) && helper.getBlockState(plainSoil.above()).isAir(),
+                    "brown mushrooms must not plant on plain soil");
+
+            // Planting on moist fertilized farmland succeeds and converts the soil to mycelium.
+            player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, soilHit);
+            helper.assertTrue(
+                    helper.getBlockState(relative).is(Blocks.BROWN_MUSHROOM),
+                    "brown mushrooms must plant on moist fertilized farmland in the dark");
+            helper.assertTrue(
+                    helper.getBlockState(soil).is(Blocks.MYCELIUM),
+                    "brown mushroom planting must convert fertilized farmland to mycelium");
+            helper.assertTrue(
+                    helper.getBlockState(soil).is(Blocks.MYCELIUM),
+                    "brown mushroom planting must convert fertilized farmland to mycelium");
+
+            // Manure consumes but never grows a brown mushroom that is not on mycelium.
+            BlockPos plainMushroom = plainSoil.above();
+            helper.setBlock(plainMushroom, Blocks.BROWN_MUSHROOM);
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
+            BlockPos plainMushroomAbsolute = helper.absolutePos(plainMushroom);
+            BlockHitResult plainMushroomHit =
+                    new BlockHitResult(Vec3.atCenterOf(plainMushroomAbsolute), Direction.UP, plainMushroomAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, plainMushroomHit);
+            helper.assertTrue(
+                    player.getMainHandItem().isEmpty(),
+                    "manure must be consumed by a mushroom interaction even when the mushroom cannot grow");
+            helper.assertTrue(
+                    helper.getBlockState(plainMushroom).is(Blocks.BROWN_MUSHROOM),
+                    "manure must not grow a brown mushroom planted off mycelium");
+
+            // Manure on a mycelium-backed brown mushroom is consumed (growth chance 1/3).
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
+            BlockPos grownAbsolute = helper.absolutePos(relative);
+            BlockHitResult grownHit = new BlockHitResult(Vec3.atCenterOf(grownAbsolute), Direction.UP, grownAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, grownHit);
+            helper.assertTrue(
+                    player.getMainHandItem().isEmpty(),
+                    "manure must be consumed when used on a mycelium-backed brown mushroom");
+        } finally {
+            removePlayer(player);
+        }
+        helper.succeed();
+    }
+
+    /** Finds a pre-baked dark column (sky light 0) below the game-test grid floor. */
+    private static int darkY(GameTestHelper helper, int x, int z) {
+        for (int y = -1; y >= -8; y--) {
+            if (helper.getLevel()
+                            .getLightEngine()
+                            .getLayerListener(LightLayer.SKY)
+                            .getLightValue(helper.absolutePos(new BlockPos(x, y, z)))
+                    == 0) {
+                return y;
+            }
+        }
+        throw new AssertionError("no pre-baked dark spot under the test grid at " + x + "," + z);
     }
 
     private static void gravelLoot(GameTestHelper helper) {

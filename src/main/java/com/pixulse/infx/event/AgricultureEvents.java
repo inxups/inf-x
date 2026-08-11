@@ -33,6 +33,13 @@ import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 /** InfX crop-family rules that do not belong to a specific custom crop block. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AgricultureEvents {
+    /** Manure must be used on a mycelium-backed brown mushroom to grow a huge one. */
+    private static final float BROWN_MUSHROOM_GROW_CHANCE = 1.0F / 3.0F;
+    /** Red mushrooms keep the vanilla plant-anywhere rule but grow even less often. */
+    private static final float RED_MUSHROOM_GROW_CHANCE = 1.0F / 5.0F;
+    /** Brown mushrooms may only be planted below this sky-light ceiling. */
+    private static final int MUSHROOM_PLANT_LIGHT_CEILING = 8;
+
     private AgricultureEvents() {}
 
     @SubscribeEvent
@@ -100,11 +107,16 @@ public final class AgricultureEvents {
                 cancelInteraction(event);
                 return;
             }
-            MushroomBlock mushroom = (MushroomBlock) clicked.getBlock();
-            if (mushroom.growMushroom(serverLevel, event.getPos(), clicked, serverLevel.getRandom())) {
-                if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
-                cancelInteraction(event);
+            // Manure is always consumed by a mushroom interaction. Only brown mushrooms on
+            // mycelium may grow, and both colors only grow on a reduced chance roll.
+            boolean canGrow = !clicked.is(Blocks.BROWN_MUSHROOM)
+                    || level.getBlockState(event.getPos().below()).is(Blocks.MYCELIUM);
+            if (canGrow && serverLevel.getRandom().nextFloat() < mushroomGrowChance(clicked)) {
+                MushroomBlock mushroom = (MushroomBlock) clicked.getBlock();
+                mushroom.growMushroom(serverLevel, event.getPos(), clicked, serverLevel.getRandom());
             }
+            if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
+            cancelInteraction(event);
             return;
         }
 
@@ -119,6 +131,11 @@ public final class AgricultureEvents {
         fertilizeFarmland(serverLevel, farmlandPos);
         if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
         cancelInteraction(event);
+    }
+
+    /** Chance that manure actually grows a huge mushroom: brown 1/3, red 1/5. */
+    static float mushroomGrowChance(BlockState state) {
+        return state.is(Blocks.BROWN_MUSHROOM) ? BROWN_MUSHROOM_GROW_CHANCE : RED_MUSHROOM_GROW_CHANCE;
     }
 
     /** Marks a farmland patch fertilized: converts it to {@code infx:fertilized_farmland}. */
@@ -172,8 +189,13 @@ public final class AgricultureEvents {
             BlockState farmland = level.getBlockState(soil);
             if (farmland.is(InfXBlocks.FERTILE_FARMLAND)
                     && isMoistFarmland(farmland)
-                    && level.getRawBrightness(pos, 0) < 8) {
+                    && level.getRawBrightness(pos, 0) < MUSHROOM_PLANT_LIGHT_CEILING) {
+                // A brown mushroom on moist fertilized farmland converts the soil to mycelium,
+                // which is the only soil manure can then use to grow a huge mushroom.
                 level.setBlockAndUpdate(soil, Blocks.MYCELIUM.defaultBlockState());
+            } else {
+                // Brown mushrooms may only be planted on moist fertilized farmland in the dark.
+                event.setCanceled(true);
             }
         }
     }
