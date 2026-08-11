@@ -21,7 +21,7 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("salad", names("Salad", "沙拉")),
             Map.entry("blueberries", names("Blueberries", "蓝莓")),
             Map.entry("blueberry_porridge", names("Blueberry Porridge", "蓝莓粥")),
-            Map.entry("milk_bowl", names("Bowl of Milk", "牛奶碗")),
+            Map.entry("milk_bowl", names("Bowl of Milk", "奶碗")),
             Map.entry("cereal_porridge", names("Cereal Porridge", "麦片粥")),
             Map.entry("chocolate", names("Chocolate", "巧克力")),
             Map.entry("pumpkin_soup", names("Pumpkin Soup", "南瓜汤")),
@@ -52,11 +52,11 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("crimson", names("Crimson Stem", "绯红菌柄")),
             Map.entry("warped", names("Warped Stem", "诡异菌柄")));
     private static final Map<String, String[]> GELATINOUS_SPHERE_NAMES = Map.ofEntries(
-            Map.entry("green_gelatinous_sphere", names("Green Gelatinous Sphere", "绿色粘液球")),
-            Map.entry("ochre_gelatinous_sphere", names("Ochre Gelatinous Sphere", "赭色粘液球")),
-            Map.entry("crimson_gelatinous_sphere", names("Crimson Gelatinous Sphere", "深红粘液球")),
-            Map.entry("gray_gelatinous_sphere", names("Gray Gelatinous Sphere", "灰色粘液球")),
-            Map.entry("black_gelatinous_sphere", names("Black Gelatinous Sphere", "黑色粘液球")));
+            Map.entry("green_gelatinous_sphere", names("Green Gelatinous Sphere", "绿色黏液球")),
+            Map.entry("ochre_gelatinous_sphere", names("Ochre Gelatinous Sphere", "褐色黏液球")),
+            Map.entry("crimson_gelatinous_sphere", names("Crimson Gelatinous Sphere", "红色黏液球")),
+            Map.entry("gray_gelatinous_sphere", names("Gray Gelatinous Sphere", "灰色黏液球")),
+            Map.entry("black_gelatinous_sphere", names("Black Gelatinous Sphere", "黑色黏液球")));
     private static final Map<String, String[]> ENCHANTMENT_NAMES = Map.ofEntries(
             Map.entry("durability", names("Durability", "耐久")),
             Map.entry("disarming", names("Disarming", "缴械")),
@@ -275,17 +275,17 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("block.infx.adamantium_workbench", "艾德曼工具台"),
                 Map.entry("block.infx.snow_slab", "雪台阶"),
                 Map.entry("block.infx.infx_onions", "洋葱植株"),
-                Map.entry("block.infx.clay_furnace", "粘土炉"),
-                Map.entry("block.infx.sandstone_furnace", "沙石炉"),
+                Map.entry("block.infx.clay_furnace", "黏土炉"),
+                Map.entry("block.infx.sandstone_furnace", "砂岩炉"),
                 Map.entry("block.infx.hardened_clay_furnace", "陶瓦炉"),
                 Map.entry("block.infx.obsidian_furnace", "黑曜石熔炉"),
                 Map.entry("block.infx.netherrack_furnace", "下界岩熔炉"),
                 Map.entry("block.infx.silver_ore", "银矿石"),
-                Map.entry("block.infx.deepslate_silver_ore", "深板岩银矿石"),
+                Map.entry("block.infx.deepslate_silver_ore", "深层银矿石"),
                 Map.entry("block.infx.mithril_ore", "秘银矿石"),
-                Map.entry("block.infx.deepslate_mithril_ore", "深板岩秘银矿石"),
+                Map.entry("block.infx.deepslate_mithril_ore", "深层秘银矿石"),
                 Map.entry("block.infx.adamantium_ore", "艾德曼矿石"),
-                Map.entry("block.infx.deepslate_adamantium_ore", "深板岩艾德曼矿石"),
+                Map.entry("block.infx.deepslate_adamantium_ore", "深层艾德曼矿石"),
                 Map.entry("container.infx.flint_workbench", "燧石工具台"),
                 Map.entry("container.infx.copper_workbench", "铜工具台"),
                 Map.entry("container.infx.silver_workbench", "银工具台"),
@@ -295,8 +295,8 @@ final class ModLanguageProvider extends LanguageProvider {
                 Map.entry("container.infx.mithril_workbench", "秘银工具台"),
                 Map.entry("container.infx.adamantium_workbench", "艾德曼工具台"),
                 Map.entry("container.infx.obsidian_workbench", "黑曜石工具台"),
-                Map.entry("container.infx.clay_furnace", "粘土炉"),
-                Map.entry("container.infx.sandstone_furnace", "沙石炉"),
+                Map.entry("container.infx.clay_furnace", "黏土炉"),
+                Map.entry("container.infx.sandstone_furnace", "砂岩炉"),
                 Map.entry("container.infx.hardened_clay_furnace", "陶瓦炉"),
                 Map.entry("container.infx.obsidian_furnace", "黑曜石熔炉"),
                 Map.entry("container.infx.netherrack_furnace", "下界岩熔炉"),
@@ -372,7 +372,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 String chineseContents = switch (contents) {
                     case EMPTY -> "";
                     case WATER -> "水";
-                    case LAVA -> "岩浆";
+                    case LAVA -> "熔岩";
                     case MILK -> "奶";
                     case STONE -> "石头";
                 };
@@ -400,7 +400,7 @@ final class ModLanguageProvider extends LanguageProvider {
         addRecord("descent", "Descent");
         addRecord("wanderer", "Wanderer");
         addRecord("legends", "Legends");
-        add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋零灌木");
+        add("block.infx.witherwood", locale == Locale.EN_US ? "Witherwood" : "凋灵灌木");
         add("death.infx.poison", locale == Locale.EN_US ? "%s was poisoned to death" : "%s 毒发身亡");
         add("block.infx.blueberry_bush", locale == Locale.EN_US ? "Blueberry Bush" : "蓝莓丛");
         add("block.infx.infx_wheat", locale == Locale.EN_US ? "Wheat Crop" : "小麦作物");
@@ -590,7 +590,7 @@ final class ModLanguageProvider extends LanguageProvider {
                 locale == Locale.EN_US ? "Hold Ctrl to place a source block" : "按住Ctrl键来放置源头");
         add(
                 "tooltip.infx.when_bucket_filled",
-                locale == Locale.EN_US ? "When filled with lava:" : "捞岩浆时:");
+                locale == Locale.EN_US ? "When filled with lava:" : "捞熔岩时:");
         add(
                 "tooltip.infx.chance_of_bucket_melting",
                 locale == Locale.EN_US ? "%s%% chance of melting" : "有%s%%的几率融化");
