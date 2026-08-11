@@ -407,6 +407,7 @@ final class ModLanguageProvider extends LanguageProvider {
         add("block.infx.infx_carrots", locale == Locale.EN_US ? "Carrot Crop" : "胡萝卜作物");
         add("block.infx.infx_potatoes", locale == Locale.EN_US ? "Potato Crop" : "马铃薯作物");
         add("block.infx.infx_beetroots", locale == Locale.EN_US ? "Beetroot Crop" : "甜菜根作物");
+        add("block.infx.fertilized_farmland", locale == Locale.EN_US ? "Fertilized Farmland" : "施肥耕地");
         add("block.infx.sgravel", locale == Locale.EN_US ? "Gravel" : "砾石");
         add("block.infx.nether_gravel", locale == Locale.EN_US ? "Nether Gravel" : "下界沙砾");
         add("block.infx.core", locale == Locale.EN_US ? "Core" : "地核");

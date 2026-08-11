@@ -51,6 +51,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -107,6 +108,11 @@ final class ModModelProvider extends ModelProvider {
             TextureSlot.PARTICLE,
             TextureSlot.TOP,
             TextureSlot.SIDE);
+    private static final ModelTemplate FERTILIZED_FARMLAND_MODEL = new ModelTemplate(
+            Optional.of(Identifier.withDefaultNamespace("block/template_farmland")),
+            Optional.empty(),
+            TextureSlot.TOP,
+            TextureSlot.DIRT);
     ModModelProvider(PackOutput output) {
         super(output, InfiniteX.MOD_ID);
     }
@@ -126,7 +132,8 @@ final class ModModelProvider extends ModelProvider {
                         InfXBlocks.WORLD_BLOCKS.stream().map(block -> (Block) block.value()),
                         InfXBlocks.FULLTEXT_BLOCKS.stream().map(block -> (Block) block.value()),
                         InfXBlocks.INFX_RECIPE_BLOCKS.stream().map(block -> (Block) block.value()),
-                        InfXBlocks.INFX_CROPS.stream().map(block -> (Block) block.value()))
+                        InfXBlocks.INFX_CROPS.stream().map(block -> (Block) block.value()),
+                        Stream.of((Block) InfXBlocks.FERTILE_FARMLAND.value()))
                 .flatMap(stream -> stream);
         return Stream.concat(
                 generated,
@@ -176,6 +183,7 @@ final class ModModelProvider extends ModelProvider {
         InfXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> blockModels.createTrivialCube(block.value()));
         InfXBlocks.METAL_ANVILS.forEach(anvil -> generateMetalAnvil(blockModels, anvil.value()));
         generateSnowSlab(blockModels);
+        generateFertilizedFarmland(blockModels);
         blockModels.createCrossBlockWithDefaultItem(
                 InfXBlocks.WITHERWOOD.value(), BlockModelGenerators.PlantType.NOT_TINTED);
         generateBlueberryBush(blockModels);
@@ -424,6 +432,26 @@ final class ModModelProvider extends ModelProvider {
                 .with(PropertyDispatch.initial(BlockStateProperties.HORIZONTAL_AXIS)
                         .select(Direction.Axis.X, BlockModelGenerators.plainVariant(redNs))
                         .select(Direction.Axis.Z, BlockModelGenerators.plainVariant(redEw))));
+    }
+
+    private static void generateFertilizedFarmland(BlockModelGenerators blockModels) {
+        Material dirt = new Material(Identifier.withDefaultNamespace("block/dirt"));
+        Identifier dry = FERTILIZED_FARMLAND_MODEL.create(
+                InfiniteX.id("block/farmland_dry_fertilized"),
+                new TextureMapping()
+                        .put(TextureSlot.TOP, new Material(InfiniteX.id("block/farmland_dry_fertilized")))
+                        .put(TextureSlot.DIRT, dirt),
+                blockModels.modelOutput);
+        Identifier wet = FERTILIZED_FARMLAND_MODEL.create(
+                InfiniteX.id("block/farmland_wet_fertilized"),
+                new TextureMapping()
+                        .put(TextureSlot.TOP, new Material(InfiniteX.id("block/farmland_wet_fertilized")))
+                        .put(TextureSlot.DIRT, dirt),
+                blockModels.modelOutput);
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(InfXBlocks.FERTILE_FARMLAND.value())
+                .with(PropertyDispatch.initial(FarmlandBlock.MOISTURE)
+                        .generate(moisture -> BlockModelGenerators.plainVariant(
+                                moisture == FarmlandBlock.MAX_MOISTURE ? wet : dry))));
     }
 
     private static void generateSnowSlab(BlockModelGenerators blockModels) {

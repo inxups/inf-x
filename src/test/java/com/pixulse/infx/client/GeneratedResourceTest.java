@@ -3486,6 +3486,8 @@ class GeneratedResourceTest {
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/emerald_enchanting_table_(side|top)\\.png")));
         assertTrue(destinations.remove("textures/block/sgravel.png"));
+        assertTrue(destinations.removeIf(path -> path.matches(
+                "textures/block/farmland_(dry|wet)_fertilized\\.png")));
         assertTrue(destinations.remove("textures/block/snow_slab.png"));
         assertTrue(destinations.remove("textures/block/mantle.png"));
         assertTrue(destinations.remove("textures/block/mantle.png.mcmeta"));

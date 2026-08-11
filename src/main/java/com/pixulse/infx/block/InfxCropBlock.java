@@ -1,7 +1,7 @@
 package com.pixulse.infx.block;
 
 import com.mojang.serialization.MapCodec;
-import com.pixulse.infx.data.agriculture.AgricultureData;
+import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -116,7 +116,14 @@ public final class InfxCropBlock extends CropBlock {
         BlockState grown = state.setValue(getAgeProperty(), nextAge);
         level.setBlock(pos, grown, Block.UPDATE_CLIENTS);
         if (random.nextInt(FERTILITY_CONSUMPTION_CHANCE) == 0) {
-            AgricultureData.get(level).consumeFertility(pos.below());
+            BlockPos farmlandPos = pos.below();
+            BlockState farmland = level.getBlockState(farmlandPos);
+            if (farmland.is(InfXBlocks.FERTILE_FARMLAND)) {
+                level.setBlockAndUpdate(
+                        farmlandPos,
+                        Blocks.FARMLAND.defaultBlockState()
+                                .setValue(FarmlandBlock.MOISTURE, farmland.getValue(FarmlandBlock.MOISTURE)));
+            }
         }
     }
 
@@ -213,7 +220,7 @@ public final class InfxCropBlock extends CropBlock {
             rate /= 2.0F;
         }
 
-        if (AgricultureData.get(level).isFertile(farmlandPos)) {
+        if (level.getBlockState(farmlandPos).is(InfXBlocks.FERTILE_FARMLAND)) {
             rate *= 1.5F;
         }
 
@@ -336,14 +343,14 @@ public final class InfxCropBlock extends CropBlock {
     }
 
     private static float farmlandContribution(BlockState state) {
-        if (!state.is(Blocks.FARMLAND)) {
+        if (!(state.getBlock() instanceof FarmlandBlock)) {
             return 0.0F;
         }
         return isMoistFarmland(state) ? 3.0F : 1.0F;
     }
 
     private static boolean isMoistFarmland(BlockState state) {
-        return state.is(Blocks.FARMLAND) && state.getValue(FarmlandBlock.MOISTURE) > 0;
+        return state.getBlock() instanceof FarmlandBlock && state.getValue(FarmlandBlock.MOISTURE) > 0;
     }
 
     private static boolean hasNearbyWater(ServerLevel level, BlockPos farmland) {

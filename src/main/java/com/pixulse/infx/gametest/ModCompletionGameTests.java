@@ -5,6 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.block.InfxCropBlock;
 import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.RuneStoneBlock;
 import com.pixulse.infx.block.UnderworldPortalBlock;
@@ -131,6 +132,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -180,6 +182,7 @@ public final class ModCompletionGameTests {
             "infx_livestock",
             "infx_animal_interactions",
             "infx_onion_crop",
+            "infx_fertilized_farmland",
             "infx_gravel_loot",
             "infx_hopper_xp",
             "infx_survival_core",
@@ -212,6 +215,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_livestock", () -> ModCompletionGameTests::livestock);
         FUNCTIONS.register("infx_animal_interactions", () -> ModCompletionGameTests::animalInteractions);
         FUNCTIONS.register("infx_onion_crop", () -> ModCompletionGameTests::onionCrop);
+        FUNCTIONS.register("infx_fertilized_farmland", () -> ModCompletionGameTests::fertilizedFarmland);
         FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
         FUNCTIONS.register("infx_survival_core", () -> ModCompletionGameTests::survivalCore);
@@ -1568,6 +1572,50 @@ public final class ModCompletionGameTests {
             helper.assertTrue(
                     onions == 2 || onions == 3,
                     "a mature onion crop must yield two onions, or three with the 25% bonus");
+        } finally {
+            removePlayer(player);
+        }
+        helper.succeed();
+    }
+
+    private static void fertilizedFarmland(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        try {
+            BlockPos relative = new BlockPos(3, 3, 3);
+            BlockPos farmland = relative.below();
+            // InfX loose-terrain physics drops unsupported farmland, so give it a solid base.
+            helper.setBlock(farmland.below(), Blocks.STONE);
+            helper.setBlock(farmland, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+            helper.setBlock(relative, Blocks.AIR);
+
+            // Manure right-click converts the farmland into the fertilized variant.
+            BlockPos farmlandAbsolute = helper.absolutePos(farmland);
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
+            BlockHitResult hit =
+                    new BlockHitResult(Vec3.atCenterOf(farmlandAbsolute), Direction.UP, farmlandAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, hit);
+            BlockState fertile = helper.getBlockState(farmland);
+            helper.assertTrue(
+                    fertile.is(InfXBlocks.FERTILE_FARMLAND),
+                    "manure must convert farmland into the fertilized farmland block");
+            helper.assertTrue(
+                    fertile.getValue(FarmlandBlock.MOISTURE) == 5,
+                    "fertilization must preserve the farmland moisture level");
+
+            // The fertilized farmland must stay plantable and speed up crop growth by 1.5x.
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.ONION.toStack());
+            InfXItems.ONION.get().useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+            helper.assertTrue(
+                    helper.getBlockState(relative).is(InfXBlocks.INFX_ONION.get()),
+                    "an onion must plant on fertilized farmland");
+            float fertileRate = ((InfxCropBlock) helper.getBlockState(relative).getBlock())
+                    .growthRate(helper.getLevel(), helper.absolutePos(relative));
+            helper.setBlock(farmland, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+            float plainRate = ((InfxCropBlock) helper.getBlockState(relative).getBlock())
+                    .growthRate(helper.getLevel(), helper.absolutePos(relative));
+            helper.assertTrue(
+                    fertileRate == plainRate * 1.5F,
+                    "fertilized farmland must grow crops at 1.5x the plain farmland rate");
         } finally {
             removePlayer(player);
         }

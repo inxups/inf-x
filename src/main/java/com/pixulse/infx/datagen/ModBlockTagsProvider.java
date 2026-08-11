@@ -42,6 +42,8 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
             tag(BlockTags.CROPS).add(crop.getKey());
             tag(BlockTags.MAINTAINS_FARMLAND).add(crop.getKey());
         });
+        tag(BlockTags.SUPPORTS_CROPS)
+                .add(blockKey(Blocks.FARMLAND), InfXBlocks.FERTILE_FARMLAND.getKey());
     }
 
     private void addCurseTags() {

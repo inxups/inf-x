@@ -69,6 +69,7 @@ class InfXCreativeTabsTest {
                 netherPortal,
                 returnSpawnPortal,
                 infestedNetherrack,
+                InfXBlocks.FERTILE_FARMLAND.getId(),
                 InfXBlocks.INFX_WHEAT.getId(),
                 InfXBlocks.INFX_CARROTS.getId(),
                 InfXBlocks.INFX_POTATOES.getId(),
@@ -87,7 +88,7 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        assertEquals(78, InfXBlocks.BLOCKS.getEntries().size());
+        assertEquals(79, InfXBlocks.BLOCKS.getEntries().size());
         assertFalse(InfXBlocks.BLOCKS.getEntries().stream()
                 .anyMatch(block -> Set.of("flint_workbench", "obsidian_workbench").contains(block.getId().getPath())));
         assertFalse(InfXItems.ITEMS.getEntries().stream()

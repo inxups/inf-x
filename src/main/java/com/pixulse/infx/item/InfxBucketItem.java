@@ -385,7 +385,7 @@ public final class InfxBucketItem extends BucketItem {
             for (int dz = -1; dz <= 1; dz++) {
                 BlockPos pos = center.offset(dx, 0, dz);
                 BlockState state = level.getBlockState(pos);
-                if (!state.is(Blocks.FARMLAND) || !state.hasProperty(FarmlandBlock.MOISTURE)) {
+                if (!(state.getBlock() instanceof FarmlandBlock) || !state.hasProperty(FarmlandBlock.MOISTURE)) {
                     continue;
                 }
                 if (state.getValue(FarmlandBlock.MOISTURE) < 7) {
