@@ -5,6 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PACK_TEXTURES="${1:-$ROOT/codex/reference/mite-resource-pack/assets/minecraft/textures}"
 SOURCE_TEXTURES="${2:-$ROOT/codex/reference/mite-src/assets/minecraft/textures}"
 ITF_REBORN_TEXTURES="${3:-${ITF_REBORN_TEXTURES:-/Users/inxups/Downloads/ITF-Reborn-R196/src/main/resources/assets/miteitfrb/textures}}"
+WORKBENCH_TOP_TEXTURES="${4:-${WORKBENCH_TOP_TEXTURES:-/Users/inxups/Downloads/工作台顶}}"
 ASSET_ROOT="$ROOT/src/main/resources/assets/infx"
 DEST_TEXTURES="$ASSET_ROOT/textures"
 MANIFEST="$ASSET_ROOT/infx_texture_manifest.tsv"
@@ -22,6 +23,7 @@ sync() {
     resource-pack) source_root="$PACK_TEXTURES" ;;
     mite-src) source_root="$SOURCE_TEXTURES" ;;
     itf-reborn) source_root="$ITF_REBORN_TEXTURES" ;;
+    workbench-top) source_root="$WORKBENCH_TOP_TEXTURES" ;;
     *) echo "Unknown source kind: $source_kind" >&2; exit 1 ;;
   esac
   source="$source_root/$source_rel"
@@ -264,8 +266,12 @@ sync resource-pack blocks/portal_nether.png.mcmeta block/nether_portal.png.mcmet
 
 sync resource-pack blocks/emerald_enchanting_table_side.png block/emerald_enchanting_table_side.png
 sync resource-pack blocks/emerald_enchanting_table_top.png block/emerald_enchanting_table_top.png
-sync resource-pack blocks/crafting_table/flint/top.png block/flint_workbench_top.png
-sync resource-pack blocks/crafting_table/obsidian/top.png block/obsidian_workbench_top.png
+# 项目所有者提供的逐树种工具台台面材质(去皮原木顶面),燧石与黑曜石工具台各一套
+for wood in oak spruce birch jungle acacia cherry pale_oak dark_oak mangrove crimson warped; do
+  log_path="stripped_${wood}_$( [[ "$wood" == crimson || "$wood" == warped ]] && echo stem || echo log )"
+  sync workbench-top "${log_path}_flint_workbench_top.png" "block/${log_path}_flint_workbench_top.png"
+  sync workbench-top "${log_path}_obsidian_workbench_top.png" "block/${log_path}_obsidian_workbench_top.png"
+done
 for material in copper silver gold iron ancient_metal mithril adamantium; do
   sync resource-pack \
     "blocks/crafting_table/$material/front.png" \
@@ -387,7 +393,7 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 638 ]] || { echo "Expected 638 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 658 ]] || { echo "Expected 658 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   {

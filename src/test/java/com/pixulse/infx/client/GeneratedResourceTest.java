@@ -3024,11 +3024,14 @@ class GeneratedResourceTest {
     void strippedLogWorkbenchModelsUseTheirOriginalWorkbenchTops() throws Exception {
         for (var workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
             String prefix = "stripped_" + workbench.wood();
+            String logPath = prefix
+                    + (workbench.wood().equals("crimson") || workbench.wood().equals("warped") ? "_stem" : "_log");
             for (String type : List.of("flint", "obsidian")) {
                 JsonObject model = json(GENERATED.resolve(
                         "assets/infx/models/block/" + prefix + "_" + type + "_workbench.json"));
+                // 燧石与黑曜石工具台顶面均为所有者提供的逐树种贴图(去皮原木顶面)
                 assertEquals(
-                        "infx:block/" + type + "_workbench_top",
+                        "infx:block/" + logPath + "_" + type + "_workbench_top",
                         model.getAsJsonObject("textures").get("up").getAsString());
             }
         }
@@ -3466,7 +3469,8 @@ class GeneratedResourceTest {
                 path -> path.matches("textures/item/leather_(helmet|chestplate|leggings|boots)_overlay\\.png")));
         assertTrue(destinations.removeIf(path -> path.startsWith("textures/entity/equipment/")));
         assertTrue(destinations.removeIf(path -> path.matches(
-                "textures/block/(flint|obsidian)_workbench_top\\.png"
+                "textures/block/stripped_(oak|spruce|birch|jungle|acacia|cherry|pale_oak|dark_oak|mangrove|"
+                        + "crimson|warped)_(log|stem)_(flint|obsidian)_workbench_top\\.png"
                         + "|textures/block/(copper|silver|gold|iron|ancient_metal|mithril|adamantium)_workbench_(front|side)\\.png")));
         assertTrue(destinations.removeIf(path -> path.matches(
                 "textures/block/(clay|hardened_clay|sandstone|obsidian|netherrack)_furnace_(front|front_on|side|top)\\.png")));
