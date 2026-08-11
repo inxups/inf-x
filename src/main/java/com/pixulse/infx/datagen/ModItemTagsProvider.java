@@ -30,6 +30,9 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
     protected void addTags(HolderLookup.@NonNull Provider registries) {
         tag(InfXItemTags.BINDINGS).add(itemKey(Items.STRING)).add(InfXItems.SINEW.getKey());
         tag(InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
+        tag(InfXItemTags.INFX_BOW_CROSSBOW_ENCHANTABLE)
+                .addTag(ItemTags.BOW_ENCHANTABLE)
+                .addTag(ItemTags.CROSSBOW_ENCHANTABLE);
         tag(InfXItemTags.FURNACE_FUELS_HEAT_2)
                 .add(itemKey(Items.COAL))
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));

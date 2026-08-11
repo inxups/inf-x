@@ -172,7 +172,7 @@ public final class InfXEnchantments {
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, QUICKNESS, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, PRECISION, ItemTags.BOW_ENCHANTABLE,
+        register(context, items, enchantments, PRECISION, InfXItemTags.INFX_BOW_CROSSBOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, POISONING, ItemTags.BOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
@@ -182,7 +182,7 @@ public final class InfXEnchantments {
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, VAMPIRISM, InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, RECOVERY, ItemTags.BOW_ENCHANTABLE,
+        register(context, items, enchantments, RECOVERY, InfXItemTags.INFX_BOW_CROSSBOW_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
         register(context, items, enchantments, SLAUGHTER, InfXItemTags.INFX_SLAUGHTER_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);

@@ -308,6 +308,17 @@ final class ModRecipeProvider extends RecipeProvider {
                         160)
                 .unlockedBy("has_worm", has(InfXItems.WORM))
                 .save(output, recipeKey("cooked_worm"));
+        // InfX: baking potatoes in a furnace grants no experience; override the vanilla
+        // recipe with the same inputs and time but a zero experience reward.
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(Items.POTATO),
+                        RecipeCategory.FOOD,
+                        CookingBookCategory.FOOD,
+                        Items.BAKED_POTATO,
+                        0.0F,
+                        200)
+                .unlockedBy("has_potato", has(Items.POTATO))
+                .save(output, vanillaRecipeKey("baked_potato"));
         addShaped(
                 "emerald_enchanting_table",
                 BenchTier.IRON,

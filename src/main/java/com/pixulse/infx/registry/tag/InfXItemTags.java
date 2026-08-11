@@ -38,6 +38,7 @@ public final class InfXItemTags {
     public static final TagKey<Item> INFX_LOOTING_ENCHANTABLE = enchantable("infx_looting");
     public static final TagKey<Item> INFX_EFFICIENCY_ENCHANTABLE = enchantable("infx_efficiency");
     public static final TagKey<Item> INFX_SILK_TOUCH_ENCHANTABLE = enchantable("infx_silk_touch");
+    public static final TagKey<Item> INFX_BOW_CROSSBOW_ENCHANTABLE = enchantable("infx_bow_crossbow");
     public static final TagKey<Item> INFX_THORNS_ENCHANTABLE = enchantable("infx_thorns");
     public static final TagKey<Item> INFX_SOLID_METAL_TORSO_ENCHANTABLE = enchantable("infx_solid_metal_torso");
     public static final TagKey<Item> GELATINOUS_SPHERES = create("gelatinous_spheres");

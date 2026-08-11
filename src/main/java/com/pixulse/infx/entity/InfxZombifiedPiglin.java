@@ -2,11 +2,14 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.item.material.Quality;
+import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,6 +23,7 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.entity.monster.zombie.ZombifiedPiglin;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
@@ -124,9 +128,21 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
         EquipmentType type = roll <= 1
                 ? EquipmentType.SWORD
                 : roll == 2 ? EquipmentType.AXE : EquipmentType.PICKAXE;
-        setItemSlot(
-                EquipmentSlot.MAINHAND,
-                InfXItems.catalog().equipment(InfxMaterial.GOLD, type).holder().toStack());
+        ItemStack weapon = InfXItems.catalog().equipment(InfxMaterial.GOLD, type).holder().toStack();
+        weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
+        setItemSlot(EquipmentSlot.MAINHAND, weapon);
+    }
+
+    @Override
+    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
+        super.dropCustomDeathLoot(level, source, killedByPlayer);
+        ItemStack weapon = getMainHandItem();
+        if (weapon.isEmpty()) {
+            return;
+        }
+        weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
+        spawnAtLocation(level, weapon);
+        setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
     }
 
     @Override

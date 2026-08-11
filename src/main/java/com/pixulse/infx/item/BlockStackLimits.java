@@ -46,6 +46,7 @@ public final class BlockStackLimits {
             Items.SUGAR_CANE,
             Items.BAMBOO,
             Items.RESIN_CLUMP,
+            Items.KELP,
             Items.REPEATER,
             Items.COMPARATOR,
             Items.BREWING_STAND,

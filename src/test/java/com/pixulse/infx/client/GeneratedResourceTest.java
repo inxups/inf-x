@@ -704,6 +704,7 @@ class GeneratedResourceTest {
                 "netherite_horse_armor_smithing");
         Set<String> expected = new HashSet<>(expectedDoors);
         expected.addAll(expectedDisabled);
+        expected.add("baked_potato");
         Path staticRecipes = STATIC.resolve("data/minecraft/recipe");
         if (Files.exists(staticRecipes)) {
             try (Stream<Path> paths = Files.walk(staticRecipes)) {
