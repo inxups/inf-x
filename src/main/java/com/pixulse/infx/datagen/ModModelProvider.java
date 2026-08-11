@@ -311,7 +311,8 @@ final class ModModelProvider extends ModelProvider {
             default -> "stripped_" + wood + "_log";
         };
         Material strippedLog = new Material(Identifier.withDefaultNamespace("block/" + strippedLogPath));
-        Material workbenchTop = new Material(InfiniteX.id("block/" + workbenchType + "_workbench_top"));
+        Material workbenchTop = new Material(InfiniteX.id(
+                "block/" + strippedLogPath + "_" + workbenchType + "_workbench_top"));
         Identifier model = ModelTemplates.CUBE.create(
                 block,
                 new TextureMapping()
