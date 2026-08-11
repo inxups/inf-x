@@ -272,7 +272,7 @@ class TextureProvenanceTest {
                 Map.entry("textures/entity/wight_baby.png", "mite/entity/wight.png+baby_uv"),
                 Map.entry(
                         "textures/entity/zombie/revenant.png",
-                        "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/zombie/revenant.png"),
+                        "zombie/revenant.png"),
                 Map.entry(
                         "textures/entity/zombie/revenant_baby.png",
                         "owner-provided:/Users/inxups/Library/Containers/com.tencent.qq/Data/Downloads/textures.rar#textures/entity/zombie/revenant_baby.png"),

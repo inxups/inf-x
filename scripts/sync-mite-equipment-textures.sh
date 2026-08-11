@@ -272,6 +272,8 @@ for wood in oak spruce birch jungle acacia cherry pale_oak dark_oak mangrove cri
   sync workbench-top "${log_path}_flint_workbench_top.png" "block/${log_path}_flint_workbench_top.png"
   sync workbench-top "${log_path}_obsidian_workbench_top.png" "block/${log_path}_obsidian_workbench_top.png"
 done
+sync workbench-top sgravel.png block/sgravel.png
+sync workbench-top zombie/revenant.png entity/zombie/revenant.png
 for material in copper silver gold iron ancient_metal mithril adamantium; do
   sync resource-pack \
     "blocks/crafting_table/$material/front.png" \
@@ -393,7 +395,7 @@ sync resource-pack entity/dire_wolf/tame.png entity/dire_wolf/tame.png
 sync resource-pack entity/dire_wolf/angry.png entity/dire_wolf/angry.png
 
 row_count="$(wc -l < "$ROWS" | tr -d ' ')"
-[[ "$row_count" == 658 ]] || { echo "Expected 658 textures, got $row_count" >&2; exit 1; }
+[[ "$row_count" == 660 ]] || { echo "Expected 660 textures, got $row_count" >&2; exit 1; }
 {
   printf 'source_root\tsource\tdestination\tsha256\n'
   {
