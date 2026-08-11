@@ -756,6 +756,7 @@ public final class ModEquipmentGameTests {
     private static void materialArrows(GameTestHelper helper) {
         ServerPlayer player = createPlayer(helper);
         Vec3 position = player.position();
+        var skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(1, 2, 1));
         for (InfxMaterial material : EquipmentType.ARROW.allowedMaterials()) {
             EquipmentKey key = new EquipmentKey(material, EquipmentType.ARROW);
             InfxArrowItem item = (InfxArrowItem) InfXItems.catalog()
@@ -764,6 +765,7 @@ public final class ModEquipmentGameTests {
                     .value();
             ItemStack stack = item.getDefaultInstance();
             AbstractArrow fired = item.createArrow(helper.getLevel(), stack, player, null);
+            AbstractArrow mobFired = item.createArrow(helper.getLevel(), stack, skeleton, null);
             AbstractArrow dispensed =
                     (AbstractArrow) item.asProjectile(helper.getLevel(), position, stack, Direction.NORTH);
             helper.assertTrue(fired.getPickupItemStackOrigin().is(item), key.path() + " fired pickup identity");
@@ -771,6 +773,9 @@ public final class ModEquipmentGameTests {
             helper.assertTrue(
                     fired.pickup == AbstractArrow.Pickup.ALLOWED,
                     key.path() + " player-fired arrows are normally recoverable from the ground");
+            helper.assertTrue(
+                    mobFired.pickup == AbstractArrow.Pickup.DISALLOWED,
+                    key.path() + " mob-fired arrows must not be pickable");
             helper.assertTrue(
                     dispensed.pickup == AbstractArrow.Pickup.DISALLOWED,
                     key.path() + " dispenser arrows stay non-pickup");
@@ -792,8 +797,7 @@ public final class ModEquipmentGameTests {
                     fired.pickup == AbstractArrow.Pickup.ALLOWED,
                     key.path() + " block impacts preserve normal player-arrow pickup");
 
-            ItemStack infiniteStack = stack.copy();
-            infiniteStack.set(DataComponents.INTANGIBLE_PROJECTILE, Unit.INSTANCE);
+            ItemStack infiniteStack = stack.copy();            infiniteStack.set(DataComponents.INTANGIBLE_PROJECTILE, Unit.INSTANCE);
             AbstractArrow infinite = item.createArrow(helper.getLevel(), infiniteStack, player, null);
             helper.assertTrue(
                     infinite.pickup == AbstractArrow.Pickup.CREATIVE_ONLY,
@@ -854,6 +858,7 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(creativeImpact.isCanceled(), "acid slime must cancel a creative-only corrosible arrow impact");
         helper.assertTrue(creativeAcidArrow.isRemoved(), "acid slime must consume a creative-only corrosible arrow");
         acidSlime.discard();
+        skeleton.discard();
         removePlayer(player);
         helper.succeed();
     }

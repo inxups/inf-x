@@ -8,7 +8,6 @@ import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.arrow.Arrow;
 import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.DispenserBlock;
 import org.jspecify.annotations.NonNull;
@@ -37,9 +36,9 @@ public final class InfxArrowItem extends ArrowItem {
     public @NonNull AbstractArrow createArrow(
             @NonNull Level level, ItemStack stack, @NonNull LivingEntity owner, @Nullable ItemStack weapon) {
         Arrow arrow = new Arrow(level, owner, stack.copyWithCount(1), weapon);
-        if (!stack.has(DataComponents.INTANGIBLE_PROJECTILE)) {
-            arrow.pickup = AbstractArrow.Pickup.ALLOWED;
-        }
+        // Vanilla 26.1.2 ownership semantics: the Arrow constructor's setOwner makes player
+        // arrows pickable (ALLOWED) and keeps intangible (creative/infinite) arrows CREATIVE_ONLY;
+        // non-player shooters stay DISALLOWED, so mob arrows cannot be picked up.
         arrow.setBaseDamage(baseDamage());
         return arrow;
     }
