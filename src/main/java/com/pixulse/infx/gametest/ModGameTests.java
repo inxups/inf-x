@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplay;
@@ -1066,6 +1067,14 @@ public final class ModGameTests {
                 RecipeRules.displayProfile((RecipeHolder<CraftingRecipe>) leatherToSinew).requiredBench()
                         == BenchTier.HAND,
                 "recipe rules must keep hand-tier recipes on the hand tier");
+
+        // InfX: baking potatoes in a furnace grants no experience; the vanilla
+        // smelting recipe is overridden with a zero reward.
+        var bakedPotato = recipeMap.byKey(recipeKey("minecraft", "baked_potato"));
+        helper.assertTrue(bakedPotato != null, "the baked potato smelting recipe must be loaded");
+        helper.assertTrue(
+                ((SmeltingRecipe) bakedPotato.value()).experience() == 0.0F,
+                "baking potatoes must not grant furnace experience");
         helper.succeed();
     }
 
