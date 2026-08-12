@@ -120,6 +120,7 @@ public final class BlockStackLimits {
         if (STANDALONE_EIGHT.contains(item)
                 || path.endsWith("_planks")
                 || path.endsWith("_wool")
+                || path.endsWith("_terracotta")
                 || block instanceof CarpetBlock
                 || block instanceof BasePressurePlateBlock
                 || block instanceof FenceBlock
