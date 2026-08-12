@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.BaseTorchBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.CarpetBlock;
+import net.minecraft.world.level.block.ConcretePowderBlock;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.FenceBlock;
 import net.minecraft.world.level.block.GrowingPlantBlock;
@@ -30,9 +31,11 @@ import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.PumpkinBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.ShelfBlock;
 import net.minecraft.world.level.block.SignBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.VegetationBlock;
 import net.minecraft.world.level.block.VineBlock;
 import net.minecraft.world.level.block.WallBlock;
@@ -123,7 +126,10 @@ public final class BlockStackLimits {
                 || block instanceof LadderBlock
                 || block instanceof PumpkinBlock
                 || block instanceof BaseRailBlock
+                || block instanceof ShelfBlock
                 || block instanceof SlabBlock
+                || block instanceof StainedGlassBlock
+                || block instanceof ConcretePowderBlock
                 || block instanceof VineBlock
                 || block instanceof WallBlock
                 || block instanceof GrowingPlantBlock) {

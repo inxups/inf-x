@@ -11,6 +11,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.ConcretePowderBlock;
+import net.minecraft.world.level.block.ShelfBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
 import org.junit.jupiter.api.Test;
 
 class BlockStackLimitsTest {
@@ -66,6 +69,23 @@ class BlockStackLimitsTest {
         assertLimit(8, Items.CHERRY_PLANKS, Items.CHERRY_SLAB, Items.CHERRY_FENCE);
         assertLimit(16, Items.CHERRY_SAPLING, Items.CHERRY_SIGN, Items.SOUL_TORCH);
         assertLimit(32, Items.OPEN_EYEBLOSSOM);
+    }
+
+    @Test
+    void givesAllVanillaRecipeOutputBlocksEightStacks() {
+        int matched = 0;
+        for (Item item : BuiltInRegistries.ITEM) {
+            if (!(item instanceof BlockItem blockItem)) continue;
+            if (!BuiltInRegistries.ITEM.getKey(item).getNamespace().equals("minecraft")) continue;
+            if (!(blockItem.getBlock() instanceof ShelfBlock)
+                    && !(blockItem.getBlock() instanceof StainedGlassBlock)
+                    && !(blockItem.getBlock() instanceof ConcretePowderBlock)) {
+                continue;
+            }
+            assertEquals(OptionalInt.of(8), BlockStackLimits.limit(item, 64), item::toString);
+            matched++;
+        }
+        assertEquals(44, matched, "all vanilla shelf, stained-glass, and concrete-powder variants");
     }
 
     @Test

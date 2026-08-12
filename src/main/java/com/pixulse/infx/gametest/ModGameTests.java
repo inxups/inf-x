@@ -652,6 +652,7 @@ public final class ModGameTests {
         for (String path : List.of(
                 "oak_planks",
                 "stick",
+                "spyglass",
                 "turtle_helmet",
                 "wolf_armor",
                 "leather_horse_armor")) {
@@ -868,8 +869,8 @@ public final class ModGameTests {
             }
         }
         helper.assertTrue(
-                overflowRecipes == 67,
-                "all 67 vanilla overflow recipe groups must be discoverable; found " + overflowRecipes);
+                overflowRecipes == 23,
+                "all 23 remaining vanilla overflow recipe groups must be discoverable; found " + overflowRecipes);
 
         ServerPlayer player = createPlayer(helper);
         helper.onEachTick(player::doTick);
@@ -885,6 +886,10 @@ public final class ModGameTests {
         CraftingContainer grid = menu.infx$craftingContainer();
 
         clearGrid(grid);
+        fillSpyglass(grid);
+        assertDirectPreview(helper, menu, player, Items.SPYGLASS, 1, "spyglass");
+
+        clearGrid(grid);
         fillRail(grid);
         assertOverflowPreview(helper, menu, player, Items.RAIL, 16, "rail");
 
@@ -894,15 +899,15 @@ public final class ModGameTests {
 
         clearGrid(grid);
         fillShelf(grid);
-        assertOverflowPreview(helper, menu, player, Items.OAK_SHELF, 6, "oak shelf");
+        assertDirectPreview(helper, menu, player, Items.OAK_SHELF, 6, "oak shelf");
 
         clearGrid(grid);
         fillConcretePowder(grid);
-        assertOverflowPreview(helper, menu, player, Items.WHITE_CONCRETE_POWDER, 8, "white concrete powder");
+        assertDirectPreview(helper, menu, player, Items.WHITE_CONCRETE_POWDER, 8, "white concrete powder");
 
         clearGrid(grid);
         fillStainedGlass(grid);
-        assertOverflowPreview(helper, menu, player, Items.WHITE_STAINED_GLASS, 8, "white stained glass");
+        assertDirectPreview(helper, menu, player, Items.WHITE_STAINED_GLASS, 8, "white stained glass");
 
         clearGrid(grid);
         fillStainedTerracotta(grid);
@@ -1006,6 +1011,30 @@ public final class ModGameTests {
         helper.assertTrue(
                 preview.getCount() <= preview.getMaxStackSize(),
                 description + " must never expose an oversized ItemStack");
+    }
+
+    private static void assertDirectPreview(
+            GameTestHelper helper,
+            TimedCraftingMenu menu,
+            ServerPlayer player,
+            Item expected,
+            int count,
+            String description) {
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(menu, player, true),
+                description + " must resolve through the timed engine");
+        ItemStack preview = menu.infx$resultContainer().getItem(0);
+        helper.assertTrue(preview.is(expected), description + " must produce " + expected + "; actual=" + preview);
+        helper.assertTrue(
+                preview.getCount() == count,
+                description + " must preserve its vanilla result count; actual=" + preview);
+        helper.assertTrue(
+                menu.infx$logicalResultCount() == count,
+                description + " must retain the vanilla logical result count " + count
+                        + "; actual=" + menu.infx$logicalResultCount());
+        helper.assertTrue(
+                preview.getCount() <= preview.getMaxStackSize(),
+                description + " must expose a legal ItemStack");
     }
 
     private static void craftingProfiles(GameTestHelper helper) {
@@ -2374,6 +2403,12 @@ public final class ModGameTests {
             grid.setItem(slot, Items.BAMBOO.getDefaultInstance());
         }
         grid.setItem(1, Items.STRING.getDefaultInstance());
+    }
+
+    private static void fillSpyglass(CraftingContainer grid) {
+        grid.setItem(1, Items.AMETHYST_SHARD.getDefaultInstance());
+        grid.setItem(4, Items.COPPER_INGOT.getDefaultInstance());
+        grid.setItem(7, Items.COPPER_INGOT.getDefaultInstance());
     }
 
     private static void fillShelf(CraftingContainer grid) {
