@@ -1,5 +1,6 @@
 package com.pixulse.infx.mixin.world.entity.monster;
 
+import com.pixulse.infx.entity.InfxSkeleton;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
@@ -25,8 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * wither skeletons keep the vanilla types). The INFX replacements override the same method
  * themselves, so this cancel only affects those vanilla entities.
  * <p>
- * The un-replaced skeleton variants (stray, bogged, parched and wither skeleton) trade the
- * vanilla bow for an InfX iron sword; zombies and drowned stay bare.
+ * Strays, bogged and parched share the ordinary InfX skeleton's wooden bow-or-club spawn split.
+ * Wither skeletons retain their special InfX iron sword; zombies and drowned stay bare.
  */
 @Mixin({Zombie.class, Drowned.class, AbstractSkeleton.class, WitherSkeleton.class})
 abstract class VanillaMobEquipmentMixin {
@@ -34,10 +35,14 @@ abstract class VanillaMobEquipmentMixin {
     private void infx$noVanillaSpawnEquipment(
             RandomSource random, DifficultyInstance difficulty, CallbackInfo callback) {
         Mob self = (Mob) (Object) this;
-        if (self instanceof Stray
-                || self instanceof Bogged
-                || self instanceof Parched
-                || self instanceof WitherSkeleton) {
+        if (self instanceof Stray || self instanceof Bogged || self instanceof Parched) {
+            self.setItemSlot(
+                    EquipmentSlot.MAINHAND,
+                    InfXItems.catalog()
+                            .equipment(InfxMaterial.WOOD, InfxSkeleton.ordinarySpawnWeapon(random.nextFloat()))
+                            .holder()
+                            .toStack());
+        } else if (self instanceof WitherSkeleton) {
             self.setItemSlot(
                     EquipmentSlot.MAINHAND,
                     InfXItems.catalog().equipment(InfxMaterial.IRON, EquipmentType.SWORD).holder().toStack());

@@ -35,6 +35,7 @@ import org.jspecify.annotations.Nullable;
 
 /** Skeleton replacement plus Longdead, Guardian and both Bone Lord variants. */
 public final class InfxSkeleton extends Skeleton implements InfxMob {
+    public static final double ORDINARY_MAX_HEALTH = 6.0;
     private static final float ARROW_SPEED = 1.8F;
     private static final double ARROW_AIR_DRAG = 0.99F;
     private static final double VANILLA_ARROW_GRAVITY = 0.05D;
@@ -80,7 +81,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         AttributeSupplier.Builder builder = AbstractSkeleton.createAttributes();
         return switch (variant) {
             case SKELETON -> builder
-                    .add(Attributes.MAX_HEALTH, 6.0)
+                    .add(Attributes.MAX_HEALTH, ORDINARY_MAX_HEALTH)
                     .add(Attributes.FOLLOW_RANGE, 32.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.30)
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
@@ -125,9 +126,9 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         setCanPickUpLoot(true);
         switch (variant()) {
             case SKELETON -> {
-                if (random.nextFloat() < 0.25F) {
-                    setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.WOOD, EquipmentType.CLUB));
-                }
+                setItemSlot(
+                        EquipmentSlot.MAINHAND,
+                        equipment(InfxMaterial.WOOD, ordinarySpawnWeapon(random.nextFloat())));
             }
             // InfX longdead carry an ancient-metal bow or sword at even odds.
             case LONGDEAD, LONGDEAD_GUARDIAN -> equip(
@@ -178,6 +179,11 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
 
     private static ItemStack equipment(InfxMaterial material, EquipmentType type) {
         return InfXItems.catalog().equipment(material, type).holder().toStack();
+    }
+
+    /** Uses the shared 25% melee, 75% ranged spawn split for ordinary skeleton variants. */
+    public static EquipmentType ordinarySpawnWeapon(float roll) {
+        return roll < 0.25F ? EquipmentType.CLUB : EquipmentType.BOW;
     }
 
     @Override

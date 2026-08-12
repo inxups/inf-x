@@ -1,17 +1,19 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.InfxSkeleton;
 import com.pixulse.infx.item.ItemReach;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Player reach attributes owned entirely by INFX. */
+/** INFX player reach attributes plus selected vanilla mob-profile overrides. */
 public final class InfXAttributes {
     private static final DeferredRegister<Attribute> ATTRIBUTES =
             DeferredRegister.create(Registries.ATTRIBUTE, InfiniteX.MOD_ID);
@@ -38,11 +40,14 @@ public final class InfXAttributes {
 
     public static void register(IEventBus modBus) {
         ATTRIBUTES.register(modBus);
-        modBus.addListener(InfXAttributes::addPlayerAttributes);
+        modBus.addListener(InfXAttributes::addEntityAttributes);
     }
 
-    private static void addPlayerAttributes(EntityAttributeModificationEvent event) {
+    private static void addEntityAttributes(EntityAttributeModificationEvent event) {
         event.add(EntityType.PLAYER, ITEM_INTERACTION_RANGE);
         event.add(EntityType.PLAYER, ITEM_MELEE_RANGE);
+        event.add(EntityType.STRAY, Attributes.MAX_HEALTH, InfxSkeleton.ORDINARY_MAX_HEALTH);
+        event.add(EntityType.BOGGED, Attributes.MAX_HEALTH, InfxSkeleton.ORDINARY_MAX_HEALTH);
+        event.add(EntityType.PARCHED, Attributes.MAX_HEALTH, InfxSkeleton.ORDINARY_MAX_HEALTH);
     }
 }

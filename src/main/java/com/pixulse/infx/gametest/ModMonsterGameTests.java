@@ -313,6 +313,13 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(blaze.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
                 "INFX blazes must retain the modern baseline movement speed");
+        for (EntityType<?> type : List.of(EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
+            Mob variant = spawnWithFinalize(helper, type);
+            helper.assertTrue(
+                    variant.getAttributeBaseValue(Attributes.MAX_HEALTH) == InfxSkeleton.ORDINARY_MAX_HEALTH,
+                    type + " must share the ordinary skeleton's maximum health");
+            variant.discard();
+        }
 
         int spiderX = 1;
         for (var type : List.of(
@@ -1602,8 +1609,9 @@ public final class ModMonsterGameTests {
      * InfX strips vanilla spawn equipment from the zombie and skeleton families: the INFX
      * replacements never wear vanilla weapons or armor (world-age gear is InfX equipment and
      * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
-     * parched, wither skeleton) keep only InfX gear, never vanilla weapons or armor. The
-     * un-replaced skeleton variants spawn with an InfX iron sword instead of the vanilla bow.
+     * parched, wither skeleton) keep only InfX gear, never vanilla weapons or armor. Strays,
+     * bogged and parched share the ordinary skeleton's wooden bow-or-club spawn profile; wither
+     * skeletons retain their InfX iron sword.
      */
     private static void spawnEquipment(GameTestHelper helper) {
         var zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
@@ -1620,15 +1628,18 @@ public final class ModMonsterGameTests {
             assertVanillaVariantBare(helper, type);
         }
         assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
-        // The un-replaced skeleton variants trade the vanilla bow for an InfX iron sword.
-        for (EntityType<?> type : List.of(
-                EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED, EntityType.WITHER_SKELETON)) {
+        for (EntityType<?> type : List.of(EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             Mob variant = spawnWithFinalize(helper, type);
             helper.assertTrue(
-                    variant.getMainHandItem().is(InfXItems.IRON_SWORD.get()),
-                    type + " must spawn with an InfX iron sword, got " + variant.getMainHandItem());
+                    isOrdinarySkeletonWeapon(variant.getMainHandItem()),
+                    type + " must spawn with an InfX wooden bow or club, got " + variant.getMainHandItem());
             variant.discard();
         }
+        Mob witherSkeleton = spawnWithFinalize(helper, EntityType.WITHER_SKELETON);
+        helper.assertTrue(
+                witherSkeleton.getMainHandItem().is(InfXItems.IRON_SWORD.get()),
+                "wither skeletons must retain their InfX iron sword, got " + witherSkeleton.getMainHandItem());
+        witherSkeleton.discard();
         // Vanilla drowned randomizes a nautilus shell into the offhand in 3% of spawns; that
         // item is neither a weapon nor armor, so only the main hand and armor slots are banned.
         assertVanillaVariantBare(helper, EntityType.DROWNED, EquipmentSlot.OFFHAND);
@@ -1701,6 +1712,11 @@ public final class ModMonsterGameTests {
         return stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.SWORD).holder())
                 || stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.AXE).holder())
                 || stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.PICKAXE).holder());
+    }
+
+    private static boolean isOrdinarySkeletonWeapon(ItemStack stack) {
+        return stack.is(InfXItems.catalog().equipment(InfxMaterial.WOOD, EquipmentType.BOW).holder())
+                || stack.is(InfXItems.catalog().equipment(InfxMaterial.WOOD, EquipmentType.CLUB).holder());
     }
 
     private static List<ItemEntity> dropsNear(GameTestHelper helper, BlockPos pos, java.util.function.Predicate<ItemStack> filter) {
