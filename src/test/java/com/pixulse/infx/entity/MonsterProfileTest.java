@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -104,11 +105,23 @@ class MonsterProfileTest {
     }
 
     @Test
-    void ordinarySkeletonWeaponSplitUsesTheSharedBowOrClubProfile() {
-        assertEquals(EquipmentType.CLUB, InfxSkeleton.ordinarySpawnWeapon(0.0F));
-        assertEquals(EquipmentType.CLUB, InfxSkeleton.ordinarySpawnWeapon(0.249F));
-        assertEquals(EquipmentType.BOW, InfxSkeleton.ordinarySpawnWeapon(0.25F));
-        assertEquals(EquipmentType.BOW, InfxSkeleton.ordinarySpawnWeapon(0.999F));
+    void ordinarySkeletonWeaponSplitUsesTheSharedBowAndMeleeProgressionProfile() {
+        assertOrdinarySkeletonWeapon(1L, 0.0F, InfxMaterial.WOOD, EquipmentType.CUDGEL);
+        assertOrdinarySkeletonWeapon(9L, 0.249F, InfxMaterial.WOOD, EquipmentType.CUDGEL);
+        assertOrdinarySkeletonWeapon(10L, 0.0F, InfxMaterial.WOOD, EquipmentType.CLUB);
+        assertOrdinarySkeletonWeapon(19L, 0.249F, InfxMaterial.WOOD, EquipmentType.CLUB);
+        assertOrdinarySkeletonWeapon(20L, 0.0F, InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
+        assertOrdinarySkeletonWeapon(31L, 0.249F, InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
+        assertOrdinarySkeletonWeapon(32L, 0.0F, InfxMaterial.RUSTED_IRON, EquipmentType.SWORD);
+        assertOrdinarySkeletonWeapon(1L, 0.25F, InfxMaterial.WOOD, EquipmentType.BOW);
+        assertOrdinarySkeletonWeapon(32L, 0.999F, InfxMaterial.WOOD, EquipmentType.BOW);
+    }
+
+    private static void assertOrdinarySkeletonWeapon(
+            long day, float roll, InfxMaterial material, EquipmentType type) {
+        InfxSkeleton.OrdinarySkeletonWeapon weapon = InfxSkeleton.ordinarySpawnWeapon(roll, day);
+        assertEquals(material, weapon.material());
+        assertEquals(type, weapon.type());
     }
 
     @Test

@@ -1610,17 +1610,22 @@ public final class ModMonsterGameTests {
      * replacements never wear vanilla weapons or armor (world-age gear is InfX equipment and
      * may apply separately), and the un-replaced vanilla variants (husk, drowned, stray, bogged,
      * parched, wither skeleton) keep only InfX gear, never vanilla weapons or armor. Strays,
-     * bogged and parched share the ordinary skeleton's wooden bow-or-club spawn profile; wither
-     * skeletons retain their InfX iron sword.
+     * bogged and parched share the ordinary skeleton's current-day bow-or-melee spawn profile;
+     * wither skeletons retain their InfX iron sword.
      */
     private static void spawnEquipment(GameTestHelper helper) {
         var zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
         assertNoVanillaEquipment(helper, zombie, "replacement zombie");
 
+        long day = MonsterTactics.survivalDay(helper.getLevel());
         var skeleton = spawnWithFinalize(helper, InfXEntityTypes.INFX_SKELETON.get());
         helper.assertTrue(
                 !isVanillaItem(skeleton.getMainHandItem()),
                 "replacement skeletons must spawn with only InfX weapons");
+        helper.assertTrue(
+                isOrdinarySkeletonWeapon(skeleton.getMainHandItem(), day),
+                "replacement skeletons must spawn with an InfX current-day bow or melee weapon, got "
+                        + skeleton.getMainHandItem());
         assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
 
         for (EntityType<?> type : List.of(
@@ -1631,8 +1636,9 @@ public final class ModMonsterGameTests {
         for (EntityType<?> type : List.of(EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             Mob variant = spawnWithFinalize(helper, type);
             helper.assertTrue(
-                    isOrdinarySkeletonWeapon(variant.getMainHandItem()),
-                    type + " must spawn with an InfX wooden bow or club, got " + variant.getMainHandItem());
+                    isOrdinarySkeletonWeapon(variant.getMainHandItem(), day),
+                    type + " must spawn with an InfX current-day bow or melee weapon, got "
+                            + variant.getMainHandItem());
             variant.discard();
         }
         Mob witherSkeleton = spawnWithFinalize(helper, EntityType.WITHER_SKELETON);
@@ -1714,9 +1720,10 @@ public final class ModMonsterGameTests {
                 || stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.PICKAXE).holder());
     }
 
-    private static boolean isOrdinarySkeletonWeapon(ItemStack stack) {
+    private static boolean isOrdinarySkeletonWeapon(ItemStack stack, long day) {
+        InfxSkeleton.OrdinarySkeletonWeapon melee = InfxSkeleton.ordinarySpawnWeapon(0.0F, day);
         return stack.is(InfXItems.catalog().equipment(InfxMaterial.WOOD, EquipmentType.BOW).holder())
-                || stack.is(InfXItems.catalog().equipment(InfxMaterial.WOOD, EquipmentType.CLUB).holder());
+                || stack.is(InfXItems.catalog().equipment(melee.material(), melee.type()).holder());
     }
 
     private static List<ItemEntity> dropsNear(GameTestHelper helper, BlockPos pos, java.util.function.Predicate<ItemStack> filter) {

@@ -1,9 +1,11 @@
 package com.pixulse.infx.mixin.world.entity.monster;
 
 import com.pixulse.infx.entity.InfxSkeleton;
+import com.pixulse.infx.entity.MonsterTactics;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
@@ -26,8 +28,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * wither skeletons keep the vanilla types). The INFX replacements override the same method
  * themselves, so this cancel only affects those vanilla entities.
  * <p>
- * Strays, bogged and parched share the ordinary InfX skeleton's wooden bow-or-club spawn split.
- * Wither skeletons retain their special InfX iron sword; zombies and drowned stay bare.
+ * Strays, bogged and parched share the ordinary InfX skeleton's current-day bow-or-melee spawn
+ * profile. Wither skeletons retain their special InfX iron sword; zombies and drowned stay bare.
  */
 @Mixin({Zombie.class, Drowned.class, AbstractSkeleton.class, WitherSkeleton.class})
 abstract class VanillaMobEquipmentMixin {
@@ -36,10 +38,13 @@ abstract class VanillaMobEquipmentMixin {
             RandomSource random, DifficultyInstance difficulty, CallbackInfo callback) {
         Mob self = (Mob) (Object) this;
         if (self instanceof Stray || self instanceof Bogged || self instanceof Parched) {
+            long day = self.level() instanceof ServerLevel level ? MonsterTactics.survivalDay(level) : 1L;
+            InfxSkeleton.OrdinarySkeletonWeapon weapon =
+                    InfxSkeleton.ordinarySpawnWeapon(random.nextFloat(), day);
             self.setItemSlot(
                     EquipmentSlot.MAINHAND,
                     InfXItems.catalog()
-                            .equipment(InfxMaterial.WOOD, InfxSkeleton.ordinarySpawnWeapon(random.nextFloat()))
+                            .equipment(weapon.material(), weapon.type())
                             .holder()
                             .toStack());
         } else if (self instanceof WitherSkeleton) {
