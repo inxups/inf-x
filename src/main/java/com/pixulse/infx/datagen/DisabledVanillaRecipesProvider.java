@@ -12,8 +12,8 @@ import net.minecraft.data.PackOutput;
 import org.jspecify.annotations.NonNull;
 
 /**
- * Generates data-pack overrides that disable the selected vanilla equipment
- * recipes replaced by InfiniteX progression.
+ * Generates data-pack overrides that disable selected vanilla recipes
+ * replaced by InfiniteX progression.
  *
  * <p>The overrides use NeoForge's {@code neoforge:never} condition instead of
  * copying vanilla recipe JSON. This keeps the list explicit for Minecraft
@@ -79,6 +79,7 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             // Vanilla food and utility recipes replaced by InfX ingredients and shapes.
             "cake",
             "cookie",
+            "bread",
             "golden_apple",
             "compass",
             "clock",
@@ -155,6 +156,6 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
 
     @Override
     public @NonNull String getName() {
-        return "Disabled vanilla 26.1 equipment recipes";
+        return "Disabled vanilla 26.1 recipes";
     }
 }
