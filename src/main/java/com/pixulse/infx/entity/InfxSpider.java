@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -263,8 +264,7 @@ public final class InfxSpider extends Spider implements InfxMob {
             return;
         }
 
-        if (variant() == Variant.PHASE && tickCount % 10 == 0 && random.nextInt(3) == 0
-                && distanceToSqr(target) > 9.0) {
+        if (variant() == Variant.PHASE && tickCount % 10 == 0 && random.nextInt(3) == 0 && distanceToSqr(target) > 9.0) {
             teleportToward(target);
         }
 
@@ -308,8 +308,6 @@ public final class InfxSpider extends Spider implements InfxMob {
 
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
-        // InfX phase spiders always evade while they have evasions left, jumping at least three
-        // blocks sideways and away from the threat, then reacquire a player within 24 blocks.
         if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null) {
             for (int attempt = 0; attempt < 64; attempt++) {
                 int dx = random.nextInt(11) - 5;
@@ -330,6 +328,8 @@ public final class InfxSpider extends Spider implements InfxMob {
                     if (nearest != null) {
                         setTarget(nearest);
                     }
+                    this.level().playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
+                    this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
                     return false;
                 }
             }
