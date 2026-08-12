@@ -80,6 +80,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -430,6 +431,43 @@ public final class ModCompletionGameTests {
                 "creative pickaxe must mine stone");
 
         player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
+        helper.setBlock(pos, Blocks.STONE);
+        player.setData(InfXAttachments.SURVIVAL, SurvivalData.initial());
+        BlockPos absolutePos = helper.absolutePos(pos);
+        BlockState state = helper.getBlockState(pos);
+        float fedProgress = state.getDestroyProgress(player, helper.getLevel(), absolutePos);
+        int fedSamples = Math.max(1, (int) Math.ceil(0.8F / fedProgress));
+        player.gameMode.handleBlockBreakAction(
+                absolutePos,
+                ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK,
+                Direction.UP,
+                helper.getLevel().getMaxY(),
+                0);
+        for (int sample = 1; sample < fedSamples; sample++) {
+            player.gameMode.tick();
+        }
+
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 0, 1, 1, 1, 0, 0));
+        float hungryProgress = state.getDestroyProgress(player, helper.getLevel(), absolutePos);
+        int hungrySamples = Math.max(
+                1,
+                (int) Math.ceil((1.01F - fedProgress * fedSamples) / hungryProgress));
+        for (int sample = 0; sample < hungrySamples; sample++) {
+            player.gameMode.tick();
+        }
+        float oldRecalculatedProgress = hungryProgress * (fedSamples + hungrySamples);
+        helper.assertTrue(
+                oldRecalculatedProgress < 0.7F,
+                "test setup must keep the old current-speed formula below its stop threshold");
+        helper.assertBlockPresent(Blocks.STONE, pos);
+
+        player.gameMode.handleBlockBreakAction(
+                absolutePos,
+                ServerboundPlayerActionPacket.Action.STOP_DESTROY_BLOCK,
+                Direction.UP,
+                helper.getLevel().getMaxY(),
+                1);
+        helper.assertBlockPresent(Blocks.AIR, pos);
         removePlayer(player);
         helper.succeed();
     }

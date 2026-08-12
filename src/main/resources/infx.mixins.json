@@ -8,6 +8,7 @@
     "server.dedicated.DedicatedServerMixin",
     "server.level.ServerLevelFluidTickMixin",
     "server.level.ServerLevelSleepMixin",
+    "server.level.ServerPlayerGameModeMixin",
     "server.level.ServerPlayerPermissionsMixin",
     "server.players.PlayerListMixin",
     "world.DifficultyInstanceMixin",
