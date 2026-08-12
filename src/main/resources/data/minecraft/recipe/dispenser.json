@@ -4,7 +4,7 @@
   "key": {
     "#": "#c:cobblestones/normal",
     "R": "minecraft:redstone",
-    "X": "minecraft:bow"
+    "X": "infx:wood_bow"
   },
   "pattern": [
     "###",
