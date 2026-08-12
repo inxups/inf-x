@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,6 +101,14 @@ class MonsterProfileTest {
         assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(0.23, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(6.0, blaze.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
+    }
+
+    @Test
+    void ordinarySkeletonWeaponSplitUsesTheSharedBowOrClubProfile() {
+        assertEquals(EquipmentType.CLUB, InfxSkeleton.ordinarySpawnWeapon(0.0F));
+        assertEquals(EquipmentType.CLUB, InfxSkeleton.ordinarySpawnWeapon(0.249F));
+        assertEquals(EquipmentType.BOW, InfxSkeleton.ordinarySpawnWeapon(0.25F));
+        assertEquals(EquipmentType.BOW, InfxSkeleton.ordinarySpawnWeapon(0.999F));
     }
 
     @Test
