@@ -53,6 +53,9 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         ANCIENT_BONE_LORD
     }
 
+    /** Material and weapon selected for an ordinary skeleton-family spawn. */
+    public record OrdinarySkeletonWeapon(InfxMaterial material, EquipmentType type) {}
+
     private int summonedTroops;
     private int inspiredUntil;
     private @Nullable InfxHardCappedBowAttackGoal<InfxSkeleton> bowGoal;
@@ -126,9 +129,11 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         setCanPickUpLoot(true);
         switch (variant()) {
             case SKELETON -> {
+                OrdinarySkeletonWeapon weapon =
+                        ordinarySpawnWeapon(random.nextFloat(), MonsterTactics.survivalDay(level.getLevel()));
                 setItemSlot(
                         EquipmentSlot.MAINHAND,
-                        equipment(InfxMaterial.WOOD, ordinarySpawnWeapon(random.nextFloat())));
+                        equipment(weapon.material(), weapon.type()));
             }
             // InfX longdead carry an ancient-metal bow or sword at even odds.
             case LONGDEAD, LONGDEAD_GUARDIAN -> equip(
@@ -182,14 +187,26 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     }
 
     /** Uses the shared 25% melee, 75% ranged spawn split for ordinary skeleton variants. */
-    public static EquipmentType ordinarySpawnWeapon(float roll) {
-        return roll < 0.25F ? EquipmentType.CLUB : EquipmentType.BOW;
+    public static OrdinarySkeletonWeapon ordinarySpawnWeapon(float roll, long day) {
+        if (roll >= 0.25F) {
+            return new OrdinarySkeletonWeapon(InfxMaterial.WOOD, EquipmentType.BOW);
+        }
+        if (day >= 32L) {
+            return new OrdinarySkeletonWeapon(InfxMaterial.RUSTED_IRON, EquipmentType.SWORD);
+        }
+        if (day >= 20L) {
+            return new OrdinarySkeletonWeapon(InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
+        }
+        if (day >= 10L) {
+            return new OrdinarySkeletonWeapon(InfxMaterial.WOOD, EquipmentType.CLUB);
+        }
+        return new OrdinarySkeletonWeapon(InfxMaterial.WOOD, EquipmentType.CUDGEL);
     }
 
     @Override
     protected void populateDefaultEquipmentSlots(@NonNull RandomSource random, @NonNull DifficultyInstance difficulty) {
-        // InfX skeletons never spawn with vanilla armor. The plain skeleton always carries a
-        // InfX wooden bow; the longdead and bone-lord variants are fully armed in finalizeSpawn.
+        // InfX skeletons never spawn with vanilla armor. The plain skeleton defaults to a wooden
+        // bow before finalizeSpawn applies its shared current-day profile.
         if (variant() == Variant.SKELETON) {
             setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.WOOD, EquipmentType.BOW));
         }
