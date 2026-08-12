@@ -60,7 +60,7 @@ final class ModLanguageProvider extends LanguageProvider {
     private static final Map<String, String[]> ENCHANTMENT_NAMES = Map.ofEntries(
             Map.entry("durability", names("Durability", "耐久")),
             Map.entry("disarming", names("Disarming", "缴械")),
-            Map.entry("quickness", names("Quickness", "迅捷")),
+            Map.entry("quickness", names("Quickness", "快速拉弦")),
             Map.entry("precision", names("Precision", "精准")),
             Map.entry("poisoning", names("Poisoning", "中毒")),
             Map.entry("butchering", names("Butchering", "屠宰")),
@@ -70,7 +70,7 @@ final class ModLanguageProvider extends LanguageProvider {
             Map.entry("slaughter", names("Slaughter", "杀害")),
             Map.entry("cleaving", names("Cleaving", "劈裂")),
             Map.entry("harvesting", names("Harvesting", "收获")),
-            Map.entry("penetration", names("Penetration", "穿透")),
+            Map.entry("penetration", names("Penetration", "穿甲")),
             Map.entry("baiting", names("Baiting", "饵钓")),
             Map.entry("fertility", names("Fertility", "肥沃")),
             Map.entry("tree_felling", names("Tree Felling", "砍伐")),
