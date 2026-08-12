@@ -19,6 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.NonNull;
 
 final class ModItemTagsProvider extends KeyTagsProvider<Item> {
@@ -28,6 +29,10 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
 
     @Override
     protected void addTags(HolderLookup.@NonNull Provider registries) {
+        tag(ItemTags.FROG_FOOD).add(InfXItems.GREEN_GELATINOUS_SPHERE.getKey());
+        tag(Tags.Items.ANIMAL_FOODS).add(InfXItems.GREEN_GELATINOUS_SPHERE.getKey());
+        tag(Tags.Items.SLIME_BALLS).add(InfXItems.GREEN_GELATINOUS_SPHERE.getKey());
+
         tag(InfXItemTags.BINDINGS).add(itemKey(Items.STRING)).add(InfXItems.SINEW.getKey());
         tag(InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE).add(itemKey(Items.SHEARS));
         tag(InfXItemTags.INFX_BOW_CROSSBOW_ENCHANTABLE)
@@ -70,11 +75,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         tag(InfXItemTags.SMELTING_INPUTS_HEAT_4)
                 .add(InfXItems.ADAMANTIUM_ORE.getKey(), InfXItems.DEEPSLATE_ADAMANTIUM_ORE.getKey());
         tag(InfXItemTags.GELATINOUS_SPHERES).add(
-                InfXItems.GREEN_GELATINOUS_SPHERE.getKey(),
-                InfXItems.OCHRE_GELATINOUS_SPHERE.getKey(),
-                InfXItems.CRIMSON_GELATINOUS_SPHERE.getKey(),
-                InfXItems.GRAY_GELATINOUS_SPHERE.getKey(),
-                InfXItems.BLACK_GELATINOUS_SPHERE.getKey());
+                InfXItems.GREEN_GELATINOUS_SPHERE.getKey(), itemKey(Items.SLIME_BALL));
         addCurseTags();
         tag(InfXItemTags.INFX_SHARPNESS_ENCHANTABLE).addTag(ItemTags.SWORDS);
 

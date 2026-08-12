@@ -1347,19 +1347,6 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 Map.of('N', Ingredient.of(Items.IRON_NUGGET), 'F', Ingredient.of(Items.FLINT)),
                 List.of("N ", " F"));
-        // InfX CraftingManager: two leads per silk/string or sinew leash, knotted with an
-        // INFX gelatinous sphere (the vanilla slime ball no longer drops in the INFX world).
-        // The restored vanilla lead recipe needs a slime ball and therefore stays inert.
-        addShaped(
-                "lead",
-                BenchTier.HAND,
-                150.0F,
-                CraftingBookCategory.EQUIPMENT,
-                "",
-                Items.LEAD,
-                2,
-                Map.of('~', Ingredient.of(Items.STRING), 'O', ingredient(InfXItemTags.GELATINOUS_SPHERES)),
-                List.of("~~ ", "~O ", "  ~"));
         addShaped(
                 "lead_from_sinew",
                 BenchTier.HAND,
@@ -1368,8 +1355,8 @@ final class ModRecipeProvider extends RecipeProvider {
                 "",
                 Items.LEAD,
                 2,
-                Map.of('~', Ingredient.of(InfXItems.SINEW), 'O', ingredient(InfXItemTags.GELATINOUS_SPHERES)),
-                List.of("~~ ", "~O ", "  ~"));
+                Map.of('~', Ingredient.of(InfXItems.SINEW)),
+                List.of("~~ ", "~~ ", "  ~"));
     }
 
     private void addCoreMetalTools(

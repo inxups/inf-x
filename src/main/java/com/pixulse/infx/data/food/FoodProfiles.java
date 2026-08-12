@@ -12,7 +12,7 @@ import net.minecraft.world.item.Items;
  */
 public final class FoodProfiles {
     private static final FoodProfile APPLE = of(2, 1, 1_000, false, false, true);
-    private static final FoodProfile MUSHROOM_STEW = of(2, 4, 0, false, false, false);
+    private static final FoodProfile MUSHROOM_STEW = of(2, 4, 0, false, false, true);
     private static final FoodProfile BREAD = of(8, 2, 0, false, false, false);
     private static final FoodProfile RAW_PORK = of(4, 4, 0, true, false, false);
     private static final FoodProfile COOKED_PORK = of(8, 8, 0, true, false, false);
@@ -67,6 +67,9 @@ public final class FoodProfiles {
     private static final FoodProfile WORM = of(0, 1, 0, true, false, false);
     private static final FoodProfile COOKED_WORM = of(1, 1, 0, true, false, false);
     private static final FoodProfile CAKE_SLICE = of(2, 2, 1_000 / 6, true, false, false);
+    private static final FoodProfile BEETROOT = of(1, 2, 1_000, false, false, true);
+    private static final FoodProfile BEETROOT_SOUP = of(2, 4, 2_000, false, false, false);
+    private static final FoodProfile RABBIT_STEW = of(8, 12, 0, true, false, true);
 
     private FoodProfiles() {}
 
@@ -82,9 +85,10 @@ public final class FoodProfiles {
         if (item == Items.MILK_BUCKET) return MILK_BUCKET;
 
         if (item == Items.APPLE) return APPLE;
-        if (item == Items.MUSHROOM_STEW || item == Items.RABBIT_STEW || item == Items.BEETROOT_SOUP) {
-            return MUSHROOM_STEW;
-        }
+        if (item == Items.MUSHROOM_STEW) return MUSHROOM_STEW;
+        if (item == Items.RABBIT_STEW)  return RABBIT_STEW;
+        if (item == Items.BEETROOT) return BEETROOT;
+        if (item == Items.BEETROOT_SOUP) return BEETROOT_SOUP;
         if (item == Items.BREAD) return BREAD;
         if (item == Items.PORKCHOP) return RAW_PORK;
         if (item == Items.COOKED_PORKCHOP) return COOKED_PORK;
@@ -104,7 +108,7 @@ public final class FoodProfiles {
         if (item == Items.COOKED_CHICKEN) return COOKED_CHICKEN;
         if (item == Items.ROTTEN_FLESH) return ROTTEN_FLESH;
         if (item == Items.SPIDER_EYE) return SPIDER_EYE;
-        if (item == Items.CARROT || item == Items.GOLDEN_CARROT || item == Items.BEETROOT) return CARROT;
+        if (item == Items.CARROT || item == Items.GOLDEN_CARROT) return CARROT;
         if (item == Items.POTATO) return POTATO;
         if (item == Items.BAKED_POTATO) return BAKED_POTATO;
         if (item == Items.POISONOUS_POTATO) return POISONOUS_POTATO;
