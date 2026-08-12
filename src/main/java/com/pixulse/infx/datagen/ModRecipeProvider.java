@@ -61,10 +61,10 @@ final class ModRecipeProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes() {
+        addInfXVanillaRecipeOverrides();
         addInfXVanillaDoorOverrides();
 
-        // Flour is an INFX ingredient; the vanilla sugar and bone-meal recipes
-        // are restored from the vanilla pack and need no replacement here.
+        // Flour is an INFX ingredient; the vanilla sugar recipe remains unchanged.
         addShaped(
                 "flour",
                 BenchTier.HAND,
@@ -1752,12 +1752,52 @@ final class ModRecipeProvider extends RecipeProvider {
         addInfXVanillaDoorOverride("warped_door", Items.WARPED_PLANKS, Items.WARPED_DOOR, "wooden_door");
     }
 
+    /**
+     * Replaces selected vanilla recipe JSON under its original Minecraft ID so
+     * the data pack changes the recipe during normal vanilla resource loading.
+     */
+    private void addInfXVanillaRecipeOverrides() {
+        addInfXVanillaShapelessRecipeOverride(
+                "bone_meal",
+                CraftingBookCategory.MISC,
+                "bonemeal",
+                Items.BONE_MEAL,
+                1,
+                List.of(Ingredient.of(Items.BONE)));
+        addInfXVanillaShapelessRecipeOverride(
+                "melon_seeds",
+                CraftingBookCategory.MISC,
+                "",
+                Items.MELON_SEEDS,
+                1,
+                List.of(
+                        Ingredient.of(Items.MELON_SLICE),
+                        Ingredient.of(Items.MELON_SLICE),
+                        Ingredient.of(Items.MELON_SLICE),
+                        Ingredient.of(Items.MELON_SLICE)));
+    }
+
     private void addInfXVanillaDoorOverride(String name, ItemLike material, ItemLike result, String group) {
         ShapedRecipe recipe = new ShapedRecipe(
                 new Recipe.CommonInfo(true),
                 new CraftingRecipe.CraftingBookInfo(CraftingBookCategory.REDSTONE, group),
                 ShapedRecipePattern.of(Map.of('#', Ingredient.of(material)), List.of("##", "##", "##")),
                 new ItemStackTemplate(result.asItem(), 1));
+        output.accept(vanillaRecipeKey(name), recipe, null);
+    }
+
+    private void addInfXVanillaShapelessRecipeOverride(
+            String name,
+            CraftingBookCategory category,
+            String group,
+            ItemLike result,
+            int count,
+            List<Ingredient> ingredients) {
+        ShapelessRecipe recipe = new ShapelessRecipe(
+                new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(category, group),
+                new ItemStackTemplate(result.asItem(), count),
+                ingredients);
         output.accept(vanillaRecipeKey(name), recipe, null);
     }
 
