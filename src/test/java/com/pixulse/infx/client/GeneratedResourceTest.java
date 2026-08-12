@@ -658,7 +658,6 @@ class GeneratedResourceTest {
                 "fishing_rod",
                 "flint_and_steel",
                 "brush",
-                "spyglass",
                 "carrot_on_a_stick",
                 "warped_fungus_on_a_stick",
                 "repair_item",
@@ -733,6 +732,9 @@ class GeneratedResourceTest {
                     .collect(Collectors.toSet());
             assertEquals(expected, actual, "vanilla recipe override scope must be explicit");
         }
+        assertFalse(
+                Files.exists(generatedRecipes.resolve("spyglass.json")),
+                "spyglass must use its vanilla recipe without an INFX override");
         for (String door : expectedDoors) {
             JsonObject recipe = json(generatedRecipes.resolve(door + ".json"));
             JsonObject result = recipe.getAsJsonObject("result");

@@ -69,7 +69,6 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "fishing_rod",
             "flint_and_steel",
             "brush",
-            "spyglass",
             "carrot_on_a_stick",
             "warped_fungus_on_a_stick",
             // Vanilla special crafting recipes that operate on the disabled gear.
