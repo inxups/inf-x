@@ -323,10 +323,8 @@ public final class EquipmentBehaviors {
                             && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)) {
                 continue;
             }
-            float currentProtection = entry.key().armorProtection()
-                    * armorDamageFactor(entity, stack);
             int level = Enchantments.level(entity.level(), stack, InfXEnchantments.PROTECTION);
-            bonus += EnchantmentRules.protectionBonus(currentProtection, level);
+            bonus += EnchantmentRules.protectionBonus(entry.key().armorProtection(), level);
         }
         return bonus;
     }

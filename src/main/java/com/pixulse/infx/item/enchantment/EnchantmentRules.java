@@ -19,6 +19,8 @@ public final class EnchantmentRules {
     public static final int FREE_MOVEMENT_MAX_LEVEL = 4;
     public static final int ENDURANCE_MAX_LEVEL = 4;
     public static final int PROTECTION_MAX_LEVEL = 4;
+    /** Each protection level adds 12.5% of the enchanted armor piece's base protection. */
+    public static final float PROTECTION_BONUS_PER_LEVEL = 0.125F;
     /** Per-level slice of durability's 75% negation chance, shared with the registered item effect. */
     public static final float DURABILITY_NEGATION_PER_LEVEL = 0.75F / STANDARD_MAX_LEVEL;
     public static final int RESPIRATION_MAX_LEVEL = 3;
@@ -230,10 +232,10 @@ public final class EnchantmentRules {
         return levelFraction(level, STANDARD_MAX_LEVEL) * 5.0F;
     }
 
-    public static float protectionBonus(float armorProtection, int level) {
-        return Math.max(0.0F, armorProtection)
-                * levelFraction(level, PROTECTION_MAX_LEVEL)
-                * 0.5F;
+    public static float protectionBonus(float baseArmorProtection, int level) {
+        return Math.max(0.0F, baseArmorProtection)
+                * Math.clamp(level, 0, PROTECTION_MAX_LEVEL)
+                * PROTECTION_BONUS_PER_LEVEL;
     }
 
     /**
