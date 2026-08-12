@@ -126,7 +126,12 @@ class EnchantmentRulesTest {
         assertEquals(1.0F, EnchantmentRules.fertilityChance(5), .0001F);
         assertEquals(5, EnchantmentRules.treeFellingExtraLogs(5));
         assertEquals(5.0F, EnchantmentRules.penetrationPoints(5), .0001F);
+        assertEquals(.125F, EnchantmentRules.PROTECTION_BONUS_PER_LEVEL, .0001F);
+        assertEquals(1.0F, EnchantmentRules.protectionBonus(8.0F, 1), .0001F);
+        assertEquals(2.0F, EnchantmentRules.protectionBonus(8.0F, 2), .0001F);
+        assertEquals(3.0F, EnchantmentRules.protectionBonus(8.0F, 3), .0001F);
         assertEquals(4.0F, EnchantmentRules.protectionBonus(8.0F, 4), .0001F);
+        assertEquals(4.0F, EnchantmentRules.protectionBonus(8.0F, 5), .0001F);
         assertEquals(.8F, EnchantmentRules.freeMovementResistance(4), .0001F);
         assertEquals(-.2D, EnchantmentRules.freeMovementAdjustedImpairment(-1.0D, 4), .0001D);
         assertEquals(.82F, EnchantmentRules.reducedImpairmentMultiplier(.1F, 4), .0001F);
