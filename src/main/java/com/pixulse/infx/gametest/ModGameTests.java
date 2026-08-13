@@ -70,6 +70,7 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -91,7 +92,10 @@ import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.IEventBus;
@@ -101,6 +105,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ModGameTests {
+    private static final org.slf4j.Logger LOGGER =
+            org.slf4j.LoggerFactory.getLogger("infx.furnace_click_experience");
     private static final BlockPos WORK_POS = new BlockPos(1, 1, 1);
     private static final BlockPos FURNACE_POS = new BlockPos(3, 1, 1);
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
@@ -221,6 +227,8 @@ public final class ModGameTests {
             functionKey("armor_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_HEAT_RULES =
             functionKey("furnace_heat_rules");
+    private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_CLICK_EXPERIENCE =
+            functionKey("furnace_click_experience");
     private static final ResourceKey<Consumer<GameTestHelper>> FURNACE_TIER_RULES =
             functionKey("furnace_tier_rules");
     private static final ResourceKey<Consumer<GameTestHelper>> ADVANCED_FURNACE_RULES =
@@ -256,6 +264,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("weapon_recipes", () -> ModGameTests::weaponRecipes);
         TEST_FUNCTIONS.register("armor_recipes", () -> ModGameTests::armorRecipes);
         TEST_FUNCTIONS.register("furnace_heat_rules", () -> ModGameTests::furnaceHeatRules);
+        TEST_FUNCTIONS.register("furnace_click_experience", () -> ModGameTests::furnaceClickExperience);
         TEST_FUNCTIONS.register("furnace_tier_rules", () -> ModGameTests::furnaceTierRules);
         TEST_FUNCTIONS.register("advanced_furnace_rules", () -> ModGameTests::advancedFurnaceRules);
         TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
@@ -294,6 +303,7 @@ public final class ModGameTests {
         registerTest(event, WEAPON_RECIPES_TEST, environment, 80);
         registerTest(event, ARMOR_RECIPES_TEST, environment, 120);
         registerTest(event, FURNACE_HEAT_RULES, environment, 600);
+        registerTest(event, FURNACE_CLICK_EXPERIENCE, environment, 1000);
         registerTest(event, FURNACE_TIER_RULES, environment, 900);
         registerTest(event, ADVANCED_FURNACE_RULES, environment, 600);
         registerTest(event, EXTREME_DIFFICULTY, environment, 40);
@@ -2153,6 +2163,168 @@ public final class ModGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
+    }
+
+    private static void furnaceClickExperience(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        for (int x = 0; x <= 1; x++) {
+            for (int z = 1; z <= 2; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+            }
+        }
+        BlockState vanillaState = Blocks.FURNACE
+                .defaultBlockState()
+                .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
+        BlockState obsidianState = InfXBlocks.OBSIDIAN_FURNACE.get()
+                .defaultBlockState()
+                .setValue(AbstractFurnaceBlock.FACING, Direction.NORTH);
+        BlockPos vanillaClickPos = new BlockPos(2, 1, 1);
+        BlockPos vanillaShiftPos = new BlockPos(3, 1, 1);
+        BlockPos infxClickPos = new BlockPos(2, 1, 2);
+        BlockPos infxShiftPos = new BlockPos(4, 1, 1);
+        BlockState vanillaSouth = Blocks.FURNACE
+                .defaultBlockState()
+                .setValue(AbstractFurnaceBlock.FACING, Direction.SOUTH);
+        BlockState obsidianEast = InfXBlocks.OBSIDIAN_FURNACE.get()
+                .defaultBlockState()
+                .setValue(AbstractFurnaceBlock.FACING, Direction.EAST);
+        helper.setBlock(vanillaClickPos, vanillaState);
+        helper.setBlock(vanillaShiftPos, vanillaSouth);
+        helper.setBlock(infxClickPos, obsidianEast);
+        helper.setBlock(infxShiftPos, obsidianState);
+        FurnaceBlockEntity[] vanillaClick = {
+            helper.getBlockEntity(vanillaClickPos, FurnaceBlockEntity.class)
+        };
+        FurnaceBlockEntity[] vanillaShift = {
+            helper.getBlockEntity(vanillaShiftPos, FurnaceBlockEntity.class)
+        };
+        InfxFurnaceBlockEntity[] infxClick = {
+            helper.getBlockEntity(infxClickPos, InfxFurnaceBlockEntity.class)
+        };
+        InfxFurnaceBlockEntity[] infxShift = {
+            helper.getBlockEntity(infxShiftPos, InfxFurnaceBlockEntity.class)
+        };
+        for (FurnaceBlockEntity furnace : new FurnaceBlockEntity[] {vanillaClick[0], vanillaShift[0]}) {
+            furnace.setItem(0, new ItemStack(Items.PORKCHOP, 3));
+            furnace.setItem(1, new ItemStack(Items.COAL, 2));
+        }
+        for (InfxFurnaceBlockEntity furnace : new InfxFurnaceBlockEntity[] {infxClick[0], infxShift[0]}) {
+            furnace.setItem(0, new ItemStack(Items.PORKCHOP, 3));
+            furnace.setItem(1, new ItemStack(Items.LAVA_BUCKET));
+        }
+
+        int[] xpBeforeClick = {0};
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        allCooked(vanillaClick[0])
+                                && allCooked(vanillaShift[0])
+                                && allCooked(infxClick[0])
+                                && allCooked(infxShift[0]),
+                        "all four furnaces must finish cooking three porkchops: "
+                                + describe(vanillaClickPos, vanillaClick[0]) + "; "
+                                + describe(vanillaShiftPos, vanillaShift[0]) + "; "
+                                + describe(infxClickPos, infxClick[0]) + "; "
+                                + describe(infxShiftPos, infxShift[0])))
+                .thenExecute(() -> {
+                    player.openMenu(vanillaClick[0]);
+                    xpBeforeClick[0] = player.totalExperience;
+                    player.containerMenu.clicked(2, 0, ContainerInput.PICKUP, player);
+                    ItemStack carried = player.containerMenu.getCarried();
+                    helper.assertTrue(
+                            carried.is(Items.COOKED_PORKCHOP) && carried.getCount() == 3,
+                            "left-click must pick up the whole cooked stack, carried=" + carried);
+                    helper.assertTrue(
+                            player.containerMenu.getSlot(2).getItem().isEmpty(),
+                            "left-click must empty the result slot");
+                    LOGGER.info("vanilla left-click: orbs={} xpBefore={}",
+                            orbCount(helper, vanillaClickPos), xpBeforeClick[0]);
+                    player.getInventory().add(carried);
+                    player.containerMenu.setCarried(ItemStack.EMPTY);
+                    player.closeContainer();
+                })
+                .thenExecuteAfter(10, () -> helper.assertTrue(
+                        player.totalExperience > xpBeforeClick[0],
+                        "left-click on the vanilla furnace must award experience, xp="
+                                + player.totalExperience + " alive=" + player.isAlive()))
+                .thenExecute(() -> {
+                    player.openMenu(vanillaShift[0]);
+                    xpBeforeClick[0] = player.totalExperience;
+                    player.containerMenu.clicked(2, 0, ContainerInput.QUICK_MOVE, player);
+                    helper.assertTrue(
+                            countItem(player.getInventory(), Items.COOKED_PORKCHOP) >= 3,
+                            "shift-click must move the cooked porkchops into the inventory");
+                    helper.assertTrue(
+                            player.containerMenu.getSlot(2).getItem().isEmpty(),
+                            "shift-click must empty the result slot");
+                    LOGGER.info("vanilla shift-click: orbs={} xpBefore={}",
+                            orbCount(helper, vanillaShiftPos), xpBeforeClick[0]);
+                    player.closeContainer();
+                })
+                .thenExecuteAfter(10, () -> helper.assertTrue(
+                        player.totalExperience > xpBeforeClick[0],
+                        "shift-click on the vanilla furnace must award experience, xp="
+                                + player.totalExperience + " alive=" + player.isAlive()))
+                .thenExecute(() -> {
+                    player.openMenu(infxClick[0]);
+                    xpBeforeClick[0] = player.totalExperience;
+                    player.containerMenu.clicked(2, 0, ContainerInput.PICKUP, player);
+                    ItemStack carried = player.containerMenu.getCarried();
+                    helper.assertTrue(
+                            carried.is(Items.COOKED_PORKCHOP) && carried.getCount() == 3,
+                            "left-click must pick up the whole cooked stack from the InfX furnace, carried=" + carried);
+                    helper.assertTrue(
+                            player.containerMenu.getSlot(2).getItem().isEmpty(),
+                            "left-click must empty the InfX result slot");
+                    LOGGER.info("infx left-click: orbs={} xpBefore={}",
+                            orbCount(helper, infxClickPos), xpBeforeClick[0]);
+                    player.getInventory().add(carried);
+                    player.containerMenu.setCarried(ItemStack.EMPTY);
+                    player.closeContainer();
+                })
+                .thenExecuteAfter(10, () -> helper.assertTrue(
+                        player.totalExperience > xpBeforeClick[0],
+                        "left-click on the InfX furnace must award experience, xp="
+                                + player.totalExperience + " alive=" + player.isAlive()))
+                .thenExecute(() -> {
+                    player.openMenu(infxShift[0]);
+                    xpBeforeClick[0] = player.totalExperience;
+                    player.containerMenu.clicked(2, 0, ContainerInput.QUICK_MOVE, player);
+                    helper.assertTrue(
+                            countItem(player.getInventory(), Items.COOKED_PORKCHOP) >= 6,
+                            "shift-click must move the cooked porkchops from the InfX furnace into the inventory");
+                    helper.assertTrue(
+                            player.containerMenu.getSlot(2).getItem().isEmpty(),
+                            "shift-click must empty the InfX result slot");
+                    LOGGER.info("infx shift-click: orbs={} xpBefore={}",
+                            orbCount(helper, infxShiftPos), xpBeforeClick[0]);
+                    player.closeContainer();
+                })
+                .thenExecuteAfter(10, () -> helper.assertTrue(
+                        player.totalExperience > xpBeforeClick[0],
+                        "shift-click on the InfX furnace must award experience, xp="
+                                + player.totalExperience + " alive=" + player.isAlive()))
+                .thenExecuteAfter(20, () -> removePlayer(player))
+                .thenSucceed();
+    }
+
+    private static boolean allCooked(AbstractFurnaceBlockEntity furnace) {
+        return furnace.getItem(2).is(Items.COOKED_PORKCHOP) && furnace.getItem(2).getCount() == 3;
+    }
+
+    private static String describe(BlockPos pos, AbstractFurnaceBlockEntity furnace) {
+        String heat = "max=vanilla";
+        if (furnace instanceof FurnaceHeatAccess access) {
+            heat = "heat=" + access.infx$currentHeat() + " lit=" + access.infx$litTimeRemaining();
+        }
+        return pos + " " + heat + " fuel=" + furnace.getItem(1) + " in=" + furnace.getItem(0).getCount()
+                + " out=" + furnace.getItem(2);
+    }
+
+    private static int orbCount(GameTestHelper helper, BlockPos pos) {
+        return helper.getLevel()
+                .getEntitiesOfClass(ExperienceOrb.class, new AABB(helper.absolutePos(pos)).inflate(8.0))
+                .size();
     }
 
     private static void furnaceTierRules(GameTestHelper helper) {
