@@ -27,6 +27,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.FunctionGameTestInstance;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.gametest.framework.TestData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.gametest.framework.TestEnvironmentDefinition;
 import net.minecraft.resources.Identifier;
@@ -41,6 +42,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.animal.equine.SkeletonHorse;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffects;
@@ -89,6 +91,7 @@ public final class ModMonsterGameTests {
     private static final String SPAWN_EQUIPMENT = "infx_spawn_equipment";
     private static final String SKELETON_DROPS = "infx_skeleton_drops";
     private static final String WEAPON_DROPS = "infx_weapon_drops";
+    private static final String SKELETON_TRAP = "infx_skeleton_trap";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -110,6 +113,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(SPAWN_EQUIPMENT, () -> ModMonsterGameTests::spawnEquipment);
         FUNCTIONS.register(SKELETON_DROPS, () -> ModMonsterGameTests::skeletonDrops);
         FUNCTIONS.register(WEAPON_DROPS, () -> ModMonsterGameTests::weaponDrops);
+        FUNCTIONS.register(SKELETON_TRAP, () -> ModMonsterGameTests::skeletonTrap);
     }
 
     private ModMonsterGameTests() {}
@@ -140,7 +144,8 @@ public final class ModMonsterGameTests {
                 EXPLOSION_RANGES,
                 SPAWN_EQUIPMENT,
                 SKELETON_DROPS,
-                WEAPON_DROPS)) {
+                WEAPON_DROPS,
+                SKELETON_TRAP)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -1751,6 +1756,56 @@ public final class ModMonsterGameTests {
                 "the dropped wither-skeleton sword must never be at full durability");
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
+    }
+
+    /**
+     * InfX skeleton-horse traps field four INFX skeleton riders with InfX world-age
+     * weapons instead of vanilla skeletons: the trap spawns its riders with the
+     * TRIGGERED reason, which the global spawn replacement deliberately skips.
+     */
+    private static void skeletonTrap(GameTestHelper helper) {
+        BlockPos trapPos = new BlockPos(8, 2, 8);
+        SkeletonHorse trapHorse = helper.spawnWithNoFreeWill(EntityType.SKELETON_HORSE, trapPos);
+        // Test structures float on a small platform; neighbouring tests' mobs can push a
+        // gravity-bound horse off the edge, silently killing it before the trap triggers.
+        trapHorse.setNoGravity(true);
+        trapHorse.setTrap(true);
+        // The test server does not always start entity ticking in a freshly placed structure
+        // chunk; force-loading it guarantees the horse's trap goal actually runs.
+        ChunkPos chunk = ChunkPos.containing(trapHorse.blockPosition());
+        ((ServerLevel) helper.getLevel()).setChunkForced(chunk.x(), chunk.z(), true);
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        // The trap goal waits for a living player within 10 blocks; neighbouring tests can
+        // place hostile INFX mobs (e.g. witches) inside the structure, so the probe must
+        // survive long enough for the trap to trigger.
+        player.setInvulnerable(true);
+        Vec3 playerPos = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(7, 2, 7)));
+        player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
+        // Other gametests run their structures only a few blocks away and can place plain
+        // InfX skeletons inside this radius, so only ridden riders are counted.
+        AABB riderArea = new AABB(helper.absolutePos(trapPos)).inflate(8.0);
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    List<InfxSkeleton> riders = helper.getLevel().getEntitiesOfClass(
+                            InfxSkeleton.class, riderArea, rider -> rider.getVehicle() instanceof SkeletonHorse);
+                    helper.assertTrue(
+                            riders.size() == 4,
+                            "skeleton-horse traps must field four INFX riders, got " + riders.size());
+                })
+                .thenExecute(() -> {
+                    List<InfxSkeleton> riders = helper.getLevel().getEntitiesOfClass(
+                            InfxSkeleton.class, riderArea, rider -> rider.getVehicle() instanceof SkeletonHorse);
+                    helper.assertTrue(
+                            riders.size() == 4,
+                            "skeleton-horse traps must field four INFX riders, got " + riders.size());
+                    for (InfxSkeleton rider : riders) {
+                        helper.assertTrue(
+                                !isVanillaItem(rider.getMainHandItem()),
+                                "trap riders must carry an InfX weapon, got " + rider.getMainHandItem());
+                    }
+                })
+                .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
+                .thenSucceed();
     }
 
     /** The 0.75x durability cap a poor-quality weapon of this stack must carry. */
