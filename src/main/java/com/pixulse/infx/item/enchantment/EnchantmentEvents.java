@@ -401,7 +401,8 @@ public final class EnchantmentEvents {
         if (!(event.getState().getBlock() instanceof CropBlock crop) || !crop.isMaxAge(event.getState())) return;
         if (crop instanceof InfxCropBlock infxCrop && !infxCrop.canYield(event.getState())) return;
         int fertility = Enchantments.level(level, event.getPlayer().getMainHandItem(), InfXEnchantments.FERTILITY);
-        if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)) {
+        if (fertility > 0 && level.getRandom().nextFloat() < EnchantmentRules.fertilityChance(fertility)
+            && !(level.getBlockState(event.getPos().below()) == InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState())) {
             AgricultureEvents.fertilizeFarmland(level, event.getPos().below());
         }
     }

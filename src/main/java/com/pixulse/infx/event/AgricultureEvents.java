@@ -128,8 +128,7 @@ public final class AgricultureEvents {
             cancelInteraction(event);
             return;
         }
-        fertilizeFarmland(serverLevel, farmlandPos);
-        if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
+        fertilizeFarmlandByHand(serverLevel, farmlandPos, event);
         cancelInteraction(event);
     }
 
@@ -138,7 +137,15 @@ public final class AgricultureEvents {
         return state.is(Blocks.BROWN_MUSHROOM) ? BROWN_MUSHROOM_GROW_CHANCE : RED_MUSHROOM_GROW_CHANCE;
     }
 
-    /** Marks a farmland patch fertilized: converts it to {@code infx:fertilized_farmland}. */
+    private static void fertilizeFarmlandByHand(ServerLevel level, BlockPos farmlandPos, PlayerInteractEvent.RightClickBlock event) {
+        if (level.getBlockState(farmlandPos) == InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState()) return;
+
+        if (!event.getEntity().hasInfiniteMaterials())
+            event.getItemStack().shrink(1);
+        fertilizeFarmland(level, farmlandPos);
+    }
+
+
     public static void fertilizeFarmland(ServerLevel level, BlockPos farmlandPos) {
         BlockState state = level.getBlockState(farmlandPos);
         if (state.is(Blocks.FARMLAND)) {
