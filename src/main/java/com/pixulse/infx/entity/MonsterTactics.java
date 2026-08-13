@@ -11,7 +11,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
-import net.minecraft.world.entity.monster.zombie.Zombie;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
@@ -166,8 +165,14 @@ public final class MonsterTactics {
         }
     }
 
+    /**
+     * InfX generic pursuit digging: only zombie variants mine through obstructing blocks;
+     * every other Enemy (skeletons, spiders, creepers, ...) never receives this behavior.
+     * Earth elementals keep their own dedicated dig goal instead.
+     */
     public static boolean tryDig(ServerLevel level, Mob mob) {
         if (mob instanceof InfxEnderman
+                || !(mob instanceof InfxZombie)
                 || !level.getGameRules().get(GameRules.MOB_GRIEFING)
                 || mob.getTarget() == null) {
             return stopDigging(level, mob);
@@ -213,7 +218,7 @@ public final class MonsterTactics {
     public static boolean isDigging(Mob mob) {
         return mob instanceof EarthElemental elemental
                 ? elemental.isDigging()
-                : mob instanceof Zombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
+                : mob instanceof InfxZombie && mob.getPersistentData().getInt(DIG_PROGRESS).orElse(0) > 0;
     }
 
     private static boolean stopDigging(ServerLevel level, Mob mob) {
