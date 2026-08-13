@@ -5,6 +5,8 @@ import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.InfXShapedRecipe;
+import com.pixulse.infx.recipe.InfXShapelessRecipe;
 import com.pixulse.infx.recipe.RecipeRule;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
@@ -89,7 +91,7 @@ final class ModRecipeProvider extends RecipeProvider {
                         Ingredient.of(Items.BOWL),
                         Ingredient.of(Items.BOWL),
                         Ingredient.of(Items.BOWL)));
-        addShapeless(
+        addShapelessReturningContainers(
                 "dough",
                 BenchTier.HAND,
                 150.0F,
@@ -232,7 +234,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 1,
                 List.of(Ingredient.of(InfXItems.MILK_BOWL), Ingredient.of(Items.BAKED_POTATO),
                         Ingredient.of(InfXItems.CHEESE)));
-        addShapeless(
+        addShapelessReturningContainers(
                 "cheese",
                 BenchTier.HAND,
                 6_400.0F,
@@ -278,7 +280,7 @@ final class ModRecipeProvider extends RecipeProvider {
                         'S', Ingredient.of(Items.SUGAR),
                         'E', ingredient(ItemTags.EGGS)),
                 List.of("FS", "EM"));
-        addShaped(
+        addShapedReturningContainers(
                 "cake_from_milk_bowl",
                 BenchTier.FLINT,
                 600.0F,
@@ -1835,6 +1837,55 @@ final class ModRecipeProvider extends RecipeProvider {
         ResourceKey<Recipe<?>> key = recipeKey(name);
         output.accept(key, recipe, null);
         recipeRules.put(key, RecipeRule.of(key, key.identifier(), 50.0F, BenchTier.HAND));
+    }
+
+    /**
+     * Shapeless recipe whose result does not include the ingredient's
+     * container: the consumed liquid bowl (or any vessel with a use/craft
+     * remainder) is returned empty, e.g. 4 milk bowls become cheese and 4
+     * empty bowls.
+     */
+    private void addShapelessReturningContainers(
+            String name,
+            BenchTier requiredBench,
+            float difficulty,
+            CraftingBookCategory category,
+            String group,
+            ItemLike result,
+            int count,
+            List<Ingredient> ingredients) {
+        InfXShapelessRecipe recipe = new InfXShapelessRecipe(
+                new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(category, group),
+                new ItemStackTemplate(result.asItem(), count),
+                ingredients);
+        ResourceKey<Recipe<?>> key2 = recipeKey(name);
+        output.accept(key2, recipe, null);
+        recipeRules.put(key2, RecipeRule.of(key2, key2.identifier(), difficulty, requiredBench));
+    }
+
+    /**
+     * Shaped counterpart of {@link #addShapelessReturningContainers}, used
+     * by the milk-bowl cake variant so its empty bowl is returned.
+     */
+    private void addShapedReturningContainers(
+            String name,
+            BenchTier requiredBench,
+            float difficulty,
+            CraftingBookCategory category,
+            String group,
+            ItemLike result,
+            int count,
+            Map<Character, Ingredient> key,
+            List<String> pattern) {
+        InfXShapedRecipe recipe = new InfXShapedRecipe(
+                new Recipe.CommonInfo(true),
+                new CraftingRecipe.CraftingBookInfo(category, group),
+                ShapedRecipePattern.of(key, pattern),
+                new ItemStackTemplate(result.asItem(), count));
+        ResourceKey<Recipe<?>> key2 = recipeKey(name);
+        output.accept(key2, recipe, null);
+        recipeRules.put(key2, RecipeRule.of(key2, key2.identifier(), difficulty, requiredBench));
     }
 
     private void addShapeless(
