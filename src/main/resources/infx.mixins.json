@@ -23,6 +23,7 @@
     "world.entity.LivingEntitySilverArmorMixin",
     "world.entity.LivingEntitySwimMixin",
     "world.entity.animal.equine.HorseAccessor",
+    "world.entity.animal.equine.SkeletonTrapGoalMixin",
     "world.entity.animal.pig.PigCarrotControlMixin",
     "world.entity.animal.AnimalBabyFeedMixin",
     "world.entity.item.ItemEntityFireCookingMixin",
