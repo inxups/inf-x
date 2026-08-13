@@ -197,12 +197,16 @@ public final class MonsterTactics {
         // InfX bare-handed diggers only clear soft blocks; stone (hardness 1.5) requires a tool.
         float maximumHardness = speed > 1.0F ? 12.0F : 1.4F;
         if (hardness > maximumHardness) return stopDigging(level, mob);
-        int required = Math.clamp(Mth.ceil(40.0F * Math.max(0.25F, hardness) / speed), 10, 240);
+        // Dig at the same rate as a player: vanilla advances digSpeed / hardness / (30 or 100)
+        // progress per tick and breaks at 1.0, i.e. 30 or 100 ticks times hardness over speed.
+        // This module runs once per 20 ticks, so each call adds 20 ticks of progress.
+        int divisor = speed > 1.0F ? 30 : 100;
+        int required = Math.clamp(Mth.ceil(divisor * Math.max(0.25F, hardness) / speed), 10, 240);
         var data = mob.getPersistentData();
         long encoded = pos.asLong();
         int progress = data.getLong(DIG_POS).orElse(Long.MIN_VALUE) == encoded
-                ? data.getInt(DIG_PROGRESS).orElse(0) + 10
-                : 10;
+                ? data.getInt(DIG_PROGRESS).orElse(0) + 20
+                : 20;
         data.putLong(DIG_POS, encoded);
         data.putInt(DIG_PROGRESS, progress);
         level.destroyBlockProgress(mob.getId(), pos, Math.clamp(progress * 10 / required, 0, 9));
