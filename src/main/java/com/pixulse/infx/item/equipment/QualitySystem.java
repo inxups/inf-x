@@ -172,12 +172,11 @@ public final class QualitySystem {
 
     public static Quality minimumQuality(int experienceLevel, boolean witchClumsiness) {
         if (!witchClumsiness && experienceLevel < 0) {
-            return Math.floorDiv(experienceLevel, 10) <= -2
+            return experienceLevel <= -20
                     ? Quality.WRETCHED
                     : Quality.POOR;
         }
 
-        // InfX uses Java's truncation toward zero for the cursed -20 level penalty.
         int effectiveLevel = experienceLevel - (witchClumsiness ? 20 : 0);
         int qualityOrdinal = Math.clamp(AVERAGE_ORDINAL + effectiveLevel / 10, 0, AVERAGE_ORDINAL);
         return switch (qualityOrdinal) {
