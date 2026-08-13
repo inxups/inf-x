@@ -112,6 +112,7 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "leather_boots_dyed",
             "leather_horse_armor_dyed",
             "wolf_armor_dyed",
+            "bucket",
             // Netherite tool, weapon and armor upgrades are smithing recipes.
             "netherite_sword_smithing",
             "netherite_spear_smithing",
