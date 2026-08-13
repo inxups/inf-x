@@ -2029,15 +2029,14 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         SurvivalEvents.recalculatePlayerLimits(player);
         helper.assertTrue(Math.abs(player.getMaxHealth() - 6.0F) < 0.001F, "level zero starts with three hearts");
-        helper.assertTrue(Math.abs(SurvivalRules.foodCap(player.experienceLevel) - 6.0D) < 0.001D,
-                "level zero starts with three food icons");
+        helper.assertTrue(
+                SurvivalRules.MAX_CAP == 20.0D,
+                "the food cap stays at the fixed vanilla bar size regardless of level");
 
         Experience.setTotal(player, Experience.cumulativeForLevel(5));
         SurvivalEvents.recalculatePlayerLimits(player);
         helper.assertTrue(Math.abs(player.getMaxHealth() - 8.0F) < 0.001F,
                 "level five adds one heart");
-        helper.assertTrue(Math.abs(SurvivalRules.foodCap(player.experienceLevel) - 8.0D) < 0.001D,
-                "level five adds one food icon");
 
         player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 2, 1, 1, 1, 0, 0));
         SurvivalData egg = player.getData(InfXAttachments.SURVIVAL)
@@ -2089,7 +2088,7 @@ public final class ModCompletionGameTests {
                                 && effect.getDuration() == 1_200
                                 && effect.getAmplifier() == 0),
                 "enchanted golden apple must use only the three INFX 1200-tick effects");
-        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 0, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(20, 20, 0, 1, 1, 0, 0));
         helper.assertTrue(
                 FoodIngestion.canIngest(player, FoodProfiles.forStack(Items.EGG.getDefaultInstance())),
                 "protein deficiency must permit a protein food even when energy is full");
@@ -2113,9 +2112,13 @@ public final class ModCompletionGameTests {
                 "moderate insulin resistance must reduce sugary satiation while retaining its response");
         helper.assertTrue(player.hasEffect(MobEffects.NAUSEA), "sugary food must apply INFX insulin nausea");
         player.removeEffect(MobEffects.NAUSEA);
-        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 8, 1, 1, 1, 0, 0));
-        helper.assertTrue(player.canEat(false), "depleted satiation permits eating even when nutrition is full");
-        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(8, 8, 1, 1, 1, 0, 0));
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 19, 1, 1, 1, 0, 0));
+        helper.assertTrue(player.canEat(false), "an unfilled food bar permits eating");
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(0, 20, 1, 1, 1, 0, 0));
+        helper.assertFalse(
+                player.canEat(false),
+                "a full food bar blocks eating even when satiation is depleted");
+        player.setData(InfXAttachments.SURVIVAL, new SurvivalData(20, 20, 1, 1, 1, 0, 0));
         helper.assertFalse(player.canEat(false), "both full energy layers prevent eating");
         helper.assertTrue(
                 Items.SUGAR.getDefaultInstance().has(DataComponents.FOOD)
