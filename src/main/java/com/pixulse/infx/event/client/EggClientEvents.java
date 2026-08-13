@@ -3,6 +3,7 @@ package com.pixulse.infx.event.client;
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.network.Network;
 import net.minecraft.client.Minecraft;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
 import net.neoforged.api.distmarker.Dist;
@@ -20,8 +21,7 @@ public final class EggClientEvents {
     @SubscribeEvent
     public static void onUse(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (!event.isUseItem() || minecraft.player == null
-                || !minecraft.player.getItemInHand(event.getHand()).is(Items.EGG)
+        if (!event.isUseItem() || minecraft.player == null || !minecraft.player.getItemInHand(event.getHand()).is(ItemTags.EGGS)
                 || !controlDown(minecraft)) return;
         ClientPacketDistributor.sendToServer(
                 new Network.EggThrowPayload(event.getHand() == InteractionHand.OFF_HAND));

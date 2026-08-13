@@ -33,8 +33,7 @@ public final class ItemProperties {
         if (key.material().has(InfxMaterial.Flag.LAVA_SAFE)) {
             properties.fireResistant();
         }
-        if (key.material() == InfxMaterial.RUSTED_IRON
-                && key.durability() > 0) {
+        if (key.material() == InfxMaterial.RUSTED_IRON && key.durability() > 0) {
             properties.component(InfXDataComponents.QUALITY.get(), Quality.POOR);
         }
         return switch (key.type().armorForm()) {
@@ -52,14 +51,13 @@ public final class ItemProperties {
         var p = commonDamageable(key, properties)
                 .component(DataComponents.TOOL, key.type().miningFamily().createTool(key))
                 .attributes(toolAttributes(key))
-                .component(
-                        DataComponents.WEAPON,
+                .component(DataComponents.WEAPON,
                         new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
-        // Shears do not block attacks; they use the normal weapon component for left-click melee.
-        // The INFX toolsBlockAttacks config removes the blocking component entirely.
-        if (key.type() != EquipmentType.SHEARS && key.type() != EquipmentType.HOE && InfXConfig.toolsBlockAttacks()) {
+
+        if (key.type() != EquipmentType.SHEARS && key.type() != EquipmentType.HOE) {
             p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
         }
+
         return p;
     }
 

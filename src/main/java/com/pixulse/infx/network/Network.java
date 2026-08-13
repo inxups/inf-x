@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,8 +34,6 @@ public final class Network {
     public static final String TEST_MODE_MISMATCH_KEY = "disconnect.infx.test_mode_mismatch";
     private static final String PROTOCOL_VERSION = "4";
 
-    private Network() {}
-
     @SubscribeEvent
     public static void registerPayloads(RegisterPayloadHandlersEvent event) {
         event.registrar(PROTOCOL_VERSION)
@@ -46,7 +45,7 @@ public final class Network {
                 .playToServer(EggThrowPayload.TYPE, EggThrowPayload.STREAM_CODEC, (payload, context) -> {
                     if (!(context.player() instanceof ServerPlayer player)) return;
                     InteractionHand hand = payload.offhand ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-                    if (!player.getItemInHand(hand).is(Items.EGG)) return;
+                    if (!player.getItemInHand(hand).is(ItemTags.EGGS)) return;
                     player.getPersistentData().putBoolean(FORCE_EGG_THROW, true);
                     try {
                         player.getItemInHand(hand).getItem().use(player.level(), player, hand);

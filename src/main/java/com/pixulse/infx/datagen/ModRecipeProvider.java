@@ -642,6 +642,18 @@ final class ModRecipeProvider extends RecipeProvider {
                         'S', Ingredient.of(Items.STICK)),
                 List.of("P", "P", "S"));
         addShaped(
+                "wood_shovel",
+                BenchTier.FLINT,
+                185.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(InfxMaterial.WOOD, EquipmentType.SHOVEL),
+                1,
+                Map.of(
+                        'P', ingredient(ItemTags.PLANKS),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("P", "S", "S"));
+        addShaped(
                 "flint_knife",
                 BenchTier.HAND,
                 150.0F,
