@@ -51,11 +51,14 @@ class SurvivalRulesTest {
     }
 
     @Test
-    void healthCapsStartAtThreeIconsAndGrowEveryFiveLevels() {
+    void capsStartAtThreeIconsAndGrowEveryFiveLevels() {
         assertEquals(6.0D, SurvivalRules.healthCap(0));
+        assertEquals(6.0D, SurvivalRules.foodCap(4));
         assertEquals(8.0D, SurvivalRules.healthCap(5));
+        assertEquals(8.0D, SurvivalRules.foodCap(9));
+        assertEquals(20.0D, SurvivalRules.foodCap(35));
         assertEquals(20.0D, SurvivalRules.healthCap(200));
-        assertEquals(20.0D, SurvivalRules.MAX_CAP, "the food cap stays at the fixed vanilla bar size");
+        assertEquals(20.0D, SurvivalRules.foodCap(200));
     }
 
     @Test
@@ -128,19 +131,19 @@ class SurvivalRulesTest {
         FoodProfile nutritionOnly = FoodProfile.of(0, 1, 0, false, false, false);
         FoodProfile milk = FoodProfile.of(0, 1, 0, true, false, false, 0, true);
 
-        SurvivalData proteinDeficit = new SurvivalData(20, 20, 0, 1, 1, 0, 0);
-        assertTrue(FoodIngestion.canIngest(proteinDeficit, 20, protein));
-        assertFalse(FoodIngestion.canIngest(proteinDeficit, 20, phytonutrients));
-        assertTrue(FoodIngestion.canIngest(proteinDeficit, 20, milk));
+        SurvivalData proteinDeficit = new SurvivalData(6, 6, 0, 1, 1, 0, 0);
+        assertTrue(FoodIngestion.canIngest(proteinDeficit, 6, protein));
+        assertFalse(FoodIngestion.canIngest(proteinDeficit, 6, phytonutrients));
+        assertTrue(FoodIngestion.canIngest(proteinDeficit, 6, milk));
 
-        assertFalse(FoodIngestion.canIngest(new SurvivalData(0, 20, 1, 1, 1, 0, 0), 20, satiationOnly),
-                "a full food bar blocks satiation-only food");
-        assertFalse(FoodIngestion.canIngest(new SurvivalData(0, 20, 1, 1, 1, 0, 0), 20, nutritionOnly),
-                "a full food bar blocks nutrition food");
-        assertTrue(FoodIngestion.canIngest(new SurvivalData(20, 5, 1, 1, 1, 0, 0), 20, satiationOnly),
-                "an unfilled food bar permits satiation-only food");
-        assertTrue(FoodIngestion.canIngest(new SurvivalData(20, 5, 1, 1, 1, 0, 0), 20, nutritionOnly),
-                "an unfilled food bar permits nutrition food");
+        assertFalse(FoodIngestion.canIngest(new SurvivalData(0, 6, 1, 1, 1, 0, 0), 6, satiationOnly),
+                "a full capacity food bar blocks satiation-only food");
+        assertFalse(FoodIngestion.canIngest(new SurvivalData(0, 6, 1, 1, 1, 0, 0), 6, nutritionOnly),
+                "a full capacity food bar blocks nutrition food");
+        assertTrue(FoodIngestion.canIngest(new SurvivalData(6, 5, 1, 1, 1, 0, 0), 6, satiationOnly),
+                "an unfilled capacity food bar permits satiation-only food");
+        assertTrue(FoodIngestion.canIngest(new SurvivalData(6, 5, 1, 1, 1, 0, 0), 6, nutritionOnly),
+                "an unfilled capacity food bar permits nutrition food");
     }
 
     @Test

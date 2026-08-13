@@ -14,13 +14,13 @@ public final class FoodIngestion {
         if (!canEatAndDrink(player)) return false;
         return canIngest(
                 player.getData(InfXAttachments.SURVIVAL),
-                SurvivalRules.MAX_CAP,
+                SurvivalRules.foodCap(player.experienceLevel),
                 FoodProfiles.forStack(stack));
     }
 
     public static boolean canIngest(Player player, FoodProfile food) {
         if (!canEatAndDrink(player)) return false;
-        return canIngest(player.getData(InfXAttachments.SURVIVAL), SurvivalRules.MAX_CAP, food);
+        return canIngest(player.getData(InfXAttachments.SURVIVAL), SurvivalRules.foodCap(player.experienceLevel), food);
     }
 
     /**
