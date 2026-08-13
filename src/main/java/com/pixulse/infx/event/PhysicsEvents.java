@@ -122,8 +122,7 @@ public final class PhysicsEvents {
         // FallingBlockEntity.fall removes the block (flag 3) and synchronously fires neighbor
         // updates, so the loose block above falls in the same cascade; each fall consumes its
         // own block, so the chain terminates.
-        FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
-        entity.setHurtsEntities(1.5F, 40);
+        FallingBlockEntity.fall(level, pos, state);
     }
 
     @SubscribeEvent
