@@ -131,6 +131,9 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
         ItemStack weapon = InfXItems.catalog().equipment(InfxMaterial.GOLD, type).holder().toStack();
         weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
         setItemSlot(EquipmentSlot.MAINHAND, weapon);
+        // dropCustomDeathLoot guarantees the weapon at full durability; keep the vanilla
+        // 8.5% equipment roll from firing first and dropping a damaged copy instead.
+        setDropChance(EquipmentSlot.MAINHAND, 0.0F);
     }
 
     @Override
