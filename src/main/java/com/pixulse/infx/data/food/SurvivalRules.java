@@ -30,6 +30,11 @@ public final class SurvivalRules {
         return Math.min(MAX_CAP, scaled);
     }
 
+    /** Food capacity grows with the same level formula as max health. */
+    public static double foodCap(int level) {
+        return healthCap(level);
+    }
+
     public static double baselineMetabolism(boolean wet, boolean cold, boolean malnourished) {
         double multiplier = 1.0D;
         if (wet) multiplier += cold ? 0.5D : 0.25D;
