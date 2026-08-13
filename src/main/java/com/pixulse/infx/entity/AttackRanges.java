@@ -12,8 +12,8 @@ final class AttackRanges {
     static final double OLD_AI_REACH = 1.75;
     static final double EARTH_ELEMENTAL_REACH = 2.0;
     static final double SILVERFISH_REACH = 1.2;
-    static final double WITCH_RANGED_REACH = 20.0;
-    static final double SKELETON_RANGED_REACH = 30.0;
+    static final double WITCH_RANGED_REACH = 10.0;
+    static final double SKELETON_RANGED_REACH = 15.0;
 
     private AttackRanges() {}
 

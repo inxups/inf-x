@@ -130,7 +130,10 @@ public final class InfxBat extends Bat implements InfxMob {
                     } else {
                         if (dealt > 0.0F) {
                             heal(dealt);
-                            if (target instanceof Ocelot ocelot && ocelot.isAlive() && ocelot.getTarget() == null) {
+                            if (target instanceof Ocelot ocelot
+                                    && ocelot.isAlive()
+                                    && ocelot.getTarget() == null
+                                    && MonsterEvents.withinFollowRange(ocelot, this)) {
                                 ocelot.setTarget(this);
                             }
                             if (variant == Variant.VAMPIRE && getHealth() >= getMaxHealth()) {
@@ -188,16 +191,18 @@ public final class InfxBat extends Bat implements InfxMob {
         return 1.25F * (1.0F - resistance);
     }
 
-    /** InfX bats hunt the closest non-creative player, animal or villager within 32 blocks. */
+    /** Hostile InfX bats use their runtime follow range for prey acquisition. */
     private @Nullable LivingEntity findPrey(ServerLevel level) {
         LivingEntity best = null;
         double bestDistance = Double.MAX_VALUE;
+        double followRange = getAttributeValue(Attributes.FOLLOW_RANGE);
+        double followRangeSqr = followRange * followRange;
         for (LivingEntity candidate : level.getEntitiesOfClass(
                 LivingEntity.class,
-                getBoundingBox().inflate(32.0),
+                getBoundingBox().inflate(followRange),
                 entity -> entity.isAlive() && isPrey(entity) && hasLineOfSight(entity))) {
             double distance = distanceToSqr(candidate);
-            if (distance < bestDistance) {
+            if (distance <= followRangeSqr && distance < bestDistance) {
                 bestDistance = distance;
                 best = candidate;
             }

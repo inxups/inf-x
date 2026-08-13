@@ -22,6 +22,7 @@ final class InfxCreeperSwellGoal extends Goal {
         LivingEntity candidate = creeper.getTarget();
         return candidate != null
                 && candidate.isAlive()
+                && MonsterEvents.withinFollowRange(creeper, candidate)
                 && creeper.distanceToSqr(candidate) < InfxCreeper.swellStartDistanceSqr(
                         creeper.variant(), creeper.getNavigation().isDone(), creeper.healthFraction());
     }
@@ -46,6 +47,7 @@ final class InfxCreeperSwellGoal extends Goal {
         for (Player player : creeper.level().players()) {
             if (player.isAlive()
                     && !player.isSpectator()
+                    && MonsterEvents.withinFollowRange(creeper, player)
                     && creeper.distanceToSqr(player) <= distanceSqr
                     && creeper.getSensing().hasLineOfSight(player)) {
                 return true;

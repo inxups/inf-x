@@ -52,7 +52,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
     public static AttributeSupplier.Builder attributes() {
         return ZombifiedPiglin.createAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.FOLLOW_RANGE, 40.0)
+                .add(Attributes.FOLLOW_RANGE, 24.0)
                 .add(Attributes.MOVEMENT_SPEED, MODERN_BASE_MOVEMENT_SPEED)
                 .add(Attributes.ATTACK_DAMAGE, 8.0)
                 .add(Attributes.ARMOR, 0.0);

@@ -50,4 +50,12 @@ class MonsterEventsTest {
         assertFalse(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 10, 19)));
         assertFalse(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 11, 4)));
     }
+
+    @Test
+    void followRangeUsesAnInclusiveSphericalBoundary() {
+        assertTrue(MonsterEvents.withinFollowRange(16.0 * 16.0, 16.0));
+        assertFalse(MonsterEvents.withinFollowRange(16.0 * 16.0 + 0.001, 16.0));
+        assertFalse(MonsterEvents.withinFollowRange(17.0 * 17.0 + 17.0 * 17.0, 24.0));
+        assertFalse(MonsterEvents.withinFollowRange(0.0, 0.0));
+    }
 }

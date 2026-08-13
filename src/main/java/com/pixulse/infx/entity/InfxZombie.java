@@ -117,27 +117,27 @@ public final class InfxZombie extends Zombie implements InfxMob {
         return switch (variant) {
             case ZOMBIE, SHADOW -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 35.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.23)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case INVISIBLE_STALKER -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 35.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.23)
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
             case GHOUL -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 35.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.28)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case WIGHT -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 35.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.25)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case REVENANT -> builder
                     .add(Attributes.MAX_HEALTH, 30.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 35.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.26)
                     .add(Attributes.ATTACK_DAMAGE, 7.0);
         };

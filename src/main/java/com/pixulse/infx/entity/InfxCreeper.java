@@ -47,7 +47,7 @@ public final class InfxCreeper extends Creeper implements InfxMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.ATTACK_DAMAGE, 2.0)
                 .add(Attributes.ARMOR, variant == Variant.INFERNAL ? 2.0 : 0.0)
-                .add(Attributes.FOLLOW_RANGE, 32.0);
+                .add(Attributes.FOLLOW_RANGE, 16.0);
     }
 
     @Override

@@ -58,7 +58,7 @@ public final class InfxSilverfish extends Silverfish implements InfxMob {
         // otherwise match vanilla silverfish movement, so keep the modern 0.25 baseline.
         return Silverfish.createAttributes()
                 .add(Attributes.MAX_HEALTH, 8.0)
-                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.ATTACK_DAMAGE, 3.0);
     }
 

@@ -51,7 +51,7 @@ public final class InfxWitch extends Witch implements InfxMob {
     public static AttributeSupplier.Builder attributes() {
         return Witch.createAttributes()
                 .add(Attributes.MAX_HEALTH, 26.0)
-                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.ATTACK_DAMAGE, 2.0);
     }
@@ -139,7 +139,8 @@ public final class InfxWitch extends Witch implements InfxMob {
     protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
         var target = getTarget();
-        if (target == null) {
+        if (target == null || !MonsterEvents.withinFollowRange(this, target)) {
+            setTarget(null);
             return;
         }
         if (summonWolvesAt >= 0 && tickCount >= summonWolvesAt) {
@@ -168,7 +169,9 @@ public final class InfxWitch extends Witch implements InfxMob {
             wolf.snapTo(x, target.getY(), z, random.nextFloat() * 360.0F, 0.0F);
             if (level.noCollision(wolf)) {
                 level.addFreshEntity(wolf);
-                wolf.setTarget(target);
+                if (MonsterEvents.withinFollowRange(wolf, target)) {
+                    wolf.setTarget(target);
+                }
                 return;
             }
             wolf.discard();
@@ -243,7 +246,9 @@ public final class InfxWitch extends Witch implements InfxMob {
                     witch,
                     witch.getBoundingBox().inflate(range, VERTICAL_SEARCH_RANGE, range));
             for (Player candidate : candidates) {
-                if (candidate instanceof ServerPlayer player && witch.getRandom().nextInt(4) == 0) {
+                if (candidate instanceof ServerPlayer player
+                        && MonsterEvents.withinFollowRange(witch, player)
+                        && witch.getRandom().nextInt(4) == 0) {
                     witch.cursePlayer(player);
                 }
             }
@@ -251,6 +256,7 @@ public final class InfxWitch extends Witch implements InfxMob {
                     // Mob#setTarget still rejects non-attackable modern targets. Do not let one
                     // such player prevent the witch from choosing another valid combat target.
                     .filter(witch::canAttack)
+                    .filter(candidate -> MonsterEvents.withinFollowRange(witch, candidate))
                     .min(Comparator.comparingDouble(witch::distanceToSqr))
                     .orElse(null);
         }

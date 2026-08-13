@@ -124,11 +124,14 @@ public final class InfxSquid extends Squid implements InfxMob {
     }
 
     private @Nullable LivingEntity nearestPrey(ServerLevel level) {
+        double followRange = getAttributeValue(Attributes.FOLLOW_RANGE);
+        double followRangeSqr = followRange * followRange;
         return level.getEntitiesOfClass(
                         LivingEntity.class,
-                        getBoundingBox().inflate(16.0),
+                        getBoundingBox().inflate(followRange),
                         candidate -> candidate != this
                                 && candidate.isAlive()
+                                && distanceToSqr(candidate) <= followRangeSqr
                                 && canPreyUpon(level, candidate)
                                 && hasLineOfSight(candidate))
                 .stream()

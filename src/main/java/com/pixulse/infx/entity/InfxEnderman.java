@@ -165,7 +165,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
         } finally {
             suppressDamageTeleport = false;
         }
-        if (hurt && attacker instanceof LivingEntity living) {
+        if (hurt && attacker instanceof LivingEntity living && MonsterEvents.withinFollowRange(this, living)) {
             setTarget(living);
         }
         return hurt;

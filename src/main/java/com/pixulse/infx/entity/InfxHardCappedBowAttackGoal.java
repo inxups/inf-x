@@ -35,12 +35,18 @@ final class InfxHardCappedBowAttackGoal<T extends Mob & RangedAttackMob> extends
 
     @Override
     public boolean canUse() {
-        return mob.getTarget() != null && isHoldingBow();
+        return mob.getTarget() != null
+                && MonsterEvents.withinFollowRange(mob, mob.getTarget())
+                && isHoldingBow();
     }
 
     @Override
     public boolean canContinueToUse() {
-        return (canUse() || !mob.getNavigation().isDone()) && isHoldingBow();
+        return (canUse()
+                || mob.getTarget() != null
+                        && MonsterEvents.withinFollowRange(mob, mob.getTarget())
+                        && !mob.getNavigation().isDone())
+                && isHoldingBow();
     }
 
     private boolean isHoldingBow() {
@@ -69,7 +75,9 @@ final class InfxHardCappedBowAttackGoal<T extends Mob & RangedAttackMob> extends
     @Override
     public void tick() {
         LivingEntity target = mob.getTarget();
-        if (target == null) {
+        if (target == null || !MonsterEvents.withinFollowRange(mob, target)) {
+            mob.setTarget(null);
+            mob.stopUsingItem();
             return;
         }
         double distanceSqr = mob.distanceToSqr(target.getX(), target.getY(), target.getZ());
