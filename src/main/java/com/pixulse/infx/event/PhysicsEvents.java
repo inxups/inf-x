@@ -48,7 +48,17 @@ public final class PhysicsEvents {
     public static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
         tryFall(level, event.getPos());
-        for (Direction direction : event.getNotifiedSides()) tryFall(level, event.getPos().relative(direction));
+        for (Direction direction : event.getNotifiedSides()) {
+            if (direction == Direction.UP) {
+                // A loose column would otherwise cascade synchronously: every stacked block becomes a
+                // falling entity in the same tick, they fall in lockstep, and whichever lands second on
+                // the same block position is discarded and dropped by the vanilla landing check. Defer
+                // each upward step by one tick so every block lands on the block placed by the one below.
+                pendingFall(level, event.getPos().above());
+            } else {
+                tryFall(level, event.getPos().relative(direction));
+            }
+        }
     }
 
     @SubscribeEvent
@@ -119,10 +129,27 @@ public final class PhysicsEvents {
         if (!level.isLoaded(pos)) return;
         BlockState state = level.getBlockState(pos);
         if (!PhysicsRules.isLoose(state) || !FallingBlock.isFree(level.getBlockState(pos.below()))) return;
-        // FallingBlockEntity.fall removes the block (flag 3) and synchronously fires neighbor
-        // updates, so the loose block above falls in the same cascade; each fall consumes its
-        // own block, so the chain terminates.
         FallingBlockEntity.fall(level, pos, state);
+    }
+
+    /** Falls queued by {@link #onNeighborUpdate} that must wait one tick before spawning. */
+    private static final java.util.Map<ServerLevel, java.util.List<BlockPos>> PENDING_FALLS =
+            new java.util.IdentityHashMap<>();
+
+    private static void pendingFall(ServerLevel level, BlockPos pos) {
+        PENDING_FALLS.computeIfAbsent(level, key -> new java.util.ArrayList<>(1)).add(pos);
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        if (PENDING_FALLS.isEmpty()) return;
+        // Copy first: spawning a falling block re-enters onNeighborUpdate -> pendingFall while iterating.
+        java.util.Map<ServerLevel, java.util.List<BlockPos>> pending =
+                new java.util.IdentityHashMap<>(PENDING_FALLS);
+        PENDING_FALLS.clear();
+        for (java.util.Map.Entry<ServerLevel, java.util.List<BlockPos>> entry : pending.entrySet()) {
+            for (BlockPos pos : entry.getValue()) tryFall(entry.getKey(), pos);
+        }
     }
 
     @SubscribeEvent
