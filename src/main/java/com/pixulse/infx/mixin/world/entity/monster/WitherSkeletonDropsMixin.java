@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin.world.entity.monster;
 
+import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.InfXDataComponents;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * InfX wither skeletons carry their InfX iron sword as a worn (poor quality) weapon.
+ * InfX wither skeletons carry their InfX iron sword as a worn (poor quality) weapon:
+ * the quality component and the reduced 0.75x durability cap are applied at spawn.
  * The sword follows the vanilla 26.1.2 equipment-drop rule: an 8.5% chance on a
  * player kill, dropped with heavy random damage.
  */
@@ -31,7 +32,7 @@ public abstract class WitherSkeletonDropsMixin {
             CallbackInfoReturnable<SpawnGroupData> callback) {
         ItemStack weapon = ((LivingEntity) (Object) this).getMainHandItem();
         if (!weapon.isEmpty()) {
-            weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
+            QualitySystem.applySelectedQuality(weapon, QualitySystem.toCode(Quality.POOR));
         }
     }
 }
