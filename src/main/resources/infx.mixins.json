@@ -67,6 +67,7 @@
     "world.level.block.entity.HopperBlockEntityMixin",
     "world.level.block.state.BlockBehaviourPropertiesMixin",
     "world.level.chunk.ChunkGeneratorMixin",
+    "world.level.levelgen.NoiseBasedAquiferMixin",
     "world.level.levelgen.PatrolSpawnerMixin",
     "world.level.levelgen.WorldDimensionsMixin",
     "world.level.material.LavaFluidMixin",
