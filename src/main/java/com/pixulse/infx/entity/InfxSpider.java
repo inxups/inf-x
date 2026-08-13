@@ -42,7 +42,7 @@ import org.jspecify.annotations.Nullable;
 /** Spider replacement and the four INFX spider variants. */
 public final class InfxSpider extends Spider implements InfxMob {
     private static final double MODERN_SPIDER_MOVEMENT_SPEED = 0.30;
-    private static final double INFX_ARACHNID_SPEED_MULTIPLIER = 1.25;
+    private static final double DEMON_SPIDER_SPEED_MULTIPLIER = 1.25;
     private static final double MAX_PHASE_CHASE_VERTICAL_DISTANCE = 2.0;
 
     public enum Variant {
@@ -100,10 +100,8 @@ public final class InfxSpider extends Spider implements InfxMob {
     }
 
     public static AttributeSupplier.Builder attributes(Variant variant) {
-        // Legacy arachnids use the old AI pathing formula, where the attribute is a
-        // forward-input multiplier under a fixed 0.1 throttle.  Its 1.0/0.8 values cannot
-        // be assigned directly to 26.2's movement attribute.  Preserve only the source's
-        // 25% base/cave/demon boost over the vanilla arachnid family.
+        // The replacement and cave spider are vanilla 26.1 entities and therefore use the
+        // modern 0.30 attribute; only the separate demon spider keeps its explicit boost.
         AttributeSupplier.Builder builder = Spider.createAttributes().add(Attributes.FOLLOW_RANGE, 16.0);
         return switch (variant) {
             case SPIDER -> builder
@@ -131,7 +129,11 @@ public final class InfxSpider extends Spider implements InfxMob {
 
     static double movementSpeed(Variant variant) {
         return switch (variant) {
-            case SPIDER, CAVE_SPIDER, DEMON -> MODERN_SPIDER_MOVEMENT_SPEED * INFX_ARACHNID_SPEED_MULTIPLIER;
+            // Spider and Cave Spider replace the vanilla 26.1 entities and must retain their
+            // 0.30 baseline. Demon Spider is a separate InfX variant and keeps its explicit
+            // 25% custom boost.
+            case SPIDER, CAVE_SPIDER -> MODERN_SPIDER_MOVEMENT_SPEED;
+            case DEMON -> MODERN_SPIDER_MOVEMENT_SPEED * DEMON_SPIDER_SPEED_MULTIPLIER;
             case BLACK_WIDOW, WOOD, PHASE -> MODERN_SPIDER_MOVEMENT_SPEED;
         };
     }

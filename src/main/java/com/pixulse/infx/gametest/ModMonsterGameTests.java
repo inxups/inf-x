@@ -298,8 +298,8 @@ public final class ModMonsterGameTests {
                 "INFX endermen must retain their 0.30 standing movement speed");
         enderman.setTarget(piglinTarget);
         helper.assertTrue(
-                Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 6.50D) < DAMAGE_EPSILON,
-                "INFX endermen must retain InfX's 6.50 chase-speed total");
+                Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.45D) < DAMAGE_EPSILON,
+                "INFX endermen must use the modern 0.30 + 0.15 chase-speed total");
         enderman.setTarget(null);
         helper.assertTrue(
                 Math.abs(enderman.getAttributeValue(Attributes.MOVEMENT_SPEED) - 0.30D) < DAMAGE_EPSILON,
@@ -314,6 +314,11 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(blaze.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) - 0.23D) < DAMAGE_EPSILON,
                 "INFX blazes must retain the modern baseline movement speed");
+        var skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(11, 2, 1));
+        helper.assertTrue(
+                Math.abs(skeleton.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) - 0.25D) < DAMAGE_EPSILON,
+                "INFX replacement skeletons must retain the modern 0.25 movement speed");
+        skeleton.discard();
         for (EntityType<?> type : List.of(EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             Mob variant = spawnWithFinalize(helper, type);
             helper.assertTrue(
@@ -331,11 +336,7 @@ public final class ModMonsterGameTests {
                 InfXEntityTypes.WOOD_SPIDER,
                 InfXEntityTypes.PHASE_SPIDER)) {
             var spider = helper.spawnWithNoFreeWill(type.get(), new BlockPos(spiderX++, 2, 2));
-            double expectedSpeed = type == InfXEntityTypes.INFX_SPIDER
-                            || type == InfXEntityTypes.INFX_CAVE_SPIDER
-                            || type == InfXEntityTypes.DEMON_SPIDER
-                    ? 0.375D
-                    : 0.30D;
+            double expectedSpeed = type == InfXEntityTypes.DEMON_SPIDER ? 0.375D : 0.30D;
             helper.assertTrue(
                     spider.getAttributeBaseValue(Attributes.MOVEMENT_SPEED) == expectedSpeed,
                     type.getId() + " must retain its normalized arachnid movement speed");

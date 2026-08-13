@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
 public final class InfxEnderman extends EnderMan implements InfxMob {
     private static final Identifier INFX_CHASE_SPEED_ID = Identifier.fromNamespaceAndPath("infx", "infx_chase_speed");
     private static final Identifier VANILLA_CHASE_SPEED_ID = Identifier.withDefaultNamespace("attacking");
-    private static final double INFX_CHASE_SPEED_MULTIPLIER = 6.5 / 0.3;
+    private static final double MODERN_CHASE_SPEED_BONUS = 0.15;
     private static final double INFX_TARGET_RANGE = 64.0;
     private static final double VALUABLE_SEARCH_HORIZONTAL_RANGE = 16.0;
     private static final double VALUABLE_SEARCH_VERTICAL_RANGE = 8.0;
@@ -44,8 +44,8 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
     private static final String STORED_EYES_KEY = "R196StoredEnderEyes";
     private static final AttributeModifier INFX_CHASE_SPEED = new AttributeModifier(
             INFX_CHASE_SPEED_ID,
-            INFX_CHASE_SPEED_MULTIPLIER - 1.0,
-            AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+            MODERN_CHASE_SPEED_BONUS,
+            AttributeModifier.Operation.ADD_VALUE);
 
     private int storedPearls;
     private int storedEyes;
@@ -76,9 +76,9 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
             return;
         }
 
-        // The old modifier was an additive +6.2 on InfX's 0.3 base (6.5 total).
-        // Express that as a multiplier so it remains tied to the registered modern base
-        // and replaces 26.2's unrelated +0.15 attacking modifier.
+        // 26.1's Enderman uses the modern +0.15 attacking modifier. Keep a namespaced
+        // equivalent so the replacement does not depend on the parent implementation's
+        // modifier lifecycle, while preserving the vanilla 0.30 -> 0.45 chase speed.
         movementSpeed.removeModifier(VANILLA_CHASE_SPEED_ID);
         boolean chasing = getTarget() != null;
         if (chasing && !movementSpeed.hasModifier(INFX_CHASE_SPEED_ID)) {
@@ -89,7 +89,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
     }
 
     static double chasingMovementSpeed(double baseMovementSpeed) {
-        return baseMovementSpeed * INFX_CHASE_SPEED_MULTIPLIER;
+        return baseMovementSpeed + MODERN_CHASE_SPEED_BONUS;
     }
 
     @Override

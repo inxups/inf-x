@@ -86,7 +86,8 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             case SKELETON -> builder
                     .add(Attributes.MAX_HEALTH, ORDINARY_MAX_HEALTH)
                     .add(Attributes.FOLLOW_RANGE, 16.0)
-                    .add(Attributes.MOVEMENT_SPEED, 0.30)
+                    // The replacement is a 26.1 AbstractSkeleton: its modern baseline is 0.25.
+                    .add(Attributes.MOVEMENT_SPEED, 0.25)
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
             case LONGDEAD -> builder
                     .add(Attributes.MAX_HEALTH, 12.0)

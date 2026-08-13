@@ -42,7 +42,7 @@ class MonsterProfileTest {
             assertEquals(0.0, stats(InfxZombie.attributes(variant)).getBaseValue(Attributes.ARMOR), EPSILON);
         }
 
-        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 16.0, 0.30, 4.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 16.0, 0.25, 4.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD), 12.0, 16.0, 0.29, 6.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN), 24.0, 16.0, 0.29, 8.0);
         assertEquals(2.0, stats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN))
@@ -51,8 +51,8 @@ class MonsterProfileTest {
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 16.0, 0.27, 8.0);
         assertStats(VanillaWolf.attributes(), 8.0, 16.0, 0.30, 3.0);
 
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.SPIDER), 12.0, 16.0, 0.375, 4.0);
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.CAVE_SPIDER), 16.0, 16.0, 0.375, 4.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.SPIDER), 12.0, 16.0, 0.30, 4.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.CAVE_SPIDER), 16.0, 16.0, 0.30, 4.0);
         assertStats(InfxSpider.attributes(InfxSpider.Variant.BLACK_WIDOW), 6.0, 16.0, 0.30, 1.0);
         assertStats(InfxSpider.attributes(InfxSpider.Variant.DEMON), 18.0, 16.0, 0.375, 5.0);
         assertStats(InfxSpider.attributes(InfxSpider.Variant.WOOD), 6.0, 16.0, 0.30, 1.0);
@@ -74,7 +74,7 @@ class MonsterProfileTest {
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
         assertStats(InfxEnderman.attributes(), 40.0, 64.0, 0.30, 10.0);
-        assertEquals(6.5, InfxEnderman.chasingMovementSpeed(0.30), EPSILON);
+        assertEquals(0.45, InfxEnderman.chasingMovementSpeed(0.30), EPSILON);
         assertStats(InfxWitch.attributes(), 26.0, 16.0, 0.25, 2.0);
         assertStats(InfxZombifiedPiglin.attributes(), 20.0, 24.0, 0.23, 8.0);
         assertEquals(0.0, stats(InfxZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
