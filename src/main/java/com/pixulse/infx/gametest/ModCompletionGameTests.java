@@ -30,6 +30,7 @@ import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
+import com.pixulse.infx.item.repair.EnchantPlan;
 import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
@@ -130,6 +131,8 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.GameType;
@@ -183,6 +186,7 @@ public final class ModCompletionGameTests {
             "infx_quality_coin",
             "infx_gem_experience",
             "infx_metal_anvil",
+            "infx_metal_anvil_enchant",
             "infx_underworld",
             "infx_portals",
             "infx_livestock",
@@ -219,6 +223,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_quality_coin", () -> ModCompletionGameTests::qualityAndCoin);
         FUNCTIONS.register("infx_gem_experience", () -> ModCompletionGameTests::gemExperience);
         FUNCTIONS.register("infx_metal_anvil", () -> ModCompletionGameTests::metalAnvil);
+        FUNCTIONS.register("infx_metal_anvil_enchant", () -> ModCompletionGameTests::metalAnvilEnchant);
         FUNCTIONS.register("infx_underworld", () -> ModCompletionGameTests::underworld);
         FUNCTIONS.register("infx_portals", () -> ModCompletionGameTests::portals);
         FUNCTIONS.register("infx_livestock", () -> ModCompletionGameTests::livestock);
@@ -914,6 +919,77 @@ public final class ModCompletionGameTests {
         recoveredAnvils.forEach(ItemEntity::discard);
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static void metalAnvilEnchant(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        BlockPos relative = new BlockPos(4, 2, 4);
+        helper.setBlock(relative, InfXBlocks.IRON_ANVIL.get());
+        BlockPos absolute = helper.absolutePos(relative);
+        MetalAnvilBlock block = InfXBlocks.IRON_ANVIL.get();
+        MetalAnvilBlockEntity entity = (MetalAnvilBlockEntity) helper.getLevel().getBlockEntity(absolute);
+        var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        Holder<Enchantment> efficiency = enchantments.getOrThrow(InfXEnchantments.VANILLA_EFFICIENCY);
+        Holder<Enchantment> silkTouch = enchantments.getOrThrow(InfXEnchantments.VANILLA_SILK_TOUCH);
+        Holder<Enchantment> fortune = enchantments.getOrThrow(InfXEnchantments.FORTUNE);
+        MetalAnvilMenu menu = MetalAnvilMenu.server(
+                77,
+                player.getInventory(),
+                InfxMaterial.IRON,
+                ContainerLevelAccess.create(helper.getLevel(), absolute),
+                block);
+
+        ItemStack pickaxe = InfXItems.IRON_PICKAXE.toStack();
+        menu.getSlot(0).set(pickaxe);
+        menu.getSlot(1).set(enchantedBook(efficiency, 1));
+        ItemStack enchanted = menu.getSlot(2).getItem();
+        helper.assertFalse(enchanted.isEmpty(), "item plus enchanted book must produce a result");
+        helper.assertTrue(
+                EnchantmentHelper.getEnchantmentsForCrafting(enchanted).getLevel(efficiency) == 1,
+                "the book enchantment is applied to the item");
+        helper.assertTrue(enchanted.is(InfXItems.IRON_PICKAXE.get()), "the result stays the item");
+        int beforeWear = entity.damage();
+        menu.getSlot(2).onTake(player, enchanted);
+        helper.assertTrue(
+                entity.damage() == beforeWear + EnchantPlan.enchantmentFee(8, 1),
+                "enchanting wears the anvil by the halved book fee");
+        helper.assertTrue(menu.getSlot(0).getItem().isEmpty(), "enchanting consumes the input stack");
+        helper.assertTrue(menu.getSlot(1).getItem().isEmpty(), "enchanting consumes the whole book");
+
+        menu.getSlot(0).set(enchantedBook(efficiency, 1));
+        menu.getSlot(1).set(enchantedBook(efficiency, 1));
+        ItemStack merged = menu.getSlot(2).getItem();
+        helper.assertFalse(merged.isEmpty(), "book plus book must produce a result");
+        helper.assertTrue(merged.is(Items.ENCHANTED_BOOK), "book merging keeps an enchanted book");
+        helper.assertTrue(
+                EnchantmentHelper.getEnchantmentsForCrafting(merged).getLevel(efficiency) == 2,
+                "the same enchantment on both sides levels up");
+        menu.getSlot(2).onTake(player, merged);
+
+        menu.getSlot(0).set(enchantedBook(fortune, 1));
+        menu.getSlot(1).set(enchantedBook(silkTouch, 1));
+        helper.assertTrue(
+                menu.getSlot(2).getItem().isEmpty(),
+                "incompatible enchantments refuse to combine");
+
+        ItemStack namedPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        menu.getSlot(0).set(namedPickaxe);
+        menu.setItemName("Sharp");
+        menu.getSlot(1).set(enchantedBook(efficiency, 1));
+        ItemStack named = menu.getSlot(2).getItem();
+        helper.assertTrue(
+                !named.isEmpty()
+                        && EnchantmentHelper.getEnchantmentsForCrafting(named).getLevel(efficiency) == 1
+                        && named.get(DataComponents.CUSTOM_NAME).equals(Component.literal("Sharp")),
+                "enchanting and naming must combine into one result");
+        menu.getSlot(2).onTake(player, named);
+
+        removePlayer(player);
+        helper.succeed();
+    }
+
+    private static ItemStack enchantedBook(Holder<Enchantment> enchantment, int level) {
+        return EnchantmentHelper.createBook(new EnchantmentInstance(enchantment, level));
     }
 
     private static void underworld(GameTestHelper helper) {

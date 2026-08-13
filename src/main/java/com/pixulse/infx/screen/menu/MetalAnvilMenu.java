@@ -4,6 +4,7 @@ import com.pixulse.infx.block.MetalAnvilBlock;
 import com.pixulse.infx.block.entity.MetalAnvilBlockEntity;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXMenus;
+import com.pixulse.infx.item.repair.EnchantPlan;
 import com.pixulse.infx.item.repair.RepairPlan;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -19,6 +20,7 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.NonNull;
@@ -27,10 +29,18 @@ import org.jspecify.annotations.Nullable;
 public final class MetalAnvilMenu extends ItemCombinerMenu {
     public static final int MAX_NAME_LENGTH = 50;
     private static final ItemCombinerMenuSlotDefinition SLOTS = ItemCombinerMenuSlotDefinition.create()
-            .withSlot(0, 27, 47, RepairPlan::supportsType)
-            .withSlot(1, 76, 47, stack -> RepairPlan.isRepairMaterial(stack.getItem()))
+            .withSlot(0, 27, 47, MetalAnvilMenu::acceptsInput)
+            .withSlot(1, 76, 47, MetalAnvilMenu::acceptsAddition)
             .withResultSlot(2, 134, 47)
             .build();
+
+    private static boolean acceptsInput(ItemStack stack) {
+        return RepairPlan.supportsType(stack) || stack.is(Items.ENCHANTED_BOOK);
+    }
+
+    private static boolean acceptsAddition(ItemStack stack) {
+        return RepairPlan.isRepairMaterial(stack.getItem()) || stack.is(Items.ENCHANTED_BOOK);
+    }
 
     private final InfxMaterial anvilMaterial;
     private final Block expectedBlock;
@@ -88,12 +98,19 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
     @Override
     protected void onTake(@NonNull Player player, @NonNull ItemStack carried) {
         RepairPlan plan = currentPlan();
+        EnchantPlan enchant = EnchantPlan.create(inputSlots.getItem(0), inputSlots.getItem(1));
         inputSlots.removeItem(0, 1);
-        inputSlots.removeItem(1, plan.materialsUsed());
+        ItemStack addition = inputSlots.getItem(1);
+        if (addition.is(Items.ENCHANTED_BOOK)) {
+            inputSlots.setItem(1, ItemStack.EMPTY);
+        } else {
+            inputSlots.removeItem(1, plan.materialsUsed());
+        }
+        long wear = (long) plan.anvilDamage() + enchant.wear();
         access.execute((level, pos) -> {
             if (level instanceof ServerLevel serverLevel
                     && level.getBlockEntity(pos) instanceof MetalAnvilBlockEntity anvil) {
-                anvil.addDamage(serverLevel, plan.anvilDamage());
+                anvil.addDamage(serverLevel, (int) Math.min(Integer.MAX_VALUE, wear));
                 level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
         });
@@ -123,6 +140,12 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
         }
         RepairPlan plan = currentPlan();
         ItemStack result = plan.valid() ? plan.output() : input.copy();
+        boolean changed = plan.valid();
+        EnchantPlan enchant = EnchantPlan.create(result, inputSlots.getItem(1));
+        if (enchant.valid()) {
+            result = enchant.output();
+            changed = true;
+        }
         boolean renamed = false;
         if (itemName != null) {
             if (!StringUtil.isBlank(itemName)) {
@@ -135,7 +158,7 @@ public final class MetalAnvilMenu extends ItemCombinerMenu {
                 renamed = true;
             }
         }
-        return plan.valid() || renamed ? result : ItemStack.EMPTY;
+        return changed || renamed ? result : ItemStack.EMPTY;
     }
 
     @Override
