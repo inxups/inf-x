@@ -18,14 +18,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockBehaviour.Properties.class)
 public abstract class BlockBehaviourPropertiesMixin {
     @Inject(method = "setId", at = @At("RETURN"))
-    private void infx$applyHardness(
-            ResourceKey<Block> id,
-            CallbackInfoReturnable<BlockBehaviour.Properties> callback) {
+    private void infx$applyHardness(ResourceKey<Block> id, CallbackInfoReturnable<BlockBehaviour.Properties> callback) {
         if (PlantHardness.appliesTo(id.identifier())) {
             ((BlockBehaviour.Properties) (Object) this).destroyTime(PlantHardness.destroyTime(id.identifier()));
         } else if (BlockHardness.appliesTo(id.identifier())) {
-            ((BlockBehaviour.Properties) (Object) this)
-                    .destroyTime(BlockHardness.destroyTime(id.identifier()));
+            ((BlockBehaviour.Properties) (Object) this).destroyTime(BlockHardness.destroyTime(id.identifier()));
         }
     }
 }
