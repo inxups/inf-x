@@ -78,4 +78,22 @@ class ClientControlsTest {
         assertEquals(0, ClientControls.foodBarFood(new SurvivalData(5, 0.00005, 1, 1, 1, 0, 0)));
         assertEquals(0, ClientControls.foodBarFood(new SurvivalData(0, 0, 1, 1, 1, 0, 0)));
     }
+
+    @Test
+    void foodBarShakesOnlyWhileSatiationIsSpent() {
+        assertFalse(ClientControls.shouldShakeFoodBar(0.5D, 10, 31));
+        assertTrue(ClientControls.shouldShakeFoodBar(0.0D, 10, 31));
+        assertFalse(ClientControls.shouldShakeFoodBar(0.0D, 10, 30));
+        assertTrue(ClientControls.shouldShakeFoodBar(0.0D, 20, 61));
+        assertFalse(ClientControls.shouldShakeFoodBar(0.0D, 20, 60));
+        assertTrue(ClientControls.shouldShakeFoodBar(0.0D, 0, 3));
+    }
+
+    @Test
+    void mountHeartsFollowTheVanillaThreshold() {
+        assertEquals(0, ClientControls.vehicleHearts(1.0F));
+        assertEquals(1, ClientControls.vehicleHearts(1.5F));
+        assertEquals(12, ClientControls.vehicleHearts(25.0F));
+        assertEquals(30, ClientControls.vehicleHearts(61.0F));
+    }
 }

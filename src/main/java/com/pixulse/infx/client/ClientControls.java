@@ -13,7 +13,10 @@ import net.minecraft.client.gui.components.debug.DebugScreenProfile;
 import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -35,6 +38,8 @@ public final class ClientControls {
             Identifier.withDefaultNamespace("hud/food_empty_hunger"),
             Identifier.withDefaultNamespace("hud/food_half_hunger"),
             Identifier.withDefaultNamespace("hud/food_full_hunger"));
+
+    private static final RandomSource RANDOM = RandomSource.create();
 
     private ClientControls() {}
 
@@ -90,6 +95,7 @@ public final class ClientControls {
         if (!event.getName().equals(VanillaGuiLayers.FOOD_LEVEL)) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null
+                || hasMountHearts(minecraft.player.getVehicle())
                 || !shouldRenderFoodBar(minecraft.player.isCreative(), minecraft.player.isSpectator())) return;
         event.setCanceled(true);
         var graphics = event.getGuiGraphics();
@@ -100,11 +106,16 @@ public final class ClientControls {
         int xRight = graphics.guiWidth() / 2 + 91;
         int yBase = graphics.guiHeight() - minecraft.gui.rightHeight;
         FoodBarSprites sprites = foodBarSprites(minecraft.player.hasEffect(MobEffects.HUNGER));
+        boolean shake = shouldShakeFoodBar(
+                data.isStarving() ? 0.0D : data.satiation(), food, minecraft.gui.getGuiTicks());
         for (int index = 0; index < slots; index++) {
             int row = index / 10;
             int column = index % 10;
             int x = xRight - column * 8 - 9;
             int y = yBase - row * 10;
+            if (shake) {
+                y += RANDOM.nextInt(3) - 1;
+            }
             graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprites.empty(), x, y, 9, 9);
             if (index * 2 + 1 < food) {
                 graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprites.full(), x, y, 9, 9);
@@ -118,6 +129,26 @@ public final class ClientControls {
     /** Starving players show a fully empty bar, matching the mirrored FoodData. */
     static int foodBarFood(SurvivalData data) {
         return data.isStarving() ? 0 : (int) Math.ceil(data.nutrition());
+    }
+
+    /**
+     * Mirrors the vanilla shake: while saturation is spent, the bar jitters on ticks
+     * aligned to {@code guiTicks % (food * 3 + 1) == 0}, pulsing faster as food drops.
+     */
+    static boolean shouldShakeFoodBar(double satiation, int food, int guiTicks) {
+        return satiation <= 0.0D && guiTicks % (food * 3 + 1) == 0;
+    }
+
+    /** Vanilla hides the food bar while riding a mount that shows its own hearts. */
+    static boolean hasMountHearts(Entity vehicle) {
+        return vehicle instanceof LivingEntity living
+                && living.showVehicleHealth()
+                && vehicleHearts(living.getMaxHealth()) > 0;
+    }
+
+    /** Mirrors the vanilla vehicle-hearts count with its 30-heart cap. */
+    static int vehicleHearts(float maxHealth) {
+        return Math.min((int) (maxHealth + 0.5F) / 2, 30);
     }
 
     static FoodBarSprites foodBarSprites(boolean hunger) {
