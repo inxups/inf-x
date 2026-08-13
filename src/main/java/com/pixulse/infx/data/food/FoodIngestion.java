@@ -14,19 +14,20 @@ public final class FoodIngestion {
         if (!canEatAndDrink(player)) return false;
         return canIngest(
                 player.getData(InfXAttachments.SURVIVAL),
-                SurvivalRules.foodCap(player.experienceLevel),
+                SurvivalRules.MAX_CAP,
                 FoodProfiles.forStack(stack));
     }
 
     public static boolean canIngest(Player player, FoodProfile food) {
         if (!canEatAndDrink(player)) return false;
-        return canIngest(
-                player.getData(InfXAttachments.SURVIVAL), SurvivalRules.foodCap(player.experienceLevel), food);
+        return canIngest(player.getData(InfXAttachments.SURVIVAL), SurvivalRules.MAX_CAP, food);
     }
 
     /**
      * Mirrors EntityPlayer#canIngest for an INFX food profile. Protein and phytonutrient deficits
-     * take priority over energy fullness; essential fats intentionally do not, as in INFX.
+     * take priority over energy fullness; essential fats intentionally do not, as in INFX. The
+     * energy gate follows the displayed food bar: any energy food is edible while the Nutrition
+     * layer (the bar) is not full, regardless of which energy layer it feeds.
      */
     public static boolean canIngest(SurvivalData data, double foodCap, FoodProfile food) {
         if (food.isEmpty()) return false;
@@ -37,13 +38,7 @@ public final class FoodIngestion {
         double satiation = food.satiationFor(data);
         if (satiation == 0.0D && food.nutrition() == 0.0D && food.sugarContent() == 0) return true;
 
-        if (data.satiation() < foodCap) {
-            if (satiation > 0.0D) return true;
-            if (data.nutrition() >= foodCap) return false;
-        } else if (satiation > 0.0D && data.nutrition() > 0.0D) {
-            return false;
-        }
-        return food.nutrition() > 0.0D && data.nutrition() < foodCap;
+        return (satiation > 0.0D || food.nutrition() > 0.0D) && data.nutrition() < foodCap;
     }
 
     private static boolean canEatAndDrink(Player player) {

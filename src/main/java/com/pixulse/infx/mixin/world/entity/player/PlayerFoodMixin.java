@@ -8,15 +8,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Bridges vanilla FoodData gates to INFX's independent energy layers and level-scaled cap. */
+/**
+ * Bridges vanilla FoodData gates to INFX's independent energy layers. The eat gate follows the
+ * displayed food bar: Nutrition below the fixed cap means the bar is not full and eating is
+ * permitted; Satiation stays an internal buffer that is never shown directly.
+ */
 @Mixin(Player.class)
 abstract class PlayerFoodMixin {
     @Inject(method = "canEat", at = @At("HEAD"), cancellable = true)
     private void infx$useNutritionCap(boolean ignoreHunger, CallbackInfoReturnable<Boolean> callback) {
         Player player = (Player) (Object) this;
         var survival = player.getData(InfXAttachments.SURVIVAL);
-        double cap = SurvivalRules.foodCap(player.experienceLevel);
-        callback.setReturnValue(ignoreHunger || survival.satiation() < cap || survival.nutrition() < cap);
+        callback.setReturnValue(ignoreHunger || survival.nutrition() < SurvivalRules.MAX_CAP);
     }
 
     /** INFX requires Nutrition for sprinting; Satiation alone only powers other actions. */

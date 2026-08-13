@@ -181,7 +181,7 @@ public final class SurvivalEvents {
             return;
         }
         SurvivalData updated = player.getData(InfXAttachments.SURVIVAL)
-                .eat(food, SurvivalRules.foodCap(player.experienceLevel));
+                .eat(food, SurvivalRules.MAX_CAP);
         player.setData(InfXAttachments.SURVIVAL, updated);
         applyInsulinEffects(player, food, updated);
         mirrorFoodData(player, updated);
@@ -230,7 +230,7 @@ public final class SurvivalEvents {
 
     private static void tickMetabolism(ServerPlayer player, int elapsedTicks, boolean sleeping) {
         SurvivalData current = player.getData(InfXAttachments.SURVIVAL)
-                .clamp(SurvivalRules.foodCap(player.experienceLevel));
+                .clamp(SurvivalRules.MAX_CAP);
         if (!hasActiveMetabolism(player)) {
             player.setData(InfXAttachments.SURVIVAL, current);
             mirrorFoodData(player, current);
@@ -247,7 +247,7 @@ public final class SurvivalEvents {
                 cost,
                 elapsedTicks * SurvivalRules.NUTRITION_METABOLISM_PER_TICK,
                 elapsedTicks,
-                SurvivalRules.foodCap(player.experienceLevel));
+                SurvivalRules.MAX_CAP);
         updated = applyStarvation(player, updated, elapsedTicks);
         updated = applyRecovery(player, updated, elapsedTicks, sleeping);
         player.setData(InfXAttachments.SURVIVAL, updated);
@@ -276,7 +276,7 @@ public final class SurvivalEvents {
                         SurvivalRules.HEALING_METABOLISM,
                         0.0D,
                         0,
-                        SurvivalRules.foodCap(player.experienceLevel));
+                        SurvivalRules.MAX_CAP);
     }
 
     private static SurvivalData applyStarvation(ServerPlayer player, SurvivalData data, int elapsedTicks) {
@@ -411,8 +411,7 @@ public final class SurvivalEvents {
     private static void consumeAction(ServerPlayer player, double amount) {
         if (!hasActiveMetabolism(player) || amount <= 0.0D) return;
         SurvivalData updated = player.getData(InfXAttachments.SURVIVAL)
-                .metabolize(amount, 0.0D, 0,
-                        SurvivalRules.foodCap(player.experienceLevel));
+                .metabolize(amount, 0.0D, 0, SurvivalRules.MAX_CAP);
         player.setData(InfXAttachments.SURVIVAL, updated);
         mirrorFoodData(player, updated);
     }
@@ -428,15 +427,21 @@ public final class SurvivalEvents {
             maxHealth.setBaseValue(SurvivalRules.healthCap(player.experienceLevel));
             if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
         }
-        double foodCap = SurvivalRules.foodCap(player.experienceLevel);
+        double foodCap = SurvivalRules.MAX_CAP;
         SurvivalData clamped = player.getData(InfXAttachments.SURVIVAL).clamp(foodCap);
         player.setData(InfXAttachments.SURVIVAL, clamped);
         if (player instanceof ServerPlayer serverPlayer) mirrorFoodData(serverPlayer, clamped);
     }
 
+    /**
+     * Mirrors the Nutrition layer into FoodData, which the vanilla food bar draws. Starving
+     * players show a completely empty bar so the displayed bar stays the single source of truth
+     * for both eatability and sprinting.
+     */
     private static void mirrorFoodData(ServerPlayer player, SurvivalData data) {
-        player.getFoodData().setFoodLevel((int) Math.ceil(data.nutrition()));
-        player.getFoodData().setSaturation((float) data.satiation());
+        boolean starving = data.isStarving();
+        player.getFoodData().setFoodLevel(starving ? 0 : (int) Math.ceil(data.nutrition()));
+        player.getFoodData().setSaturation(starving ? 0.0F : (float) data.satiation());
     }
 
     private static boolean hasActiveMetabolism(Player player) {
