@@ -4,15 +4,16 @@ import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import com.pixulse.infx.InfiniteX;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
@@ -57,7 +58,10 @@ public final class RecipeRules {
     private static final FileToIdConverter RULE_LISTER = FileToIdConverter.json("recipe_rules");
     private static final FileToIdConverter TAG_LISTER = FileToIdConverter.json("tags/recipe");
 
-    private static volatile LoadedRules active = LoadedRules.EMPTY;
+    private static volatile LoadedRules serverRules = LoadedRules.EMPTY;
+    private static volatile LoadedRules clientRules = LoadedRules.EMPTY;
+    private static final Set<Identifier> WARNED_MISSING_SERVER_RULES =
+            ConcurrentHashMap.newKeySet();
 
     private RecipeRules() {}
 
@@ -69,36 +73,68 @@ public final class RecipeRules {
 
     /** Applies rules on top of the inferred profile for a concrete grid. */
     public static CraftingProfile profile(RecipeHolder<CraftingRecipe> holder, CraftingInput input) {
-        return applyRule(holder.id(), InfxCraftingRules.profile(holder.value(), input));
+        CraftingProfile inferred = InfxCraftingRules.profile(holder.value(), input);
+        return applyServerRule(holder.id(), inferred);
     }
 
-    /** Applies rules on top of the inferred profile for JEI displays. */
+    /** Applies client-synchronized rules on top of the inferred profile for JEI displays. */
     public static CraftingProfile displayProfile(RecipeHolder<CraftingRecipe> holder) {
-        return applyRule(holder.id(), InfxCraftingRules.displayProfile(holder.value()));
+        return applyClientRule(holder.id(), InfxCraftingRules.displayProfile(holder.value()));
     }
 
-    /** The active rules in client-sync form; used by the network payload. */
-    public static List<RecipeRule.Resolved> resolvedRules() {
-        return active.rules();
+    /** Applies server-loaded rules for server audits and tests without a concrete grid. */
+    public static CraftingProfile serverDisplayProfile(RecipeHolder<CraftingRecipe> holder) {
+        CraftingProfile inferred = InfxCraftingRules.displayProfile(holder.value());
+        return applyServerRule(holder.id(), inferred);
     }
 
-    /** Whether an explicit rule targets the given recipe (used for match precedence). */
+    /** The server-authoritative rules in client-sync form; used by network payloads. */
+    public static List<RecipeRule.Resolved> serverResolvedRules() {
+        return serverRules.rules();
+    }
+
+    /** Whether a server rule targets the given recipe (used for match precedence). */
     public static Optional<RecipeRule.Resolved> ruleFor(ResourceKey<Recipe<?>> recipeKey) {
-        return active.find(recipeKey);
+        return serverRules.find(recipeKey);
     }
 
     /** Installs the rules received from the server on the client. */
     public static void setClientRules(List<RecipeRule.Resolved> rules) {
-        active = new LoadedRules(List.copyOf(rules));
+        clientRules = new LoadedRules(List.copyOf(rules));
     }
 
     /** Drops client rules when the client logs out. */
     public static void clearClientRules() {
-        active = LoadedRules.EMPTY;
+        clientRules = LoadedRules.EMPTY;
     }
 
-    private static CraftingProfile applyRule(ResourceKey<Recipe<?>> recipeKey, CraftingProfile inferred) {
-        Optional<RecipeRule.Resolved> rule = active.find(recipeKey);
+    static void installServerRules(LoadedRules rules) {
+        serverRules = Objects.requireNonNull(rules);
+        WARNED_MISSING_SERVER_RULES.clear();
+    }
+
+    static CraftingProfile applyServerRule(
+            ResourceKey<Recipe<?>> recipeKey, CraftingProfile inferred) {
+        LoadedRules rules = serverRules;
+        Optional<RecipeRule.Resolved> rule = rules.find(recipeKey);
+        if (rule.isEmpty()
+                && recipeKey.identifier().getNamespace().equals(InfiniteX.MOD_ID)
+                && WARNED_MISSING_SERVER_RULES.add(recipeKey.identifier())) {
+            InfiniteX.LOGGER.warn(
+                    "INFX crafting recipe {} has no explicit recipe_rules entry; using inferred tier {}",
+                    recipeKey.identifier(),
+                    inferred.requiredBench().serializedName());
+        }
+        return applyRule(rule, inferred);
+    }
+
+    static CraftingProfile applyClientRule(
+            ResourceKey<Recipe<?>> recipeKey, CraftingProfile inferred) {
+        return applyRule(clientRules.find(recipeKey), inferred);
+    }
+
+    private static CraftingProfile applyRule(
+            Optional<RecipeRule.Resolved> rule, CraftingProfile inferred) {
         if (rule.isEmpty()) {
             return inferred;
         }
@@ -170,7 +206,7 @@ public final class RecipeRules {
         stack.pop();
     }
 
-    /** The merged, tag-resolved rule set used for lookups on both sides. */
+    /** One immutable, merged, tag-resolved rule set. */
     record LoadedRules(List<RecipeRule.Resolved> rules) {
         static final LoadedRules EMPTY = new LoadedRules(List.of());
 
@@ -203,7 +239,7 @@ public final class RecipeRules {
 
         @Override
         protected void apply(LoadedRules data, ResourceManager manager, ProfilerFiller profiler) {
-            active = data;
+            installServerRules(data);
             InfiniteX.LOGGER.info("Loaded {} recipe rules", data.rules().size());
         }
     }

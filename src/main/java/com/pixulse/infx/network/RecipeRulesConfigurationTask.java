@@ -16,7 +16,7 @@ final class RecipeRulesConfigurationTask implements ICustomConfigurationTask {
 
     @Override
     public void run(Consumer<CustomPacketPayload> sender) {
-        sender.accept(new Network.RecipeRulesPayload(RecipeRules.resolvedRules()));
+        sender.accept(new Network.RecipeRulesPayload(RecipeRules.serverResolvedRules()));
     }
 
     @Override

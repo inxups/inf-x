@@ -111,7 +111,7 @@ public final class Network {
     /** Sends the server-authoritative crafting rules during a datapack reload. */
     public static void sendRecipeRules(ServerPlayer player) {
         player.connection.send(new ClientboundCustomPayloadPacket(
-                new RecipeRulesPayload(RecipeRules.resolvedRules())));
+                new RecipeRulesPayload(RecipeRules.serverResolvedRules())));
     }
 
     // Configuration tasks live on the server: the client applies the rules and

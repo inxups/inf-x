@@ -103,7 +103,6 @@ class NetworkTest {
 
         assertEquals(Network.RecipeRulesAckPayload.INSTANCE, context.repliedPayload);
         assertNull(context.finishedTask);
-        assertEquals(List.of(rule), RecipeRules.resolvedRules());
         RecipeRules.clearClientRules();
     }
 

@@ -14,11 +14,18 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagEntry;
 import net.minecraft.tags.TagFile;
 import net.minecraft.world.item.crafting.Recipe;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 class RecipeRuleTest {
     private static final Identifier COPPER_PICKAXE = Identifier.fromNamespaceAndPath("infx", "copper_pickaxe");
     private static final Identifier IRON_SWORD = Identifier.fromNamespaceAndPath("infx", "iron_sword");
+
+    @AfterEach
+    void clearInstalledRules() {
+        RecipeRules.installServerRules(RecipeRules.LoadedRules.EMPTY);
+        RecipeRules.clearClientRules();
+    }
 
     @Test
     void parsesSingleTargetRule() {
@@ -100,6 +107,30 @@ class RecipeRuleTest {
     }
 
     @Test
+    void clientRuleLifecycleCannotOverwriteServerRules() {
+        Identifier recipeId = Identifier.fromNamespaceAndPath("infx", "test_flint_workbench");
+        ResourceKey<Recipe<?>> recipeKey = key(recipeId);
+        RecipeRule.Resolved serverRule = resolvedRule(recipeId, BenchTier.HAND);
+        RecipeRule.Resolved clientRule = resolvedRule(recipeId, BenchTier.COPPER);
+        CraftingProfile inferred = new CraftingProfile(BenchTier.FLINT, 325.0F, false);
+
+        RecipeRules.installServerRules(new RecipeRules.LoadedRules(List.of(serverRule)));
+
+        assertEquals(BenchTier.HAND, RecipeRules.applyServerRule(recipeKey, inferred).requiredBench());
+        assertEquals(BenchTier.FLINT, RecipeRules.applyClientRule(recipeKey, inferred).requiredBench());
+
+        RecipeRules.setClientRules(List.of(clientRule));
+        assertEquals(BenchTier.COPPER, RecipeRules.applyClientRule(recipeKey, inferred).requiredBench());
+        assertEquals(BenchTier.HAND, RecipeRules.applyServerRule(recipeKey, inferred).requiredBench());
+        assertEquals(List.of(serverRule), RecipeRules.serverResolvedRules());
+
+        RecipeRules.clearClientRules();
+        assertEquals(BenchTier.FLINT, RecipeRules.applyClientRule(recipeKey, inferred).requiredBench());
+        assertEquals(BenchTier.HAND, RecipeRules.applyServerRule(recipeKey, inferred).requiredBench());
+        assertEquals(List.of(serverRule), RecipeRules.serverResolvedRules());
+    }
+
+    @Test
     void difficultyOnlyAndTierOnlyRulesAreAccepted() {
         assertTrue(parse("{\"target\": \"infx:a\", \"difficulty\": 25.0}").workbenchTier().isEmpty());
         assertTrue(parse("{\"target\": \"infx:a\", \"workbench_tier\": \"iron\"}").difficulty().isEmpty());
@@ -142,6 +173,15 @@ class RecipeRuleTest {
                 parsed,
                 Optional.of(difficulty),
                 Optional.ofNullable(tier));
+    }
+
+    private static RecipeRule.Resolved resolvedRule(Identifier recipeId, BenchTier tier) {
+        return new RecipeRule.Resolved(
+                recipeId,
+                List.of(recipeId),
+                List.of(),
+                Optional.of(270.0F),
+                Optional.of(tier));
     }
 
     private static ResourceKey<Recipe<?>> key(Identifier id) {
