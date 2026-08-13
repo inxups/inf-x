@@ -562,7 +562,10 @@ class GeneratedResourceTest {
         try (Stream<Path> files = Files.walk(recipes)) {
             for (Path recipePath : files.filter(path -> path.toString().endsWith(".json")).toList()) {
                 JsonObject recipe = json(recipePath);
-                if (!recipe.get("type").getAsString().startsWith("minecraft:crafting_")) {
+                String type = recipe.get("type").getAsString();
+                if (!type.startsWith("minecraft:crafting_")
+                        && !type.equals("infx:shapeless_returning")
+                        && !type.equals("infx:shaped_returning")) {
                     continue;
                 }
                 String relative = recipes.relativize(recipePath).toString().replace('\\', '/');

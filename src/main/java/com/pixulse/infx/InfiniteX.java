@@ -32,6 +32,7 @@ import com.pixulse.infx.registry.InfXSounds;
 import com.pixulse.infx.registry.InfXMenus;
 import com.pixulse.infx.registry.InfXMobEffects;
 import com.pixulse.infx.registry.InfXParticles;
+import com.pixulse.infx.registry.InfXRecipeSerializers;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -69,6 +70,7 @@ public final class InfiniteX {
         InfXLootModifiers.register(modBus);
         InfXMenus.register(modBus);
         InfXMobEffects.register(modBus);
+        InfXRecipeSerializers.register(modBus);
         InfXCreativeTabs.register(modBus);
         modBus.addListener(CauldronEvents::registerCauldronInteractions);
         modBus.addListener(ItemEvents::modifyDefaultComponents);
