@@ -181,6 +181,8 @@ public final class ModGameTests {
 
     private static final ResourceKey<Consumer<GameTestHelper>> BENCH_HIERARCHY =
             functionKey("bench_hierarchy");
+    private static final ResourceKey<Consumer<GameTestHelper>> FLINT_WORKBENCH_HAND_CRAFTING =
+            functionKey("flint_workbench_hand_crafting");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_CRAFTING =
             functionKey("timed_crafting");
     private static final ResourceKey<Consumer<GameTestHelper>> COIN_CRAFTING =
@@ -232,6 +234,8 @@ public final class ModGameTests {
 
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
+        TEST_FUNCTIONS.register(
+                "flint_workbench_hand_crafting", () -> ModGameTests::flintWorkbenchHandCrafting);
         TEST_FUNCTIONS.register("timed_crafting", () -> ModGameTests::timedCrafting);
         TEST_FUNCTIONS.register("coin_crafting", () -> ModGameTests::coinCrafting);
         TEST_FUNCTIONS.register("leather_dyeing", () -> ModGameTests::leatherDyeing);
@@ -270,6 +274,7 @@ public final class ModGameTests {
         Holder<TestEnvironmentDefinition<?>> environment = event.registerEnvironment(
                 InfiniteX.id("m1"), new TestEnvironmentDefinition.AllOf());
         registerTest(event, BENCH_HIERARCHY, environment, 80);
+        registerTest(event, FLINT_WORKBENCH_HAND_CRAFTING, environment, 300);
         registerTest(event, TIMED_CRAFTING, environment, 200);
         registerTest(event, COIN_CRAFTING, environment, 200);
         registerTest(event, LEATHER_DYEING, environment, 80);
@@ -458,6 +463,63 @@ public final class ModGameTests {
 
         removePlayer(player);
         helper.succeed();
+    }
+
+    private static void flintWorkbenchHandCrafting(GameTestHelper helper) {
+        ServerPlayer player = createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        InfXBlocks.StrippedLogWorkbenchSet workbench = InfXBlocks.STRIPPED_LOG_WORKBENCHES.getFirst();
+        String recipeName = "stripped_" + workbench.wood() + "_flint_workbench";
+        RecipeHolder<?> untypedHolder = helper.getLevel()
+                .recipeAccess()
+                .recipeMap()
+                .byKey(recipeKey("infx", recipeName));
+        helper.assertTrue(untypedHolder != null, recipeName + " recipe must be loaded");
+        RecipeHolder<CraftingRecipe> holder = (RecipeHolder<CraftingRecipe>) untypedHolder;
+        CraftingProfile inferred = InfxCraftingRules.displayProfile(holder.value());
+        CraftingProfile ruled = RecipeRules.serverDisplayProfile(holder);
+        helper.assertTrue(
+                inferred.requiredBench() == BenchTier.FLINT,
+                "the flint workbench fallback must infer FLINT from its output name");
+        helper.assertTrue(
+                ruled.requiredBench() == BenchTier.HAND,
+                "the explicit recipe rule must keep the flint workbench craftable by hand");
+        helper.assertTrue(
+                Math.abs(ruled.difficulty() - 270.0F) < 0.001F,
+                "the flint workbench rule must retain difficulty 270");
+
+        TimedCraftingMenu hand = (TimedCraftingMenu) player.inventoryMenu;
+        player.containerMenu = player.inventoryMenu;
+        CraftingContainer grid = hand.infx$craftingContainer();
+        grid.setItem(0, Items.FLINT.getDefaultInstance());
+        grid.setItem(1, InfXItems.SINEW.get().getDefaultInstance());
+        grid.setItem(2, Items.STICK.getDefaultInstance());
+        grid.setItem(3, workbench.strippedLog().asItem().getDefaultInstance());
+        helper.assertTrue(
+                TimedCraftingEngine.refreshResult(hand, player, true),
+                "the 2x2 inventory grid must resolve the flint workbench recipe");
+        assertResult(
+                helper,
+                hand,
+                workbench.flint().get().asItem(),
+                "flint workbench hand-crafting preview");
+
+        player.inventoryMenu.clicked(0, 0, ContainerInput.PICKUP, player);
+        helper.assertTrue(hand.infx$craftingState().isRunning(), "the flint workbench craft must start its timer");
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(
+                        countItem(player.getInventory(), workbench.flint().get().asItem()) == 1,
+                        "the flint workbench hand craft must complete"))
+                .thenExecute(() -> {
+                    helper.assertTrue(
+                            grid.getItems().stream().allMatch(ItemStack::isEmpty),
+                            "the completed flint workbench craft must consume all four inputs");
+                    helper.assertFalse(
+                            hand.infx$craftingState().isRunning(),
+                            "the exhausted flint workbench recipe must stop repeating");
+                    removePlayer(player);
+                })
+                .thenSucceed();
     }
 
     private static void timedCrafting(GameTestHelper helper) {
@@ -1068,7 +1130,7 @@ public final class ModGameTests {
                 "vanilla crafting recipes must be restored for inference");
         for (var holder : loadedCraftingRecipes) {
             try {
-                CraftingProfile profile = RecipeRules.displayProfile(holder);
+                CraftingProfile profile = RecipeRules.serverDisplayProfile(holder);
                 helper.assertTrue(
                         Float.isFinite(profile.difficulty()) && profile.difficulty() > 0.0F,
                         holder.id().identifier() + " must have a finite positive difficulty");
@@ -1083,7 +1145,7 @@ public final class ModGameTests {
         // Explicit recipe rules override the inferred values for INFX recipes.
         var copperPickaxe = recipeMap.byKey(recipeKey("infx", "copper_pickaxe"));
         helper.assertTrue(copperPickaxe != null, "the INFX copper pickaxe recipe must be loaded");
-        CraftingProfile ruleProfile = RecipeRules.displayProfile(
+        CraftingProfile ruleProfile = RecipeRules.serverDisplayProfile(
                 (RecipeHolder<CraftingRecipe>) copperPickaxe);
         helper.assertTrue(ruleProfile.requiredBench() == BenchTier.COPPER,
                 "recipe rules must raise the copper pickaxe to the copper bench");
@@ -1093,7 +1155,7 @@ public final class ModGameTests {
         var leatherToSinew = recipeMap.byKey(recipeKey("infx", "leather_to_sinew"));
         helper.assertTrue(leatherToSinew != null, "the INFX sinew recipe must be loaded");
         helper.assertTrue(
-                RecipeRules.displayProfile((RecipeHolder<CraftingRecipe>) leatherToSinew).requiredBench()
+                RecipeRules.serverDisplayProfile((RecipeHolder<CraftingRecipe>) leatherToSinew).requiredBench()
                         == BenchTier.HAND,
                 "recipe rules must keep hand-tier recipes on the hand tier");
 

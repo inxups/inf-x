@@ -555,6 +555,58 @@ class GeneratedResourceTest {
     }
 
     @Test
+    void everyInfxCraftingRecipeHasAnExplicitRuleAndBootstrapWorkbenchesStayHandTier() throws Exception {
+        Path recipes = GENERATED.resolve("data/infx/recipe");
+        Path rules = GENERATED.resolve("data/infx/recipe_rules");
+        Set<String> craftingRecipes = new HashSet<>();
+        try (Stream<Path> files = Files.walk(recipes)) {
+            for (Path recipePath : files.filter(path -> path.toString().endsWith(".json")).toList()) {
+                JsonObject recipe = json(recipePath);
+                if (!recipe.get("type").getAsString().startsWith("minecraft:crafting_")) {
+                    continue;
+                }
+                String relative = recipes.relativize(recipePath).toString().replace('\\', '/');
+                String recipeName = relative.substring(0, relative.length() - ".json".length());
+                craftingRecipes.add(recipeName);
+                Path rulePath = rules.resolve(relative);
+                assertTrue(Files.isRegularFile(rulePath), "missing explicit rule for infx:" + recipeName);
+                JsonElement target = json(rulePath).get("target");
+                String expectedTarget = "infx:" + recipeName;
+                assertTrue(
+                        target.isJsonPrimitive()
+                                ? expectedTarget.equals(target.getAsString())
+                                : target.getAsJsonArray().asList().stream()
+                                        .map(JsonElement::getAsString)
+                                        .anyMatch(expectedTarget::equals),
+                        rulePath + " must target " + expectedTarget);
+            }
+        }
+        assertEquals(381, craftingRecipes.size(), "the complete built-in INFX crafting set must be audited");
+        assertEquals(11, InfXBlocks.STRIPPED_LOG_WORKBENCHES.size(), "all stripped-log workbench woods must be audited");
+
+        for (InfXBlocks.StrippedLogWorkbenchSet workbench : InfXBlocks.STRIPPED_LOG_WORKBENCHES) {
+            for (String material : List.of("flint", "obsidian")) {
+                String name = "stripped_" + workbench.wood() + "_" + material + "_workbench";
+                JsonObject recipe = json(recipes.resolve(name + ".json"));
+                JsonObject rule = json(rules.resolve(name + ".json"));
+                assertAll(
+                        name,
+                        () -> assertEquals("minecraft:crafting_shaped", recipe.get("type").getAsString()),
+                        () -> assertEquals(
+                                List.of(material.equals("flint") ? "FB" : "OB", "SL"),
+                                recipe.getAsJsonArray("pattern")
+                                        .asList()
+                                        .stream()
+                                        .map(JsonElement::getAsString)
+                                        .toList()),
+                        () -> assertEquals("hand", rule.get("workbench_tier").getAsString()),
+                        () -> assertEquals(material.equals("flint") ? 270.0F : 410.0F,
+                                rule.get("difficulty").getAsFloat()));
+            }
+        }
+    }
+
+    @Test
     void copperToIronProgressionDataIsComplete() {
         for (String recipe : List.of("flint_shovel", "iron_pickaxe")) {
             assertTrue(
