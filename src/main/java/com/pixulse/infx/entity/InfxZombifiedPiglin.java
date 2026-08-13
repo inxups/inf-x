@@ -9,7 +9,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -131,21 +130,6 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
         ItemStack weapon = InfXItems.catalog().equipment(InfxMaterial.GOLD, type).holder().toStack();
         weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
         setItemSlot(EquipmentSlot.MAINHAND, weapon);
-        // dropCustomDeathLoot guarantees the weapon at full durability; keep the vanilla
-        // 8.5% equipment roll from firing first and dropping a damaged copy instead.
-        setDropChance(EquipmentSlot.MAINHAND, 0.0F);
-    }
-
-    @Override
-    protected void dropCustomDeathLoot(@NonNull ServerLevel level, @NonNull DamageSource source, boolean killedByPlayer) {
-        super.dropCustomDeathLoot(level, source, killedByPlayer);
-        ItemStack weapon = getMainHandItem();
-        if (weapon.isEmpty()) {
-            return;
-        }
-        weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
-        spawnAtLocation(level, weapon);
-        setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
     }
 
     @Override

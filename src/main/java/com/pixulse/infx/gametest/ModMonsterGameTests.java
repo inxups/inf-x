@@ -1680,7 +1680,7 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
-    /** Pig zombies and wither skeletons always drop their worn poor-quality weapon at full durability. */
+    /** Pig zombies and wither skeletons keep the vanilla 8.5% equipment roll: never guaranteed, never full durability. */
     private static void weaponDrops(GameTestHelper helper) {
         ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
 
@@ -1690,19 +1690,24 @@ public final class ModMonsterGameTests {
                 piglin.getMainHandItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "pig zombies must carry a poor-quality weapon");
         helper.assertTrue(
-                piglin.getDropChances().byEquipment(EquipmentSlot.MAINHAND) == 0.0F,
-                "pig zombies must never trigger the vanilla 8.5% equipment drop");
-        piglin.setLastHurtByPlayer(player, 100);
+                piglin.getDropChances().byEquipment(EquipmentSlot.MAINHAND) == 0.085F,
+                "pig zombies must keep the vanilla 8.5% equipment drop chance");
         piglin.kill(helper.getLevel());
         List<ItemEntity> piglinDrops = dropsNear(helper, piglin.blockPosition(), ModMonsterGameTests::isPiglinWeapon);
-        helper.assertTrue(piglinDrops.size() == 1, "pig zombies must always drop their golden weapon");
+        helper.assertTrue(piglinDrops.isEmpty(), "pig zombies must not drop their weapon unless killed by a player");
+
+        Mob piglinHit = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get());
+        piglinHit.setDropChance(EquipmentSlot.MAINHAND, 1.0F);
+        piglinHit.setLastHurtByPlayer(player, 100);
+        piglinHit.kill(helper.getLevel());
+        List<ItemEntity> hitPiglinDrops = dropsNear(helper, piglinHit.blockPosition(), ModMonsterGameTests::isPiglinWeapon);
+        helper.assertTrue(hitPiglinDrops.size() == 1, "pig zombies must drop their golden weapon when the equipment roll succeeds");
         helper.assertTrue(
-                piglinDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
+                hitPiglinDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "the dropped piglin weapon must be poor quality");
         helper.assertTrue(
-                piglinDrops.getFirst().getItem().getDamageValue() == 0,
-                "the dropped piglin weapon must be at full durability");
-        piglinDrops.forEach(ItemEntity::discard);
+                hitPiglinDrops.getFirst().getItem().getDamageValue() > 0,
+                "the dropped piglin weapon must never be at full durability");
 
         Mob witherSkeleton = spawnWithFinalize(helper, EntityType.WITHER_SKELETON);
         helper.assertTrue(
@@ -1712,19 +1717,24 @@ public final class ModMonsterGameTests {
                 witherSkeleton.getMainHandItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "wither skeletons must carry a poor-quality sword");
         helper.assertTrue(
-                witherSkeleton.getDropChances().byEquipment(EquipmentSlot.MAINHAND) == 0.0F,
-                "wither skeletons must never trigger the vanilla 8.5% equipment drop");
-        witherSkeleton.setLastHurtByPlayer(player, 100);
+                witherSkeleton.getDropChances().byEquipment(EquipmentSlot.MAINHAND) == 0.085F,
+                "wither skeletons must keep the vanilla 8.5% equipment drop chance");
         witherSkeleton.kill(helper.getLevel());
         List<ItemEntity> skeletonDrops = dropsNear(helper, witherSkeleton.blockPosition(), stack -> stack.is(InfXItems.IRON_SWORD.get()));
-        helper.assertTrue(skeletonDrops.size() == 1, "wither skeletons must always drop their InfX iron sword");
+        helper.assertTrue(skeletonDrops.isEmpty(), "wither skeletons must not drop their sword unless killed by a player");
+
+        Mob witherSkeletonHit = spawnWithFinalize(helper, EntityType.WITHER_SKELETON);
+        witherSkeletonHit.setDropChance(EquipmentSlot.MAINHAND, 1.0F);
+        witherSkeletonHit.setLastHurtByPlayer(player, 100);
+        witherSkeletonHit.kill(helper.getLevel());
+        List<ItemEntity> hitSkeletonDrops = dropsNear(helper, witherSkeletonHit.blockPosition(), stack -> stack.is(InfXItems.IRON_SWORD.get()));
+        helper.assertTrue(hitSkeletonDrops.size() == 1, "wither skeletons must drop their InfX iron sword when the equipment roll succeeds");
         helper.assertTrue(
-                skeletonDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
+                hitSkeletonDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "the dropped wither-skeleton sword must be poor quality");
         helper.assertTrue(
-                skeletonDrops.getFirst().getItem().getDamageValue() == 0,
-                "the dropped wither-skeleton sword must be at full durability");
-        skeletonDrops.forEach(ItemEntity::discard);
+                hitSkeletonDrops.getFirst().getItem().getDamageValue() > 0,
+                "the dropped wither-skeleton sword must never be at full durability");
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }

@@ -17,9 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * InfX wither skeletons carry their InfX iron sword as a worn (poor quality) weapon.
- * The death drop itself is handled by {@link com.pixulse.infx.event.MobDropsEvents}
- * through the public NeoForge drop event; 26.1.2 removed the vanilla equipment-drop
- * mechanic entirely.
+ * The sword follows the vanilla 26.1.2 equipment-drop rule: an 8.5% chance on a
+ * player kill, dropped with heavy random damage.
  */
 @Mixin(WitherSkeleton.class)
 public abstract class WitherSkeletonDropsMixin {
