@@ -29,14 +29,10 @@ import org.jspecify.annotations.Nullable;
 public final class MetalAnvilMenu extends ItemCombinerMenu {
     public static final int MAX_NAME_LENGTH = 50;
     private static final ItemCombinerMenuSlotDefinition SLOTS = ItemCombinerMenuSlotDefinition.create()
-            .withSlot(0, 27, 47, MetalAnvilMenu::acceptsInput)
+            .withSlot(0, 27, 47, RepairPlan::supportsType)
             .withSlot(1, 76, 47, MetalAnvilMenu::acceptsAddition)
             .withResultSlot(2, 134, 47)
             .build();
-
-    private static boolean acceptsInput(ItemStack stack) {
-        return RepairPlan.supportsType(stack) || stack.is(Items.ENCHANTED_BOOK);
-    }
 
     private static boolean acceptsAddition(ItemStack stack) {
         return RepairPlan.isRepairMaterial(stack.getItem()) || stack.is(Items.ENCHANTED_BOOK);

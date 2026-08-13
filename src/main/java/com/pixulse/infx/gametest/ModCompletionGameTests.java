@@ -956,21 +956,29 @@ public final class ModCompletionGameTests {
         helper.assertTrue(menu.getSlot(0).getItem().isEmpty(), "enchanting consumes the input stack");
         helper.assertTrue(menu.getSlot(1).getItem().isEmpty(), "enchanting consumes the whole book");
 
-        menu.getSlot(0).set(enchantedBook(efficiency, 1));
+        ItemStack leveledPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        leveledPickaxe.enchant(efficiency, 1);
+        menu.getSlot(0).set(leveledPickaxe);
         menu.getSlot(1).set(enchantedBook(efficiency, 1));
-        ItemStack merged = menu.getSlot(2).getItem();
-        helper.assertFalse(merged.isEmpty(), "book plus book must produce a result");
-        helper.assertTrue(merged.is(Items.ENCHANTED_BOOK), "book merging keeps an enchanted book");
+        ItemStack leveled = menu.getSlot(2).getItem();
         helper.assertTrue(
-                EnchantmentHelper.getEnchantmentsForCrafting(merged).getLevel(efficiency) == 2,
+                EnchantmentHelper.getEnchantmentsForCrafting(leveled).getLevel(efficiency) == 2,
                 "the same enchantment on both sides levels up");
-        menu.getSlot(2).onTake(player, merged);
+        menu.getSlot(2).onTake(player, leveled);
 
-        menu.getSlot(0).set(enchantedBook(fortune, 1));
+        ItemStack fortifiedPickaxe = InfXItems.IRON_PICKAXE.toStack();
+        fortifiedPickaxe.enchant(fortune, 1);
+        menu.getSlot(0).set(fortifiedPickaxe);
         menu.getSlot(1).set(enchantedBook(silkTouch, 1));
         helper.assertTrue(
                 menu.getSlot(2).getItem().isEmpty(),
                 "incompatible enchantments refuse to combine");
+
+        menu.getSlot(0).set(enchantedBook(efficiency, 1));
+        menu.getSlot(1).set(enchantedBook(efficiency, 1));
+        helper.assertTrue(
+                menu.getSlot(2).getItem().isEmpty(),
+                "enchanted books cannot be combined with each other");
 
         ItemStack namedPickaxe = InfXItems.IRON_PICKAXE.toStack();
         menu.getSlot(0).set(namedPickaxe);

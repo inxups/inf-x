@@ -13,15 +13,17 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
  *
  * <p>The merge follows the vanilla anvil rules: the same enchantment on both sides adds one
  * level (capped at the enchantment maximum), different levels keep the higher one, and
- * enchantments that do not fit the target or conflict with existing ones are skipped. INFX
+ * enchantments that do not fit the target or conflict with existing ones are skipped. Only
+ * INFX equipment may receive enchantments; books can never be combined onto each other. INFX
  * charges no experience: the only cost is anvil wear from the halved book fee.
  */
 public record EnchantPlan(ItemStack output, int wear) {
     public static final EnchantPlan EMPTY = new EnchantPlan(ItemStack.EMPTY, 0);
 
-    /** Merges the enchantments of an enchanted book onto a single target item or book. */
+    /** Merges the enchantments of an enchanted book onto a single piece of INFX equipment. */
     public static EnchantPlan create(ItemStack target, ItemStack book) {
         if (target.isEmpty() || book.isEmpty() || !book.is(Items.ENCHANTED_BOOK)
+                || !RepairPlan.supportsType(target)
                 || target.getCount() != 1 || book.getCount() != 1) {
             return EMPTY;
         }
