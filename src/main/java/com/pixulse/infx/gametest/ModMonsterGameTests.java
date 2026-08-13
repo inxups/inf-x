@@ -7,6 +7,7 @@ import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.*;
+import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.item.EquipmentType;
@@ -1690,6 +1691,9 @@ public final class ModMonsterGameTests {
                 piglin.getMainHandItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "pig zombies must carry a poor-quality weapon");
         helper.assertTrue(
+                piglin.getMainHandItem().getMaxDamage() == poorDurability(piglin.getMainHandItem()),
+                "pig zombies must carry a weapon with the reduced poor-quality durability cap");
+        helper.assertTrue(
                 piglin.getDropChances().byEquipment(EquipmentSlot.MAINHAND) == 0.085F,
                 "pig zombies must keep the vanilla 8.5% equipment drop chance");
         piglin.kill(helper.getLevel());
@@ -1706,6 +1710,9 @@ public final class ModMonsterGameTests {
                 hitPiglinDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "the dropped piglin weapon must be poor quality");
         helper.assertTrue(
+                hitPiglinDrops.getFirst().getItem().getMaxDamage() == poorDurability(hitPiglinDrops.getFirst().getItem()),
+                "the dropped piglin weapon must keep the reduced poor-quality durability cap");
+        helper.assertTrue(
                 hitPiglinDrops.getFirst().getItem().getDamageValue() > 0,
                 "the dropped piglin weapon must never be at full durability");
 
@@ -1716,6 +1723,9 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 witherSkeleton.getMainHandItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "wither skeletons must carry a poor-quality sword");
+        helper.assertTrue(
+                witherSkeleton.getMainHandItem().getMaxDamage() == poorDurability(witherSkeleton.getMainHandItem()),
+                "wither skeletons must carry a sword with the reduced poor-quality durability cap");
         helper.assertTrue(
                 witherSkeleton.getDropChances().byEquipment(EquipmentSlot.MAINHAND) == 0.085F,
                 "wither skeletons must keep the vanilla 8.5% equipment drop chance");
@@ -1733,10 +1743,19 @@ public final class ModMonsterGameTests {
                 hitSkeletonDrops.getFirst().getItem().get(InfXDataComponents.QUALITY.get()) == Quality.POOR,
                 "the dropped wither-skeleton sword must be poor quality");
         helper.assertTrue(
+                hitSkeletonDrops.getFirst().getItem().getMaxDamage() == poorDurability(hitSkeletonDrops.getFirst().getItem()),
+                "the dropped wither-skeleton sword must keep the reduced poor-quality durability cap");
+        helper.assertTrue(
                 hitSkeletonDrops.getFirst().getItem().getDamageValue() > 0,
                 "the dropped wither-skeleton sword must never be at full durability");
         ModCompletionGameTests.removePlayer(player);
         helper.succeed();
+    }
+
+    /** The 0.75x durability cap a poor-quality weapon of this stack must carry. */
+    private static int poorDurability(ItemStack stack) {
+        EquipmentKey key = InfXItems.catalog().equipment(stack).key();
+        return Math.max(1, Math.round(key.durability() * Quality.POOR.durabilityMultiplier()));
     }
 
     private static boolean isPiglinWeapon(ItemStack stack) {

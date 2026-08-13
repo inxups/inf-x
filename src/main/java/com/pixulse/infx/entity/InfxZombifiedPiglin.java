@@ -1,9 +1,9 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
-import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -128,7 +128,7 @@ public final class InfxZombifiedPiglin extends ZombifiedPiglin implements InfxMo
                 ? EquipmentType.SWORD
                 : roll == 2 ? EquipmentType.AXE : EquipmentType.PICKAXE;
         ItemStack weapon = InfXItems.catalog().equipment(InfxMaterial.GOLD, type).holder().toStack();
-        weapon.set(InfXDataComponents.QUALITY.get(), Quality.POOR);
+        QualitySystem.applySelectedQuality(weapon, QualitySystem.toCode(Quality.POOR));
         setItemSlot(EquipmentSlot.MAINHAND, weapon);
     }
 
