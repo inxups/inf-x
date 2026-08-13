@@ -1,6 +1,8 @@
 package com.pixulse.infx.datagen;
 
 import java.util.concurrent.CompletableFuture;
+
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Items;
@@ -20,5 +22,9 @@ public final class ModDataMapProvider extends DataMapProvider {
         builder(NeoForgeDataMaps.FURNACE_FUELS).add(Items.SOUL_TORCH.builtInRegistryHolder(), new FurnaceFuel(800), false);
         builder(NeoForgeDataMaps.FURNACE_FUELS).add(Items.REDSTONE_TORCH.builtInRegistryHolder(), new FurnaceFuel(800), false);
         builder(NeoForgeDataMaps.FURNACE_FUELS).add(Items.COPPER_TORCH.builtInRegistryHolder(), new FurnaceFuel(800), false);
+        builder(NeoForgeDataMaps.FURNACE_FUELS).add(Items.LEAF_LITTER.builtInRegistryHolder(), new FurnaceFuel(20), false);
+        builder(NeoForgeDataMaps.FURNACE_FUELS).add(InfXItems.catalog().raw("manure").holder(), new FurnaceFuel(60), false);
+
+
     }
 }
