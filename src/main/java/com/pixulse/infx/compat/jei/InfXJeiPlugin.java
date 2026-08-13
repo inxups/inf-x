@@ -20,6 +20,8 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiClickableArea;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
+import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.recipe.types.IRecipeType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
@@ -30,6 +32,7 @@ import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -131,6 +134,7 @@ public final class InfXJeiPlugin implements IModPlugin {
                 }
             }
         }
+        addHandCraftingTransferHandler(registration);
     }
 
     @Override
@@ -162,6 +166,27 @@ public final class InfXJeiPlugin implements IModPlugin {
                 9,
                 10,
                 36);
+    }
+
+    /**
+     * Hand-tier recipes are crafted in the player's own 2x2 inventory grid.
+     * JEI's vanilla player handler only covers its CRAFTING type, so INFX
+     * registers its own equivalent for the {@code infx:hand_crafting} type;
+     * otherwise the transfer button silently fails for the inventory screen.
+     */
+    private static void addHandCraftingTransferHandler(IRecipeTransferRegistration registration) {
+        IRecipeTransferHandlerHelper helper = registration.getTransferHelper();
+        IRecipeTransferHandler<InventoryMenu, RecipeHolder<CraftingRecipe>> delegate =
+                helper.createUnregisteredRecipeTransferHandler(helper.createBasicRecipeTransferInfo(
+                        InventoryMenu.class,
+                        null,
+                        TimedCraftingJeiTypes.HAND,
+                        1,
+                        4,
+                        9,
+                        36));
+        registration.addRecipeTransferHandler(
+                new PlayerGridRecipeTransferHandler(helper, delegate), TimedCraftingJeiTypes.HAND);
     }
 
     static void registerRuneStoneSubtypes(ISubtypeRegistration registration, Item... runeStones) {
