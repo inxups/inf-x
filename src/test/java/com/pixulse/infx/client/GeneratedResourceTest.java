@@ -769,6 +769,14 @@ class GeneratedResourceTest {
         expected.addAll(expectedDisabled);
         expected.addAll(expectedRecipeOverrides);
         expected.add("baked_potato");
+        expected.addAll(Set.of(
+                "cooked_porkchop",
+                "cooked_beef",
+                "cooked_mutton",
+                "cooked_chicken",
+                "cooked_salmon",
+                "cooked_cod",
+                "cooked_rabbit"));
         Path staticRecipes = STATIC.resolve("data/minecraft/recipe");
         if (Files.exists(staticRecipes)) {
             try (Stream<Path> paths = Files.walk(staticRecipes)) {

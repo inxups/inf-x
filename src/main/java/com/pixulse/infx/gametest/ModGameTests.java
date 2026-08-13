@@ -86,6 +86,7 @@ import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeMap;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
@@ -1176,7 +1177,25 @@ public final class ModGameTests {
         helper.assertTrue(
                 ((SmeltingRecipe) bakedPotato.value()).experience() == 0.0F,
                 "baking potatoes must not grant furnace experience");
+
+        // InfX: each meat grants its fixed per-item furnace experience instead of
+        // the vanilla 0.35; the seven vanilla smelting recipes are overridden.
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_porkchop", 3.0F);
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_beef", 4.0F);
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_mutton", 2.0F);
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_chicken", 3.0F);
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_salmon", 4.0F);
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_cod", 3.0F);
+        assertFurnaceMeatExperience(helper, recipeMap, "cooked_rabbit", 3.0F);
         helper.succeed();
+    }
+
+    private static void assertFurnaceMeatExperience(GameTestHelper helper, RecipeMap recipeMap, String path, float expected) {
+        var meat = recipeMap.byKey(recipeKey("minecraft", path));
+        helper.assertTrue(meat != null, "the " + path + " smelting recipe must be loaded");
+        helper.assertTrue(
+                Math.abs(((SmeltingRecipe) meat.value()).experience() - expected) < 0.001F,
+                path + " must grant " + expected + " experience per item");
     }
 
     /**

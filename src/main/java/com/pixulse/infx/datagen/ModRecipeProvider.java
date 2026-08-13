@@ -380,6 +380,17 @@ final class ModRecipeProvider extends RecipeProvider {
                         200)
                 .unlockedBy("has_potato", has(Items.POTATO))
                 .save(output, vanillaRecipeKey("baked_potato"));
+        // InfX: cooking meat in a furnace grants the fixed per-item INFX experience
+        // reward instead of the vanilla 0.35; override the seven vanilla smelting
+        // recipes with the same inputs and time. Other meats not listed here grant
+        // no furnace experience.
+        addInfXVanillaMeatSmeltingOverride("cooked_porkchop", Items.PORKCHOP, Items.COOKED_PORKCHOP, 3.0F);
+        addInfXVanillaMeatSmeltingOverride("cooked_beef", Items.BEEF, Items.COOKED_BEEF, 4.0F);
+        addInfXVanillaMeatSmeltingOverride("cooked_mutton", Items.MUTTON, Items.COOKED_MUTTON, 2.0F);
+        addInfXVanillaMeatSmeltingOverride("cooked_chicken", Items.CHICKEN, Items.COOKED_CHICKEN, 3.0F);
+        addInfXVanillaMeatSmeltingOverride("cooked_salmon", Items.SALMON, Items.COOKED_SALMON, 4.0F);
+        addInfXVanillaMeatSmeltingOverride("cooked_cod", Items.COD, Items.COOKED_COD, 3.0F);
+        addInfXVanillaMeatSmeltingOverride("cooked_rabbit", Items.RABBIT, Items.COOKED_RABBIT, 3.0F);
         addShaped(
                 "emerald_enchanting_table",
                 BenchTier.IRON,
@@ -1800,6 +1811,22 @@ final class ModRecipeProvider extends RecipeProvider {
                 new ItemStackTemplate(result.asItem(), count),
                 ingredients);
         output.accept(vanillaRecipeKey(name), recipe, null);
+    }
+
+    /**
+     * Replaces a vanilla meat smelting recipe under its original Minecraft ID with
+     * the same inputs and time but the INFX per-item experience reward.
+     */
+    private void addInfXVanillaMeatSmeltingOverride(String name, ItemLike raw, ItemLike cooked, float experience) {
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(raw),
+                        RecipeCategory.FOOD,
+                        CookingBookCategory.FOOD,
+                        cooked,
+                        experience,
+                        200)
+                .unlockedBy("has_" + name.replace("cooked_", ""), has(raw))
+                .save(output, vanillaRecipeKey(name));
     }
 
     private void addShaped(
