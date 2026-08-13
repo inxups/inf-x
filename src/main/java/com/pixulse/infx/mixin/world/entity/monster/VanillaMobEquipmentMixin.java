@@ -51,6 +51,9 @@ abstract class VanillaMobEquipmentMixin {
             self.setItemSlot(
                     EquipmentSlot.MAINHAND,
                     InfXItems.catalog().equipment(InfxMaterial.IRON, EquipmentType.SWORD).holder().toStack());
+            // MobDropsEvents guarantees the sword at full durability; keep the vanilla
+            // 8.5% equipment roll from firing first and dropping a damaged copy instead.
+            self.setDropChance(EquipmentSlot.MAINHAND, 0.0F);
         }
         callback.cancel();
     }
