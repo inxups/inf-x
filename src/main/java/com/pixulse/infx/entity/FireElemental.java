@@ -45,7 +45,7 @@ public final class FireElemental extends Blaze implements InfxMob {
     public static AttributeSupplier.Builder attributes() {
         return Blaze.createAttributes()
                 .add(Attributes.MAX_HEALTH, 20.0)
-                .add(Attributes.FOLLOW_RANGE, 40.0)
+                .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(Attributes.ATTACK_DAMAGE, 5.0);
     }

@@ -104,7 +104,7 @@ public final class InfxSpider extends Spider implements InfxMob {
         // forward-input multiplier under a fixed 0.1 throttle.  Its 1.0/0.8 values cannot
         // be assigned directly to 26.2's movement attribute.  Preserve only the source's
         // 25% base/cave/demon boost over the vanilla arachnid family.
-        AttributeSupplier.Builder builder = Spider.createAttributes().add(Attributes.FOLLOW_RANGE, 28.0);
+        AttributeSupplier.Builder builder = Spider.createAttributes().add(Attributes.FOLLOW_RANGE, 16.0);
         return switch (variant) {
             case SPIDER -> builder
                     .add(Attributes.MAX_HEALTH, 12.0)
@@ -260,7 +260,7 @@ public final class InfxSpider extends Spider implements InfxMob {
     protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
         LivingEntity target = getTarget();
-        if (target == null) {
+        if (target == null || !MonsterEvents.withinFollowRange(this, target)) {
             return;
         }
 
@@ -324,8 +324,9 @@ public final class InfxSpider extends Spider implements InfxMob {
                 }
                 if (randomTeleport(x, y, z, true)) {
                     phaseEvasions--;
-                    Player nearest = level.getNearestPlayer(this, 24.0);
-                    if (nearest != null) {
+                    double followRange = getAttributeValue(Attributes.FOLLOW_RANGE);
+                    Player nearest = level.getNearestPlayer(this, followRange);
+                    if (nearest != null && hasLineOfSight(nearest)) {
                         setTarget(nearest);
                     }
                     this.level().playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);

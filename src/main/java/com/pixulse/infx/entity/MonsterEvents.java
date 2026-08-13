@@ -28,13 +28,16 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.feline.Ocelot;
 import net.minecraft.world.entity.animal.fish.TropicalFish;
 import net.minecraft.world.entity.animal.fish.WaterAnimal;
 import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.MagmaCube;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -563,18 +566,18 @@ public final class MonsterEvents {
     @SubscribeEvent
     public static void attractToPlayerActivity(VanillaGameEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level) || !(event.getCause() instanceof Player player)) return;
+        // Keep the broad event query for inexpensive candidate collection; the actual
+        // spherical distance is checked against each mob's FOLLOW_RANGE below.
         double radius = MoonPhase.BLOOD.isActiveInOverworldAtNight(level) ? 96.0 : 48.0;
         for (Mob mob : level.getEntitiesOfClass(
                 Mob.class,
                 new AABB(event.getEventPosition(), event.getEventPosition()).inflate(radius),
                 candidate -> participatesInGenericTargeting(candidate)
                         && candidate.isAlive()
-                        // InfX base spiders are peaceful in daylight; noise must not override that.
-                        && !(candidate instanceof InfxSpider spider
-                                && spider.variant() == InfxSpider.Variant.SPIDER
-                                && spider.getLightLevelDependentMagicValue() >= 0.5F))) {
-            mob.setTarget(player);
-            if (!mob.hasLineOfSight(player)) {
+                        && canAcquireGenericPlayerTarget(candidate, player))) {
+            if (mob.hasLineOfSight(player)) {
+                mob.setTarget(player);
+            } else {
                 mob.getNavigation().moveTo(event.getEventPosition().x, event.getEventPosition().y, event.getEventPosition().z, 1.05);
             }
         }
@@ -595,20 +598,28 @@ public final class MonsterEvents {
                 && mob.getHealth() < mob.getMaxHealth()) {
             mob.heal(mob.getMaxHealth() * 0.1F);
         }
+        LivingEntity target = mob.getTarget();
+        if (target != null && !withinFollowRange(mob, target)) {
+            mob.setTarget(null);
+            mob.getNavigation().stop();
+            target = null;
+        }
         // Endermen remain neutral until their own stare, pearl, or damage rules choose a target.
         // They also must not inherit the generic flanking and block-digging behavior below.
         if (!participatesInGenericTargeting(mob)) {
             return;
         }
-        if (mob.getTarget() != null) {
+        if (target != null) {
             if (mob.tickCount % 20 == 0) MonsterTactics.cooperate(level, mob);
             return;
         }
         if (mob.tickCount % 20 == 0) {
-            double range = MoonPhase.BLOOD.isActiveInOverworldAtNight(level) ? 96.0 : 48.0;
+            double range = mob.getAttributeValue(Attributes.FOLLOW_RANGE);
             Player illuminated = level.getNearestPlayer(
                     mob.getX(), mob.getY(), mob.getZ(), range,
-                    player -> !player.isSpectator()
+                    entity -> entity instanceof Player player
+                            && canAcquireGenericPlayerTarget(mob, player)
+                            && mob.hasLineOfSight(player)
                             && level.getBrightness(LightLayer.BLOCK, player.blockPosition()) >= 7);
             if (illuminated != null) {
                 mob.setTarget(illuminated);
@@ -1006,18 +1017,48 @@ public final class MonsterEvents {
     }
 
     public static int propagateTarget(ServerLevel level, LivingEntity source, Player player) {
-        if (!(source instanceof Mob sourceMob) || !participatesInGenericTargeting(sourceMob)) {
+        if (!(source instanceof Mob sourceMob)
+                || !participatesInGenericTargeting(sourceMob)
+                || !withinFollowRange(sourceMob, player)) {
             return 0;
         }
         int shared = 0;
         for (Mob nearby : level.getEntitiesOfClass(
                 Mob.class,
                 source.getBoundingBox().inflate(16.0),
-                mob -> mob != source && participatesInGenericTargeting(mob) && mob.getTarget() == null)) {
+                mob -> mob != source
+                        && source.distanceToSqr(mob) <= 16.0 * 16.0
+                        && participatesInGenericTargeting(mob)
+                        && mob.getTarget() == null
+                        && canAcquireGenericPlayerTarget(mob, player))) {
             nearby.setTarget(player);
             if (nearby.getTarget() == player) shared++;
         }
         return shared;
+    }
+
+    static boolean withinFollowRange(Mob mob, LivingEntity target) {
+        return withinFollowRange(mob.distanceToSqr(target), mob.getAttributeValue(Attributes.FOLLOW_RANGE));
+    }
+
+    static boolean withinFollowRange(double distanceSqr, double followRange) {
+        return followRange > 0.0 && distanceSqr <= followRange * followRange;
+    }
+
+    private static boolean canAcquireGenericPlayerTarget(Mob mob, Player player) {
+        if (!mob.canAttack(player) || !withinFollowRange(mob, player)) {
+            return false;
+        }
+        if (mob instanceof InfxSilverfish && mob.distanceToSqr(player) > 8.0 * 8.0) {
+            return false;
+        }
+        if ((mob instanceof Slime || mob instanceof Ghast) && Math.abs(player.getY() - mob.getY()) > 4.0) {
+            return false;
+        }
+        // The base spider's vanilla target goal is disabled by bright surroundings.
+        return !(mob instanceof InfxSpider spider
+                && spider.variant() == InfxSpider.Variant.SPIDER
+                && spider.getLightLevelDependentMagicValue() >= 0.5F);
     }
 
     static boolean participatesInGenericTargeting(Mob mob) {

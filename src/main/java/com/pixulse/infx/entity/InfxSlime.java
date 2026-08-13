@@ -54,7 +54,7 @@ public final class InfxSlime extends Slime implements InfxMob {
         SLIME(1, CorrosionType.PEPSIN, 16.0, GelatinousSphereItem.Color.GREEN),
         JELLY(2, CorrosionType.PEPSIN, 16.0, GelatinousSphereItem.Color.OCHRE),
         BLOB(3, CorrosionType.PEPSIN, 16.0, GelatinousSphereItem.Color.CRIMSON),
-        OOZE(3, CorrosionType.ACID, 32.0, GelatinousSphereItem.Color.GRAY),
+        OOZE(3, CorrosionType.ACID, 16.0, GelatinousSphereItem.Color.GRAY),
         PUDDING(4, CorrosionType.ACID, 16.0, GelatinousSphereItem.Color.BLACK);
 
         private final int damageMultiplier;
@@ -256,13 +256,19 @@ public final class InfxSlime extends Slime implements InfxMob {
         @Override
         public boolean canUse() {
             LivingEntity target = slime.getTarget();
-            return target != null && target.isAlive() && slime.canAttack(target);
+            return target != null
+                    && target.isAlive()
+                    && MonsterEvents.withinFollowRange(slime, target)
+                    && slime.canAttack(target);
         }
 
         @Override
         public boolean canContinueToUse() {
             LivingEntity target = slime.getTarget();
-            return target != null && target.isAlive() && slime.canAttack(target);
+            return target != null
+                    && target.isAlive()
+                    && MonsterEvents.withinFollowRange(slime, target)
+                    && slime.canAttack(target);
         }
 
         @Override

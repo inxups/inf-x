@@ -48,10 +48,10 @@ class AttackRangesTest {
 
     @Test
     void rangedAndArachnidBoundariesAreHardLimits() {
-        assertTrue(AttackRanges.withinHardRangedReach(400.0, AttackRanges.WITCH_RANGED_REACH));
-        assertFalse(AttackRanges.withinHardRangedReach(400.01, AttackRanges.WITCH_RANGED_REACH));
-        assertTrue(AttackRanges.withinHardRangedReach(900.0, AttackRanges.SKELETON_RANGED_REACH));
-        assertFalse(AttackRanges.withinHardRangedReach(900.01, AttackRanges.SKELETON_RANGED_REACH));
+        assertTrue(AttackRanges.withinHardRangedReach(100.0, AttackRanges.WITCH_RANGED_REACH));
+        assertFalse(AttackRanges.withinHardRangedReach(100.01, AttackRanges.WITCH_RANGED_REACH));
+        assertTrue(AttackRanges.withinHardRangedReach(225.0, AttackRanges.SKELETON_RANGED_REACH));
+        assertFalse(AttackRanges.withinHardRangedReach(225.01, AttackRanges.SKELETON_RANGED_REACH));
         assertFalse(AttackRanges.isArachnidLeapDistance(4.0));
         assertTrue(AttackRanges.isArachnidLeapDistance(4.01));
         assertTrue(AttackRanges.isArachnidLeapDistance(35.99));

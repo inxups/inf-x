@@ -37,7 +37,7 @@ final class InfxHardCappedRangedAttackGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity candidate = mob.getTarget();
-        if (candidate == null || !candidate.isAlive()) {
+        if (candidate == null || !candidate.isAlive() || !MonsterEvents.withinFollowRange(mob, candidate)) {
             return false;
         }
         target = candidate;
@@ -46,7 +46,11 @@ final class InfxHardCappedRangedAttackGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return canUse() || target != null && target.isAlive() && !mob.getNavigation().isDone();
+        return canUse()
+                || target != null
+                        && target.isAlive()
+                        && MonsterEvents.withinFollowRange(mob, target)
+                        && !mob.getNavigation().isDone();
     }
 
     @Override
@@ -63,7 +67,8 @@ final class InfxHardCappedRangedAttackGoal extends Goal {
 
     @Override
     public void tick() {
-        if (target == null) {
+        if (target == null || !MonsterEvents.withinFollowRange(mob, target)) {
+            mob.setTarget(null);
             return;
         }
         double distanceSqr = mob.distanceToSqr(target.getX(), target.getY(), target.getZ());

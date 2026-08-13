@@ -31,52 +31,52 @@ class MonsterProfileTest {
     }
 
     @Test
-    void combatProfilesMatchTheR196SourceAttributes() {
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.ZOMBIE), 20.0, 40.0, 0.23, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.INVISIBLE_STALKER), 20.0, 40.0, 0.23, 4.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.GHOUL), 20.0, 40.0, 0.28, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.SHADOW), 20.0, 40.0, 0.23, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.WIGHT), 20.0, 40.0, 0.25, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.REVENANT), 30.0, 40.0, 0.26, 7.0);
+    void combatProfilesUseMinecraft261FollowRanges() {
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.ZOMBIE), 20.0, 35.0, 0.23, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.INVISIBLE_STALKER), 20.0, 35.0, 0.23, 4.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.GHOUL), 20.0, 35.0, 0.28, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.SHADOW), 20.0, 35.0, 0.23, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.WIGHT), 20.0, 35.0, 0.25, 5.0);
+        assertStats(InfxZombie.attributes(InfxZombie.Variant.REVENANT), 30.0, 35.0, 0.26, 7.0);
         for (InfxZombie.Variant variant : InfxZombie.Variant.values()) {
             assertEquals(0.0, stats(InfxZombie.attributes(variant)).getBaseValue(Attributes.ARMOR), EPSILON);
         }
 
-        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 32.0, 0.30, 4.0);
-        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD), 12.0, 40.0, 0.29, 6.0);
-        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN), 24.0, 40.0, 0.29, 8.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 16.0, 0.30, 4.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD), 12.0, 16.0, 0.29, 6.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN), 24.0, 16.0, 0.29, 8.0);
         assertEquals(2.0, stats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN))
                 .getBaseValue(Attributes.ARMOR), EPSILON);
-        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.BONE_LORD), 20.0, 40.0, 0.26, 5.0);
-        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 40.0, 0.27, 8.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.BONE_LORD), 20.0, 16.0, 0.26, 5.0);
+        assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.ANCIENT_BONE_LORD), 24.0, 16.0, 0.27, 8.0);
         assertStats(VanillaWolf.attributes(), 8.0, 16.0, 0.30, 3.0);
 
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.SPIDER), 12.0, 28.0, 0.375, 4.0);
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.CAVE_SPIDER), 16.0, 28.0, 0.375, 4.0);
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.BLACK_WIDOW), 6.0, 28.0, 0.30, 1.0);
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.DEMON), 18.0, 28.0, 0.375, 5.0);
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.WOOD), 6.0, 28.0, 0.30, 1.0);
-        assertStats(InfxSpider.attributes(InfxSpider.Variant.PHASE), 6.0, 28.0, 0.30, 3.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.SPIDER), 12.0, 16.0, 0.375, 4.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.CAVE_SPIDER), 16.0, 16.0, 0.375, 4.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.BLACK_WIDOW), 6.0, 16.0, 0.30, 1.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.DEMON), 18.0, 16.0, 0.375, 5.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.WOOD), 6.0, 16.0, 0.30, 1.0);
+        assertStats(InfxSpider.attributes(InfxSpider.Variant.PHASE), 6.0, 16.0, 0.30, 3.0);
 
-        assertStats(InfxCreeper.attributes(InfxCreeper.Variant.CREEPER), 20.0, 32.0, 0.25, 2.0);
-        assertStats(InfxCreeper.attributes(InfxCreeper.Variant.INFERNAL), 20.0, 32.0, 0.25, 2.0);
+        assertStats(InfxCreeper.attributes(InfxCreeper.Variant.CREEPER), 20.0, 16.0, 0.25, 2.0);
+        assertStats(InfxCreeper.attributes(InfxCreeper.Variant.INFERNAL), 20.0, 16.0, 0.25, 2.0);
         assertEquals(2.0, stats(InfxCreeper.attributes(InfxCreeper.Variant.INFERNAL))
                 .getBaseValue(Attributes.ARMOR), EPSILON);
 
-        assertStats(InfxSilverfish.attributes(), 8.0, 32.0, 0.25, 3.0);
-        assertStats(FireElemental.attributes(), 20.0, 40.0, 0.25, 5.0);
-        assertStats(EarthElemental.attributes(), 30.0, 20.0, 0.20, 12.0);
+        assertStats(InfxSilverfish.attributes(), 8.0, 16.0, 0.25, 3.0);
+        assertStats(FireElemental.attributes(), 20.0, 16.0, 0.25, 5.0);
+        assertStats(EarthElemental.attributes(), 30.0, 16.0, 0.20, 12.0);
         AttributeSupplier earthElemental = stats(EarthElemental.attributes());
         assertEquals(4.0, earthElemental.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, earthElemental.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
-        assertStats(ClayGolem.attributes(), 30.0, 20.0, 0.20, 6.0);
+        assertStats(ClayGolem.attributes(), 30.0, 16.0, 0.20, 6.0);
         AttributeSupplier clayGolem = stats(ClayGolem.attributes());
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.0, clayGolem.getBaseValue(Attributes.KNOCKBACK_RESISTANCE), EPSILON);
         assertStats(InfxEnderman.attributes(), 40.0, 64.0, 0.30, 10.0);
         assertEquals(6.5, InfxEnderman.chasingMovementSpeed(0.30), EPSILON);
-        assertStats(InfxWitch.attributes(), 26.0, 32.0, 0.25, 2.0);
-        assertStats(InfxZombifiedPiglin.attributes(), 20.0, 40.0, 0.23, 8.0);
+        assertStats(InfxWitch.attributes(), 26.0, 16.0, 0.25, 2.0);
+        assertStats(InfxZombifiedPiglin.attributes(), 20.0, 24.0, 0.23, 8.0);
         assertEquals(0.0, stats(InfxZombifiedPiglin.attributes()).getBaseValue(Attributes.ARMOR), EPSILON);
         assertEquals(0.28, InfxZombifiedPiglin.chasingMovementSpeed(0.23), EPSILON);
 
@@ -99,7 +99,7 @@ class MonsterProfileTest {
         assertFalse(InfxSpider.canPhaseChaseAcrossVerticalDistance(-2.001));
 
         AttributeSupplier blaze = stats(InfxBlaze.attributes());
-        assertEquals(32.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
+        assertEquals(48.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(0.23, blaze.getBaseValue(Attributes.MOVEMENT_SPEED), EPSILON);
         assertEquals(6.0, blaze.getBaseValue(Attributes.ATTACK_DAMAGE), EPSILON);
     }
@@ -195,7 +195,7 @@ class MonsterProfileTest {
         assertEquals(6.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.BLOB, 2), EPSILON);
         assertEquals(6.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.OOZE, 2), EPSILON);
         assertEquals(8.0, InfxSlime.attackDamageForSize(InfxSlime.Variant.PUDDING, 2), EPSILON);
-        assertEquals(32.0, stats(InfxSlime.attributes(InfxSlime.Variant.OOZE))
+        assertEquals(16.0, stats(InfxSlime.attributes(InfxSlime.Variant.OOZE))
                 .getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
         assertEquals(1, InfxSlime.experienceForSize(InfxSlime.Variant.SLIME, 1));
         assertEquals(4, InfxSlime.experienceForSize(InfxSlime.Variant.JELLY, 2));

@@ -85,29 +85,29 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         return switch (variant) {
             case SKELETON -> builder
                     .add(Attributes.MAX_HEALTH, ORDINARY_MAX_HEALTH)
-                    .add(Attributes.FOLLOW_RANGE, 32.0)
+                    .add(Attributes.FOLLOW_RANGE, 16.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.30)
                     .add(Attributes.ATTACK_DAMAGE, 4.0);
             case LONGDEAD -> builder
                     .add(Attributes.MAX_HEALTH, 12.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 16.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.29)
                     .add(Attributes.ATTACK_DAMAGE, 6.0)
                     .add(Attributes.ARMOR, 1.0);
             case LONGDEAD_GUARDIAN -> builder
                     .add(Attributes.MAX_HEALTH, 24.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 16.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.29)
                     .add(Attributes.ATTACK_DAMAGE, 8.0)
                     .add(Attributes.ARMOR, 2.0);
             case BONE_LORD -> builder
                     .add(Attributes.MAX_HEALTH, 20.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 16.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.26)
                     .add(Attributes.ATTACK_DAMAGE, 5.0);
             case ANCIENT_BONE_LORD -> builder
                     .add(Attributes.MAX_HEALTH, 24.0)
-                    .add(Attributes.FOLLOW_RANGE, 40.0)
+                    .add(Attributes.FOLLOW_RANGE, 16.0)
                     .add(Attributes.MOVEMENT_SPEED, 0.27)
                     .add(Attributes.ATTACK_DAMAGE, 8.0);
         };
@@ -500,21 +500,28 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         }
 
         var target = getTarget();
+        if (target != null && !MonsterEvents.withinFollowRange(this, target)) {
+            target = null;
+        }
         for (AbstractSkeleton skeleton : level.getEntitiesOfClass(
                 AbstractSkeleton.class, getBoundingBox().inflate(16.0, 8.0, 16.0))) {
-            if (skeleton == this || !hasLineOfSight(skeleton)) {
+            if (skeleton == this
+                    || distanceToSqr(skeleton) > 16.0 * 16.0
+                    || !hasLineOfSight(skeleton)) {
                 continue;
             }
             skeleton.heal(1.0F);
             if (skeleton instanceof InfxSkeleton troop) {
                 troop.inspire();
             }
-            if (target != null && skeleton.getTarget() == null) {
+            if (target != null
+                    && skeleton.getTarget() == null
+                    && MonsterEvents.withinFollowRange(skeleton, target)) {
                 skeleton.setTarget(target);
             }
         }
 
-        if (target != null && summonedTroops < 6 && distanceToSqr(target) <= 256.0
+        if (target != null && summonedTroops < 6 && MonsterEvents.withinFollowRange(this, target)
                 && random.nextInt(8) < 7 - summonedTroops) {
             summonTroop(level);
         }
@@ -537,7 +544,10 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         double z = getZ() + random.nextInt(9) - 4;
         troop.snapTo(x, getY(), z, random.nextFloat() * 360.0F, 0.0F);
         troop.finalizeSpawn(level, level.getCurrentDifficultyAt(troop.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
-        troop.setTarget(getTarget());
+        LivingEntity target = getTarget();
+        if (target != null && MonsterEvents.withinFollowRange(troop, target)) {
+            troop.setTarget(target);
+        }
         if (level.noCollision(troop) && level.addFreshEntity(troop)) {
             summonedTroops++;
         }

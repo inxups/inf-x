@@ -463,8 +463,8 @@ public final class ModMonsterGameTests {
                                     entity -> entity.getType() == InfXEntityTypes.INFX_ZOMBIE.get())
                             .getFirst();
                     helper.assertTrue(
-                            replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 40.0D,
-                            "replacement initialization must retain the INFX follow range");
+                            replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 35.0D,
+                            "replacement initialization must retain the 26.1 zombie follow range");
                     helper.assertTrue(
                             replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
                             "replacement initialization must retain the INFX attack damage; actual="
@@ -1228,7 +1228,7 @@ public final class ModMonsterGameTests {
                 skeleton.goalSelector.getAvailableGoals().stream()
                         .anyMatch(goal -> goal.getGoal().getClass().getSimpleName().equals("InfxHardCappedBowAttackGoal")),
                 "skeletons holding bows must register the INFX bow goal");
-        placePlayerAtDistance(helper, skeleton, player, skeletonPos, 30.5);
+        placePlayerAtDistance(helper, skeleton, player, skeletonPos, 15.5);
         skeleton.setTarget(player);
 
         helper.startSequence()
@@ -1239,7 +1239,7 @@ public final class ModMonsterGameTests {
                     skeleton.setTarget(player);
                     helper.assertFalse(
                             skeleton.isUsingItem(),
-                            "skeletons must not begin drawing beyond 30 blocks; distance="
+                            "skeletons must not begin drawing beyond 15 blocks; distance="
                                     + Math.sqrt(skeleton.distanceToSqr(player))
                                     + ", goals="
                                     + skeleton.goalSelector.getAvailableGoals().stream()
@@ -1248,12 +1248,12 @@ public final class ModMonsterGameTests {
                     helper.assertTrue(
                             level.getEntitiesOfClass(
                                             AbstractArrow.class,
-                                            skeleton.getBoundingBox().inflate(40.0),
+                                            skeleton.getBoundingBox().inflate(20.0),
                                             arrow -> arrow.getOwner() == skeleton)
                                     .isEmpty(),
-                            "skeletons must not begin or release a shot beyond 30 blocks");
+                            "skeletons must not begin or release a shot beyond 15 blocks");
                 })
-                .thenExecute(() -> placePlayerAtDistance(helper, skeleton, player, skeletonPos, 29.0))
+                .thenExecute(() -> placePlayerAtDistance(helper, skeleton, player, skeletonPos, 14.0))
                 .thenExecuteFor(90, () -> {
                     skeleton.setTarget(player);
                     boolean using = skeleton.isUsingItem();
@@ -1268,7 +1268,7 @@ public final class ModMonsterGameTests {
                 })
                 .thenExecute(() -> helper.assertTrue(
                         skeletonCompletedDraw[0],
-                        "skeletons must resume firing after entering 30 blocks"
+                        "skeletons must resume firing after entering 15 blocks"
                                 + "; target=" + (skeleton.getTarget() == player)
                                 + ", noAi=" + skeleton.isNoAi()
                                 + ", using=" + skeleton.isUsingItem()
@@ -1277,7 +1277,7 @@ public final class ModMonsterGameTests {
                                 + ", visible=" + skeleton.getSensing().hasLineOfSight(player)
                                 + ", distance=" + Math.sqrt(skeleton.distanceToSqr(player))))
                 .thenExecute(() -> {
-                    level.getEntitiesOfClass(AbstractArrow.class, skeleton.getBoundingBox().inflate(40.0))
+                    level.getEntitiesOfClass(AbstractArrow.class, skeleton.getBoundingBox().inflate(20.0))
                             .forEach(AbstractArrow::discard);
                     skeleton.discard();
                 })
@@ -1285,7 +1285,7 @@ public final class ModMonsterGameTests {
                     var witch = helper.spawn(InfXEntityTypes.INFX_WITCH.get(), new BlockPos(3, 2, 3));
                     witch.setNoGravity(true);
                     witch.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(0.0);
-                    placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 20.5);
+                    placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 10.5);
                     witch.setTarget(player);
                     witchRef[0] = witch;
                 })
@@ -1295,25 +1295,25 @@ public final class ModMonsterGameTests {
                     helper.assertTrue(
                             level.getEntitiesOfClass(
                                             ThrownSplashPotion.class,
-                                            witch.getBoundingBox().inflate(32.0),
+                                            witch.getBoundingBox().inflate(16.0),
                                             potion -> potion.getOwner() == witch)
                                     .isEmpty(),
-                            "witches must not begin or release a potion beyond 20 blocks");
+                            "witches must not begin or release a potion beyond 10 blocks");
                 })
                 .thenExecute(() -> {
                     var witch = witchRef[0];
-                    placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 19.0);
+                    placePlayerAtDistance(helper, witch, player, new BlockPos(3, 2, 3), 9.0);
                 })
                 .thenExecuteFor(140, () -> {
                     var witch = witchRef[0];
                     witch.setTarget(player);
-                    if (!level.getEntitiesOfClass(ThrownSplashPotion.class, witch.getBoundingBox().inflate(32.0))
+                    if (!level.getEntitiesOfClass(ThrownSplashPotion.class, witch.getBoundingBox().inflate(16.0))
                                     .isEmpty()) {
                         witchThrew[0] = true;
                     }
                 })
                 .thenExecute(() -> helper.assertTrue(
-                        witchThrew[0], "witches must resume throwing after entering 20 blocks"))
+                        witchThrew[0], "witches must resume throwing after entering 10 blocks"))
                 .thenExecute(() -> {
                     witchRef[0].discard();
                     ModCompletionGameTests.removePlayer(player);

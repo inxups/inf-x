@@ -54,7 +54,7 @@ public final class InfxBlaze extends Blaze implements InfxMob {
         // movement input.  Retain the modern Blaze baseline instead of copying the old
         // SharedMonsterAttributes default (0.7) into the modern movement scale.
         return Blaze.createAttributes()
-                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.FOLLOW_RANGE, 48.0)
                 .add(Attributes.ATTACK_DAMAGE, 6.0);
     }
 
@@ -74,7 +74,7 @@ public final class InfxBlaze extends Blaze implements InfxMob {
         return false;
     }
 
-    /** InfX cycle: 20-tick charge, three fireballs six ticks apart, 20-tick cooldown, 30-block range. */
+    /** InfX cycle: 20-tick charge, three fireballs six ticks apart, 20-tick cooldown, 30-block firing range. */
     private static final class InfxFireballGoal extends Goal {
         private static final int CHARGE_TICKS = 20;
         private static final int VOLLEY_INTERVAL = 6;
@@ -94,7 +94,10 @@ public final class InfxBlaze extends Blaze implements InfxMob {
         @Override
         public boolean canUse() {
             LivingEntity target = blaze.getTarget();
-            return target != null && target.isAlive() && blaze.canAttack(target);
+            return target != null
+                    && target.isAlive()
+                    && blaze.canAttack(target)
+                    && MonsterEvents.withinFollowRange(blaze, target);
         }
 
         @Override
@@ -117,7 +120,8 @@ public final class InfxBlaze extends Blaze implements InfxMob {
         public void tick() {
             attackTime--;
             LivingEntity target = blaze.getTarget();
-            if (target == null) {
+            if (target == null || !MonsterEvents.withinFollowRange(blaze, target)) {
+                blaze.setTarget(null);
                 return;
             }
             boolean seen = blaze.getSensing().hasLineOfSight(target);

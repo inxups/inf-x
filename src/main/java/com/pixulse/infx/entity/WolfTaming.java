@@ -29,7 +29,10 @@ public final class WolfTaming {
         if (outcome <= 0) {
             wolf.level().broadcastEntityEvent(wolf, (byte) 6);
             tameable.setTamingCooldown(COOLDOWN_TICKS);
-            if (outcome < 0 && !MoonPhase.BLUE.isActiveInOverworldAtNight(wolf.level())) {
+            if (outcome < 0
+                    && !MoonPhase.BLUE.isActiveInOverworldAtNight(wolf.level())
+                    && (!(wolf instanceof net.minecraft.world.entity.Mob mob)
+                            || MonsterEvents.withinFollowRange(mob, player))) {
                 wolf.setTarget(player);
             }
             return;

@@ -92,7 +92,7 @@ public class EarthElemental extends Monster implements InfxMob {
     protected static AttributeSupplier.Builder baseAttributes(double attackDamage, double armor) {
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, 30.0)
-                .add(Attributes.FOLLOW_RANGE, 20.0)
+                .add(Attributes.FOLLOW_RANGE, 16.0)
                 .add(Attributes.MOVEMENT_SPEED, 0.20)
                 .add(Attributes.ATTACK_DAMAGE, attackDamage)
                 .add(Attributes.ARMOR, armor)
