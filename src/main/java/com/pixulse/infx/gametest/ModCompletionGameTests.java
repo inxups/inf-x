@@ -102,6 +102,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.effect.PoisonMobEffect;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.chicken.Chicken;
@@ -209,7 +210,8 @@ public final class ModCompletionGameTests {
             "infx_harvest_rules",
             "infx_enchantment_combat",
             "infx_legacy_recipes",
-            "infx_experience_bottle");
+            "infx_experience_bottle",
+            "infx_loose_terrain_cascade");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -245,6 +247,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_enchantment_combat", () -> ModCompletionGameTests::enchantmentCombat);
         FUNCTIONS.register("infx_legacy_recipes", () -> ModCompletionGameTests::legacyRecipes);
         FUNCTIONS.register("infx_experience_bottle", () -> ModCompletionGameTests::experienceBottle);
+        FUNCTIONS.register("infx_loose_terrain_cascade", () -> ModCompletionGameTests::looseTerrainCascade);
     }
 
     private ModCompletionGameTests() {}
@@ -1886,6 +1889,56 @@ public final class ModCompletionGameTests {
                 gravelRate > .70 && gravelRate < .80,
                 "real " + name + " rate must converge near 3/4: " + gravelRate);
         helper.assertTrue(foundCopper, "real " + name + " loot must reach the copper branch");
+    }
+
+    /** INFX loose terrain: removing the support below a dirt column drops every stacked dirt block. */
+    private static void looseTerrainCascade(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        // Clear the column area so loose blocks left by other tests in this environment cannot
+        // cascade into the assertions.
+        for (int x = 2; x <= 4; x++) {
+            for (int y = 0; y <= 7; y++) {
+                for (int z = 2; z <= 4; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
+                }
+            }
+        }
+        // Catch floor so the falling dirt lands inside the test grid.
+        helper.setBlock(new BlockPos(3, 1, 3), Blocks.STONE);
+        helper.setBlock(new BlockPos(3, 2, 3), Blocks.STONE);
+        helper.setBlock(new BlockPos(3, 3, 3), Blocks.DIRT);
+        helper.setBlock(new BlockPos(3, 4, 3), Blocks.DIRT);
+        helper.setBlock(new BlockPos(3, 5, 3), Blocks.DIRT);
+
+        // Breaking the support must cascade to every loose block above, not just the bottom one.
+        helper.setBlock(new BlockPos(3, 2, 3), Blocks.AIR);
+        AABB column = new AABB(helper.absolutePos(new BlockPos(3, 3, 3))).inflate(1.0D, 2.0D, 1.0D);
+        List<FallingBlockEntity> falling = new ArrayList<>(
+                level.getEntitiesOfClass(FallingBlockEntity.class, column).stream()
+                        .filter(entity -> entity.getBlockState().is(Blocks.DIRT))
+                        .toList());
+        helper.assertTrue(
+                falling.size() == 3,
+                "breaking the support must drop all three stacked dirt blocks, but " + falling.size()
+                        + " falling dirt blocks exist");
+        helper.assertTrue(
+                level.getBlockState(helper.absolutePos(new BlockPos(3, 3, 3))).isAir()
+                        && level.getBlockState(helper.absolutePos(new BlockPos(3, 4, 3))).isAir()
+                        && level.getBlockState(helper.absolutePos(new BlockPos(3, 5, 3))).isAir(),
+                "every dirt block of the column must leave the world after the support breaks");
+
+        helper.runAfterDelay(60, () -> {
+            // The falling blocks land on the catch floor like any vanilla sand column.
+            helper.assertTrue(
+                    level.getBlockState(helper.absolutePos(new BlockPos(3, 2, 3))).is(Blocks.DIRT)
+                            && level.getBlockState(helper.absolutePos(new BlockPos(3, 3, 3))).is(Blocks.DIRT),
+                    "the falling dirt blocks must land stacked on the catch floor");
+            helper.assertTrue(
+                    level.getEntitiesOfClass(FallingBlockEntity.class, column).stream()
+                            .noneMatch(entity -> entity.getBlockState().is(Blocks.DIRT)),
+                    "every falling dirt block must land, not vanish");
+            helper.succeed();
+        });
     }
 
     private static void survivalCore(GameTestHelper helper) {

@@ -42,13 +42,11 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 /** Loose terrain, explosion conversion, falling impact and INFX fluid restrictions. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class PhysicsEvents {
-    private static boolean updatingGravity;
-
     private PhysicsEvents() {}
 
     @SubscribeEvent
     public static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel level) || updatingGravity) return;
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
         tryFall(level, event.getPos());
         for (Direction direction : event.getNotifiedSides()) tryFall(level, event.getPos().relative(direction));
     }
@@ -118,16 +116,14 @@ public final class PhysicsEvents {
     }
 
     private static void tryFall(ServerLevel level, BlockPos pos) {
-        if (updatingGravity || !level.isLoaded(pos)) return;
+        if (!level.isLoaded(pos)) return;
         BlockState state = level.getBlockState(pos);
         if (!PhysicsRules.isLoose(state) || !FallingBlock.isFree(level.getBlockState(pos.below()))) return;
-        updatingGravity = true;
-        try {
-            FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
-            entity.setHurtsEntities(1.5F, 40);
-        } finally {
-            updatingGravity = false;
-        }
+        // FallingBlockEntity.fall removes the block (flag 3) and synchronously fires neighbor
+        // updates, so the loose block above falls in the same cascade; each fall consumes its
+        // own block, so the chain terminates.
+        FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
+        entity.setHurtsEntities(1.5F, 40);
     }
 
     @SubscribeEvent
