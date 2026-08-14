@@ -1,0 +1,48 @@
+{
+  "parent": "infx:progression/first_steps",
+  "criteria": {
+    "crafted_clay_furnace": {
+      "conditions": {
+        "recipe_id": "infx:clay_furnace"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_cobblestone_furnace": {
+      "conditions": {
+        "recipe_id": "infx:cobblestone_furnace"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_hardened_clay_furnace": {
+      "conditions": {
+        "recipe_id": "infx:hardened_clay_furnace"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_sandstone_furnace": {
+      "conditions": {
+        "recipe_id": "infx:sandstone_furnace"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.first_furnace.description"
+    },
+    "icon": {
+      "id": "minecraft:furnace"
+    },
+    "title": {
+      "translate": "advancements.infx.first_furnace.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_clay_furnace",
+      "crafted_sandstone_furnace",
+      "crafted_hardened_clay_furnace",
+      "crafted_cobblestone_furnace"
+    ]
+  ]
+}

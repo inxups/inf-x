@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "infx:block/underworld_portal_runegate_ns"
+    },
+    "axis=z": {
+      "model": "infx:block/underworld_portal_runegate_ew"
+    }
+  }
+}

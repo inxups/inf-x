@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:cooked_chicken",
+    "minecraft:carrot",
+    "infx:onion",
+    "infx:water_bowl"
+  ],
+  "result": {
+    "id": "infx:chicken_soup"
+  }
+}

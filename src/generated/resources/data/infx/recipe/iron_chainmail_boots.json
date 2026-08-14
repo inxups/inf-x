@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "infx:iron_chain"
+  },
+  "pattern": [
+    "C C",
+    "C C"
+  ],
+  "result": {
+    "id": "infx:iron_chainmail_boots"
+  }
+}

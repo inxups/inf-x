@@ -1,0 +1,24 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.infx.fortune"
+  },
+  "exclusive_set": [
+    "infx:fortune",
+    "minecraft:silk_touch"
+  ],
+  "max_cost": {
+    "base": 10,
+    "per_level_above_first": 10
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 10
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#infx:enchantable/infx_fortune",
+  "weight": 5
+}

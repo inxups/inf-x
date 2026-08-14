@@ -1,0 +1,14 @@
+{
+  "values": [
+    "infx:flint_knife",
+    "infx:obsidian_knife",
+    "infx:gold_dagger",
+    "infx:copper_dagger",
+    "infx:silver_dagger",
+    "infx:rusted_iron_dagger",
+    "infx:iron_dagger",
+    "infx:ancient_metal_dagger",
+    "infx:mithril_dagger",
+    "infx:adamantium_dagger"
+  ]
+}

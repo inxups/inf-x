@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "infx:chocolate",
+    "infx:milk_bowl",
+    "minecraft:snowball"
+  ],
+  "result": {
+    "id": "infx:ice_cream"
+  }
+}

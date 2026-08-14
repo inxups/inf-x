@@ -1,0 +1,86 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "infx:infx_carrots",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "age": "0",
+                "blighted": "false",
+                "dead": "false"
+              }
+            }
+          ],
+          "name": "minecraft:carrot"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "infx:infx_carrots",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "7",
+                    "blighted": "false",
+                    "dead": "false"
+                  }
+                },
+                {
+                  "chance": 0.25,
+                  "condition": "minecraft:random_chance"
+                }
+              ],
+              "functions": [
+                {
+                  "add": false,
+                  "count": 3.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:carrot"
+            },
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "infx:infx_carrots",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "age": "7",
+                    "blighted": "false",
+                    "dead": "false"
+                  }
+                }
+              ],
+              "functions": [
+                {
+                  "add": false,
+                  "count": 2.0,
+                  "function": "minecraft:set_count"
+                }
+              ],
+              "name": "minecraft:carrot"
+            }
+          ]
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "infx:blocks/infx_carrots"
+}

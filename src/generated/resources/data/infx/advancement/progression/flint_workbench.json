@@ -1,0 +1,174 @@
+{
+  "parent": "infx:progression/flint_kit",
+  "criteria": {
+    "crafted_stripped_acacia_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_acacia_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_acacia_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_acacia_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_birch_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_birch_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_birch_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_birch_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_cherry_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_cherry_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_cherry_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_cherry_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_crimson_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_crimson_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_crimson_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_crimson_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_dark_oak_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_dark_oak_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_dark_oak_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_dark_oak_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_jungle_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_jungle_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_jungle_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_jungle_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_mangrove_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_mangrove_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_mangrove_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_mangrove_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_oak_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_oak_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_oak_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_oak_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_pale_oak_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_pale_oak_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_pale_oak_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_pale_oak_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_spruce_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_spruce_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_spruce_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_spruce_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_warped_flint_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_warped_flint_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_stripped_warped_obsidian_bench": {
+      "conditions": {
+        "recipe_id": "infx:stripped_warped_obsidian_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.flint_workbench.description"
+    },
+    "icon": {
+      "id": "infx:stripped_oak_flint_workbench"
+    },
+    "title": {
+      "translate": "advancements.infx.flint_workbench.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_stripped_oak_flint_bench",
+      "crafted_stripped_oak_obsidian_bench",
+      "crafted_stripped_spruce_flint_bench",
+      "crafted_stripped_spruce_obsidian_bench",
+      "crafted_stripped_birch_flint_bench",
+      "crafted_stripped_birch_obsidian_bench",
+      "crafted_stripped_jungle_flint_bench",
+      "crafted_stripped_jungle_obsidian_bench",
+      "crafted_stripped_acacia_flint_bench",
+      "crafted_stripped_acacia_obsidian_bench",
+      "crafted_stripped_cherry_flint_bench",
+      "crafted_stripped_cherry_obsidian_bench",
+      "crafted_stripped_pale_oak_flint_bench",
+      "crafted_stripped_pale_oak_obsidian_bench",
+      "crafted_stripped_dark_oak_flint_bench",
+      "crafted_stripped_dark_oak_obsidian_bench",
+      "crafted_stripped_mangrove_flint_bench",
+      "crafted_stripped_mangrove_obsidian_bench",
+      "crafted_stripped_crimson_flint_bench",
+      "crafted_stripped_crimson_obsidian_bench",
+      "crafted_stripped_warped_flint_bench",
+      "crafted_stripped_warped_obsidian_bench"
+    ]
+  ]
+}

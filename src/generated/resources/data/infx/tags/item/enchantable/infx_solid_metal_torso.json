@@ -1,0 +1,20 @@
+{
+  "values": [
+    "infx:gold_chestplate",
+    "infx:gold_leggings",
+    "infx:copper_chestplate",
+    "infx:copper_leggings",
+    "infx:silver_chestplate",
+    "infx:silver_leggings",
+    "infx:rusted_iron_chestplate",
+    "infx:rusted_iron_leggings",
+    "infx:iron_chestplate",
+    "infx:iron_leggings",
+    "infx:ancient_metal_chestplate",
+    "infx:ancient_metal_leggings",
+    "infx:mithril_chestplate",
+    "infx:mithril_leggings",
+    "infx:adamantium_chestplate",
+    "infx:adamantium_leggings"
+  ]
+}

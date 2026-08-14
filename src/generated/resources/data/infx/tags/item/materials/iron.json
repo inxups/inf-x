@@ -1,0 +1,28 @@
+{
+  "values": [
+    "infx:iron_chain",
+    "infx:iron_pickaxe",
+    "infx:iron_shovel",
+    "infx:iron_hatchet",
+    "infx:iron_axe",
+    "infx:iron_hoe",
+    "infx:iron_mattock",
+    "infx:iron_battle_axe",
+    "infx:iron_war_hammer",
+    "infx:iron_scythe",
+    "infx:iron_shears",
+    "infx:iron_fishing_rod",
+    "infx:iron_sword",
+    "infx:iron_dagger",
+    "infx:iron_arrow",
+    "infx:iron_helmet",
+    "infx:iron_chestplate",
+    "infx:iron_leggings",
+    "infx:iron_boots",
+    "infx:iron_chainmail_helmet",
+    "infx:iron_chainmail_chestplate",
+    "infx:iron_chainmail_leggings",
+    "infx:iron_chainmail_boots",
+    "infx:iron_horse_armor"
+  ]
+}

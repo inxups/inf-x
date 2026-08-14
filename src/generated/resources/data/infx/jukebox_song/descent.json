@@ -1,0 +1,8 @@
+{
+  "comparator_output": 12,
+  "description": {
+    "translate": "jukebox_song.infx.descent"
+  },
+  "length_in_seconds": 119.38,
+  "sound_event": "infx:record.descent"
+}

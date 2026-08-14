@@ -1,0 +1,25 @@
+{
+  "parent": "infx:progression/bookcase",
+  "criteria": {
+    "read_nine_books": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.enlightenment.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "minecraft:written_book"
+    },
+    "title": {
+      "translate": "advancements.infx.enlightenment.title"
+    }
+  },
+  "requirements": [
+    [
+      "read_nine_books"
+    ]
+  ]
+}

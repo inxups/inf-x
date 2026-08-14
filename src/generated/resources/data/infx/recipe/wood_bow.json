@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "#infx:bindings",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    " SB",
+    "S B",
+    " SB"
+  ],
+  "result": {
+    "id": "infx:wood_bow"
+  }
+}

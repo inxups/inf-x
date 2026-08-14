@@ -1,0 +1,48 @@
+{
+  "parent": "infx:progression/copper_workbench",
+  "criteria": {
+    "crafted_copper_hoe": {
+      "conditions": {
+        "recipe_id": "infx:copper_hoe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_gold_hoe": {
+      "conditions": {
+        "recipe_id": "infx:gold_hoe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_iron_hoe": {
+      "conditions": {
+        "recipe_id": "infx:iron_hoe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_silver_hoe": {
+      "conditions": {
+        "recipe_id": "infx:silver_hoe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.farming.description"
+    },
+    "icon": {
+      "id": "infx:copper_hoe"
+    },
+    "title": {
+      "translate": "advancements.infx.farming.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_copper_hoe",
+      "crafted_silver_hoe",
+      "crafted_gold_hoe",
+      "crafted_iron_hoe"
+    ]
+  ]
+}

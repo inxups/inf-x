@@ -1,0 +1,25 @@
+{
+  "parent": "infx:progression/the_end",
+  "criteria": {
+    "returned_from_end": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.the_end2.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "minecraft:dragon_egg"
+    },
+    "title": {
+      "translate": "advancements.infx.the_end2.title"
+    }
+  },
+  "requirements": [
+    [
+      "returned_from_end"
+    ]
+  ]
+}

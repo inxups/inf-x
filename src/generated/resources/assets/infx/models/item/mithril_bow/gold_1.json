@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/bow",
+  "textures": {
+    "layer0": "infx:item/mithril_bow/gold_1"
+  }
+}

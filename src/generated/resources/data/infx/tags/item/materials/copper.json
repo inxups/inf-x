@@ -1,0 +1,29 @@
+{
+  "values": [
+    "infx:copper_chain",
+    "infx:copper_coin",
+    "infx:copper_pickaxe",
+    "infx:copper_shovel",
+    "infx:copper_hatchet",
+    "infx:copper_axe",
+    "infx:copper_hoe",
+    "infx:copper_mattock",
+    "infx:copper_battle_axe",
+    "infx:copper_war_hammer",
+    "infx:copper_scythe",
+    "infx:copper_shears",
+    "infx:copper_fishing_rod",
+    "infx:copper_sword",
+    "infx:copper_dagger",
+    "infx:copper_arrow",
+    "infx:copper_helmet",
+    "infx:copper_chestplate",
+    "infx:copper_leggings",
+    "infx:copper_boots",
+    "infx:copper_chainmail_helmet",
+    "infx:copper_chainmail_chestplate",
+    "infx:copper_chainmail_leggings",
+    "infx:copper_chainmail_boots",
+    "infx:copper_horse_armor"
+  ]
+}

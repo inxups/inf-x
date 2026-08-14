@@ -1,0 +1,13 @@
+{
+  "type": "infx:underworld",
+  "generator": {
+    "type": "infx:underworld",
+    "biome_source": {
+      "type": "infx:underworld_biome_source",
+      "deep_dark": "infx:underworld_deep_dark",
+      "lush": "infx:underworld_lush",
+      "ordinary": "infx:underworld"
+    },
+    "settings": "infx:underworld"
+  }
+}

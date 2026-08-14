@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "#infx:bindings",
+    "L": "minecraft:stripped_warped_stem",
+    "O": "minecraft:obsidian",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "OB",
+    "SL"
+  ],
+  "result": {
+    "id": "infx:stripped_warped_obsidian_workbench"
+  }
+}

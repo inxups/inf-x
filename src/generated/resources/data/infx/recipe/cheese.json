@@ -1,0 +1,13 @@
+{
+  "type": "infx:shapeless_returning",
+  "category": "misc",
+  "ingredients": [
+    "infx:milk_bowl",
+    "infx:milk_bowl",
+    "infx:milk_bowl",
+    "infx:milk_bowl"
+  ],
+  "result": {
+    "id": "infx:cheese"
+  }
+}

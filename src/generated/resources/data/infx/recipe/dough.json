@@ -1,0 +1,11 @@
+{
+  "type": "infx:shapeless_returning",
+  "category": "misc",
+  "ingredients": [
+    "infx:flour",
+    "infx:water_bowl"
+  ],
+  "result": {
+    "id": "infx:dough"
+  }
+}

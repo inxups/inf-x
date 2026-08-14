@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "infx:adamantium_ingot"
+  },
+  "pattern": [
+    " I",
+    "I "
+  ],
+  "result": {
+    "id": "infx:adamantium_shears"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "death_message_type": "infx:poison",
+  "exhaustion": 0.0,
+  "message_id": "magic",
+  "scaling": "when_caused_by_living_non_player"
+}

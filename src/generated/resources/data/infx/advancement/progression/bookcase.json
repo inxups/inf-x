@@ -1,0 +1,27 @@
+{
+  "parent": "infx:progression/enchanting",
+  "criteria": {
+    "crafted_bookcase": {
+      "conditions": {
+        "recipe_id": "minecraft:bookshelf"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.bookcase.description"
+    },
+    "icon": {
+      "id": "minecraft:bookshelf"
+    },
+    "title": {
+      "translate": "advancements.infx.bookcase.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_bookcase"
+    ]
+  ]
+}

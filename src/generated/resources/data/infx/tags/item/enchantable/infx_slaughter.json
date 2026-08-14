@@ -1,0 +1,20 @@
+{
+  "values": [
+    "infx:gold_battle_axe",
+    "infx:gold_scythe",
+    "infx:copper_battle_axe",
+    "infx:copper_scythe",
+    "infx:silver_battle_axe",
+    "infx:silver_scythe",
+    "infx:rusted_iron_battle_axe",
+    "infx:rusted_iron_scythe",
+    "infx:iron_battle_axe",
+    "infx:iron_scythe",
+    "infx:ancient_metal_battle_axe",
+    "infx:ancient_metal_scythe",
+    "infx:mithril_battle_axe",
+    "infx:mithril_scythe",
+    "infx:adamantium_battle_axe",
+    "infx:adamantium_scythe"
+  ]
+}

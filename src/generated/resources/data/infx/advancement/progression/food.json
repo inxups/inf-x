@@ -1,0 +1,90 @@
+{
+  "parent": "infx:progression/farming",
+  "criteria": {
+    "crafted_beef_stew": {
+      "conditions": {
+        "recipe_id": "infx:beef_stew"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_bread_from_dough": {
+      "conditions": {
+        "recipe_id": "infx:bread_from_dough"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_chicken_soup": {
+      "conditions": {
+        "recipe_id": "infx:chicken_soup"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_cream_of_mushroom_soup": {
+      "conditions": {
+        "recipe_id": "infx:cream_of_mushroom_soup"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_cream_of_vegetable_soup": {
+      "conditions": {
+        "recipe_id": "infx:cream_of_vegetable_soup"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_dough": {
+      "conditions": {
+        "recipe_id": "infx:dough"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_flour": {
+      "conditions": {
+        "recipe_id": "infx:flour"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_mushroom_stew": {
+      "conditions": {
+        "recipe_id": "infx:mushroom_stew"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_pumpkin_soup": {
+      "conditions": {
+        "recipe_id": "infx:pumpkin_soup"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_vegetable_soup": {
+      "conditions": {
+        "recipe_id": "infx:vegetable_soup"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.food.description"
+    },
+    "icon": {
+      "id": "infx:flour"
+    },
+    "title": {
+      "translate": "advancements.infx.food.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_flour",
+      "crafted_dough",
+      "crafted_bread_from_dough",
+      "crafted_mushroom_stew",
+      "crafted_beef_stew",
+      "crafted_chicken_soup",
+      "crafted_cream_of_mushroom_soup",
+      "crafted_cream_of_vegetable_soup",
+      "crafted_pumpkin_soup",
+      "crafted_vegetable_soup"
+    ]
+  ]
+}

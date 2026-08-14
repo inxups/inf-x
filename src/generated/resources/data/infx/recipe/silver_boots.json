@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "infx:silver_ingot"
+  },
+  "pattern": [
+    "C C",
+    "C C"
+  ],
+  "result": {
+    "id": "infx:silver_boots"
+  }
+}

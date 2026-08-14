@@ -1,0 +1,25 @@
+{
+  "parent": "infx:progression/nether_forge",
+  "criteria": {
+    "entered_end": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.the_end.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "minecraft:end_crystal"
+    },
+    "title": {
+      "translate": "advancements.infx.the_end.title"
+    }
+  },
+  "requirements": [
+    [
+      "entered_end"
+    ]
+  ]
+}

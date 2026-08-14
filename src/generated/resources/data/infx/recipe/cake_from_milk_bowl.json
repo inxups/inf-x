@@ -1,0 +1,17 @@
+{
+  "type": "infx:shaped_returning",
+  "category": "misc",
+  "key": {
+    "E": "#minecraft:eggs",
+    "F": "infx:flour",
+    "M": "infx:milk_bowl",
+    "S": "minecraft:sugar"
+  },
+  "pattern": [
+    "FS",
+    "EM"
+  ],
+  "result": {
+    "id": "minecraft:cake"
+  }
+}

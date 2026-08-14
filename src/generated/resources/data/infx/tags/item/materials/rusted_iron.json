@@ -1,0 +1,26 @@
+{
+  "values": [
+    "infx:rusted_iron_chain",
+    "infx:rusted_iron_pickaxe",
+    "infx:rusted_iron_shovel",
+    "infx:rusted_iron_hatchet",
+    "infx:rusted_iron_axe",
+    "infx:rusted_iron_hoe",
+    "infx:rusted_iron_mattock",
+    "infx:rusted_iron_battle_axe",
+    "infx:rusted_iron_war_hammer",
+    "infx:rusted_iron_scythe",
+    "infx:rusted_iron_shears",
+    "infx:rusted_iron_sword",
+    "infx:rusted_iron_dagger",
+    "infx:rusted_iron_arrow",
+    "infx:rusted_iron_helmet",
+    "infx:rusted_iron_chestplate",
+    "infx:rusted_iron_leggings",
+    "infx:rusted_iron_boots",
+    "infx:rusted_iron_chainmail_helmet",
+    "infx:rusted_iron_chainmail_chestplate",
+    "infx:rusted_iron_chainmail_leggings",
+    "infx:rusted_iron_chainmail_boots"
+  ]
+}

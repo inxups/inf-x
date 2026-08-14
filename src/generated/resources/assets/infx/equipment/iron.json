@@ -1,0 +1,24 @@
+{
+  "layers": {
+    "horse_body": [
+      {
+        "texture": "infx:iron"
+      }
+    ],
+    "humanoid": [
+      {
+        "texture": "infx:iron"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "infx:iron"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "infx:iron"
+      }
+    ]
+  }
+}

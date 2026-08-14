@@ -1,0 +1,24 @@
+{
+  "layers": {
+    "horse_body": [
+      {
+        "texture": "infx:mithril"
+      }
+    ],
+    "humanoid": [
+      {
+        "texture": "infx:mithril"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "infx:mithril"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "infx:mithril"
+      }
+    ]
+  }
+}

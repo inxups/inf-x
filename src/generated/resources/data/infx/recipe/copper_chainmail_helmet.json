@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "infx:copper_chain"
+  },
+  "pattern": [
+    "CCC",
+    "C C"
+  ],
+  "result": {
+    "id": "infx:copper_chainmail_helmet"
+  }
+}

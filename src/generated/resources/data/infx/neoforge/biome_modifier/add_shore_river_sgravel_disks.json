@@ -1,0 +1,17 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "minecraft:stony_shore",
+    "minecraft:river",
+    "minecraft:frozen_river",
+    "infx:desert_river",
+    "infx:jungle_river",
+    "infx:swamp_river"
+  ],
+  "features": [
+    "infx:shore_river_sgravel_disk",
+    "infx:shore_river_sgravel_gravel_disk",
+    "infx:shore_river_sgravel_ore"
+  ],
+  "step": "underground_ores"
+}

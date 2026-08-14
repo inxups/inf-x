@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "infx:adamantium_block"
+  ],
+  "result": {
+    "count": 9,
+    "id": "infx:adamantium_ingot"
+  }
+}

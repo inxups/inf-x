@@ -1,0 +1,13 @@
+{
+  "type": "neoforge:remove_features",
+  "biomes": [
+    "minecraft:stony_peaks",
+    "minecraft:windswept_gravelly_hills"
+  ],
+  "features": [
+    "minecraft:disk_sand",
+    "minecraft:disk_gravel",
+    "minecraft:ore_gravel"
+  ],
+  "steps": "underground_ores"
+}

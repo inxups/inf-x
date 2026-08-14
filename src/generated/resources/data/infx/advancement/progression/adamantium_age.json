@@ -1,0 +1,31 @@
+{
+  "parent": "infx:progression/mithril_age",
+  "criteria": {
+    "crafted_adamantium_workbench": {
+      "conditions": {
+        "recipe_id": "infx:adamantium_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "smelted_adamantium": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.adamantium_age.description"
+    },
+    "icon": {
+      "id": "infx:adamantium_ingot"
+    },
+    "title": {
+      "translate": "advancements.infx.adamantium_age.title"
+    }
+  },
+  "requirements": [
+    [
+      "smelted_adamantium",
+      "crafted_adamantium_workbench"
+    ]
+  ]
+}

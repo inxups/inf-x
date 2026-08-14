@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 65
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:iron_horse_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:silver_horse_armor"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:gold_horse_armor"
+        }
+      ],
+      "rolls": {
+        "type": "minecraft:uniform",
+        "max": 6.0,
+        "min": 2.0
+      }
+    }
+  ],
+  "random_sequence": "infx:chests/horse_armor/desert_pyramid"
+}

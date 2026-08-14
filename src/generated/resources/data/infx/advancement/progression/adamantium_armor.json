@@ -1,0 +1,61 @@
+{
+  "parent": "infx:progression/adamantium_age",
+  "criteria": {
+    "wearing_full_adamantium_armor": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "chest": {
+                  "items": [
+                    "infx:adamantium_chestplate",
+                    "infx:adamantium_chainmail_chestplate"
+                  ]
+                },
+                "feet": {
+                  "items": [
+                    "infx:adamantium_boots",
+                    "infx:adamantium_chainmail_boots"
+                  ]
+                },
+                "head": {
+                  "items": [
+                    "infx:adamantium_helmet",
+                    "infx:adamantium_chainmail_helmet"
+                  ]
+                },
+                "legs": {
+                  "items": [
+                    "infx:adamantium_leggings",
+                    "infx:adamantium_chainmail_leggings"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.adamantium_armor.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "infx:adamantium_chestplate"
+    },
+    "title": {
+      "translate": "advancements.infx.adamantium_armor.title"
+    }
+  },
+  "requirements": [
+    [
+      "wearing_full_adamantium_armor"
+    ]
+  ]
+}

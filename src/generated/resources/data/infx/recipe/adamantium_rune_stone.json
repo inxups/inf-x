@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "N": "infx:adamantium_nugget",
+    "O": "minecraft:obsidian"
+  },
+  "pattern": [
+    " N ",
+    "NON",
+    " N "
+  ],
+  "result": {
+    "id": "infx:adamantium_rune_stone"
+  }
+}

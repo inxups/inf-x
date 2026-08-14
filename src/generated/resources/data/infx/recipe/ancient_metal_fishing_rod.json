@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "/": "minecraft:stick",
+    "?": "infx:ancient_metal_nugget",
+    "|": "minecraft:string"
+  },
+  "pattern": [
+    "  /",
+    " /|",
+    "/?|"
+  ],
+  "result": {
+    "id": "infx:ancient_metal_fishing_rod"
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:carrot",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:potato",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:onion",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 4.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:wheat",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_apple"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 4.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "infx:copper_coin",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 2.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "infx:silver_coin",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:gold_coin"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:saddle",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 4.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:gunpowder",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 4.0,
+                "min": 1.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:string",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bowl",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_bucket",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:iron_bucket",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_13",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:music_disc_cat",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:name_tag",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:flint_fishing_rod",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_fishing_rod",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:wood_shovel",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_shovel"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_hoe"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_mattock"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_dagger"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:silver_dagger"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_sword"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_battle_axe"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:copper_war_hammer"
+        }
+      ],
+      "rolls": 8.0
+    }
+  ],
+  "random_sequence": "infx:chests/mite/trial_chambers/intersection"
+}

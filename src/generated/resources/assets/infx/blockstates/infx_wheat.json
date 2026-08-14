@@ -1,0 +1,100 @@
+{
+  "variants": {
+    "age=0,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_0"
+    },
+    "age=0,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_0"
+    },
+    "age=0,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_0"
+    },
+    "age=0,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_0"
+    },
+    "age=1,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_1"
+    },
+    "age=1,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_1"
+    },
+    "age=1,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_1"
+    },
+    "age=1,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_1"
+    },
+    "age=2,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_2"
+    },
+    "age=2,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_2"
+    },
+    "age=2,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_2"
+    },
+    "age=2,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_2"
+    },
+    "age=3,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_3"
+    },
+    "age=3,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_3"
+    },
+    "age=3,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_3"
+    },
+    "age=3,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_3"
+    },
+    "age=4,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_4"
+    },
+    "age=4,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_4"
+    },
+    "age=4,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_4"
+    },
+    "age=4,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_4"
+    },
+    "age=5,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_5"
+    },
+    "age=5,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_5"
+    },
+    "age=5,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_5"
+    },
+    "age=5,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_5"
+    },
+    "age=6,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_6"
+    },
+    "age=6,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_6"
+    },
+    "age=6,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_6"
+    },
+    "age=6,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_6"
+    },
+    "age=7,blighted=false,dead=false": {
+      "model": "infx:block/infx_wheat_healthy_7"
+    },
+    "age=7,blighted=false,dead=true": {
+      "model": "infx:block/infx_wheat_dead_6"
+    },
+    "age=7,blighted=true,dead=false": {
+      "model": "infx:block/infx_wheat_blighted_7"
+    },
+    "age=7,blighted=true,dead=true": {
+      "model": "infx:block/infx_wheat_dead_6"
+    }
+  }
+}

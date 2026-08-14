@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "infx:flint_warped_fungus_on_a_stick"
+  ],
+  "result": {
+    "id": "infx:flint_fishing_rod"
+  }
+}

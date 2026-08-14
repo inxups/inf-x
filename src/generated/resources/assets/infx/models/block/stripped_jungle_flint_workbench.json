@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/stripped_jungle_log",
+    "east": "minecraft:block/stripped_jungle_log",
+    "north": "minecraft:block/stripped_jungle_log",
+    "particle": "minecraft:block/stripped_jungle_log",
+    "south": "minecraft:block/stripped_jungle_log",
+    "up": "infx:block/stripped_jungle_log_flint_workbench_top",
+    "west": "minecraft:block/stripped_jungle_log"
+  }
+}

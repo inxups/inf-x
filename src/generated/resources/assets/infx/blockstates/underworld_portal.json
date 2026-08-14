@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x,rune_gate=false": {
+      "model": "infx:block/underworld_portal_ns"
+    },
+    "axis=x,rune_gate=true": {
+      "model": "infx:block/underworld_portal_runegate_ns"
+    },
+    "axis=z,rune_gate=false": {
+      "model": "infx:block/underworld_portal_ew"
+    },
+    "axis=z,rune_gate=true": {
+      "model": "infx:block/underworld_portal_runegate_ew"
+    }
+  }
+}

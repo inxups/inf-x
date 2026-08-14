@@ -1,0 +1,20 @@
+{
+  "values": [
+    "infx:gold_pickaxe",
+    "infx:gold_war_hammer",
+    "infx:copper_pickaxe",
+    "infx:copper_war_hammer",
+    "infx:silver_pickaxe",
+    "infx:silver_war_hammer",
+    "infx:rusted_iron_pickaxe",
+    "infx:rusted_iron_war_hammer",
+    "infx:iron_pickaxe",
+    "infx:iron_war_hammer",
+    "infx:ancient_metal_pickaxe",
+    "infx:ancient_metal_war_hammer",
+    "infx:mithril_pickaxe",
+    "infx:mithril_war_hammer",
+    "infx:adamantium_pickaxe",
+    "infx:adamantium_war_hammer"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "rune=0": {
+      "model": "infx:block/adamantium_rune_stone_0"
+    },
+    "rune=1": {
+      "model": "infx:block/adamantium_rune_stone_1"
+    },
+    "rune=10": {
+      "model": "infx:block/adamantium_rune_stone_10"
+    },
+    "rune=11": {
+      "model": "infx:block/adamantium_rune_stone_11"
+    },
+    "rune=12": {
+      "model": "infx:block/adamantium_rune_stone_12"
+    },
+    "rune=13": {
+      "model": "infx:block/adamantium_rune_stone_13"
+    },
+    "rune=14": {
+      "model": "infx:block/adamantium_rune_stone_14"
+    },
+    "rune=15": {
+      "model": "infx:block/adamantium_rune_stone_15"
+    },
+    "rune=2": {
+      "model": "infx:block/adamantium_rune_stone_2"
+    },
+    "rune=3": {
+      "model": "infx:block/adamantium_rune_stone_3"
+    },
+    "rune=4": {
+      "model": "infx:block/adamantium_rune_stone_4"
+    },
+    "rune=5": {
+      "model": "infx:block/adamantium_rune_stone_5"
+    },
+    "rune=6": {
+      "model": "infx:block/adamantium_rune_stone_6"
+    },
+    "rune=7": {
+      "model": "infx:block/adamantium_rune_stone_7"
+    },
+    "rune=8": {
+      "model": "infx:block/adamantium_rune_stone_8"
+    },
+    "rune=9": {
+      "model": "infx:block/adamantium_rune_stone_9"
+    }
+  }
+}

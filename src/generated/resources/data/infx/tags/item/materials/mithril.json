@@ -1,0 +1,32 @@
+{
+  "values": [
+    "infx:mithril_nugget",
+    "infx:mithril_ingot",
+    "infx:mithril_chain",
+    "infx:mithril_coin",
+    "infx:mithril_pickaxe",
+    "infx:mithril_shovel",
+    "infx:mithril_hatchet",
+    "infx:mithril_axe",
+    "infx:mithril_hoe",
+    "infx:mithril_mattock",
+    "infx:mithril_battle_axe",
+    "infx:mithril_war_hammer",
+    "infx:mithril_scythe",
+    "infx:mithril_shears",
+    "infx:mithril_fishing_rod",
+    "infx:mithril_sword",
+    "infx:mithril_dagger",
+    "infx:mithril_bow",
+    "infx:mithril_arrow",
+    "infx:mithril_helmet",
+    "infx:mithril_chestplate",
+    "infx:mithril_leggings",
+    "infx:mithril_boots",
+    "infx:mithril_chainmail_helmet",
+    "infx:mithril_chainmail_chestplate",
+    "infx:mithril_chainmail_leggings",
+    "infx:mithril_chainmail_boots",
+    "infx:mithril_horse_armor"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 130
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_shears",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_shovel",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_hoe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_mattock",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_dagger",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_sword",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_battle_axe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_war_hammer",
+          "weight": 2
+        }
+      ],
+      "rolls": 8.0
+    }
+  ],
+  "random_sequence": "infx:chests/rusted_iron/simple_dungeon"
+}

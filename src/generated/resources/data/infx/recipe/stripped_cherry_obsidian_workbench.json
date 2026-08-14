@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "#infx:bindings",
+    "L": "minecraft:stripped_cherry_log",
+    "O": "minecraft:obsidian",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "OB",
+    "SL"
+  ],
+  "result": {
+    "id": "infx:stripped_cherry_obsidian_workbench"
+  }
+}

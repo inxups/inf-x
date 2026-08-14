@@ -1,0 +1,17 @@
+{
+  "type": "neoforge:remove_features",
+  "biomes": [
+    "minecraft:stony_shore",
+    "minecraft:river",
+    "minecraft:frozen_river",
+    "infx:desert_river",
+    "infx:jungle_river",
+    "infx:swamp_river"
+  ],
+  "features": [
+    "minecraft:disk_sand",
+    "minecraft:disk_gravel",
+    "minecraft:ore_gravel"
+  ],
+  "steps": "underground_ores"
+}

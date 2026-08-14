@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "infx:milk_bowl",
+    "minecraft:carrot",
+    "minecraft:potato",
+    "infx:onion"
+  ],
+  "result": {
+    "id": "infx:cream_of_vegetable_soup"
+  }
+}

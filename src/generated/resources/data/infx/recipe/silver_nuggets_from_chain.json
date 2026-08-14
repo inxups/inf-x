@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "infx:silver_chain"
+  },
+  "pattern": [
+    "C"
+  ],
+  "result": {
+    "count": 4,
+    "id": "infx:silver_nugget"
+  }
+}

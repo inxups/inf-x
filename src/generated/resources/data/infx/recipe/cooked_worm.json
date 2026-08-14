@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "food",
+  "cookingtime": 160,
+  "experience": 0.2,
+  "ingredient": "infx:worm",
+  "result": {
+    "id": "infx:cooked_worm"
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "infx:item/wood_bow"
+    },
+    "on_true": {
+      "type": "minecraft:select",
+      "cases": [
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/flint_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/flint_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/flint_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "flint"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/obsidian_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/obsidian_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/obsidian_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "obsidian"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/gold_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/gold_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/gold_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "gold"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/copper_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/copper_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/copper_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "copper"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/silver_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/silver_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/silver_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "silver"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/rusted_iron_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/rusted_iron_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/rusted_iron_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "rusted_iron"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/iron_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/iron_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/iron_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "iron"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/ancient_metal_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/ancient_metal_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/ancient_metal_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "ancient_metal"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/mithril_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/mithril_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/mithril_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "mithril"
+        },
+        {
+          "model": {
+            "type": "minecraft:range_dispatch",
+            "entries": [
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/adamantium_1"
+                },
+                "threshold": 0.65
+              },
+              {
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "infx:item/wood_bow/adamantium_2"
+                },
+                "threshold": 0.9
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/adamantium_0"
+            },
+            "property": "minecraft:use_duration",
+            "scale": 0.05
+          },
+          "when": "adamantium"
+        }
+      ],
+      "component": "infx:nocked_arrow_material",
+      "fallback": {
+        "type": "minecraft:range_dispatch",
+        "entries": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/flint_1"
+            },
+            "threshold": 0.65
+          },
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "infx:item/wood_bow/flint_2"
+            },
+            "threshold": 0.9
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "infx:item/wood_bow/flint_0"
+        },
+        "property": "minecraft:use_duration",
+        "scale": 0.05
+      },
+      "property": "minecraft:component"
+    },
+    "property": "minecraft:using_item"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bowl",
+    "minecraft:dandelion",
+    "minecraft:dandelion",
+    "minecraft:dandelion"
+  ],
+  "result": {
+    "id": "infx:salad"
+  }
+}

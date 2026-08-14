@@ -1,0 +1,26 @@
+{
+  "criteria": {
+    "inventory_changed": {
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:gui/advancements/backgrounds/stone",
+    "description": {
+      "translate": "advancements.infx.first_steps.description"
+    },
+    "icon": {
+      "id": "minecraft:stick"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.infx.first_steps.title"
+    }
+  },
+  "requirements": [
+    [
+      "inventory_changed"
+    ]
+  ]
+}

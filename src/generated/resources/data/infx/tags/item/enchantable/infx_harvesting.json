@@ -1,0 +1,28 @@
+{
+  "values": [
+    "infx:gold_hoe",
+    "infx:gold_mattock",
+    "infx:gold_scythe",
+    "infx:copper_hoe",
+    "infx:copper_mattock",
+    "infx:copper_scythe",
+    "infx:silver_hoe",
+    "infx:silver_mattock",
+    "infx:silver_scythe",
+    "infx:rusted_iron_hoe",
+    "infx:rusted_iron_mattock",
+    "infx:rusted_iron_scythe",
+    "infx:iron_hoe",
+    "infx:iron_mattock",
+    "infx:iron_scythe",
+    "infx:ancient_metal_hoe",
+    "infx:ancient_metal_mattock",
+    "infx:ancient_metal_scythe",
+    "infx:mithril_hoe",
+    "infx:mithril_mattock",
+    "infx:mithril_scythe",
+    "infx:adamantium_hoe",
+    "infx:adamantium_mattock",
+    "infx:adamantium_scythe"
+  ]
+}

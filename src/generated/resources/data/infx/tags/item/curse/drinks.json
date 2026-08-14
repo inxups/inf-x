@@ -1,0 +1,23 @@
+{
+  "values": [
+    "minecraft:potion",
+    "minecraft:milk_bucket",
+    "minecraft:honey_bottle",
+    "minecraft:ominous_bottle",
+    "minecraft:beetroot_soup",
+    "infx:water_bowl",
+    "infx:milk_bowl",
+    "infx:pumpkin_soup",
+    "infx:cream_of_mushroom_soup",
+    "infx:vegetable_soup",
+    "infx:cream_of_vegetable_soup",
+    "infx:chicken_soup",
+    "infx:copper_milk_bucket",
+    "infx:silver_milk_bucket",
+    "infx:gold_milk_bucket",
+    "infx:iron_milk_bucket",
+    "infx:ancient_metal_milk_bucket",
+    "infx:mithril_milk_bucket",
+    "infx:adamantium_milk_bucket"
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "values": [
+    "infx:copper_workbench",
+    "infx:silver_workbench",
+    "infx:gold_workbench",
+    "infx:iron_workbench",
+    "infx:ancient_metal_workbench",
+    "infx:mithril_workbench",
+    "infx:adamantium_workbench",
+    "infx:stripped_oak_flint_workbench",
+    "infx:stripped_oak_obsidian_workbench",
+    "infx:stripped_spruce_flint_workbench",
+    "infx:stripped_spruce_obsidian_workbench",
+    "infx:stripped_birch_flint_workbench",
+    "infx:stripped_birch_obsidian_workbench",
+    "infx:stripped_jungle_flint_workbench",
+    "infx:stripped_jungle_obsidian_workbench",
+    "infx:stripped_acacia_flint_workbench",
+    "infx:stripped_acacia_obsidian_workbench",
+    "infx:stripped_cherry_flint_workbench",
+    "infx:stripped_cherry_obsidian_workbench",
+    "infx:stripped_pale_oak_flint_workbench",
+    "infx:stripped_pale_oak_obsidian_workbench",
+    "infx:stripped_dark_oak_flint_workbench",
+    "infx:stripped_dark_oak_obsidian_workbench",
+    "infx:stripped_mangrove_flint_workbench",
+    "infx:stripped_mangrove_obsidian_workbench",
+    "infx:stripped_crimson_flint_workbench",
+    "infx:stripped_crimson_obsidian_workbench",
+    "infx:stripped_warped_flint_workbench",
+    "infx:stripped_warped_obsidian_workbench"
+  ]
+}

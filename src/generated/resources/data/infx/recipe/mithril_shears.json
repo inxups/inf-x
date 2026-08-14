@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "infx:mithril_ingot"
+  },
+  "pattern": [
+    " I",
+    "I "
+  ],
+  "result": {
+    "id": "infx:mithril_shears"
+  }
+}

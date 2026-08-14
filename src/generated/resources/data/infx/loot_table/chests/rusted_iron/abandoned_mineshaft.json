@@ -1,0 +1,51 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 150
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_chain",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_shovel",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_hatchet",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_axe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_mattock",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_pickaxe",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "infx:rusted_iron_war_hammer",
+          "weight": 2
+        }
+      ],
+      "rolls": 3.0
+    }
+  ],
+  "random_sequence": "infx:chests/rusted_iron/abandoned_mineshaft"
+}

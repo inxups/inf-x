@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "infx:gold_fishing_rod",
+    "minecraft:carrot"
+  ],
+  "result": {
+    "id": "infx:gold_carrot_on_a_stick"
+  }
+}

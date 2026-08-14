@@ -1,0 +1,32 @@
+{
+  "values": [
+    "infx:flint_hatchet",
+    "infx:flint_axe",
+    "infx:obsidian_hatchet",
+    "infx:obsidian_axe",
+    "infx:gold_hatchet",
+    "infx:gold_axe",
+    "infx:gold_battle_axe",
+    "infx:copper_hatchet",
+    "infx:copper_axe",
+    "infx:copper_battle_axe",
+    "infx:silver_hatchet",
+    "infx:silver_axe",
+    "infx:silver_battle_axe",
+    "infx:rusted_iron_hatchet",
+    "infx:rusted_iron_axe",
+    "infx:rusted_iron_battle_axe",
+    "infx:iron_hatchet",
+    "infx:iron_axe",
+    "infx:iron_battle_axe",
+    "infx:ancient_metal_hatchet",
+    "infx:ancient_metal_axe",
+    "infx:ancient_metal_battle_axe",
+    "infx:mithril_hatchet",
+    "infx:mithril_axe",
+    "infx:mithril_battle_axe",
+    "infx:adamantium_hatchet",
+    "infx:adamantium_axe",
+    "infx:adamantium_battle_axe"
+  ]
+}

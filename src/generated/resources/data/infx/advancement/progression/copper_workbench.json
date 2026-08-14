@@ -1,0 +1,41 @@
+{
+  "parent": "infx:progression/flint_workbench",
+  "criteria": {
+    "crafted_copper_workbench": {
+      "conditions": {
+        "recipe_id": "infx:copper_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_gold_workbench": {
+      "conditions": {
+        "recipe_id": "infx:gold_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_silver_workbench": {
+      "conditions": {
+        "recipe_id": "infx:silver_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.copper_workbench.description"
+    },
+    "icon": {
+      "id": "infx:copper_workbench"
+    },
+    "title": {
+      "translate": "advancements.infx.copper_workbench.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_copper_workbench",
+      "crafted_silver_workbench",
+      "crafted_gold_workbench"
+    ]
+  ]
+}

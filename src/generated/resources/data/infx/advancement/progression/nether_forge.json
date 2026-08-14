@@ -1,0 +1,27 @@
+{
+  "parent": "infx:progression/nether",
+  "criteria": {
+    "crafted_netherrack_furnace": {
+      "conditions": {
+        "recipe_id": "infx:netherrack_furnace"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.nether_forge.description"
+    },
+    "icon": {
+      "id": "infx:netherrack_furnace"
+    },
+    "title": {
+      "translate": "advancements.infx.nether_forge.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_netherrack_furnace"
+    ]
+  ]
+}

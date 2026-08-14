@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "I": "infx:adamantium_ingot",
+    "L": "minecraft:leather",
+    "P": "#minecraft:planks",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "IL",
+    "SP"
+  ],
+  "result": {
+    "id": "infx:adamantium_workbench"
+  }
+}

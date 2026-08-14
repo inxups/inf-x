@@ -1,0 +1,21 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.infx.vampirism"
+  },
+  "exclusive_set": "infx:vampirism",
+  "max_cost": {
+    "base": 30,
+    "per_level_above_first": 20
+  },
+  "max_level": 5,
+  "min_cost": {
+    "base": 11,
+    "per_level_above_first": 20
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#infx:enchantable/infx_vampirism",
+  "weight": 1
+}

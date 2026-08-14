@@ -1,0 +1,31 @@
+{
+  "parent": "infx:progression/ancient_metal_age",
+  "criteria": {
+    "crafted_mithril_workbench": {
+      "conditions": {
+        "recipe_id": "infx:mithril_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "smelted_mithril": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.mithril_age.description"
+    },
+    "icon": {
+      "id": "infx:mithril_ingot"
+    },
+    "title": {
+      "translate": "advancements.infx.mithril_age.title"
+    }
+  },
+  "requirements": [
+    [
+      "smelted_mithril",
+      "crafted_mithril_workbench"
+    ]
+  ]
+}

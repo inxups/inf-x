@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:gold_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "I I",
+    "ISI",
+    " S "
+  ],
+  "result": {
+    "id": "infx:gold_battle_axe"
+  }
+}

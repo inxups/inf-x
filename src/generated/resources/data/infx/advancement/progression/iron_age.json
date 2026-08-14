@@ -1,0 +1,38 @@
+{
+  "parent": "infx:progression/copper_workbench",
+  "criteria": {
+    "crafted_iron_pickaxe": {
+      "conditions": {
+        "recipe_id": "infx:iron_pickaxe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_iron_workbench": {
+      "conditions": {
+        "recipe_id": "infx:iron_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "smelted_iron": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.iron_age.description"
+    },
+    "icon": {
+      "id": "minecraft:iron_ingot"
+    },
+    "title": {
+      "translate": "advancements.infx.iron_age.title"
+    }
+  },
+  "requirements": [
+    [
+      "smelted_iron",
+      "crafted_iron_workbench",
+      "crafted_iron_pickaxe"
+    ]
+  ]
+}

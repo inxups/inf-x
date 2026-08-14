@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "infx:adamantium_ingot"
+  },
+  "pattern": [
+    "CCC",
+    "C C"
+  ],
+  "result": {
+    "id": "infx:adamantium_helmet"
+  }
+}

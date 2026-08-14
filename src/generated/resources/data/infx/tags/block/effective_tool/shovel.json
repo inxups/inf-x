@@ -1,0 +1,21 @@
+{
+  "values": [
+    "#minecraft:mineable/shovel",
+    "#c:glass_panes",
+    "#minecraft:candle_cakes",
+    "minecraft:cake",
+    "minecraft:carrots",
+    "minecraft:potatoes",
+    "minecraft:beetroots",
+    "infx:clay_furnace",
+    "infx:sandstone_furnace",
+    "infx:infested_netherrack",
+    "minecraft:infested_chiseled_stone_bricks",
+    "minecraft:infested_stone_bricks",
+    "minecraft:infested_cracked_stone_bricks",
+    "minecraft:infested_stone",
+    "minecraft:infested_deepslate",
+    "minecraft:infested_mossy_stone_bricks",
+    "minecraft:infested_cobblestone"
+  ]
+}

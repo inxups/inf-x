@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "damage_stage=0,facing=east": {
+      "model": "infx:block/gold_anvil_stage_0",
+      "y": 270
+    },
+    "damage_stage=0,facing=north": {
+      "model": "infx:block/gold_anvil_stage_0",
+      "y": 180
+    },
+    "damage_stage=0,facing=south": {
+      "model": "infx:block/gold_anvil_stage_0"
+    },
+    "damage_stage=0,facing=west": {
+      "model": "infx:block/gold_anvil_stage_0",
+      "y": 90
+    },
+    "damage_stage=1,facing=east": {
+      "model": "infx:block/gold_anvil_stage_1",
+      "y": 270
+    },
+    "damage_stage=1,facing=north": {
+      "model": "infx:block/gold_anvil_stage_1",
+      "y": 180
+    },
+    "damage_stage=1,facing=south": {
+      "model": "infx:block/gold_anvil_stage_1"
+    },
+    "damage_stage=1,facing=west": {
+      "model": "infx:block/gold_anvil_stage_1",
+      "y": 90
+    },
+    "damage_stage=2,facing=east": {
+      "model": "infx:block/gold_anvil_stage_2",
+      "y": 270
+    },
+    "damage_stage=2,facing=north": {
+      "model": "infx:block/gold_anvil_stage_2",
+      "y": 180
+    },
+    "damage_stage=2,facing=south": {
+      "model": "infx:block/gold_anvil_stage_2"
+    },
+    "damage_stage=2,facing=west": {
+      "model": "infx:block/gold_anvil_stage_2",
+      "y": 90
+    }
+  }
+}

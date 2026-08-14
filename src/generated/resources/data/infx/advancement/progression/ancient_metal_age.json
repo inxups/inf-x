@@ -1,0 +1,27 @@
+{
+  "parent": "infx:progression/iron_age",
+  "criteria": {
+    "crafted_ancient_metal_workbench": {
+      "conditions": {
+        "recipe_id": "infx:ancient_metal_workbench"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.ancient_metal_age.description"
+    },
+    "icon": {
+      "id": "infx:ancient_metal_workbench"
+    },
+    "title": {
+      "translate": "advancements.infx.ancient_metal_age.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_ancient_metal_workbench"
+    ]
+  ]
+}

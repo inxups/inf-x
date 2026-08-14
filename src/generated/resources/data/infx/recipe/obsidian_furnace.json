@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "O": "minecraft:obsidian"
+  },
+  "pattern": [
+    "OOO",
+    "O O",
+    "OOO"
+  ],
+  "result": {
+    "id": "infx:obsidian_furnace"
+  }
+}

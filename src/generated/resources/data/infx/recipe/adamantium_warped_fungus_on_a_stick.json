@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "infx:adamantium_fishing_rod",
+    "minecraft:warped_fungus"
+  ],
+  "result": {
+    "id": "infx:adamantium_warped_fungus_on_a_stick"
+  }
+}

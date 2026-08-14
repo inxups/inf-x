@@ -1,0 +1,11 @@
+{
+  "values": [
+    "#minecraft:mineable/shovel",
+    "#minecraft:candle_cakes",
+    "minecraft:cake",
+    "minecraft:carrots",
+    "minecraft:potatoes",
+    "minecraft:beetroots",
+    "infx:sandstone_furnace"
+  ]
+}

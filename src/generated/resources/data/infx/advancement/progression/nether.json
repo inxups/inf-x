@@ -1,0 +1,24 @@
+{
+  "parent": "infx:progression/underworld",
+  "criteria": {
+    "entered_nether": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.nether.description"
+    },
+    "icon": {
+      "id": "minecraft:netherrack"
+    },
+    "title": {
+      "translate": "advancements.infx.nether.title"
+    }
+  },
+  "requirements": [
+    [
+      "entered_nether"
+    ]
+  ]
+}

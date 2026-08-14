@@ -1,0 +1,179 @@
+{
+  "attributes": {
+    "minecraft:audio/ambient_sounds": {
+      "mood": {
+        "block_search_extent": 8,
+        "offset": 2.0,
+        "sound": "minecraft:ambient.cave",
+        "tick_delay": 6000
+      }
+    },
+    "minecraft:visual/ambient_light_color": "#303030",
+    "minecraft:visual/fog_color": "#303030"
+  },
+  "carvers": [],
+  "downfall": 0.0,
+  "effects": {
+    "water_color": "#3f76e4"
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [
+      "infx:underworld_dungeon"
+    ],
+    [],
+    [],
+    [],
+    [
+      "infx:underworld_copper_ore_low",
+      "infx:underworld_copper_ore_full",
+      "infx:underworld_silver_ore_low",
+      "infx:underworld_silver_ore_full",
+      "infx:underworld_gold_ore_low",
+      "infx:underworld_gold_ore_full",
+      "infx:underworld_iron_ore_low",
+      "infx:underworld_iron_ore_full",
+      "infx:underworld_mithril_ore_low",
+      "infx:underworld_mithril_ore_full",
+      "infx:underworld_adamantium_ore_low",
+      "infx:underworld_adamantium_ore_full",
+      "infx:underworld_redstone_ore_low",
+      "infx:underworld_redstone_ore_full",
+      "infx:underworld_diamond_ore_low",
+      "infx:underworld_diamond_ore_full",
+      "infx:underworld_lapis_ore_low",
+      "infx:underworld_lapis_ore_full",
+      "infx:underworld_silverfish_low",
+      "infx:underworld_silverfish_full",
+      "infx:underworld_gravel_low",
+      "infx:underworld_gravel_full",
+      "infx:underworld_mycelium",
+      "infx:underworld_brown_mushroom",
+      "infx:underworld_liquid_source"
+    ]
+  ],
+  "has_precipitation": false,
+  "spawn_costs": {},
+  "spawners": {
+    "ambient": [],
+    "axolotls": [],
+    "creature": [],
+    "misc": [],
+    "monster": [
+      {
+        "type": "infx:infx_spider",
+        "maxCount": 2,
+        "minCount": 1,
+        "weight": 80
+      },
+      {
+        "type": "infx:infx_creeper",
+        "maxCount": 2,
+        "minCount": 1,
+        "weight": 100
+      },
+      {
+        "type": "infx:infx_enderman",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:wight",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:invisible_stalker",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:demon_spider",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:hellhound",
+        "maxCount": 2,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:shadow",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:earth_elemental",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 10
+      },
+      {
+        "type": "infx:jelly",
+        "maxCount": 4,
+        "minCount": 1,
+        "weight": 30
+      },
+      {
+        "type": "infx:blob",
+        "maxCount": 4,
+        "minCount": 1,
+        "weight": 30
+      },
+      {
+        "type": "infx:ooze",
+        "maxCount": 4,
+        "minCount": 1,
+        "weight": 20
+      },
+      {
+        "type": "infx:pudding",
+        "maxCount": 4,
+        "minCount": 1,
+        "weight": 30
+      },
+      {
+        "type": "infx:clay_golem",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 50
+      },
+      {
+        "type": "infx:phase_spider",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 5
+      },
+      {
+        "type": "infx:infx_cave_spider",
+        "maxCount": 2,
+        "minCount": 1,
+        "weight": 40
+      },
+      {
+        "type": "infx:longdead",
+        "maxCount": 2,
+        "minCount": 1,
+        "weight": 40
+      },
+      {
+        "type": "infx:ancient_bone_lord",
+        "maxCount": 1,
+        "minCount": 1,
+        "weight": 5
+      }
+    ],
+    "underground_water_creature": [],
+    "water_ambient": [],
+    "water_creature": []
+  },
+  "temperature": 0.5
+}

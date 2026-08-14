@@ -1,0 +1,16 @@
+{
+  "values": [
+    "#minecraft:anvil",
+    "minecraft:piston",
+    "minecraft:sticky_piston",
+    "minecraft:piston_head",
+    "minecraft:moving_piston",
+    "infx:copper_anvil",
+    "infx:silver_anvil",
+    "infx:gold_anvil",
+    "infx:iron_anvil",
+    "infx:ancient_metal_anvil",
+    "infx:mithril_anvil",
+    "infx:adamantium_anvil"
+  ]
+}

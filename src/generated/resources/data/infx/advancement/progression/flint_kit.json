@@ -1,0 +1,48 @@
+{
+  "parent": "infx:progression/first_steps",
+  "criteria": {
+    "crafted_flint_axe": {
+      "conditions": {
+        "recipe_id": "infx:flint_axe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_flint_hatchet": {
+      "conditions": {
+        "recipe_id": "infx:flint_hatchet"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_flint_knife": {
+      "conditions": {
+        "recipe_id": "infx:flint_knife"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_flint_shovel": {
+      "conditions": {
+        "recipe_id": "infx:flint_shovel"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.flint_kit.description"
+    },
+    "icon": {
+      "id": "infx:flint_hatchet"
+    },
+    "title": {
+      "translate": "advancements.infx.flint_kit.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_flint_hatchet",
+      "crafted_flint_knife",
+      "crafted_flint_shovel",
+      "crafted_flint_axe"
+    ]
+  ]
+}

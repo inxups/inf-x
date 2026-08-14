@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:cooked_beef",
+    "minecraft:brown_mushroom",
+    "minecraft:potato",
+    "infx:water_bowl"
+  ],
+  "result": {
+    "id": "infx:beef_stew"
+  }
+}

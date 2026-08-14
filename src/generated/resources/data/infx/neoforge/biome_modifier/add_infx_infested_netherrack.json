@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_nether",
+  "features": "infx:infx_infested_netherrack",
+  "step": "underground_ores"
+}

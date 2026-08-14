@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": "#minecraft:eggs",
+    "F": "infx:flour",
+    "M": "#infx:milk_buckets",
+    "S": "minecraft:sugar"
+  },
+  "pattern": [
+    "FS",
+    "EM"
+  ],
+  "result": {
+    "id": "minecraft:cake"
+  }
+}

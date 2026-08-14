@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "infx:block/snow_slab_bottom"
+    },
+    "type=double": {
+      "model": "infx:block/snow_slab"
+    },
+    "type=top": {
+      "model": "infx:block/snow_slab_top"
+    }
+  }
+}

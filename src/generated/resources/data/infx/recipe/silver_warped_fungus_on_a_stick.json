@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "infx:silver_fishing_rod",
+    "minecraft:warped_fungus"
+  ],
+  "result": {
+    "id": "infx:silver_warped_fungus_on_a_stick"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "feature": "infx:underworld_brown_mushroom",
+  "placement": [
+    {
+      "type": "minecraft:count",
+      "count": 1
+    },
+    {
+      "type": "minecraft:biome"
+    }
+  ]
+}

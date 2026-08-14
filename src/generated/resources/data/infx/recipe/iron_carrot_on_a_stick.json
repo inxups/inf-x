@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "infx:iron_fishing_rod",
+    "minecraft:carrot"
+  ],
+  "result": {
+    "id": "infx:iron_carrot_on_a_stick"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "minecraft:string",
+    "I": "infx:mithril_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    " SB",
+    "SIB",
+    " SB"
+  ],
+  "result": {
+    "id": "infx:mithril_bow"
+  }
+}

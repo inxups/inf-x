@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "infx:adamantium_chainmail"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "infx:adamantium_chainmail"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "infx:adamantium_chainmail"
+      }
+    ]
+  }
+}

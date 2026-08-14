@@ -1,0 +1,102 @@
+{
+  "parent": "infx:progression/flint_workbench",
+  "criteria": {
+    "wearing_leather_boots": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "feet": {
+                  "items": "infx:leather_boots"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "wearing_leather_chestplate": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "chest": {
+                  "items": "infx:leather_chestplate"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "wearing_leather_helmet": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "head": {
+                  "items": "infx:leather_helmet"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    },
+    "wearing_leather_leggings": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "legs": {
+                  "items": "infx:leather_leggings"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.leather_armor.description"
+    },
+    "icon": {
+      "id": "infx:leather_chestplate"
+    },
+    "title": {
+      "translate": "advancements.infx.leather_armor.title"
+    }
+  },
+  "requirements": [
+    [
+      "wearing_leather_helmet"
+    ],
+    [
+      "wearing_leather_chestplate"
+    ],
+    [
+      "wearing_leather_leggings"
+    ],
+    [
+      "wearing_leather_boots"
+    ]
+  ]
+}

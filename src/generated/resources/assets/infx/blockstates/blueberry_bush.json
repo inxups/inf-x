@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "infx:block/blueberry_bush_picked"
+    },
+    "age=1": {
+      "model": "infx:block/blueberry_bush_picked"
+    },
+    "age=2": {
+      "model": "infx:block/blueberry_bush_picked"
+    },
+    "age=3": {
+      "model": "infx:block/blueberry_bush"
+    }
+  }
+}

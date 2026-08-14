@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "/": "minecraft:stick",
+    "?": "infx:adamantium_nugget",
+    "|": "minecraft:string"
+  },
+  "pattern": [
+    "  /",
+    " /|",
+    "/?|"
+  ],
+  "result": {
+    "id": "infx:adamantium_fishing_rod"
+  }
+}

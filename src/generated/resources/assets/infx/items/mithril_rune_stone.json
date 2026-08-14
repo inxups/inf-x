@@ -1,0 +1,125 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "block_state_property": "rune",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_0"
+        },
+        "when": "0"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_1"
+        },
+        "when": "1"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_2"
+        },
+        "when": "2"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_3"
+        },
+        "when": "3"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_4"
+        },
+        "when": "4"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_5"
+        },
+        "when": "5"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_6"
+        },
+        "when": "6"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_7"
+        },
+        "when": "7"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_8"
+        },
+        "when": "8"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_9"
+        },
+        "when": "9"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_10"
+        },
+        "when": "10"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_11"
+        },
+        "when": "11"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_12"
+        },
+        "when": "12"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_13"
+        },
+        "when": "13"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_14"
+        },
+        "when": "14"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "infx:block/mithril_rune_stone_15"
+        },
+        "when": "15"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "infx:block/mithril_rune_stone_0"
+    },
+    "property": "minecraft:block_state"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_anvil",
+  "textures": {
+    "body": "infx:block/anvil/silver/base",
+    "particle": "infx:block/anvil/silver/base",
+    "top": "infx:block/anvil/silver/top_damaged_2"
+  }
+}

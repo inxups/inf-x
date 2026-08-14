@@ -1,0 +1,5 @@
+{
+  "type": "infx:progression_filter",
+  "conditions": [],
+  "priority": 900
+}

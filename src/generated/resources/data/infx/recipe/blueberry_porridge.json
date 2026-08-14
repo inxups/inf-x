@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:wheat_seeds",
+    "infx:blueberries",
+    "minecraft:sugar",
+    "infx:water_bowl"
+  ],
+  "result": {
+    "id": "infx:blueberry_porridge"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "infx:block/template_red_nether_portal_ns",
+  "textures": {
+    "particle": "infx:block/nether_portal",
+    "portal": "infx:block/nether_portal"
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "parent": "infx:progression/copper_workbench",
+  "criteria": {
+    "wearing_full_metal_armor": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "chest": {
+                  "items": [
+                    "infx:copper_chestplate",
+                    "infx:copper_chainmail_chestplate",
+                    "infx:silver_chestplate",
+                    "infx:silver_chainmail_chestplate",
+                    "infx:gold_chestplate",
+                    "infx:gold_chainmail_chestplate",
+                    "infx:iron_chestplate",
+                    "infx:iron_chainmail_chestplate",
+                    "infx:ancient_metal_chestplate",
+                    "infx:ancient_metal_chainmail_chestplate",
+                    "infx:mithril_chestplate",
+                    "infx:mithril_chainmail_chestplate"
+                  ]
+                },
+                "feet": {
+                  "items": [
+                    "infx:copper_boots",
+                    "infx:copper_chainmail_boots",
+                    "infx:silver_boots",
+                    "infx:silver_chainmail_boots",
+                    "infx:gold_boots",
+                    "infx:gold_chainmail_boots",
+                    "infx:iron_boots",
+                    "infx:iron_chainmail_boots",
+                    "infx:ancient_metal_boots",
+                    "infx:ancient_metal_chainmail_boots",
+                    "infx:mithril_boots",
+                    "infx:mithril_chainmail_boots"
+                  ]
+                },
+                "head": {
+                  "items": [
+                    "infx:copper_helmet",
+                    "infx:copper_chainmail_helmet",
+                    "infx:silver_helmet",
+                    "infx:silver_chainmail_helmet",
+                    "infx:gold_helmet",
+                    "infx:gold_chainmail_helmet",
+                    "infx:iron_helmet",
+                    "infx:iron_chainmail_helmet",
+                    "infx:ancient_metal_helmet",
+                    "infx:ancient_metal_chainmail_helmet",
+                    "infx:mithril_helmet",
+                    "infx:mithril_chainmail_helmet"
+                  ]
+                },
+                "legs": {
+                  "items": [
+                    "infx:copper_leggings",
+                    "infx:copper_chainmail_leggings",
+                    "infx:silver_leggings",
+                    "infx:silver_chainmail_leggings",
+                    "infx:gold_leggings",
+                    "infx:gold_chainmail_leggings",
+                    "infx:iron_leggings",
+                    "infx:iron_chainmail_leggings",
+                    "infx:ancient_metal_leggings",
+                    "infx:ancient_metal_chainmail_leggings",
+                    "infx:mithril_leggings",
+                    "infx:mithril_chainmail_leggings"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.metal_armor.description"
+    },
+    "icon": {
+      "id": "infx:iron_chestplate"
+    },
+    "title": {
+      "translate": "advancements.infx.metal_armor.title"
+    }
+  },
+  "requirements": [
+    [
+      "wearing_full_metal_armor"
+    ]
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "infx:orange",
+    "minecraft:sugar",
+    "minecraft:snowball",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "infx:fruit_ice"
+  }
+}

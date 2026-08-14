@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "infx:milk_bowl",
+    "minecraft:baked_potato",
+    "infx:cheese"
+  ],
+  "result": {
+    "id": "infx:mashed_potato"
+  }
+}

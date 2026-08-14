@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "#infx:bindings",
+    "F": "minecraft:flint",
+    "L": "minecraft:stripped_mangrove_log",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "FB",
+    "SL"
+  ],
+  "result": {
+    "id": "infx:stripped_mangrove_flint_workbench"
+  }
+}

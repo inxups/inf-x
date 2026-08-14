@@ -1,0 +1,24 @@
+{
+  "parent": "infx:progression/obsidian_furnace",
+  "criteria": {
+    "entered_underworld": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.underworld.description"
+    },
+    "icon": {
+      "id": "minecraft:obsidian"
+    },
+    "title": {
+      "translate": "advancements.infx.underworld.title"
+    }
+  },
+  "requirements": [
+    [
+      "entered_underworld"
+    ]
+  ]
+}

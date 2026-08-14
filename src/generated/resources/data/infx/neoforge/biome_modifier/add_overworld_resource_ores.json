@@ -1,0 +1,14 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "infx:overworld_coal_ore",
+    "infx:overworld_copper_ore",
+    "infx:overworld_iron_ore",
+    "infx:overworld_gold_ore",
+    "infx:overworld_redstone_ore",
+    "infx:overworld_diamond_ore",
+    "infx:overworld_lapis_ore"
+  ],
+  "step": "underground_ores"
+}

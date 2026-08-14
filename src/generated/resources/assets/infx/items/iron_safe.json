@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "infx:item/iron_safe",
+    "model": {
+      "type": "infx:safe",
+      "texture": "infx:iron"
+    }
+  }
+}

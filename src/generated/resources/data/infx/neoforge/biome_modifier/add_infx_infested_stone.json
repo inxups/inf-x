@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": "infx:infx_infested_stone",
+  "step": "underground_ores"
+}

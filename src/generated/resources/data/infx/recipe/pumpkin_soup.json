@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:pumpkin",
+    "infx:water_bowl"
+  ],
+  "result": {
+    "id": "infx:pumpkin_soup"
+  }
+}

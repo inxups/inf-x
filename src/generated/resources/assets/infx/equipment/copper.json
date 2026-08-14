@@ -1,0 +1,24 @@
+{
+  "layers": {
+    "horse_body": [
+      {
+        "texture": "infx:copper"
+      }
+    ],
+    "humanoid": [
+      {
+        "texture": "infx:copper"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "infx:copper"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "infx:copper"
+      }
+    ]
+  }
+}

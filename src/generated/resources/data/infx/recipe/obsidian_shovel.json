@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "#infx:bindings",
+    "O": "minecraft:obsidian",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "O ",
+    "S ",
+    "SB"
+  ],
+  "result": {
+    "id": "infx:obsidian_shovel"
+  }
+}

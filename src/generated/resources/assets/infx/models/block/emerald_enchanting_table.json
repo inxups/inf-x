@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/enchanting_table",
+  "textures": {
+    "particle": "infx:block/emerald_enchanting_table_side",
+    "side": "infx:block/emerald_enchanting_table_side",
+    "top": "infx:block/emerald_enchanting_table_top"
+  }
+}

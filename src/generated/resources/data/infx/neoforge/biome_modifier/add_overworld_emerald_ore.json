@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_mountain",
+  "features": "infx:overworld_emerald_ore",
+  "step": "underground_ores"
+}

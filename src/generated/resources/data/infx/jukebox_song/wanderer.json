@@ -1,0 +1,8 @@
+{
+  "comparator_output": 13,
+  "description": {
+    "translate": "jukebox_song.infx.wanderer"
+  },
+  "length_in_seconds": 123.768,
+  "sound_event": "infx:record.wanderer"
+}

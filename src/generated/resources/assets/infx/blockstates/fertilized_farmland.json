@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "moisture=0": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=1": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=2": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=3": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=4": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=5": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=6": {
+      "model": "infx:block/farmland_dry_fertilized"
+    },
+    "moisture=7": {
+      "model": "infx:block/farmland_wet_fertilized"
+    }
+  }
+}

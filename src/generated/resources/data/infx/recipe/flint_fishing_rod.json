@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "/": "minecraft:stick",
+    "?": "infx:flint_chip",
+    "|": "minecraft:string"
+  },
+  "pattern": [
+    "  /",
+    " /|",
+    "/?|"
+  ],
+  "result": {
+    "id": "infx:flint_fishing_rod"
+  }
+}

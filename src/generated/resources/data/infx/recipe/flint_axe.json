@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "#infx:bindings",
+    "F": "minecraft:flint",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "FF",
+    "FS",
+    "BS"
+  ],
+  "result": {
+    "id": "infx:flint_axe"
+  }
+}

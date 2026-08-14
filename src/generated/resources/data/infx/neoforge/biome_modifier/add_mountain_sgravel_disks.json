@@ -1,0 +1,13 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "minecraft:stony_peaks",
+    "minecraft:windswept_gravelly_hills"
+  ],
+  "features": [
+    "infx:sgravel_disk",
+    "infx:sgravel_gravel_disk",
+    "infx:mountain_sgravel_ore"
+  ],
+  "step": "underground_ores"
+}

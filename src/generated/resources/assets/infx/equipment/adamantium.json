@@ -1,0 +1,24 @@
+{
+  "layers": {
+    "horse_body": [
+      {
+        "texture": "infx:adamantium"
+      }
+    ],
+    "humanoid": [
+      {
+        "texture": "infx:adamantium"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "infx:adamantium"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "infx:adamantium"
+      }
+    ]
+  }
+}

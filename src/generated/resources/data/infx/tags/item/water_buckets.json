@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:water_bucket",
+    "infx:copper_water_bucket",
+    "infx:silver_water_bucket",
+    "infx:gold_water_bucket",
+    "infx:iron_water_bucket",
+    "infx:ancient_metal_water_bucket",
+    "infx:mithril_water_bucket",
+    "infx:adamantium_water_bucket"
+  ]
+}

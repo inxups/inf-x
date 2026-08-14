@@ -1,0 +1,387 @@
+{
+  "type": "minecraft:range_choice",
+  "input": {
+    "type": "minecraft:y_clamped_gradient",
+    "from_value": -128.0,
+    "from_y": -128,
+    "to_value": 256.0,
+    "to_y": 256
+  },
+  "max_exclusive": 248.0,
+  "min_inclusive": 120.0,
+  "when_in_range": {
+    "type": "minecraft:clamp",
+    "input": {
+      "type": "minecraft:interpolated",
+      "argument": {
+        "type": "minecraft:add",
+        "argument1": {
+          "type": "minecraft:mul",
+          "argument1": {
+            "type": "minecraft:add",
+            "argument1": {
+              "type": "minecraft:mul",
+              "argument1": 128.0,
+              "argument2": {
+                "type": "infx:shifted_y",
+                "input": {
+                  "type": "minecraft:old_blended_noise",
+                  "smear_scale_multiplier": 8.0,
+                  "xz_factor": 80.0,
+                  "xz_scale": 0.25,
+                  "y_factor": 60.0,
+                  "y_scale": 0.375
+                },
+                "offset": 120
+              }
+            },
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": -1.0,
+              "argument2": {
+                "type": "minecraft:range_choice",
+                "input": {
+                  "type": "minecraft:y_clamped_gradient",
+                  "from_value": -128.0,
+                  "from_y": -128,
+                  "to_value": 256.0,
+                  "to_y": 256
+                },
+                "max_exclusive": 128.0,
+                "min_inclusive": 120.0,
+                "when_in_range": {
+                  "type": "minecraft:y_clamped_gradient",
+                  "from_value": -638.0,
+                  "from_y": 120,
+                  "to_value": -269.1085232884469,
+                  "to_y": 128
+                },
+                "when_out_of_range": {
+                  "type": "minecraft:range_choice",
+                  "input": {
+                    "type": "minecraft:y_clamped_gradient",
+                    "from_value": -128.0,
+                    "from_y": -128,
+                    "to_value": 256.0,
+                    "to_y": 256
+                  },
+                  "max_exclusive": 136.0,
+                  "min_inclusive": 128.0,
+                  "when_in_range": {
+                    "type": "minecraft:y_clamped_gradient",
+                    "from_value": -269.1085232884469,
+                    "from_y": 128,
+                    "to_value": -81.20526927275851,
+                    "to_y": 136
+                  },
+                  "when_out_of_range": {
+                    "type": "minecraft:range_choice",
+                    "input": {
+                      "type": "minecraft:y_clamped_gradient",
+                      "from_value": -128.0,
+                      "from_y": -128,
+                      "to_value": 256.0,
+                      "to_y": 256
+                    },
+                    "max_exclusive": 144.0,
+                    "min_inclusive": 136.0,
+                    "when_in_range": {
+                      "type": "minecraft:y_clamped_gradient",
+                      "from_value": -81.20526927275851,
+                      "from_y": 136,
+                      "to_value": -11.965946199367803,
+                      "to_y": 144
+                    },
+                    "when_out_of_range": {
+                      "type": "minecraft:range_choice",
+                      "input": {
+                        "type": "minecraft:y_clamped_gradient",
+                        "from_value": -128.0,
+                        "from_y": -128,
+                        "to_value": 256.0,
+                        "to_y": 256
+                      },
+                      "max_exclusive": 152.0,
+                      "min_inclusive": 144.0,
+                      "when_in_range": {
+                        "type": "minecraft:y_clamped_gradient",
+                        "from_value": -11.965946199367803,
+                        "from_y": 144,
+                        "to_value": -0.5473259801441662,
+                        "to_y": 152
+                      },
+                      "when_out_of_range": {
+                        "type": "minecraft:range_choice",
+                        "input": {
+                          "type": "minecraft:y_clamped_gradient",
+                          "from_value": -128.0,
+                          "from_y": -128,
+                          "to_value": 256.0,
+                          "to_y": 256
+                        },
+                        "max_exclusive": 160.0,
+                        "min_inclusive": 152.0,
+                        "when_in_range": {
+                          "type": "minecraft:y_clamped_gradient",
+                          "from_value": -0.5473259801441662,
+                          "from_y": 152,
+                          "to_value": 1.4780178344413184,
+                          "to_y": 160
+                        },
+                        "when_out_of_range": {
+                          "type": "minecraft:range_choice",
+                          "input": {
+                            "type": "minecraft:y_clamped_gradient",
+                            "from_value": -128.0,
+                            "from_y": -128,
+                            "to_value": 256.0,
+                            "to_y": 256
+                          },
+                          "max_exclusive": 168.0,
+                          "min_inclusive": 160.0,
+                          "when_in_range": {
+                            "type": "minecraft:y_clamped_gradient",
+                            "from_value": 1.4780178344413184,
+                            "from_y": 160,
+                            "to_value": 1.8649444588087118,
+                            "to_y": 168
+                          },
+                          "when_out_of_range": {
+                            "type": "minecraft:range_choice",
+                            "input": {
+                              "type": "minecraft:y_clamped_gradient",
+                              "from_value": -128.0,
+                              "from_y": -128,
+                              "to_value": 256.0,
+                              "to_y": 256
+                            },
+                            "max_exclusive": 176.0,
+                            "min_inclusive": 168.0,
+                            "when_in_range": {
+                              "type": "minecraft:y_clamped_gradient",
+                              "from_value": 1.8649444588087118,
+                              "from_y": 168,
+                              "to_value": 0.18453671892660584,
+                              "to_y": 176
+                            },
+                            "when_out_of_range": {
+                              "type": "minecraft:range_choice",
+                              "input": {
+                                "type": "minecraft:y_clamped_gradient",
+                                "from_value": -128.0,
+                                "from_y": -128,
+                                "to_value": 256.0,
+                                "to_y": 256
+                              },
+                              "max_exclusive": 184.0,
+                              "min_inclusive": 176.0,
+                              "when_in_range": {
+                                "type": "minecraft:y_clamped_gradient",
+                                "from_value": 0.18453671892660584,
+                                "from_y": 176,
+                                "to_value": -1.7004342714592278,
+                                "to_y": 184
+                              },
+                              "when_out_of_range": {
+                                "type": "minecraft:range_choice",
+                                "input": {
+                                  "type": "minecraft:y_clamped_gradient",
+                                  "from_value": -128.0,
+                                  "from_y": -128,
+                                  "to_value": 256.0,
+                                  "to_y": 256
+                                },
+                                "max_exclusive": 192.0,
+                                "min_inclusive": 184.0,
+                                "when_in_range": {
+                                  "type": "minecraft:y_clamped_gradient",
+                                  "from_value": -1.7004342714592278,
+                                  "from_y": 184,
+                                  "to_value": -1.7004342714592284,
+                                  "to_y": 192
+                                },
+                                "when_out_of_range": {
+                                  "type": "minecraft:range_choice",
+                                  "input": {
+                                    "type": "minecraft:y_clamped_gradient",
+                                    "from_value": -128.0,
+                                    "from_y": -128,
+                                    "to_value": 256.0,
+                                    "to_y": 256
+                                  },
+                                  "max_exclusive": 200.0,
+                                  "min_inclusive": 192.0,
+                                  "when_in_range": {
+                                    "type": "minecraft:y_clamped_gradient",
+                                    "from_value": -1.7004342714592284,
+                                    "from_y": 192,
+                                    "to_value": 0.18453671892660437,
+                                    "to_y": 200
+                                  },
+                                  "when_out_of_range": {
+                                    "type": "minecraft:range_choice",
+                                    "input": {
+                                      "type": "minecraft:y_clamped_gradient",
+                                      "from_value": -128.0,
+                                      "from_y": -128,
+                                      "to_value": 256.0,
+                                      "to_y": 256
+                                    },
+                                    "max_exclusive": 208.0,
+                                    "min_inclusive": 200.0,
+                                    "when_in_range": {
+                                      "type": "minecraft:y_clamped_gradient",
+                                      "from_value": 0.18453671892660437,
+                                      "from_y": 200,
+                                      "to_value": 1.8649444588087107,
+                                      "to_y": 208
+                                    },
+                                    "when_out_of_range": {
+                                      "type": "minecraft:range_choice",
+                                      "input": {
+                                        "type": "minecraft:y_clamped_gradient",
+                                        "from_value": -128.0,
+                                        "from_y": -128,
+                                        "to_value": 256.0,
+                                        "to_y": 256
+                                      },
+                                      "max_exclusive": 216.0,
+                                      "min_inclusive": 208.0,
+                                      "when_in_range": {
+                                        "type": "minecraft:y_clamped_gradient",
+                                        "from_value": 1.8649444588087107,
+                                        "from_y": 208,
+                                        "to_value": 1.4780178344413193,
+                                        "to_y": 216
+                                      },
+                                      "when_out_of_range": {
+                                        "type": "minecraft:range_choice",
+                                        "input": {
+                                          "type": "minecraft:y_clamped_gradient",
+                                          "from_value": -128.0,
+                                          "from_y": -128,
+                                          "to_value": 256.0,
+                                          "to_y": 256
+                                        },
+                                        "max_exclusive": 224.0,
+                                        "min_inclusive": 216.0,
+                                        "when_in_range": {
+                                          "type": "minecraft:y_clamped_gradient",
+                                          "from_value": 1.4780178344413193,
+                                          "from_y": 216,
+                                          "to_value": -10.547325980144166,
+                                          "to_y": 224
+                                        },
+                                        "when_out_of_range": {
+                                          "type": "minecraft:range_choice",
+                                          "input": {
+                                            "type": "minecraft:y_clamped_gradient",
+                                            "from_value": -128.0,
+                                            "from_y": -128,
+                                            "to_value": 256.0,
+                                            "to_y": 256
+                                          },
+                                          "max_exclusive": 232.0,
+                                          "min_inclusive": 224.0,
+                                          "when_in_range": {
+                                            "type": "minecraft:y_clamped_gradient",
+                                            "from_value": -10.547325980144166,
+                                            "from_y": 224,
+                                            "to_value": -81.9659461993678,
+                                            "to_y": 232
+                                          },
+                                          "when_out_of_range": {
+                                            "type": "minecraft:range_choice",
+                                            "input": {
+                                              "type": "minecraft:y_clamped_gradient",
+                                              "from_value": -128.0,
+                                              "from_y": -128,
+                                              "to_value": 256.0,
+                                              "to_y": 256
+                                            },
+                                            "max_exclusive": 240.0,
+                                            "min_inclusive": 232.0,
+                                            "when_in_range": {
+                                              "type": "minecraft:y_clamped_gradient",
+                                              "from_value": -81.9659461993678,
+                                              "from_y": 232,
+                                              "to_value": -271.2052692727585,
+                                              "to_y": 240
+                                            },
+                                            "when_out_of_range": {
+                                              "type": "minecraft:range_choice",
+                                              "input": {
+                                                "type": "minecraft:y_clamped_gradient",
+                                                "from_value": -128.0,
+                                                "from_y": -128,
+                                                "to_value": 256.0,
+                                                "to_y": 256
+                                              },
+                                              "max_exclusive": 248.0,
+                                              "min_inclusive": 240.0,
+                                              "when_in_range": {
+                                                "type": "minecraft:y_clamped_gradient",
+                                                "from_value": -271.2052692727585,
+                                                "from_y": 240,
+                                                "to_value": -639.1085232884469,
+                                                "to_y": 248
+                                              },
+                                              "when_out_of_range": -639.1085232884469
+                                            }
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "argument2": {
+            "type": "minecraft:add",
+            "argument1": 1.0,
+            "argument2": {
+              "type": "minecraft:mul",
+              "argument1": -1.0,
+              "argument2": {
+                "type": "minecraft:cache_once",
+                "argument": {
+                  "type": "minecraft:y_clamped_gradient",
+                  "from_value": 0.0,
+                  "from_y": 224,
+                  "to_value": 1.0,
+                  "to_y": 248
+                }
+              }
+            }
+          }
+        },
+        "argument2": {
+          "type": "minecraft:mul",
+          "argument1": -10.0,
+          "argument2": {
+            "type": "minecraft:cache_once",
+            "argument": {
+              "type": "minecraft:y_clamped_gradient",
+              "from_value": 0.0,
+              "from_y": 224,
+              "to_value": 1.0,
+              "to_y": 248
+            }
+          }
+        }
+      }
+    },
+    "max": 1.0,
+    "min": -1.0
+  },
+  "when_out_of_range": 1.0
+}

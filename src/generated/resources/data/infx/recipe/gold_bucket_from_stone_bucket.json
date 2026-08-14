@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "infx:gold_stone_bucket"
+  ],
+  "result": {
+    "id": "infx:gold_bucket"
+  }
+}

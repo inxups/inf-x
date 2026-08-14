@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "neoforge:ingredient_type": "neoforge:components",
+      "components": {
+        "minecraft:potion_contents": {
+          "potion": "minecraft:water"
+        }
+      },
+      "items": "minecraft:potion"
+    },
+    "minecraft:nether_wart",
+    "minecraft:charcoal"
+  ],
+  "result": {
+    "id": "infx:bottle_of_disenchanting"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "values": [
+    "infx:flint_arrow",
+    "infx:obsidian_arrow",
+    "infx:gold_arrow",
+    "infx:copper_arrow",
+    "infx:silver_arrow",
+    "infx:rusted_iron_arrow",
+    "infx:iron_arrow",
+    "infx:ancient_metal_arrow",
+    "infx:mithril_arrow",
+    "infx:adamantium_arrow"
+  ]
+}

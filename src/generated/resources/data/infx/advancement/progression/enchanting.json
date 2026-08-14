@@ -1,0 +1,34 @@
+{
+  "parent": "infx:progression/iron_age",
+  "criteria": {
+    "crafted_diamond_enchanting_table": {
+      "conditions": {
+        "recipe_id": "infx:diamond_enchanting_table"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_emerald_enchanting_table": {
+      "conditions": {
+        "recipe_id": "infx:emerald_enchanting_table"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.enchanting.description"
+    },
+    "icon": {
+      "id": "infx:emerald_enchanting_table"
+    },
+    "title": {
+      "translate": "advancements.infx.enchanting.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_emerald_enchanting_table",
+      "crafted_diamond_enchanting_table"
+    ]
+  ]
+}

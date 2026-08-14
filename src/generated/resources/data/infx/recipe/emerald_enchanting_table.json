@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "minecraft:book",
+    "G": "minecraft:emerald",
+    "O": "minecraft:obsidian"
+  },
+  "pattern": [
+    " B ",
+    "GOG",
+    "OOO"
+  ],
+  "result": {
+    "id": "infx:emerald_enchanting_table"
+  }
+}

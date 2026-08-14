@@ -1,0 +1,100 @@
+{
+  "variants": {
+    "age=0,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_0"
+    },
+    "age=0,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_0"
+    },
+    "age=0,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_0"
+    },
+    "age=0,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_0"
+    },
+    "age=1,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_1"
+    },
+    "age=1,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_1"
+    },
+    "age=1,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_1"
+    },
+    "age=1,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_1"
+    },
+    "age=2,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_1"
+    },
+    "age=2,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_1"
+    },
+    "age=2,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_1"
+    },
+    "age=2,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_1"
+    },
+    "age=3,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_2"
+    },
+    "age=3,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_2"
+    },
+    "age=3,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_2"
+    },
+    "age=3,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_2"
+    },
+    "age=4,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_2"
+    },
+    "age=4,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_2"
+    },
+    "age=4,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_2"
+    },
+    "age=4,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_2"
+    },
+    "age=5,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_3"
+    },
+    "age=5,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_3"
+    },
+    "age=5,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_3"
+    },
+    "age=5,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_3"
+    },
+    "age=6,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_3"
+    },
+    "age=6,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_3"
+    },
+    "age=6,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_3"
+    },
+    "age=6,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_3"
+    },
+    "age=7,blighted=false,dead=false": {
+      "model": "infx:block/infx_onions_healthy_4"
+    },
+    "age=7,blighted=false,dead=true": {
+      "model": "infx:block/infx_onions_dead_3"
+    },
+    "age=7,blighted=true,dead=false": {
+      "model": "infx:block/infx_onions_blighted_4"
+    },
+    "age=7,blighted=true,dead=true": {
+      "model": "infx:block/infx_onions_dead_3"
+    }
+  }
+}

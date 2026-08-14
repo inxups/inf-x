@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "infx:flint_chip"
+  },
+  "pattern": [
+    "FF",
+    "FF"
+  ],
+  "result": {
+    "id": "minecraft:flint"
+  }
+}

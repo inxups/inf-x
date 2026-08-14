@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "minecraft:block/obsidian",
+    "side": "infx:block/runestones/adamantium/3",
+    "top": "minecraft:block/obsidian"
+  }
+}

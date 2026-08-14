@@ -1,0 +1,16 @@
+{
+  "values": [
+    "#c:glass_blocks",
+    "#c:glass_panes",
+    "#minecraft:ice",
+    "#minecraft:coral_blocks",
+    "#minecraft:corals",
+    "#minecraft:wall_corals",
+    "#minecraft:candle_cakes",
+    "#c:pumpkins",
+    "minecraft:beacon",
+    "minecraft:cake",
+    "minecraft:glowstone",
+    "minecraft:melon"
+  ]
+}

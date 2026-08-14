@@ -1,0 +1,22 @@
+{
+  "values": {
+    "infx:manure": {
+      "burn_time": 60
+    },
+    "minecraft:copper_torch": {
+      "burn_time": 800
+    },
+    "minecraft:leaf_litter": {
+      "burn_time": 20
+    },
+    "minecraft:redstone_torch": {
+      "burn_time": 800
+    },
+    "minecraft:soul_torch": {
+      "burn_time": 800
+    },
+    "minecraft:torch": {
+      "burn_time": 800
+    }
+  }
+}

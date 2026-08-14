@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/stripped_crimson_stem",
+    "east": "minecraft:block/stripped_crimson_stem",
+    "north": "minecraft:block/stripped_crimson_stem",
+    "particle": "minecraft:block/stripped_crimson_stem",
+    "south": "minecraft:block/stripped_crimson_stem",
+    "up": "infx:block/stripped_crimson_stem_obsidian_workbench_top",
+    "west": "minecraft:block/stripped_crimson_stem"
+  }
+}

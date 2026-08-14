@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "infx:silver_ingot",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "I I",
+    "ISI",
+    " S "
+  ],
+  "result": {
+    "id": "infx:silver_battle_axe"
+  }
+}

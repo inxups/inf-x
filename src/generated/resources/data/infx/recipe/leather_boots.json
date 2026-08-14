@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "minecraft:leather"
+  },
+  "pattern": [
+    "C C",
+    "C C"
+  ],
+  "result": {
+    "id": "infx:leather_boots"
+  }
+}

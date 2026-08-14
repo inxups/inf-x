@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    "C C",
+    "C C"
+  ],
+  "result": {
+    "id": "infx:gold_boots"
+  }
+}

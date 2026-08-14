@@ -1,0 +1,15 @@
+{
+  "values": [
+    "#c:ores/diamond",
+    "minecraft:emerald_block",
+    "minecraft:iron_block",
+    "minecraft:raw_iron_block",
+    "minecraft:ancient_debris",
+    "minecraft:lodestone",
+    "infx:adamantium_ore",
+    "infx:deepslate_adamantium_ore",
+    "infx:ancient_metal_block",
+    "infx:iron_safe",
+    "infx:ancient_metal_safe"
+  ]
+}

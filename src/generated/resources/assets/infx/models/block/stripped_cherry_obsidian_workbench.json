@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/stripped_cherry_log",
+    "east": "minecraft:block/stripped_cherry_log",
+    "north": "minecraft:block/stripped_cherry_log",
+    "particle": "minecraft:block/stripped_cherry_log",
+    "south": "minecraft:block/stripped_cherry_log",
+    "up": "infx:block/stripped_cherry_log_obsidian_workbench_top",
+    "west": "minecraft:block/stripped_cherry_log"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "infx:block/template_runegate_portal_ew",
+  "textures": {
+    "particle": "infx:block/runegate",
+    "portal": "infx:block/runegate"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "infx:rusted_iron"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "infx:rusted_iron"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "infx:rusted_iron"
+      }
+    ]
+  }
+}

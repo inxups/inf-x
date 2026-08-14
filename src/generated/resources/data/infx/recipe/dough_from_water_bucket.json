@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "infx:flour",
+    "W": "#infx:water_buckets"
+  },
+  "pattern": [
+    "F F",
+    " W ",
+    "F F"
+  ],
+  "result": {
+    "count": 4,
+    "id": "infx:dough"
+  }
+}

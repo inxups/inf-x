@@ -1,0 +1,23 @@
+{
+  "values": [
+    "infx:wood_shovel",
+    "infx:flint_shovel",
+    "infx:obsidian_shovel",
+    "infx:gold_pickaxe",
+    "infx:gold_shovel",
+    "infx:copper_pickaxe",
+    "infx:copper_shovel",
+    "infx:silver_pickaxe",
+    "infx:silver_shovel",
+    "infx:rusted_iron_pickaxe",
+    "infx:rusted_iron_shovel",
+    "infx:iron_pickaxe",
+    "infx:iron_shovel",
+    "infx:ancient_metal_pickaxe",
+    "infx:ancient_metal_shovel",
+    "infx:mithril_pickaxe",
+    "infx:mithril_shovel",
+    "infx:adamantium_pickaxe",
+    "infx:adamantium_shovel"
+  ]
+}

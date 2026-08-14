@@ -1,0 +1,29 @@
+{
+  "values": [
+    "infx:gold_chain",
+    "infx:gold_coin",
+    "infx:gold_pickaxe",
+    "infx:gold_shovel",
+    "infx:gold_hatchet",
+    "infx:gold_axe",
+    "infx:gold_hoe",
+    "infx:gold_mattock",
+    "infx:gold_battle_axe",
+    "infx:gold_war_hammer",
+    "infx:gold_scythe",
+    "infx:gold_shears",
+    "infx:gold_fishing_rod",
+    "infx:gold_sword",
+    "infx:gold_dagger",
+    "infx:gold_arrow",
+    "infx:gold_helmet",
+    "infx:gold_chestplate",
+    "infx:gold_leggings",
+    "infx:gold_boots",
+    "infx:gold_chainmail_helmet",
+    "infx:gold_chainmail_chestplate",
+    "infx:gold_chainmail_leggings",
+    "infx:gold_chainmail_boots",
+    "infx:gold_horse_armor"
+  ]
+}

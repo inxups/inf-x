@@ -1,0 +1,25 @@
+{
+  "parent": "infx:progression/underworld",
+  "criteria": {
+    "used_runegate": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.rune_gate.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "infx:mithril_rune_stone"
+    },
+    "title": {
+      "translate": "advancements.infx.rune_gate.title"
+    }
+  },
+  "requirements": [
+    [
+      "used_runegate"
+    ]
+  ]
+}

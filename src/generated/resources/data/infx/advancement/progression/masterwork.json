@@ -1,0 +1,34 @@
+{
+  "parent": "infx:progression/adamantium_age",
+  "criteria": {
+    "crafted_adamantium_pickaxe": {
+      "conditions": {
+        "recipe_id": "infx:adamantium_pickaxe"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    },
+    "crafted_adamantium_war_hammer": {
+      "conditions": {
+        "recipe_id": "infx:adamantium_war_hammer"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.masterwork.description"
+    },
+    "icon": {
+      "id": "infx:adamantium_pickaxe"
+    },
+    "title": {
+      "translate": "advancements.infx.masterwork.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_adamantium_pickaxe",
+      "crafted_adamantium_war_hammer"
+    ]
+  ]
+}

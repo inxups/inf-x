@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "B": "#infx:bindings",
+    "F": "minecraft:flint",
+    "L": "minecraft:stripped_oak_log",
+    "S": "minecraft:stick"
+  },
+  "pattern": [
+    "FB",
+    "SL"
+  ],
+  "result": {
+    "id": "infx:stripped_oak_flint_workbench"
+  }
+}

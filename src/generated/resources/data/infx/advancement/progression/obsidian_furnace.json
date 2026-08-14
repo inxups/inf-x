@@ -1,0 +1,27 @@
+{
+  "parent": "infx:progression/first_furnace",
+  "criteria": {
+    "crafted_obsidian_furnace": {
+      "conditions": {
+        "recipe_id": "infx:obsidian_furnace"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.infx.obsidian_furnace.description"
+    },
+    "icon": {
+      "id": "infx:obsidian_furnace"
+    },
+    "title": {
+      "translate": "advancements.infx.obsidian_furnace.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_obsidian_furnace"
+    ]
+  ]
+}
