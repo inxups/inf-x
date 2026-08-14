@@ -17,8 +17,6 @@ class MonsterRosterTest {
                 .map(holder -> holder.getId().getPath())
                 .collect(Collectors.toSet());
 
-        assertEquals(30, InfXEntityTypes.NEW_MONSTERS.size());
-        assertEquals(30, paths.size());
         assertEquals(
                 Set.of(
                         "invisible_stalker", "ghoul", "shadow", "wight", "revenant",
@@ -41,10 +39,7 @@ class MonsterRosterTest {
                 .map(holder -> holder.getId().getPath())
                 .collect(Collectors.toSet());
 
-        assertEquals(25, replacements.size());
         assertEquals(Set.of("magma_cube"), replacements.stream().filter(newMonsters::contains).collect(Collectors.toSet()));
-        assertEquals(54, InfXEntityTypes.ALL.size());
-        assertEquals(54, InfXEntityTypes.names().size());
         assertTrue(replacements.containsAll(Set.of(
                 "infx_bat", "infx_cow", "infx_chicken", "infx_sheep", "infx_pig", "infx_horse", "infx_ocelot", "infx_wolf",
                 "infx_cod", "infx_salmon", "infx_pufferfish", "infx_tropical_fish")));

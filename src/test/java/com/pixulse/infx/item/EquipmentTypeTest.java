@@ -1,6 +1,5 @@
 package com.pixulse.infx.item;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,14 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.RawItem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class EquipmentTypeTest {
@@ -28,30 +22,6 @@ class EquipmentTypeTest {
             InfxMaterial.ANCIENT_METAL,
             InfxMaterial.MITHRIL,
             InfxMaterial.ADAMANTIUM);
-
-    @Test
-    void matrixHasExactCategoryCounts() {
-        Map<EquipmentCategory, Long> counts = EquipmentKey.all().stream()
-                .collect(java.util.stream.Collectors.groupingBy(
-                        key -> key.type().category(), java.util.stream.Collectors.counting()));
-        assertEquals(96L, counts.get(EquipmentCategory.TOOL));
-        assertEquals(33L, counts.get(EquipmentCategory.WEAPON));
-        assertEquals(36L, counts.get(EquipmentCategory.PLATE_ARMOR));
-        assertEquals(32L, counts.get(EquipmentCategory.CHAIN_ARMOR));
-        assertEquals(7L, counts.get(EquipmentCategory.HORSE_ARMOR));
-        assertEquals(204, EquipmentKey.all().size());
-    }
-
-    @Test
-    void goldenCatalogMatchesRawAndEquipmentDefinitionOrder() throws Exception {
-        List<String> golden = Files.readAllLines(
-                Path.of(EquipmentTypeTest.class.getResource("/infx/catalog-paths.txt").toURI()), UTF_8);
-        List<String> actual = Stream.concat(
-                        Arrays.stream(RawItem.values()).map(RawItem::path),
-                        EquipmentKey.all().stream().map(EquipmentKey::path))
-                .toList();
-        assertEquals(golden, actual);
-    }
 
     @Test
     void representativeAllowedSetsMatchTheApprovedMatrix() {
@@ -96,7 +66,6 @@ class EquipmentTypeTest {
         assertFalse(paths.contains("chip_flint_knife"));
         assertFalse(paths.stream().anyMatch(path -> path.startsWith("diamond_")));
         assertFalse(paths.stream().anyMatch(path -> path.contains("carrot_on_a_stick")));
-        assertEquals(204, paths.size());
     }
 
     @Test

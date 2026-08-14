@@ -41,7 +41,7 @@ public enum EquipmentType {
             MiningFamily.AXE, InfxUseAction.AXE, ModelFamily.HANDHELD, ArmorForm.NONE, null,
             FactoryKind.ORDINARY),
     WAR_HAMMER("war_hammer", "War Hammer", "战锤", EquipmentCategory.TOOL, metals(),
-            5, 2, .75F, .75F, -3.0F, 2.0F / 3.0F, 2.0F / 3.0F,
+            5, 2, .75F, .75F, -3.4F, 2.0F / 3.0F, 2.0F / 3.0F,
             MiningFamily.PICKAXE, InfxUseAction.NONE, ModelFamily.HANDHELD, ArmorForm.NONE, null,
             FactoryKind.ORDINARY),
     SCYTHE("scythe", "Scythe", "镰刀", EquipmentCategory.TOOL, metals(),

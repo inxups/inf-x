@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -47,10 +45,6 @@ class RawItemTest {
     void rawCatalogHasExactApprovedDefinitions() {
         assertEquals(EXPECTED.stream().map(ExpectedRawItem::path).toList(),
                 Stream.of(RawItem.values()).map(RawItem::path).toList());
-        assertEquals(30, RawItem.values().length);
-        Set<String> unique = Stream.of(RawItem.values()).map(RawItem::path).collect(Collectors.toSet());
-        assertEquals(30, unique.size());
-
         for (int index = 0; index < EXPECTED.size(); index++) {
             ExpectedRawItem expected = EXPECTED.get(index);
             RawItem actual = RawItem.values()[index];

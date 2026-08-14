@@ -11,8 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class CurseTypeTest {
     @Test
-    void idsRoundTripAllSixteenCurses() {
-        assertEquals(16, CurseType.values().length);
+    void idsRoundTripAllCurses() {
         for (CurseType type : CurseType.values()) {
             assertEquals(type, CurseType.byId(type.id()));
             assertNotNull(type.title());

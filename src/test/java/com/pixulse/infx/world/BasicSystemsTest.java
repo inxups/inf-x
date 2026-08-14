@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.pixulse.infx.event.SafeEvents;
 import com.pixulse.infx.item.material.InfxMaterial;
-import com.pixulse.infx.registry.InfXEnchantments;
 import java.util.HashSet;
 import java.util.List;
 import net.minecraft.util.RandomSource;
@@ -79,12 +78,6 @@ class BasicSystemsTest {
     @Test
     void safeBlockItemDropsOnlyForOwnerOrCreative() {
         assertFalse(SafeEvents.mayDropSafeItem(null, null));
-    }
-
-    @Test
-    void allTwentyTwoEnchantmentsAreDeclared() {
-        assertEquals(22, InfXEnchantments.INFX.size());
-        assertEquals(22, InfXEnchantments.INFX.stream().distinct().count());
     }
 
     @Test

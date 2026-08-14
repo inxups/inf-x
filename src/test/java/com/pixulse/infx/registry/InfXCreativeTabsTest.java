@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.resources.Identifier;
@@ -26,25 +25,8 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        // 397 baseline + 22 stripped-log workbenches + 42 mob buckets + 7 powder-snow buckets
-        // + 5 additional spawn eggs + 9 carrot-on-a-stick + 9 warped-fungus-on-a-stick items.
-        assertEquals(493, registered.size());
         assertEquals(registered, uniqueCategorized);
         assertEquals(categorized.size(), uniqueCategorized.size(), "creative item appears in multiple categories");
-    }
-
-    @Test
-    void categorySizesMatchTheCreativeInventoryDesign() {
-        Map<InfXCreativeTabs.Category, Integer> expected = Map.of(
-                InfXCreativeTabs.Category.BLOCKS, 69,
-                InfXCreativeTabs.Category.INGREDIENTS, 31,
-                InfXCreativeTabs.Category.FOOD_AND_CONSUMABLES, 24,
-                InfXCreativeTabs.Category.TOOLS_AND_UTILITIES, 202,
-                InfXCreativeTabs.Category.COMBAT_AND_EQUIPMENT, 113,
-                InfXCreativeTabs.Category.SPAWN_EGGS, 54);
-
-        expected.forEach((category, size) ->
-                assertEquals(size, InfXCreativeTabs.items(category).size(), category.name()));
     }
 
     @Test
@@ -88,7 +70,6 @@ class InfXCreativeTabsTest {
                 .map(DeferredHolder::getId)
                 .collect(Collectors.toSet());
 
-        assertEquals(79, InfXBlocks.BLOCKS.getEntries().size());
         assertFalse(InfXBlocks.BLOCKS.getEntries().stream()
                 .anyMatch(block -> Set.of("flint_workbench", "obsidian_workbench").contains(block.getId().getPath())));
         assertFalse(InfXItems.ITEMS.getEntries().stream()

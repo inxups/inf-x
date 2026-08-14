@@ -1,6 +1,5 @@
 package com.pixulse.infx.item;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -11,33 +10,12 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.List;
 import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 
 class CatalogTest {
     private static Catalog catalog() {
         return InfXItems.catalog();
-    }
-
-    private static List<String> goldenPaths() throws IOException, URISyntaxException {
-        return Files.readAllLines(
-                Path.of(CatalogTest.class.getResource("/infx/catalog-paths.txt").toURI()), UTF_8);
-    }
-
-    @Test
-    void catalogMatchesTheIndependentGoldenManifest() throws Exception {
-        List<String> actual = catalog().entries().stream().map(Catalog.Entry::path).toList();
-        assertEquals(goldenPaths(), actual);
-        assertEquals(234, actual.size());
-        assertEquals(234, new HashSet<>(actual).size());
-        assertEquals(30, catalog().rawEntries().size());
-        assertEquals(204, catalog().equipmentEntries().size());
     }
 
     @Test

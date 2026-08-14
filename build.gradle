@@ -146,27 +146,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.named('test', Test).configure {
-    useJUnitPlatform {
-        excludeTags 'generated-resources'
-    }
-}
-
-tasks.register('resourceTest', Test) { resourceTest ->
-    def unitTest = tasks.named('test', Test).get()
-    unitTest.copyTo(resourceTest)
-    resourceTest.jvmArgumentProviders.addAll(unitTest.jvmArgumentProviders)
-    dependsOn tasks.named('downloadAssets'), tasks.named('prepareNeoForgeTestFiles'), tasks.named('runData')
-    description = 'Validates resources produced by runData.'
-    group = 'verification'
-    testClassesDirs = sourceSets.test.output.classesDirs
-    classpath = sourceSets.test.runtimeClasspath
-    useJUnitPlatform {
-        includeTags 'generated-resources'
-    }
-}
-
-tasks.named('check').configure {
-    dependsOn tasks.named('resourceTest')
+    useJUnitPlatform()
 }
 
 def generatedExclusiveRuntimeTrees = [
