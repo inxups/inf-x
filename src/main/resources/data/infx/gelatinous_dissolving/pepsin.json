@@ -1,0 +1,5 @@
+{
+  "blocks": ["#infx:dissolves/pepsin"],
+  "pepsin_period": 400,
+  "acid_period": -1
+}

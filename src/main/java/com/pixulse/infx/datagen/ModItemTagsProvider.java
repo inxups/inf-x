@@ -43,12 +43,17 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 .add(itemKey(Blocks.COAL_BLOCK.asItem()));
         var waterBuckets = tag(InfXItemTags.WATER_BUCKETS).add(itemKey(Items.WATER_BUCKET));
         var milkBuckets = tag(InfXItemTags.MILK_BUCKETS).add(itemKey(Items.MILK_BUCKET));
+        var lavaBuckets = tag(InfXItemTags.LAVA_BUCKETS).add(itemKey(Items.LAVA_BUCKET));
         for (InfxMaterial material : InfXItems.BUCKET_MATERIALS) {
             waterBuckets.add(InfXItems.bucket(material, InfxBucketItem.Contents.WATER)
                     .getKey());
             milkBuckets.add(InfXItems.bucket(material, InfxBucketItem.Contents.MILK)
                     .getKey());
+            lavaBuckets.add(InfXItems.bucket(material, InfxBucketItem.Contents.LAVA)
+                    .getKey());
         }
+        tag(InfXItemTags.FURNACE_FUELS_HEAT_3).addTag(InfXItemTags.LAVA_BUCKETS);
+        tag(InfXItemTags.FURNACE_FUELS_HEAT_4).add(itemKey(Items.BLAZE_ROD));
         tag(InfXItemTags.SMELTING_INPUTS_HEAT_2)
                 .add(itemKey(Items.RAW_COPPER))
                 .add(itemKey(Items.RAW_GOLD))

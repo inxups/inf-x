@@ -1,5 +1,6 @@
 # Changelog
 
+- Moved default food profiles, furnace fuel heat, gelatinous dissolving, and monster spawn rules into reloadable `data/infx` datapack resources; fuel and corrosion ground classifications now use data tags.
 - Removed brittle test assertions that hard-coded registry, catalog, and asset manifest cardinalities.
 
 

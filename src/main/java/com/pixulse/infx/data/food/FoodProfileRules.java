@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.FileToIdConverter;
@@ -79,6 +80,11 @@ public final class FoodProfileRules {
         }
     }
 
+    private static final Codec<List<Definition>> DEFINITIONS_CODEC = Codec.either(
+                    Definition.CODEC, Definition.CODEC.listOf())
+            .xmap(value -> value.map(List::of, Function.identity()), value ->
+                    value.size() == 1 ? Either.left(value.getFirst()) : Either.right(value));
+
     private record Candidate(Identifier source, int index, int priority, Item item, TagKey<Item> tag, FoodProfile profile) {
         private boolean matches(ItemStack stack) {
             return item != null ? stack.is(item) : stack.is(tag);
@@ -93,15 +99,18 @@ public final class FoodProfileRules {
         }
     }
 
-    private static List<Candidate> build(Map<Identifier, Definition> definitions) {
+    private static List<Candidate> build(Map<Identifier, List<Definition>> definitions) {
         List<Candidate> loaded = new ArrayList<>();
-        definitions.forEach((source, definition) -> {
-            for (int index = 0; index < definition.items().size(); index++) {
-                int targetIndex = index;
-                definition.items().get(index).ifLeft(item -> loaded.add(
-                        new Candidate(source, targetIndex, definition.priority(), item, null, definition.profile())));
-                definition.items().get(index).ifRight(tag -> loaded.add(
-                        new Candidate(source, targetIndex, definition.priority(), null, tag, definition.profile())));
+        definitions.forEach((source, entries) -> {
+            for (int definitionIndex = 0; definitionIndex < entries.size(); definitionIndex++) {
+                Definition definition = entries.get(definitionIndex);
+                for (int itemIndex = 0; itemIndex < definition.items().size(); itemIndex++) {
+                    int targetIndex = definitionIndex * 1_000 + itemIndex;
+                    definition.items().get(itemIndex).ifLeft(item -> loaded.add(
+                            new Candidate(source, targetIndex, definition.priority(), item, null, definition.profile())));
+                    definition.items().get(itemIndex).ifRight(tag -> loaded.add(
+                            new Candidate(source, targetIndex, definition.priority(), null, tag, definition.profile())));
+                }
             }
         });
         loaded.sort(Comparator.comparingInt(Candidate::priority).reversed()
@@ -113,9 +122,9 @@ public final class FoodProfileRules {
     private static final class ReloadListener extends SimplePreparableReloadListener<List<Candidate>> {
         @Override
         protected List<Candidate> prepare(ResourceManager manager, ProfilerFiller profiler) {
-            Map<Identifier, Definition> definitions = new HashMap<>();
+            Map<Identifier, List<Definition>> definitions = new HashMap<>();
             SimpleJsonResourceReloadListener.scanDirectory(
-                    manager, RULE_LISTER, JsonOps.INSTANCE, Definition.CODEC, definitions);
+                    manager, RULE_LISTER, JsonOps.INSTANCE, DEFINITIONS_CODEC, definitions);
             return build(definitions);
         }
 

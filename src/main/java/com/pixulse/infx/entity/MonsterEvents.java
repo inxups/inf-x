@@ -16,11 +16,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -264,7 +262,7 @@ public final class MonsterEvents {
                 EntityType.SLIME,
                 null,
                 null,
-                (type, level, reason, pos, random) -> !stoneAbove(level.getLevel(), pos),
+                (type, level, reason, pos, random) -> !MobSpawnRules.hasStoneAbove(level.getLevel(), pos),
                 RegisterSpawnPlacementsEvent.Operation.AND);
         for (var type : List.of(
                 InfXEntityTypes.INVISIBLE_STALKER,
@@ -408,30 +406,7 @@ public final class MonsterEvents {
         if (serverLevel.dimension() != Level.OVERWORLD) return true;
         var ruleResult = MobSpawnRules.allows(type, serverLevel, pos, random);
         if (ruleResult.isPresent()) return ruleResult.get();
-
-        int y = pos.getY();
-        boolean bloodMoonUp = MoonPhase.BLOOD.isActiveInOverworldAtNight(serverLevel);
-        boolean freezing = serverLevel.getBiome(pos).value().getBaseTemperature() <= 0.15F;
-        boolean desert = serverLevel.getBiome(pos).is(net.minecraft.world.level.biome.Biomes.DESERT)
-                || serverLevel.getBiome(pos).is(RiverBiomes.DESERT_RIVER);
-        return switch (path) {
-            case "ghoul" -> y <= 56 || bloodMoonUp;
-            case "wight" -> y <= 48 || bloodMoonUp && freezing;
-            case "revenant" -> y <= 44 || bloodMoonUp;
-            case "invisible_stalker", "earth_elemental" -> y <= 40;
-            case "blob" -> y <= 40 && stoneAbove(serverLevel, pos);
-            case "ooze" -> y <= 32 && serverLevel.getBlockState(pos.below()).is(Blocks.STONE)
-                    && stoneAbove(serverLevel, pos);
-            case "nightwing", "bone_lord" -> y <= 32 || bloodMoonUp;
-            case "pudding" -> y <= 24 && serverLevel.getBlockState(pos.below()).is(Blocks.STONE)
-                    && stoneAbove(serverLevel, pos);
-            case "hellhound", "demon_spider", "phase_spider" -> y <= 32;
-            case "shadow" -> y <= 32 || bloodMoonUp && desert;
-            case "wood_spider" -> woodSpiderHabitat(serverLevel, pos);
-            case "black_widow_spider" -> random.nextBoolean();
-            case "jelly" -> stoneAbove(serverLevel, pos);
-            default -> true;
-        };
+        return true;
     }
 
     /**
@@ -492,48 +467,6 @@ public final class MonsterEvents {
 
     private static boolean clayGolemGround(ServerLevel level, BlockPos pos) {
         return level.getBlockState(pos.below()).is(Blocks.CLAY);
-    }
-
-    private static boolean stoneAbove(ServerLevel level, BlockPos pos) {
-        int maximumY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
-        for (int y = pos.getY() + 1; y <= maximumY; y++) {
-            var state = level.getBlockState(new BlockPos(pos.getX(), y, pos.getZ()));
-            if (!state.isAir()) return state.is(Blocks.STONE);
-        }
-        return false;
-    }
-
-    private static boolean woodSpiderHabitat(ServerLevel level, BlockPos pos) {
-        if (!level.canSeeSky(pos)
-                && !firstBlockAboveIs(level, pos, BlockTags.LOGS)
-                && !firstBlockAboveIs(level, pos, BlockTags.LEAVES)) {
-            return false;
-        }
-        return blockTagNear(level, pos, BlockTags.LOGS, 5, 2)
-                && blockTagNear(level, pos.above(5), BlockTags.LEAVES, 5, 5);
-    }
-
-    private static boolean firstBlockAboveIs(ServerLevel level, BlockPos pos, TagKey<Block> tag) {
-        int maximumY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
-        for (int y = pos.getY() + 1; y <= maximumY; y++) {
-            var state = level.getBlockState(new BlockPos(pos.getX(), y, pos.getZ()));
-            if (!state.isAir()) return state.is(tag);
-        }
-        return false;
-    }
-
-    private static boolean blockTagNear(
-            ServerLevel level,
-            BlockPos origin,
-            TagKey<Block> tag,
-            int horizontalRadius,
-            int verticalRadius) {
-        for (BlockPos nearby : BlockPos.betweenClosed(
-                origin.offset(-horizontalRadius, -verticalRadius, -horizontalRadius),
-                origin.offset(horizontalRadius, verticalRadius, horizontalRadius))) {
-            if (level.getBlockState(nearby).is(tag)) return true;
-        }
-        return false;
     }
 
     /**

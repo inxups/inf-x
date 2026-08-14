@@ -2,12 +2,10 @@ package com.pixulse.infx.data.furnace;
 
 import com.pixulse.infx.block.InfxFurnaceBlock;
 import com.pixulse.infx.config.InfXConfig;
-import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.AbstractFurnaceBlock;
 import net.minecraft.world.level.block.Blocks;
@@ -47,12 +45,10 @@ public final class FurnaceHeatPolicy {
         if (override.isPresent()) {
             return override.getAsInt();
         }
-        if (fuel.is(Items.BLAZE_ROD)) {
+        if (fuel.is(InfXItemTags.FURNACE_FUELS_HEAT_4)) {
             return HEAT_BLAZE;
         }
-        if (fuel.is(Items.LAVA_BUCKET)
-                || fuel.getItem() instanceof InfxBucketItem bucket
-                        && bucket.contents() == InfxBucketItem.Contents.LAVA) {
+        if (fuel.is(InfXItemTags.FURNACE_FUELS_HEAT_3)) {
             return HEAT_LAVA;
         }
         if (fuel.is(InfXItemTags.FURNACE_FUELS_HEAT_2)) {
