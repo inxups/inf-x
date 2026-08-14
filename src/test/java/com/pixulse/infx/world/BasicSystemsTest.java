@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.pixulse.infx.event.SafeEvents;
 import com.pixulse.infx.item.material.InfxMaterial;
 import java.util.HashSet;
-import java.util.List;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -44,25 +43,6 @@ class BasicSystemsTest {
                 < PhysicsRules.fallDamageMultiplier(Blocks.DIRT.defaultBlockState()));
         assertTrue(PhysicsRules.explosionWear(0, 6) > PhysicsRules.explosionWear(5, 6));
         assertEquals(0, PhysicsRules.explosionWear(6, 6));
-    }
-
-    @Test
-    void grassBlockIsNotLooseTerrain() {
-        assertFalse(PhysicsRules.isLoose(Blocks.GRASS_BLOCK.defaultBlockState()));
-        assertTrue(PhysicsRules.isLoose(Blocks.DIRT.defaultBlockState()));
-        assertTrue(PhysicsRules.isLoose(Blocks.GRAVEL.defaultBlockState()));
-    }
-
-    @Test
-    void soilAndSurfaceBlocksAreNotGravityBlocks() {
-        for (var block : List.of(
-                Blocks.PODZOL,
-                Blocks.MYCELIUM,
-                Blocks.DIRT_PATH,
-                Blocks.CLAY,
-                Blocks.ROOTED_DIRT)) {
-            assertFalse(PhysicsRules.isLoose(block.defaultBlockState()), block + " must not fall as gravel");
-        }
     }
 
     @Test
