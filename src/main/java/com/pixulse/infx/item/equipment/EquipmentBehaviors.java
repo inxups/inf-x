@@ -578,12 +578,8 @@ public final class EquipmentBehaviors {
     }
 
     private static int tooltipFuelHeat(ItemStack stack) {
-        if (stack.is(Items.BLAZE_ROD)) return FurnaceHeatPolicy.HEAT_BLAZE;
-        if (stack.is(Items.LAVA_BUCKET)
-                || stack.getItem() instanceof InfxBucketItem bucket
-                        && bucket.contents() == InfxBucketItem.Contents.LAVA) {
-            return FurnaceHeatPolicy.HEAT_LAVA;
-        }
+        if (stack.is(InfXItemTags.FURNACE_FUELS_HEAT_4)) return FurnaceHeatPolicy.HEAT_BLAZE;
+        if (stack.is(InfXItemTags.FURNACE_FUELS_HEAT_3)) return FurnaceHeatPolicy.HEAT_LAVA;
         if (stack.is(InfXItemTags.FURNACE_FUELS_HEAT_2)) return FurnaceHeatPolicy.HEAT_COAL;
         if (stack.is(ItemTags.LOGS) || stack.is(ItemTags.PLANKS)) return FurnaceHeatPolicy.HEAT_WOOD;
         return 0;

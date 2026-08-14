@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class GelatinousCubeRules {
     public static final int IMMUNE = -1;
     public static final int INSTANT = 0;
-    public static final int GRADUAL_TICKS = 400;
 
     private GelatinousCubeRules() {}
 
@@ -31,18 +30,10 @@ public final class GelatinousCubeRules {
         if (state.isAir()) {
             return IMMUNE;
         }
-        if (type == CorrosionType.PEPSIN) {
-            return state.is(InfXBlockTags.PEPSIN_DISSOLVABLE) ? GRADUAL_TICKS : IMMUNE;
-        }
+        if (type == CorrosionType.PEPSIN) return IMMUNE;
         // Acid oozes scorch living ground into dirt on contact. Check this before the
         // solid-block fallback so grass does not incorrectly remain immune.
         if (isAcidScorchableGround(state, type)) {
-            return INSTANT;
-        }
-        if (state.is(InfXBlockTags.ACID_DISSOLVES_GRADUALLY)) {
-            return GRADUAL_TICKS;
-        }
-        if (state.is(InfXBlockTags.ACID_DISSOLVES_INSTANTLY)) {
             return INSTANT;
         }
         if (state.is(BlockTags.STONE_BUTTONS)
@@ -59,7 +50,7 @@ public final class GelatinousCubeRules {
     }
 
     static boolean isAcidScorchableGround(BlockState state, CorrosionType type) {
-        return type == CorrosionType.ACID && (state.is(Blocks.GRASS_BLOCK) || state.is(Blocks.MYCELIUM));
+        return type == CorrosionType.ACID && state.is(InfXBlockTags.ACID_SCORCHABLE_GROUND);
     }
 
     public static boolean dissolveOnContact(

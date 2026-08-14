@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:lava_bucket",
+    "infx:copper_lava_bucket",
+    "infx:silver_lava_bucket",
+    "infx:gold_lava_bucket",
+    "infx:iron_lava_bucket",
+    "infx:ancient_metal_lava_bucket",
+    "infx:mithril_lava_bucket",
+    "infx:adamantium_lava_bucket"
+  ]
+}

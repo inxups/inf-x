@@ -1,0 +1,6 @@
+{
+  "blocks": ["#infx:dissolves/acid_instantly"],
+  "pepsin_period": -1,
+  "acid_period": 0,
+  "priority": 10
+}

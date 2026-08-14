@@ -16,6 +16,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -25,7 +26,10 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.tags.BlockTags;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
@@ -45,7 +49,7 @@ public final class MobSpawnRules {
 
     /** Returns empty when a type has no datapack rule and callers should use their normal predicate. */
     public static Optional<Boolean> allows(
-            EntityType<?> type, Level level, BlockPos pos, RandomSource random) {
+            EntityType<?> type, ServerLevel level, BlockPos pos, RandomSource random) {
         if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
                 || !InfXConfig.INSTANCE.mobs.datapackSpawnRules.getValue()) {
             return Optional.empty();
@@ -54,8 +58,15 @@ public final class MobSpawnRules {
         if (rule == null || level.dimension() != Level.OVERWORLD) {
             return Optional.empty();
         }
+        boolean bloodMoon = com.pixulse.infx.world.MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        boolean freezing = level.getBiome(pos).value().getBaseTemperature() <= 0.15F;
+        boolean desert = level.getBiome(pos).is(net.minecraft.world.level.biome.Biomes.DESERT)
+                || level.getBiome(pos).is(com.pixulse.infx.world.RiverBiomes.DESERT_RIVER);
+        boolean aboveMaximum = rule.maxOverworldY().isPresent() && pos.getY() > rule.maxOverworldY().get();
         if (rule.minOverworldY().isPresent() && pos.getY() < rule.minOverworldY().get()
-                || rule.maxOverworldY().isPresent() && pos.getY() > rule.maxOverworldY().get()
+                || aboveMaximum && (!rule.allowBloodMoon() || !bloodMoon)
+                || aboveMaximum && rule.bloodMoonRequiresFreezing() && !freezing
+                || aboveMaximum && rule.bloodMoonRequiresDesert() && !desert
                 || random.nextFloat() >= rule.randomChance()) {
             return Optional.of(false);
         }
@@ -68,6 +79,15 @@ public final class MobSpawnRules {
                 return Optional.of(false);
             }
         }
+        if (rule.requiresStoneAbove() && !hasStoneAbove(level, pos)) {
+            return Optional.of(false);
+        }
+        if (rule.requiresStoneGround() && !level.getBlockState(pos.below()).is(Blocks.STONE)) {
+            return Optional.of(false);
+        }
+        if (rule.requiresWoodSpiderHabitat() && !woodSpiderHabitat(level, pos)) {
+            return Optional.of(false);
+        }
         return Optional.of(true);
     }
 
@@ -76,6 +96,12 @@ public final class MobSpawnRules {
             Optional<Integer> maxOverworldY,
             float randomChance,
             boolean requiresCeiling,
+            boolean allowBloodMoon,
+            boolean bloodMoonRequiresFreezing,
+            boolean bloodMoonRequiresDesert,
+            boolean requiresStoneAbove,
+            boolean requiresStoneGround,
+            boolean requiresWoodSpiderHabitat,
             List<Either<Block, TagKey<Block>>> spawnOn) {
         private static final Codec<Either<Block, TagKey<Block>>> BLOCK_OR_TAG = Codec.either(
                 BuiltInRegistries.BLOCK.byNameCodec(), TagKey.hashedCodec(Registries.BLOCK));
@@ -91,6 +117,15 @@ public final class MobSpawnRules {
                 Codec.INT.optionalFieldOf("max_overworld_y").forGetter(Rule::maxOverworldY),
                 CHANCE.optionalFieldOf("random_chance", 1.0F).forGetter(Rule::randomChance),
                 Codec.BOOL.optionalFieldOf("requires_ceiling", false).forGetter(Rule::requiresCeiling),
+                Codec.BOOL.optionalFieldOf("allow_blood_moon", false).forGetter(Rule::allowBloodMoon),
+                Codec.BOOL.optionalFieldOf("blood_moon_requires_freezing", false)
+                        .forGetter(Rule::bloodMoonRequiresFreezing),
+                Codec.BOOL.optionalFieldOf("blood_moon_requires_desert", false)
+                        .forGetter(Rule::bloodMoonRequiresDesert),
+                Codec.BOOL.optionalFieldOf("requires_stone_above", false).forGetter(Rule::requiresStoneAbove),
+                Codec.BOOL.optionalFieldOf("requires_stone_ground", false).forGetter(Rule::requiresStoneGround),
+                Codec.BOOL.optionalFieldOf("requires_wood_spider_habitat", false)
+                        .forGetter(Rule::requiresWoodSpiderHabitat),
                 BLOCK_OR_TAG.listOf().optionalFieldOf("spawn_on", List.of()).forGetter(Rule::spawnOn)
         ).apply(instance, Rule::new));
 
@@ -101,6 +136,49 @@ public final class MobSpawnRules {
                 throw new IllegalArgumentException("min_overworld_y must not exceed max_overworld_y");
             }
         }
+    }
+
+    static boolean hasStoneAbove(ServerLevel level, BlockPos pos) {
+        int maximumY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+        for (int y = pos.getY() + 1; y <= maximumY; y++) {
+            BlockState state = level.getBlockState(new BlockPos(pos.getX(), y, pos.getZ()));
+            if (!state.isAir()) return state.is(Blocks.STONE);
+        }
+        return false;
+    }
+
+    private static boolean woodSpiderHabitat(ServerLevel level, BlockPos pos) {
+        if (!level.canSeeSky(pos)
+                && !firstBlockAboveIs(level, pos, BlockTags.LOGS)
+                && !firstBlockAboveIs(level, pos, BlockTags.LEAVES)) {
+            return false;
+        }
+        return blockTagNear(level, pos, BlockTags.LOGS, 5, 2)
+                && blockTagNear(level, pos.above(5), BlockTags.LEAVES, 5, 5);
+    }
+
+    private static boolean firstBlockAboveIs(
+            ServerLevel level, BlockPos pos, TagKey<Block> tag) {
+        int maximumY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+        for (int y = pos.getY() + 1; y <= maximumY; y++) {
+            BlockState state = level.getBlockState(new BlockPos(pos.getX(), y, pos.getZ()));
+            if (!state.isAir()) return state.is(tag);
+        }
+        return false;
+    }
+
+    private static boolean blockTagNear(
+            ServerLevel level,
+            BlockPos origin,
+            TagKey<Block> tag,
+            int horizontalRadius,
+            int verticalRadius) {
+        for (BlockPos nearby : BlockPos.betweenClosed(
+                origin.offset(-horizontalRadius, -verticalRadius, -horizontalRadius),
+                origin.offset(horizontalRadius, verticalRadius, horizontalRadius))) {
+            if (level.getBlockState(nearby).is(tag)) return true;
+        }
+        return false;
     }
 
     private static final class ReloadListener extends SimplePreparableReloadListener<Map<Identifier, Rule>> {
