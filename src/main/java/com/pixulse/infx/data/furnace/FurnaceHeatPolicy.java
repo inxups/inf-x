@@ -1,6 +1,7 @@
 package com.pixulse.infx.data.furnace;
 
 import com.pixulse.infx.block.InfxFurnaceBlock;
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import net.minecraft.core.BlockPos;
@@ -21,6 +22,10 @@ public final class FurnaceHeatPolicy {
     private FurnaceHeatPolicy() {}
 
     public static int maximumHeat(BlockState state) {
+        if (!InfXConfig.INSTANCE.production.enabled.getValue()
+                || !InfXConfig.INSTANCE.production.furnaceHeat.getValue()) {
+            return HEAT_BLAZE;
+        }
         if (state.is(Blocks.FURNACE)) {
             return HEAT_COAL;
         }
@@ -33,6 +38,10 @@ public final class FurnaceHeatPolicy {
     public static int fuelHeat(ItemStack fuel, int burnTime) {
         if (burnTime <= 0 || fuel.isEmpty()) {
             return 0;
+        }
+        if (!InfXConfig.INSTANCE.production.enabled.getValue()
+                || !InfXConfig.INSTANCE.production.furnaceHeat.getValue()) {
+            return HEAT_BLAZE;
         }
         var override = FuelHeatRules.heat(fuel);
         if (override.isPresent()) {
@@ -56,6 +65,10 @@ public final class FurnaceHeatPolicy {
         if (input.isEmpty()) {
             return 0;
         }
+        if (!InfXConfig.INSTANCE.production.enabled.getValue()
+                || !InfXConfig.INSTANCE.production.furnaceHeat.getValue()) {
+            return HEAT_WOOD;
+        }
         if (input.is(InfXItemTags.SMELTING_INPUTS_HEAT_4)) {
             return HEAT_BLAZE;
         }
@@ -66,6 +79,10 @@ public final class FurnaceHeatPolicy {
     }
 
     public static boolean isMouthBlocked(BlockGetter level, BlockPos pos, BlockState state) {
+        if (!InfXConfig.INSTANCE.production.enabled.getValue()
+                || !InfXConfig.INSTANCE.production.furnaceMouthBlocking.getValue()) {
+            return false;
+        }
         if (maximumHeat(state) == 0 || !state.hasProperty(AbstractFurnaceBlock.FACING)) {
             return false;
         }

@@ -5,6 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.item.equipment.CorrosionRules;
 import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.registry.InfXSounds;
@@ -30,18 +31,21 @@ public final class GelatinousCubeEvents {
 
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof InfxSlime slime)
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !(event.getEntity() instanceof InfxSlime slime)
                 || !(slime.level() instanceof ServerLevel level)
                 || slime.tickCount % CONTACT_INTERVAL != 0) {
             return;
         }
 
         boolean corroded = dissolveTouchedBlocks(level, slime);
-        corroded |= dissolveTouchedItems(level, slime);
+        if (InfXConfig.INSTANCE.mobs.gelatinousItemCorrosion.getValue()) {
+            corroded |= dissolveTouchedItems(level, slime);
+        }
         if (corroded) {
             playCorrosionFizz(level, slime, slime.getRandom());
         }
-        if (slime.getTarget() == null) {
+        if (InfXConfig.INSTANCE.mobs.gelatinousItemCorrosion.getValue() && slime.getTarget() == null) {
             seekDissolvableItem(level, slime);
         }
     }
@@ -107,7 +111,9 @@ public final class GelatinousCubeEvents {
 
     @SubscribeEvent
     public static void onLivingDamage(LivingDamageEvent.Post event) {
-        if (event.getHealthDamage() <= 0.0F
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !InfXConfig.INSTANCE.mobs.gelatinousItemCorrosion.getValue()
+                || event.getHealthDamage() <= 0.0F
                 || !(event.getEntity() instanceof InfxSlime slime)
                 || !(slime.level() instanceof ServerLevel level)
                 || !(event.getSource().getEntity() instanceof ServerPlayer player)

@@ -6,6 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.config.InfXConfig;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,10 @@ public final class MobSpawnRules {
     /** Returns empty when a type has no datapack rule and callers should use their normal predicate. */
     public static Optional<Boolean> allows(
             EntityType<?> type, Level level, BlockPos pos, RandomSource random) {
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !InfXConfig.INSTANCE.mobs.datapackSpawnRules.getValue()) {
+            return Optional.empty();
+        }
         Rule rule = rules.get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
         if (rule == null || level.dimension() != Level.OVERWORLD) {
             return Optional.empty();

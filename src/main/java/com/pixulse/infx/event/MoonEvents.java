@@ -1,6 +1,7 @@
 package com.pixulse.infx.event;
 
 import com.pixulse.infx.world.MoonPhase;
+import com.pixulse.infx.config.InfXConfig;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -29,7 +30,9 @@ public final class MoonEvents {
 
     @SubscribeEvent
     public static void limitHostileSpawn(FinalizeSpawnEvent event) {
-        if (!(event.getLevel().getLevel() instanceof ServerLevel level)
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.moonEvents.getValue()
+                || !(event.getLevel().getLevel() instanceof ServerLevel level)
                 || event.getSpawnType() != EntitySpawnReason.NATURAL) {
             return;
         }
@@ -63,7 +66,9 @@ public final class MoonEvents {
 
     @SubscribeEvent
     public static void tickLevel(LevelTickEvent.Post event) {
-        if (!(event.getLevel() instanceof ServerLevel level)
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.moonEvents.getValue()
+                || !(event.getLevel() instanceof ServerLevel level)
                 || !MoonPhase.isOverworld(level)
                 || level.getGameTime() % 200 != 0) {
             return;
@@ -79,7 +84,9 @@ public final class MoonEvents {
 
     @SubscribeEvent
     public static void modifyFishing(ItemFishedEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.lunarFishing.getValue()
+                || !(event.getEntity() instanceof ServerPlayer player)) return;
         // ItemFishedEvent is raised after vanilla has chosen the catch. Keep this as a scoped
         // INFX loot bonus; strict InfX fishing would need to replace FishingHook's bite timing.
         MoonPhase phase = MoonPhase.isOverworld(player.level())
@@ -107,7 +114,9 @@ public final class MoonEvents {
 
     @SubscribeEvent
     public static void modifyTaming(AnimalTameEvent event) {
-        if (!(event.getAnimal().level() instanceof ServerLevel level)
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.lunarTaming.getValue()
+                || !(event.getAnimal().level() instanceof ServerLevel level)
                 || !(event.getAnimal() instanceof Wolf)) {
             return;
         }
@@ -122,7 +131,9 @@ public final class MoonEvents {
 
     @SubscribeEvent
     public static void makeBloodMoonWolvesHostile(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof Wolf wolf)
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.moonEvents.getValue()
+                || !(event.getEntity() instanceof Wolf wolf)
                 || wolf.isTame()
                 || !(wolf.level() instanceof ServerLevel level)
                 || !MoonPhase.BLOOD.isActiveInOverworldAtNight(level)
@@ -134,7 +145,10 @@ public final class MoonEvents {
     }
 
     public static boolean isFoggy(Level level) {
-        return MoonPhase.isOverworld(level) && isFoggy(level.getOverworldClockTime());
+        return InfXConfig.INSTANCE.world.enabled.getValue()
+                && InfXConfig.INSTANCE.world.moonEvents.getValue()
+                && MoonPhase.isOverworld(level)
+                && isFoggy(level.getOverworldClockTime());
     }
 
     public static boolean isFoggy(long overworldClockTime) {

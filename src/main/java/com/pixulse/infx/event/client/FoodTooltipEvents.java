@@ -2,6 +2,7 @@ package com.pixulse.infx.event.client;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.config.InfXClientConfig;
 import com.pixulse.infx.data.food.FoodProfile;
 import com.pixulse.infx.data.food.FoodProfiles;
 import java.math.BigDecimal;
@@ -29,7 +30,8 @@ public final class FoodTooltipEvents {
     @SubscribeEvent
     public static void addFoodGains(ItemTooltipEvent event) {
         FoodProfile food = FoodProfiles.forStack(event.getItemStack());
-        if (!shouldAddFoodGains(InfiniteXTestMode.isEnabled(), event.getFlags().isAdvanced(), food)) return;
+        if (!InfXClientConfig.INSTANCE.detailedFoodTooltips.getValue()
+                || !shouldAddFoodGains(InfiniteXTestMode.isEnabled(), event.getFlags().isAdvanced(), food)) return;
 
         appendFoodGains(event.getToolTip(), food);
     }

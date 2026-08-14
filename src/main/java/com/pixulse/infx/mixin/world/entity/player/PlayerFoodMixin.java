@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 abstract class PlayerFoodMixin {
     @Inject(method = "canEat", at = @At("HEAD"), cancellable = true)
     private void infx$useNutritionCap(boolean ignoreHunger, CallbackInfoReturnable<Boolean> callback) {
+        if (!SurvivalRules.isEnabled()) return;
         Player player = (Player) (Object) this;
         var survival = player.getData(InfXAttachments.SURVIVAL);
         callback.setReturnValue(ignoreHunger || survival.nutrition() < SurvivalRules.foodCap(player.experienceLevel));
@@ -25,6 +26,7 @@ abstract class PlayerFoodMixin {
     /** INFX requires Nutrition for sprinting; Satiation alone only powers other actions. */
     @Inject(method = "hasEnoughFoodToDoExhaustiveManoeuvres", at = @At("HEAD"), cancellable = true)
     private void infx$useR196EnergyForExhaustiveManoeuvres(CallbackInfoReturnable<Boolean> callback) {
+        if (!SurvivalRules.isEnabled()) return;
         Player player = (Player) (Object) this;
         callback.setReturnValue(
                 player.getAbilities().mayfly

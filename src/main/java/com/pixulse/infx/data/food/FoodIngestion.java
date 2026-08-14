@@ -11,6 +11,7 @@ public final class FoodIngestion {
     private FoodIngestion() {}
 
     public static boolean canIngest(Player player, ItemStack stack) {
+        if (!SurvivalRules.isEnabled()) return player.canEat(false);
         if (!canEatAndDrink(player)) return false;
         return canIngest(
                 player.getData(InfXAttachments.SURVIVAL),
@@ -19,6 +20,7 @@ public final class FoodIngestion {
     }
 
     public static boolean canIngest(Player player, FoodProfile food) {
+        if (!SurvivalRules.isEnabled()) return player.canEat(false);
         if (!canEatAndDrink(player)) return false;
         return canIngest(player.getData(InfXAttachments.SURVIVAL), SurvivalRules.foodCap(player.experienceLevel), food);
     }

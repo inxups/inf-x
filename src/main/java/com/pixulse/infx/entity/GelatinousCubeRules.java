@@ -1,5 +1,6 @@
 package com.pixulse.infx.entity;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.item.equipment.CorrosionType;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 import net.minecraft.core.BlockPos;
@@ -19,6 +20,10 @@ public final class GelatinousCubeRules {
     private GelatinousCubeRules() {}
 
     public static int dissolvePeriod(BlockState state, CorrosionType type) {
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !InfXConfig.INSTANCE.mobs.gelatinousBlockDissolving.getValue()) {
+            return IMMUNE;
+        }
         var override = GelatinousDissolveRules.dissolvePeriod(state, type);
         if (override.isPresent()) {
             return override.getAsInt();
