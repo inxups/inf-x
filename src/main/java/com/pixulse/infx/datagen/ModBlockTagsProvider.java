@@ -48,7 +48,6 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
     }
 
     private void addSoilCollapseTags() {
-        tag(InfXBlockTags.GRAVITY_SOILS).addTag(BlockTags.DIRT).add(blockKey(Blocks.SOUL_SAND));
         tag(InfXBlockTags.SLIDING_FALLING_BLOCKS)
                 .addTag(BlockTags.DIRT)
                 .add(
@@ -56,6 +55,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.SAND),
                         blockKey(Blocks.RED_SAND),
                         blockKey(Blocks.GRAVEL));
+        tag(InfXBlockTags.GRAVITY_SOILS).addTag(InfXBlockTags.SLIDING_FALLING_BLOCKS);
     }
 
     private void addCurseTags() {
