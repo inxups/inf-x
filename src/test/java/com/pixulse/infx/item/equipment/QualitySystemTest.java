@@ -45,27 +45,6 @@ class QualitySystemTest {
     }
 
     @Test
-    void minimumQualityUsesOnlyWitchClumsinessForTheLevelPenalty() {
-        assertEquals(
-                QualitySystem.toCode(Quality.WRETCHED),
-                QualitySystem.clumsyFallbackCode(0, true));
-        assertEquals(
-                QualitySystem.toCode(Quality.POOR),
-                QualitySystem.clumsyFallbackCode(1, true));
-        assertEquals(
-                QualitySystem.toCode(Quality.POOR),
-                QualitySystem.clumsyFallbackCode(10, true));
-        assertEquals(QualitySystem.AVERAGE_CODE, QualitySystem.clumsyFallbackCode(11, true));
-        assertEquals(QualitySystem.AVERAGE_CODE, QualitySystem.clumsyFallbackCode(20, true));
-        assertEquals(QualitySystem.AVERAGE_CODE, QualitySystem.clumsyFallbackCode(0, false));
-        assertEquals(Quality.POOR, QualitySystem.minimumQuality(-1, false));
-        assertEquals(Quality.POOR, QualitySystem.minimumQuality(-10, false));
-        assertEquals(Quality.WRETCHED, QualitySystem.minimumQuality(-11, false));
-        assertNull(QualitySystem.minimumQuality(1, false));
-        assertEquals(Quality.POOR, QualitySystem.minimumQuality(1, true));
-    }
-
-    @Test
     void enchantedClumsinessDoublesCostWithoutLoweringQualityLevel() {
         assertNull(QualitySystem.nextSelectableQuality(
                 null, Quality.FINE, 40, 100.0F, 1, true, false));

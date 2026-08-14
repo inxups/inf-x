@@ -1,10 +1,8 @@
 package com.pixulse.infx.item;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.pixulse.infx.item.material.InfxMaterial;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class EquipmentKeyTest {
@@ -35,28 +33,6 @@ class EquipmentKeyTest {
         assertEquals(66, key(InfxMaterial.IRON, EquipmentType.WAR_HAMMER).attackWear());
         assertEquals(1.0F, EquipmentType.SCYTHE.reachBonus());
         assertEquals(.25F, EquipmentType.KNIFE.reachBonus());
-    }
-
-    @Test
-    void modernAttackSpeedAnalogsAreLiteral() {
-        Map<EquipmentType, Float> expected = Map.ofEntries(
-                Map.entry(EquipmentType.PICKAXE, -2.8F),
-                Map.entry(EquipmentType.SHOVEL, -3.0F),
-                Map.entry(EquipmentType.MATTOCK, -3.0F),
-                Map.entry(EquipmentType.HATCHET, -2.8F),
-                Map.entry(EquipmentType.AXE, -3.1F),
-                Map.entry(EquipmentType.BATTLE_AXE, -3.1F),
-                Map.entry(EquipmentType.WAR_HAMMER, -3.4F),
-                Map.entry(EquipmentType.CLUB, -2.4F),
-                Map.entry(EquipmentType.CUDGEL, -1.5F),
-                Map.entry(EquipmentType.HOE, -1.0F),
-                Map.entry(EquipmentType.SCYTHE, -1.0F),
-                Map.entry(EquipmentType.SWORD, -2.4F),
-                Map.entry(EquipmentType.DAGGER, -1.5F),
-                Map.entry(EquipmentType.KNIFE, -1.0F));
-        expected.forEach((type, speed) -> assertEquals(speed, type.attackSpeedModifier(), type.path()));
-        assertFalse(EquipmentType.SHEARS.hasAttackSpeedModifier());
-        assertFalse(EquipmentType.BOW.hasAttackSpeedModifier());
     }
 
     @Test

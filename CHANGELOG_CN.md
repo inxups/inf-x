@@ -1,5 +1,6 @@
 # Changelog
 
+- Removed brittle unit tests that hard-coded tunable attack-speed and quality thresholds.
 - Added delayed soil collapse and slope sliding for tagged soil, including falling-block landing reservation and configurable collapse delays.
 - Moved default food profiles, furnace fuel heat, gelatinous dissolving, and monster spawn rules into reloadable `data/infx` datapack resources; fuel and corrosion ground classifications now use data tags.
 - Removed brittle test assertions that hard-coded registry, catalog, and asset manifest cardinalities.
