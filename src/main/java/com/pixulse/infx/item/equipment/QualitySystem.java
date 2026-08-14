@@ -172,7 +172,7 @@ public final class QualitySystem {
 
     public static Quality minimumQuality(int experienceLevel, boolean witchClumsiness) {
         if (!witchClumsiness && experienceLevel < 0) {
-            return experienceLevel <= -11
+            return experienceLevel <= -20
                     ? Quality.WRETCHED
                     : Quality.POOR;
         }
