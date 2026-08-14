@@ -4,6 +4,9 @@
     "minecraft:soul_sand",
     "minecraft:sand",
     "minecraft:red_sand",
-    "minecraft:gravel"
+    "minecraft:gravel",
+    "minecraft:grass_block",
+    "minecraft:podzol",
+    "minecraft:mycelium"
   ]
 }

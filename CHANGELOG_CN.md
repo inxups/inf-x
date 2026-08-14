@@ -1,5 +1,6 @@
 # Changelog
 
+- Added grass-covered soil blocks to the sliding and collapse soil tags.
 - Made gravity soils inherit all blocks selected for sliding falling behavior.
 - Removed brittle unit tests that hard-coded tunable attack-speed and quality thresholds.
 - Added delayed soil collapse and slope sliding for tagged soil, including falling-block landing reservation and configurable collapse delays.

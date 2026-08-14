@@ -54,7 +54,10 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                         blockKey(Blocks.SOUL_SAND),
                         blockKey(Blocks.SAND),
                         blockKey(Blocks.RED_SAND),
-                        blockKey(Blocks.GRAVEL));
+                        blockKey(Blocks.GRAVEL),
+                        blockKey(Blocks.GRASS_BLOCK),
+                        blockKey(Blocks.PODZOL),
+                        blockKey(Blocks.MYCELIUM));
         tag(InfXBlockTags.GRAVITY_SOILS).addTag(InfXBlockTags.SLIDING_FALLING_BLOCKS);
     }
 
