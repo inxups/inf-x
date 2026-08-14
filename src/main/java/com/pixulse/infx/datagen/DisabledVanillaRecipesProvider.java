@@ -84,6 +84,7 @@ final class DisabledVanillaRecipesProvider implements DataProvider {
             "clock",
             "bricks",
             "nether_bricks",
+            "crafting_table",
             // Leather, copper, iron, gold and diamond player armor.
             "leather_helmet",
             "leather_chestplate",
