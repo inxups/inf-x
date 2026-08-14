@@ -52,7 +52,7 @@ public final class ClientControls {
 
     private static void configureDebugOverlay(Minecraft minecraft) {
         if (debugConfigured) return;
-        boolean testMode = InfiniteXTestMode.isEnabled();
+        boolean testMode = InfiniteXTestMode.isClientEnabled();
         if (testMode) {
             if (!minecraft.debugEntries.isUsingProfile(DebugScreenProfile.DEFAULT)) {
                 minecraft.debugEntries.loadProfile(DebugScreenProfile.DEFAULT);

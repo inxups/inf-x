@@ -509,7 +509,7 @@ public final class EquipmentBehaviors {
                                 .withStyle(net.minecraft.ChatFormatting.GRAY));
             }
         }
-        if (!shouldAddExtendedTooltips(InfiniteXTestMode.isEnabled())) return;
+        if (!shouldAddExtendedTooltips(InfiniteXTestMode.isClientEnabled())) return;
 
         Quality quality = event.getItemStack().get(InfXDataComponents.QUALITY.get());
         if (quality != null) {

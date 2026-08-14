@@ -28,7 +28,7 @@ public final class TestModeTitleScreenEvents {
 
     @SubscribeEvent
     public static void configureTitleScreen(ScreenEvent.Init.Post event) {
-        if (!InfiniteXTestMode.isEnabled() || !(event.getScreen() instanceof TitleScreen screen)) return;
+        if (!InfiniteXTestMode.isClientEnabled() || !(event.getScreen() instanceof TitleScreen screen)) return;
         event.addListener(createTestModeLabel(screen));
     }
 

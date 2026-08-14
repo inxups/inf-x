@@ -16,6 +16,7 @@ public final class InfXConfig extends AutoInitConfigContainer {
     public final ProductionConfig production = new ProductionConfig();
     public final WorldConfig world = new WorldConfig();
     public final MobConfig mobs = new MobConfig();
+    public final DevelopmentConfig development = new DevelopmentConfig();
 
     private InfXConfig() {
         super(InfiniteX.id("common"), Component.literal("InfiniteX Server"), "./config/infx/infx-common.json");
@@ -90,6 +91,14 @@ public final class InfXConfig extends AutoInitConfigContainer {
 
         private MobConfig() {
             super("mobs", Component.literal("Mobs"));
+        }
+    }
+
+    public static final class DevelopmentConfig extends AutoInitConfigCategoryBase {
+        public final BooleanEntry testMode = flag("testMode", "Enable development test mode", false);
+
+        private DevelopmentConfig() {
+            super("development", Component.literal("Development"));
         }
     }
 }

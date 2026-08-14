@@ -25,7 +25,7 @@ public abstract class DedicatedServerMixin {
                     value = "FIELD",
                     target = "Lnet/minecraft/server/dedicated/DedicatedServerProperties;enableRcon:Z"))
     private boolean enableRconOnlyInTestMode(DedicatedServerProperties properties) {
-        return properties.enableRcon && ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isEnabled());
+        return properties.enableRcon && ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isServerEnabled());
     }
 
     @Redirect(
@@ -35,19 +35,19 @@ public abstract class DedicatedServerMixin {
                     target = "Lnet/minecraft/server/dedicated/DedicatedServerProperties;managementServerEnabled:Z"))
     private boolean enableJsonRpcOnlyInTestMode(DedicatedServerProperties properties) {
         return properties.managementServerEnabled
-                && ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isEnabled());
+                && ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isServerEnabled());
     }
 
     @Inject(method = "handleConsoleInput", at = @At("HEAD"), cancellable = true)
     private void rejectConsoleCommands(String msg, CommandSourceStack source, CallbackInfo callback) {
-        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isEnabled(), msg)) {
+        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isServerEnabled(), msg)) {
             callback.cancel();
         }
     }
 
     @Inject(method = "runCommand", at = @At("HEAD"), cancellable = true)
     private void rejectRemoteCommands(String command, CallbackInfoReturnable<String> callback) {
-        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isEnabled(), command)) {
+        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isServerEnabled(), command)) {
             callback.setReturnValue(MANAGEMENT_DISABLED.getString());
         }
     }

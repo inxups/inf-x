@@ -35,7 +35,7 @@ public final class WorldCreationLockClientEvents {
 
     @SubscribeEvent
     public static void lockWorldCreation(ScreenEvent.Init.Post event) {
-        if (InfiniteXTestMode.isEnabled()) return;
+        if (InfiniteXTestMode.isClientEnabled()) return;
         if (!(event.getScreen() instanceof CreateWorldScreen screen)) return;
         TabNavigationBar tabBar = event.getListenersList().stream()
                 .filter(TabNavigationBar.class::isInstance)

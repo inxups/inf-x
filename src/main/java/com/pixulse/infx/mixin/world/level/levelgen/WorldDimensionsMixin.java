@@ -24,6 +24,6 @@ public abstract class WorldDimensionsMixin {
     @ModifyVariable(method = "bake", at = @At("HEAD"), argsOnly = true)
     private Registry<LevelStem> infx$preferSelectedOverworldInTestMode(Registry<LevelStem> datapackDimensions) {
         return WorldDimensionSelectionPolicy.resolve(
-                datapackDimensions, this.dimensions(), InfiniteXTestMode.isEnabled());
+                datapackDimensions, this.dimensions(), InfiniteXTestMode.isServerEnabled());
     }
 }

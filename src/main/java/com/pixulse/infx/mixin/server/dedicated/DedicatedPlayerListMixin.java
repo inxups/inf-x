@@ -17,7 +17,7 @@ public abstract class DedicatedPlayerListMixin {
     @Inject(method = "canBypassPlayerLimit", at = @At("HEAD"), cancellable = true)
     private void disableOperatorLimitBypass(
             NameAndId nameAndId, CallbackInfoReturnable<Boolean> callback) {
-        if (!ServerTestModePolicy.allowsPlayerLimitBypass(InfiniteXTestMode.isEnabled())) {
+        if (!ServerTestModePolicy.allowsPlayerLimitBypass(InfiniteXTestMode.isServerEnabled())) {
             callback.setReturnValue(false);
         }
     }
@@ -29,7 +29,7 @@ public abstract class DedicatedPlayerListMixin {
                     target = "Lnet/minecraft/server/dedicated/DedicatedPlayerList;saveOps()V"))
     private void skipInitialOpsFileOutsideTestMode(DedicatedPlayerList playerList) {
         boolean opsFileExists = playerList.getOps().getFile().exists();
-        if (ServerTestModePolicy.shouldSaveOpsAtDedicatedStartup(InfiniteXTestMode.isEnabled(), opsFileExists)) {
+        if (ServerTestModePolicy.shouldSaveOpsAtDedicatedStartup(InfiniteXTestMode.isServerEnabled(), opsFileExists)) {
             invokeSaveOps();
         }
     }

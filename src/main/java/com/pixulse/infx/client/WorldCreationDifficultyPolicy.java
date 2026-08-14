@@ -9,6 +9,6 @@ public final class WorldCreationDifficultyPolicy {
     private WorldCreationDifficultyPolicy() {}
 
     public static Difficulty resolve(Difficulty vanillaDifficulty, boolean hardcore) {
-        return !InfiniteXTestMode.isEnabled() && hardcore ? WorldCreationLockProfile.difficulty() : vanillaDifficulty;
+        return !InfiniteXTestMode.isClientEnabled() && hardcore ? WorldCreationLockProfile.difficulty() : vanillaDifficulty;
     }
 }

@@ -15,7 +15,7 @@ public abstract class PlayerListMixin {
     @Inject(method = "isOp", at = @At("HEAD"), cancellable = true)
     private void disableOperatorsOutsideTestMode(
             NameAndId nameAndId, CallbackInfoReturnable<Boolean> callback) {
-        if (!ServerTestModePolicy.allowsPlayerOperators(InfiniteXTestMode.isEnabled())) {
+        if (!ServerTestModePolicy.allowsPlayerOperators(InfiniteXTestMode.isServerEnabled())) {
             callback.setReturnValue(false);
         }
     }

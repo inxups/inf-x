@@ -92,7 +92,4 @@ public final class ServerTestModePolicy {
         return testMode || opsFileExists;
     }
 
-    public static boolean modesMatch(boolean serverTestMode, boolean clientTestMode) {
-        return serverTestMode == clientTestMode;
-    }
 }

@@ -82,7 +82,7 @@ public final class InfiniteX {
         ModMonsterGameTests.register(modBus);
         ModMechanicsGameTests.register(modBus);
         ModJadeDisplayGameTests.register(modBus);
-        if (InfiniteXTestMode.isEnabled()) {
+        if (InfiniteXTestMode.isServerEnabled()) {
             LOGGER.warn("InfiniteX test mode is active; development overrides and vanilla server administration are enabled");
         }
     }
