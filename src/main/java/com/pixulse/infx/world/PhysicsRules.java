@@ -8,16 +8,6 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class PhysicsRules {
     private PhysicsRules() {}
 
-    public static boolean isLoose(BlockState state) {
-        return state.is(Blocks.DIRT)
-                || state.is(Blocks.COARSE_DIRT)
-                || state.is(Blocks.MUD)
-                || state.is(Blocks.FARMLAND)
-                || state.is(com.pixulse.infx.registry.InfXBlocks.FERTILE_FARMLAND)
-                || state.is(BlockTags.SAND)
-                || state.is(Blocks.GRAVEL);
-    }
-
     public static float fallDamageMultiplier(BlockState landing) {
         if (landing.is(Blocks.SPONGE) || landing.is(Blocks.WET_SPONGE)) return 0.2F;
         if (landing.is(BlockTags.WOOL) || landing.is(Blocks.SNOW_BLOCK)) return 0.4F;

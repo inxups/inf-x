@@ -26,7 +26,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -43,28 +42,6 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class PhysicsEvents {
     private PhysicsEvents() {}
-
-    @SubscribeEvent
-    public static void onNeighborUpdate(BlockEvent.NeighborNotifyEvent event) {
-        if (!(event.getLevel() instanceof ServerLevel level)) return;
-        tryFall(level, event.getPos());
-        for (Direction direction : event.getNotifiedSides()) {
-            if (direction == Direction.UP) {
-                // A loose column would otherwise cascade synchronously: every stacked block becomes a
-                // falling entity in the same tick, they fall in lockstep, and whichever lands second on
-                // the same block position is discarded and dropped by the vanilla landing check. Defer
-                // each upward step by one tick so every block lands on the block placed by the one below.
-                pendingFall(level, event.getPos().above());
-            } else {
-                tryFall(level, event.getPos().relative(direction));
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-        if (event.getLevel() instanceof ServerLevel level) tryFall(level, event.getPos());
-    }
 
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {
@@ -85,11 +62,6 @@ public final class PhysicsEvents {
                 falling.setDeltaMovement(velocity.x, Math.min(-0.08D, velocity.y), velocity.z);
             }
             return;
-        }
-        if (event.getEntity().level() instanceof ServerLevel level
-                && event.getEntity().onGround()
-                && event.getEntity().tickCount % 5 == 0) {
-            tryFall(level, event.getEntity().blockPosition().below());
         }
     }
 
@@ -125,33 +97,6 @@ public final class PhysicsEvents {
         }
     }
 
-    private static void tryFall(ServerLevel level, BlockPos pos) {
-        if (!level.isLoaded(pos)) return;
-        BlockState state = level.getBlockState(pos);
-        if (!PhysicsRules.isLoose(state) || !FallingBlock.isFree(level.getBlockState(pos.below()))) return;
-        FallingBlockEntity.fall(level, pos, state);
-    }
-
-    /** Falls queued by {@link #onNeighborUpdate} that must wait one tick before spawning. */
-    private static final java.util.Map<ServerLevel, java.util.List<BlockPos>> PENDING_FALLS =
-            new java.util.IdentityHashMap<>();
-
-    private static void pendingFall(ServerLevel level, BlockPos pos) {
-        PENDING_FALLS.computeIfAbsent(level, key -> new java.util.ArrayList<>(1)).add(pos);
-    }
-
-    @SubscribeEvent
-    public static void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
-        if (PENDING_FALLS.isEmpty()) return;
-        // Copy first: spawning a falling block re-enters onNeighborUpdate -> pendingFall while iterating.
-        java.util.Map<ServerLevel, java.util.List<BlockPos>> pending =
-                new java.util.IdentityHashMap<>(PENDING_FALLS);
-        PENDING_FALLS.clear();
-        for (java.util.Map.Entry<ServerLevel, java.util.List<BlockPos>> entry : pending.entrySet()) {
-            for (BlockPos pos : entry.getValue()) tryFall(entry.getKey(), pos);
-        }
-    }
-
     @SubscribeEvent
     public static void onExplosion(ExplosionEvent.Detonate event) {
         if (!(event.getLevel() instanceof ServerLevel level)) return;
@@ -163,11 +108,6 @@ public final class PhysicsEvents {
         for (ItemEntity item : level.getEntitiesOfClass(ItemEntity.class, new AABB(center, center).inflate(radius))) {
             damageEquipment(item, center, radius);
         }
-        level.getServer().execute(() -> {
-            for (BlockPos affected : event.getAffectedBlocks()) {
-                for (Direction direction : Direction.values()) tryFall(level, affected.relative(direction));
-            }
-        });
     }
 
     /**

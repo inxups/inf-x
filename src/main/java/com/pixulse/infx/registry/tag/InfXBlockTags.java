@@ -16,6 +16,8 @@ public final class InfXBlockTags {
     public static final TagKey<Block> ACID_DISSOLVES_INSTANTLY = create("dissolves/acid_instantly");
     public static final TagKey<Block> ACID_DISSOLVES_GRADUALLY = create("dissolves/acid_gradually");
     public static final TagKey<Block> ACID_SCORCHABLE_GROUND = create("dissolves/acid_scorchable_ground");
+    public static final TagKey<Block> GRAVITY_SOILS = create("gravity_soils");
+    public static final TagKey<Block> SLIDING_FALLING_BLOCKS = create("sliding_falling_blocks");
     public static final TagKey<Block> CURSE_VINES = create("curse/vines");
     public static final TagKey<Block> CURSE_PLANTS = create("curse/plants");
 

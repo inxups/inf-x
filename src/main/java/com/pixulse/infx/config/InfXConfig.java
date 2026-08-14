@@ -76,6 +76,11 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry lunarFishing = flag("lunarFishing", "Enable lunar fishing modifiers", true);
         public final BooleanEntry lunarTaming = flag("lunarTaming", "Enable lunar taming modifiers", true);
         public final BooleanEntry underworldPortals = flag("underworldPortals", "Enable underworld portals", true);
+        public final BooleanEntry soilCollapse = flag("soilCollapse", "Enable unstable soil collapse", true);
+        public final IntegerEntry soilCollapseDelayTicks =
+                integer("soilCollapseDelayTicks", "Soil collapse delay (ticks)", 2, 0, 1200);
+        public final IntegerEntry soilSlopeCollapseExtraDelayTicks = integer(
+                "soilSlopeCollapseExtraDelayTicks", "Extra slope collapse delay (ticks)", 40, 0, 1200);
 
         private WorldConfig() {
             super("world", Component.literal("World"));

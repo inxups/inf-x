@@ -33,6 +33,7 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         addPortableBlocks();
         addHarvestLevels();
         addCropTags();
+        addSoilCollapseTags();
         addGelatinousCubeTags();
         addCurseTags();
     }
@@ -44,6 +45,17 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
         });
         tag(BlockTags.SUPPORTS_CROPS)
                 .add(blockKey(Blocks.FARMLAND), InfXBlocks.FERTILE_FARMLAND.getKey());
+    }
+
+    private void addSoilCollapseTags() {
+        tag(InfXBlockTags.GRAVITY_SOILS).addTag(BlockTags.DIRT).add(blockKey(Blocks.SOUL_SAND));
+        tag(InfXBlockTags.SLIDING_FALLING_BLOCKS)
+                .addTag(BlockTags.DIRT)
+                .add(
+                        blockKey(Blocks.SOUL_SAND),
+                        blockKey(Blocks.SAND),
+                        blockKey(Blocks.RED_SAND),
+                        blockKey(Blocks.GRAVEL));
     }
 
     private void addCurseTags() {
