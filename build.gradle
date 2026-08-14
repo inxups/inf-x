@@ -56,8 +56,6 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
-def infxTestMode = providers.systemProperty('infx.testMode')
-
 neoForge {
     version = project.neo_version
 
@@ -88,10 +86,6 @@ neoForge {
         }
 
         configureEach {
-            if (infxTestMode.isPresent()) {
-                systemProperty 'infx.testMode', infxTestMode.get()
-            }
-
             systemProperty 'forge.logging.markers', 'REGISTRIES'
             logLevel = org.slf4j.event.Level.DEBUG
         }

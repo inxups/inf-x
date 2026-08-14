@@ -152,11 +152,11 @@ class WorldDimensionSelectionPolicyTest {
         WorldDimensions.Complete baked =
                 new WorldDimensions(Map.of(LevelStem.OVERWORLD, selectedFlat)).bake(datapackDimensions);
 
-        LevelStem expectedOverworld = InfiniteXTestMode.isEnabled() ? selectedFlat : datapackOverworld;
+        LevelStem expectedOverworld = InfiniteXTestMode.isServerEnabled() ? selectedFlat : datapackOverworld;
         assertSame(expectedOverworld, baked.dimensions().getValue(LevelStem.OVERWORLD));
         assertSame(underworld, baked.dimensions().getValue(Underworld.STEM));
         assertEquals(
-                InfiniteXTestMode.isEnabled()
+                        InfiniteXTestMode.isServerEnabled()
                         ? PrimaryLevelData.SpecialWorldProperty.FLAT
                         : PrimaryLevelData.SpecialWorldProperty.NONE,
                 baked.specialWorldProperty());

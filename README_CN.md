@@ -1,5 +1,7 @@
 # InfiniteX
 
+开发测试模式请在 Jupiter 配置界面的 `Development` 分类中启用：服务端开关控制服务器管理与世界规则，客户端开关控制调试界面和本地开发选项。
+
 [Discord](https://discord.gg/CKnHnhr5x)
 
 > 你不再只是砍树、挖矿、升级装备。
@@ -17,5 +19,5 @@
 
 
 ## 其他
-- 测试时可通过 JVM 启动参数 `-Dinfx.testMode=true` 启用测试模式。
+- 测试时请在 Jupiter 配置界面的 `Development` 分类中启用测试模式：服务端开关控制服务器管理与世界规则，客户端开关控制调试界面和本地开发选项。
 - 感谢MITE开发者Avernite和MITE社区对‘resource’的支持

@@ -501,9 +501,6 @@ final class ModLanguageProvider extends LanguageProvider {
                 ? "Creative mode is disabled in INFX survival worlds"
                 : "INFX 生存世界禁止创造模式");
         add("menu.infx.test_mode", locale == Locale.EN_US ? "INFX TEST MODE" : "INFX测试模式");
-        add("disconnect.infx.test_mode_mismatch", locale == Locale.EN_US
-                ? "InfiniteX test mode must match the server"
-                : "InfiniteX 测试模式必须与服务端一致");
         add("message.infx.server_management_disabled", locale == Locale.EN_US
                 ? "This server command is disabled outside InfiniteX test mode"
                 : "该服务端命令在非 InfiniteX 测试模式下被禁用");

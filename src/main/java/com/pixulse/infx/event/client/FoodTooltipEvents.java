@@ -31,7 +31,7 @@ public final class FoodTooltipEvents {
     public static void addFoodGains(ItemTooltipEvent event) {
         FoodProfile food = FoodProfiles.forStack(event.getItemStack());
         if (!InfXClientConfig.INSTANCE.detailedFoodTooltips.getValue()
-                || !shouldAddFoodGains(InfiniteXTestMode.isEnabled(), event.getFlags().isAdvanced(), food)) return;
+                || !shouldAddFoodGains(InfiniteXTestMode.isClientEnabled(), event.getFlags().isAdvanced(), food)) return;
 
         appendFoodGains(event.getToolTip(), food);
     }

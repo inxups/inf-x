@@ -61,11 +61,4 @@ class ServerTestModePolicyTest {
         assertTrue(ServerTestModePolicy.shouldSaveOpsAtDedicatedStartup(false, true));
     }
 
-    @Test
-    void clientAndServerModesMustMatchExactly() {
-        assertTrue(ServerTestModePolicy.modesMatch(false, false));
-        assertTrue(ServerTestModePolicy.modesMatch(true, true));
-        assertFalse(ServerTestModePolicy.modesMatch(false, true));
-        assertFalse(ServerTestModePolicy.modesMatch(true, false));
-    }
 }

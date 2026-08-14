@@ -30,7 +30,7 @@ public abstract class ShareToLanScreenMixin {
 
     @Inject(method = "init", at = @At("HEAD"))
     private void infx$forceAllowCommandsOffOutsideTestMode(CallbackInfo callbackInfo) {
-        if (!ClientLanPolicy.allowsLanCommands(InfiniteXTestMode.isEnabled())) {
+        if (!ClientLanPolicy.allowsLanCommands(InfiniteXTestMode.isClientEnabled())) {
             this.commands = false;
         }
     }
@@ -49,7 +49,7 @@ public abstract class ShareToLanScreenMixin {
             Component name,
             CycleButton.OnValueChange<Boolean> onValueChange) {
         CycleButton<Boolean> button = builder.create(x, y, width, height, name, onValueChange);
-        if (name == ALLOW_COMMANDS_LABEL && !ClientLanPolicy.allowsLanCommands(InfiniteXTestMode.isEnabled())) {
+        if (name == ALLOW_COMMANDS_LABEL && !ClientLanPolicy.allowsLanCommands(InfiniteXTestMode.isClientEnabled())) {
             button.active = false;
             button.setTooltip(Tooltip.create(TEST_MODE_ONLY_TOOLTIP));
         }

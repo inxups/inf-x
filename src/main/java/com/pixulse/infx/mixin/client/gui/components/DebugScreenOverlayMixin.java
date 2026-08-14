@@ -43,7 +43,7 @@ public abstract class DebugScreenOverlayMixin {
             @Nullable Level serverOrClientLevel,
             @Nullable LevelChunk clientChunk,
             @Nullable LevelChunk serverChunk) {
-        if (!InfiniteXTestMode.isEnabled()
+        if (!InfiniteXTestMode.isClientEnabled()
                 || entry == DebugScreenEntries.getEntry(DebugScreenEntries.FPS)
                 || !entry.category().equals(DebugEntryCategory.SCREEN_TEXT)) {
             entry.display(displayer, serverOrClientLevel, clientChunk, serverChunk);

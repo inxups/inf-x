@@ -1,19 +1,17 @@
 package com.pixulse.infx;
 
-import org.jspecify.annotations.Nullable;
+import com.pixulse.infx.config.InfXClientConfig;
+import com.pixulse.infx.config.InfXConfig;
 
-/** Startup-only escape hatch for development worlds that need unrestricted vanilla controls. */
+/** Accessors for the server and client development configuration switches. */
 public final class InfiniteXTestMode {
-    public static final String SYSTEM_PROPERTY = "infx.testMode";
-    private static final boolean ENABLED = parse(System.getProperty(SYSTEM_PROPERTY));
-
     private InfiniteXTestMode() {}
 
-    public static boolean isEnabled() {
-        return ENABLED;
+    public static boolean isServerEnabled() {
+        return InfXConfig.INSTANCE.development.testMode.getValue();
     }
 
-    static boolean parse(@Nullable String value) {
-        return Boolean.parseBoolean(value);
+    public static boolean isClientEnabled() {
+        return InfXClientConfig.INSTANCE.development.testMode.getValue();
     }
 }

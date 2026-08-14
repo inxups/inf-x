@@ -16,5 +16,5 @@ Whether it's unbalanced numbers or questionable mechanics, everything falls with
 For how to beat the game, you can refer to let's-play videos of 1.6.4-MITE. For new content, check out CHANGELOG.
 
 ## Other
-- During testing, you can enable test mode with the JVM launch argument `-Dinfx.testMode=true`.
+- Development test mode is enabled from the `Development` tab in the Jupiter server/client configuration screens. The server switch controls server administration and world rules; the client switch controls debug UI and local development controls.
 - Thanks to MITE developer Avernite and the MITE community for their support of "resource".
