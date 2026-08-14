@@ -1,6 +1,8 @@
 package com.pixulse.infx;
 
 import com.mojang.logging.LogUtils;
+import com.iafenvoy.jupiter.ConfigManager;
+import com.iafenvoy.jupiter.ServerConfigManager;
 import com.pixulse.infx.gametest.ModEquipmentGameTests;
 import com.pixulse.infx.gametest.ModGameTests;
 import com.pixulse.infx.gametest.ModMonsterGameTests;
@@ -36,9 +38,7 @@ import com.pixulse.infx.registry.InfXRecipeSerializers;
 
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import org.slf4j.Logger;
 
 @Mod(InfiniteX.MOD_ID)
@@ -47,9 +47,9 @@ public final class InfiniteX {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public InfiniteX(IEventBus modBus) {
-        ModLoadingContext.get()
-                .getActiveContainer()
-                .registerConfig(ModConfig.Type.SERVER, InfXConfig.SERVER_SPEC);
+        ConfigManager.getInstance().registerConfigHandler(InfXConfig.INSTANCE);
+        ServerConfigManager.registerServerConfig(
+                InfXConfig.INSTANCE, ServerConfigManager.PermissionChecker.IS_OPERATOR);
         InfXSounds.register(modBus);
         InfXChunkGeneratorTypes.register(modBus);
         InfXDensityFunctionTypes.register(modBus);

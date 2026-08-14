@@ -1,5 +1,6 @@
 package com.pixulse.infx.mixin.world.food;
 
+import com.pixulse.infx.data.food.SurvivalRules;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.food.FoodData;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,6 +18,7 @@ abstract class FoodDataMixin {
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void infx$useR196FoodTick(ServerPlayer player, CallbackInfo callback) {
+        if (!SurvivalRules.isEnabled()) return;
         // SurvivalEvents owns both energy layers, recovery and starvation.
         this.exhaustionLevel = 0.0F;
         this.tickTimer = 0;

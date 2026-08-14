@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.pixulse.infx.block.RuneStoneBlock;
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.item.CoinItem;
 import com.pixulse.infx.item.equipment.QualitySystem;
 import com.pixulse.infx.item.material.Quality;
@@ -167,7 +168,9 @@ public final class TimedCraftingEngine {
         boolean sameRecipe = match.isPresent() && currentRecipeId.equals(state.activeRecipeId());
         TimedCraftingState.TickResult result = state.tick(
                 currentRecipeId,
-                player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy(),
+                !InfXConfig.INSTANCE.survival.enabled.getValue()
+                        || !InfXConfig.INSTANCE.survival.craftingRequiresFoodEnergy.getValue()
+                        || player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy(),
                 timedMenu.infx$isCraftingContextValid(player),
                 sameRecipe);
 

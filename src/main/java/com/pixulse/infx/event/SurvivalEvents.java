@@ -154,6 +154,7 @@ public final class SurvivalEvents {
     @SubscribeEvent
     public static void onClone(PlayerEvent.Clone event) {
         if (event.getOriginal() instanceof ServerPlayer original) ACTIVITIES.remove(original);
+        if (!SurvivalRules.isEnabled()) return;
         if (event.isWasDeath()) {
             SurvivalData afterDeath = event.getOriginal()
                     .getData(InfXAttachments.SURVIVAL)
@@ -168,12 +169,15 @@ public final class SurvivalEvents {
 
     @SubscribeEvent
     public static void onFoodFinished(LivingEntityUseItemEvent.Finish event) {
-        if (!(event.getEntity() instanceof ServerPlayer player) || player.isSpectator()) return;
+        if (!SurvivalRules.isEnabled()
+                || !(event.getEntity() instanceof ServerPlayer player)
+                || player.isSpectator()) return;
         applyFood(player, event.getItem());
     }
 
     /** Applies an INFX food profile, or re-mirrors FoodData when the item has no profile. */
     public static void applyFood(ServerPlayer player, ItemStack stack) {
+        if (!SurvivalRules.isEnabled()) return;
         FoodProfile food = FoodProfiles.forStack(stack);
         if (food.isEmpty()) {
             // Vanilla FoodData.eat may have already run; discard that temporary change.
@@ -188,12 +192,13 @@ public final class SurvivalEvents {
     }
 
     public static void syncFoodData(ServerPlayer player) {
+        if (!SurvivalRules.isEnabled()) return;
         mirrorFoodData(player, player.getData(InfXAttachments.SURVIVAL));
     }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!SurvivalRules.isEnabled() || !(event.getEntity() instanceof ServerPlayer player)) return;
         PlayerActivity activity = ACTIVITIES.computeIfAbsent(
                 player, ignored -> new PlayerActivity(MovementStats.capture(player)));
         double movementCost = activity.sampleMovement(player);
@@ -223,7 +228,7 @@ public final class SurvivalEvents {
      * @return whether the player still has either INFX food-energy layer available
      */
     public static boolean tickSleepingMetabolism(ServerPlayer player) {
-        if (!hasActiveMetabolism(player)) return true;
+        if (!SurvivalRules.isEnabled() || !hasActiveMetabolism(player)) return true;
         tickMetabolism(player, 1, true);
         return player.getData(InfXAttachments.SURVIVAL).hasFoodEnergy();
     }
@@ -245,7 +250,7 @@ public final class SurvivalEvents {
         double cost = elapsedTicks * (baselineCost + SurvivalRules.hungerEffectMetabolism(hungerEffectLevel));
         SurvivalData updated = current.metabolize(
                 cost,
-                elapsedTicks * SurvivalRules.NUTRITION_METABOLISM_PER_TICK,
+                elapsedTicks * SurvivalRules.nutritionMetabolismPerTick(),
                 elapsedTicks,
                 SurvivalRules.foodCap(player.experienceLevel));
         updated = applyStarvation(player, updated, elapsedTicks);
@@ -332,21 +337,21 @@ public final class SurvivalEvents {
 
     @SubscribeEvent
     public static void onJump(LivingEvent.LivingJumpEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
+        if (SurvivalRules.isEnabled() && event.getEntity() instanceof ServerPlayer player) {
             consumeAction(player, SurvivalRules.jumpMetabolism(player.isSprinting()));
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onAttack(AttackEntityEvent event) {
-        if (event.getEntity() instanceof ServerPlayer player) {
+        if (SurvivalRules.isEnabled() && event.getEntity() instanceof ServerPlayer player) {
             consumeEnduranceAction(player, SurvivalRules.ATTACK_METABOLISM);
         }
     }
 
     @SubscribeEvent
     public static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!SurvivalRules.isEnabled() || !(event.getEntity() instanceof ServerPlayer player)) return;
         PlayerActivity activity = ACTIVITIES.computeIfAbsent(
                 player, ignored -> new PlayerActivity(MovementStats.capture(player)));
         switch (event.getAction()) {
@@ -365,7 +370,7 @@ public final class SurvivalEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockBroken(BreakBlockEvent event) {
-        if (event.getPlayer() instanceof ServerPlayer player) {
+        if (SurvivalRules.isEnabled() && event.getPlayer() instanceof ServerPlayer player) {
             PlayerActivity activity = ACTIVITIES.get(player);
             if (activity != null) activity.stopMining(event.getPos());
         }
@@ -373,14 +378,15 @@ public final class SurvivalEvents {
 
     @SubscribeEvent
     public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (!SurvivalRules.isEnabled() || !(event.getEntity() instanceof ServerPlayer player)) return;
         float hardness = event.getPlacedBlock().getDestroySpeed(event.getLevel(), event.getPos());
         consumeEnduranceAction(player, SurvivalRules.placementMetabolism(hardness));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onToolModified(BlockEvent.BlockToolModificationEvent event) {
-        if (event.isSimulated()
+        if (!SurvivalRules.isEnabled()
+                || event.isSimulated()
                 || event.getItemAbility() != ItemAbilities.HOE_TILL
                 || event.getFinalState().equals(event.getState())
                 || !(event.getPlayer() instanceof ServerPlayer player)) return;
@@ -390,7 +396,8 @@ public final class SurvivalEvents {
 
     @SubscribeEvent
     public static void onDamaged(LivingDamageEvent.Post event) {
-        if (!(event.getEntity() instanceof ServerPlayer player)
+        if (!SurvivalRules.isEnabled()
+                || !(event.getEntity() instanceof ServerPlayer player)
                 || event.getHealthDamage() <= 0.0F
                 || event.getSource().is(DamageTypeTags.BYPASSES_ARMOR)
                 || event.getSource().is(DamageTypeTags.IS_FIRE)) return;
@@ -424,6 +431,10 @@ public final class SurvivalEvents {
 
     public static void recalculatePlayerLimits(Player player) {
         var maxHealth = player.getAttribute(Attributes.MAX_HEALTH);
+        if (!SurvivalRules.isEnabled()) {
+            if (maxHealth != null) maxHealth.setBaseValue(SurvivalRules.MAX_CAP);
+            return;
+        }
         if (maxHealth != null) {
             maxHealth.setBaseValue(SurvivalRules.healthCap(player.experienceLevel));
             if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());

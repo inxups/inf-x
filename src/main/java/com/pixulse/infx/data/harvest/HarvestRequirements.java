@@ -1,5 +1,6 @@
 package com.pixulse.infx.data.harvest;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 
 import java.util.OptionalInt;
@@ -13,6 +14,10 @@ public final class HarvestRequirements {
     private HarvestRequirements() {}
 
     public static int requiredLevel(BlockState state) {
+        if (!InfXConfig.INSTANCE.progression.enabled.getValue()
+                || !InfXConfig.INSTANCE.progression.harvestRequirements.getValue()) {
+            return 0;
+        }
         OptionalInt override = HarvestRules.requiredLevel(state);
         if (override.isPresent()) {
             return override.getAsInt();

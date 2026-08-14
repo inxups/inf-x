@@ -1,5 +1,6 @@
 package com.pixulse.infx.recipe;
 
+import com.pixulse.infx.config.InfXConfig;
 public final class CraftingTimeCalculator {
     private static final int MINIMUM_TICKS = 25;
 
@@ -45,7 +46,10 @@ public final class CraftingTimeCalculator {
         if (clumsy) {
             unmodified *= 2.0D;
         }
-        int adjusted = (int) (unmodified / divisor);
+        double configuredMultiplier = InfXConfig.INSTANCE.progression.enabled.getValue()
+                ? InfXConfig.INSTANCE.progression.craftingSpeedMultiplier.getValue()
+                : 1.0D;
+        int adjusted = (int) (unmodified / (divisor * configuredMultiplier));
         return Math.max(MINIMUM_TICKS, adjusted);
     }
 

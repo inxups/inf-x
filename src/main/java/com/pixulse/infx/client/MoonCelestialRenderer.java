@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.config.InfXClientConfig;
 import com.pixulse.infx.world.MoonPhase;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
@@ -43,6 +44,9 @@ public final class MoonCelestialRenderer {
 
     /** Called from SkyRenderer's moon transform to preserve the InfX moon-face colors. */
     public static Vector4fc tintMoon(Vector4fc vanillaColor) {
+        if (!InfXClientConfig.INSTANCE.specialMoonRendering.getValue()) {
+            return vanillaColor;
+        }
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return vanillaColor;
@@ -64,6 +68,9 @@ public final class MoonCelestialRenderer {
     /** Called after vanilla's moon and before its stars, while its celestial transform is still active. */
     public static void renderEffects(
             PoseStack poseStack, float moonAngle, float rainBrightness, float starBrightness) {
+        if (!InfXClientConfig.INSTANCE.specialMoonRendering.getValue()) {
+            return;
+        }
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
             return;

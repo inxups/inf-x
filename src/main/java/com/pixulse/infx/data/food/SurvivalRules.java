@@ -1,5 +1,6 @@
 package com.pixulse.infx.data.food;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.player.Experience;
 
 public final class SurvivalRules {
@@ -24,10 +25,20 @@ public final class SurvivalRules {
 
     private SurvivalRules() {}
 
+    public static boolean isEnabled() {
+        return InfXConfig.INSTANCE.survival.enabled.getValue();
+    }
+
     public static double healthCap(int level) {
-        double scaled = INITIAL_CAP
-                + 2.0D * Math.floorDiv(Math.max(0, Math.min(level, Experience.MAX_DISPLAY_LEVEL)), 5);
-        return Math.min(MAX_CAP, scaled);
+        var config = InfXConfig.INSTANCE.survival;
+        if (!isEnabled()) {
+            return MAX_CAP;
+        }
+        double scaled = config.initialCapacity.getValue()
+                + config.capacityIncreasePerMilestone.getValue()
+                        * Math.floorDiv(Math.max(0, Math.min(level, Experience.MAX_DISPLAY_LEVEL)),
+                                config.levelsPerCapacityIncrease.getValue());
+        return Math.min(config.maximumCapacity.getValue(), scaled);
     }
 
     /** Food capacity grows with the same level formula as max health. */
@@ -39,7 +50,7 @@ public final class SurvivalRules {
         double multiplier = 1.0D;
         if (wet) multiplier += cold ? 0.5D : 0.25D;
         if (malnourished) multiplier += 0.5D;
-        return BASE_METABOLISM_PER_TICK * multiplier;
+        return BASE_METABOLISM_PER_TICK * multiplier * InfXConfig.INSTANCE.survival.metabolismMultiplier.getValue();
     }
 
     public static double movementMetabolism(
@@ -54,22 +65,25 @@ public final class SurvivalRules {
         double swimmingBlocks = centimeters(swimCentimeters)
                 + centimeters(underwaterCentimeters)
                 + centimeters(onWaterCentimeters);
-        return walkingBlocks * WALK_METABOLISM_PER_BLOCK
+        return (walkingBlocks * WALK_METABOLISM_PER_BLOCK
                 + centimeters(sprintCentimeters) * SPRINT_METABOLISM_PER_BLOCK
                 + swimmingBlocks * SWIM_METABOLISM_PER_BLOCK
-                + centimeters(climbCentimeters) * CLIMB_METABOLISM_PER_BLOCK;
+                + centimeters(climbCentimeters) * CLIMB_METABOLISM_PER_BLOCK)
+                * InfXConfig.INSTANCE.survival.metabolismMultiplier.getValue();
     }
 
     public static double jumpMetabolism(boolean sprinting) {
-        return sprinting ? SPRINT_JUMP_METABOLISM : JUMP_METABOLISM;
+        return (sprinting ? SPRINT_JUMP_METABOLISM : JUMP_METABOLISM)
+                * InfXConfig.INSTANCE.survival.metabolismMultiplier.getValue();
     }
 
     public static double placementMetabolism(double hardness) {
-        return Math.min(Math.max(0.0D, hardness), MAX_PLACEMENT_HARDNESS) / 4.0D;
+        return Math.min(Math.max(0.0D, hardness), MAX_PLACEMENT_HARDNESS) / 4.0D
+                * InfXConfig.INSTANCE.survival.metabolismMultiplier.getValue();
     }
 
     public static double tillingMetabolism(double hardness) {
-        return Math.max(0.0D, hardness) / 8.0D;
+        return Math.max(0.0D, hardness) / 8.0D * InfXConfig.INSTANCE.survival.metabolismMultiplier.getValue();
     }
 
     public static double enduranceModifier(int enduranceLevel) {
@@ -77,7 +91,12 @@ public final class SurvivalRules {
     }
 
     public static double hungerEffectMetabolism(int effectLevel) {
-        return HUNGER_EFFECT_METABOLISM_PER_TICK * Math.max(0, effectLevel);
+        return HUNGER_EFFECT_METABOLISM_PER_TICK * Math.max(0, effectLevel)
+                * InfXConfig.INSTANCE.survival.metabolismMultiplier.getValue();
+    }
+
+    public static double nutritionMetabolismPerTick() {
+        return BASE_METABOLISM_PER_TICK * InfXConfig.INSTANCE.survival.nutritionMetabolismRatio.getValue();
     }
 
     private static double centimeters(int value) {
@@ -90,6 +109,6 @@ public final class SurvivalRules {
         if (sleeping) rate *= 4.0D;
         if (malnourished) rate *= 0.25D;
         rate *= 1.0D + Math.max(0, regenerationLevel) * 0.5D;
-        return rate;
+        return rate * InfXConfig.INSTANCE.survival.naturalHealingMultiplier.getValue();
     }
 }

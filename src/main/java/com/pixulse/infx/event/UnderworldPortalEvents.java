@@ -1,6 +1,7 @@
 package com.pixulse.infx.event;
 
 import com.pixulse.infx.world.Underworld;
+import com.pixulse.infx.config.InfXConfig;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -34,13 +35,19 @@ public final class UnderworldPortalEvents {
 
     @SubscribeEvent
     public static void onPortalSpawn(BlockEvent.PortalSpawnEvent event) {
-        if (event.getLevel() instanceof ServerLevel level
+        if (InfXConfig.INSTANCE.world.enabled.getValue()
+                && InfXConfig.INSTANCE.world.underworldPortals.getValue()
+                && event.getLevel() instanceof ServerLevel level
                 && tryCreateR196Portal(level, event.getPos(), event.getPortalSize())) {
             event.setCanceled(true);
         }
     }
 
     public static boolean tryCreateR196Portal(ServerLevel level, BlockPos origin, PortalShape shape) {
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.underworldPortals.getValue()) {
+            return false;
+        }
         if (!supportsOrdinaryPortals(level.dimension())) {
             return false;
         }
@@ -62,6 +69,10 @@ public final class UnderworldPortalEvents {
     }
 
     public static boolean tryCreateUnderworldPortal(ServerLevel level, BlockPos origin, PortalShape shape) {
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.underworldPortals.getValue()) {
+            return false;
+        }
         if (!level.dimension().equals(Level.OVERWORLD)) {
             return false;
         }

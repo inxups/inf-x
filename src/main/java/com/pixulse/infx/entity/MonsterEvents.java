@@ -5,6 +5,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
@@ -81,7 +82,9 @@ public final class MonsterEvents {
      */
     @SubscribeEvent
     public static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
-        if (!(event.getSource().getEntity() instanceof Mob attacker)
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !InfXConfig.INSTANCE.mobs.bloodMoonFrenzy.getValue()
+                || !(event.getSource().getEntity() instanceof Mob attacker)
                 || !(attacker instanceof Enemy)
                 || attacker instanceof InfxEnderman
                 || !event.getSource().isDirect()
