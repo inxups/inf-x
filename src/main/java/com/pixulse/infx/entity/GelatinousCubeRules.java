@@ -19,6 +19,10 @@ public final class GelatinousCubeRules {
     private GelatinousCubeRules() {}
 
     public static int dissolvePeriod(BlockState state, CorrosionType type) {
+        var override = GelatinousDissolveRules.dissolvePeriod(state, type);
+        if (override.isPresent()) {
+            return override.getAsInt();
+        }
         if (state.isAir()) {
             return IMMUNE;
         }
@@ -56,6 +60,9 @@ public final class GelatinousCubeRules {
     public static boolean dissolveOnContact(
             ServerLevel level, BlockPos pos, CorrosionType type, Direction contactedFace) {
         BlockState state = level.getBlockState(pos);
+        if (GelatinousDissolveRules.dissolvePeriod(state, type).isPresent()) {
+            return dissolvePeriod(state, type) == INSTANT && level.destroyBlock(pos, false);
+        }
         if (isAcidScorchableGround(state, type)
                 && (contactedFace == null || contactedFace == Direction.UP)) {
             return level.setBlock(pos, Blocks.DIRT.defaultBlockState(), 3);

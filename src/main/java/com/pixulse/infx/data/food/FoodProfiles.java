@@ -74,10 +74,18 @@ public final class FoodProfiles {
     private FoodProfiles() {}
 
     public static FoodProfile cakeSlice() {
+        var override = FoodProfileRules.profile(Items.CAKE.getDefaultInstance());
+        if (override.isPresent()) {
+            return override.orElseThrow();
+        }
         return CAKE_SLICE;
     }
 
     public static FoodProfile forStack(ItemStack stack) {
+        var override = FoodProfileRules.profile(stack);
+        if (override.isPresent()) {
+            return override.orElseThrow();
+        }
         Item item = stack.getItem();
         if (item instanceof InfxBucketItem bucket && bucket.contents() == InfxBucketItem.Contents.MILK) {
             return MILK_BUCKET;

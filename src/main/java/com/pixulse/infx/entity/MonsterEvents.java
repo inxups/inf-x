@@ -403,6 +403,8 @@ public final class MonsterEvents {
         if (path.equals("earth_elemental") && !earthElementalGround(serverLevel, pos)) return false;
         if (path.equals("clay_golem") && !clayGolemGround(serverLevel, pos)) return false;
         if (serverLevel.dimension() != Level.OVERWORLD) return true;
+        var ruleResult = MobSpawnRules.allows(type, serverLevel, pos, random);
+        if (ruleResult.isPresent()) return ruleResult.get();
 
         int y = pos.getY();
         boolean bloodMoonUp = MoonPhase.BLOOD.isActiveInOverworldAtNight(serverLevel);

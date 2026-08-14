@@ -13,6 +13,10 @@ public final class HarvestRequirements {
     private HarvestRequirements() {}
 
     public static int requiredLevel(BlockState state) {
+        OptionalInt override = HarvestRules.requiredLevel(state);
+        if (override.isPresent()) {
+            return override.getAsInt();
+        }
         OptionalInt explicit = explicitLevel(state);
         return inferLevel(explicit, state.is(BlockTags.LOGS), state.is(BlockTags.MINEABLE_WITH_PICKAXE));
     }

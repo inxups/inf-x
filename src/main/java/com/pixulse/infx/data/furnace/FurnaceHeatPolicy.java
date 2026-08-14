@@ -34,6 +34,10 @@ public final class FurnaceHeatPolicy {
         if (burnTime <= 0 || fuel.isEmpty()) {
             return 0;
         }
+        var override = FuelHeatRules.heat(fuel);
+        if (override.isPresent()) {
+            return override.getAsInt();
+        }
         if (fuel.is(Items.BLAZE_ROD)) {
             return HEAT_BLAZE;
         }
