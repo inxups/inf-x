@@ -65,20 +65,25 @@ public final class TimedCraftingEngine {
             CraftingResult assembledResult = holder.assemble(timedMenu.infx$craftingContainer().asCraftInput());
             ItemStack assembled = assembledResult.stack();
             if (!assembled.isEmpty() && assembled.isItemEnabled(player.level().enabledFeatures())) {
-                boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
-                boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
-                int code = QualitySystem.clampCode(
-                        assembled,
-                        player,
-                        holder.profile().difficulty(),
-                        timedMenu.infx$selectedQualityCode(),
-                        clumsy,
-                        witchClumsiness);
-                timedMenu.infx$setSelectedQualityCode(code);
-                QualitySystem.applySelectedQuality(assembled, code);
+                if (isRepair(holder.holder())) {
+                    // Repair preserves the piece's quality and charges no experience.
+                    timedMenu.infx$setSelectedQualityCode(QualitySystem.AVERAGE_CODE);
+                } else {
+                    boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
+                    boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
+                    int code = QualitySystem.clampCode(
+                            assembled,
+                            player,
+                            holder.profile().difficulty(),
+                            timedMenu.infx$selectedQualityCode(),
+                            clumsy,
+                            witchClumsiness);
+                    timedMenu.infx$setSelectedQualityCode(code);
+                    QualitySystem.applySelectedQuality(assembled, code);
+                    timedMenu.infx$setExperienceCost(craftingExperienceCost(
+                            assembled, assembledResult.totalCount(), holder.profile().difficulty(), code, clumsy));
+                }
                 applySelectedRune(timedMenu, assembled);
-                timedMenu.infx$setExperienceCost(craftingExperienceCost(
-                        assembled, assembledResult.totalCount(), holder.profile().difficulty(), code, clumsy));
                 preview = assembled;
                 logicalResultCount = assembledResult.totalCount();
             }
@@ -129,6 +134,12 @@ public final class TimedCraftingEngine {
         ItemStack output = assembledResult.stack();
         if (RuneStoneBlock.isRuneStone(output)) {
             timedMenu.infx$setSelectedRune(RuneStoneBlock.nextRune(timedMenu.infx$selectedRune()));
+            timedMenu.infx$resetTimedCrafting();
+            refreshResult(timedMenu, player, true);
+            return;
+        }
+        if (isRepair(holder.holder())) {
+            timedMenu.infx$setSelectedQualityCode(QualitySystem.AVERAGE_CODE);
             timedMenu.infx$resetTimedCrafting();
             refreshResult(timedMenu, player, true);
             return;
@@ -226,17 +237,25 @@ public final class TimedCraftingEngine {
         int coinExperience = coinExperience(input);
         boolean witchClumsiness = CraftingEnvironment.hasWitchClumsiness(player);
         boolean clumsy = witchClumsiness || CraftingEnvironment.hasEnchantedClumsiness(player);
-        int qualityCode = QualitySystem.clampCode(
-                output,
-                player,
-                holder.profile().difficulty(),
-                timedMenu.infx$selectedQualityCode(),
-                clumsy,
-                witchClumsiness);
-        QualitySystem.applySelectedQuality(output, qualityCode);
+        int qualityCode;
+        int craftingCost;
+        if (isRepair(holder.holder())) {
+            // Repair keeps the piece's existing quality and costs no experience.
+            qualityCode = QualitySystem.AVERAGE_CODE;
+            craftingCost = 0;
+        } else {
+            qualityCode = QualitySystem.clampCode(
+                    output,
+                    player,
+                    holder.profile().difficulty(),
+                    timedMenu.infx$selectedQualityCode(),
+                    clumsy,
+                    witchClumsiness);
+            QualitySystem.applySelectedQuality(output, qualityCode);
+            craftingCost = craftingExperienceCost(
+                    output, assembledResult.totalCount(), holder.profile().difficulty(), qualityCode, clumsy);
+        }
         applySelectedRune(timedMenu, output);
-        int craftingCost = craftingExperienceCost(
-                output, assembledResult.totalCount(), holder.profile().difficulty(), qualityCode, clumsy);
         timedMenu.infx$setExperienceCost(craftingCost);
         if (!canPayExperience(player, craftingCost)) {
             timedMenu.infx$resetTimedCrafting();
@@ -376,6 +395,10 @@ public final class TimedCraftingEngine {
 
     private static String recipeId(ResourceKey<Recipe<?>> id) {
         return id.identifier().toString();
+    }
+
+    private static boolean isRepair(RecipeHolder<?> holder) {
+        return holder.value() instanceof InfXRepairRecipe;
     }
 
     private static CraftingResult displayResult(CraftingRecipe recipe) {
