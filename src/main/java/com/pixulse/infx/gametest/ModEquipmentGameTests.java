@@ -601,6 +601,31 @@ public final class ModEquipmentGameTests {
                 helper.getBlockState(stonePos).is(Blocks.STONE),
                 "left-click shears must leave stone in place");
 
+        // Shears behave like a bare hand on blocks that need no correct tool: a torch breaks
+        // instantly, drops itself, and costs no durability, but a tool-required block stays up.
+        BlockPos torchPos = new BlockPos(8, 1, 5);
+        helper.setBlock(torchPos.below(), Blocks.STONE);
+        helper.setBlock(torchPos, Blocks.TORCH);
+        player.setItemInHand(InteractionHand.MAIN_HAND, blockShears);
+        int wearBeforeTorch = blockShears.getDamageValue();
+        helper.assertTrue(
+                player.gameMode.destroyBlock(helper.absolutePos(torchPos)),
+                "left-click shears must break hand-diggable torches");
+        helper.assertTrue(helper.getBlockState(torchPos).isAir(), "left-click shears must remove the torch");
+        helper.assertTrue(
+                itemCount(helper, torchPos, Blocks.TORCH.asItem()) == 1,
+                "left-click shears must drop the torch itself");
+        helper.assertTrue(
+                blockShears.getDamageValue() == wearBeforeTorch,
+                "breaking a hardness-0 block with shears must not consume durability");
+        helper.getLevel()
+                .getEntitiesOfClass(
+                        ItemEntity.class,
+                        AABB.ofSize(helper.absoluteVec(Vec3.atCenterOf(torchPos)), 4.0D, 4.0D, 4.0D),
+                        item -> item.getItem().is(Blocks.TORCH.asItem()))
+                .forEach(ItemEntity::discard);
+        assertLeftClickBreakable(helper, player, new BlockPos(8, 1, 6), Blocks.REDSTONE_TORCH, blockShears);
+
         EmbeddedChannel playerChannel = (EmbeddedChannel) player.connection.getConnection().channel();
         while (playerChannel.readOutbound() != null) {}
         useOnBlock(helper, player, leavesPos, Blocks.OAK_LEAVES.defaultBlockState(), blockShears);
