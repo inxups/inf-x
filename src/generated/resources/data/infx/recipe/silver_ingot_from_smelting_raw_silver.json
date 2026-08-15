@@ -3,10 +3,7 @@
   "category": "misc",
   "cookingtime": 200,
   "experience": 15.0,
-  "ingredient": [
-    "infx:silver_ore",
-    "infx:deepslate_silver_ore"
-  ],
+  "ingredient": "infx:raw_silver",
   "result": {
     "id": "infx:silver_ingot"
   }

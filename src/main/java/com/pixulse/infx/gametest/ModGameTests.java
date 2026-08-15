@@ -1212,9 +1212,9 @@ public final class ModGameTests {
         assertSmeltingExperience(helper, recipeMap, "minecraft", "copper_ingot_from_smelting_deepslate_copper_ore", 10.0F);
         assertSmeltingExperience(helper, recipeMap, "minecraft", "copper_ingot_from_smelting_raw_copper", 10.0F);
         assertSmeltingExperience(helper, recipeMap, "minecraft", "quartz", 10.0F);
-        assertSmeltingExperience(helper, recipeMap, "infx", "silver_ingot_from_smelting_silver_ore", 15.0F);
-        assertSmeltingExperience(helper, recipeMap, "infx", "mithril_ingot_from_smelting_mithril_ore", 40.0F);
-        assertSmeltingExperience(helper, recipeMap, "infx", "adamantium_ingot_from_smelting_adamantium_ore", 100.0F);
+        assertSmeltingExperience(helper, recipeMap, "infx", "silver_ingot_from_smelting_raw_silver", 15.0F);
+        assertSmeltingExperience(helper, recipeMap, "infx", "mithril_ingot_from_smelting_raw_mithril", 40.0F);
+        assertSmeltingExperience(helper, recipeMap, "infx", "adamantium_ingot_from_smelting_raw_adamantium", 100.0F);
         helper.succeed();
     }
 
@@ -2177,11 +2177,11 @@ public final class ModGameTests {
                         "heat-2 coal must smelt raw iron"))
                 .thenExecute(() -> {
                     furnace[0].setItem(2, ItemStack.EMPTY);
-                    furnace[0].setItem(0, InfXItems.SILVER_ORE.toStack());
+                    furnace[0].setItem(0, InfXItems.RAW_SILVER.toStack());
                 })
                 .thenWaitUntil(() -> helper.assertTrue(
                         furnace[0].getItem(2).is(InfXItems.SILVER_INGOT),
-                        "heat-2 coal must smelt silver ore"))
+                        "heat-2 coal must smelt raw silver"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
                     helper.setBlock(FURNACE_POS, furnaceState);
@@ -2520,7 +2520,7 @@ public final class ModGameTests {
         helper.assertFalse(
                 furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                 "the obsidian furnace must reject heat-4 blaze rods");
-        furnace[0].setItem(0, InfXItems.MITHRIL_ORE.toStack());
+        furnace[0].setItem(0, InfXItems.RAW_MITHRIL.toStack());
         furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
 
         helper.startSequence()
@@ -2529,7 +2529,7 @@ public final class ModGameTests {
                         "the obsidian furnace must burn lava at heat 3"))
                 .thenWaitUntil(() -> helper.assertTrue(
                         furnace[0].getItem(2).is(InfXItems.MITHRIL_INGOT),
-                        "heat-3 lava must smelt mithril ore in the obsidian furnace"))
+                        "heat-3 lava must smelt raw mithril in the obsidian furnace"))
                 .thenExecute(() -> {
                     helper.setBlock(FURNACE_POS, Blocks.AIR);
                     helper.setBlock(
@@ -2541,13 +2541,13 @@ public final class ModGameTests {
                     helper.assertTrue(
                             furnace[0].canPlaceItem(1, Items.BLAZE_ROD.getDefaultInstance()),
                             "the netherrack furnace must accept heat-4 blaze rods");
-                    furnace[0].setItem(0, InfXItems.ADAMANTIUM_ORE.toStack());
+                    furnace[0].setItem(0, InfXItems.RAW_ADAMANTIUM.toStack());
                     furnace[0].setItem(1, Items.LAVA_BUCKET.getDefaultInstance());
                 })
                 .thenExecuteAfter(40, () -> {
                     helper.assertTrue(
-                            furnace[0].getItem(0).is(InfXItems.ADAMANTIUM_ORE),
-                            "heat-3 lava must not start heat-4 adamantium ore");
+                            furnace[0].getItem(0).is(InfXItems.RAW_ADAMANTIUM),
+                            "heat-3 lava must not start heat-4 raw adamantium");
                     helper.assertTrue(
                             furnace[0].getItem(1).is(Items.LAVA_BUCKET),
                             "insufficient heat must not consume the lava bucket");
@@ -2558,7 +2558,7 @@ public final class ModGameTests {
                         "the netherrack furnace must burn blaze rods at heat 4"))
                 .thenWaitUntil(() -> helper.assertTrue(
                         furnace[0].getItem(2).is(InfXItems.ADAMANTIUM_INGOT),
-                        "heat-4 blaze fuel must smelt adamantium ore in the netherrack furnace"))
+                        "heat-4 blaze fuel must smelt raw adamantium in the netherrack furnace"))
                 .thenExecute(() -> removePlayer(player))
                 .thenSucceed();
     }

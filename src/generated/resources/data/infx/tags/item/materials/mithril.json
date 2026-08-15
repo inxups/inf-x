@@ -1,6 +1,7 @@
 {
   "values": [
     "infx:mithril_nugget",
+    "infx:raw_mithril",
     "infx:mithril_ingot",
     "infx:mithril_chain",
     "infx:mithril_coin",

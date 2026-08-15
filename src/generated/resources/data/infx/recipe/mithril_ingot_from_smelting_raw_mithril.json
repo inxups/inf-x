@@ -3,10 +3,7 @@
   "category": "misc",
   "cookingtime": 200,
   "experience": 40.0,
-  "ingredient": [
-    "infx:mithril_ore",
-    "infx:deepslate_mithril_ore"
-  ],
+  "ingredient": "infx:raw_mithril",
   "result": {
     "id": "infx:mithril_ingot"
   }

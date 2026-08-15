@@ -22,6 +22,9 @@ class RawItemTest {
             expected("mithril_nugget", "Mithril Nugget", "秘银粒", RawItem.Kind.NUGGET, InfxMaterial.MITHRIL, 0),
             expected("adamantium_nugget", "Adamantium Nugget", "艾德曼粒", RawItem.Kind.NUGGET, InfxMaterial.ADAMANTIUM, 0),
             expected("ancient_metal_nugget", "Ancient Metal Nugget", "远古金属粒", RawItem.Kind.NUGGET, InfxMaterial.ANCIENT_METAL, 0),
+            expected("raw_silver", "Raw Silver", "粗银", RawItem.Kind.RAW, InfxMaterial.SILVER, 0),
+            expected("raw_mithril", "Raw Mithril", "粗秘银", RawItem.Kind.RAW, InfxMaterial.MITHRIL, 0),
+            expected("raw_adamantium", "Raw Adamantium", "粗艾德曼", RawItem.Kind.RAW, InfxMaterial.ADAMANTIUM, 0),
             expected("silver_ingot", "Silver Ingot", "银锭", RawItem.Kind.INGOT, InfxMaterial.SILVER, 0),
             expected("mithril_ingot", "Mithril Ingot", "秘银锭", RawItem.Kind.INGOT, InfxMaterial.MITHRIL, 0),
             expected("adamantium_ingot", "Adamantium Ingot", "艾德曼锭", RawItem.Kind.INGOT, InfxMaterial.ADAMANTIUM, 0),
@@ -59,7 +62,7 @@ class RawItemTest {
 
     @Test
     void kindValuesHaveExactApprovedOrder() {
-        assertEquals(List.of("SHARD", "BINDING", "FERTILIZER", "NUGGET", "INGOT", "CHAIN", "COIN"),
+        assertEquals(List.of("SHARD", "BINDING", "FERTILIZER", "RAW", "NUGGET", "INGOT", "CHAIN", "COIN"),
                 Stream.of(RawItem.Kind.values()).map(Enum::name).toList());
     }
 

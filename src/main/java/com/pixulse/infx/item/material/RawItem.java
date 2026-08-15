@@ -15,6 +15,9 @@ public enum RawItem {
     MITHRIL_NUGGET("mithril_nugget", "Mithril Nugget", "秘银粒", Kind.NUGGET, InfxMaterial.MITHRIL, 0),
     ADAMANTIUM_NUGGET("adamantium_nugget", "Adamantium Nugget", "艾德曼粒", Kind.NUGGET, InfxMaterial.ADAMANTIUM, 0),
     ANCIENT_METAL_NUGGET("ancient_metal_nugget", "Ancient Metal Nugget", "远古金属粒", Kind.NUGGET, InfxMaterial.ANCIENT_METAL, 0),
+    RAW_SILVER("raw_silver", "Raw Silver", "粗银", Kind.RAW, InfxMaterial.SILVER, 0),
+    RAW_MITHRIL("raw_mithril", "Raw Mithril", "粗秘银", Kind.RAW, InfxMaterial.MITHRIL, 0),
+    RAW_ADAMANTIUM("raw_adamantium", "Raw Adamantium", "粗艾德曼", Kind.RAW, InfxMaterial.ADAMANTIUM, 0),
     SILVER_INGOT("silver_ingot", "Silver Ingot", "银锭", Kind.INGOT, InfxMaterial.SILVER, 0),
     MITHRIL_INGOT("mithril_ingot", "Mithril Ingot", "秘银锭", Kind.INGOT, InfxMaterial.MITHRIL, 0),
     ADAMANTIUM_INGOT("adamantium_ingot", "Adamantium Ingot", "艾德曼锭", Kind.INGOT, InfxMaterial.ADAMANTIUM, 0),
@@ -34,7 +37,7 @@ public enum RawItem {
     MITHRIL_COIN("mithril_coin", "Mithril Coin", "秘银币", Kind.COIN, InfxMaterial.MITHRIL, 2_500),
     ADAMANTIUM_COIN("adamantium_coin", "Adamantium Coin", "艾德曼币", Kind.COIN, InfxMaterial.ADAMANTIUM, 10_000);
 
-    public enum Kind { SHARD, BINDING, FERTILIZER, NUGGET, INGOT, CHAIN, COIN }
+    public enum Kind { SHARD, BINDING, FERTILIZER, RAW, NUGGET, INGOT, CHAIN, COIN }
 
     private final String path;
     private final String englishName;
