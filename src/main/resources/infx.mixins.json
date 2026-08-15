@@ -83,6 +83,7 @@
   "client": [
     "client.MinecraftMiningInputMixin",
     "client.MinecraftStartAttackMixin",
+    "client.MouseHandlerCameraTurnMixin",
     "client.gui.GuiAttackIndicatorMixin",
     "client.gui.components.DebugScreenOverlayMixin",
     "client.gui.screens.ShareToLanScreenMixin",
