@@ -1187,6 +1187,34 @@ public final class ModGameTests {
         assertFurnaceMeatExperience(helper, recipeMap, "cooked_salmon", 4.0F);
         assertFurnaceMeatExperience(helper, recipeMap, "cooked_cod", 3.0F);
         assertFurnaceMeatExperience(helper, recipeMap, "cooked_rabbit", 3.0F);
+
+        // InfX: smelting minerals grants the fixed per-item INFX experience reward
+        // instead of the vanilla fractional values; the vanilla ore smelting recipes
+        // are overridden with the same inputs and time. Charcoal smelting grants no
+        // experience, matching the baked potato.
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "charcoal", 0.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "gold_ingot_from_smelting_gold_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "gold_ingot_from_smelting_deepslate_gold_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "gold_ingot_from_smelting_nether_gold_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "gold_ingot_from_smelting_raw_gold", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "iron_ingot_from_smelting_iron_ore", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "iron_ingot_from_smelting_deepslate_iron_ore", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "iron_ingot_from_smelting_raw_iron", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "lapis_lazuli_from_smelting_lapis_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "lapis_lazuli_from_smelting_deepslate_lapis_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "diamond_from_smelting_diamond_ore", 30.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "diamond_from_smelting_deepslate_diamond_ore", 30.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "redstone_from_smelting_redstone_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "redstone_from_smelting_deepslate_redstone_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "emerald_from_smelting_emerald_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "emerald_from_smelting_deepslate_emerald_ore", 20.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "copper_ingot_from_smelting_copper_ore", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "copper_ingot_from_smelting_deepslate_copper_ore", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "copper_ingot_from_smelting_raw_copper", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "minecraft", "quartz", 10.0F);
+        assertSmeltingExperience(helper, recipeMap, "infx", "silver_ingot_from_smelting_silver_ore", 15.0F);
+        assertSmeltingExperience(helper, recipeMap, "infx", "mithril_ingot_from_smelting_mithril_ore", 40.0F);
+        assertSmeltingExperience(helper, recipeMap, "infx", "adamantium_ingot_from_smelting_adamantium_ore", 100.0F);
         helper.succeed();
     }
 
@@ -1195,6 +1223,15 @@ public final class ModGameTests {
         helper.assertTrue(meat != null, "the " + path + " smelting recipe must be loaded");
         helper.assertTrue(
                 Math.abs(((SmeltingRecipe) meat.value()).experience() - expected) < 0.001F,
+                path + " must grant " + expected + " experience per item");
+    }
+
+    private static void assertSmeltingExperience(
+            GameTestHelper helper, RecipeMap recipeMap, String namespace, String path, float expected) {
+        var recipe = recipeMap.byKey(recipeKey(namespace, path));
+        helper.assertTrue(recipe != null, "the " + path + " smelting recipe must be loaded");
+        helper.assertTrue(
+                Math.abs(((SmeltingRecipe) recipe.value()).experience() - expected) < 0.001F,
                 path + " must grant " + expected + " experience per item");
     }
 
