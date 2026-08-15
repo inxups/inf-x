@@ -217,7 +217,8 @@ public final class ModCompletionGameTests {
             "infx_enchantment_combat",
             "infx_legacy_recipes",
             "infx_experience_bottle",
-            "infx_soil_collapse");
+            "infx_soil_collapse",
+            "infx_water_washed_grass");
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
@@ -255,6 +256,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_legacy_recipes", () -> ModCompletionGameTests::legacyRecipes);
         FUNCTIONS.register("infx_experience_bottle", () -> ModCompletionGameTests::experienceBottle);
         FUNCTIONS.register("infx_soil_collapse", () -> ModCompletionGameTests::soilCollapse);
+        FUNCTIONS.register("infx_water_washed_grass", () -> ModCompletionGameTests::waterWashedGrass);
     }
 
     private ModCompletionGameTests() {}
@@ -2000,6 +2002,25 @@ public final class ModCompletionGameTests {
                             .noneMatch(entity -> entity.getBlockState().is(Blocks.DIRT)),
                     "settled soil must no longer remain as a falling entity");
             removePlayer(player);
+            helper.succeed();
+        });
+    }
+
+    /** Flowing water washing a grass plant away must not drop wheat seeds. */
+    private static void waterWashedGrass(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        BlockPos grass = helper.absolutePos(new BlockPos(3, 2, 3));
+        level.setBlock(grass, Blocks.SHORT_GRASS.defaultBlockState(), 3);
+        level.setBlock(grass.above(), Blocks.WATER.defaultBlockState(), 3);
+        helper.runAfterDelay(80, () -> {
+            helper.assertTrue(
+                    level.getBlockState(grass).getFluidState().is(FluidTags.WATER),
+                    "water must flow onto and wash the grass away");
+            boolean seeds = level.getEntitiesOfClass(ItemEntity.class, new AABB(grass).inflate(4.0))
+                    .stream()
+                    .map(ItemEntity::getItem)
+                    .anyMatch(stack -> stack.is(Items.WHEAT_SEEDS));
+            helper.assertFalse(seeds, "water-washed grass must not drop wheat seeds");
             helper.succeed();
         });
     }
