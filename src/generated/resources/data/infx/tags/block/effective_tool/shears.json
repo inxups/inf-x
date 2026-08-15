@@ -51,7 +51,12 @@
     "minecraft:firefly_bush",
     "minecraft:short_dry_grass",
     "minecraft:tall_dry_grass",
+    "#minecraft:wool_carpets",
     "minecraft:glow_lichen",
-    "minecraft:tripwire"
+    "minecraft:tripwire",
+    "minecraft:pale_hanging_moss",
+    "minecraft:pale_moss_block",
+    "minecraft:pale_moss_carpet",
+    "minecraft:leaf_litter"
   ]
 }

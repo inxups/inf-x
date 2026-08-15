@@ -59,18 +59,8 @@ public enum MiningFamily {
                     0,
                     true);
             case SHEARS -> new Tool(
-                    List.of(
-                            Tool.Rule.minesAndDrops(
-                                    HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F),
-                            Tool.Rule.overrideSpeed(
-                                    blocks.getOrThrow(BlockTags.LEAVES), 15.0F),
-                            Tool.Rule.overrideSpeed(
-                                    blocks.getOrThrow(BlockTags.WOOL), speed),
-                            Tool.Rule.overrideSpeed(
-                                    HolderSet.direct(
-                                            Blocks.VINE.builtInRegistryHolder(),
-                                            Blocks.GLOW_LICHEN.builtInRegistryHolder()),
-                                    speed)),
+                    List.of(Tool.Rule.minesAndDrops(
+                            blocks.getOrThrow(InfXBlockTags.effectiveWith(SHEARS)), speed)),
                     1.0F,
                     0,
                     true);

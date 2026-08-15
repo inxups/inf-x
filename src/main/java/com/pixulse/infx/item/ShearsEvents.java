@@ -33,10 +33,14 @@ public final class ShearsEvents {
     /**
      * InfX shears harvest one piece of string from cobwebs instead of the modern cobweb block.
      * Every other tool (including the hand) destroys cobwebs without dropping anything.
+     * Right-click shearing is exempt: it drops the cobweb block itself via the shears loot table.
      */
     @SubscribeEvent
     public static void onCobwebDrops(BlockDropsEvent event) {
         if (!event.getState().is(Blocks.COBWEB)) {
+            return;
+        }
+        if (InfxShearsItem.isRightClickShearing(event.getLevel(), event.getPos())) {
             return;
         }
         ItemStack tool = event.getTool();
