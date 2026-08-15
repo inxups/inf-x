@@ -530,7 +530,7 @@ final class ModRecipeProvider extends RecipeProvider {
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.SILVER_INGOT,
-                        0.7F,
+                        15.0F,
                         200)
                 .unlockedBy("has_silver_ore", has(InfXBlocks.SILVER_ORE))
                 .save(output, recipeKey("silver_ingot_from_smelting_silver_ore"));
@@ -539,7 +539,7 @@ final class ModRecipeProvider extends RecipeProvider {
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.MITHRIL_INGOT,
-                        0.7F,
+                        40.0F,
                         200)
                 .unlockedBy("has_mithril_ore", has(InfXBlocks.MITHRIL_ORE))
                 .save(output, recipeKey("mithril_ingot_from_smelting_mithril_ore"));
@@ -548,10 +548,89 @@ final class ModRecipeProvider extends RecipeProvider {
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.ADAMANTIUM_INGOT,
-                        0.7F,
+                        100.0F,
                         200)
                 .unlockedBy("has_adamantium_ore", has(InfXBlocks.ADAMANTIUM_ORE))
                 .save(output, recipeKey("adamantium_ingot_from_smelting_adamantium_ore"));
+
+        // InfX: smelting minerals grants the fixed per-item INFX experience reward
+        // instead of the vanilla fractional values; the vanilla ore smelting recipes
+        // are overridden with the same inputs and time. Charcoal smelting grants no
+        // experience, matching the baked potato.
+        oreSmelting(
+                List.of(Blocks.GOLD_ORE, Blocks.DEEPSLATE_GOLD_ORE, Blocks.NETHER_GOLD_ORE, Items.RAW_GOLD),
+                RecipeCategory.MISC,
+                CookingBookCategory.MISC,
+                Items.GOLD_INGOT,
+                20.0F,
+                200,
+                "gold_ingot");
+        oreSmelting(
+                List.of(Blocks.IRON_ORE, Blocks.DEEPSLATE_IRON_ORE, Items.RAW_IRON),
+                RecipeCategory.MISC,
+                CookingBookCategory.MISC,
+                Items.IRON_INGOT,
+                10.0F,
+                200,
+                "iron_ingot");
+        oreSmelting(
+                List.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Items.RAW_COPPER),
+                RecipeCategory.MISC,
+                CookingBookCategory.MISC,
+                Items.COPPER_INGOT,
+                10.0F,
+                200,
+                "copper_ingot");
+        oreSmelting(
+                List.of(Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE),
+                RecipeCategory.MISC,
+                CookingBookCategory.MISC,
+                Items.DIAMOND,
+                30.0F,
+                200,
+                "diamond");
+        oreSmelting(
+                List.of(Blocks.LAPIS_ORE, Blocks.DEEPSLATE_LAPIS_ORE),
+                RecipeCategory.MISC,
+                CookingBookCategory.MISC,
+                Items.LAPIS_LAZULI,
+                20.0F,
+                200,
+                "lapis_lazuli");
+        oreSmelting(
+                List.of(Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE),
+                RecipeCategory.REDSTONE,
+                CookingBookCategory.BLOCKS,
+                Items.REDSTONE,
+                20.0F,
+                200,
+                "redstone");
+        oreSmelting(
+                List.of(Blocks.EMERALD_ORE, Blocks.DEEPSLATE_EMERALD_ORE),
+                RecipeCategory.MISC,
+                CookingBookCategory.MISC,
+                Items.EMERALD,
+                20.0F,
+                200,
+                "emerald");
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(Blocks.NETHER_QUARTZ_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        Items.QUARTZ,
+                        10.0F,
+                        200)
+                .unlockedBy("has_nether_quartz_ore", has(Blocks.NETHER_QUARTZ_ORE))
+                .save(output, vanillaRecipeKey("quartz"));
+        SimpleCookingRecipeBuilder.smelting(
+                        this.tag(ItemTags.LOGS_THAT_BURN),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        Items.CHARCOAL,
+                        0.0F,
+                        200)
+                .unlockedBy("has_log", has(ItemTags.LOGS_THAT_BURN))
+                .save(output, vanillaRecipeKey("charcoal"));
 
         addShaped(
                 "flint_hatchet",

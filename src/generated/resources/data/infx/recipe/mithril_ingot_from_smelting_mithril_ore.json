@@ -2,7 +2,7 @@
   "type": "minecraft:smelting",
   "category": "misc",
   "cookingtime": 200,
-  "experience": 0.7,
+  "experience": 40.0,
   "ingredient": [
     "infx:mithril_ore",
     "infx:deepslate_mithril_ore"
