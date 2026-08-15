@@ -57,6 +57,7 @@ import com.pixulse.infx.event.SafeEvents;
 import com.pixulse.infx.world.SwimPhysics;
 import com.pixulse.infx.world.SwimRules;
 import com.pixulse.infx.world.SoilCollapse;
+import com.pixulse.infx.world.InfXMushroomGrowth;
 import com.pixulse.infx.world.Underworld;
 import com.pixulse.infx.event.UnderworldPortalEvents;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -94,6 +95,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
@@ -196,6 +198,7 @@ public final class ModCompletionGameTests {
             "infx_onion_crop",
             "infx_fertilized_farmland",
             "infx_mushroom_planting",
+            "infx_mushroom_growth",
             "infx_gravel_loot",
             "infx_hopper_xp",
             "infx_survival_core",
@@ -234,6 +237,7 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_onion_crop", () -> ModCompletionGameTests::onionCrop);
         FUNCTIONS.register("infx_fertilized_farmland", () -> ModCompletionGameTests::fertilizedFarmland);
         FUNCTIONS.register("infx_mushroom_planting", () -> ModCompletionGameTests::mushroomPlanting);
+        FUNCTIONS.register("infx_mushroom_growth", () -> ModCompletionGameTests::mushroomGrowth);
         FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
         FUNCTIONS.register("infx_survival_core", () -> ModCompletionGameTests::survivalCore);
@@ -1925,20 +1929,44 @@ public final class ModCompletionGameTests {
                     helper.getBlockState(sandSoil).is(Blocks.SAND) && helper.getBlockState(sandMushroom).isAir(),
                     "brown mushrooms must not plant on sand");
 
-            // Planting on moist fertilized farmland succeeds and converts the soil to mycelium.
+            // Planting on moist fertilized farmland succeeds and keeps the soil fertilized (the
+            // farmland-to-mycelium conversion is MITE random-tick only, not instant-on-placement).
             player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
             player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, soilHit);
             helper.assertTrue(
                     helper.getBlockState(relative).is(Blocks.BROWN_MUSHROOM),
                     "brown mushrooms must plant on moist fertilized farmland in the dark");
             helper.assertTrue(
-                    helper.getBlockState(soil).is(Blocks.MYCELIUM),
-                    "brown mushroom planting must convert fertilized farmland to mycelium");
-            helper.assertTrue(
-                    helper.getBlockState(soil).is(Blocks.MYCELIUM),
-                    "brown mushroom planting must convert fertilized farmland to mycelium");
+                    helper.getBlockState(soil).is(InfXBlocks.FERTILE_FARMLAND),
+                    "planting must leave the fertilized farmland fertilized");
 
-            // Manure consumes but never grows a brown mushroom that is not on mycelium.
+            // MITE redirect trap: manure on a mushroom growing on plain farmland only fertilizes the
+            // soil below (and is consumed); it never grows the mushroom.
+            int trapY = darkY(helper, 7, 3);
+            BlockPos trapMushroom = new BlockPos(7, trapY, 3);
+            BlockPos trapSoil = trapMushroom.below();
+            helper.setBlock(trapMushroom, Blocks.AIR);
+            helper.setBlock(trapSoil, Blocks.AIR);
+            helper.setBlock(trapSoil.below(), Blocks.STONE);
+            helper.setBlock(trapSoil, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+            helper.setBlock(trapMushroom.above(2), Blocks.STONE);
+            helper.setBlock(trapMushroom, Blocks.BROWN_MUSHROOM);
+            player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
+            BlockPos trapMushroomAbsolute = helper.absolutePos(trapMushroom);
+            BlockHitResult trapMushroomHit =
+                    new BlockHitResult(Vec3.atCenterOf(trapMushroomAbsolute), Direction.UP, trapMushroomAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, trapMushroomHit);
+            helper.assertTrue(
+                    player.getMainHandItem().isEmpty(),
+                    "manure on a farmland-backed mushroom must be consumed by the redirect");
+            helper.assertTrue(
+                    helper.getBlockState(trapSoil).is(InfXBlocks.FERTILE_FARMLAND),
+                    "manure on a farmland-backed mushroom must fertilize the farmland below");
+            helper.assertTrue(
+                    helper.getBlockState(trapMushroom).is(Blocks.BROWN_MUSHROOM),
+                    "manure on a farmland-backed mushroom must not grow the mushroom");
+
+            // Manure is not consumed on an illegal mushroom target (brown on dirt, not mycelium).
             helper.setBlock(plainMushroom, Blocks.BROWN_MUSHROOM);
             player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
             BlockPos plainMushroomAbsolute = helper.absolutePos(plainMushroom);
@@ -1946,13 +1974,14 @@ public final class ModCompletionGameTests {
                     new BlockHitResult(Vec3.atCenterOf(plainMushroomAbsolute), Direction.UP, plainMushroomAbsolute, false);
             player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, plainMushroomHit);
             helper.assertTrue(
-                    player.getMainHandItem().isEmpty(),
-                    "manure must be consumed by a mushroom interaction even when the mushroom cannot grow");
+                    player.getMainHandItem().is(InfXItems.catalog().raw("manure").holder()),
+                    "manure must not be consumed on an illegal brown mushroom target");
             helper.assertTrue(
                     helper.getBlockState(plainMushroom).is(Blocks.BROWN_MUSHROOM),
                     "manure must not grow a brown mushroom planted off mycelium");
 
-            // Manure on a mycelium-backed brown mushroom is consumed (growth chance 1/3).
+            // Manure on a mycelium-backed brown mushroom is consumed (50% chance to grow a tier).
+            helper.setBlock(soil, Blocks.MYCELIUM);
             player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
             BlockPos grownAbsolute = helper.absolutePos(relative);
             BlockHitResult grownHit = new BlockHitResult(Vec3.atCenterOf(grownAbsolute), Direction.UP, grownAbsolute, false);
@@ -1978,6 +2007,183 @@ public final class ModCompletionGameTests {
             }
         }
         throw new AssertionError("no pre-baked dark spot under the test grid at " + x + "," + z);
+    }
+
+    private static void mushroomGrowth(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+
+        // MITE farmland->mycelium conversion: a brown mushroom on moist fertilized farmland in a
+        // covered dark spot converts the soil on the 7% random-tick roll.
+        int convertY = darkY(helper, 5, 3);
+        BlockPos convertMushroom = new BlockPos(5, convertY, 3);
+        BlockPos convertSoil = convertMushroom.below();
+        helper.setBlock(convertMushroom, Blocks.AIR);
+        helper.setBlock(convertSoil, Blocks.AIR);
+        helper.setBlock(convertSoil.below(), Blocks.STONE);
+        helper.setBlock(
+                convertSoil,
+                InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+        helper.setBlock(convertMushroom.above(2), Blocks.STONE);
+        helper.setBlock(convertMushroom, Blocks.BROWN_MUSHROOM);
+        level.getBlockState(helper.absolutePos(convertMushroom))
+                .randomTick(level, helper.absolutePos(convertMushroom), new FixedRandom(3));
+        helper.assertTrue(
+                helper.getBlockState(convertSoil).is(Blocks.MYCELIUM),
+                "the 7% random tick must convert moist fertilized farmland to mycelium");
+
+        // Mycelium self-maintenance: in a dark covered spot the 1/256 tick grows a brown mushroom.
+        // The mycelium sits one block below darkY so its "above" spot (where light is read and the
+        // mushroom grows) is itself inside the baked-dark region.
+        int darkY = darkY(helper, 8, 5);
+        BlockPos myceliumSpot = new BlockPos(8, darkY - 1, 5);
+        helper.setBlock(myceliumSpot, Blocks.AIR);
+        helper.setBlock(myceliumSpot.above(), Blocks.AIR);
+        helper.setBlock(myceliumSpot.below(), Blocks.AIR);
+        helper.setBlock(myceliumSpot.below(2), Blocks.STONE);
+        helper.setBlock(myceliumSpot, Blocks.MYCELIUM);
+        helper.setBlock(myceliumSpot.above(2), Blocks.STONE);
+        level.getBlockState(helper.absolutePos(myceliumSpot))
+                .randomTick(level, helper.absolutePos(myceliumSpot), new FixedRandom(0));
+        helper.assertTrue(
+                helper.getBlockState(myceliumSpot.above()).is(Blocks.BROWN_MUSHROOM),
+                "dim covered mycelium must grow a brown mushroom on its 1/256 tick");
+
+        // Mycelium self-maintenance: bright daylight outdoors reverts mycelium to dirt.
+        BlockPos surfaceMycelium = new BlockPos(3, 2, 3);
+        helper.setBlock(surfaceMycelium, Blocks.AIR);
+        helper.setBlock(surfaceMycelium.below(), Blocks.STONE);
+        helper.setBlock(surfaceMycelium, Blocks.MYCELIUM);
+        helper.setTime(6000);
+        level.getBlockState(helper.absolutePos(surfaceMycelium))
+                .randomTick(level, helper.absolutePos(surfaceMycelium), new FixedRandom(0));
+        helper.assertTrue(
+                helper.getBlockState(surfaceMycelium).is(Blocks.DIRT),
+                "bright outdoor mycelium must revert to dirt in the daytime");
+
+        // Growth tiers: a mycelium-backed brown mushroom advances 1->2->3; at mature tier 3 the
+        // giant conversion fails when there is no headroom and the mature state is preserved.
+        int tierY = darkY(helper, 6, 3);
+        BlockPos tierMushroom = new BlockPos(6, tierY, 3);
+        BlockPos tierSoil = tierMushroom.below();
+        helper.setBlock(tierMushroom, Blocks.AIR);
+        helper.setBlock(tierSoil, Blocks.AIR);
+        helper.setBlock(tierSoil.below(), Blocks.STONE);
+        helper.setBlock(tierSoil, Blocks.MYCELIUM);
+        helper.setBlock(tierMushroom.above(2), Blocks.STONE);
+        helper.setBlock(tierMushroom, Blocks.BROWN_MUSHROOM);
+        BlockPos tierAbsolute = helper.absolutePos(tierMushroom);
+        for (int tier = 1; tier <= 3; tier++) {
+            BlockState current = level.getBlockState(tierAbsolute);
+            boolean grew = InfXMushroomGrowth.tryGrowGiantMushroom(level, tierAbsolute, current, new FixedRandom(1));
+            helper.assertTrue(
+                    grew && level.getBlockState(tierAbsolute).getValue(InfXMushroomGrowth.GROWTH) == tier,
+                    "a mycelium-backed brown mushroom must advance to tier " + tier);
+        }
+        BlockState mature = level.getBlockState(tierAbsolute);
+        helper.assertTrue(
+                mature.getValue(InfXMushroomGrowth.GROWTH) == 3,
+                "a mature brown mushroom must hold tier 3");
+        boolean giantBlocked =
+                InfXMushroomGrowth.tryGrowGiantMushroom(level, tierAbsolute, mature, new FixedRandom(1));
+        helper.assertTrue(
+                !giantBlocked
+                        && level.getBlockState(tierAbsolute).is(Blocks.BROWN_MUSHROOM)
+                        && level.getBlockState(tierAbsolute).getValue(InfXMushroomGrowth.GROWTH) == 3,
+                "giant growth must fail and keep the mature mushroom when headroom is missing");
+
+        // Bone meal is disabled on mushrooms; only manure grows them.
+        ItemStack bonemeal = new ItemStack(Items.BONE_MEAL);
+        boolean bonemealGrew = net.minecraft.world.item.BoneMealItem.applyBonemeal(bonemeal, level, tierAbsolute, null);
+        helper.assertTrue(!bonemealGrew, "bone meal must not grow mushrooms");
+        helper.assertTrue(bonemeal.getCount() == 1, "bone meal must not be consumed on mushrooms");
+
+        // Mature brown mushroom in a cleared dark shaft converts into the huge mushroom block.
+        int giantY = darkY(helper, 9, 3);
+        BlockPos giantMushroom = new BlockPos(9, giantY, 3);
+        for (int y = giantY - 1; y <= giantY + 14; y++) {
+            for (int x = 6; x <= 12; x++) {
+                for (int z = 0; z <= 6; z++) {
+                    helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
+                }
+            }
+        }
+        helper.setBlock(new BlockPos(9, giantY + 15, 3), Blocks.STONE);
+        helper.setBlock(giantMushroom.below(), Blocks.MYCELIUM);
+        BlockState giantState = Blocks.BROWN_MUSHROOM.defaultBlockState().setValue(InfXMushroomGrowth.GROWTH, 3);
+        helper.setBlock(giantMushroom, giantState);
+        boolean giantGrew = InfXMushroomGrowth.tryGrowGiantMushroom(
+                level, helper.absolutePos(giantMushroom), giantState, new FixedRandom(1));
+        // The base of the huge mushroom trunk replaces the small mushroom; the cap sits on the axis above.
+        boolean capFound = false;
+        for (int y = giantY; y <= giantY + 12; y++) {
+            if (helper.getBlockState(new BlockPos(9, y, 3)).is(Blocks.BROWN_MUSHROOM_BLOCK)) {
+                capFound = true;
+                break;
+            }
+        }
+        helper.assertTrue(
+                giantGrew
+                        && helper.getBlockState(giantMushroom).is(Blocks.MUSHROOM_STEM)
+                        && capFound,
+                "a mature brown mushroom in a cleared dark shaft must grow into a huge mushroom");
+        helper.succeed();
+    }
+
+    /** Deterministic {@link RandomSource} whose {@code nextInt(bound)} returns {@code value % bound}. */
+    private static final class FixedRandom implements RandomSource {
+        private final int value;
+
+        private FixedRandom(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public RandomSource fork() {
+            return new FixedRandom(this.value);
+        }
+
+        @Override
+        public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setSeed(long seed) {}
+
+        @Override
+        public int nextInt() {
+            return this.value;
+        }
+
+        @Override
+        public int nextInt(int bound) {
+            return this.value % bound;
+        }
+
+        @Override
+        public long nextLong() {
+            return this.value;
+        }
+
+        @Override
+        public boolean nextBoolean() {
+            return this.value % 2 == 0;
+        }
+
+        @Override
+        public float nextFloat() {
+            return this.value / 1000.0F;
+        }
+
+        @Override
+        public double nextDouble() {
+            return this.value / 1000.0;
+        }
+
+        @Override
+        public double nextGaussian() {
+            return this.value;
+        }
     }
 
     private static void gravelLoot(GameTestHelper helper) {

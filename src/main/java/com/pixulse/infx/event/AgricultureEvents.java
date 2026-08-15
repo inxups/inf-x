@@ -6,7 +6,9 @@ import com.pixulse.infx.block.InfxFertileFarmlandBlock;
 import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.world.InfXMushroomGrowth;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.BlockTags;
@@ -34,12 +36,8 @@ import net.neoforged.neoforge.event.level.block.CropGrowEvent;
 /** InfX crop-family rules that do not belong to a specific custom crop block. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class AgricultureEvents {
-    /** Manure must be used on a mycelium-backed brown mushroom to grow a huge one. */
-    private static final float BROWN_MUSHROOM_GROW_CHANCE = 1.0F / 3.0F;
-    /** Red mushrooms keep the vanilla plant-anywhere rule but grow even less often. */
-    private static final float RED_MUSHROOM_GROW_CHANCE = 1.0F / 5.0F;
-    /** MITE brown mushroom light ceiling; planting legality itself is enforced by {@code MushroomBlock.canSurvive}. */
-    private static final int MUSHROOM_PLANT_LIGHT_CEILING = 13;
+    /** MITE manure grows one mushroom tier half of the time; a failed roll still consumes. */
+    private static final float MANURE_GROW_CHANCE = 0.5F;
 
     private AgricultureEvents() {}
 
@@ -87,6 +85,12 @@ public final class AgricultureEvents {
             event.setCanceled(true);
             return;
         }
+        if (event.getState().is(Blocks.BROWN_MUSHROOM) || event.getState().is(Blocks.RED_MUSHROOM)) {
+            // MITE: only manure grows mushrooms; bone meal is a no-op on them.
+            event.setSuccessful(false);
+            event.setCanceled(true);
+            return;
+        }
         InfxCropBlock replacement = InfXBlocks.infxCropForVanilla(event.getState().getBlock());
         if (replacement == null) {
             return;
@@ -101,27 +105,41 @@ public final class AgricultureEvents {
             return;
         }
         Level level = event.getLevel();
-        BlockState clicked = level.getBlockState(event.getPos());
+        BlockPos pos = event.getPos();
+        BlockState clicked = level.getBlockState(pos);
         if (clicked.getBlock() instanceof MushroomBlock) {
-            // The client cancels too so the interaction is consumed and always reaches the server.
-            if (!(level instanceof ServerLevel serverLevel)) {
+            BlockState below = level.getBlockState(pos.below());
+            if (below.getBlock() instanceof FarmlandBlock) {
+                // MITE redirect trap: manure on a mushroom growing on farmland only fertilizes the
+                // soil below (already-fertilized soil is a no-op that does not consume).
+                if (!(level instanceof ServerLevel serverLevel)) {
+                    cancelInteraction(event);
+                    return;
+                }
+                fertilizeFarmlandByHand(serverLevel, pos.below(), event);
                 cancelInteraction(event);
                 return;
             }
-            // Manure is always consumed by a mushroom interaction. Only brown mushrooms on
-            // mycelium may grow, and both colors only grow on a reduced chance roll.
-            boolean canGrow = !clicked.is(Blocks.BROWN_MUSHROOM)
-                    || level.getBlockState(event.getPos().below()).is(Blocks.MYCELIUM);
-            if (canGrow && serverLevel.getRandom().nextFloat() < mushroomGrowChance(clicked)) {
-                MushroomBlock mushroom = (MushroomBlock) clicked.getBlock();
-                mushroom.growMushroom(serverLevel, event.getPos(), clicked, serverLevel.getRandom());
+            // MITE: an illegal mushroom (brown not on mycelium, red not on grass) is not consumed.
+            if (!InfXMushroomGrowth.isGrowableAt(level, pos, clicked)) {
+                return;
             }
-            if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
-            cancelInteraction(event);
+            manureGrowMushroom(event, level, pos, clicked);
+            return;
+        }
+        // MITE: manure on a mycelium/grass block forwards to the mushroom growing on top.
+        if (event.getFace() == Direction.UP
+                && (clicked.is(Blocks.MYCELIUM) || clicked.is(Blocks.GRASS_BLOCK))
+                && level.getBlockState(pos.above()).getBlock() instanceof MushroomBlock) {
+            BlockState mushroom = level.getBlockState(pos.above());
+            if (!InfXMushroomGrowth.isGrowableAt(level, pos.above(), mushroom)) {
+                return;
+            }
+            manureGrowMushroom(event, level, pos.above(), mushroom);
             return;
         }
 
-        BlockPos farmlandPos = clicked.getBlock() instanceof CropBlock ? event.getPos().below() : event.getPos();
+        BlockPos farmlandPos = clicked.getBlock() instanceof CropBlock ? pos.below() : pos;
         if (!(level.getBlockState(farmlandPos).getBlock() instanceof FarmlandBlock)) {
             return;
         }
@@ -133,9 +151,18 @@ public final class AgricultureEvents {
         cancelInteraction(event);
     }
 
-    /** Chance that manure actually grows a huge mushroom: brown 1/3, red 1/5. */
-    static float mushroomGrowChance(BlockState state) {
-        return state.is(Blocks.BROWN_MUSHROOM) ? BROWN_MUSHROOM_GROW_CHANCE : RED_MUSHROOM_GROW_CHANCE;
+    /** MITE manure: 50% chance to grow one tier; the manure is consumed even on a failed roll. */
+    private static void manureGrowMushroom(PlayerInteractEvent.RightClickBlock event, Level level, BlockPos pos, BlockState mushroom) {
+        // The client cancels too so the interaction is consumed and always reaches the server.
+        if (!(level instanceof ServerLevel serverLevel)) {
+            cancelInteraction(event);
+            return;
+        }
+        if (serverLevel.getRandom().nextFloat() < MANURE_GROW_CHANCE) {
+            InfXMushroomGrowth.tryGrowGiantMushroom(serverLevel, pos, mushroom, serverLevel.getRandom());
+        }
+        if (!event.getEntity().hasInfiniteMaterials()) event.getItemStack().shrink(1);
+        cancelInteraction(event);
     }
 
     private static void fertilizeFarmlandByHand(ServerLevel level, BlockPos farmlandPos, PlayerInteractEvent.RightClickBlock event) {
@@ -192,18 +219,6 @@ public final class AgricultureEvents {
             event.setCanceled(true);
             return;
         }
-        if (placed.is(Blocks.BROWN_MUSHROOM)) {
-            // Convenience conversion: a brown mushroom on moist fertilized farmland turns the
-            // soil into mycelium, the only soil manure can then use to grow a huge mushroom.
-            // Planting legality itself is enforced before placement by MushroomBlock.canSurvive.
-            BlockPos soil = pos.below();
-            BlockState farmland = level.getBlockState(soil);
-            if (farmland.is(InfXBlocks.FERTILE_FARMLAND)
-                    && isMoistFarmland(farmland)
-                    && level.getRawBrightness(pos, 0) < MUSHROOM_PLANT_LIGHT_CEILING) {
-                level.setBlockAndUpdate(soil, Blocks.MYCELIUM.defaultBlockState());
-            }
-        }
     }
 
     @SubscribeEvent
@@ -237,11 +252,5 @@ public final class AgricultureEvents {
         int length = 1;
         while (length < 32 && level.getBlockState(pos.below(length)).is(Blocks.VINE)) length++;
         return length;
-    }
-
-    private static boolean isMoistFarmland(BlockState state) {
-        return state.getBlock() instanceof FarmlandBlock
-                && state.hasProperty(FarmlandBlock.MOISTURE)
-                && state.getValue(FarmlandBlock.MOISTURE) > 0;
     }
 }
