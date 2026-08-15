@@ -289,7 +289,14 @@ final class ModBlockTagsProvider extends KeyTagsProvider<Block> {
                 .addTag(Tags.Blocks.PUMPKINS)
                 .add(blockKey(Blocks.MELON));
         addPlantCuttingTags(tag(InfXBlockTags.effectiveWith(MiningFamily.SHEARS)))
-                .add(blockKey(Blocks.GLOW_LICHEN), blockKey(Blocks.TRIPWIRE));
+                .addTag(BlockTags.WOOL_CARPETS)
+                .add(
+                        blockKey(Blocks.GLOW_LICHEN),
+                        blockKey(Blocks.TRIPWIRE),
+                        blockKey(Blocks.PALE_HANGING_MOSS),
+                        blockKey(Blocks.PALE_MOSS_BLOCK),
+                        blockKey(Blocks.PALE_MOSS_CARPET),
+                        blockKey(Blocks.LEAF_LITTER));
 
         tag(InfXBlockTags.WAR_HAMMER_EFFECTIVE)
                 .addTag(BlockTags.CANDLE_CAKES)

@@ -3,16 +3,19 @@ package com.pixulse.infx.item;
 import com.pixulse.infx.data.harvest.InfxMiningRules;
 import com.pixulse.infx.registry.tag.InfXBlockTags;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ShearsItem;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -56,6 +59,20 @@ public final class InfxShearsItem extends ShearsItem {
     @Override
     public boolean isCorrectToolForDrops(@NonNull ItemStack stack, @NonNull BlockState state) {
         return InfxMiningRules.canHarvest(key, state);
+    }
+
+    @Override
+    public @NonNull InteractionResult interactLivingEntity(
+            @NonNull ItemStack stack,
+            @NonNull Player player,
+            @NonNull LivingEntity entity,
+            @NonNull InteractionHand hand) {
+        InteractionResult result = super.interactLivingEntity(stack, player, entity, hand);
+        // MITE shears cost 50 durability per shear; the vanilla ShearsItem already wears 1.
+        if (result.consumesAction() && !entity.level().isClientSide()) {
+            stack.hurtAndBreak(49, player, hand.asEquipmentSlot());
+        }
+        return result;
     }
 
     @Override
@@ -116,7 +133,10 @@ public final class InfxShearsItem extends ShearsItem {
         BlockPos pos = context.getClickedPos();
         Block block = state.getBlock();
         var blockEntity = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
-        BlockState destroyedState = block.playerWillDestroy(level, pos, state, player);
+        // Double plants (tall grass, large fern, tall seagrass) drop their loot from
+        // playerWillDestroy, reading the tool in the player's main hand, and their loot keys on the
+        // exact minecraft:shears item id. Hold vanilla shears for that call so the drop fires.
+        BlockState destroyedState = withVanillaShearsHeld(level, player, () -> block.playerWillDestroy(level, pos, state, player));
         ItemStack stack = context.getItemInHand();
         ItemStack originalStack = stack.copy();
 
@@ -128,7 +148,7 @@ public final class InfxShearsItem extends ShearsItem {
         }
         boolean destroyed = removeBlock(level, pos, destroyedState, player, canHarvest, originalStack);
         if (destroyed && canHarvest) {
-            dropShearedBlock(level, pos, player, block, destroyedState, blockEntity, originalStack);
+            dropShearedBlock(level, pos, player, block, destroyedState, blockEntity);
         }
         if (destroyed) {
             level.playSound(null, pos, SoundEvents.SHEARS_SNIP, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -142,16 +162,33 @@ public final class InfxShearsItem extends ShearsItem {
             Player player,
             Block block,
             BlockState state,
-            BlockEntity blockEntity,
-            ItemStack tool) {
-        ItemStack silkTouchTool = tool.copy();
+            BlockEntity blockEntity) {
+        block.playerDestroy(level, player, pos, state, blockEntity, silkTouchShears(level));
+    }
+
+    private static ItemStack silkTouchShears(Level level) {
+        // Vanilla loot keys "shears-only" drops on the exact minecraft:shears item id, so the drop
+        // call must carry a vanilla shears stack (with silk touch to also cover any_of branches).
+        ItemStack silkTouchTool = new ItemStack(Items.SHEARS);
         silkTouchTool.enchant(
                 level.registryAccess()
                         .lookupOrThrow(Registries.ENCHANTMENT)
                         .getOrThrow(Enchantments.SILK_TOUCH),
                 1);
+        return silkTouchTool;
+    }
 
-        block.playerDestroy(level, player, pos, state, blockEntity, silkTouchTool);
+    private static BlockState withVanillaShearsHeld(Level level, Player player, Supplier<BlockState> action) {
+        if (player.preventsBlockDrops()) {
+            return action.get();
+        }
+        ItemStack previous = player.getMainHandItem();
+        player.setItemInHand(InteractionHand.MAIN_HAND, silkTouchShears(level));
+        try {
+            return action.get();
+        } finally {
+            player.setItemInHand(InteractionHand.MAIN_HAND, previous);
+        }
     }
 
     private static boolean withRightClickShearing(Level level, BlockPos pos, BooleanSupplier action) {

@@ -83,6 +83,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
@@ -516,6 +518,9 @@ public final class ModEquipmentGameTests {
                 shears.interactLivingEntity(player, sheep, InteractionHand.MAIN_HAND).consumesAction(),
                 "material shears must interact with sheep");
         helper.assertTrue(sheep.isSheared(), "material shears must shear sheep");
+        helper.assertTrue(
+                shears.getDamageValue() == 50,
+                "shearing a sheep must cost 50 durability (MITE)");
         sheep.discard();
 
         var shearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 2));
@@ -647,6 +652,76 @@ public final class ModEquipmentGameTests {
         assertNotRightClickShearable(
                 helper, player, new BlockPos(14, 1, 1), Blocks.SUGAR_CANE, blockShears, "sugar cane");
 
+        // Right-click shears a vanilla "shears-only" block drops the block itself. Those loot
+        // tables key the drop on the exact minecraft:shears item id, so the drop call carries a
+        // vanilla shears stack instead of the InfX shears item.
+        assertRightClickShearsBlock(helper, player, new BlockPos(15, 1, 1), Blocks.VINE, blockShears);
+        assertRightClickShearsBlock(helper, player, new BlockPos(16, 1, 1), Blocks.SHORT_GRASS, blockShears);
+        assertRightClickShearsBlock(helper, player, new BlockPos(17, 1, 1), Blocks.SEAGRASS, blockShears);
+
+        BlockPos glowPos = new BlockPos(18, 1, 1);
+        useOnBlock(
+                helper,
+                player,
+                glowPos,
+                Blocks.GLOW_LICHEN.defaultBlockState().setValue(BlockStateProperties.WEST, true),
+                blockShears);
+        helper.assertTrue(helper.getBlockState(glowPos).isAir(), "right-click shears must cut glow lichen");
+        helper.assertTrue(
+                itemCount(helper, glowPos, Blocks.GLOW_LICHEN.asItem()) == 1,
+                "right-click shearing glow lichen must drop one glow lichen");
+
+        BlockPos tallGrassPos = new BlockPos(19, 1, 1);
+        // Dirt is in #minecraft:supports_vegetation; placing the upper half re-checks the lower
+        // half's canSurvive, which would fail on stone and vanish the plant before the shear.
+        helper.setBlock(tallGrassPos.below(), Blocks.DIRT);
+        helper.setBlock(tallGrassPos, Blocks.TALL_GRASS.defaultBlockState());
+        helper.setBlock(
+                tallGrassPos.above(),
+                Blocks.TALL_GRASS
+                        .defaultBlockState()
+                        .setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
+        player.setItemInHand(InteractionHand.MAIN_HAND, blockShears);
+        BlockPos tallGrassAbsolute = helper.absolutePos(tallGrassPos);
+        BlockHitResult tallGrassHit = new BlockHitResult(
+                Vec3.atCenterOf(tallGrassAbsolute), Direction.UP, tallGrassAbsolute, false);
+        helper.assertTrue(
+                blockShears
+                        .getItem()
+                        .useOn(new UseOnContext(player, InteractionHand.MAIN_HAND, tallGrassHit))
+                        .consumesAction(),
+                "right-click shears must cut tall grass");
+        helper.assertTrue(
+                helper.getBlockState(tallGrassPos).isAir(),
+                "right-click shears must remove tall grass but found "
+                        + helper.getBlockState(tallGrassPos) + " at " + tallGrassPos);
+        helper.assertTrue(
+                itemCount(helper, tallGrassPos, Blocks.SHORT_GRASS.asItem()) == 2,
+                "right-click shearing tall grass must drop two short grass blocks");
+
+        BlockPos cobwebPos = new BlockPos(20, 1, 1);
+        useOnBlock(helper, player, cobwebPos, Blocks.COBWEB.defaultBlockState(), blockShears);
+        helper.assertTrue(helper.getBlockState(cobwebPos).isAir(), "right-click shears must cut cobweb");
+        helper.assertTrue(
+                itemCount(helper, cobwebPos, Blocks.COBWEB.asItem()) == 1,
+                "right-click shearing a cobweb must drop the cobweb block");
+
+        BlockPos cobwebLeftPos = new BlockPos(21, 1, 1);
+        helper.setBlock(cobwebLeftPos.below(), Blocks.STONE);
+        helper.setBlock(cobwebLeftPos, Blocks.COBWEB);
+        player.setItemInHand(InteractionHand.MAIN_HAND, blockShears);
+        helper.assertTrue(
+                player.gameMode.destroyBlock(helper.absolutePos(cobwebLeftPos)),
+                "left-click shears must destroy cobweb");
+        helper.assertTrue(
+                itemCount(helper, cobwebLeftPos, Items.STRING) == 1,
+                "left-click shearing a cobweb must drop string");
+
+        // Pale-garden vegetation is shears-effective, so left-click fast-breaks it.
+        assertLeftClickBreakable(helper, player, new BlockPos(22, 1, 1), Blocks.PALE_HANGING_MOSS, blockShears);
+        assertLeftClickBreakable(helper, player, new BlockPos(23, 1, 1), Blocks.PALE_MOSS_CARPET, blockShears);
+        assertLeftClickBreakable(helper, player, new BlockPos(24, 1, 1), Blocks.LEAF_LITTER, blockShears);
+
         helper.setBlock(wearPos, Blocks.OAK_LOG);
         BlockPos absoluteWearPos = helper.absolutePos(wearPos);
         BlockState state = helper.getBlockState(wearPos);
@@ -702,6 +777,38 @@ public final class ModEquipmentGameTests {
         helper.assertFalse(result.consumesAction(), "right-click shears must not cut " + description);
         helper.assertTrue(helper.getBlockState(relativePos).is(block), description + " must remain in place");
         helper.assertTrue(stack.getDamageValue() == damageBefore, description + " must not consume shears durability");
+    }
+
+    private static void assertRightClickShearsBlock(
+            GameTestHelper helper,
+            ServerPlayer player,
+            BlockPos relativePos,
+            Block block,
+            ItemStack stack) {
+        useOnBlock(helper, player, relativePos, block.defaultBlockState(), stack);
+        // Seagrass is always waterlogged, so shearing it leaves its water behind; only the block must vanish.
+        helper.assertTrue(
+                !helper.getBlockState(relativePos).is(block),
+                "right-click shears must cut " + block + " but found "
+                        + helper.getBlockState(relativePos) + " at " + relativePos);
+        helper.assertTrue(
+                itemCount(helper, relativePos, block.asItem()) == 1,
+                "right-click shearing " + block + " must drop the block itself");
+    }
+
+    private static void assertLeftClickBreakable(
+            GameTestHelper helper,
+            ServerPlayer player,
+            BlockPos relativePos,
+            Block block,
+            ItemStack stack) {
+        helper.setBlock(relativePos.below(), Blocks.STONE);
+        helper.setBlock(relativePos, block.defaultBlockState());
+        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        helper.assertTrue(
+                player.gameMode.destroyBlock(helper.absolutePos(relativePos)),
+                "left-click shears must destroy " + block);
+        helper.assertTrue(helper.getBlockState(relativePos).isAir(), "left-click shears must remove " + block);
     }
 
     private static int itemCount(GameTestHelper helper, BlockPos relativePos, Item item) {
