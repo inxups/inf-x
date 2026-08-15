@@ -38,8 +38,8 @@ public final class AgricultureEvents {
     private static final float BROWN_MUSHROOM_GROW_CHANCE = 1.0F / 3.0F;
     /** Red mushrooms keep the vanilla plant-anywhere rule but grow even less often. */
     private static final float RED_MUSHROOM_GROW_CHANCE = 1.0F / 5.0F;
-    /** Brown mushrooms may only be planted below this sky-light ceiling. */
-    private static final int MUSHROOM_PLANT_LIGHT_CEILING = 8;
+    /** MITE brown mushroom light ceiling; planting legality itself is enforced by {@code MushroomBlock.canSurvive}. */
+    private static final int MUSHROOM_PLANT_LIGHT_CEILING = 13;
 
     private AgricultureEvents() {}
 
@@ -193,17 +193,15 @@ public final class AgricultureEvents {
             return;
         }
         if (placed.is(Blocks.BROWN_MUSHROOM)) {
+            // Convenience conversion: a brown mushroom on moist fertilized farmland turns the
+            // soil into mycelium, the only soil manure can then use to grow a huge mushroom.
+            // Planting legality itself is enforced before placement by MushroomBlock.canSurvive.
             BlockPos soil = pos.below();
             BlockState farmland = level.getBlockState(soil);
             if (farmland.is(InfXBlocks.FERTILE_FARMLAND)
                     && isMoistFarmland(farmland)
                     && level.getRawBrightness(pos, 0) < MUSHROOM_PLANT_LIGHT_CEILING) {
-                // A brown mushroom on moist fertilized farmland converts the soil to mycelium,
-                // which is the only soil manure can then use to grow a huge mushroom.
                 level.setBlockAndUpdate(soil, Blocks.MYCELIUM.defaultBlockState());
-            } else {
-                // Brown mushrooms may only be planted on moist fertilized farmland in the dark.
-                event.setCanceled(true);
             }
         }
     }

@@ -72,6 +72,7 @@ final class UnderworldFeatureTestLevel {
             case "getSeed" -> this.seed;
             case "getMinY" -> Underworld.MIN_Y;
             case "getMaxY" -> Underworld.MAX_Y_EXCLUSIVE;
+            case "getHeight" -> Underworld.MAX_Y_EXCLUSIVE - 1; // uniform stone terrain covers every column
             case "ensureCanWrite" -> true;
             case "toString" -> "UnderworldFeatureTestLevel";
             case "hashCode" -> System.identityHashCode(proxy);
