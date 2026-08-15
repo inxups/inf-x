@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Canonical player interaction and melee reach rules for every item stack. */
 public final class ItemReach {
-    public static final double BASE_RANGE = 2.5;
+    public static final double BASE_RANGE = 2.75;
     public static final double CREATIVE_RANGE = 5.0;
     public static final double MAX_RANGE = 64.0;
     public static final double MAX_HEIGHT_ADJUSTMENT = 1.0;
