@@ -5,6 +5,7 @@ import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.recipe.BenchTier;
+import com.pixulse.infx.recipe.InfXRepairRecipe;
 import com.pixulse.infx.recipe.InfXShapedRecipe;
 import com.pixulse.infx.recipe.InfXShapelessRecipe;
 import com.pixulse.infx.recipe.RecipeRule;
@@ -1019,6 +1020,7 @@ final class ModRecipeProvider extends RecipeProvider {
         for (EquipmentType piece : EquipmentType.platePieces()) {
             addDyeRecipe("leather_" + piece.path() + "_dyed", equipment(InfxMaterial.LEATHER, piece));
         }
+        addLeatherRepairRecipe();
         addMetalArmorSets(
                 "copper", InfxMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
         addMetalArmorSets(
@@ -1847,6 +1849,24 @@ final class ModRecipeProvider extends RecipeProvider {
         ResourceKey<Recipe<?>> key2 = recipeKey(name);
         output.accept(key2, recipe, null);
         recipeRules.put(key2, RecipeRule.of(key2, key2.identifier(), difficulty, requiredBench));
+    }
+
+    /**
+     * Leather armor repair with sinew in the 2x2 grid ({@code infx:repair}).
+     * Hand tier so it works in the inventory grid; difficulty 25 keeps the
+     * timed craft as fast as the engine allows. Repair never costs
+     * experience and never re-rolls quality.
+     */
+    private void addLeatherRepairRecipe() {
+        Ingredient target = Ingredient.of(
+                equipment(InfxMaterial.LEATHER, EquipmentType.HELMET),
+                equipment(InfxMaterial.LEATHER, EquipmentType.CHESTPLATE),
+                equipment(InfxMaterial.LEATHER, EquipmentType.LEGGINGS),
+                equipment(InfxMaterial.LEATHER, EquipmentType.BOOTS));
+        InfXRepairRecipe recipe = new InfXRepairRecipe(target, Ingredient.of(InfXItems.SINEW));
+        ResourceKey<Recipe<?>> key = recipeKey("leather_repair");
+        output.accept(key, recipe, null);
+        recipeRules.put(key, RecipeRule.of(key, key.identifier(), 25.0F, BenchTier.HAND));
     }
 
     /**

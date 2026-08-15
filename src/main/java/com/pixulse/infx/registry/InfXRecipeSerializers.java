@@ -1,6 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.recipe.InfXRepairRecipe;
 import com.pixulse.infx.recipe.InfXShapedRecipe;
 import com.pixulse.infx.recipe.InfXShapelessRecipe;
 
@@ -19,6 +20,9 @@ public final class InfXRecipeSerializers {
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<InfXShapedRecipe>> SHAPED_RETURNING =
             RECIPE_SERIALIZERS.register("shaped_returning", () -> InfXShapedRecipe.SERIALIZER);
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<InfXRepairRecipe>> REPAIR =
+            RECIPE_SERIALIZERS.register("repair", () -> InfXRepairRecipe.SERIALIZER);
 
     private InfXRecipeSerializers() {}
 
