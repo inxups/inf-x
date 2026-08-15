@@ -565,7 +565,7 @@ public final class ModWorldGen {
                 OVERWORLD_COPPER_ORE_CONFIGURED,
                 Blocks.COPPER_ORE.defaultBlockState(),
                 Blocks.DEEPSLATE_COPPER_ORE.defaultBlockState(),
-                6);
+                8);
         registerOverworldConfiguredOre(
                 context,
                 OVERWORLD_IRON_ORE_CONFIGURED,
@@ -577,7 +577,7 @@ public final class ModWorldGen {
                 OVERWORLD_SILVER_ORE_CONFIGURED,
                 InfXBlocks.SILVER_ORE.get().defaultBlockState(),
                 InfXBlocks.DEEPSLATE_SILVER_ORE.get().defaultBlockState(),
-                6);
+                8);
         registerOverworldConfiguredOre(
                 context,
                 OVERWORLD_GOLD_ORE_CONFIGURED,
@@ -595,7 +595,7 @@ public final class ModWorldGen {
                 OVERWORLD_REDSTONE_ORE_CONFIGURED,
                 Blocks.REDSTONE_ORE.defaultBlockState(),
                 Blocks.DEEPSLATE_REDSTONE_ORE.defaultBlockState(),
-                5);
+                3);
         registerOverworldConfiguredOre(
                 context,
                 OVERWORLD_DIAMOND_ORE_CONFIGURED,
@@ -607,13 +607,13 @@ public final class ModWorldGen {
                 OVERWORLD_LAPIS_ORE_CONFIGURED,
                 Blocks.LAPIS_ORE.defaultBlockState(),
                 Blocks.DEEPSLATE_LAPIS_ORE.defaultBlockState(),
-                3);
+                5);
         registerOverworldConfiguredOre(
                 context,
                 OVERWORLD_EMERALD_ORE_CONFIGURED,
                 Blocks.EMERALD_ORE.defaultBlockState(),
                 Blocks.DEEPSLATE_EMERALD_ORE.defaultBlockState(),
-                1);
+                2);
         context.register(
                 INFX_INFESTED_STONE_CONFIGURED,
                 new ConfiguredFeature<>(
@@ -937,70 +937,70 @@ public final class ModWorldGen {
                 configuredFeatures,
                 OVERWORLD_COAL_ORE_CONFIGURED,
                 OVERWORLD_COAL_ORE_PLACED,
-                CountPlacement.of(8),
+                CountPlacement.of(10),
                 UniformHeight.of(VerticalAnchor.absolute(32), VerticalAnchor.absolute(160)));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_COPPER_ORE_CONFIGURED,
                 OVERWORLD_COPPER_ORE_PLACED,
-                CountPlacement.of(6),
+                CountPlacement.of(8),
                 UniformHeight.of(VerticalAnchor.absolute(-8), VerticalAnchor.absolute(96)));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_IRON_ORE_CONFIGURED,
                 OVERWORLD_IRON_ORE_PLACED,
-                CountPlacement.of(8),
+                CountPlacement.of(6),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-8), VerticalAnchor.absolute(80), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_SILVER_ORE_CONFIGURED,
                 OVERWORLD_SILVER_ORE_PLACED,
-                CountPlacement.of(1),
+                CountPlacement.of(8),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(64), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_GOLD_ORE_CONFIGURED,
                 OVERWORLD_GOLD_ORE_PLACED,
-                CountPlacement.of(2),
+                CountPlacement.of(4),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(40), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_MITHRIL_ORE_CONFIGURED,
                 OVERWORLD_MITHRIL_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(2),
+                RarityFilter.onAverageOnceEvery(1),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(8), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_REDSTONE_ORE_CONFIGURED,
                 OVERWORLD_REDSTONE_ORE_PLACED,
-                CountPlacement.of(1),
+                CountPlacement.of(3),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(16), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_DIAMOND_ORE_CONFIGURED,
                 OVERWORLD_DIAMOND_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(2),
+                RarityFilter.onAverageOnceEvery(1),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(4), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_LAPIS_ORE_CONFIGURED,
                 OVERWORLD_LAPIS_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(2),
+                RarityFilter.onAverageOnceEvery(1),
                 UniformHeight.of(VerticalAnchor.absolute(8), VerticalAnchor.absolute(32)));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_EMERALD_ORE_CONFIGURED,
                 OVERWORLD_EMERALD_ORE_PLACED,
-                CountPlacement.of(1),
+                CountPlacement.of(4),
                 UniformHeight.of(VerticalAnchor.absolute(48), VerticalAnchor.absolute(128)));
         context.register(
                 INFX_INFESTED_STONE_PLACED,
