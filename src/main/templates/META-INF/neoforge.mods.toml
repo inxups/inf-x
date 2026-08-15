@@ -28,6 +28,13 @@ ordering="NONE"
 side="BOTH"
 
 [[dependencies.${mod_id}]]
+modId="jupiter"
+type="required"
+versionRange="${jupiter_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
 modId="jei"
 type="optional"
 versionRange="[29.6,30)"
