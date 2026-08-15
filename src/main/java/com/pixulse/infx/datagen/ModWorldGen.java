@@ -1043,7 +1043,7 @@ public final class ModWorldGen {
                 new PlacedFeature(
                         configuredFeatures.getOrThrow(BLUEBERRY_BUSH_CONFIGURED),
                         List.of(
-                                RarityFilter.onAverageOnceEvery(5),
+                                RarityFilter.onAverageOnceEvery(2),
                                 CountPlacement.of(4),
                                 InSquarePlacement.spread(),
                                 HeightmapPlacement.onHeightmap(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES),

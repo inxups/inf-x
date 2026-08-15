@@ -11,7 +11,10 @@
   接入 Jupiter 配置系统：服务端公共配置保存至 `config/infx/infx-common.json`，可由 OP 在游戏内配置界面修改并同步给客户端；客户端显示偏好保存至 `config/infx/infx-client.json`。现可分别控制生存、进程、生产、世界和实体规则，以及食物提示与特殊月相渲染。
 - 开发测试模式改由 Jupiter 配置启用：服务端 `development.testMode` 控制原版服务器管理、权限和世界规则放行，客户端 `development.testMode` 控制 F3、世界创建、亮度、LAN 命令及开发提示；不再读取 JVM 的 `infx.testMode` 参数，也不再要求客户端与服务端开关一致。
 - 新增服务器 datapack 规则重载：`food_profiles`、`fuel_heat`、`harvest_rules`、`gelatinous_dissolving` 与 `mob_spawn_rules`。规则支持精确物品/方块 ID 与标签目标，按优先级、目标精确度和规则 ID 稳定覆盖，并在缺少规则时保留现有 INFX 策略。实体生成规则在原有放置类型和基础生成检查通过后生效，可配置主世界高度、概率、顶棚与地面方块条件。
-
+### 平衡调整
+- 减少蓝莓层施用
+### 问题修复
+- 修复肥料反复食用
 
 
 ## 0t9

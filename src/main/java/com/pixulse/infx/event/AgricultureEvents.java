@@ -2,6 +2,7 @@ package com.pixulse.infx.event;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.block.InfxCropBlock;
+import com.pixulse.infx.block.InfxFertileFarmlandBlock;
 import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
@@ -138,7 +139,7 @@ public final class AgricultureEvents {
     }
 
     private static void fertilizeFarmlandByHand(ServerLevel level, BlockPos farmlandPos, PlayerInteractEvent.RightClickBlock event) {
-        if (level.getBlockState(farmlandPos) == InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState()) return;
+        if (level.getBlockState(farmlandPos).getBlock() instanceof InfxFertileFarmlandBlock) return;
 
         if (!event.getEntity().hasInfiniteMaterials())
             event.getItemStack().shrink(1);
