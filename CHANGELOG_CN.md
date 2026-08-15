@@ -1,18 +1,21 @@
 # Changelog
 
-- Added grass-covered soil blocks to the sliding and collapse soil tags.
-- Made gravity soils inherit all blocks selected for sliding falling behavior.
-- Removed brittle unit tests that hard-coded tunable attack-speed and quality thresholds.
-- Added delayed soil collapse and slope sliding for tagged soil, including falling-block landing reservation and configurable collapse delays.
-- Moved default food profiles, furnace fuel heat, gelatinous dissolving, and monster spawn rules into reloadable `data/infx` datapack resources; fuel and corrosion ground classifications now use data tags.
-- Removed brittle test assertions that hard-coded registry, catalog, and asset manifest cardinalities.
+# 0v5
+### 新功能
+- 将草土方块加入到“滑动”与“坍塌”泥土标签中。
+- 使受重力影响的泥土继承所有被设定为具有滑动/下落行为的方块特性。
+- 移除了那些硬编码了可调攻击速度及品质阈值的脆弱单元测试。
+- 为带有特定标签的泥土增加了延迟坍塌与坡面滑动机制，包括下落方块着陆预留处理及可配置的坍塌延迟时间。
+- 将默认食物配置、熔炉燃料热值、凝胶溶解特性及怪物生成规则迁移至可重载的 `data/infx` 数据包资源中；燃料与腐蚀地面分类现已改用数据标签。
+- 移除了那些硬编码了注册表、目录及资源清单数量（基数）的脆弱测试断言。
+  接入 Jupiter 配置系统：服务端公共配置保存至 `config/infx/infx-common.json`，可由 OP 在游戏内配置界面修改并同步给客户端；客户端显示偏好保存至 `config/infx/infx-client.json`。现可分别控制生存、进程、生产、世界和实体规则，以及食物提示与特殊月相渲染。
+- 开发测试模式改由 Jupiter 配置启用：服务端 `development.testMode` 控制原版服务器管理、权限和世界规则放行，客户端 `development.testMode` 控制 F3、世界创建、亮度、LAN 命令及开发提示；不再读取 JVM 的 `infx.testMode` 参数，也不再要求客户端与服务端开关一致。
+- 新增服务器 datapack 规则重载：`food_profiles`、`fuel_heat`、`harvest_rules`、`gelatinous_dissolving` 与 `mob_spawn_rules`。规则支持精确物品/方块 ID 与标签目标，按优先级、目标精确度和规则 ID 稳定覆盖，并在缺少规则时保留现有 INFX 策略。实体生成规则在原有放置类型和基础生成检查通过后生效，可配置主世界高度、概率、顶棚与地面方块条件。
+
 
 
 ## 0t9
 ### 新功能
-- 接入 Jupiter 配置系统：服务端公共配置保存至 `config/infx/infx-common.json`，可由 OP 在游戏内配置界面修改并同步给客户端；客户端显示偏好保存至 `config/infx/infx-client.json`。现可分别控制生存、进程、生产、世界和实体规则，以及食物提示与特殊月相渲染。
-- 开发测试模式改由 Jupiter 配置启用：服务端 `development.testMode` 控制原版服务器管理、权限和世界规则放行，客户端 `development.testMode` 控制 F3、世界创建、亮度、LAN 命令及开发提示；不再读取 JVM 的 `infx.testMode` 参数，也不再要求客户端与服务端开关一致。
-- 新增服务器 datapack 规则重载：`food_profiles`、`fuel_heat`、`harvest_rules`、`gelatinous_dissolving` 与 `mob_spawn_rules`。规则支持精确物品/方块 ID 与标签目标，按优先级、目标精确度和规则 ID 稳定覆盖，并在缺少规则时保留现有 INFX 策略。实体生成规则在原有放置类型和基础生成检查通过后生效，可配置主世界高度、概率、顶棚与地面方块条件。
 - 金属砧支持附魔合并：装备/工具可消耗附魔书获得附魔。合并规则与原版铁砧一致——相同附魔同侧同级则升一级（封顶该附魔最大等级），不同级取高者，与目标不兼容或与已有附魔互斥的附魔跳过；结果仍是装备本身。附魔合并不消耗经验与修理材料，只按每级附魔磨损砧（附魔书费用减半，即 InfX 附魔每级 4 点磨损），附魔书整体消耗；可与免费命名在同一结果中叠加。附魔书不可与附魔书互相合并。
 ### 平衡调整
 - 主世界不再生成暴露在地表的岩浆湖：26.1.2 原版岩浆湖由噪声路由器的 `lava` 密度函数在含水层中生成（湖面均在 y ≤ -10），现注入含水层流体类型判定（`Aquifer$NoiseBasedAquifer.computeFluidType`），当湖面与该处地表齐平、湖泊暴露在天空时改为水；完全埋藏于地下的洞穴岩浆湖、岩浆泉与深层岩浆海不受影响，下界生成保持不变。
