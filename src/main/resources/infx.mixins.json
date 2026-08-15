@@ -61,6 +61,7 @@
     "world.level.block.CrossCollisionBlockCollisionMixin",
     "world.level.block.InfXFireBlockMixin",
     "world.level.block.LeavesBlockProjectilePassMixin",
+    "world.level.block.MushroomBlockSurvivalMixin",
     "world.level.block.SpreadingSnowyBlockMixin",
     "world.level.block.SweetBerryBushBlockBonemealMixin",
     "world.level.block.SweetBerryBushBlockGrowthMixin",

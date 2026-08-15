@@ -1832,7 +1832,9 @@ public final class ModCompletionGameTests {
         ServerPlayer player = createPlayer(helper);
         try {
             // The game-test server never propagates light updates after setBlock, so the light
-            // rule is exercised on pre-baked dark spots below the grid floor (sky light 0).
+            // rule is exercised on pre-baked dark spots below the grid floor (sky light 0). A
+            // physical ceiling is added above each target so the heightmap reports the spot as
+            // covered (MITE's "no sky overhead"), matching the baked darkness.
             int darkY = darkY(helper, 3, 3);
             BlockPos relative = new BlockPos(3, darkY, 3);
             helper.setBlock(relative, Blocks.AIR);
@@ -1840,6 +1842,7 @@ public final class ModCompletionGameTests {
             helper.setBlock(soil, Blocks.AIR);
             helper.setBlock(soil.below(), Blocks.STONE);
             helper.setBlock(soil, Blocks.FARMLAND.defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
+            helper.setBlock(relative.above(2), Blocks.STONE);
 
             // A bright spot rejects planting even on moist fertilized farmland.
             BlockPos brightSoil = new BlockPos(3, 3, 3).below();
@@ -1869,21 +1872,58 @@ public final class ModCompletionGameTests {
                     helper.getBlockState(soil).is(InfXBlocks.FERTILE_FARMLAND),
                     "manure must fertilize the farmland before brown mushroom planting");
 
-            // A brown mushroom may only be planted on moist fertilized farmland in the dark.
+            // MITE brown mushrooms plant on plain dirt in a covered, dark spot.
             int plainY = darkY(helper, 6, 3);
-            BlockPos plainSoil = new BlockPos(6, plainY, 3);
+            BlockPos plainMushroom = new BlockPos(6, plainY, 3);
+            BlockPos plainSoil = plainMushroom.below();
+            helper.setBlock(plainMushroom, Blocks.AIR);
             helper.setBlock(plainSoil, Blocks.AIR);
-            helper.setBlock(plainSoil.below(), Blocks.AIR);
             helper.setBlock(plainSoil.below(), Blocks.STONE);
             helper.setBlock(plainSoil, Blocks.DIRT);
+            helper.setBlock(plainMushroom.above(2), Blocks.STONE);
             player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
             BlockPos plainSoilAbsolute = helper.absolutePos(plainSoil);
             BlockHitResult plainSoilHit =
                     new BlockHitResult(Vec3.atCenterOf(plainSoilAbsolute), Direction.UP, plainSoilAbsolute, false);
             player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, plainSoilHit);
             helper.assertTrue(
-                    helper.getBlockState(plainSoil).is(Blocks.DIRT) && helper.getBlockState(plainSoil.above()).isAir(),
-                    "brown mushrooms must not plant on plain soil");
+                    helper.getBlockState(plainMushroom).is(Blocks.BROWN_MUSHROOM),
+                    "brown mushrooms must plant on plain dirt in the dark");
+
+            // Stone is a legal MITE soil; sand is not.
+            int stoneY = darkY(helper, 2, 3);
+            BlockPos stoneMushroom = new BlockPos(2, stoneY, 3);
+            BlockPos stoneSoil = stoneMushroom.below();
+            helper.setBlock(stoneMushroom, Blocks.AIR);
+            helper.setBlock(stoneSoil, Blocks.AIR);
+            helper.setBlock(stoneSoil.below(), Blocks.STONE);
+            helper.setBlock(stoneSoil, Blocks.STONE);
+            helper.setBlock(stoneMushroom.above(2), Blocks.STONE);
+            player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
+            BlockPos stoneSoilAbsolute = helper.absolutePos(stoneSoil);
+            BlockHitResult stoneSoilHit =
+                    new BlockHitResult(Vec3.atCenterOf(stoneSoilAbsolute), Direction.UP, stoneSoilAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, stoneSoilHit);
+            helper.assertTrue(
+                    helper.getBlockState(stoneMushroom).is(Blocks.BROWN_MUSHROOM),
+                    "brown mushrooms must plant on stone in the dark");
+
+            int sandY = darkY(helper, 4, 3);
+            BlockPos sandMushroom = new BlockPos(4, sandY, 3);
+            BlockPos sandSoil = sandMushroom.below();
+            helper.setBlock(sandMushroom, Blocks.AIR);
+            helper.setBlock(sandSoil, Blocks.AIR);
+            helper.setBlock(sandSoil.below(), Blocks.STONE);
+            helper.setBlock(sandSoil, Blocks.SAND);
+            helper.setBlock(sandMushroom.above(2), Blocks.STONE);
+            player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
+            BlockPos sandSoilAbsolute = helper.absolutePos(sandSoil);
+            BlockHitResult sandSoilHit =
+                    new BlockHitResult(Vec3.atCenterOf(sandSoilAbsolute), Direction.UP, sandSoilAbsolute, false);
+            player.gameMode.useItemOn(player, helper.getLevel(), player.getMainHandItem(), InteractionHand.MAIN_HAND, sandSoilHit);
+            helper.assertTrue(
+                    helper.getBlockState(sandSoil).is(Blocks.SAND) && helper.getBlockState(sandMushroom).isAir(),
+                    "brown mushrooms must not plant on sand");
 
             // Planting on moist fertilized farmland succeeds and converts the soil to mycelium.
             player.setItemInHand(InteractionHand.MAIN_HAND, Items.BROWN_MUSHROOM.getDefaultInstance());
@@ -1899,7 +1939,6 @@ public final class ModCompletionGameTests {
                     "brown mushroom planting must convert fertilized farmland to mycelium");
 
             // Manure consumes but never grows a brown mushroom that is not on mycelium.
-            BlockPos plainMushroom = plainSoil.above();
             helper.setBlock(plainMushroom, Blocks.BROWN_MUSHROOM);
             player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog().raw("manure").holder().toStack());
             BlockPos plainMushroomAbsolute = helper.absolutePos(plainMushroom);

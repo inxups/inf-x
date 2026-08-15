@@ -28,8 +28,9 @@ public final class InfxFertileFarmlandBlock extends FarmlandBlock {
     }
 
     /**
-     * Brown mushrooms may only be planted on moist fertilized farmland, which immediately
-     * converts to mycelium; vanilla farmland can never carry a mushroom.
+     * MITE brown mushrooms may grow on stone/gravel/dirt/farmland/mycelium; placement legality
+     * itself is enforced by {@code MushroomBlock.canSurvive}. This keeps plantability hooks
+     * pointing at farmland (vanilla and the InfX fertile variant) alongside those MITE soils.
      */
     @Override
     public TriState canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, BlockState plant) {
