@@ -27,14 +27,6 @@ class ItemReachTest {
     }
 
     @Test
-    void blockTargetingRangeMirrorsTheServerPlacementBuffer() {
-        assertEquals(1.0, ItemReach.BLOCK_TARGET_BUFFER, 1.0E-9);
-        assertEquals(3.5, ItemReach.blockTargetingRange(ItemReach.BASE_RANGE), 1.0E-9);
-        assertEquals(4.25, ItemReach.blockTargetingRange(3.25), 1.0E-9);
-        assertEquals(6.0, ItemReach.blockTargetingRange(ItemReach.CREATIVE_RANGE), 1.0E-9);
-    }
-
-    @Test
     void positiveMeleeBonusRequiresAnInfxMainHandModifier() {
         assertFalse(ItemReach.hasPositiveMeleeBonus(ItemAttributeModifiers.EMPTY));
         assertFalse(ItemReach.hasPositiveMeleeBonus(modifiersWithMeleeBonus(EquipmentSlotGroup.OFFHAND)));

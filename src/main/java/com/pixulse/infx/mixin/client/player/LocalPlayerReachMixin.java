@@ -39,15 +39,6 @@ public abstract class LocalPlayerReachMixin {
         return ItemReach.targetingRange(player);
     }
 
-    @Redirect(
-            method = "raycastHitResult",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/player/LocalPlayer;blockInteractionRange()D"))
-    private double blockTargetingRange(LocalPlayer player) {
-        return ItemReach.blockTargetingRange(player);
-    }
-
     @Inject(method = "raycastHitResult", at = @At("RETURN"), cancellable = true)
     private void filterEntityCandidate(
             float partialTick, Entity cameraEntity, CallbackInfoReturnable<HitResult> callback) {
