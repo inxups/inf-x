@@ -14,7 +14,6 @@ import com.pixulse.infx.recipe.BenchTier;
 import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.InfXItems;
-import com.pixulse.infx.registry.InfXMenus;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -121,20 +120,36 @@ public final class InfXJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(@NonNull IRecipeTransferRegistration registration) {
-        for (BenchTier benchTier : BenchTier.values()) {
-            if (!benchTier.isWorkbench()) {
-                continue;
-            }
-            for (BenchTier requiredTier : BenchTier.values()) {
-                if (requiredTier.isRecipeTier() && benchTier.supports(requiredTier)) {
-                    addTransferHandler(
-                            registration,
-                            InfXMenus.workbench(benchTier).get(),
-                            TimedCraftingJeiTypes.forBench(requiredTier));
-                }
+        registerWorkbenchTransferHandlers(registration);
+        addHandCraftingTransferHandler(registration);
+    }
+
+    /**
+     * One transfer handler per recipe tier for the shared
+     * {@link TimedWorkbenchMenu} container. JEI keys transfer handlers by
+     * (container class, recipe type), so registering once per workbench menu
+     * type would collide: only the last workbench would survive and the
+     * transfer button would vanish from every other bench. A single
+     * menu-type-less handler matches any workbench and the tier gate hides
+     * the button on benches too weak for the recipe.
+     */
+    static void registerWorkbenchTransferHandlers(IRecipeTransferRegistration registration) {
+        for (BenchTier requiredTier : BenchTier.values()) {
+            if (requiredTier.isRecipeTier()) {
+                addWorkbenchTransferHandler(registration, requiredTier);
             }
         }
-        addHandCraftingTransferHandler(registration);
+    }
+
+    private static void addWorkbenchTransferHandler(
+            IRecipeTransferRegistration registration, BenchTier requiredTier) {
+        IRecipeTransferHandlerHelper helper = registration.getTransferHelper();
+        IRecipeHolderType<CraftingRecipe> recipeType = TimedCraftingJeiTypes.forBench(requiredTier);
+        IRecipeTransferHandler<TimedWorkbenchMenu, RecipeHolder<CraftingRecipe>> delegate =
+                helper.createUnregisteredRecipeTransferHandler(helper.createBasicRecipeTransferInfo(
+                        TimedWorkbenchMenu.class, null, recipeType, 1, 9, 10, 36));
+        registration.addRecipeTransferHandler(
+                new TimedWorkbenchRecipeTransferHandler(helper, requiredTier, delegate), recipeType);
     }
 
     @Override
@@ -152,20 +167,6 @@ public final class InfXJeiPlugin implements IModPlugin {
                 return List.of(IGuiClickableArea.createBasic(90, 35, 24, 16, recipeTypes));
             }
         });
-    }
-
-    private static void addTransferHandler(
-            IRecipeTransferRegistration registration,
-            net.minecraft.world.inventory.MenuType<TimedWorkbenchMenu> menuType,
-            IRecipeHolderType<CraftingRecipe> recipeType) {
-        registration.addRecipeTransferHandler(
-                TimedWorkbenchMenu.class,
-                menuType,
-                recipeType,
-                1,
-                9,
-                10,
-                36);
     }
 
     /**
