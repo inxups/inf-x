@@ -937,70 +937,70 @@ public final class ModWorldGen {
                 configuredFeatures,
                 OVERWORLD_COAL_ORE_CONFIGURED,
                 OVERWORLD_COAL_ORE_PLACED,
-                CountPlacement.of(4),
+                CountPlacement.of(8),
                 UniformHeight.of(VerticalAnchor.absolute(32), VerticalAnchor.absolute(160)));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_COPPER_ORE_CONFIGURED,
                 OVERWORLD_COPPER_ORE_PLACED,
-                CountPlacement.of(3),
+                CountPlacement.of(6),
                 UniformHeight.of(VerticalAnchor.absolute(-8), VerticalAnchor.absolute(96)));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_IRON_ORE_CONFIGURED,
                 OVERWORLD_IRON_ORE_PLACED,
-                CountPlacement.of(4),
+                CountPlacement.of(8),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-8), VerticalAnchor.absolute(80), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_SILVER_ORE_CONFIGURED,
                 OVERWORLD_SILVER_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(2),
+                CountPlacement.of(1),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(64), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_GOLD_ORE_CONFIGURED,
                 OVERWORLD_GOLD_ORE_PLACED,
-                CountPlacement.of(1),
+                CountPlacement.of(2),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(40), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_MITHRIL_ORE_CONFIGURED,
                 OVERWORLD_MITHRIL_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(4),
+                RarityFilter.onAverageOnceEvery(2),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(8), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_REDSTONE_ORE_CONFIGURED,
                 OVERWORLD_REDSTONE_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(2),
+                CountPlacement.of(1),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(16), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_DIAMOND_ORE_CONFIGURED,
                 OVERWORLD_DIAMOND_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(4),
+                RarityFilter.onAverageOnceEvery(2),
                 BiasedToBottomHeight.of(VerticalAnchor.absolute(-16), VerticalAnchor.absolute(4), 1));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_LAPIS_ORE_CONFIGURED,
                 OVERWORLD_LAPIS_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(4),
+                RarityFilter.onAverageOnceEvery(2),
                 UniformHeight.of(VerticalAnchor.absolute(8), VerticalAnchor.absolute(32)));
         registerPlacedOverworldOre(
                 context,
                 configuredFeatures,
                 OVERWORLD_EMERALD_ORE_CONFIGURED,
                 OVERWORLD_EMERALD_ORE_PLACED,
-                RarityFilter.onAverageOnceEvery(2),
+                CountPlacement.of(1),
                 UniformHeight.of(VerticalAnchor.absolute(48), VerticalAnchor.absolute(128)));
         context.register(
                 INFX_INFESTED_STONE_PLACED,
