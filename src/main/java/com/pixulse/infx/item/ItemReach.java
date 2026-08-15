@@ -26,6 +26,12 @@ public final class ItemReach {
     public static final double CREATIVE_RANGE = 5.0;
     public static final double MAX_RANGE = 64.0;
     public static final double MAX_HEIGHT_ADJUSTMENT = 1.0;
+    /**
+     * Server block-placement checks validate the targeted block against the eye with a 1-block
+     * buffer ({@code Player.isWithinBlockInteractionRange(pos, 1.0)}); the client crosshair must
+     * target at least that far, or blocks in the buffer gap become untargetable while jumping.
+     */
+    public static final double BLOCK_TARGET_BUFFER = 1.0;
 
     private ItemReach() {}
 
@@ -33,6 +39,15 @@ public final class ItemReach {
         return player.isCreative()
                 ? CREATIVE_RANGE
                 : mainHandRange(player, InfXAttributes.ITEM_INTERACTION_RANGE);
+    }
+
+    /** Client block-targeting range; mirrors the server placement check's acceptance envelope. */
+    public static double blockTargetingRange(Player player) {
+        return blockTargetingRange(interactionRange(player));
+    }
+
+    public static double blockTargetingRange(double interactionRange) {
+        return interactionRange + BLOCK_TARGET_BUFFER;
     }
 
     public static double meleeRange(Player player) {
