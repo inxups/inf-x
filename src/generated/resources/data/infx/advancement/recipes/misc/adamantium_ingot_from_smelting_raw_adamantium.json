@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_silver_ore": {
+    "has_raw_adamantium": {
       "conditions": {
         "items": [
           {
-            "items": "infx:silver_ore"
+            "items": "infx:raw_adamantium"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "infx:silver_ingot_from_smelting_silver_ore"
+        "recipe": "infx:adamantium_ingot_from_smelting_raw_adamantium"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_silver_ore"
+      "has_raw_adamantium"
     ]
   ],
   "rewards": {
     "recipes": [
-      "infx:silver_ingot_from_smelting_silver_ore"
+      "infx:adamantium_ingot_from_smelting_raw_adamantium"
     ]
   }
 }

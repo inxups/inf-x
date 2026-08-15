@@ -74,11 +74,11 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 .add(itemKey(Blocks.DEEPSLATE_DIAMOND_ORE.asItem()))
                 .add(itemKey(Blocks.NETHER_QUARTZ_ORE.asItem()))
                 .add(itemKey(Blocks.SANDSTONE.asItem()))
-                .add(InfXItems.SILVER_ORE.getKey(), InfXItems.DEEPSLATE_SILVER_ORE.getKey());
+                .add(InfXItems.RAW_SILVER.getKey());
         tag(InfXItemTags.SMELTING_INPUTS_HEAT_3)
-                .add(InfXItems.MITHRIL_ORE.getKey(), InfXItems.DEEPSLATE_MITHRIL_ORE.getKey());
+                .add(InfXItems.RAW_MITHRIL.getKey());
         tag(InfXItemTags.SMELTING_INPUTS_HEAT_4)
-                .add(InfXItems.ADAMANTIUM_ORE.getKey(), InfXItems.DEEPSLATE_ADAMANTIUM_ORE.getKey());
+                .add(InfXItems.RAW_ADAMANTIUM.getKey());
         tag(InfXItemTags.GELATINOUS_SPHERES).add(
                 InfXItems.GREEN_GELATINOUS_SPHERE.getKey(), itemKey(Items.SLIME_BALL));
         addCurseTags();

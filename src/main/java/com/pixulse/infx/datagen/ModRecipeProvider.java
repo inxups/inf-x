@@ -526,32 +526,32 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_red_sand", has(Blocks.RED_SAND))
                 .save(output, recipeKey("red_sand_batch"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfXBlocks.SILVER_ORE, InfXBlocks.DEEPSLATE_SILVER_ORE),
+                        Ingredient.of(InfXItems.RAW_SILVER),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.SILVER_INGOT,
                         15.0F,
                         200)
-                .unlockedBy("has_silver_ore", has(InfXBlocks.SILVER_ORE))
-                .save(output, recipeKey("silver_ingot_from_smelting_silver_ore"));
+                .unlockedBy("has_raw_silver", has(InfXItems.RAW_SILVER))
+                .save(output, recipeKey("silver_ingot_from_smelting_raw_silver"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfXBlocks.MITHRIL_ORE, InfXBlocks.DEEPSLATE_MITHRIL_ORE),
+                        Ingredient.of(InfXItems.RAW_MITHRIL),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.MITHRIL_INGOT,
                         40.0F,
                         200)
-                .unlockedBy("has_mithril_ore", has(InfXBlocks.MITHRIL_ORE))
-                .save(output, recipeKey("mithril_ingot_from_smelting_mithril_ore"));
+                .unlockedBy("has_raw_mithril", has(InfXItems.RAW_MITHRIL))
+                .save(output, recipeKey("mithril_ingot_from_smelting_raw_mithril"));
         SimpleCookingRecipeBuilder.smelting(
-                        Ingredient.of(InfXBlocks.ADAMANTIUM_ORE, InfXBlocks.DEEPSLATE_ADAMANTIUM_ORE),
+                        Ingredient.of(InfXItems.RAW_ADAMANTIUM),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,
                         InfXItems.ADAMANTIUM_INGOT,
                         100.0F,
                         200)
-                .unlockedBy("has_adamantium_ore", has(InfXBlocks.ADAMANTIUM_ORE))
-                .save(output, recipeKey("adamantium_ingot_from_smelting_adamantium_ore"));
+                .unlockedBy("has_raw_adamantium", has(InfXItems.RAW_ADAMANTIUM))
+                .save(output, recipeKey("adamantium_ingot_from_smelting_raw_adamantium"));
 
         // InfX: smelting minerals grants the fixed per-item INFX experience reward
         // instead of the vanilla fractional values; the vanilla ore smelting recipes

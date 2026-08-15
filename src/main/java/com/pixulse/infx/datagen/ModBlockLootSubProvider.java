@@ -27,6 +27,7 @@ import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemConditi
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jspecify.annotations.NonNull;
@@ -40,7 +41,7 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
     protected void generate() {
         InfXBlocks.WORKBENCHES.forEach(workbench -> dropSelf(workbench.get()));
         InfXBlocks.FURNACES.forEach(furnace -> dropSelf(furnace.get()));
-        InfXBlocks.ORES.forEach(ore -> dropSelf(ore.get()));
+        InfXBlocks.ORES.forEach(ore -> add(ore.get(), createOreDrop(ore.get(), oreRawItem(ore))));
         InfXBlocks.METAL_STORAGE_BLOCKS.forEach(block -> dropSelf(block.get()));
         InfXBlocks.METAL_ANVILS.forEach(anvil -> dropSelf(anvil.get()));
         InfXBlocks.ENCHANTING_TABLES.forEach(table -> dropSelf(table.get()));
@@ -60,6 +61,17 @@ final class ModBlockLootSubProvider extends BlockLootSubProvider {
 
     private void dropRuneStone(RuneStoneBlock block) {
         add(block, createSingleItemTable(block).apply(CopyBlockState.copyState(block).copy(RuneStoneBlock.RUNE)));
+    }
+
+    /** Ore blocks drop one raw chunk with fortune bonus; silk touch still yields the block. */
+    private static Item oreRawItem(DeferredHolder<Block, ? extends Block> ore) {
+        if (ore == InfXBlocks.SILVER_ORE || ore == InfXBlocks.DEEPSLATE_SILVER_ORE) {
+            return InfXItems.RAW_SILVER.get();
+        }
+        if (ore == InfXBlocks.MITHRIL_ORE || ore == InfXBlocks.DEEPSLATE_MITHRIL_ORE) {
+            return InfXItems.RAW_MITHRIL.get();
+        }
+        return InfXItems.RAW_ADAMANTIUM.get();
     }
 
     private LootTable.Builder blueberryBushDrops(BlueberryBushBlock bush) {

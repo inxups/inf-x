@@ -320,6 +320,9 @@ public final class InfXItems {
     public static final DeferredItem<Item> MITHRIL_INGOT = CATALOG.raw("mithril_ingot").holderAs(Item.class);
     public static final DeferredItem<Item> ADAMANTIUM_INGOT =
             CATALOG.raw("adamantium_ingot").holderAs(Item.class);
+    public static final DeferredItem<Item> RAW_SILVER = CATALOG.raw("raw_silver").holderAs(Item.class);
+    public static final DeferredItem<Item> RAW_MITHRIL = CATALOG.raw("raw_mithril").holderAs(Item.class);
+    public static final DeferredItem<Item> RAW_ADAMANTIUM = CATALOG.raw("raw_adamantium").holderAs(Item.class);
     public static final DeferredItem<ToolItem> FLINT_HATCHET =
             CATALOG.equipment(InfxMaterial.FLINT, EquipmentType.HATCHET).holderAs(ToolItem.class);
     public static final DeferredItem<ToolItem> FLINT_SHOVEL =

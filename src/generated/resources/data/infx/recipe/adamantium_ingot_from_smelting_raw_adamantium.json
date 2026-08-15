@@ -3,10 +3,7 @@
   "category": "misc",
   "cookingtime": 200,
   "experience": 100.0,
-  "ingredient": [
-    "infx:adamantium_ore",
-    "infx:deepslate_adamantium_ore"
-  ],
+  "ingredient": "infx:raw_adamantium",
   "result": {
     "id": "infx:adamantium_ingot"
   }

@@ -19,7 +19,6 @@
     "minecraft:deepslate_diamond_ore",
     "minecraft:nether_quartz_ore",
     "minecraft:sandstone",
-    "infx:silver_ore",
-    "infx:deepslate_silver_ore"
+    "infx:raw_silver"
   ]
 }
