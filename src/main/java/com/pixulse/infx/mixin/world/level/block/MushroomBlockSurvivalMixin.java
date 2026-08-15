@@ -1,12 +1,12 @@
 package com.pixulse.infx.mixin.world.level.block;
 
+import com.pixulse.infx.world.InfXMushroomGrowth;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.MushroomBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.Heightmap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -40,7 +40,7 @@ public abstract class MushroomBlockSurvivalMixin {
             callback.setReturnValue(false);
             return;
         }
-        boolean indoor = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ()) > pos.getY();
+        boolean indoor = InfXMushroomGrowth.isIndoor(level, pos);
         if (!indoor) {
             callback.setReturnValue(false);
             return;
