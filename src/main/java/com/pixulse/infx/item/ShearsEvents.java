@@ -24,7 +24,10 @@ public final class ShearsEvents {
             return;
         }
         BlockState state = event.getState();
-        if (!state.is(InfXBlockTags.effectiveWith(MiningFamily.SHEARS))) {
+        // Mirror the sword carve-out: shears behave like a bare hand on blocks that don't
+        // require a correct tool (torches, dirt, planks, ...) and only block real tool blocks.
+        if (!state.is(InfXBlockTags.effectiveWith(MiningFamily.SHEARS))
+                && state.requiresCorrectToolForDrops()) {
             event.setCanceled(true);
             event.setNotifyClient(true);
         }
