@@ -43,6 +43,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -120,6 +121,9 @@ public final class ModMonsterGameTests {
     private static final String BLOOD_MOON_LIGHTNING = "infx_blood_moon_lightning";
     private static final String BLOOD_MOON_RAIN = "infx_blood_moon_rain";
     private static final String BLOOD_MOON_CROP_BLIGHT = "infx_blood_moon_crop_blight";
+    private static final String BURNING_MOB_FIRE_TRANSFER = "infx_burning_mob_fire_transfer";
+    private static final String VILLAGER_CONVERSION_NORMAL_GATE = "infx_villager_conversion_normal_gate";
+    private static final String ZOMBIE_HATCHET_DAY = "infx_zombie_hatchet_day";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -160,6 +164,9 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(BLOOD_MOON_LIGHTNING, () -> ModMonsterGameTests::bloodMoonLightning);
         FUNCTIONS.register(BLOOD_MOON_RAIN, () -> ModMonsterGameTests::bloodMoonRain);
         FUNCTIONS.register(BLOOD_MOON_CROP_BLIGHT, () -> ModMonsterGameTests::bloodMoonCropBlight);
+        FUNCTIONS.register(BURNING_MOB_FIRE_TRANSFER, () -> ModMonsterGameTests::burningMobFireTransfer);
+        FUNCTIONS.register(VILLAGER_CONVERSION_NORMAL_GATE, () -> ModMonsterGameTests::villagerConversionNormalGate);
+        FUNCTIONS.register(ZOMBIE_HATCHET_DAY, () -> ModMonsterGameTests::zombieHatchetDay);
     }
 
     private ModMonsterGameTests() {}
@@ -209,7 +216,10 @@ public final class ModMonsterGameTests {
                 SLIME_BURNING_NO_SPLIT,
                 BLOOD_MOON_LIGHTNING,
                 BLOOD_MOON_RAIN,
-                BLOOD_MOON_CROP_BLIGHT)) {
+                BLOOD_MOON_CROP_BLIGHT,
+                BURNING_MOB_FIRE_TRANSFER,
+                VILLAGER_CONVERSION_NORMAL_GATE,
+                ZOMBIE_HATCHET_DAY)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2232,6 +2242,48 @@ public final class ModMonsterGameTests {
         ((CropBlock) level.getBlockState(pos).getBlock()).performBonemeal(
                 level, new FixedRandom(1), pos, level.getBlockState(pos));
         helper.assertTrue(!tracker.isBlighted(pos), "bonemeal must cure blight on vanilla crops");
+        helper.succeed();
+    }
+
+    /** MITE: a burning bare-handed mob has difficulty×0.3 chance to ignite its target. */
+    private static void burningMobFireTransfer(GameTestHelper helper) {
+        helper.assertTrue(
+                MonsterEvents.burningMobTransferRoll(3, new FixedRandom(0)),
+                "a Hard-difficulty burning mob must usually transfer fire");
+        helper.assertTrue(
+                !MonsterEvents.burningMobTransferRoll(3, new FixedRandom(1000)),
+                "the fire-transfer roll must still be a roll");
+        helper.assertTrue(
+                !MonsterEvents.burningMobTransferRoll(0, new FixedRandom(0)),
+                "peaceful burning mobs never transfer fire");
+        helper.succeed();
+    }
+
+    /** MITE: at Normal difficulty a villager conversion is skipped half of the time. */
+    private static void villagerConversionNormalGate(GameTestHelper helper) {
+        helper.assertTrue(
+                ZombieEvents.villagerConversionSkippedAtNormal(Difficulty.NORMAL, true),
+                "a Normal-difficulty conversion must be skippable");
+        helper.assertTrue(
+                !ZombieEvents.villagerConversionSkippedAtNormal(Difficulty.NORMAL, false),
+                "the Normal-difficulty skip must be a coin flip");
+        helper.assertTrue(
+                !ZombieEvents.villagerConversionSkippedAtNormal(Difficulty.HARD, true),
+                "Hard difficulty must never skip conversion");
+        helper.succeed();
+    }
+
+    /** MITE: from day 10 zombies may carry a rusted-iron hatchet instead of a sword. */
+    private static void zombieHatchetDay(GameTestHelper helper) {
+        helper.assertTrue(
+                MonsterTactics.zombieFavoursHatchet(10, true),
+                "day-10 zombies may favour a hatchet");
+        helper.assertTrue(
+                !MonsterTactics.zombieFavoursHatchet(9, true),
+                "day-9 zombies must keep the sword");
+        helper.assertTrue(
+                !MonsterTactics.zombieFavoursHatchet(10, false),
+                "the hatchet switch must still be a coin flip");
         helper.succeed();
     }
 

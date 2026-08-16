@@ -8,6 +8,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -145,7 +146,18 @@ public final class ZombieEvents {
                 && zombie.getType() == EntityType.ZOMBIE
                 && MonsterTactics.holdsDigTool(zombie.getMainHandItem())) {
             event.setCanceled(true);
+            return;
         }
+        // MITE: at Normal difficulty a villager conversion is skipped half of the time.
+        if (villagerConversionSkippedAtNormal(
+                villager.level().getDifficulty(), villager.getRandom().nextBoolean())) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** MITE conversion gate: Normal difficulty skips a villager conversion half of the time. */
+    public static boolean villagerConversionSkippedAtNormal(Difficulty difficulty, boolean coin) {
+        return difficulty == Difficulty.NORMAL && coin;
     }
 
     /** MITE: a villager conversion clears the killer zombie's five equipment slots. */
