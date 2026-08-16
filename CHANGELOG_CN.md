@@ -1,4 +1,14 @@
 # Changelog
+## 0t18
+### 新功能
+- 血月雷电 ×5：血月日雷电滚动频率从 1/100000 提升到 1/20000（`ServerLevel.tickThunder` 的 `nextInt` 上界改为 20000，对齐 MITE `WorldServer.java:1310`）。
+- 血月全群系降雨：`Level.precipitationAt` 在血月日绕过热群系"无降水"门控——沙漠/恶地等原本不降雨的群系也会下雨，血月日不死族白天免烧、作物获水在全群系生效（客户端雨粒子渲染读同一方法，自动跟随）。
+- 血月红眼：`EntityRenderer.extractRenderState` 在血月夜为敌对生物设置 MITE 狂暴发光色 8527390——现代 MC 的 `outlineColor` 即 1.6.4 的 glow 色字段（对齐 MITE `EntityLivingBase.java:729-733`）。
+- 作物枯萎扩展到 vanilla 作物：小麦/甜菜等 vanilla 作物在血月夜每随机刻 25% 枯萎（`BlightTracker` SavedData 追踪 + `CropBlock.randomTick` 拦截）——枯萎后停止生长、每随机刻 1/64 直接死亡并掉种子、可传染邻近 vanilla 作物；骨粉治愈枯萎而非促长；破块清除追踪。InfX 自有作物早已有此机制。
+- 新增 GameTest：`infx_blood_moon_lightning`、`infx_blood_moon_rain`、`infx_blood_moon_crop_blight`。
+
+---
+
 ## 0t17
 ### 新功能
 - 末影人血月狂暴完全豁免：修复血月狂暴批遗漏——`LivingEntityFrenzySpeedMixin` 现在对 InfxEnderman 不施加 ×1.2 移速（`applyFrenzyDamage` 攻豁免早已有，补齐移速豁免，符合 MITE isFrenzied=false）。

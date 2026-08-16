@@ -15,6 +15,8 @@ import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.world.BlightTracker;
+import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Tension;
 import com.pixulse.infx.world.Underworld;
@@ -40,6 +42,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.clock.WorldClocks;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -63,7 +66,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -112,6 +117,9 @@ public final class ModMonsterGameTests {
     private static final String ZOMBIE_CONVERSION_SKIP = "infx_zombie_conversion_skip";
     private static final String ZOMBIE_DIG_FEET_FIRST = "infx_zombie_dig_feet_first";
     private static final String SLIME_BURNING_NO_SPLIT = "infx_slime_burning_no_split";
+    private static final String BLOOD_MOON_LIGHTNING = "infx_blood_moon_lightning";
+    private static final String BLOOD_MOON_RAIN = "infx_blood_moon_rain";
+    private static final String BLOOD_MOON_CROP_BLIGHT = "infx_blood_moon_crop_blight";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -149,6 +157,9 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ZOMBIE_CONVERSION_SKIP, () -> ModMonsterGameTests::zombieConversionSkip);
         FUNCTIONS.register(ZOMBIE_DIG_FEET_FIRST, () -> ModMonsterGameTests::zombieDigFeetFirst);
         FUNCTIONS.register(SLIME_BURNING_NO_SPLIT, () -> ModMonsterGameTests::slimeBurningNoSplit);
+        FUNCTIONS.register(BLOOD_MOON_LIGHTNING, () -> ModMonsterGameTests::bloodMoonLightning);
+        FUNCTIONS.register(BLOOD_MOON_RAIN, () -> ModMonsterGameTests::bloodMoonRain);
+        FUNCTIONS.register(BLOOD_MOON_CROP_BLIGHT, () -> ModMonsterGameTests::bloodMoonCropBlight);
     }
 
     private ModMonsterGameTests() {}
@@ -195,7 +206,10 @@ public final class ModMonsterGameTests {
                 ZOMBIE_FOOD,
                 ZOMBIE_CONVERSION_SKIP,
                 ZOMBIE_DIG_FEET_FIRST,
-                SLIME_BURNING_NO_SPLIT)) {
+                SLIME_BURNING_NO_SPLIT,
+                BLOOD_MOON_LIGHTNING,
+                BLOOD_MOON_RAIN,
+                BLOOD_MOON_CROP_BLIGHT)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2154,6 +2168,73 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
+    /** MITE: blood-moon days strike lightning five times as often (1/20000 vs 1/100000). */
+    private static void bloodMoonLightning(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon day, day 32
+        helper.assertTrue(
+                MoonPhase.lightningRollBound(level, 100_000) == 20_000,
+                "blood-moon days must strike lightning five times as often");
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary day, day 31
+        helper.assertTrue(
+                MoonPhase.lightningRollBound(level, 100_000) == 100_000,
+                "ordinary days keep the vanilla lightning rate");
+        helper.succeed();
+    }
+
+    /** MITE: blood-moon days rain in every biome, including hot biomes that never rain. */
+    private static void bloodMoonRain(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        Biome desert =
+                level.registryAccess().lookupOrThrow(Registries.BIOME).get(Biomes.DESERT).orElseThrow().value();
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon day, day 32
+        helper.assertTrue(
+                MoonPhase.bloodMoonPrecipitation(desert, new BlockPos(0, 64, 0), level.getSeaLevel())
+                        == Biome.Precipitation.RAIN,
+                "blood-moon rain must reach non-raining biomes such as desert");
+        var weather = level.getWeatherData();
+        weather.setClearWeatherTime(0);
+        weather.setRainTime(12_000);
+        weather.setThunderTime(12_000);
+        weather.setRaining(true);
+        weather.setThundering(true);
+        // The level's rain level only eases toward the weather flag across server ticks.
+        helper.runAfterDelay(40, () -> {
+            BlockPos sky = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, new BlockPos(2, 0, 2)).above();
+            helper.assertTrue(
+                    level.isRainingAt(sky),
+                    "blood-moon days must be raining at sky-visible positions");
+            helper.succeed();
+        });
+    }
+
+    /** MITE: vanilla crops carry blood-moon blight in the tracker; it stunts, kills and cures. */
+    private static void bloodMoonCropBlight(GameTestHelper helper) {
+        var level = helper.getLevel();
+        BlightTracker tracker = BlightTracker.get(level);
+        BlockPos pos = helper.absolutePos(new BlockPos(1, 2, 1));
+        level.setBlockAndUpdate(pos, Blocks.WHEAT.defaultBlockState().setValue(CropBlock.AGE, 3));
+        tracker.blight(pos);
+        // A blighted crop is stunted: its random tick no longer advances age.
+        level.getBlockState(pos).randomTick(level, pos, new FixedRandom(1));
+        helper.assertTrue(
+                level.getBlockState(pos).getValue(CropBlock.AGE) == 3,
+                "a blighted crop must not grow; got age "
+                        + level.getBlockState(pos).getValue(CropBlock.AGE));
+        // On its death roll a blighted crop withers away and drops its seed.
+        level.getBlockState(pos).randomTick(level, pos, new FixedRandom(0));
+        helper.assertTrue(level.getBlockState(pos).isAir(), "a blighted crop must wither away on its death roll");
+        // Bonemeal cures the blight instead of growing a blighted crop.
+        tracker.blight(pos);
+        level.setBlockAndUpdate(pos, Blocks.WHEAT.defaultBlockState().setValue(CropBlock.AGE, 3));
+        ((CropBlock) level.getBlockState(pos).getBlock()).performBonemeal(
+                level, new FixedRandom(1), pos, level.getBlockState(pos));
+        helper.assertTrue(!tracker.isBlighted(pos), "bonemeal must cure blight on vanilla crops");
+        helper.succeed();
+    }
+
     /** MITE has no baby zombies: vanilla's 5% spawn-baby roll is reversed by the spawn event. */
     private static void zombieNoBaby(GameTestHelper helper) {
         Mob zombie = spawnWithFinalize(helper, EntityType.ZOMBIE);
@@ -2227,5 +2308,62 @@ public final class ModMonsterGameTests {
                 child -> child.getSize() == 1 && child != slime);
         helper.assertTrue(children.isEmpty(), "burning slimes must not split into smaller cubes");
         helper.succeed();
+    }
+
+    /** Deterministic {@link RandomSource} whose {@code nextInt(bound)} returns {@code value % bound}. */
+    private static final class FixedRandom implements RandomSource {
+        private final int value;
+
+        private FixedRandom(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public RandomSource fork() {
+            return new FixedRandom(this.value);
+        }
+
+        @Override
+        public net.minecraft.world.level.levelgen.PositionalRandomFactory forkPositional() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setSeed(long seed) {}
+
+        @Override
+        public int nextInt() {
+            return this.value;
+        }
+
+        @Override
+        public int nextInt(int bound) {
+            return this.value % bound;
+        }
+
+        @Override
+        public long nextLong() {
+            return this.value;
+        }
+
+        @Override
+        public boolean nextBoolean() {
+            return this.value % 2 == 0;
+        }
+
+        @Override
+        public float nextFloat() {
+            return this.value / 1000.0F;
+        }
+
+        @Override
+        public double nextDouble() {
+            return this.value / 1000.0;
+        }
+
+        @Override
+        public double nextGaussian() {
+            return this.value;
+        }
     }
 }

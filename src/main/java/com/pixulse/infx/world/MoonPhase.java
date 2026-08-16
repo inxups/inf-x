@@ -1,7 +1,10 @@
 package com.pixulse.infx.world;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 
 /** The INFX lunar calendar shared by livestock and hostile-mob rules. */
@@ -119,5 +122,17 @@ public enum MoonPhase {
 
     public boolean allowsSleep() {
         return this != BLOOD;
+    }
+
+    /** MITE blood-moon lightning: strikes roll 1/20000 per tick instead of 1/100000. */
+    public static int lightningRollBound(ServerLevel level, int bound) {
+        return BLOOD.isActiveInOverworld(level) ? 20_000 : bound;
+    }
+
+    /** MITE blood-moon all-biome rain: bypasses the hot-biome no-precipitation gate. */
+    public static Biome.Precipitation bloodMoonPrecipitation(Biome biome, BlockPos pos, int seaLevel) {
+        return biome.coldEnoughToSnow(pos, seaLevel)
+                ? Biome.Precipitation.SNOW
+                : Biome.Precipitation.RAIN;
     }
 }

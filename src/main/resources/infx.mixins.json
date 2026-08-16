@@ -7,6 +7,7 @@
     "server.dedicated.DedicatedPlayerListMixin",
     "server.dedicated.DedicatedServerMixin",
     "server.level.ServerLevelFluidTickMixin",
+    "server.level.ServerLevelLightningRateMixin",
     "server.level.ServerLevelSleepMixin",
     "server.level.ServerPlayerGameModeMixin",
     "server.level.ServerPlayerPermissionsMixin",
@@ -60,11 +61,13 @@
     "world.item.component.ConsumableMixin",
     "world.level.ExplosionDamageCalculatorMixin",
     "world.level.LevelAccessorMixin",
+    "world.level.LevelBloodMoonRainMixin",
     "world.level.ServerExplosionMixin",
     "world.level.ServerLevelMoonBrightnessMixin",
     "world.level.block.BaseFireBlockMixin",
     "world.level.block.CakeBlockMixin",
     "world.level.block.CrossCollisionBlockCollisionMixin",
+    "world.level.block.CropBlockBlightMixin",
     "world.level.block.InfXFireBlockMixin",
     "world.level.block.LeavesBlockProjectilePassMixin",
     "world.level.block.MushroomBlockGrowthMixin",
@@ -98,7 +101,8 @@
     "client.gui.screens.options.DifficultyButtonsMixin",
     "client.gui.screens.worldselection.WorldCreationUiStateMixin",
     "client.player.LocalPlayerReachMixin",
-    "client.renderer.SkyRendererMixin"
+    "client.renderer.SkyRendererMixin",
+    "client.renderer.entity.EntityRendererBloodMoonGlowMixin"
   ],
   "injectors": {
     "defaultRequire": 1

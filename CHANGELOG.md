@@ -1,4 +1,15 @@
 # Changelog
+# 0t18
+
+### New Features
+- Blood-moon lightning ×5: on blood-moon days the thunderstorm lightning roll drops from 1/100000 to 1/20000 per tick (`ServerLevel.tickThunder` bound, matching MITE `WorldServer.java:1310`).
+- Blood-moon rain everywhere: `Level.precipitationAt` bypasses the hot-biome no-precipitation gate on blood-moon days, so deserts and other non-raining biomes see rain — undead stay unburned and crops stay watered world-wide (the client rain renderer reads the same method, so the visual follows automatically).
+- Blood-moon red glow: `EntityRenderer.extractRenderState` sets the MITE frenzy glow colour 8527390 on hostile mobs during blood-moon nights via the modern `outlineColor` (the 1.6.4 glow-colour field, `EntityLivingBase.java:729-733`).
+- Vanilla-crop blight: vanilla `CropBlock`s (wheat, beetroot, etc.) now take MITE blood-moon blight — a 25% chance per random tick on a blood-moon night registers the crop in a `BlightTracker` (SavedData); blighted crops stop growing, have a 1/64 chance to wither away (dropping their seed) each random tick, and spread to neighbouring vanilla crops; bonemeal cures blight instead of growing, and breaking a crop clears its tracking (InfX's own crops already had this).
+- Added the `infx_blood_moon_lightning`, `infx_blood_moon_rain` and `infx_blood_moon_crop_blight` GameTests.
+
+---
+
 # 0t17
 
 ### New Features
