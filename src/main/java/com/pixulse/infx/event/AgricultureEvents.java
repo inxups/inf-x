@@ -6,6 +6,7 @@ import com.pixulse.infx.block.InfxFertileFarmlandBlock;
 import com.pixulse.infx.data.agriculture.AgricultureData;
 import com.pixulse.infx.registry.InfXBlocks;
 import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.world.BlightTracker;
 import com.pixulse.infx.world.InfXMushroomGrowth;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -223,8 +224,14 @@ public final class AgricultureEvents {
 
     @SubscribeEvent
     public static void onBlockBroken(BreakBlockEvent event) {
-        if (event.getLevel() instanceof ServerLevel level && event.getState().is(BlockTags.LOGS)) {
+        if (!(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        if (event.getState().is(BlockTags.LOGS)) {
             AgricultureData.get(level).removeArtificialLog(event.getPos());
+        }
+        if (event.getState().getBlock() instanceof CropBlock) {
+            BlightTracker.get(level).cure(event.getPos());
         }
     }
 
