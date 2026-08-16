@@ -10,7 +10,7 @@ import com.pixulse.infx.entity.InfxSkeleton;
 import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.entity.InfxSpider;
 import com.pixulse.infx.entity.InfxWolf;
-import com.pixulse.infx.entity.InfxZombie;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.monster.slime.SlimeModel;
@@ -38,6 +38,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
 import net.minecraft.client.renderer.entity.state.ChickenRenderState;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.client.renderer.entity.state.CowRenderState;
 import net.minecraft.client.renderer.entity.state.CreeperRenderState;
 import net.minecraft.client.renderer.entity.state.GhastRenderState;
@@ -70,8 +71,6 @@ import org.jspecify.annotations.NonNull;
 public final class EntityRenderers {
     private static final ContextKey<Boolean> LIVESTOCK_WELL =
             new ContextKey<>(InfiniteX.id("livestock_well"));
-    private static final ContextKey<Boolean> VILLAGER_ZOMBIE =
-            new ContextKey<>(InfiniteX.id("villager_zombie"));
 
     private EntityRenderers() {
     }
@@ -95,12 +94,6 @@ public final class EntityRenderers {
                 PigTexture.class, EntityRenderers::extractWell);
         event.registerEntityModifier(
                 SheepTexture.class, EntityRenderers::extractWell);
-        event.registerEntityModifier(
-                ZombieTexture.class,
-                (net.minecraft.world.entity.monster.zombie.Zombie entity, ZombieRenderState state) ->
-                        state.setRenderData(
-                                VILLAGER_ZOMBIE,
-                                entity instanceof InfxZombie zombie && zombie.isVillagerZombie()));
     }
 
     private static void extractWell(Animal animal, LivingEntityRenderState state) {
@@ -217,51 +210,37 @@ public final class EntityRenderers {
     }
 
     public static final class ZombieTexture extends ZombieRenderer {
-        private final InfxZombie.Variant variant;
         private final Identifier texture;
         private final Identifier babyTexture;
 
-        public ZombieTexture(EntityRendererProvider.Context context, InfxZombie.Variant variant) {
+        public ZombieTexture(EntityRendererProvider.Context context, EntityType<?> type) {
             super(context);
-            this.variant = variant;
-            this.texture = textureFor(variant);
-            this.babyTexture = babyTextureFor(variant);
+            this.texture = textureFor(type);
+            this.babyTexture = babyTextureFor(type);
         }
 
         @Override
         public @NonNull Identifier getTextureLocation(ZombieRenderState state) {
-            if (variant == InfxZombie.Variant.ZOMBIE && Boolean.TRUE.equals(state.getRenderData(VILLAGER_ZOMBIE))) {
-                return villagerTexture();
-            }
             return state.isBaby ? babyTexture : texture;
         }
 
-        static Identifier textureFor(InfxZombie.Variant variant) {
-            return switch (variant) {
-                case GHOUL -> of("textures/entity/ghoul.png");
-                case SHADOW -> of("textures/entity/shadow.png");
-                case WIGHT -> of("textures/entity/wight.png");
-                case REVENANT -> of("textures/entity/zombie/revenant.png");
-                case INVISIBLE_STALKER, ZOMBIE -> Identifier.withDefaultNamespace("textures/entity/zombie/zombie.png");
-            };
+        static Identifier textureFor(EntityType<?> type) {
+            if (type == InfXEntityTypes.GHOUL.get()) return of("textures/entity/ghoul.png");
+            if (type == InfXEntityTypes.SHADOW.get()) return of("textures/entity/shadow.png");
+            if (type == InfXEntityTypes.WIGHT.get()) return of("textures/entity/wight.png");
+            if (type == InfXEntityTypes.REVENANT.get()) return of("textures/entity/zombie/revenant.png");
+            return Identifier.withDefaultNamespace("textures/entity/zombie/zombie.png");
         }
 
         /**
          * 26.2 babies render with BabyZombieModel's own UV sheet, so adult sheets cannot be reused.
          */
-        static Identifier babyTextureFor(InfxZombie.Variant variant) {
-            return switch (variant) {
-                case GHOUL -> of("textures/entity/ghoul_baby.png");
-                case SHADOW -> of("textures/entity/shadow_baby.png");
-                case WIGHT -> of("textures/entity/wight_baby.png");
-                case REVENANT -> of("textures/entity/zombie/revenant_baby.png");
-                case INVISIBLE_STALKER, ZOMBIE ->
-                        Identifier.withDefaultNamespace("textures/entity/zombie/zombie_baby.png");
-            };
-        }
-
-        static Identifier villagerTexture() {
-            return of("textures/entity/zombie/zombie_villager.png");
+        static Identifier babyTextureFor(EntityType<?> type) {
+            if (type == InfXEntityTypes.GHOUL.get()) return of("textures/entity/ghoul_baby.png");
+            if (type == InfXEntityTypes.SHADOW.get()) return of("textures/entity/shadow_baby.png");
+            if (type == InfXEntityTypes.WIGHT.get()) return of("textures/entity/wight_baby.png");
+            if (type == InfXEntityTypes.REVENANT.get()) return of("textures/entity/zombie/revenant_baby.png");
+            return Identifier.withDefaultNamespace("textures/entity/zombie/zombie_baby.png");
         }
     }
 

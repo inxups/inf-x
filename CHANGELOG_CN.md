@@ -1,4 +1,18 @@
 # Changelog
+## 0t12
+### 新功能
+- 重构僵尸系怪物体系：不再用"写新生物替换原版生成"的方式移植 MITE 僵尸机制。删除 `infx_zombie` 替换实体，改为直接用 NeoForge 事件驱动 vanilla 僵尸——`FinalizeSpawnEvent` 注入聪明（1/8 出生、被玩家打一次必变聪明，`infx.is_smart` 持久化）、首领（5%×张力、血 ×2~5、击退抗性 +0.5~0.75）与属性对齐（近战 5、护甲 0）；`EntityTickEvent.Post` 驱动 MITE 挖方块（300×硬度 tick/击 ×10 击，血月狂暴÷2、持工具按 `1+strVsBlock×0.5` 加速，聪明/狂暴可空手挖、软方块白名单、液体/仙人掌/脚下方块门）与烧树 AI（烧着时每 40 tick 走向 16 格内最近原木并在玩家于树冠附近时点燃）；`LivingDamageEvent` 触发被打变聪明。普通僵尸掉落恢复 vanilla 掉落表。
+- 新增 MITE 张力难度体系 `Tension`：直接读 vanilla `chunk.inhabitedTime` 与月相相位因子（`DimensionType.MOON_BRIGHTNESS_PER_PHASE`），公式对齐 MITE（`clamp(居住/3,600,000,0,1)×(困难?1:0.75)+月相×0.25`，困难封顶 1.5）；装备/附魔/首领概率全部改吃张力（装备 15%×张力、附魔 10%×张力 且等级 `5+张力×rand(18)`），新增配置 `mobs.tensionEnabled` 可关闭回退旧天数曲线。土元素挖矿冷却、蜘蛛药水概率同步接入张力。
+- 隐形潜伏者/食尸鬼/黑色食尸鬼/Wight/亡灵 由 InfxZombie 变体拆分为独立实体类（`InvisibleStalker`/`Ghoul`/`Shadow`/`Wight`/`Revenant`，均 extends Zombie），共享 `InfxZombieBase` 基建（无幼体、无水下转化、无增援），各自保留属性/音效/免疫门/行为；新怪仍作为独立实体类型注册，不替换任何原版生成。
+- 清理怪物系统 R196 前缀：实体 NBT 键改 `infx.` 命名空间（`infx.is_smart`/`infx.summoned_troops`/`infx.phase_evasions` 等），方法名去 R196（`checkR196MonsterSpawnRules`→`checkMonsterSpawnRules` 等）。
+- 新增怪物 GameTest：`infx_zombie_smart`、`infx_zombie_leader`、`infx_zombie_dig_rate`、`infx_zombie_burn_tree`、`infx_ghoul_heal`、`infx_tension_curve`。
+### 问题修复
+- 僵尸挖方块由玩家速率近似改为 MITE 精确公式，泥土约 75 秒/块、血月减半、持有效工具显著提速。
+### 平衡调整
+- 普通僵尸持械概率从天数曲线（最高 75%）改为张力曲线（15%×张力，封顶约 22.5%），更贴近 MITE；久居区块的怪仍随居住时长逐步加压。
+
+---
+
 ## 0t11
 ### 新功能
 - 新增客户端与服务端 dev 模式对称校验：登录配置阶段交换 `devMode` 开关，客户端与服务端不一致时（dev 客户端进普通服，或普通客户端进 dev 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。

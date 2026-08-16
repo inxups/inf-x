@@ -38,9 +38,11 @@ abstract class VanillaMobEquipmentMixin {
             RandomSource random, DifficultyInstance difficulty, CallbackInfo callback) {
         Mob self = (Mob) (Object) this;
         if (self instanceof Stray || self instanceof Bogged || self instanceof Parched) {
-            long day = self.level() instanceof ServerLevel level ? MonsterTactics.survivalDay(level) : 1L;
+            float tension = self.level() instanceof ServerLevel level
+                    ? MonsterTactics.difficultyTension(level, self.blockPosition())
+                    : 0.0F;
             InfxSkeleton.OrdinarySkeletonWeapon weapon =
-                    InfxSkeleton.ordinarySpawnWeapon(random.nextFloat(), day);
+                    InfxSkeleton.ordinarySpawnWeapon(random.nextFloat(), tension);
             self.setItemSlot(
                     EquipmentSlot.MAINHAND,
                     InfXItems.catalog()

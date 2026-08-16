@@ -131,7 +131,8 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         switch (variant()) {
             case SKELETON -> {
                 OrdinarySkeletonWeapon weapon =
-                        ordinarySpawnWeapon(random.nextFloat(), MonsterTactics.survivalDay(level.getLevel()));
+                        ordinarySpawnWeapon(
+                                random.nextFloat(), MonsterTactics.difficultyTension(level.getLevel(), blockPosition()));
                 setItemSlot(
                         EquipmentSlot.MAINHAND,
                         equipment(weapon.material(), weapon.type()));
@@ -156,15 +157,15 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         return result;
     }
 
-    /** InfX bone lords weight rusted swords 2, battle axes 1 from day 10, war hammers 1 from day 20. */
+    /** InfX bone lords weight rusted swords 2, battle axes 1 past low tension, war hammers 1 past medium tension. */
     private EquipmentType lordWeapon(ServerLevel level) {
-        long day = MonsterTactics.survivalDay(level);
-        int bound = 2 + (day >= 10L ? 1 : 0) + (day >= 20L ? 1 : 0);
+        float tension = MonsterTactics.difficultyTension(level, blockPosition());
+        int bound = 2 + (tension >= 0.15F ? 1 : 0) + (tension >= 0.35F ? 1 : 0);
         int roll = random.nextInt(bound);
         if (roll <= 1) {
             return EquipmentType.SWORD;
         }
-        return roll == 2 && day >= 10L ? EquipmentType.BATTLE_AXE : EquipmentType.WAR_HAMMER;
+        return roll == 2 && tension >= 0.15F ? EquipmentType.BATTLE_AXE : EquipmentType.WAR_HAMMER;
     }
 
     private void equip(InfxMaterial material, boolean plateArmor, EquipmentType weapon) {
@@ -188,17 +189,17 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     }
 
     /** Uses the shared 25% melee, 75% ranged spawn split for ordinary skeleton variants. */
-    public static OrdinarySkeletonWeapon ordinarySpawnWeapon(float roll, long day) {
+    public static OrdinarySkeletonWeapon ordinarySpawnWeapon(float roll, float tension) {
         if (roll >= 0.25F) {
             return new OrdinarySkeletonWeapon(InfxMaterial.WOOD, EquipmentType.BOW);
         }
-        if (day >= 32L) {
+        if (tension >= 0.3F) {
             return new OrdinarySkeletonWeapon(InfxMaterial.RUSTED_IRON, EquipmentType.SWORD);
         }
-        if (day >= 20L) {
+        if (tension >= 0.2F) {
             return new OrdinarySkeletonWeapon(InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
         }
-        if (day >= 10L) {
+        if (tension >= 0.1F) {
             return new OrdinarySkeletonWeapon(InfxMaterial.WOOD, EquipmentType.CLUB);
         }
         return new OrdinarySkeletonWeapon(InfxMaterial.WOOD, EquipmentType.CUDGEL);
@@ -557,12 +558,12 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     @Override
     protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
-        output.putInt("R196SummonedTroops", summonedTroops);
+        output.putInt("infx.summoned_troops", summonedTroops);
     }
 
     @Override
     protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
-        summonedTroops = input.getIntOr("R196SummonedTroops", 0);
+        summonedTroops = input.getIntOr("infx.summoned_troops", 0);
     }
 }

@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.entity.InfxZombie;
+import com.pixulse.infx.entity.InvisibleStalker;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.MobRenderer;
@@ -14,7 +14,7 @@ import org.jspecify.annotations.NonNull;
 
 /** Renders the InfX stalker as a faint wight-textured silhouette rather than a potion-invisible zombie. */
 public final class InvisibleStalkerRenderer
-        extends MobRenderer<InfxZombie, ZombieRenderState, InvisibleStalkerModel> {
+        extends MobRenderer<InvisibleStalker, ZombieRenderState, InvisibleStalkerModel> {
     static final float OPACITY = 0.05F;
     private static final Identifier TEXTURE = InfiniteX.id("textures/entity/wight.png");
 
@@ -28,7 +28,7 @@ public final class InvisibleStalkerRenderer
     }
 
     @Override
-    public void extractRenderState(InfxZombie entity, ZombieRenderState state, float partialTicks) {
+    public void extractRenderState(InvisibleStalker entity, ZombieRenderState state, float partialTicks) {
         super.extractRenderState(entity, state, partialTicks);
         HumanoidMobRenderer.extractHumanoidRenderState(entity, state, partialTicks, itemModelResolver);
         state.isAggressive = entity.isAggressive();

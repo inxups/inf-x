@@ -40,8 +40,8 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
     private static final int VALUABLE_PICKUP_COOLDOWN = 40;
     private static final int VALUABLE_TELEPORT_INTERVAL = 20;
     private static final int VALUABLE_TELEPORT_CHANCE = 10;
-    private static final String STORED_PEARLS_KEY = "R196StoredEnderPearls";
-    private static final String STORED_EYES_KEY = "R196StoredEnderEyes";
+    private static final String STORED_PEARLS_KEY = "infx.stored_ender_pearls";
+    private static final String STORED_EYES_KEY = "infx.stored_ender_eyes";
     private static final AttributeModifier INFX_CHASE_SPEED = new AttributeModifier(
             INFX_CHASE_SPEED_ID,
             MODERN_CHASE_SPEED_BONUS,

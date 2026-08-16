@@ -170,12 +170,11 @@ public final class MonsterEvents {
     }
 
     private static void createAttributes(EntityAttributeCreationEvent event) {
-        event.put(InfXEntityTypes.INFX_ZOMBIE.get(), InfxZombie.attributes(InfxZombie.Variant.ZOMBIE).build());
-        event.put(InfXEntityTypes.INVISIBLE_STALKER.get(), InfxZombie.attributes(InfxZombie.Variant.INVISIBLE_STALKER).build());
-        event.put(InfXEntityTypes.GHOUL.get(), InfxZombie.attributes(InfxZombie.Variant.GHOUL).build());
-        event.put(InfXEntityTypes.SHADOW.get(), InfxZombie.attributes(InfxZombie.Variant.SHADOW).build());
-        event.put(InfXEntityTypes.WIGHT.get(), InfxZombie.attributes(InfxZombie.Variant.WIGHT).build());
-        event.put(InfXEntityTypes.REVENANT.get(), InfxZombie.attributes(InfxZombie.Variant.REVENANT).build());
+        event.put(InfXEntityTypes.INVISIBLE_STALKER.get(), InvisibleStalker.attributes().build());
+        event.put(InfXEntityTypes.GHOUL.get(), Ghoul.attributes().build());
+        event.put(InfXEntityTypes.SHADOW.get(), Shadow.attributes().build());
+        event.put(InfXEntityTypes.WIGHT.get(), Wight.attributes().build());
+        event.put(InfXEntityTypes.REVENANT.get(), Revenant.attributes().build());
 
         event.put(InfXEntityTypes.INFX_SKELETON.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON).build());
         event.put(InfXEntityTypes.LONGDEAD.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD).build());
@@ -271,7 +270,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.WIGHT,
                 InfXEntityTypes.REVENANT)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
                 InfXEntityTypes.LONGDEAD,
@@ -279,7 +278,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.BONE_LORD,
                 InfXEntityTypes.ANCIENT_BONE_LORD)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
                 InfXEntityTypes.INFX_SPIDER,
@@ -288,7 +287,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.INFX_SLIME,
                 InfXEntityTypes.INFX_ENDERMAN)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
                 InfXEntityTypes.BLACK_WIDOW_SPIDER,
@@ -296,7 +295,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.WOOD_SPIDER,
                 InfXEntityTypes.PHASE_SPIDER)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.INFERNAL_CREEPER.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -305,7 +304,7 @@ public final class MonsterEvents {
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         for (var type : List.of(InfXEntityTypes.JELLY, InfXEntityTypes.BLOB, InfXEntityTypes.OOZE, InfXEntityTypes.PUDDING)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkR196MonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.MAGMA_CUBE.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -322,12 +321,12 @@ public final class MonsterEvents {
                 InfXEntityTypes.NIGHTWING,
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             event.register(type.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkR196BatSpawnRules,
+                    MonsterEvents::checkBatSpawnRules,
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.HELLHOUND.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MonsterEvents::checkR196MonsterSpawnRules,
+                MonsterEvents::checkMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.DIRE_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -340,11 +339,11 @@ public final class MonsterEvents {
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.EARTH_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MonsterEvents::checkR196MonsterSpawnRules,
+                MonsterEvents::checkMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.CLAY_GOLEM.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MonsterEvents::checkR196MonsterSpawnRules,
+                MonsterEvents::checkMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         registerAnimalSpawnPlacement(event, InfXEntityTypes.INFX_COW.get());
@@ -387,7 +386,7 @@ public final class MonsterEvents {
                 WaterAnimal::checkSurfaceWaterAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
-    static boolean checkR196MonsterSpawnRules(
+    static boolean checkMonsterSpawnRules(
             EntityType<? extends Mob> type,
             ServerLevelAccessor level,
             EntitySpawnReason reason,
@@ -413,7 +412,7 @@ public final class MonsterEvents {
      * InfX bats spawn in empty cave air, not on the modern {@code BATS_SPAWNABLE_ON} ground tag.
      * Their light check walks downward to the first opaque block, exactly as INFX did.
      */
-    static boolean checkR196BatSpawnRules(
+    static boolean checkBatSpawnRules(
             EntityType<? extends Mob> type,
             ServerLevelAccessor level,
             EntitySpawnReason reason,
@@ -422,7 +421,7 @@ public final class MonsterEvents {
         ServerLevel serverLevel = level.getLevel();
         if (!serverLevel.isEmptyBlock(pos)
                 || serverLevel.dimension() == Level.OVERWORLD && pos.getY() >= 63
-                || !checkR196BatDepth(type, level, pos)) {
+                || !checkBatDepth(type, level, pos)) {
             return false;
         }
         boolean halloween = isBatHalloweenWindow(LocalDate.now());
@@ -430,7 +429,7 @@ public final class MonsterEvents {
             return false;
         }
         int lightBound = halloween ? 7 : 4;
-        return maximumR196BatBlockLight(serverLevel, pos) <= random.nextInt(lightBound);
+        return maximumBatBlockLight(serverLevel, pos) <= random.nextInt(lightBound);
     }
 
     static boolean isBatHalloweenWindow(LocalDate date) {
@@ -438,7 +437,7 @@ public final class MonsterEvents {
                 || (date.getMonthValue() == 11 && date.getDayOfMonth() <= 3);
     }
 
-    private static int maximumR196BatBlockLight(ServerLevel level, BlockPos pos) {
+    private static int maximumBatBlockLight(ServerLevel level, BlockPos pos) {
         int maximum = level.getBrightness(LightLayer.BLOCK, pos);
         for (BlockPos sample = pos.below(); sample.getY() >= level.getMinY(); sample = sample.below()) {
             if (level.getBlockState(sample).isSolidRender()) {
@@ -449,7 +448,7 @@ public final class MonsterEvents {
         return maximum;
     }
 
-    private static boolean checkR196BatDepth(
+    private static boolean checkBatDepth(
             EntityType<? extends Mob> type, ServerLevelAccessor level, BlockPos pos) {
         ServerLevel serverLevel = level.getLevel();
         if (type == InfXEntityTypes.INFX_BAT.get()) {
@@ -548,7 +547,7 @@ public final class MonsterEvents {
             return;
         }
         if (target != null) {
-            if (mob.tickCount % 20 == 0) MonsterTactics.cooperate(level, mob);
+            MonsterTactics.cooperate(level, mob);
             return;
         }
         if (mob.tickCount % 20 == 0) {
@@ -875,7 +874,6 @@ public final class MonsterEvents {
 
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
         if (original == EntityType.BAT) return InfXEntityTypes.INFX_BAT.get();
-        if (original == EntityType.ZOMBIE) return InfXEntityTypes.INFX_ZOMBIE.get();
         if (original == EntityType.SKELETON) return InfXEntityTypes.INFX_SKELETON.get();
         if (original == EntityType.SPIDER) return InfXEntityTypes.INFX_SPIDER.get();
         if (original == EntityType.CAVE_SPIDER) return InfXEntityTypes.INFX_CAVE_SPIDER.get();
@@ -941,7 +939,9 @@ public final class MonsterEvents {
 
     @SubscribeEvent
     public static void shareTarget(LivingChangeTargetEvent event) {
-        if (sharingTarget || !(event.getEntity() instanceof InfxMob)
+        if (sharingTarget
+                || !(event.getEntity() instanceof Mob mob)
+                || !participatesInGenericTargeting(mob)
                 || !(event.getNewAboutToBeSetTarget() instanceof Player player)
                 || !(event.getEntity().level() instanceof ServerLevel level)) {
             return;

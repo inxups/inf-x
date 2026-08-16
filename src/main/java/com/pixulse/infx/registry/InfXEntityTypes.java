@@ -13,10 +13,12 @@ import com.pixulse.infx.entity.EarthElemental;
 import com.pixulse.infx.entity.InfxEnderman;
 import com.pixulse.infx.entity.FireElemental;
 import com.pixulse.infx.entity.GelatinousSphere;
+import com.pixulse.infx.entity.Ghoul;
 import com.pixulse.infx.entity.InfxGhast;
 import com.pixulse.infx.entity.InfxHorse;
 import com.pixulse.infx.entity.InfxMagmaCube;
 import com.pixulse.infx.entity.InfxOcelot;
+import com.pixulse.infx.entity.InvisibleStalker;
 import com.pixulse.infx.entity.InfxPufferfish;
 import com.pixulse.infx.entity.InfxPig;
 import com.pixulse.infx.entity.InfxSalmon;
@@ -27,10 +29,12 @@ import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.entity.InfxSpider;
 import com.pixulse.infx.entity.InfxSquid;
 import com.pixulse.infx.entity.InfxTropicalFish;
+import com.pixulse.infx.entity.Revenant;
+import com.pixulse.infx.entity.Shadow;
 import com.pixulse.infx.entity.VanillaWolf;
+import com.pixulse.infx.entity.Wight;
 import com.pixulse.infx.entity.InfxWitch;
 import com.pixulse.infx.entity.InfxWolf;
-import com.pixulse.infx.entity.InfxZombie;
 import com.pixulse.infx.entity.InfxZombifiedPiglin;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +51,6 @@ public final class InfXEntityTypes {
     public static final DeferredRegister.Entities ENTITIES = DeferredRegister.createEntities(InfiniteX.MOD_ID);
     private static final List<EntityName> NAMES = new ArrayList<>();
 
-    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> INFX_ZOMBIE = register(
-            "infx_zombie", "Zombie", "僵尸", InfxZombie::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> INFX_SKELETON = register(
             "infx_skeleton", "Skeleton", "骷髅", InfxSkeleton::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSpider>> INFX_SPIDER = register(
@@ -95,16 +97,16 @@ public final class InfXEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<VanillaWolf>> INFX_WOLF = register(
             "infx_wolf", "Wolf", "狼", VanillaWolf::new, MobCategory.CREATURE, 0.7F, 0.8F, false, true);
 
-    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> INVISIBLE_STALKER = register(
-            "invisible_stalker", "Invisible Stalker", "影子潜伏者", InfxZombie::new, 0.6F, 1.8F, false);
-    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> GHOUL = register(
-            "ghoul", "Ghoul", "食尸鬼", InfxZombie::new, 0.6F, 1.8F, false);
-    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> SHADOW = register(
-            "shadow", "Shadow", "暗影", InfxZombie::new, 0.6F, 1.8F, true);
-    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> WIGHT = register(
-            "wight", "Wight", "尸妖", InfxZombie::new, 0.6F, 1.8F, false);
-    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> REVENANT = register(
-            "revenant", "Revenant", "亡魂", InfxZombie::new, 0.6F, 1.8F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<InvisibleStalker>> INVISIBLE_STALKER = register(
+            "invisible_stalker", "Invisible Stalker", "影子潜伏者", InvisibleStalker::new, 0.6F, 1.8F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<Ghoul>> GHOUL = register(
+            "ghoul", "Ghoul", "食尸鬼", Ghoul::new, 0.6F, 1.8F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<Shadow>> SHADOW = register(
+            "shadow", "Shadow", "暗影", Shadow::new, 0.6F, 1.8F, true);
+    public static final DeferredHolder<EntityType<?>, EntityType<Wight>> WIGHT = register(
+            "wight", "Wight", "尸妖", Wight::new, 0.6F, 1.8F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<Revenant>> REVENANT = register(
+            "revenant", "Revenant", "亡魂", Revenant::new, 0.6F, 1.8F, false);
 
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> LONGDEAD = register(
             "longdead", "Longdead", "古尸", InfxSkeleton::new, 0.6F, 1.8F, false);
@@ -212,7 +214,6 @@ public final class InfXEntityTypes {
             DIRE_WOLF);
 
     public static final List<DeferredHolder<EntityType<?>, ? extends EntityType<?>>> REPLACEMENT_ENTITIES = List.of(
-            INFX_ZOMBIE,
             INFX_SKELETON,
             INFX_SPIDER,
             INFX_CAVE_SPIDER,

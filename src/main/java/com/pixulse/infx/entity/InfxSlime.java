@@ -170,7 +170,7 @@ public final class InfxSlime extends Slime implements InfxMob {
     protected void registerGoals() {
         if (!usesCrawlAi(variant())) {
             super.registerGoals();
-            addR196TargetingGoals();
+            addTargetingGoals();
             return;
         }
 
@@ -181,7 +181,7 @@ public final class InfxSlime extends Slime implements InfxMob {
         goalSelector.addGoal(5, new OozeRandomMovementGoal(this));
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
-        addR196TargetingGoals();
+        addTargetingGoals();
     }
 
     /** Suppress any fallback jump request from ground navigation while the ooze crawls. */
@@ -226,7 +226,7 @@ public final class InfxSlime extends Slime implements InfxMob {
         }
     }
 
-    private void addR196TargetingGoals() {
+    private void addTargetingGoals() {
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Animal.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Villager.class, true));
         if (usesCrawlAi(variant())) {

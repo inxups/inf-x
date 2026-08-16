@@ -15,6 +15,7 @@ import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.RiverBiomes;
+import com.pixulse.infx.world.Tension;
 import com.pixulse.infx.world.Underworld;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.equine.SkeletonHorse;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -92,6 +94,12 @@ public final class ModMonsterGameTests {
     private static final String SKELETON_DROPS = "infx_skeleton_drops";
     private static final String WEAPON_DROPS = "infx_weapon_drops";
     private static final String SKELETON_TRAP = "infx_skeleton_trap";
+    private static final String ZOMBIE_SMART = "infx_zombie_smart";
+    private static final String ZOMBIE_LEADER = "infx_zombie_leader";
+    private static final String ZOMBIE_DIG_RATE = "infx_zombie_dig_rate";
+    private static final String ZOMBIE_BURN_TREE = "infx_zombie_burn_tree";
+    private static final String GHOUL_HEAL = "infx_ghoul_heal";
+    private static final String TENSION_CURVE = "infx_tension_curve";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -114,6 +122,12 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(SKELETON_DROPS, () -> ModMonsterGameTests::skeletonDrops);
         FUNCTIONS.register(WEAPON_DROPS, () -> ModMonsterGameTests::weaponDrops);
         FUNCTIONS.register(SKELETON_TRAP, () -> ModMonsterGameTests::skeletonTrap);
+        FUNCTIONS.register(ZOMBIE_SMART, () -> ModMonsterGameTests::zombieSmart);
+        FUNCTIONS.register(ZOMBIE_LEADER, () -> ModMonsterGameTests::zombieLeader);
+        FUNCTIONS.register(ZOMBIE_DIG_RATE, () -> ModMonsterGameTests::zombieDigRate);
+        FUNCTIONS.register(ZOMBIE_BURN_TREE, () -> ModMonsterGameTests::zombieBurnTree);
+        FUNCTIONS.register(GHOUL_HEAL, () -> ModMonsterGameTests::ghoulHeal);
+        FUNCTIONS.register(TENSION_CURVE, () -> ModMonsterGameTests::tensionCurve);
     }
 
     private ModMonsterGameTests() {}
@@ -145,7 +159,13 @@ public final class ModMonsterGameTests {
                 SPAWN_EQUIPMENT,
                 SKELETON_DROPS,
                 WEAPON_DROPS,
-                SKELETON_TRAP)) {
+                SKELETON_TRAP,
+                ZOMBIE_SMART,
+                ZOMBIE_LEADER,
+                ZOMBIE_DIG_RATE,
+                ZOMBIE_BURN_TREE,
+                GHOUL_HEAL,
+                TENSION_CURVE)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -183,7 +203,7 @@ public final class ModMonsterGameTests {
         }
         helper.assertTrue(
                 BuiltInRegistries.ENTITY_TYPE
-                        .wrapAsHolder(InfXEntityTypes.INFX_ZOMBIE.get())
+                        .wrapAsHolder(EntityType.ZOMBIE)
                         .is(EntityTypeTags.UNDEAD),
                 "replacement zombies must retain vanilla undead semantics");
         helper.assertTrue(
@@ -263,8 +283,12 @@ public final class ModMonsterGameTests {
 
     private static void attributes(GameTestHelper helper) {
         int zombieX = 1;
+        // The vanilla zombie zeroes its modern armor through the FinalizeSpawnEvent profile.
+        Mob vanilla = spawnWithFinalize(helper, EntityType.ZOMBIE);
+        helper.assertTrue(
+                vanilla.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
+                "minecraft:zombie must not inherit modern zombie armor");
         for (var type : List.of(
-                InfXEntityTypes.INFX_ZOMBIE,
                 InfXEntityTypes.INVISIBLE_STALKER,
                 InfXEntityTypes.GHOUL,
                 InfXEntityTypes.SHADOW,
@@ -440,52 +464,33 @@ public final class ModMonsterGameTests {
         explicitWitch.snapTo(
                 explicitWitchLocation.x, explicitWitchLocation.y, explicitWitchLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicitWitch);
-        var converter = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), convertedVillagerPos.south());
+        var converter = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, convertedVillagerPos.south());
         converter.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         var villager = helper.spawn(EntityType.VILLAGER, convertedVillagerPos);
         helper.assertTrue(
                 converter.convertVillagerToZombieVillager(helper.getLevel(), villager),
-                "an unarmed INFX zombie must convert villagers into the INFX zombie type");
+                "an unarmed zombie must convert villagers into a zombie villager");
         helper.startSequence()
                 // Replacement insertion is deliberately scheduled after the
                 // vanilla join event, so the test must not inspect tick-zero's
                 // pre-transaction entity index.
                 .thenWaitUntil(() -> {
-                    helper.assertEntityPresent(InfXEntityTypes.INFX_ZOMBIE.get(), naturalPos, 2.0D);
+                    // The vanilla zombie is no longer spawn-replaced; only the silverfish and witch keep InfX replacements.
+                    helper.assertEntityPresent(EntityType.ZOMBIE, naturalPos, 2.0D);
                     helper.assertEntityPresent(EntityType.ZOMBIE, explicitPos);
                     helper.assertEntityPresent(InfXEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
                     helper.assertEntityPresent(InfXEntityTypes.INFX_WITCH.get(), explicitWitchPos, 2.0D);
-                    helper.assertEntityPresent(InfXEntityTypes.INFX_ZOMBIE.get(), convertedVillagerPos, 2.0D);
+                    helper.assertEntityPresent(EntityType.ZOMBIE_VILLAGER, convertedVillagerPos, 2.0D);
                 })
                 .thenExecute(() -> {
-                    helper.assertEntityNotPresent(EntityType.ZOMBIE, naturalPos);
                     helper.assertEntityNotPresent(EntityType.SILVERFISH, triggeredPos);
                     helper.assertEntityNotPresent(EntityType.WITCH, explicitWitchPos);
-                    helper.assertEntityNotPresent(EntityType.ZOMBIE_VILLAGER, convertedVillagerPos);
-                    Vec3 replacementPosition = helper.absoluteVec(Vec3.atBottomCenterOf(naturalPos));
-                    var replacement = helper.getLevel()
-                            .getEntitiesOfClass(
-                                    InfxZombie.class,
-                                    new AABB(replacementPosition, replacementPosition).inflate(2.0D),
-                                    entity -> entity.getType() == InfXEntityTypes.INFX_ZOMBIE.get())
-                            .getFirst();
+                    // The vanilla zombie keeps the InfX attack alignment through the spawn event.
+                    Mob profiled = spawnWithFinalize(helper, EntityType.ZOMBIE);
                     helper.assertTrue(
-                            replacement.getAttributeBaseValue(Attributes.FOLLOW_RANGE) == 35.0D,
-                            "replacement initialization must retain the 26.1 zombie follow range");
-                    helper.assertTrue(
-                            replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
-                            "replacement initialization must retain the INFX attack damage; actual="
-                                    + replacement.getAttributeBaseValue(Attributes.ATTACK_DAMAGE));
-                    Vec3 convertedVillagerPosition = helper.absoluteVec(Vec3.atBottomCenterOf(convertedVillagerPos));
-                    helper.assertTrue(
-                            helper.getLevel()
-                                    .getEntitiesOfClass(
-                                            InfxZombie.class,
-                                            new AABB(convertedVillagerPosition, convertedVillagerPosition).inflate(2.0D),
-                                            InfxZombie::isVillagerZombie)
-                                    .size()
-                                    == 1,
-                            "villager conversions must retain the INFX villager-zombie marker");
+                            profiled.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
+                            "the zombie spawn profile must apply the InfX attack alignment; actual="
+                                    + profiled.getAttributeBaseValue(Attributes.ATTACK_DAMAGE));
                 })
                 .thenSucceed();
     }
@@ -966,7 +971,7 @@ public final class ModMonsterGameTests {
                 enderman.getTarget() == null && enderman.getLastHurtByMob() == null,
                 "non-projectile indirect damage must make INFX endermen blink and drop aggression");
 
-        var sharingSource = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(14, 2, 12));
+        var sharingSource = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(14, 2, 12));
         var neutralEnderman = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ENDERMAN.get(), new BlockPos(12, 2, 12));
         MonsterEvents.propagateTarget(level, sharingSource, player);
         helper.assertTrue(
@@ -1472,7 +1477,7 @@ public final class ModMonsterGameTests {
         }
 
         helper.startSequence()
-                .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.INFX_ZOMBIE.get(), spawnerPos, 8.0D))
+                .thenWaitUntil(() -> helper.assertEntityPresent(EntityType.ZOMBIE, spawnerPos, 8.0D))
                 .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
                 .thenSucceed();
     }
@@ -1559,7 +1564,7 @@ public final class ModMonsterGameTests {
         player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
 
         var leader = helper.spawn(
-                InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
+                EntityType.ZOMBIE, new BlockPos(2, 2, 2));
         var ally = helper.spawn(
                 InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(3, 2, 2));
         var piglin = helper.spawnWithNoFreeWill(
@@ -1580,7 +1585,7 @@ public final class ModMonsterGameTests {
                 "player activity must not bypass INFX zombified-piglin awareness range");
 
         var digger = helper.spawnWithNoFreeWill(
-                InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 7));
+                EntityType.ZOMBIE, new BlockPos(2, 2, 7));
         digger.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
                 InfXItems.catalog()
@@ -1590,7 +1595,16 @@ public final class ModMonsterGameTests {
         digger.setTarget(player);
         BlockPos wall = new BlockPos(4, 3, 7);
         helper.setBlock(wall, Blocks.STONE);
-        for (int attempt = 0; attempt < 30 && !helper.getBlockState(wall).isAir(); attempt++) {
+        // MITE digging starts on a 1-in-20 roll; retry until the clip locks onto the wall.
+        for (int attempt = 0; attempt < 200 && !MonsterTactics.isDigging(digger); attempt++) {
+            MonsterTactics.tryDig(level, digger);
+        }
+        helper.assertTrue(
+                MonsterTactics.isDigging(digger),
+                "tool-equipped blocked monster must start mining through stone");
+        // Force the per-hit cooloff so the ten MITE hits land synchronously.
+        for (int hit = 0; hit < 10 && !helper.getBlockState(wall).isAir(); hit++) {
+            digger.getPersistentData().putInt(MonsterTactics.DIG_NEXT_HIT, digger.tickCount);
             MonsterTactics.tryDig(level, digger);
         }
         helper.assertTrue(helper.getBlockState(wall).isAir(), "tool-equipped blocked monster must mine through stone");
@@ -1621,16 +1635,16 @@ public final class ModMonsterGameTests {
      * wither skeletons retain their InfX iron sword.
      */
     private static void spawnEquipment(GameTestHelper helper) {
-        var zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
+        var zombie = spawnWithFinalize(helper, EntityType.ZOMBIE);
         assertNoVanillaEquipment(helper, zombie, "replacement zombie");
 
-        long day = MonsterTactics.survivalDay(helper.getLevel());
         var skeleton = spawnWithFinalize(helper, InfXEntityTypes.INFX_SKELETON.get());
+        float tension = MonsterTactics.difficultyTension(helper.getLevel(), skeleton.blockPosition());
         helper.assertTrue(
                 !isVanillaItem(skeleton.getMainHandItem()),
                 "replacement skeletons must spawn with only InfX weapons");
         helper.assertTrue(
-                isOrdinarySkeletonWeapon(skeleton.getMainHandItem(), day),
+                isOrdinarySkeletonWeapon(skeleton.getMainHandItem(), tension),
                 "replacement skeletons must spawn with an InfX current-day bow or melee weapon, got "
                         + skeleton.getMainHandItem());
         assertNoVanillaEquipment(helper, skeleton, "replacement skeleton");
@@ -1642,8 +1656,9 @@ public final class ModMonsterGameTests {
         assertVanillaVariantBare(helper, EntityType.WITHER_SKELETON);
         for (EntityType<?> type : List.of(EntityType.STRAY, EntityType.BOGGED, EntityType.PARCHED)) {
             Mob variant = spawnWithFinalize(helper, type);
+            float variantTension = MonsterTactics.difficultyTension(helper.getLevel(), variant.blockPosition());
             helper.assertTrue(
-                    isOrdinarySkeletonWeapon(variant.getMainHandItem(), day),
+                    isOrdinarySkeletonWeapon(variant.getMainHandItem(), variantTension),
                     type + " must spawn with an InfX current-day bow or melee weapon, got "
                             + variant.getMainHandItem());
             variant.discard();
@@ -1820,8 +1835,8 @@ public final class ModMonsterGameTests {
                 || stack.is(InfXItems.catalog().equipment(InfxMaterial.GOLD, EquipmentType.PICKAXE).holder());
     }
 
-    private static boolean isOrdinarySkeletonWeapon(ItemStack stack, long day) {
-        InfxSkeleton.OrdinarySkeletonWeapon melee = InfxSkeleton.ordinarySpawnWeapon(0.0F, day);
+    private static boolean isOrdinarySkeletonWeapon(ItemStack stack, float tension) {
+        InfxSkeleton.OrdinarySkeletonWeapon melee = InfxSkeleton.ordinarySpawnWeapon(0.0F, tension);
         return stack.is(InfXItems.catalog().equipment(InfxMaterial.WOOD, EquipmentType.BOW).holder())
                 || stack.is(InfXItems.catalog().equipment(melee.material(), melee.type()).holder());
     }
@@ -1849,7 +1864,10 @@ public final class ModMonsterGameTests {
     private static Mob spawnWithFinalize(GameTestHelper helper, EntityType<?> type) {
         @SuppressWarnings("unchecked")
         Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
-        mob.finalizeSpawn(
+        // Route through the event hook so InfX spawn-time behaviour (world-age gear, the zombie
+        // smart/leader roll and attribute alignment) runs, matching a real world spawn.
+        net.neoforged.neoforge.event.EventHooks.finalizeMobSpawn(
+                mob,
                 helper.getLevel(),
                 helper.getLevel().getCurrentDifficultyAt(mob.blockPosition()),
                 EntitySpawnReason.COMMAND,
@@ -1879,5 +1897,142 @@ public final class ModMonsterGameTests {
                         .getKey(stack.getItem())
                         .getNamespace()
                         .equals("minecraft");
+    }
+
+    /** MITE: a zombie hit once by a player becomes permanently smart and digs bare-handed. */
+    private static void zombieSmart(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var player = ModCompletionGameTests.createPlayer(helper);
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        zombie.getPersistentData().putBoolean(MonsterTactics.SMART_KEY, false);
+        helper.assertTrue(
+                !MonsterTactics.diggingEnabled(zombie, level),
+                "a bare-handed zombie that is not smart must not dig");
+        zombie.hurtServer(level, level.damageSources().playerAttack(player), 1.0F);
+        helper.assertTrue(
+                zombie.getPersistentData().getBooleanOr(MonsterTactics.SMART_KEY, false),
+                "a player hit must make the zombie permanently smart");
+        helper.assertTrue(
+                MonsterTactics.diggingEnabled(zombie, level),
+                "a smart zombie must dig bare-handed");
+        ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    /** MITE leader modifiers: 2-5× health and knockback resistance from the 5%-per-tension roll. */
+    private static void zombieLeader(GameTestHelper helper) {
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        float base = zombie.getMaxHealth();
+        zombie.getAttribute(Attributes.MAX_HEALTH)
+                .addPermanentModifier(new AttributeModifier(
+                        InfiniteX.id("zombie_leader_health"),
+                        zombie.getRandom().nextDouble() * 3.0 + 1.0,
+                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        double multiplier = zombie.getMaxHealth() / base;
+        helper.assertTrue(
+                multiplier >= 2.0 && multiplier <= 5.0,
+                "a leader zombie must have 2-5× the base health; got " + multiplier);
+        zombie.getAttribute(Attributes.KNOCKBACK_RESISTANCE)
+                .addPermanentModifier(new AttributeModifier(
+                        InfiniteX.id("zombie_leader_knockback"),
+                        zombie.getRandom().nextDouble() * 0.25 + 0.5,
+                        AttributeModifier.Operation.ADD_VALUE));
+        helper.assertTrue(
+                zombie.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) >= 0.5,
+                "a leader zombie must gain at least 50% knockback resistance; got "
+                        + zombie.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
+        helper.succeed();
+    }
+
+    /** MITE dig rates: dirt is 300×0.5 = 150 ticks per hit, a shovel speeds up, ten hits break it. */
+    private static void zombieDigRate(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        BlockPos dirtPos = new BlockPos(3, 3, 2);
+        helper.setBlock(dirtPos, Blocks.DIRT);
+        int bareDirt = MonsterTactics.cooloffForBlock(zombie, level, helper.getBlockState(dirtPos));
+        helper.assertTrue(
+                bareDirt == 150,
+                "a bare zombie digs dirt at 300×0.5 = 150 ticks per hit; got " + bareDirt);
+        zombie.setItemSlot(
+                EquipmentSlot.MAINHAND,
+                InfXItems.catalog()
+                        .equipment(InfxMaterial.IRON, EquipmentType.SHOVEL)
+                        .holder()
+                        .toStack());
+        int shovelDirt = MonsterTactics.cooloffForBlock(zombie, level, helper.getBlockState(dirtPos));
+        helper.assertTrue(shovelDirt < 150, "a shovel must speed up dirt digging; got " + shovelDirt);
+        helper.assertTrue(
+                MonsterTactics.diggingEnabled(zombie, level),
+                "a zombie holding a shovel must be able to dig");
+        // Ten forced hits break the dirt block through the same state machine the event uses.
+        var player = ModCompletionGameTests.createPlayer(helper);
+        Vec3 playerPos = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(10, 2, 2)));
+        player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
+        zombie.setTarget(player);
+        zombie.getPersistentData().putLong(MonsterTactics.DIG_POS, helper.absolutePos(dirtPos).asLong());
+        zombie.getPersistentData().putInt(MonsterTactics.DIG_PROGRESS, 0);
+        for (int hit = 0; hit < 10 && !helper.getBlockState(dirtPos).isAir(); hit++) {
+            zombie.getPersistentData().putInt(MonsterTactics.DIG_NEXT_HIT, zombie.tickCount);
+            MonsterTactics.tryDig(level, zombie);
+        }
+        helper.assertTrue(helper.getBlockState(dirtPos).isAir(), "ten hits must break the dirt block");
+        ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    /** MITE: a burning zombie whose tree has a player near its canopy sets the log on fire. */
+    private static void zombieBurnTree(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos logPos = new BlockPos(4, 3, 2);
+        helper.setBlock(logPos, Blocks.OAK_LOG);
+        Vec3 playerPos = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(4, 6, 2)));
+        player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
+        // Keep the player hovering at the canopy so the MITE y+2..y+9 tree check passes.
+        player.setNoGravity(true);
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        helper.assertTrue(
+                ZombieEvents.igniteNearestTree(level, zombie),
+                "a burning zombie near a player-lit tree must set fire to the log");
+        helper.assertTrue(
+                helper.getBlockState(logPos.above()).is(Blocks.FIRE),
+                "the tree log must be on fire after ignition");
+        helper.succeed();
+    }
+
+    /** MITE: a ghoul heals half its max health from slaying an animal. */
+    private static void ghoulHeal(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var ghoul = helper.spawnWithNoFreeWill(InfXEntityTypes.GHOUL.get(), new BlockPos(2, 2, 2));
+        ghoul.hurtServer(level, level.damageSources().generic(), 15.0F);
+        float before = ghoul.getHealth();
+        var cow = helper.spawn(EntityType.COW, new BlockPos(4, 2, 2));
+        cow.setHealth(1.0F);
+        ghoul.doHurtTarget(level, cow);
+        helper.assertTrue(
+                ghoul.getHealth() > before,
+                "a ghoul that slays an animal must heal half its max health");
+        helper.succeed();
+    }
+
+    /** MITE tension: chunk residency raises the point difficulty and it never exceeds the cap. */
+    private static void tensionCurve(GameTestHelper helper) {
+        if (!Tension.enabled()) {
+            helper.succeed();
+            return;
+        }
+        var level = helper.getLevel();
+        BlockPos pos = new BlockPos(0, 1, 0);
+        var chunk = level.getChunkAt(pos);
+        chunk.setInhabitedTime(0L);
+        float fresh = MonsterTactics.difficultyTension(level, pos);
+        chunk.setInhabitedTime(3_600_000L);
+        float full = MonsterTactics.difficultyTension(level, pos);
+        helper.assertTrue(
+                fresh < full,
+                "longer-inhabited chunks must have higher tension (fresh=" + fresh + ", full=" + full + ")");
+        helper.assertTrue(full <= 1.5F, "tension must never exceed its 1.5 cap; got " + full);
+        helper.succeed();
     }
 }

@@ -1,4 +1,19 @@
 # Changelog
+# 0t12
+
+### New Features
+- Reworked the zombie monster system away from "new mob that replaces the vanilla spawn": removed the `infx_zombie` replacement entity and applied MITE zombie behaviour directly to the vanilla Zombie through NeoForge events — `FinalizeSpawnEvent` (smart 1-in-8 spawn / always-smart after a player hit, leader 5%×tension with 2-5× health and knockback resistance, attack 5 / armor 0 alignment), `EntityTickEvent.Post` (MITE digging at 300×hardness ticks per hit × 10 hits, frenzy halves, tools speed up, soft-block whitelist and liquid/cactus/downward gates; burning-zombie tree ignition), and `LivingDamageEvent` (player hit makes a zombie permanently smart). Plain zombies now keep the vanilla loot table.
+- Added the MITE chunk-tension difficulty (`Tension`): reads vanilla `chunk.inhabitedTime` and the moon phase factor (`DimensionType.MOON_BRIGHTNESS_PER_PHASE`), formula aligned to MITE; equipment, enchanting and leader chances now scale with tension (15%×tension gear, 10%×tension enchant at `5+tension×rand(18)`); new `mobs.tensionEnabled` config falls back to the old day curve.
+- Split the invisible stalker / ghoul / shadow / wight / revenant out of the InfxZombie variant into independent entity classes extending Zombie, sharing `InfxZombieBase` infrastructure; they stay separate entity types and replace no vanilla spawn.
+- Cleaned the R196 prefixes in the monster system: entity NBT keys now use the `infx.` namespace and method names drop R196.
+- Added monster GameTests: `infx_zombie_smart`, `infx_zombie_leader`, `infx_zombie_dig_rate`, `infx_zombie_burn_tree`, `infx_ghoul_heal`, `infx_tension_curve`.
+
+### Balance
+- Zombie digging switched from a player-rate approximation to the exact MITE formula (dirt ~75 s/block, half on blood moon, faster with an effective tool).
+- Ordinary zombies wear gear at MITE's 15%×tension instead of the day curve's up-to-75% rate.
+
+---
+
 # 0v5
 
 ### New Features

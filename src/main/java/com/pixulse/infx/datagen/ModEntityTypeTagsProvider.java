@@ -19,7 +19,6 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
     @Override
     protected void addTags(HolderLookup.@NonNull Provider registries) {
         tag(EntityTypeTags.ZOMBIES).add(
-                InfXEntityTypes.INFX_ZOMBIE.getKey(),
                 InfXEntityTypes.SHADOW.getKey(),
                 InfXEntityTypes.WIGHT.getKey(),
                 InfXEntityTypes.REVENANT.getKey(),
@@ -33,7 +32,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
         // InfX nightwings are undead bats; the zombie/skeleton families join UNDEAD through their family tags.
         tag(EntityTypeTags.UNDEAD).add(InfXEntityTypes.NIGHTWING.getKey());
         tag(EntityTypeTags.BURN_IN_DAYLIGHT).add(
-                InfXEntityTypes.INFX_ZOMBIE.getKey(),
+                InfXEntityTypes.GHOUL.getKey(),
                 InfXEntityTypes.WIGHT.getKey(),
                 InfXEntityTypes.REVENANT.getKey(),
                 InfXEntityTypes.INFX_SKELETON.getKey(),
