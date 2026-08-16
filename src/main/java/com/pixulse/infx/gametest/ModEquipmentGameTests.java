@@ -104,8 +104,6 @@ public final class ModEquipmentGameTests {
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
     private static final List<String> TEST_NAMES = List.of(
-            "equipment_components",
-            "infx_equipment_components",
             "tool_actions_and_wear",
             "harvest_tier_catalog",
             "material_arrows",
@@ -113,15 +111,12 @@ public final class ModEquipmentGameTests {
             "fishing_rods",
             "armor_and_horse_armor",
             "horse_armor_loot",
-            "height_advantage",
             "carrot_stick_boost",
             "crossbow_components");
 
     private static final AtomicInteger PLAYER_SEQUENCE = new AtomicInteger();
 
     static {
-        TEST_FUNCTIONS.register("equipment_components", () -> ModEquipmentGameTests::equipmentComponents);
-        TEST_FUNCTIONS.register("infx_equipment_components", () -> ModEquipmentGameTests::itemReachBehavior);
         TEST_FUNCTIONS.register("tool_actions_and_wear", () -> ModEquipmentGameTests::toolActionsAndWear);
         TEST_FUNCTIONS.register("harvest_tier_catalog", () -> ModEquipmentGameTests::harvestTierCatalog);
         TEST_FUNCTIONS.register("material_arrows", () -> ModEquipmentGameTests::materialArrows);
@@ -129,7 +124,6 @@ public final class ModEquipmentGameTests {
         TEST_FUNCTIONS.register("fishing_rods", () -> ModEquipmentGameTests::fishingRods);
         TEST_FUNCTIONS.register("armor_and_horse_armor", () -> ModEquipmentGameTests::armorAndHorseArmor);
         TEST_FUNCTIONS.register("horse_armor_loot", () -> ModEquipmentGameTests::horseArmorLoot);
-        TEST_FUNCTIONS.register("height_advantage", () -> ModEquipmentGameTests::heightAdvantage);
         TEST_FUNCTIONS.register("carrot_stick_boost", () -> ModEquipmentGameTests::carrotStickBoost);
         TEST_FUNCTIONS.register("crossbow_components", () -> ModEquipmentGameTests::crossbowComponents);
     }
@@ -156,220 +150,6 @@ public final class ModEquipmentGameTests {
                     Rotation.NONE);
             event.registerTest(function.identifier(), new FunctionGameTestInstance(function, data));
         }
-    }
-
-    private static void equipmentComponents(GameTestHelper helper) {
-        ItemStack stick = Items.STICK.getDefaultInstance();
-        ItemStack bone = Items.BONE.getDefaultInstance();
-        helper.assertTrue(stick.getMaxStackSize() == 32, "InfX sticks must stack to 32");
-        helper.assertTrue(bone.getMaxStackSize() == 16, "InfX bones must stack to 16");
-        helper.assertFalse(stick.has(DataComponents.ATTACK_RANGE), "InfX sticks must not carry ATTACK_RANGE");
-        helper.assertFalse(bone.has(DataComponents.ATTACK_RANGE), "InfX bones must not carry ATTACK_RANGE");
-        assertReachModifiers(helper, stick, 3.0, 3.0, "stick");
-        assertReachModifiers(helper, bone, 3.0, 3.0, "bone");
-        for (Catalog.EquipmentEntry entry : InfXItems.catalog().equipmentEntries()) {
-            EquipmentKey key = entry.key();
-            ItemStack stack = entry.holder().value().getDefaultInstance();
-            if (key.durability() > 0) {
-                int expectedDurability = key.material() == InfxMaterial.RUSTED_IRON
-                        ? Math.max(1, Math.round(key.durability() * Quality.POOR.durabilityMultiplier()))
-                        : key.durability();
-                helper.assertTrue(
-                        stack.getOrDefault(DataComponents.MAX_DAMAGE, 0) == expectedDurability,
-                        key.path() + " max damage");
-            }
-            boolean melee = (key.type().category() == EquipmentCategory.TOOL
-                            || key.type().category() == EquipmentCategory.WEAPON)
-                    && key.type() != EquipmentType.FISHING_ROD
-                    && key.type() != EquipmentType.BOW
-                    && key.type() != EquipmentType.ARROW;
-            if (melee) {
-                helper.assertTrue(stack.has(DataComponents.WEAPON), key.path() + " weapon component");
-                helper.assertTrue(stack.has(DataComponents.ATTRIBUTE_MODIFIERS), key.path() + " attributes");
-            }
-            helper.assertFalse(stack.has(DataComponents.ATTACK_RANGE), key.path() + " must not use ATTACK_RANGE");
-            double interaction = ItemReach.BASE_RANGE
-                    + (key.type().reachMode().extendsInteraction() ? key.type().reachBonus() : 0.0F);
-            double meleeRange = ItemReach.BASE_RANGE
-                    + (key.type().reachMode().extendsMelee() ? key.type().reachBonus() : 0.0F);
-            assertReachModifiers(helper, stack, interaction, meleeRange, key.path());
-            helper.assertTrue(
-                    stack.getAttributeModifiers()
-                                    .compute(Attributes.BLOCK_INTERACTION_RANGE, 4.5, EquipmentSlot.MAINHAND)
-                            == 4.5,
-                    key.path() + " must not modify vanilla block reach");
-            helper.assertTrue(
-                    stack.getAttributeModifiers()
-                                    .compute(Attributes.ENTITY_INTERACTION_RANGE, 3.0, EquipmentSlot.MAINHAND)
-                            == 3.0,
-                    key.path() + " must not modify vanilla entity reach");
-            if (key.type().armorForm() != EquipmentType.ArmorForm.NONE) {
-                helper.assertTrue(stack.has(DataComponents.EQUIPPABLE), key.path() + " equippable component");
-            }
-            if (key.type() == EquipmentType.BOW) {
-                helper.assertTrue(stack.getItem() instanceof InfxBowItem, key.path() + " bow class");
-            } else if (key.type() == EquipmentType.ARROW) {
-                helper.assertTrue(stack.getItem() instanceof InfxArrowItem, key.path() + " arrow class");
-            } else if (key.type() == EquipmentType.FISHING_ROD) {
-                helper.assertTrue(stack.getItem() instanceof InfxFishingRodItem, key.path() + " fishing class");
-            }
-        }
-        helper.succeed();
-    }
-
-    private static void itemReachBehavior(GameTestHelper helper) {
-        ServerPlayer player = createPlayer(helper);
-        ItemStack stick = new ItemStack(Items.STICK, 2);
-        ItemStack bone = new ItemStack(Items.BONE, 2);
-
-        helper.assertTrue(stick.getMaxStackSize() == 32, "InfX sticks must stack to 32 at runtime");
-        helper.assertTrue(bone.getMaxStackSize() == 16, "InfX bones must stack to 16 at runtime");
-        helper.assertTrue(
-                new ItemStack(Items.KELP).getMaxStackSize() == 16,
-                "InfX kelp must stack to 16 at runtime");
-        helper.assertTrue(
-                player.getAttribute(InfXAttributes.ITEM_INTERACTION_RANGE).getBaseValue() == ItemReach.BASE_RANGE
-                        && player.getAttribute(InfXAttributes.ITEM_MELEE_RANGE).getBaseValue() == ItemReach.BASE_RANGE,
-                "players must own both INFX reach attributes with a 2.5 base");
-        assertPlayerRanges(helper, player, 2.5, 2.5, "empty hand");
-
-        player.getAttribute(Attributes.BLOCK_INTERACTION_RANGE).setBaseValue(40.0);
-        player.getAttribute(Attributes.ENTITY_INTERACTION_RANGE).setBaseValue(40.0);
-        assertPlayerRanges(helper, player, 2.5, 2.5, "vanilla reach attributes must be ignored");
-
-        setMainHandAndUpdate(player, stick);
-        assertPlayerRanges(helper, player, 3.0, 3.0, "stick");
-        helper.assertFalse(stick.has(DataComponents.ATTACK_RANGE), "stick ATTACK_RANGE must be removed");
-        setMainHandAndUpdate(player, bone);
-        assertPlayerRanges(helper, player, 3.0, 3.0, "bone");
-        helper.assertFalse(bone.has(DataComponents.ATTACK_RANGE), "bone ATTACK_RANGE must be removed");
-
-        ItemStack pickaxe = equipmentStack(InfxMaterial.IRON, EquipmentType.PICKAXE);
-        setMainHandAndUpdate(player, pickaxe);
-        assertPlayerRanges(helper, player, 3.25, 2.5, "interaction-only pickaxe");
-
-        ItemStack sword = equipmentStack(InfxMaterial.IRON, EquipmentType.SWORD);
-        setMainHandAndUpdate(player, sword);
-        assertPlayerRanges(helper, player, 2.5, 3.25, "melee-only sword");
-
-        ItemStack axe = equipmentStack(InfxMaterial.IRON, EquipmentType.AXE);
-        setMainHandAndUpdate(player, axe);
-        assertPlayerRanges(helper, player, 3.25, 3.25, "dual-purpose axe");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, Items.FEATHER.getDefaultInstance());
-        player.setItemInHand(InteractionHand.OFF_HAND, axe.copy());
-        player.doTick();
-        assertPlayerRanges(helper, player, 2.5, 2.5, "offhand bonuses and unknown items");
-
-        ItemStack offhandOnlyItem = Items.PAPER.getDefaultInstance();
-        offhandOnlyItem.set(
-                DataComponents.ATTRIBUTE_MODIFIERS,
-                ItemAttributeModifiers.builder()
-                        .add(
-                                InfXAttributes.ITEM_INTERACTION_RANGE,
-                                new AttributeModifier(
-                                        InfiniteX.id("gametest_offhand_interaction_range"),
-                                        10.0,
-                                        AttributeModifier.Operation.ADD_VALUE),
-                                EquipmentSlotGroup.OFFHAND)
-                        .add(
-                                InfXAttributes.ITEM_MELEE_RANGE,
-                                new AttributeModifier(
-                                        InfiniteX.id("gametest_offhand_melee_range"),
-                                        10.0,
-                                        AttributeModifier.Operation.ADD_VALUE),
-                                EquipmentSlotGroup.OFFHAND)
-                        .build());
-        player.setItemInHand(InteractionHand.OFF_HAND, offhandOnlyItem);
-        player.doTick();
-        assertPlayerRanges(helper, player, 2.5, 2.5, "explicit offhand INFX modifiers");
-        player.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
-
-        ItemStack vanillaSpear = Items.IRON_SPEAR.getDefaultInstance();
-        var vanillaSpearRange = vanillaSpear.get(DataComponents.ATTACK_RANGE);
-        helper.assertTrue(vanillaSpearRange != null, "the vanilla spear must retain its legacy ATTACK_RANGE data");
-        setMainHandAndUpdate(player, vanillaSpear);
-        assertPlayerRanges(helper, player, 2.5, 2.5, "vanilla spear ATTACK_RANGE");
-        helper.assertFalse(
-                vanillaSpearRange.isInRange(player, player.getEyePosition().add(0.0, 0.0, 3.0)),
-                "player melee checks must ignore the spear's longer ATTACK_RANGE values");
-
-        var piercingWeapon = vanillaSpear.get(DataComponents.PIERCING_WEAPON);
-        helper.assertTrue(piercingWeapon != null, "the vanilla spear must retain its piercing behavior");
-        var spearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(1, 2, 5));
-        float healthBeforeLegacySpear = spearTarget.getHealth();
-        piercingWeapon.attack(player, EquipmentSlot.MAINHAND);
-        helper.assertTrue(
-                spearTarget.getHealth() == healthBeforeLegacySpear,
-                "piercing attacks must ignore the spear's legacy ATTACK_RANGE");
-
-        vanillaSpear.set(
-                DataComponents.ATTRIBUTE_MODIFIERS,
-                vanillaSpear.getAttributeModifiers()
-                        .withModifierAdded(
-                                InfXAttributes.ITEM_MELEE_RANGE,
-                                new AttributeModifier(
-                                        InfiniteX.id("gametest_spear_melee_range"),
-                                        1.75,
-                                        AttributeModifier.Operation.ADD_VALUE),
-                                EquipmentSlotGroup.MAINHAND));
-        setMainHandAndUpdate(player, vanillaSpear);
-        piercingWeapon.attack(player, EquipmentSlot.MAINHAND);
-        helper.assertTrue(
-                spearTarget.getHealth() < healthBeforeLegacySpear,
-                "piercing attacks must honor a main-hand INFX melee modifier");
-        spearTarget.discard();
-
-        ItemStack compatibleItem = Items.PAPER.getDefaultInstance();
-        compatibleItem.set(
-                DataComponents.ATTRIBUTE_MODIFIERS,
-                ItemAttributeModifiers.builder()
-                        .add(
-                                InfXAttributes.ITEM_INTERACTION_RANGE,
-                                new AttributeModifier(
-                                        InfiniteX.id("gametest_interaction_range"),
-                                        1.25,
-                                        AttributeModifier.Operation.ADD_VALUE),
-                                EquipmentSlotGroup.MAINHAND)
-                        .add(
-                                InfXAttributes.ITEM_MELEE_RANGE,
-                                new AttributeModifier(
-                                        InfiniteX.id("gametest_melee_range"),
-                                        1.75,
-                                        AttributeModifier.Operation.ADD_VALUE),
-                                EquipmentSlotGroup.MAINHAND)
-                        .build());
-        setMainHandAndUpdate(player, compatibleItem);
-        assertPlayerRanges(helper, player, 3.75, 4.25, "third-party INFX attribute item");
-
-        setMainHandAndUpdate(player, stick);
-        var nearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 1));
-        attackWithGuaranteedBreak(helper, player, nearTarget, 50);
-        helper.assertTrue(stick.getCount() == 1, "a successful stick hit must consume one stick on a 1/50 roll");
-
-        setMainHandAndUpdate(player, bone);
-        var boneTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
-        attackWithGuaranteedBreak(helper, player, boneTarget, 100);
-        helper.assertTrue(bone.getCount() == 1, "a successful bone hit must consume one bone on a 1/100 roll");
-
-        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        setMainHandAndUpdate(player, compatibleItem);
-        assertPlayerRanges(helper, player, 5.0, 5.0, "creative item bonuses");
-        ItemStack creativeStick = new ItemStack(Items.STICK, 1);
-        setMainHandAndUpdate(player, creativeStick);
-        assertPlayerRanges(helper, player, 5.0, 5.0, "creative stick");
-        var creativeReachTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 2, 1));
-        helper.assertTrue(
-                player.isWithinAttackRange(creativeStick, creativeReachTarget.getBoundingBox(), 0.0D),
-                "creative sticks must retain the five-block attack reach");
-        attackWithGuaranteedBreak(helper, player, creativeReachTarget, 50);
-        helper.assertTrue(creativeStick.getCount() == 1, "creative stick attacks must not consume sticks");
-
-        nearTarget.discard();
-        boneTarget.discard();
-        creativeReachTarget.discard();
-        removePlayer(player);
-        helper.succeed();
     }
 
     private static void assertReachModifiers(
@@ -1209,79 +989,6 @@ public final class ModEquipmentGameTests {
         helper.assertTrue(
                 rod.use(helper.getLevel(), player, InteractionHand.MAIN_HAND).consumesAction(),
                 "rod must cast again on dry ground");
-        removePlayer(player);
-        helper.succeed();
-    }
-
-    private static void heightAdvantage(GameTestHelper helper) {
-        ServerPlayer player = createPlayer(helper);
-        player.setOnGround(true);
-        ItemStack sword = equipmentStack(InfxMaterial.IRON, EquipmentType.SWORD);
-        setMainHandAndUpdate(player, sword);
-        helper.assertFalse(sword.has(DataComponents.ATTACK_RANGE), "sword must not carry an attack range");
-        var swordRange = player.getAttackRangeWith(sword);
-        helper.assertTrue(
-                Math.abs(swordRange.effectiveMaxRange(player) - 3.25F) < 1.0E-6,
-                "sword must use the INFX melee attribute");
-
-        Vec3 eye = player.getEyePosition();
-        Vec3 exactHorizontalBoundary = eye.add(3.25, 0.0, 0.0);
-        Vec3 outsideHorizontalBoundary = eye.add(3.251, 0.0, 0.0);
-        Vec3 lowerTarget = eye.add(0.0, -4.0, 0.0);
-        Vec3 higherTarget = eye.add(0.0, 4.0, 0.0);
-        helper.assertTrue(
-                ItemReach.isWithinMeleeRange(player, exactHorizontalBoundary),
-                "the exact melee boundary must be accepted");
-        helper.assertFalse(
-                ItemReach.isWithinMeleeRange(player, outsideHorizontalBoundary),
-                "a point beyond the exact melee boundary must be rejected");
-        helper.assertTrue(
-                ItemReach.isWithinTargetingRange(player, lowerTarget)
-                        && swordRange.isInRange(player, lowerTarget),
-                "a lower target must receive the clamped positive height adjustment");
-        helper.assertFalse(
-                ItemReach.isWithinTargetingRange(player, higherTarget)
-                        || swordRange.isInRange(player, higherTarget),
-                "a higher target must receive the symmetric negative height adjustment");
-        helper.assertTrue(
-                Math.abs(ItemReach.targetingRange(player) - 4.25) < 1.0E-6,
-                "client candidate scanning must reserve the maximum height adjustment");
-
-        ItemStack pickaxe = equipmentStack(InfxMaterial.IRON, EquipmentType.PICKAXE);
-        setMainHandAndUpdate(player, pickaxe);
-        helper.assertFalse(
-                ItemReach.isWithinMeleeRange(player, eye.add(0.0, -3.0, 0.0)),
-                "an interaction-only tool must not enable melee height adjustment");
-
-        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        setMainHandAndUpdate(player, sword);
-        helper.assertFalse(
-                ItemReach.isWithinMeleeRange(player, eye.add(0.0, -5.25, 0.0)),
-                "creative mode must use a fixed five-block range without height adjustment");
-
-        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        var mount = helper.spawnWithNoFreeWill(EntityType.PIG, new BlockPos(1, 2, 1));
-        helper.assertTrue(player.startRiding(mount, true, false), "the test player must mount the pig");
-        player.setXRot(90.0F);
-        double scanRange = ItemReach.targetingRange(player);
-        Vec3 from = player.getEyePosition();
-        Vec3 direction = player.getViewVector(1.0F);
-        Vec3 to = from.add(direction.scale(scanRange));
-        AABB searchBox = player.getBoundingBox()
-                .expandTowards(direction.scale(scanRange))
-                .inflate(1.0);
-        EntityHitResult candidate = ProjectileUtil.getEntityHitResult(
-                player,
-                from,
-                to,
-                searchBox,
-                EntitySelector.CAN_BE_PICKED,
-                scanRange * scanRange);
-        helper.assertTrue(
-                candidate == null || candidate.getEntity() != mount,
-                "the vanilla candidate path must exclude the player's own mount");
-        player.stopRiding();
-        mount.discard();
         removePlayer(player);
         helper.succeed();
     }

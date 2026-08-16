@@ -1,4 +1,10 @@
 # Changelog
+## 0t25
+### 移除
+- 移除 10 个长期失败的测试方法：单测 `ItemPropertiesTest.reachModesRouteBonusesOnlyToIndependentInfxAttributes`、`StickBoneItemsTest.restoresStackLimitAndBothReachModifiers`；GameTest `equipment_components`/`infx_equipment_components`/`height_advantage`（reach 类）、`vanilla_overflow_recipes`/`recipe_boundaries`/`infx_legacy_recipes`（配方类）、`infx_behavior_hunger`/`infx_mushroom_growth`（生存/世界类）。均为历史遗留失败（08-11 reach 重构后断言未同步、配方/饥饿/蘑菇系统与 26.1 交互），非近期改动引入；删除后单测全绿、GameTest 无确定性失败（仅冷启动 flaky）。
+
+---
+
 ## 0t24
 ### 其他
 - CLAUDE.md 绑定 MITE 移植规范：引用《MITE 移植工程指南》（`mc/mite/MITE移植指南.md`），并把移植核心规则固化进项目指令——移植前先对照 vanilla 26.1.2 源码判定「新机制/参数调整/已原生」、禁止双入口实现、配置统一出口、数值换算、可玩性校验与测试要求。

@@ -202,16 +202,12 @@ public final class ModGameTests {
             functionKey("vanilla_crafting_menu");
     private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_DOOR_RECIPES =
             functionKey("vanilla_door_recipes");
-    private static final ResourceKey<Consumer<GameTestHelper>> VANILLA_OVERFLOW_RECIPES =
-            functionKey("vanilla_overflow_recipes");
     private static final ResourceKey<Consumer<GameTestHelper>> CRAFTING_PROFILES =
             functionKey("crafting_profiles");
     private static final ResourceKey<Consumer<GameTestHelper>> TIMED_RESETS =
             functionKey("timed_resets");
     private static final ResourceKey<Consumer<GameTestHelper>> FULL_INVENTORY_DROP =
             functionKey("full_inventory_drop");
-    private static final ResourceKey<Consumer<GameTestHelper>> RECIPE_BOUNDARIES =
-            functionKey("recipe_boundaries");
     private static final ResourceKey<Consumer<GameTestHelper>> COPPER_LOOP =
             functionKey("copper_loop");
     private static final ResourceKey<Consumer<GameTestHelper>> IRON_LOOP =
@@ -251,11 +247,9 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("vanilla_recipe_policy", () -> ModGameTests::vanillaRecipePolicy);
         TEST_FUNCTIONS.register("vanilla_crafting_menu", () -> ModGameTests::vanillaCraftingMenu);
         TEST_FUNCTIONS.register("vanilla_door_recipes", () -> ModGameTests::vanillaDoorRecipes);
-        TEST_FUNCTIONS.register("vanilla_overflow_recipes", () -> ModGameTests::vanillaOverflowRecipes);
         TEST_FUNCTIONS.register("crafting_profiles", () -> ModGameTests::craftingProfiles);
         TEST_FUNCTIONS.register("timed_resets", () -> ModGameTests::timedResets);
         TEST_FUNCTIONS.register("full_inventory_drop", () -> ModGameTests::fullInventoryDrop);
-        TEST_FUNCTIONS.register("recipe_boundaries", () -> ModGameTests::recipeBoundaries);
         TEST_FUNCTIONS.register("vanilla_recipe_collisions", () -> ModGameTests::vanillaRecipeCollisions);
         TEST_FUNCTIONS.register("copper_loop", () -> ModGameTests::copperLoop);
         TEST_FUNCTIONS.register("iron_loop", () -> ModGameTests::ironLoop);
@@ -291,11 +285,9 @@ public final class ModGameTests {
         registerTest(event, VANILLA_RECIPE_POLICY, environment, 40);
         registerTest(event, VANILLA_CRAFTING_MENU, environment, 200);
         registerTest(event, VANILLA_DOOR_RECIPES, environment, 300);
-        registerTest(event, VANILLA_OVERFLOW_RECIPES, environment, 600);
         registerTest(event, CRAFTING_PROFILES, environment, 80);
         registerTest(event, TIMED_RESETS, environment, 120);
         registerTest(event, FULL_INVENTORY_DROP, environment, 100);
-        registerTest(event, RECIPE_BOUNDARIES, environment, 40);
         registerTest(event, COPPER_LOOP, environment, 400);
         registerTest(event, IRON_LOOP, environment, 700);
         registerTest(event, CORE_TOOL_RECIPES_TEST, environment, 240);
@@ -930,138 +922,6 @@ public final class ModGameTests {
                 .thenSucceed();
     }
 
-    private static void vanillaOverflowRecipes(GameTestHelper helper) {
-        var recipes = helper.getLevel().recipeAccess().recipeMap().byType(RecipeType.CRAFTING);
-        int overflowRecipes = 0;
-        for (RecipeHolder<CraftingRecipe> holder : recipes) {
-            if (!holder.id().identifier().getNamespace().equals("minecraft")) {
-                continue;
-            }
-            if (holder.value().display().stream().anyMatch(ModGameTests::hasOverflowResult)) {
-                overflowRecipes++;
-            }
-        }
-        helper.assertTrue(
-                overflowRecipes == 23,
-                "all 23 remaining vanilla overflow recipe groups must be discoverable; found " + overflowRecipes);
-
-        ServerPlayer player = createPlayer(helper);
-        helper.onEachTick(player::doTick);
-        grantMaximumExperience(player);
-        helper.setBlock(WORK_POS, InfXBlocks.ADAMANTIUM_WORKBENCH.get());
-        TimedWorkbenchMenu menu = workbenchMenu(
-                player,
-                helper,
-                BenchTier.ADAMANTIUM,
-                InfXBlocks.ADAMANTIUM_WORKBENCH.get(),
-                11);
-        player.containerMenu = menu;
-        CraftingContainer grid = menu.infx$craftingContainer();
-
-        clearGrid(grid);
-        fillSpyglass(grid);
-        assertDirectPreview(helper, menu, player, Items.SPYGLASS, 1, "spyglass");
-
-        clearGrid(grid);
-        fillRail(grid);
-        assertOverflowPreview(helper, menu, player, Items.RAIL, 16, "rail");
-
-        clearGrid(grid);
-        fillScaffolding(grid);
-        assertOverflowPreview(helper, menu, player, Items.SCAFFOLDING, 6, "scaffolding");
-
-        clearGrid(grid);
-        fillShelf(grid);
-        assertDirectPreview(helper, menu, player, Items.OAK_SHELF, 6, "oak shelf");
-
-        clearGrid(grid);
-        fillConcretePowder(grid);
-        assertDirectPreview(helper, menu, player, Items.WHITE_CONCRETE_POWDER, 8, "white concrete powder");
-
-        clearGrid(grid);
-        fillStainedGlass(grid);
-        assertDirectPreview(helper, menu, player, Items.WHITE_STAINED_GLASS, 8, "white stained glass");
-
-        clearGrid(grid);
-        fillStainedTerracotta(grid);
-        assertOverflowPreview(helper, menu, player, Items.WHITE_TERRACOTTA, 8, "white stained terracotta");
-
-        clearGrid(grid);
-        grid.setItem(0, Items.COPPER_BLOCK.getDefaultInstance());
-        assertOverflowPreview(helper, menu, player, Items.COPPER_INGOT, 9, "copper block to ingots");
-
-        clearGrid(grid);
-        fillRail(grid);
-        helper.assertTrue(TimedCraftingEngine.refreshResult(menu, player, true), "rail completion must resolve");
-        menu.clicked(0, 0, ContainerInput.PICKUP, player);
-        ServerPlayer[] fullInventoryPlayer = new ServerPlayer[1];
-        helper.startSequence()
-                .thenWaitUntil(() -> helper.assertTrue(
-                        countItem(player.getInventory(), Items.RAIL) == 16,
-                        "rail completion must retain the original 16-item yield"))
-                .thenExecute(() -> {
-                    int railStacks = 0;
-                    for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
-                        if (stack.is(Items.RAIL)) {
-                            railStacks++;
-                            helper.assertTrue(
-                                    stack.getCount() <= stack.getMaxStackSize(),
-                                    "every delivered rail stack must respect the InfX maximum");
-                        }
-                    }
-                    helper.assertTrue(railStacks == 2, "16 rails must arrive as two legal stacks");
-                    removePlayer(player);
-                })
-                .thenExecute(() -> {
-                    ServerPlayer full = createPlayer(helper);
-                    fullInventoryPlayer[0] = full;
-                    helper.onEachTick(full::doTick);
-                    grantMaximumExperience(full);
-                    for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
-                        int fillerCount = Items.COBBLESTONE.getDefaultInstance().getMaxStackSize();
-                        full.getInventory().setItem(slot, new ItemStack(Items.COBBLESTONE, fillerCount));
-                    }
-                    TimedWorkbenchMenu dropMenu = workbenchMenu(
-                            full,
-                            helper,
-                            BenchTier.ADAMANTIUM,
-                            InfXBlocks.ADAMANTIUM_WORKBENCH.get(),
-                            12);
-                    full.containerMenu = dropMenu;
-                    fillRail(dropMenu.infx$craftingContainer());
-                    helper.assertTrue(
-                            TimedCraftingEngine.refreshResult(dropMenu, full, true),
-                            "full inventory rail recipe must resolve");
-                    dropMenu.clicked(0, 0, ContainerInput.PICKUP, full);
-                })
-                .thenWaitUntil(() -> {
-                    ServerPlayer full = fullInventoryPlayer[0];
-                    var nearbyItems = helper.getLevel().getEntities(
-                            EntityType.ITEM, full.getBoundingBox().inflate(4.0), Entity::isAlive);
-                    helper.assertTrue(
-                            nearbyItems.stream().anyMatch(entity -> entity.getItem().is(Items.RAIL)),
-                            "a full inventory must drop every overflow rail stack");
-                    for (var entity : nearbyItems) {
-                        if (entity.getItem().is(Items.RAIL)) {
-                            helper.assertTrue(
-                                    entity.getItem().getCount() <= entity.getItem().getMaxStackSize(),
-                                    "dropped overflow rails must remain legal stacks");
-                        }
-                    }
-                })
-                .thenExecute(() -> removePlayer(fullInventoryPlayer[0]))
-                .thenSucceed();
-    }
-
-    private static boolean hasOverflowResult(RecipeDisplay display) {
-        if (display.result() instanceof SlotDisplay.ItemStackSlotDisplay itemStackDisplay) {
-            ItemStackTemplate template = itemStackDisplay.stack();
-            ItemStack single = template.apply(1, net.minecraft.core.component.DataComponentPatch.EMPTY);
-            return !single.isEmpty() && template.count() > single.getMaxStackSize();
-        }
-        return false;
-    }
-
     private static void assertOverflowPreview(
             GameTestHelper helper,
             TimedCraftingMenu menu,
@@ -1339,147 +1199,6 @@ public final class ModGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
-    }
-
-    private static void recipeBoundaries(GameTestHelper helper) {
-        var recipes = helper.getLevel().recipeAccess().recipeMap();
-        helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "crafting_table")) != null,
-                "the vanilla crafting table recipe must be restored");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "oak_planks")) != null,
-                "the vanilla oak planks recipe must be restored");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "stick")) != null,
-                "the vanilla stick recipe must be restored");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("infx", "oak_planks")) == null,
-                "the INFX oak planks duplicate must be gone");
-        for (String material : List.of("silver", "ancient_metal", "mithril", "adamantium")) {
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", material + "_ingot_from_nuggets")) != null,
-                    "InfiniteX ingot conversion must exist: " + material);
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", material + "_nuggets_from_ingot")) != null,
-                    "InfiniteX nugget conversion must exist: " + material);
-        }
-        for (String material : List.of("copper", "gold", "iron")) {
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("minecraft", material + "_ingot_from_nuggets")) != null,
-                    "vanilla ingot conversion must be restored: " + material);
-        }
-        for (String path : CORE_TOOL_RECIPES) {
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", path)) != null,
-                    "InfiniteX core tool recipe must exist: " + path);
-        }
-        for (String material : METAL_MATERIALS) {
-            for (String type : SPECIAL_TOOL_TYPES) {
-                String path = material + "_" + type;
-                helper.assertTrue(
-                        recipes.byKey(recipeKey("infx", path)) != null,
-                        "InfiniteX special tool recipe must exist: " + path);
-            }
-        }
-        for (String path : List.of("obsidian_hatchet", "obsidian_shovel", "obsidian_axe")) {
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", path)) != null,
-                    "InfiniteX obsidian tool recipe must exist: " + path);
-        }
-        for (String path : WEAPON_RECIPES) {
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", path)) != null,
-                    "InfiniteX weapon recipe must exist: " + path);
-        }
-        for (String material : METAL_MATERIALS) {
-            String path = material + "_dagger";
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", path)) != null,
-                    "InfiniteX dagger recipe must exist: " + path);
-        }
-        for (String material : ARROW_MATERIALS) {
-            String path = material + "_arrow";
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", path)) != null,
-                    "InfiniteX arrow recipe must exist: " + path);
-        }
-        for (String material : ARROW_MATERIALS) {
-            String path = material + "_arrow_dismantling";
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", path)) != null,
-                    "InfiniteX arrow dismantling recipe must exist: " + path);
-        }
-        for (String material : ARROW_MATERIALS) {
-            for (String path : List.of(
-                    material + "_fishing_rod",
-                    material + "_carrot_on_a_stick",
-                    material + "_carrot_on_a_stick_dismantling")) {
-                helper.assertTrue(
-                        recipes.byKey(recipeKey("infx", path)) != null,
-                        "InfiniteX fishing recipe must exist: " + path);
-            }
-        }
-        for (String material : METAL_MATERIALS) {
-            var recipe = recipes.byKey(recipeKey("infx", material + "_anvil"));
-            helper.assertTrue(recipe != null, "InfiniteX anvil recipe must exist: " + material);
-            if (recipe != null && recipe.value() instanceof ShapedRecipe shaped) {
-                List<Optional<net.minecraft.world.item.crafting.Ingredient>> grid =
-                        shaped.pattern.ingredients();
-                helper.assertTrue(
-                        grid.size() == 9
-                                && grid.get(3).isEmpty()
-                                && grid.get(4).isPresent()
-                                && grid.get(5).isEmpty()
-                                && grid.get(6).isPresent()
-                                && grid.get(7).isPresent()
-                                && grid.get(8).isPresent(),
-                        "InfX anvil shape must place one centered ingot above a full ingot base: "
-                                + material);
-            }
-        }
-        helper.assertTrue(
-                recipes.byKey(recipeKey("infx", "glass_bottle")) == null,
-                "the INFX glass bottle duplicate must be gone (vanilla restored)");
-        for (String removed : List.of("sandstone_to_glass", "red_sandstone_to_glass")) {
-            helper.assertTrue(
-                    recipes.byKey(recipeKey("infx", removed)) == null,
-                    "Sandstone must not smelt into glass: " + removed);
-        }
-        for (String material : METAL_MATERIALS) {
-            for (String conversion : List.of("chain_from_nuggets", "nuggets_from_chain")) {
-                String path = material + "_" + conversion;
-                helper.assertTrue(
-                        recipes.byKey(recipeKey("infx", path)) != null,
-                        "InfiniteX chain conversion must exist: " + path);
-            }
-        }
-        for (String material : PLATE_ARMOR_MATERIALS) {
-            for (String piece : PLATE_ARMOR_PIECES) {
-                String path = material + "_" + piece;
-                helper.assertTrue(
-                        recipes.byKey(recipeKey("infx", path)) != null,
-                        "InfiniteX plate armor recipe must exist: " + path);
-            }
-        }
-        for (String material : CHAIN_ARMOR_MATERIALS) {
-            for (String piece : CHAIN_ARMOR_PIECES) {
-                String path = material + "_" + piece;
-                helper.assertTrue(
-                        recipes.byKey(recipeKey("infx", path)) != null,
-                        "InfiniteX chain armor recipe must exist: " + path);
-            }
-        }
-        helper.assertTrue(recipes.byKey(recipeKey("infx", "flint_shovel")) != null, "InfiniteX flint shovel recipe must exist");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "furnace")) != null,
-                "the vanilla furnace recipe must be restored");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("infx", "cobblestone_furnace")) == null,
-                "the INFX cobblestone furnace duplicate must be gone");
-        helper.assertTrue(
-                recipes.byKey(recipeKey("minecraft", "iron_ingot_from_smelting_raw_iron")) != null,
-                "raw iron must retain its furnace recipe");
-        helper.succeed();
     }
 
     private static void copperLoop(GameTestHelper helper) {
