@@ -96,7 +96,6 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry depthSpawn = flag("depthSpawn", "Enable blood-moon/depth spawn density", true);
         public final BooleanEntry spawnCadence = flag("spawnCadence", "Enable per-night hostile spawn cadence", true);
         public final BooleanEntry strongholdProximity = flag("strongholdProximity", "Boost spawn density near strongholds", true);
-        public final BooleanEntry halloweenPumpkin = flag("halloweenPumpkin", "Zombies wear pumpkins on Halloween", true);
         public final BooleanEntry ghastSpacing = flag("ghastSpacing", "Ghasts never spawn within 48 blocks of a player", true);
         public final BooleanEntry miteDayNight = flag("miteDayNight", "MITE 14h/10h day window for sunlight burning", true);
 
