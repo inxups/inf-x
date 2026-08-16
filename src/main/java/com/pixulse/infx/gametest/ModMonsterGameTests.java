@@ -100,6 +100,9 @@ public final class ModMonsterGameTests {
     private static final String ZOMBIE_BURN_TREE = "infx_zombie_burn_tree";
     private static final String GHOUL_HEAL = "infx_ghoul_heal";
     private static final String TENSION_CURVE = "infx_tension_curve";
+    private static final String SKELETON_BONE_REPAIR = "infx_skeleton_bone_repair";
+    private static final String SKELETON_CACTUS_IMMUNE = "infx_skeleton_cactus_immune";
+    private static final String SKELETON_GUARDIAN_SWITCH = "infx_skeleton_guardian_switch";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -128,6 +131,9 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ZOMBIE_BURN_TREE, () -> ModMonsterGameTests::zombieBurnTree);
         FUNCTIONS.register(GHOUL_HEAL, () -> ModMonsterGameTests::ghoulHeal);
         FUNCTIONS.register(TENSION_CURVE, () -> ModMonsterGameTests::tensionCurve);
+        FUNCTIONS.register(SKELETON_BONE_REPAIR, () -> ModMonsterGameTests::skeletonBoneRepair);
+        FUNCTIONS.register(SKELETON_CACTUS_IMMUNE, () -> ModMonsterGameTests::skeletonCactusImmune);
+        FUNCTIONS.register(SKELETON_GUARDIAN_SWITCH, () -> ModMonsterGameTests::skeletonGuardianSwitch);
     }
 
     private ModMonsterGameTests() {}
@@ -165,7 +171,10 @@ public final class ModMonsterGameTests {
                 ZOMBIE_DIG_RATE,
                 ZOMBIE_BURN_TREE,
                 GHOUL_HEAL,
-                TENSION_CURVE)) {
+                TENSION_CURVE,
+                SKELETON_BONE_REPAIR,
+                SKELETON_CACTUS_IMMUNE,
+                SKELETON_GUARDIAN_SWITCH)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2033,6 +2042,70 @@ public final class ModMonsterGameTests {
                 fresh < full,
                 "longer-inhabited chunks must have higher tension (fresh=" + fresh + ", full=" + full + ")");
         helper.assertTrue(full <= 1.5F, "tension must never exceed its 1.5 cap; got " + full);
+        helper.succeed();
+    }
+
+    /** MITE: a hurt skeleton consumes a bone to heal half of its maximum health, on a 400-tick cooldown. */
+    private static void skeletonBoneRepair(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var skeleton = helper.spawn(InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(2, 2, 2));
+        skeleton.hurtServer(level, level.damageSources().generic(), 4.0F);
+        float before = skeleton.getHealth();
+        ItemStack bone = new ItemStack(Items.BONE, 3);
+        helper.assertTrue(
+                skeleton.tryRepairFromBone(bone),
+                "a hurt skeleton must repair from a bone");
+        helper.assertTrue(
+                Math.abs((skeleton.getHealth() - before) - skeleton.getMaxHealth() * 0.5F) < 0.01F,
+                "one bone must heal 50% of maximum health");
+        helper.assertTrue(bone.getCount() == 2, "one bone must be consumed");
+        helper.assertTrue(
+                !skeleton.tryRepairFromBone(bone),
+                "the 400-tick repair cooldown must block a second heal");
+        helper.assertTrue(
+                !skeleton.tryRepairFromBone(new ItemStack(Items.ROTTEN_FLESH, 1)),
+                "only bones may repair a skeleton");
+        helper.succeed();
+    }
+
+    /** MITE: skeletons are never harmed by cactus. */
+    private static void skeletonCactusImmune(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(2, 2, 2));
+        float before = skeleton.getHealth();
+        skeleton.hurtServer(level, level.damageSources().cactus(), 5.0F);
+        helper.assertTrue(skeleton.getHealth() == before, "cactus must never hurt a skeleton");
+        skeleton.hurtServer(level, level.damageSources().generic(), 5.0F);
+        helper.assertTrue(skeleton.getHealth() < before, "other damage must still hurt a skeleton");
+        helper.succeed();
+    }
+
+    /** MITE: a longdead guardian swaps to a dagger inside 5 blocks and back to a bow beyond 6. */
+    private static void skeletonGuardianSwitch(GameTestHelper helper) {
+        var player = ModCompletionGameTests.createPlayer(helper);
+        var guardian = helper.spawnWithNoFreeWill(InfXEntityTypes.LONGDEAD_GUARDIAN.get(), new BlockPos(2, 2, 2));
+        guardian.setItemSlot(
+                EquipmentSlot.MAINHAND,
+                InfXItems.catalog()
+                        .equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.BOW)
+                        .holder()
+                        .toStack());
+        var dagger = InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.DAGGER).holder().get();
+        var bow = InfXItems.catalog().equipment(InfxMaterial.ANCIENT_METAL, EquipmentType.BOW).holder().get();
+        guardian.setTarget(player);
+        Vec3 near = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(5, 2, 2)));
+        player.snapTo(near.x, near.y, near.z, 0.0F, 0.0F);
+        guardian.swapGuardianWeaponForRange();
+        helper.assertTrue(
+                guardian.getMainHandItem().is(dagger),
+                "a guardian within 5 blocks must swap to a dagger; held=" + guardian.getMainHandItem());
+        Vec3 far = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(10, 2, 2)));
+        player.snapTo(far.x, far.y, far.z, 0.0F, 0.0F);
+        guardian.swapGuardianWeaponForRange();
+        helper.assertTrue(
+                guardian.getMainHandItem().is(bow),
+                "a guardian beyond 6 blocks must swap back to its bow; held=" + guardian.getMainHandItem());
+        ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 }

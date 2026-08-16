@@ -4,11 +4,13 @@ import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -17,6 +19,7 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -24,6 +27,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -58,6 +62,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
 
     private int summonedTroops;
     private int inspiredUntil;
+    private int boneRepairCooldownUntil;
     private @Nullable InfxHardCappedBowAttackGoal<InfxSkeleton> bowGoal;
 
     public InfxSkeleton(EntityType<? extends Skeleton> type, Level level) {
@@ -137,11 +142,13 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
                         EquipmentSlot.MAINHAND,
                         equipment(weapon.material(), weapon.type()));
             }
-            // InfX longdead carry an ancient-metal bow or sword at even odds.
-            case LONGDEAD, LONGDEAD_GUARDIAN -> equip(
+            // InfX longdead carry an ancient-metal bow or sword at even odds; guardians spawn
+            // with a bow and swap to a dagger in melee (see swapGuardianWeaponForRange).
+            case LONGDEAD -> equip(
                     InfxMaterial.ANCIENT_METAL,
                     false,
                     random.nextBoolean() ? EquipmentType.BOW : EquipmentType.SWORD);
+            case LONGDEAD_GUARDIAN -> equip(InfxMaterial.ANCIENT_METAL, false, EquipmentType.BOW);
             case BONE_LORD -> equip(InfxMaterial.RUSTED_IRON, true, lordWeapon(level.getLevel()));
             case ANCIENT_BONE_LORD -> equip(InfxMaterial.ANCIENT_METAL, true, lordWeapon(level.getLevel()));
         }
@@ -212,6 +219,13 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         if (variant() == Variant.SKELETON) {
             setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.WOOD, EquipmentType.BOW));
         }
+    }
+
+    /** InfX skeletons walk to dropped bones to heal while hurt; combat goals keep their priority. */
+    @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        goalSelector.addGoal(4, new MoveToBoneRepairGoal(this));
     }
 
     @Override
@@ -455,6 +469,10 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
 
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, DamageSource source, float damage) {
+        if (source.is(DamageTypes.CACTUS)) {
+            // MITE skeletons are never harmed by cactus.
+            return false;
+        }
         if (source.getDirectEntity() instanceof AbstractArrow) {
             if (source.getEntity() instanceof AbstractSkeleton) {
                 return false;
@@ -488,10 +506,45 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         inspiredUntil = tickCount + 60;
     }
 
+    /** MITE repair gating: hurt and past the 400-tick pickup cooldown. */
+    boolean canRepairFromBone() {
+        return getHealth() < getMaxHealth() && tickCount >= boneRepairCooldownUntil;
+    }
+
+    /** MITE {@code onRepairItemPickup}: consumes one bone to heal 50% of maximum health. */
+    public boolean tryRepairFromBone(ItemStack stack) {
+        if (!stack.is(Items.BONE) || !canRepairFromBone()) {
+            return false;
+        }
+        stack.shrink(1);
+        heal(getMaxHealth() * 0.5F);
+        boneRepairCooldownUntil = tickCount + 400;
+        playSound(SoundEvents.ITEM_PICKUP, 0.2F, (random.nextFloat() - random.nextFloat()) * 0.7F + 1.0F);
+        if (level() instanceof ServerLevel server) {
+            server.sendParticles(
+                    ParticleTypes.HAPPY_VILLAGER,
+                    getX(),
+                    getY() + getBbHeight() * 0.5,
+                    getZ(),
+                    6,
+                    0.4,
+                    0.2,
+                    0.4,
+                    0.0);
+        }
+        return true;
+    }
+
     @Override
     public void aiStep() {
         super.aiStep();
-        if (!(level() instanceof ServerLevel level) || tickCount % 20 != 0) {
+        if (!(level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (tickCount % 10 == 0) {
+            swapGuardianWeaponForRange();
+        }
+        if (tickCount % 20 != 0) {
             return;
         }
         if (bowGoal != null) {
@@ -526,6 +579,26 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         if (target != null && summonedTroops < 6 && MonsterEvents.withinFollowRange(this, target)
                 && random.nextInt(8) < 7 - summonedTroops) {
             summonTroop(level);
+        }
+    }
+
+    /** MITE longdead guardian: melee dagger inside 5 blocks, bow beyond 6, rechecked every 10 ticks. */
+    public void swapGuardianWeaponForRange() {
+        if (variant() != Variant.LONGDEAD_GUARDIAN) {
+            return;
+        }
+        LivingEntity target = getTarget();
+        if (target == null || !hasLineOfSight(target)) {
+            return;
+        }
+        boolean holdingBow = isHolding(stack -> stack.getItem() instanceof BowItem);
+        double distance = distanceTo(target);
+        EquipmentType desired = holdingBow && distance < 5.0
+                ? EquipmentType.DAGGER
+                : !holdingBow && distance > 6.0 ? EquipmentType.BOW : null;
+        if (desired != null) {
+            setItemSlot(EquipmentSlot.MAINHAND, equipment(InfxMaterial.ANCIENT_METAL, desired));
+            reassessWeaponGoal();
         }
     }
 

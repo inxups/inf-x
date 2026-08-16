@@ -1,4 +1,12 @@
 # Changelog
+# 0t13
+
+### New Features
+- Completed the MITE skeleton-family mechanics: a hurt skeleton now walks to a dropped bone within 16 blocks and consumes it to heal 50% of its maximum health on a 400-tick cooldown (port of MITE `EntityAIMoveToRepairItem`); skeletons are immune to cactus; wither skeletons swap the vanilla stone sword for an InfX iron sword at poor quality (still dropped by the vanilla 8.5% equipment rule); longdead guardians swap to an ancient-metal dagger inside 5 blocks and back to their bow beyond 6, rechecked every 10 ticks.
+- Added skeleton GameTests: `infx_skeleton_bone_repair`, `infx_skeleton_cactus_immune`, `infx_skeleton_guardian_switch`.
+
+---
+
 # 0t12
 
 ### New Features
