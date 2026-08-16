@@ -1,4 +1,11 @@
 # Changelog
+## 0t13
+### 新功能
+- 骷髅系补全 MITE 机制：骷髅受伤时会走向附近 16 格内掉落的骨头并吃掉，回复最大生命 50%，拾取冷却 400 tick（移植 MITE `EntityAIMoveToRepairItem`）；骷髅免疫仙人掌伤害；凋灵骷髅由原版石剑改为 InfX 铁剑（poor 品质，掉落仍走 vanilla 8.5% 装备规则）；古尸守卫近远程动态切换——持弓且目标 <5 格换远古金属匕首、持近战且 >6 格换回弓（每 10 tick 判定）。
+- 新增骷髅 GameTest：`infx_skeleton_bone_repair`、`infx_skeleton_cactus_immune`、`infx_skeleton_guardian_switch`。
+
+---
+
 ## 0t12
 ### 新功能
 - 重构僵尸系怪物体系：不再用"写新生物替换原版生成"的方式移植 MITE 僵尸机制。删除 `infx_zombie` 替换实体，改为直接用 NeoForge 事件驱动 vanilla 僵尸——`FinalizeSpawnEvent` 注入聪明（1/8 出生、被玩家打一次必变聪明，`infx.is_smart` 持久化）、首领（5%×张力、血 ×2~5、击退抗性 +0.5~0.75）与属性对齐（近战 5、护甲 0）；`EntityTickEvent.Post` 驱动 MITE 挖方块（300×硬度 tick/击 ×10 击，血月狂暴÷2、持工具按 `1+strVsBlock×0.5` 加速，聪明/狂暴可空手挖、软方块白名单、液体/仙人掌/脚下方块门）与烧树 AI（烧着时每 40 tick 走向 16 格内最近原木并在玩家于树冠附近时点燃）；`LivingDamageEvent` 触发被打变聪明。普通僵尸掉落恢复 vanilla 掉落表。
