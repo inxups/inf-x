@@ -780,6 +780,7 @@
   "message.infx.safe_owned": "该保险箱属于 %s",
   "message.infx.safe_tool": "需要对应金属等级的工具",
   "message.infx.server_management_disabled": "该服务端命令在非 InfiniteX 测试模式下被禁用",
+  "message.infx.testmode_mismatch": "InfiniteX 测试模式必须在客户端与服务端一致:请同时开启或同时关闭",
   "message.infx.underworld_bed_unsafe": "地下世界不适合睡眠",
   "message.infx.workbench_obstructed": "工具台上方需要留出空间",
   "quality.infx.excellent": "优秀品质",

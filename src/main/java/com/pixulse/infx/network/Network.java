@@ -1,6 +1,7 @@
 package com.pixulse.infx.network;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.recipe.RecipeRule;
 import com.pixulse.infx.recipe.RecipeRules;
@@ -9,6 +10,7 @@ import com.pixulse.infx.world.RunegateTeleportation;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
@@ -73,6 +75,14 @@ public final class Network {
                         RecipeRulesAckPayload.TYPE,
                         RecipeRulesAckPayload.STREAM_CODEC,
                         Network::handleServerRecipeRulesAck)
+                .configurationToClient(
+                        TestModeStatusPayload.TYPE,
+                        TestModeStatusPayload.STREAM_CODEC,
+                        Network::handleClientTestModeStatus)
+                .configurationToServer(
+                        TestModeStatusAckPayload.TYPE,
+                        TestModeStatusAckPayload.STREAM_CODEC,
+                        Network::handleServerTestModeAck)
                 .playToClient(
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
@@ -91,6 +101,7 @@ public final class Network {
     @SubscribeEvent
     public static void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
         event.register(new RecipeRulesConfigurationTask());
+        event.register(new TestModeConfigurationTask());
     }
 
     /** Sends the server-authoritative crafting rules during a datapack reload. */
@@ -108,6 +119,28 @@ public final class Network {
 
     static void handleServerRecipeRulesAck(RecipeRulesAckPayload payload, IPayloadContext context) {
         context.finishCurrentTask(RecipeRulesConfigurationTask.TYPE);
+    }
+
+    /**
+     * Client-side gate: refuse the connection unless the client's own test mode
+     * switch matches the server's. The disconnect happens during the login
+     * configuration phase, before the world is entered.
+     */
+    static void handleClientTestModeStatus(TestModeStatusPayload payload, IPayloadContext context) {
+        if (InfiniteXTestMode.isClientEnabled() != payload.serverTestMode()) {
+            context.disconnect(Component.translatable("message.infx.testmode_mismatch"));
+            return;
+        }
+        context.reply(new TestModeStatusAckPayload(InfiniteXTestMode.isClientEnabled()));
+    }
+
+    /** Server-side authoritative gate: same symmetric check on the client's ack. */
+    static void handleServerTestModeAck(TestModeStatusAckPayload payload, IPayloadContext context) {
+        if (payload.clientTestMode() != InfiniteXTestMode.isServerEnabled()) {
+            context.disconnect(Component.translatable("message.infx.testmode_mismatch"));
+        } else {
+            context.finishCurrentTask(TestModeConfigurationTask.TYPE);
+        }
     }
 
     /** Play-phase variant (datapack reload): no configuration task is running. */
@@ -208,6 +241,30 @@ public final class Network {
         public static final Type<MetalAnvilRenamePayload> TYPE = new Type<>(InfiniteX.id("metal_anvil_rename"));
         public static final StreamCodec<RegistryFriendlyByteBuf, MetalAnvilRenamePayload> STREAM_CODEC =
                 StreamCodec.composite(ByteBufCodecs.STRING_UTF8, MetalAnvilRenamePayload::name, MetalAnvilRenamePayload::new);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /** The server's test mode switch, sent during the login configuration phase. */
+    public record TestModeStatusPayload(boolean serverTestMode) implements CustomPacketPayload {
+        public static final Type<TestModeStatusPayload> TYPE = new Type<>(InfiniteX.id("test_mode_status"));
+        public static final StreamCodec<ByteBuf, TestModeStatusPayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.BOOL, TestModeStatusPayload::serverTestMode, TestModeStatusPayload::new);
+
+        @Override
+        public @NonNull Type<? extends CustomPacketPayload> type() {
+            return TYPE;
+        }
+    }
+
+    /** Client acknowledgment carrying the client's own test mode switch. */
+    public record TestModeStatusAckPayload(boolean clientTestMode) implements CustomPacketPayload {
+        public static final Type<TestModeStatusAckPayload> TYPE = new Type<>(InfiniteX.id("test_mode_status_ack"));
+        public static final StreamCodec<ByteBuf, TestModeStatusAckPayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.BOOL, TestModeStatusAckPayload::clientTestMode, TestModeStatusAckPayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {
