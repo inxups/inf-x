@@ -1,17 +1,16 @@
 package com.pixulse.infx;
 
-import com.pixulse.infx.config.InfXClientConfig;
-import com.pixulse.infx.config.InfXConfig;
+import com.pixulse.infx.config.InfXTestModeConfig;
 
 /** Accessors for the server and client development configuration switches. */
 public final class InfiniteXTestMode {
     private InfiniteXTestMode() {}
 
     public static boolean isServerEnabled() {
-        return InfXConfig.INSTANCE.development.testMode.getValue();
+        return InfXTestModeConfig.INSTANCE.server.testMode.getValue();
     }
 
     public static boolean isClientEnabled() {
-        return InfXClientConfig.INSTANCE.development.testMode.getValue();
+        return InfXTestModeConfig.INSTANCE.client.testMode.getValue();
     }
 }
