@@ -1,4 +1,14 @@
 # Changelog
+# 0t14
+
+### New Features
+- Customised the moon-brightness table per MITE: overworld regional-difficulty brightness is now blood moon 0.6, harvest moon 1.0, blue/phantom moon 1.1, otherwise `phase factor × 0.5 + 0.75` (full 1.25 / new 0.75), replacing the vanilla phase table in `ServerLevel.getMoonBrightness`.
+- Fixed the blood-moon thunderstorm: on blood-moon days a thunderstorm is forced from noon (tick 6000) for 13,000 ticks (MITE `World.java:8675`), replacing the old 6,000-tick daytime trigger; undead no longer burn through the blood-moon afternoon.
+- Capped hostile mobs at MITE's 50 per player (vanilla 70): `MobCategory.MONSTER.getMaxInstancesPerChunk` 70→50.
+- Added GameTests `infx_moon_brightness` and `infx_monster_cap`, and the `miteMoonBrightnessAndStormWindowMatchMite` unit test.
+
+---
+
 # 0t13
 
 ### New Features

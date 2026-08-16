@@ -2,6 +2,7 @@ package com.pixulse.infx.world;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
 
 /** The INFX lunar calendar shared by livestock and hostile-mob rules. */
 public enum MoonPhase {
@@ -36,6 +37,27 @@ public enum MoonPhase {
         int phase = (int) Math.floorMod(
                 Math.floorDiv(overworldClockTime, DAY_TICKS) + 1L, BASE_CYCLE_DAYS);
         return net.minecraft.world.level.MoonPhase.values()[phase];
+    }
+
+    /**
+     * MITE {@code getMoonBrightness}: blood moon 0.6, harvest moon 1.0, blue moon 1.1,
+     * otherwise phase factor × 0.5 + 0.75. Feeds the regional difficulty.
+     */
+    public static float miteMoonBrightness(long overworldClockTime) {
+        return switch (atTime(overworldClockTime)) {
+            case BLOOD -> 0.6F;
+            case YELLOW -> 1.0F;
+            case BLUE, PHANTOM -> 1.1F;
+            default -> DimensionType.MOON_BRIGHTNESS_PER_PHASE[
+                            visualPhaseAtTime(overworldClockTime).index()]
+                    * 0.5F + 0.75F;
+        };
+    }
+
+    /** MITE blood-moon storm window: the whole day from noon (World.java:8675-8680). */
+    public static boolean isBloodMoonThunderWindow(long overworldClockTime) {
+        return atTime(overworldClockTime) == BLOOD
+                && Math.floorMod(overworldClockTime, DAY_TICKS) >= 6_000;
     }
 
     public static long dayAt(long overworldClockTime) {
