@@ -4,6 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
+import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.entity.*;
@@ -105,6 +106,10 @@ public final class ModMonsterGameTests {
     private static final String SKELETON_CACTUS_IMMUNE = "infx_skeleton_cactus_immune";
     private static final String SKELETON_GUARDIAN_SWITCH = "infx_skeleton_guardian_switch";
     private static final String FRENZY_SPEED = "infx_frenzy_speed";
+    private static final String ZOMBIE_NO_BABY = "infx_zombie_no_baby";
+    private static final String ZOMBIE_FOOD = "infx_zombie_food";
+    private static final String ZOMBIE_CONVERSION_SKIP = "infx_zombie_conversion_skip";
+    private static final String ZOMBIE_DIG_FEET_FIRST = "infx_zombie_dig_feet_first";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -137,6 +142,10 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(SKELETON_CACTUS_IMMUNE, () -> ModMonsterGameTests::skeletonCactusImmune);
         FUNCTIONS.register(SKELETON_GUARDIAN_SWITCH, () -> ModMonsterGameTests::skeletonGuardianSwitch);
         FUNCTIONS.register(FRENZY_SPEED, () -> ModMonsterGameTests::frenzySpeed);
+        FUNCTIONS.register(ZOMBIE_NO_BABY, () -> ModMonsterGameTests::zombieNoBaby);
+        FUNCTIONS.register(ZOMBIE_FOOD, () -> ModMonsterGameTests::zombieFood);
+        FUNCTIONS.register(ZOMBIE_CONVERSION_SKIP, () -> ModMonsterGameTests::zombieConversionSkip);
+        FUNCTIONS.register(ZOMBIE_DIG_FEET_FIRST, () -> ModMonsterGameTests::zombieDigFeetFirst);
     }
 
     private ModMonsterGameTests() {}
@@ -178,7 +187,11 @@ public final class ModMonsterGameTests {
                 SKELETON_BONE_REPAIR,
                 SKELETON_CACTUS_IMMUNE,
                 SKELETON_GUARDIAN_SWITCH,
-                FRENZY_SPEED)) {
+                FRENZY_SPEED,
+                ZOMBIE_NO_BABY,
+                ZOMBIE_FOOD,
+                ZOMBIE_CONVERSION_SKIP,
+                ZOMBIE_DIG_FEET_FIRST)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2128,6 +2141,65 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(zombie.getSpeed() - 1.0F) < 1.0E-5F,
                 "a hostile mob must move at base speed on an ordinary night; got " + zombie.getSpeed());
+        helper.succeed();
+    }
+
+    /** MITE has no baby zombies: vanilla's 5% spawn-baby roll is reversed by the spawn event. */
+    private static void zombieNoBaby(GameTestHelper helper) {
+        Mob zombie = spawnWithFinalize(helper, EntityType.ZOMBIE);
+        helper.assertTrue(!zombie.isBaby(), "MITE has no baby zombies");
+        helper.succeed();
+    }
+
+    /** MITE: a zombie walks to dropped raw meat and eats it; undead zombies never heal from it. */
+    private static void zombieFood(GameTestHelper helper) {
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        ItemStack meat = new ItemStack(Items.ROTTEN_FLESH, 3);
+        helper.assertTrue(MoveToFoodGoal.tryEatFood(zombie, meat), "a zombie must eat dropped meat");
+        helper.assertTrue(meat.getCount() == 2, "one meat must be consumed");
+        helper.assertTrue(
+                !MoveToFoodGoal.tryEatFood(zombie, new ItemStack(Items.WHEAT, 1)),
+                "zombies only eat meat");
+        helper.assertTrue(
+                !MoveToFoodGoal.tryEatFood(zombie, meat),
+                "the 400-tick food cooldown must block a second bite");
+        helper.succeed();
+    }
+
+    /** MITE: a zombie holding a digging tool refuses to convert a slain villager. */
+    private static void zombieConversionSkip(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var bare = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var tool = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        tool.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SHOVEL));
+        var villager1 = helper.spawn(EntityType.VILLAGER, new BlockPos(4, 2, 2));
+        bare.doHurtTarget(level, villager1);
+        var allow = new LivingConversionEvent.Pre(villager1, EntityType.ZOMBIE_VILLAGER, timer -> {});
+        NeoForge.EVENT_BUS.post(allow);
+        helper.assertTrue(!allow.isCanceled(), "a bare zombie must allow villager conversion");
+        var villager2 = helper.spawn(EntityType.VILLAGER, new BlockPos(5, 2, 2));
+        tool.doHurtTarget(level, villager2);
+        var deny = new LivingConversionEvent.Pre(villager2, EntityType.ZOMBIE_VILLAGER, timer -> {});
+        NeoForge.EVENT_BUS.post(deny);
+        helper.assertTrue(deny.isCanceled(), "a tool-wielding zombie must skip villager conversion");
+        helper.succeed();
+    }
+
+    /** MITE digs the target's foot column first: a block under an elevated target. */
+    private static void zombieDigFeetFirst(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos dirtPos = new BlockPos(4, 2, 2);
+        helper.setBlock(dirtPos, Blocks.DIRT);
+        Vec3 playerPos = helper.absoluteVec(Vec3.atBottomCenterOf(new BlockPos(4, 3, 2)));
+        player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
+        zombie.setTarget(player);
+        BlockPos selected = MonsterTactics.firstDiggableInTargetColumn(zombie, level, player);
+        helper.assertTrue(
+                selected != null && helper.absolutePos(dirtPos).equals(selected),
+                "MITE dig must prefer the target's foot column; got " + selected);
+        ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 }
