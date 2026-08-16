@@ -11,6 +11,7 @@ import com.pixulse.infx.gametest.ModStructureLootGameTests;
 import com.pixulse.infx.gametest.ModMechanicsGameTests;
 import com.pixulse.infx.gametest.ModJadeDisplayGameTests;
 import com.pixulse.infx.config.InfXConfig;
+import com.pixulse.infx.config.InfXTestModeConfig;
 import com.pixulse.infx.event.CauldronEvents;
 import com.pixulse.infx.event.ItemEvents;
 import com.pixulse.infx.item.StickBoneItems;
@@ -48,6 +49,7 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         ConfigManager.getInstance().registerConfigHandler(InfXConfig.INSTANCE);
+        ConfigManager.getInstance().registerConfigHandler(InfXTestModeConfig.INSTANCE);
         ServerConfigManager.registerServerConfig(
                 InfXConfig.INSTANCE, ServerConfigManager.PermissionChecker.IS_OPERATOR);
         InfXSounds.register(modBus);

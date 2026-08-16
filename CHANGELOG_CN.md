@@ -3,6 +3,7 @@
 # 0v5
 ### 新功能
 - 新增客户端与服务端 test 模式对称校验：登录配置阶段交换 `development.testMode` 开关，客户端与服务端不一致时（test 客户端进普通服，或普通客户端进 test 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。
+- test 模式开关从 `config/infx/infx-common.json` 与 `config/infx/infx-client.json` 的 `development` 分类迁出，统一保存至独立文件 `config/infx/infx-testmode.json`（`server.testMode` 服务端 / `client.testMode` 客户端），默认关闭；原文件残留的 `development.testMode` 字段会被配置系统忽略，已在旧配置开启 test 模式的需在新文件重新打开。
 - 将草土方块加入到“滑动”与“坍塌”泥土标签中。
 - 使受重力影响的泥土继承所有被设定为具有滑动/下落行为的方块特性。
 - 移除了那些硬编码了可调攻击速度及品质阈值的脆弱单元测试。
