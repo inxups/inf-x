@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin.world.level.levelgen;
 
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.world.WorldDimensionSelectionPolicy;
 import java.util.Map;
 import net.minecraft.core.Registry;
@@ -22,8 +22,8 @@ public abstract class WorldDimensionsMixin {
     public abstract Map<ResourceKey<LevelStem>, LevelStem> dimensions();
 
     @ModifyVariable(method = "bake", at = @At("HEAD"), argsOnly = true)
-    private Registry<LevelStem> infx$preferSelectedOverworldInTestMode(Registry<LevelStem> datapackDimensions) {
+    private Registry<LevelStem> infx$preferSelectedOverworldInDevMode(Registry<LevelStem> datapackDimensions) {
         return WorldDimensionSelectionPolicy.resolve(
-                datapackDimensions, this.dimensions(), InfiniteXTestMode.isServerEnabled());
+                datapackDimensions, this.dimensions(), InfiniteXDevMode.isServerEnabled());
     }
 }

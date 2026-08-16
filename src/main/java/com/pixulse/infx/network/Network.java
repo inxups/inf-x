@@ -1,7 +1,7 @@
 package com.pixulse.infx.network;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.recipe.RecipeRule;
 import com.pixulse.infx.recipe.RecipeRules;
@@ -76,13 +76,13 @@ public final class Network {
                         RecipeRulesAckPayload.STREAM_CODEC,
                         Network::handleServerRecipeRulesAck)
                 .configurationToClient(
-                        TestModeStatusPayload.TYPE,
-                        TestModeStatusPayload.STREAM_CODEC,
-                        Network::handleClientTestModeStatus)
+                        DevModeStatusPayload.TYPE,
+                        DevModeStatusPayload.STREAM_CODEC,
+                        Network::handleClientDevModeStatus)
                 .configurationToServer(
-                        TestModeStatusAckPayload.TYPE,
-                        TestModeStatusAckPayload.STREAM_CODEC,
-                        Network::handleServerTestModeAck)
+                        DevModeStatusAckPayload.TYPE,
+                        DevModeStatusAckPayload.STREAM_CODEC,
+                        Network::handleServerDevModeAck)
                 .playToClient(
                         RecipeRulesPayload.TYPE,
                         RecipeRulesPayload.STREAM_CODEC,
@@ -101,7 +101,7 @@ public final class Network {
     @SubscribeEvent
     public static void registerConfigurationTasks(RegisterConfigurationTasksEvent event) {
         event.register(new RecipeRulesConfigurationTask());
-        event.register(new TestModeConfigurationTask());
+        event.register(new DevModeConfigurationTask());
     }
 
     /** Sends the server-authoritative crafting rules during a datapack reload. */
@@ -122,24 +122,24 @@ public final class Network {
     }
 
     /**
-     * Client-side gate: refuse the connection unless the client's own test mode
+     * Client-side gate: refuse the connection unless the client's own dev mode
      * switch matches the server's. The disconnect happens during the login
      * configuration phase, before the world is entered.
      */
-    static void handleClientTestModeStatus(TestModeStatusPayload payload, IPayloadContext context) {
-        if (InfiniteXTestMode.isClientEnabled() != payload.serverTestMode()) {
-            context.disconnect(Component.translatable("message.infx.testmode_mismatch"));
+    static void handleClientDevModeStatus(DevModeStatusPayload payload, IPayloadContext context) {
+        if (InfiniteXDevMode.isClientEnabled() != payload.serverDevMode()) {
+            context.disconnect(Component.translatable("message.infx.devmode_mismatch"));
             return;
         }
-        context.reply(new TestModeStatusAckPayload(InfiniteXTestMode.isClientEnabled()));
+        context.reply(new DevModeStatusAckPayload(InfiniteXDevMode.isClientEnabled()));
     }
 
     /** Server-side authoritative gate: same symmetric check on the client's ack. */
-    static void handleServerTestModeAck(TestModeStatusAckPayload payload, IPayloadContext context) {
-        if (payload.clientTestMode() != InfiniteXTestMode.isServerEnabled()) {
-            context.disconnect(Component.translatable("message.infx.testmode_mismatch"));
+    static void handleServerDevModeAck(DevModeStatusAckPayload payload, IPayloadContext context) {
+        if (payload.clientDevMode() != InfiniteXDevMode.isServerEnabled()) {
+            context.disconnect(Component.translatable("message.infx.devmode_mismatch"));
         } else {
-            context.finishCurrentTask(TestModeConfigurationTask.TYPE);
+            context.finishCurrentTask(DevModeConfigurationTask.TYPE);
         }
     }
 
@@ -248,11 +248,11 @@ public final class Network {
         }
     }
 
-    /** The server's test mode switch, sent during the login configuration phase. */
-    public record TestModeStatusPayload(boolean serverTestMode) implements CustomPacketPayload {
-        public static final Type<TestModeStatusPayload> TYPE = new Type<>(InfiniteX.id("test_mode_status"));
-        public static final StreamCodec<ByteBuf, TestModeStatusPayload> STREAM_CODEC =
-                StreamCodec.composite(ByteBufCodecs.BOOL, TestModeStatusPayload::serverTestMode, TestModeStatusPayload::new);
+    /** The server's dev mode switch, sent during the login configuration phase. */
+    public record DevModeStatusPayload(boolean serverDevMode) implements CustomPacketPayload {
+        public static final Type<DevModeStatusPayload> TYPE = new Type<>(InfiniteX.id("dev_mode_status"));
+        public static final StreamCodec<ByteBuf, DevModeStatusPayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.BOOL, DevModeStatusPayload::serverDevMode, DevModeStatusPayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {
@@ -260,11 +260,11 @@ public final class Network {
         }
     }
 
-    /** Client acknowledgment carrying the client's own test mode switch. */
-    public record TestModeStatusAckPayload(boolean clientTestMode) implements CustomPacketPayload {
-        public static final Type<TestModeStatusAckPayload> TYPE = new Type<>(InfiniteX.id("test_mode_status_ack"));
-        public static final StreamCodec<ByteBuf, TestModeStatusAckPayload> STREAM_CODEC =
-                StreamCodec.composite(ByteBufCodecs.BOOL, TestModeStatusAckPayload::clientTestMode, TestModeStatusAckPayload::new);
+    /** Client acknowledgment carrying the client's own dev mode switch. */
+    public record DevModeStatusAckPayload(boolean clientDevMode) implements CustomPacketPayload {
+        public static final Type<DevModeStatusAckPayload> TYPE = new Type<>(InfiniteX.id("dev_mode_status_ack"));
+        public static final StreamCodec<ByteBuf, DevModeStatusAckPayload> STREAM_CODEC =
+                StreamCodec.composite(ByteBufCodecs.BOOL, DevModeStatusAckPayload::clientDevMode, DevModeStatusAckPayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {

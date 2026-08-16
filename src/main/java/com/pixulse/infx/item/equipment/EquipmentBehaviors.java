@@ -4,7 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.entity.GelatinousCubeEvents;
 import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.item.enchantment.Enchantments;
@@ -509,7 +509,7 @@ public final class EquipmentBehaviors {
                                 .withStyle(net.minecraft.ChatFormatting.GRAY));
             }
         }
-        if (!shouldAddExtendedTooltips(InfiniteXTestMode.isClientEnabled())) return;
+        if (!shouldAddExtendedTooltips(InfiniteXDevMode.isClientEnabled())) return;
 
         Quality quality = event.getItemStack().get(InfXDataComponents.QUALITY.get());
         if (quality != null) {
@@ -573,8 +573,8 @@ public final class EquipmentBehaviors {
         return null;
     }
 
-    static boolean shouldAddExtendedTooltips(boolean testMode) {
-        return testMode;
+    static boolean shouldAddExtendedTooltips(boolean devMode) {
+        return devMode;
     }
 
     private static int tooltipFuelHeat(ItemStack stack) {

@@ -4,7 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import java.util.Objects;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.Difficulty;
@@ -62,7 +62,7 @@ public final class ExtremeDifficulty {
 
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
-        if (InfiniteXTestMode.isServerEnabled()) return;
+        if (InfiniteXDevMode.isServerEnabled()) return;
         apply(event.getServer());
         InfiniteX.LOGGER.info("InfiniteX Extreme difficulty is active and locked");
     }

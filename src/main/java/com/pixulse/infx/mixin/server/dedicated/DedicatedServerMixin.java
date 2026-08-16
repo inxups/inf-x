@@ -1,7 +1,7 @@
 package com.pixulse.infx.mixin.server.dedicated;
 
-import com.pixulse.infx.InfiniteXTestMode;
-import com.pixulse.infx.server.ServerTestModePolicy;
+import com.pixulse.infx.InfiniteXDevMode;
+import com.pixulse.infx.server.ServerDevModePolicy;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.dedicated.DedicatedServer;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Restricts dedicated-server command entry points outside test mode. */
+/** Restricts dedicated-server command entry points outside dev mode. */
 @Mixin(DedicatedServer.class)
 public abstract class DedicatedServerMixin {
     private static final Component MANAGEMENT_DISABLED =
@@ -24,8 +24,8 @@ public abstract class DedicatedServerMixin {
             at = @At(
                     value = "FIELD",
                     target = "Lnet/minecraft/server/dedicated/DedicatedServerProperties;enableRcon:Z"))
-    private boolean enableRconOnlyInTestMode(DedicatedServerProperties properties) {
-        return properties.enableRcon && ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isServerEnabled());
+    private boolean enableRconOnlyInDevMode(DedicatedServerProperties properties) {
+        return properties.enableRcon && ServerDevModePolicy.allowsServerManagement(InfiniteXDevMode.isServerEnabled());
     }
 
     @Redirect(
@@ -33,21 +33,21 @@ public abstract class DedicatedServerMixin {
             at = @At(
                     value = "FIELD",
                     target = "Lnet/minecraft/server/dedicated/DedicatedServerProperties;managementServerEnabled:Z"))
-    private boolean enableJsonRpcOnlyInTestMode(DedicatedServerProperties properties) {
+    private boolean enableJsonRpcOnlyInDevMode(DedicatedServerProperties properties) {
         return properties.managementServerEnabled
-                && ServerTestModePolicy.allowsServerManagement(InfiniteXTestMode.isServerEnabled());
+                && ServerDevModePolicy.allowsServerManagement(InfiniteXDevMode.isServerEnabled());
     }
 
     @Inject(method = "handleConsoleInput", at = @At("HEAD"), cancellable = true)
     private void rejectConsoleCommands(String msg, CommandSourceStack source, CallbackInfo callback) {
-        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isServerEnabled(), msg)) {
+        if (!ServerDevModePolicy.allowsConsoleCommand(InfiniteXDevMode.isServerEnabled(), msg)) {
             callback.cancel();
         }
     }
 
     @Inject(method = "runCommand", at = @At("HEAD"), cancellable = true)
     private void rejectRemoteCommands(String command, CallbackInfoReturnable<String> callback) {
-        if (!ServerTestModePolicy.allowsConsoleCommand(InfiniteXTestMode.isServerEnabled(), command)) {
+        if (!ServerDevModePolicy.allowsConsoleCommand(InfiniteXDevMode.isServerEnabled(), command)) {
             callback.setReturnValue(MANAGEMENT_DISABLED.getString());
         }
     }

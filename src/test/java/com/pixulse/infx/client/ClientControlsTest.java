@@ -17,7 +17,7 @@ class ClientControlsTest {
     }
 
     @Test
-    void testModeUsesTheVanillaDefaultDebugProfile() {
+    void devModeUsesTheVanillaDefaultDebugProfile() {
         assertEquals(
                 DebugScreenEntryStatus.IN_OVERLAY,
                 ClientControls.debugStatus(true, DebugScreenEntries.MEMORY));

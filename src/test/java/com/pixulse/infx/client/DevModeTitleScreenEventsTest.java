@@ -3,17 +3,17 @@ package com.pixulse.infx.client;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pixulse.infx.event.client.TestModeTitleScreenEvents;
+import com.pixulse.infx.event.client.DevModeTitleScreenEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import org.junit.jupiter.api.Test;
 
-class TestModeTitleScreenEventsTest {
+class DevModeTitleScreenEventsTest {
     @Test
     void titleLabelSitsBelowTheLogoAndAboveTheMenu() {
         int screenHeight = 270;
-        int labelY = TestModeTitleScreenEvents.testModeLabelY(screenHeight);
+        int labelY = DevModeTitleScreenEvents.devModeLabelY(screenHeight);
 
         assertEquals(87, labelY);
         assertTrue(labelY > 81);
@@ -21,12 +21,12 @@ class TestModeTitleScreenEventsTest {
     }
 
     @Test
-    void titleLabelClearlyMarksTestMode() {
-        TranslatableContents contents = (TranslatableContents) TestModeTitleScreenEvents.TEST_MODE_LABEL.getContents();
-        assertEquals(TestModeTitleScreenEvents.TEST_MODE_LABEL_KEY, contents.getKey());
-        assertTrue(TestModeTitleScreenEvents.TEST_MODE_LABEL.getStyle().isBold());
+    void titleLabelClearlyMarksDevMode() {
+        TranslatableContents contents = (TranslatableContents) DevModeTitleScreenEvents.DEV_MODE_LABEL.getContents();
+        assertEquals(DevModeTitleScreenEvents.DEV_MODE_LABEL_KEY, contents.getKey());
+        assertTrue(DevModeTitleScreenEvents.DEV_MODE_LABEL.getStyle().isBold());
         assertEquals(
                 TextColor.fromLegacyFormat(ChatFormatting.RED),
-                TestModeTitleScreenEvents.TEST_MODE_LABEL.getStyle().getColor());
+                DevModeTitleScreenEvents.DEV_MODE_LABEL.getStyle().getColor());
     }
 }

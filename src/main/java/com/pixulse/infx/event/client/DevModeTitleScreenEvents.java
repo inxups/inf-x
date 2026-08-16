@@ -1,7 +1,7 @@
 package com.pixulse.infx.event.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.LogoRenderer;
@@ -13,40 +13,40 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
-/** Marks test-mode title screens while allowing compatible clients to enter online play. */
+/** Marks dev-mode title screens while allowing compatible clients to enter online play. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
-public final class TestModeTitleScreenEvents {
-    public static final String TEST_MODE_LABEL_KEY = "menu.infx.test_mode";
-    public static final Component TEST_MODE_LABEL = Component.translatable(TEST_MODE_LABEL_KEY)
+public final class DevModeTitleScreenEvents {
+    public static final String DEV_MODE_LABEL_KEY = "menu.infx.dev_mode";
+    public static final Component DEV_MODE_LABEL = Component.translatable(DEV_MODE_LABEL_KEY)
             .withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
-    private static final int TEST_MODE_LABEL_HEIGHT = 9;
+    private static final int DEV_MODE_LABEL_HEIGHT = 9;
     private static final int NORMAL_MENU_TOP_OFFSET = 32;
     private static final int LABEL_MENU_GAP = 3;
     private static final int LABEL_Y_BELOW_LOGO = LogoRenderer.DEFAULT_HEIGHT_OFFSET + LogoRenderer.LOGO_HEIGHT + 8;
 
-    private TestModeTitleScreenEvents() {}
+    private DevModeTitleScreenEvents() {}
 
     @SubscribeEvent
     public static void configureTitleScreen(ScreenEvent.Init.Post event) {
-        if (!InfiniteXTestMode.isClientEnabled() || !(event.getScreen() instanceof TitleScreen screen)) return;
-        event.addListener(createTestModeLabel(screen));
+        if (!InfiniteXDevMode.isClientEnabled() || !(event.getScreen() instanceof TitleScreen screen)) return;
+        event.addListener(createDevModeLabel(screen));
     }
 
-    private static StringWidget createTestModeLabel(TitleScreen screen) {
+    private static StringWidget createDevModeLabel(TitleScreen screen) {
         var font = Minecraft.getInstance().font;
-        int width = font.width(TEST_MODE_LABEL);
+        int width = font.width(DEV_MODE_LABEL);
         return new StringWidget(
                 screen.width / 2 - width / 2,
-                testModeLabelY(screen.height),
+                devModeLabelY(screen.height),
                 width,
-                TEST_MODE_LABEL_HEIGHT,
-                TEST_MODE_LABEL,
+                DEV_MODE_LABEL_HEIGHT,
+                DEV_MODE_LABEL,
                 font);
     }
 
-    public static int testModeLabelY(int screenHeight) {
+    public static int devModeLabelY(int screenHeight) {
         int normalMenuTop = screenHeight / 4 + NORMAL_MENU_TOP_OFFSET;
-        int yAboveMenu = normalMenuTop - TEST_MODE_LABEL_HEIGHT - LABEL_MENU_GAP;
+        int yAboveMenu = normalMenuTop - DEV_MODE_LABEL_HEIGHT - LABEL_MENU_GAP;
         return Math.max(LABEL_Y_BELOW_LOGO, yAboveMenu);
     }
 }

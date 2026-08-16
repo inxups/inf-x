@@ -1,6 +1,6 @@
 package com.pixulse.infx.client;
 
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.world.WorldCreationLockProfile;
 import net.minecraft.world.Difficulty;
 
@@ -9,6 +9,6 @@ public final class WorldCreationDifficultyPolicy {
     private WorldCreationDifficultyPolicy() {}
 
     public static Difficulty resolve(Difficulty vanillaDifficulty, boolean hardcore) {
-        return !InfiniteXTestMode.isClientEnabled() && hardcore ? WorldCreationLockProfile.difficulty() : vanillaDifficulty;
+        return !InfiniteXDevMode.isClientEnabled() && hardcore ? WorldCreationLockProfile.difficulty() : vanillaDifficulty;
     }
 }

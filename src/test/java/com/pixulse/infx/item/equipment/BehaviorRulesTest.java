@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 class BehaviorRulesTest {
     @Test
-    void extendedTooltipsOnlyAppearInTestMode() {
+    void extendedTooltipsOnlyAppearInDevMode() {
         assertTrue(EquipmentBehaviors.shouldAddExtendedTooltips(true));
         assertFalse(EquipmentBehaviors.shouldAddExtendedTooltips(false));
     }

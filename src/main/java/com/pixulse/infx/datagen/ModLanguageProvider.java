@@ -500,13 +500,13 @@ final class ModLanguageProvider extends LanguageProvider {
         add("message.infx.creative_disabled", locale == Locale.EN_US
                 ? "Creative mode is disabled in INFX survival worlds"
                 : "INFX 生存世界禁止创造模式");
-        add("menu.infx.test_mode", locale == Locale.EN_US ? "INFX TEST MODE" : "INFX测试模式");
+        add("menu.infx.dev_mode", locale == Locale.EN_US ? "INFX DEV MODE" : "INFX开发模式");
         add("message.infx.server_management_disabled", locale == Locale.EN_US
-                ? "This server command is disabled outside InfiniteX test mode"
-                : "该服务端命令在非 InfiniteX 测试模式下被禁用");
-        add("message.infx.testmode_mismatch", locale == Locale.EN_US
-                ? "InfiniteX test mode must be enabled on both your client and this server, or on neither"
-                : "InfiniteX 测试模式必须在客户端与服务端一致:请同时开启或同时关闭");
+                ? "This server command is disabled outside InfiniteX dev mode"
+                : "该服务端命令在非 InfiniteX 开发模式下被禁用");
+        add("message.infx.devmode_mismatch", locale == Locale.EN_US
+                ? "InfiniteX dev mode must be enabled on both your client and this server, or on neither"
+                : "InfiniteX 开发模式必须在客户端与服务端一致:请同时开启或同时关闭");
         add("message.infx.safe_obstructed", locale == Locale.EN_US ? "The safe is obstructed above" : "保险箱上方被遮挡");
         add("message.infx.enchanting_table_obstructed", locale == Locale.EN_US
                 ? "The enchanting table needs clear space above it"

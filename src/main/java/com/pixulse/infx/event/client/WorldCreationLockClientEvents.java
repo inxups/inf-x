@@ -1,7 +1,7 @@
 package com.pixulse.infx.event.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.world.WorldCreationLockProfile;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,7 @@ public final class WorldCreationLockClientEvents {
 
     @SubscribeEvent
     public static void lockWorldCreation(ScreenEvent.Init.Post event) {
-        if (InfiniteXTestMode.isClientEnabled()) return;
+        if (InfiniteXDevMode.isClientEnabled()) return;
         if (!(event.getScreen() instanceof CreateWorldScreen screen)) return;
         TabNavigationBar tabBar = event.getListenersList().stream()
                 .filter(TabNavigationBar.class::isInstance)

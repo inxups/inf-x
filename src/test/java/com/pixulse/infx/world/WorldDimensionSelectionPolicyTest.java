@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.mojang.serialization.Lifecycle;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +58,7 @@ class WorldDimensionSelectionPolicyTest {
     }
 
     @Test
-    void testModeUsesFlatAndDebugGeneratorsWithoutReplacingOtherDimensions() {
+    void devModeUsesFlatAndDebugGeneratorsWithoutReplacingOtherDimensions() {
         HolderLookup.Provider registries = VanillaRegistries.createLookup();
         LevelStem datapackOverworld = noiseStem(
                 registries,
@@ -138,7 +138,7 @@ class WorldDimensionSelectionPolicyTest {
     }
 
     @Test
-    void bakeUsesSelectedOverworldOnlyWhenTestModeIsEnabled() {
+    void bakeUsesSelectedOverworldOnlyWhenDevModeIsEnabled() {
         HolderLookup.Provider registries = VanillaRegistries.createLookup();
         LevelStem datapackOverworld = noiseStem(
                 registries,
@@ -152,11 +152,11 @@ class WorldDimensionSelectionPolicyTest {
         WorldDimensions.Complete baked =
                 new WorldDimensions(Map.of(LevelStem.OVERWORLD, selectedFlat)).bake(datapackDimensions);
 
-        LevelStem expectedOverworld = InfiniteXTestMode.isServerEnabled() ? selectedFlat : datapackOverworld;
+        LevelStem expectedOverworld = InfiniteXDevMode.isServerEnabled() ? selectedFlat : datapackOverworld;
         assertSame(expectedOverworld, baked.dimensions().getValue(LevelStem.OVERWORLD));
         assertSame(underworld, baked.dimensions().getValue(Underworld.STEM));
         assertEquals(
-                        InfiniteXTestMode.isServerEnabled()
+                        InfiniteXDevMode.isServerEnabled()
                         ? PrimaryLevelData.SpecialWorldProperty.FLAT
                         : PrimaryLevelData.SpecialWorldProperty.NONE,
                 baked.specialWorldProperty());
