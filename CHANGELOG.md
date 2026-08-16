@@ -1,4 +1,11 @@
 # Changelog
+# 0t24
+
+### Other
+- Bound the MITE porting rules into CLAUDE.md: the project instructions now reference the MITE porting guide (`mc/mite/MITE移植指南.md`) and enshrine the core rules — verify vanilla 26.1.2 before porting (new mechanic / parameter tweak / already native), no dual-entry implementations, unified config gates, value conversion, playability checks, and test requirements.
+
+---
+
 # 0t23
 
 ### Fixed
