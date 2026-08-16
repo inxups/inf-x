@@ -1,4 +1,20 @@
 # Changelog
+# 0t23
+
+### Fixed
+- Zombie leader stacking: dropped our own leader roll (vanilla `Zombie.handleAttributes` already rolls leaders at `difficultyModifier×0.05` with ×1-4 health and +0.5-0.75 knockback resistance). The two independent rolls could hit the same zombie for up to 7× health (140 HP) and full knockback immunity; leaders are now solely vanilla's.
+- Dev-mode handshake vs. cheated-world permissions: the handshake now skips the raw-switch comparison for integrated servers (single-player / LAN host), where client and server share one config file and client-dev-on + server-dev-off is the intentional cheated-world unlock (7da3f7d8) rather than a mismatch. Dedicated-server connections still enforce the symmetric check.
+- Blood-moon storm duration: the forced storm now always ends at 19:00 (noon + 13,000 ticks) instead of re-arming 13,000 ticks every 200 ticks and dragging on until the next day's noon (~24 h).
+- Zombie villager conversion: removed the duplicate Normal 50% skip (vanilla `Zombie.killedEntity` already skips half at Normal), restoring the net 50% rate instead of 25%.
+- Spawn-replacement double equipment: dropped the explicit `equipForWorldAge` call after `finalizeSpawn` (the `FinalizeSpawnEvent` already equips), so gear is no longer rolled twice.
+- Config gates completed: `bloodMoonFrenzy` now also disables frenzy movement/door-break/red-glow/ranged cooldown (gated centrally in `isBloodMoonFrenzied`); blood-moon lightning ×5 and all-biome rain respect `world.moonEvents`; crop blight gained a `world.bloodMoonBlight` switch; the 50/player mob cap respects `mobs.enabled`.
+- Ghoul slow nerfed: hit slowness amplifier 5 (90%) reduced to 2 (45%) so it is no longer a near-stunlock.
+- `zombifiesVillagers` dead hook wired: the base class now overrides `convertVillagerToZombieVillager` and gates it on the hook, so the invisible stalker's documented "never converts villagers" behaviour actually holds; the other new mobs keep the default.
+- Wither-skeleton equipment double source: removed the quality-less iron-sword branch in `VanillaMobEquipmentMixin` that `WitherSkeletonDropsMixin` immediately overwrites with the poor-quality sword.
+- Version/changelog rollback: commit a5370c15 accidentally reverted `mod_version` to 0t10 and truncated CHANGELOG_CN (0t11-0t22); restored, now at 0t23.
+
+---
+
 # 0t22
 
 ### Removed

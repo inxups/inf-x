@@ -2,8 +2,6 @@ package com.pixulse.infx.mixin.world.entity.monster;
 
 import com.pixulse.infx.entity.InfxSkeleton;
 import com.pixulse.infx.entity.MonsterTactics;
-import com.pixulse.infx.item.EquipmentType;
-import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
@@ -49,10 +47,6 @@ abstract class VanillaMobEquipmentMixin {
                             .equipment(weapon.material(), weapon.type())
                             .holder()
                             .toStack());
-        } else if (self instanceof WitherSkeleton) {
-            self.setItemSlot(
-                    EquipmentSlot.MAINHAND,
-                    InfXItems.catalog().equipment(InfxMaterial.IRON, EquipmentType.SWORD).holder().toStack());
         }
         callback.cancel();
     }

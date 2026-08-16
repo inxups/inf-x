@@ -50,15 +50,11 @@ public final class Ghoul extends InfxZombieBase {
     }
 
     @Override
-    protected boolean zombifiesVillagers() {
-        return true;
-    }
-
-    @Override
     public boolean doHurtTarget(@NonNull ServerLevel level, @NonNull Entity target) {
         boolean hurt = super.doHurtTarget(level, target);
         if (hurt && target instanceof LivingEntity living) {
-            living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 50, 5), this);
+            // MITE ghoul slows prey on hit; amplifier 2 (45%) slows without the stunlock of 90%.
+            living.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 50, 2), this);
             if (living instanceof Animal && !living.isAlive()) {
                 heal(getMaxHealth() * 0.5F);
             }

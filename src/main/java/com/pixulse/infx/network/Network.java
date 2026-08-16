@@ -8,6 +8,7 @@ import com.pixulse.infx.recipe.RecipeRules;
 import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import com.pixulse.infx.world.RunegateTeleportation;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -122,21 +123,25 @@ public final class Network {
     }
 
     /**
-     * Client-side gate: refuse the connection unless the client's own dev mode
-     * switch matches the server's. The disconnect happens during the login
-     * configuration phase, before the world is entered.
+     * Client-side gate: refuse the connection unless the client's own dev mode switch matches
+     * the server's. The disconnect happens during the login configuration phase, before the
+     * world is entered. An integrated server shares the client's config file, so an asymmetric
+     * switch there is the intentional client-dev + cheated single-player/LAN unlock, not a
+     * mismatch; only dedicated-server connections are gated on the raw switches.
      */
     static void handleClientDevModeStatus(DevModeStatusPayload payload, IPayloadContext context) {
-        if (InfiniteXDevMode.isClientEnabled() != payload.serverDevMode()) {
+        Minecraft minecraft = Minecraft.getInstance();
+        boolean integrated = minecraft != null && minecraft.hasSingleplayerServer();
+        if (!integrated && InfiniteXDevMode.isClientEnabled() != payload.serverDevMode()) {
             context.disconnect(Component.translatable("message.infx.devmode_mismatch"));
             return;
         }
-        context.reply(new DevModeStatusAckPayload(InfiniteXDevMode.isClientEnabled()));
+        context.reply(new DevModeStatusAckPayload(InfiniteXDevMode.isClientEnabled(), integrated));
     }
 
     /** Server-side authoritative gate: same symmetric check on the client's ack. */
     static void handleServerDevModeAck(DevModeStatusAckPayload payload, IPayloadContext context) {
-        if (payload.clientDevMode() != InfiniteXDevMode.isServerEnabled()) {
+        if (!payload.integratedServer() && payload.clientDevMode() != InfiniteXDevMode.isServerEnabled()) {
             context.disconnect(Component.translatable("message.infx.devmode_mismatch"));
         } else {
             context.finishCurrentTask(DevModeConfigurationTask.TYPE);
@@ -260,11 +265,18 @@ public final class Network {
         }
     }
 
-    /** Client acknowledgment carrying the client's own dev mode switch. */
-    public record DevModeStatusAckPayload(boolean clientDevMode) implements CustomPacketPayload {
-        public static final Type<DevModeStatusAckPayload> TYPE = new Type<>(InfiniteX.id("dev_mode_status_ack"));
+    /** Client acknowledgment carrying the client's own dev mode switch and connection kind. */
+    public record DevModeStatusAckPayload(boolean clientDevMode, boolean integratedServer)
+            implements CustomPacketPayload {
+        public static final Type<DevModeStatusAckPayload> TYPE =
+                new Type<>(InfiniteX.id("dev_mode_status_ack"));
         public static final StreamCodec<ByteBuf, DevModeStatusAckPayload> STREAM_CODEC =
-                StreamCodec.composite(ByteBufCodecs.BOOL, DevModeStatusAckPayload::clientDevMode, DevModeStatusAckPayload::new);
+                StreamCodec.composite(
+                        ByteBufCodecs.BOOL,
+                        DevModeStatusAckPayload::clientDevMode,
+                        ByteBufCodecs.BOOL,
+                        DevModeStatusAckPayload::integratedServer,
+                        DevModeStatusAckPayload::new);
 
         @Override
         public @NonNull Type<? extends CustomPacketPayload> type() {

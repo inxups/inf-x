@@ -12,6 +12,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -135,5 +136,13 @@ public abstract class InfxZombieBase extends Zombie implements InfxMob {
 
     protected abstract boolean targetsAnimals();
 
-    protected abstract boolean zombifiesVillagers();
+    /** Whether this zombie-family mob converts slain villagers; stalkers opt out. */
+    protected boolean zombifiesVillagers() {
+        return true;
+    }
+
+    @Override
+    public boolean convertVillagerToZombieVillager(ServerLevel level, Villager villager) {
+        return zombifiesVillagers() && super.convertVillagerToZombieVillager(level, villager);
+    }
 }

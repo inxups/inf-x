@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin.client.renderer.entity;
 
-import com.pixulse.infx.world.MoonPhase;
+import com.pixulse.infx.entity.MonsterEvents;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
 import net.minecraft.util.ARGB;
@@ -20,7 +20,7 @@ public abstract class EntityRendererBloodMoonGlowMixin {
     @Inject(method = "extractRenderState", at = @At("RETURN"))
     private void infx$bloodMoonRedGlow(
             Entity entity, EntityRenderState state, float partialTicks, CallbackInfo ci) {
-        if (entity instanceof Enemy && MoonPhase.BLOOD.isActiveInOverworldAtNight(entity.level())) {
+        if (entity instanceof Enemy && MonsterEvents.isBloodMoonFrenzied(entity.level())) {
             state.outlineColor = ARGB.opaque(0x821E1E);
         }
     }

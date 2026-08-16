@@ -45,7 +45,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -54,7 +53,6 @@ import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.equine.SkeletonHorse;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -106,7 +104,6 @@ public final class ModMonsterGameTests {
     private static final String WEAPON_DROPS = "infx_weapon_drops";
     private static final String SKELETON_TRAP = "infx_skeleton_trap";
     private static final String ZOMBIE_SMART = "infx_zombie_smart";
-    private static final String ZOMBIE_LEADER = "infx_zombie_leader";
     private static final String ZOMBIE_DIG_RATE = "infx_zombie_dig_rate";
     private static final String ZOMBIE_BURN_TREE = "infx_zombie_burn_tree";
     private static final String GHOUL_HEAL = "infx_ghoul_heal";
@@ -118,13 +115,13 @@ public final class ModMonsterGameTests {
     private static final String ZOMBIE_NO_BABY = "infx_zombie_no_baby";
     private static final String ZOMBIE_FOOD = "infx_zombie_food";
     private static final String ZOMBIE_CONVERSION_SKIP = "infx_zombie_conversion_skip";
+    private static final String STALKER_NO_VILLAGER_CONVERSION = "infx_stalker_no_villager_conversion";
     private static final String ZOMBIE_DIG_FEET_FIRST = "infx_zombie_dig_feet_first";
     private static final String SLIME_BURNING_NO_SPLIT = "infx_slime_burning_no_split";
     private static final String BLOOD_MOON_LIGHTNING = "infx_blood_moon_lightning";
     private static final String BLOOD_MOON_RAIN = "infx_blood_moon_rain";
     private static final String BLOOD_MOON_CROP_BLIGHT = "infx_blood_moon_crop_blight";
     private static final String BURNING_MOB_FIRE_TRANSFER = "infx_burning_mob_fire_transfer";
-    private static final String VILLAGER_CONVERSION_NORMAL_GATE = "infx_villager_conversion_normal_gate";
     private static final String ZOMBIE_HATCHET_DAY = "infx_zombie_hatchet_day";
     private static final String BLOOD_MOON_SPAWN_FACTOR = "infx_blood_moon_spawn_factor";
     private static final String DEPTH_SPAWN_SCALE = "infx_depth_spawn_scale";
@@ -154,7 +151,6 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(WEAPON_DROPS, () -> ModMonsterGameTests::weaponDrops);
         FUNCTIONS.register(SKELETON_TRAP, () -> ModMonsterGameTests::skeletonTrap);
         FUNCTIONS.register(ZOMBIE_SMART, () -> ModMonsterGameTests::zombieSmart);
-        FUNCTIONS.register(ZOMBIE_LEADER, () -> ModMonsterGameTests::zombieLeader);
         FUNCTIONS.register(ZOMBIE_DIG_RATE, () -> ModMonsterGameTests::zombieDigRate);
         FUNCTIONS.register(ZOMBIE_BURN_TREE, () -> ModMonsterGameTests::zombieBurnTree);
         FUNCTIONS.register(GHOUL_HEAL, () -> ModMonsterGameTests::ghoulHeal);
@@ -166,13 +162,15 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ZOMBIE_NO_BABY, () -> ModMonsterGameTests::zombieNoBaby);
         FUNCTIONS.register(ZOMBIE_FOOD, () -> ModMonsterGameTests::zombieFood);
         FUNCTIONS.register(ZOMBIE_CONVERSION_SKIP, () -> ModMonsterGameTests::zombieConversionSkip);
+        FUNCTIONS.register(
+                STALKER_NO_VILLAGER_CONVERSION,
+                () -> ModMonsterGameTests::stalkerNeverConvertsVillagers);
         FUNCTIONS.register(ZOMBIE_DIG_FEET_FIRST, () -> ModMonsterGameTests::zombieDigFeetFirst);
         FUNCTIONS.register(SLIME_BURNING_NO_SPLIT, () -> ModMonsterGameTests::slimeBurningNoSplit);
         FUNCTIONS.register(BLOOD_MOON_LIGHTNING, () -> ModMonsterGameTests::bloodMoonLightning);
         FUNCTIONS.register(BLOOD_MOON_RAIN, () -> ModMonsterGameTests::bloodMoonRain);
         FUNCTIONS.register(BLOOD_MOON_CROP_BLIGHT, () -> ModMonsterGameTests::bloodMoonCropBlight);
         FUNCTIONS.register(BURNING_MOB_FIRE_TRANSFER, () -> ModMonsterGameTests::burningMobFireTransfer);
-        FUNCTIONS.register(VILLAGER_CONVERSION_NORMAL_GATE, () -> ModMonsterGameTests::villagerConversionNormalGate);
         FUNCTIONS.register(ZOMBIE_HATCHET_DAY, () -> ModMonsterGameTests::zombieHatchetDay);
         FUNCTIONS.register(BLOOD_MOON_SPAWN_FACTOR, () -> ModMonsterGameTests::bloodMoonSpawnFactor);
         FUNCTIONS.register(DEPTH_SPAWN_SCALE, () -> ModMonsterGameTests::depthSpawnScale);
@@ -212,7 +210,6 @@ public final class ModMonsterGameTests {
                 WEAPON_DROPS,
                 SKELETON_TRAP,
                 ZOMBIE_SMART,
-                ZOMBIE_LEADER,
                 ZOMBIE_DIG_RATE,
                 ZOMBIE_BURN_TREE,
                 GHOUL_HEAL,
@@ -224,13 +221,13 @@ public final class ModMonsterGameTests {
                 ZOMBIE_NO_BABY,
                 ZOMBIE_FOOD,
                 ZOMBIE_CONVERSION_SKIP,
+                STALKER_NO_VILLAGER_CONVERSION,
                 ZOMBIE_DIG_FEET_FIRST,
                 SLIME_BURNING_NO_SPLIT,
                 BLOOD_MOON_LIGHTNING,
                 BLOOD_MOON_RAIN,
                 BLOOD_MOON_CROP_BLIGHT,
                 BURNING_MOB_FIRE_TRANSFER,
-                VILLAGER_CONVERSION_NORMAL_GATE,
                 ZOMBIE_HATCHET_DAY,
                 BLOOD_MOON_SPAWN_FACTOR,
                 DEPTH_SPAWN_SCALE,
@@ -1936,7 +1933,7 @@ public final class ModMonsterGameTests {
         @SuppressWarnings("unchecked")
         Mob mob = helper.spawnWithNoFreeWill((EntityType<Mob>) type, new BlockPos(2, 2, 2));
         // Route through the event hook so InfX spawn-time behaviour (world-age gear, the zombie
-        // smart/leader roll and attribute alignment) runs, matching a real world spawn.
+        // smart roll and attribute alignment) runs, matching a real world spawn.
         net.neoforged.neoforge.event.EventHooks.finalizeMobSpawn(
                 mob,
                 helper.getLevel(),
@@ -1987,31 +1984,6 @@ public final class ModMonsterGameTests {
                 MonsterTactics.diggingEnabled(zombie, level),
                 "a smart zombie must dig bare-handed");
         ModCompletionGameTests.removePlayer(player);
-        helper.succeed();
-    }
-
-    /** MITE leader modifiers: 2-5× health and knockback resistance from the 5%-per-tension roll. */
-    private static void zombieLeader(GameTestHelper helper) {
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
-        float base = zombie.getMaxHealth();
-        zombie.getAttribute(Attributes.MAX_HEALTH)
-                .addPermanentModifier(new AttributeModifier(
-                        InfiniteX.id("zombie_leader_health"),
-                        zombie.getRandom().nextDouble() * 3.0 + 1.0,
-                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-        double multiplier = zombie.getMaxHealth() / base;
-        helper.assertTrue(
-                multiplier >= 2.0 && multiplier <= 5.0,
-                "a leader zombie must have 2-5× the base health; got " + multiplier);
-        zombie.getAttribute(Attributes.KNOCKBACK_RESISTANCE)
-                .addPermanentModifier(new AttributeModifier(
-                        InfiniteX.id("zombie_leader_knockback"),
-                        zombie.getRandom().nextDouble() * 0.25 + 0.5,
-                        AttributeModifier.Operation.ADD_VALUE));
-        helper.assertTrue(
-                zombie.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE) >= 0.5,
-                "a leader zombie must gain at least 50% knockback resistance; got "
-                        + zombie.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE));
         helper.succeed();
     }
 
@@ -2276,20 +2248,6 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
-    /** MITE: at Normal difficulty a villager conversion is skipped half of the time. */
-    private static void villagerConversionNormalGate(GameTestHelper helper) {
-        helper.assertTrue(
-                ZombieEvents.villagerConversionSkippedAtNormal(Difficulty.NORMAL, true),
-                "a Normal-difficulty conversion must be skippable");
-        helper.assertTrue(
-                !ZombieEvents.villagerConversionSkippedAtNormal(Difficulty.NORMAL, false),
-                "the Normal-difficulty skip must be a coin flip");
-        helper.assertTrue(
-                !ZombieEvents.villagerConversionSkippedAtNormal(Difficulty.HARD, true),
-                "Hard difficulty must never skip conversion");
-        helper.succeed();
-    }
-
     /** MITE: from day 10 zombies may carry a rusted-iron hatchet instead of a sword. */
     private static void zombieHatchetDay(GameTestHelper helper) {
         helper.assertTrue(
@@ -2409,6 +2367,19 @@ public final class ModMonsterGameTests {
         var deny = new LivingConversionEvent.Pre(villager2, EntityType.ZOMBIE_VILLAGER, timer -> {});
         NeoForge.EVENT_BUS.post(deny);
         helper.assertTrue(deny.isCanceled(), "a tool-wielding zombie must skip villager conversion");
+        helper.succeed();
+    }
+
+    /** MITE: an invisible stalker never converts a slain villager, unlike the InfX zombie family. */
+    private static void stalkerNeverConvertsVillagers(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var stalker =
+                helper.spawnWithNoFreeWill(InfXEntityTypes.INVISIBLE_STALKER.get(), new BlockPos(2, 2, 2));
+        var villager = helper.spawn(EntityType.VILLAGER, new BlockPos(4, 2, 2));
+        // The InfX gate short-circuits before vanilla's own conversion guards run.
+        helper.assertTrue(
+                !stalker.convertVillagerToZombieVillager(level, villager),
+                "an invisible stalker must never convert a villager");
         helper.succeed();
     }
 

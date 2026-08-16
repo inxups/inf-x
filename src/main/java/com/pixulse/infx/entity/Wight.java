@@ -55,11 +55,6 @@ public final class Wight extends InfxZombieBase {
     }
 
     @Override
-    protected boolean zombifiesVillagers() {
-        return true;
-    }
-
-    @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float amount) {
         if (!MobDamageRules.wightAccepts(source)) {
             return false;

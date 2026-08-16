@@ -76,8 +76,11 @@ public final class MoonEvents {
         if (MoonPhase.BLUE.isActiveInOverworld(level)) {
             setWeather(level, false, false, 6_000);
         } else if (isBloodMoonThunderWindow(level)) {
-            // MITE forces a thunderstorm from noon on blood moons, lasting 13,000 ticks.
-            setWeather(level, true, true, 13_000);
+            // MITE forces a thunderstorm from noon, lasting 13,000 ticks (noon→19:00).
+            long remaining = MoonPhase.bloodMoonStormRemainingTicks(level.getOverworldClockTime());
+            if (remaining > 0) {
+                setWeather(level, true, true, (int) remaining);
+            }
         }
     }
 

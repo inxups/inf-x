@@ -1,5 +1,6 @@
 package com.pixulse.infx.mixin.server.level;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.server.level.ServerLevel;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,6 +19,10 @@ public abstract class ServerLevelLightningRateMixin {
                     target = "Lnet/minecraft/util/RandomSource;nextInt(I)I"),
             index = 0)
     private int infx$bloodMoonLightningRate(int bound) {
-        return MoonPhase.lightningRollBound((ServerLevel) (Object) this, bound);
+        ServerLevel self = (ServerLevel) (Object) this;
+        return InfXConfig.INSTANCE.world.enabled.getValue()
+                        && InfXConfig.INSTANCE.world.moonEvents.getValue()
+                ? MoonPhase.lightningRollBound(self, bound)
+                : bound;
     }
 }
