@@ -17,9 +17,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.MobSplitEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /** Server-side contact, item corrosion, and loot rules for INFX gelatinous cubes. */
@@ -28,6 +30,14 @@ public final class GelatinousCubeEvents {
     private static final int CONTACT_INTERVAL = 20;
 
     private GelatinousCubeEvents() {}
+
+    /** MITE: burning slimes die without splitting into smaller cubes. */
+    @SubscribeEvent
+    public static void onMobSplit(MobSplitEvent event) {
+        if (event.getParent() instanceof Slime slime && slime.isOnFire()) {
+            event.setCanceled(true);
+        }
+    }
 
     @SubscribeEvent
     public static void onEntityTick(EntityTickEvent.Post event) {

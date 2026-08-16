@@ -1,4 +1,14 @@
 # Changelog
+# 0t17
+
+### New Features
+- Endermen are now fully exempt from the blood-moon frenzy: the speed mixin no longer applies the 1.2× movement bonus to InfxEnderman (the attack-bonus exemption already existed; MITE endermen have `isFrenzied=false`).
+- Creeper explosions destroy blocks at 0.715× their power (the 1.1× entity radius was already implemented): the `Creeper.explodeCreeper` explosion radius is scaled by 0.715 for InfX creepers (blocks 3→2.145 / powered 6→4.29) while entity damage keeps the ExplosionRanges 4.4 radius.
+- Burning slimes no longer split: `MobSplitEvent` is cancelled for a burning Slime, so it dies without spawning smaller cubes (MITE).
+- Added the `infx_slime_burning_no_split` GameTest and an enderman-exemption assertion to `infx_frenzy_speed`.
+
+---
+
 # 0t16
 
 ### New Features
