@@ -37,6 +37,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -110,6 +111,7 @@ public final class ModMonsterGameTests {
     private static final String ZOMBIE_FOOD = "infx_zombie_food";
     private static final String ZOMBIE_CONVERSION_SKIP = "infx_zombie_conversion_skip";
     private static final String ZOMBIE_DIG_FEET_FIRST = "infx_zombie_dig_feet_first";
+    private static final String SLIME_BURNING_NO_SPLIT = "infx_slime_burning_no_split";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -146,6 +148,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ZOMBIE_FOOD, () -> ModMonsterGameTests::zombieFood);
         FUNCTIONS.register(ZOMBIE_CONVERSION_SKIP, () -> ModMonsterGameTests::zombieConversionSkip);
         FUNCTIONS.register(ZOMBIE_DIG_FEET_FIRST, () -> ModMonsterGameTests::zombieDigFeetFirst);
+        FUNCTIONS.register(SLIME_BURNING_NO_SPLIT, () -> ModMonsterGameTests::slimeBurningNoSplit);
     }
 
     private ModMonsterGameTests() {}
@@ -191,7 +194,8 @@ public final class ModMonsterGameTests {
                 ZOMBIE_NO_BABY,
                 ZOMBIE_FOOD,
                 ZOMBIE_CONVERSION_SKIP,
-                ZOMBIE_DIG_FEET_FIRST)) {
+                ZOMBIE_DIG_FEET_FIRST,
+                SLIME_BURNING_NO_SPLIT)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2136,6 +2140,12 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 Math.abs(zombie.getSpeed() - 1.2F) < 1.0E-5F,
                 "a hostile mob must move 1.2× faster on a blood-moon night; got " + zombie.getSpeed());
+        // MITE endermen are fully exempt from frenzy, including the blood-moon speed bonus.
+        var enderman = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ENDERMAN.get(), new BlockPos(2, 2, 2));
+        enderman.setSpeed(1.0F);
+        helper.assertTrue(
+                Math.abs(enderman.getSpeed() - 1.0F) < 1.0E-5F,
+                "endermen must be exempt from blood-moon speed; got " + enderman.getSpeed());
         level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary night, day 31
         zombie.setSpeed(1.0F);
         helper.assertTrue(
@@ -2200,6 +2210,22 @@ public final class ModMonsterGameTests {
                 selected != null && helper.absolutePos(dirtPos).equals(selected),
                 "MITE dig must prefer the target's foot column; got " + selected);
         ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    /** MITE: a burning slime dies without splitting into smaller cubes. */
+    private static void slimeBurningNoSplit(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var slime = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_SLIME.get(), new BlockPos(2, 2, 2));
+        slime.setSize(2, true);
+        slime.igniteForSeconds(10.0F);
+        slime.hurtServer(level, level.damageSources().genericKill(), Float.MAX_VALUE);
+        slime.remove(Entity.RemovalReason.KILLED);
+        var children = level.getEntitiesOfClass(
+                InfxSlime.class,
+                new AABB(new BlockPos(2, 2, 2)).inflate(8.0),
+                child -> child.getSize() == 1 && child != slime);
+        helper.assertTrue(children.isEmpty(), "burning slimes must not split into smaller cubes");
         helper.succeed();
     }
 }

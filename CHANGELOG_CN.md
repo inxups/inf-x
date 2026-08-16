@@ -1,4 +1,13 @@
 # Changelog
+## 0t17
+### 新功能
+- 末影人血月狂暴完全豁免：修复血月狂暴批遗漏——`LivingEntityFrenzySpeedMixin` 现在对 InfxEnderman 不施加 ×1.2 移速（`applyFrenzyDamage` 攻豁免早已有，补齐移速豁免，符合 MITE isFrenzied=false）。
+- 爬行者爆炸方块半径 ×0.715（实体半径 1.1× 已实现）：`Creeper.explodeCreeper` 的爆炸半径参数对 InfxCreeper 乘 0.715（方块 3→2.145 / 充能 6→4.29），实体伤害半径仍走 ExplosionRanges 4.4。
+- 史莱姆燃烧不分裂：`MobSplitEvent` 对燃烧中的 Slime 取消分裂——燃烧的史莱姆死亡直接消失（MITE）。
+- 新增 GameTest `infx_slime_burning_no_split`；`infx_frenzy_speed` 增加末影人豁免断言。
+
+---
+
 ## 0t16
 ### 新功能
 - 僵尸系补全 MITE 机制：①无幼体僵尸——vanilla 5% 幼体出生被取消（含 jockey 骑鸡下马）；②稀有掉落——玩家击杀约 2.5% 概率掉 1 个铜/银/金/铁粒（`(5+looting×2)/200`，对齐 MITE）；③寻食生肉——vanilla 僵尸会走向并吃掉掉落的生肉（`#minecraft:meat`，亡灵进食不回血，400 tick 冷却）；④杀村民转化补充——手持挖掘工具的僵尸拒绝转化村民、转化后清空杀手僵尸 5 格装备（vanilla 原生转化/职业继承/反治愈保留）；⑤挖块目标脚下优先——僵尸先挖目标脚下一列（目标脚向下到挖者脚），再挖视线阻挡块。

@@ -33,6 +33,7 @@
     "world.entity.item.FallingBlockEntityAccessor",
     "world.entity.item.FallingBlockEntityLandslideMixin",
     "world.entity.monster.BreakDoorGoalFrenzyMixin",
+    "world.entity.monster.CreeperExplosionBlockRadiusMixin",
     "world.entity.monster.StriderFungusControlMixin",
     "world.entity.monster.VanillaMobEquipmentMixin",
     "world.entity.monster.WitherSkeletonDropsMixin",
