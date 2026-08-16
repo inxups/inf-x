@@ -37,6 +37,8 @@ import net.minecraft.world.entity.monster.Ghast;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.MagmaCube;
 import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -299,6 +301,12 @@ public final class MonsterEvents {
                 null,
                 (type, level, reason, pos, random) -> !MobSpawnRules.hasStoneAbove(level.getLevel(), pos),
                 RegisterSpawnPlacementsEvent.Operation.AND);
+        event.register(
+                EntityType.GHAST,
+                null,
+                null,
+                MonsterEvents::checkGhastSpacing,
+                RegisterSpawnPlacementsEvent.Operation.AND);
         for (var type : List.of(
                 InfXEntityTypes.INVISIBLE_STALKER,
                 InfXEntityTypes.GHOUL,
@@ -473,6 +481,36 @@ public final class MonsterEvents {
                 || (date.getMonthValue() == 11 && date.getDayOfMonth() <= 3);
     }
 
+    /** MITE zombie Halloween pumpkins (EntityZombie.java:410-416): strictly October 31. */
+    static boolean isZombieHalloween(LocalDate date) {
+        return date.getMonthValue() == 10 && date.getDayOfMonth() == 31;
+    }
+
+    /** MITE: on Halloween a helmetless zombie has a 25% chance to wear a pumpkin, 10% jack-o'-lantern. */
+    static void maybeEquipHalloweenPumpkin(Zombie zombie) {
+        if (!InfXConfig.INSTANCE.mobs.halloweenPumpkin.getValue()
+                || !zombie.getItemBySlot(EquipmentSlot.HEAD).isEmpty()
+                || !isZombieHalloween(LocalDate.now())
+                || zombie.getRandom().nextFloat() >= 0.25F) {
+            return;
+        }
+        boolean lantern = zombie.getRandom().nextFloat() < 0.1F;
+        zombie.setItemSlot(EquipmentSlot.HEAD,
+                new ItemStack(lantern ? Blocks.JACK_O_LANTERN : Blocks.CARVED_PUMPKIN));
+        zombie.setDropChance(EquipmentSlot.HEAD, 0.0F);
+    }
+
+    /** MITE ghast spacing (SpawnerAnimals.java:307): a ghast never spawns within 48 blocks of a player. */
+    public static boolean checkGhastSpacing(
+            EntityType<? extends Mob> type,
+            net.minecraft.world.level.LevelAccessor level,
+            EntitySpawnReason reason,
+            BlockPos pos,
+            net.minecraft.util.RandomSource random) {
+        return !InfXConfig.INSTANCE.mobs.ghastSpacing.getValue()
+                || level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 48.0, null) == null;
+    }
+
     private static int maximumBatBlockLight(ServerLevel level, BlockPos pos) {
         int maximum = level.getBrightness(LightLayer.BLOCK, pos);
         for (BlockPos sample = pos.below(); sample.getY() >= level.getMinY(); sample = sample.below()) {
@@ -525,6 +563,9 @@ public final class MonsterEvents {
                 && monster.level() instanceof ServerLevel level
                 && isWorldSpawn(event.getSpawnType())) {
             MonsterTactics.equipForWorldAge(level, monster);
+        }
+        if (event.getEntity() instanceof Zombie zombie && isWorldSpawn(event.getSpawnType())) {
+            maybeEquipHalloweenPumpkin(zombie);
         }
         if (event.getEntity().getType() == EntityType.WITCH
                 && event.getSpawnType() != EntitySpawnReason.STRUCTURE

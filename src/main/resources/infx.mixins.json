@@ -26,6 +26,7 @@
     "world.entity.LivingEntitySwimMixin",
     "world.entity.LivingEntityFrenzySpeedMixin",
     "world.entity.MobCategoryCapMixin",
+    "world.entity.MobSunBurnMixin",
     "world.entity.ai.goal.DoorInteractGoalAccessor",
     "world.entity.animal.equine.HorseAccessor",
     "world.entity.animal.equine.SkeletonTrapGoalMixin",

@@ -52,6 +52,15 @@ class MonsterEventsTest {
     }
 
     @Test
+    void zombieHalloweenIsStrictlyOctober31() {
+        assertTrue(MonsterEvents.isZombieHalloween(LocalDate.of(2026, 10, 31)));
+        assertTrue(MonsterEvents.isZombieHalloween(LocalDate.of(2025, 10, 31)), "Halloween holds across years");
+        assertFalse(MonsterEvents.isZombieHalloween(LocalDate.of(2026, 10, 30)));
+        assertFalse(MonsterEvents.isZombieHalloween(LocalDate.of(2026, 11, 1)));
+        assertFalse(MonsterEvents.isZombieHalloween(LocalDate.of(2026, 12, 31)));
+    }
+
+    @Test
     void followRangeUsesAnInclusiveSphericalBoundary() {
         assertTrue(MonsterEvents.withinFollowRange(16.0 * 16.0, 16.0));
         assertFalse(MonsterEvents.withinFollowRange(16.0 * 16.0 + 0.001, 16.0));
