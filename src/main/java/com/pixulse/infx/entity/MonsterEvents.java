@@ -76,7 +76,8 @@ public final class MonsterEvents {
 
     /**
      * InfX frenzy: during blood-moon nights (and under bone-lord inspiration) monster melee
-     * gains half its base attack again. Endermen are explicitly exempt in InfX.
+     * gains half its base attack again per frenzy source, and the two stack. Endermen are
+     * explicitly exempt in InfX.
      */
     @SubscribeEvent
     public static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
@@ -89,17 +90,26 @@ public final class MonsterEvents {
                 || !(attacker.level() instanceof ServerLevel level)) {
             return;
         }
-        boolean frenzied = MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
-        if (!frenzied && attacker instanceof InfxSkeleton skeleton && skeleton.isInspired()) {
-            frenzied = true;
-        }
-        if (!frenzied) {
+        boolean bloodMoon = isBloodMoonFrenzied(level);
+        boolean boneLord = attacker instanceof InfxSkeleton skeleton && skeleton.isInspired();
+        float bonus = frenzyDamageBonus(bloodMoon, boneLord);
+        if (bonus == 0.0F) {
             return;
         }
         var attack = attacker.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
         if (attack != null) {
-            event.setAmount(event.getAmount() + 0.5F * (float) attack.getBaseValue());
+            event.setAmount(event.getAmount() + bonus * (float) attack.getBaseValue());
         }
+    }
+
+    /** MITE frenzy: blood-moon and bone-lord frenzy each contribute 50% of base attack, stacking. */
+    public static float frenzyDamageBonus(boolean bloodMoon, boolean boneLord) {
+        return (bloodMoon ? 0.5F : 0.0F) + (boneLord ? 0.5F : 0.0F);
+    }
+
+    /** MITE frenzy predicate: a blood-moon night in the overworld. */
+    public static boolean isBloodMoonFrenzied(Level level) {
+        return MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
     }
 
     /**

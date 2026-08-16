@@ -38,6 +38,7 @@ public final class InfxWitch extends Witch implements InfxMob {
     private boolean summonedWolves;
     private int summonWolvesAt = -1;
     private int curseRandomSeed;
+    private InfxHardCappedRangedAttackGoal rangedGoal;
 
     public InfxWitch(EntityType<? extends Witch> type, Level level) {
         super(type, level);
@@ -95,8 +96,9 @@ public final class InfxWitch extends Witch implements InfxMob {
     protected void registerGoals() {
         super.registerGoals();
         goalSelector.removeAllGoals(goal -> goal instanceof net.minecraft.world.entity.ai.goal.RangedAttackGoal);
-        goalSelector.addGoal(2, new InfxHardCappedRangedAttackGoal(
-                this, 1.0, 60, (float) AttackRanges.WITCH_RANGED_REACH));
+        rangedGoal = new InfxHardCappedRangedAttackGoal(
+                this, 1.0, 60, (float) AttackRanges.WITCH_RANGED_REACH);
+        goalSelector.addGoal(2, rangedGoal);
         targetSelector.removeAllGoals(goal -> true);
         targetSelector.addGoal(1, new CurseHurtByTargetGoal(this));
         targetSelector.addGoal(2, new CurseNearestPlayerGoal(this));
@@ -138,6 +140,11 @@ public final class InfxWitch extends Witch implements InfxMob {
     @Override
     protected void customServerAiStep(@NonNull ServerLevel level) {
         super.customServerAiStep(level);
+        // MITE frenzy: blood moons cut the ranged cooldown by 1.5×.
+        if (rangedGoal != null && tickCount % 20 == 0) {
+            rangedGoal.setAttackInterval(
+                    (int) (60 / (MonsterEvents.isBloodMoonFrenzied(level) ? 1.5F : 1.0F)));
+        }
         var target = getTarget();
         if (target == null || !MonsterEvents.withinFollowRange(this, target)) {
             setTarget(null);

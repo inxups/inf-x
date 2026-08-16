@@ -13,7 +13,7 @@ final class InfxHardCappedRangedAttackGoal extends Goal {
     private final Mob mob;
     private final RangedAttackMob rangedMob;
     private final double speedModifier;
-    private final int attackInterval;
+    private int attackInterval;
     private final float attackRadius;
     private final double attackRadiusSqr;
     private @Nullable LivingEntity target;
@@ -63,6 +63,10 @@ final class InfxHardCappedRangedAttackGoal extends Goal {
     @Override
     public boolean requiresUpdateEveryTick() {
         return true;
+    }
+
+    void setAttackInterval(int ticks) {
+        attackInterval = ticks;
     }
 
     @Override

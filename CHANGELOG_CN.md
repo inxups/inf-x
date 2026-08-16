@@ -1,4 +1,11 @@
 # Changelog
+## 0t15
+### 新功能
+- 血月狂暴完整化：①骨王狂暴与血月可叠加——被骨王灵感的骷髅在血月夜近战额外 +100% 基础攻击（原为二选一各 +50%）；②血月夜怪物移速 ×1.2（`LivingEntity.getSpeed`）；③远程CD ×0.67——骷髅弓与女巫投掷在血月夜间隔 60→40 tick（骨王灵感再叠 →26）；④血月夜破门速度 ×2（`BreakDoorGoal.getDoorBreakTime` 减半，覆盖食尸鬼/隐形潜伏者/困难 vanilla 僵尸）。
+- 新增 GameTest `infx_frenzy_speed`；新增单测 `frenzyDamageBonusStacksPerSource`。
+
+---
+
 ## 0t14
 ### 新功能
 - 月光亮度表按 MITE 定制：主世界区域难度月光亮度改为血月 0.6、丰收月 1.0、蓝月/月狗 1.1、其余 `月相因子×0.5+0.75`（满月 1.25/新月 0.75），覆盖原版相位表（`ServerLevel.getMoonBrightness`）。
