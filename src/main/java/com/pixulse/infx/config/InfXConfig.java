@@ -93,6 +93,8 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry gelatinousItemCorrosion = flag("gelatinousItemCorrosion", "Enable gelatinous item corrosion", true);
         public final BooleanEntry bloodMoonFrenzy = flag("bloodMoonFrenzy", "Enable blood moon frenzy", true);
         public final BooleanEntry tensionEnabled = flag("tensionEnabled", "Enable chunk-residency tension difficulty", true);
+        public final BooleanEntry depthSpawn = flag("depthSpawn", "Enable blood-moon/depth spawn density", true);
+        public final BooleanEntry spawnCadence = flag("spawnCadence", "Enable per-night hostile spawn cadence", true);
 
         private MobConfig() {
             super("mobs", Component.literal("Mobs"));
