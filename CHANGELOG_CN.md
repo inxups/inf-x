@@ -1,4 +1,15 @@
 # Changelog
+## 0t20
+### 新功能
+- 血月刷怪密度 ×1.5：血月夜近玩家敌对怪上限提升 1.5×（全局+局部 mob cap，对齐 MITE `SpawnerAnimals` 血月半径 8→12 区块——MITE 的"生成半径"实为近玩家怪密度阈值，搜索区恒 17×17）。
+- 深度刷怪密度：近玩家敌对怪上限随深度 `8×(1+(64-y)/32)` 放大（y=64→1×，y=32→2×，y=0→3×），越深允许越多怪聚集（对齐 MITE `SpawnerAnimals.setEligibleChunksForSpawning`：68-95）。
+- 刷怪速率每日修正：主世界每日可能随机触发 ×0.5/×2/×0 敌对刷怪速率计数（`SpawnRateTracker` SavedData 持久化），血月或雷暴强制拉回 1.0（对齐 MITE `calcEffectiveHostileMobSpawningRateModifier`：612-659）。
+- 每夜刷怪节奏：主世界敌对自然刷怪每位置按 `y<60 0.1 / y≥60 0.17` × 速率修正掷骰，复刻 MITE 的 10%/17% 每 tick 节奏（对齐 MITE `performRandomLivingEntitySpawning`：667-671）。
+- 雷暴露天光检：核实为 vanilla `Monster.isDarkEnoughToSpawn` 雷暴分支已覆盖（误报排除，未实现）。
+- 新增 GameTest：`infx_blood_moon_spawn_factor`、`infx_depth_spawn_scale`、`infx_spawn_rate_modifier`、`infx_spawn_cadence`。
+
+---
+
 ## 0t19
 ### 新功能
 - 燃烧怪通用传火：燃烧且主手无武器的敌对生物在近战命中时按 `难度×0.3` 概率点燃目标 `2×难度` 秒（`LivingIncomingDamageEvent`，对齐 MITE `EntityMob.attackEntityAsMob`：209-212）。

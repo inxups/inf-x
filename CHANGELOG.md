@@ -1,4 +1,16 @@
 # Changelog
+# 0t20
+
+### New Features
+- Blood-moon spawn density ×1.5: on blood-moon nights the near-player hostile ceiling rises 1.5× (global and local mob caps, matching MITE `SpawnerAnimals` blood-moon radius 8→12 chunks — MITE's "spawn radius" is really a near-player mob-density threshold over a fixed 17×17 search area).
+- Depth spawn density: the near-player hostile ceiling grows with depth as `8×(1+(64-y)/32)` (y=64→1×, y=32→2×, y=0→3×), so deeper players tolerate more mobs crowding in (matching MITE `SpawnerAnimals.setEligibleChunksForSpawning`:68-95).
+- Daily spawn-rate modifier: each overworld day may randomly roll a ×0.5/×2/×0 hostile spawn rate for a few thousand ticks (`SpawnRateTracker` SavedData), with a blood moon or thunderstorm forcing the rate back to 1.0 (matching MITE `calcEffectiveHostileMobSpawningRateModifier`:612-659).
+- Per-night spawn cadence: every overworld hostile natural-spawn attempt rolls `(y<60 ? 0.1 : 0.17) ×` the daily rate modifier, reproducing MITE's 10%/17% per-tick cadence (matching MITE `performRandomLivingEntitySpawning`:667-671).
+- Thunderstorm light check: verified as already covered by vanilla `Monster.isDarkEnoughToSpawn`'s thunder branch — a false gap, so nothing to implement.
+- Added the `infx_blood_moon_spawn_factor`, `infx_depth_spawn_scale`, `infx_spawn_rate_modifier` and `infx_spawn_cadence` GameTests.
+
+---
+
 # 0t19
 
 ### New Features

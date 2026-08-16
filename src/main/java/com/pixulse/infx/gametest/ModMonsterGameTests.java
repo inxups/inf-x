@@ -18,6 +18,8 @@ import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.BlightTracker;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
+import com.pixulse.infx.world.SpawnDensity;
+import com.pixulse.infx.world.SpawnRateTracker;
 import com.pixulse.infx.world.Tension;
 import com.pixulse.infx.world.Underworld;
 import java.util.ArrayList;
@@ -124,6 +126,10 @@ public final class ModMonsterGameTests {
     private static final String BURNING_MOB_FIRE_TRANSFER = "infx_burning_mob_fire_transfer";
     private static final String VILLAGER_CONVERSION_NORMAL_GATE = "infx_villager_conversion_normal_gate";
     private static final String ZOMBIE_HATCHET_DAY = "infx_zombie_hatchet_day";
+    private static final String BLOOD_MOON_SPAWN_FACTOR = "infx_blood_moon_spawn_factor";
+    private static final String DEPTH_SPAWN_SCALE = "infx_depth_spawn_scale";
+    private static final String SPAWN_RATE_MODIFIER = "infx_spawn_rate_modifier";
+    private static final String SPAWN_CADENCE = "infx_spawn_cadence";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -167,6 +173,10 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(BURNING_MOB_FIRE_TRANSFER, () -> ModMonsterGameTests::burningMobFireTransfer);
         FUNCTIONS.register(VILLAGER_CONVERSION_NORMAL_GATE, () -> ModMonsterGameTests::villagerConversionNormalGate);
         FUNCTIONS.register(ZOMBIE_HATCHET_DAY, () -> ModMonsterGameTests::zombieHatchetDay);
+        FUNCTIONS.register(BLOOD_MOON_SPAWN_FACTOR, () -> ModMonsterGameTests::bloodMoonSpawnFactor);
+        FUNCTIONS.register(DEPTH_SPAWN_SCALE, () -> ModMonsterGameTests::depthSpawnScale);
+        FUNCTIONS.register(SPAWN_RATE_MODIFIER, () -> ModMonsterGameTests::spawnRateModifier);
+        FUNCTIONS.register(SPAWN_CADENCE, () -> ModMonsterGameTests::spawnCadence);
     }
 
     private ModMonsterGameTests() {}
@@ -219,7 +229,11 @@ public final class ModMonsterGameTests {
                 BLOOD_MOON_CROP_BLIGHT,
                 BURNING_MOB_FIRE_TRANSFER,
                 VILLAGER_CONVERSION_NORMAL_GATE,
-                ZOMBIE_HATCHET_DAY)) {
+                ZOMBIE_HATCHET_DAY,
+                BLOOD_MOON_SPAWN_FACTOR,
+                DEPTH_SPAWN_SCALE,
+                SPAWN_RATE_MODIFIER,
+                SPAWN_CADENCE)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2284,6 +2298,55 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 !MonsterTactics.zombieFavoursHatchet(10, false),
                 "the hatchet switch must still be a coin flip");
+        helper.succeed();
+    }
+
+    /** MITE: blood-moon nights raise the hostile spawn ceiling 1.5× (radius 8→12 chunks). */
+    private static void bloodMoonSpawnFactor(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
+        helper.assertTrue(
+                SpawnDensity.bloodMoonSpawnFactor(level) == 1.5F,
+                "blood-moon nights must raise the hostile spawn ceiling 1.5×");
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary night, day 31
+        helper.assertTrue(
+                SpawnDensity.bloodMoonSpawnFactor(level) == 1.0F,
+                "ordinary nights keep the vanilla spawn ceiling");
+        helper.succeed();
+    }
+
+    /** MITE: the near-player hostile ceiling grows with depth 8×(1+(64-y)/32). */
+    private static void depthSpawnScale(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary night, day 31
+        helper.assertTrue(SpawnDensity.densityCapScale(level, 64) == 1.0F, "surface spawns keep the base ceiling");
+        helper.assertTrue(SpawnDensity.densityCapScale(level, 32) == 2.0F, "y=32 doubles the hostile ceiling");
+        helper.assertTrue(SpawnDensity.densityCapScale(level, 0) == 3.0F, "bedrock triples the hostile ceiling");
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
+        helper.assertTrue(SpawnDensity.densityCapScale(level, 64) == 1.5F, "a surface blood moon still spawns denser");
+        helper.succeed();
+    }
+
+    /** MITE: daily random ×0.5/×2/×0 rate modifiers, with a blood-moon/thunder floor of 1.0. */
+    private static void spawnRateModifier(GameTestHelper helper) {
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(0, 0, 0, false) == 1.0F, "the default rate is 1.0");
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(5, 0, 0, false) == 0.5F, "a decreased day halves the rate");
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(0, 5, 0, false) == 2.0F, "an increased day doubles the rate");
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(0, 0, 5, false) == 0.0F, "a no-spawn day disables hostiles");
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(5, 0, 0, true) == 1.0F, "a blood moon or storm floors a halved day");
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(0, 0, 5, true) == 1.0F, "a blood moon or storm floors a no-spawn day");
+        helper.assertTrue(SpawnRateTracker.modifierForCounters(0, 5, 0, true) == 2.0F, "an increased day stays doubled");
+        helper.succeed();
+    }
+
+    /** MITE: hostile spawn passes roll 0.1 below y=60 and 0.17 at or above it. */
+    private static void spawnCadence(GameTestHelper helper) {
+        helper.assertTrue(SpawnDensity.cadenceChance(59, 1.0F) == 0.1F, "deep columns roll a 0.1 cadence");
+        helper.assertTrue(SpawnDensity.cadenceChance(60, 1.0F) == 0.17F, "surface columns roll a 0.17 cadence");
+        helper.assertTrue(SpawnDensity.cadenceChance(59, 2.0F) == 0.2F, "an increased day scales the deep cadence");
+        helper.assertTrue(SpawnDensity.cadenceChance(60, 0.5F) == 0.085F, "a decreased day scales the surface cadence");
         helper.succeed();
     }
 
