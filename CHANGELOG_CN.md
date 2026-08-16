@@ -1,4 +1,11 @@
 # Changelog
+## 0t16
+### 新功能
+- 僵尸系补全 MITE 机制：①无幼体僵尸——vanilla 5% 幼体出生被取消（含 jockey 骑鸡下马）；②稀有掉落——玩家击杀约 2.5% 概率掉 1 个铜/银/金/铁粒（`(5+looting×2)/200`，对齐 MITE）；③寻食生肉——vanilla 僵尸会走向并吃掉掉落的生肉（`#minecraft:meat`，亡灵进食不回血，400 tick 冷却）；④杀村民转化补充——手持挖掘工具的僵尸拒绝转化村民、转化后清空杀手僵尸 5 格装备（vanilla 原生转化/职业继承/反治愈保留）；⑤挖块目标脚下优先——僵尸先挖目标脚下一列（目标脚向下到挖者脚），再挖视线阻挡块。
+- 新增 GameTest `infx_zombie_no_baby`/`infx_zombie_food`/`infx_zombie_conversion_skip`/`infx_zombie_dig_feet_first`；新增单测 `zombieRareDropsMatchMite`。
+
+---
+
 ## 0t15
 ### 新功能
 - 血月狂暴完整化：①骨王狂暴与血月可叠加——被骨王灵感的骷髅在血月夜近战额外 +100% 基础攻击（原为二选一各 +50%）；②血月夜怪物移速 ×1.2（`LivingEntity.getSpeed`）；③远程CD ×0.67——骷髅弓与女巫投掷在血月夜间隔 60→40 tick（骨王灵感再叠 →26）；④血月夜破门速度 ×2（`BreakDoorGoal.getDoorBreakTime` 减半，覆盖食尸鬼/隐形潜伏者/困难 vanilla 僵尸）。

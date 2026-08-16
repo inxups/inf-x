@@ -13,6 +13,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -219,7 +220,7 @@ public final class MonsterTactics {
     }
 
     /** MITE {@code ItemTool}: pickaxes, shovels, axes, hoes and war hammers dig blocks. */
-    private static boolean holdsDigTool(ItemStack held) {
+    static boolean holdsDigTool(ItemStack held) {
         if (held.isEmpty()) {
             return false;
         }
@@ -347,15 +348,20 @@ public final class MonsterTactics {
             if (zombie.getRandom().nextInt(20) != 0) {
                 return false;
             }
-            var hit = level.clip(new ClipContext(
-                    zombie.getEyePosition(),
-                    target.getEyePosition(),
-                    ClipContext.Block.COLLIDER,
-                    ClipContext.Fluid.NONE,
-                    zombie));
-            if (hit.getType() != HitResult.Type.BLOCK) return false;
-            pos = hit.getBlockPos();
-            if (Vec3.atCenterOf(pos).distanceToSqr(zombie.position()) > 9.0) return false;
+            // MITE digs the target's foot column first (target feet down to the digger's feet),
+            // then falls back to the first line-of-sight block.
+            pos = firstDiggableInTargetColumn(zombie, level, target);
+            if (pos == null) {
+                var hit = level.clip(new ClipContext(
+                        zombie.getEyePosition(),
+                        target.getEyePosition(),
+                        ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.NONE,
+                        zombie));
+                if (hit.getType() != HitResult.Type.BLOCK) return false;
+                pos = hit.getBlockPos();
+                if (Vec3.atCenterOf(pos).distanceToSqr(zombie.position()) > 9.0) return false;
+            }
             if (digClaimedByAnother(level, zombie, pos)) return false;
             data.putLong(DIG_POS, pos.asLong());
             data.putInt(DIG_PROGRESS, 0);
@@ -380,6 +386,22 @@ public final class MonsterTactics {
             }
         }
         return true;
+    }
+
+    /** MITE dig order: the target's foot column from its feet down to the digger's feet. */
+    public static BlockPos firstDiggableInTargetColumn(Zombie zombie, ServerLevel level, LivingEntity target) {
+        BlockPos foot = target.blockPosition();
+        for (int y = foot.getY() - 1; y >= zombie.getBlockY(); y--) {
+            BlockPos candidate = new BlockPos(foot.getX(), y, foot.getZ());
+            if (Vec3.atCenterOf(candidate).distanceToSqr(zombie.position()) > 9.0) {
+                continue;
+            }
+            BlockState state = level.getBlockState(candidate);
+            if (canDestroyBlock(zombie, level, candidate, state)) {
+                return candidate.immutable();
+            }
+        }
+        return null;
     }
 
     /** True while a InfX monster is actively progressing through this module's block-dig task. */

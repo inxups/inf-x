@@ -1,16 +1,27 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gamerules.GameRules;
@@ -18,7 +29,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
+import net.neoforged.neoforge.event.entity.living.LivingConversionEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -74,6 +88,79 @@ public final class ZombieEvents {
             }
             zombie.setHealth(zombie.getMaxHealth());
         }
+        // MITE has no baby zombies: force a non-baby group data before vanilla finalizeSpawn
+        // rolls its 5% spawn-baby odds (and can never spawn a chicken jockey).
+        event.setSpawnData(new Zombie.ZombieGroupData(false, false));
+    }
+
+    /** MITE zombie rare drop: a player kill has a ~2.5% chance to drop one random metal nugget. */
+    @SubscribeEvent
+    public static void onLivingDrops(LivingDropsEvent event) {
+        if (!(event.getEntity() instanceof Zombie zombie)
+                || zombie.getType() != EntityType.ZOMBIE
+                || !event.isRecentlyHit()) {
+            return;
+        }
+        int looting = 0;
+        if (event.getSource().getEntity() instanceof LivingEntity killer) {
+            var enchantments = killer.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            looting = killer.getMainHandItem().getEnchantmentLevel(enchantments.getOrThrow(Enchantments.LOOTING));
+        }
+        if (zombie.getRandom().nextFloat() < rareDropChance(looting)) {
+            Item nugget = randomNugget(zombie.getRandom());
+            event.getDrops().add(new ItemEntity(
+                    zombie.level(), zombie.getX(), zombie.getY(), zombie.getZ(), new ItemStack(nugget)));
+        }
+    }
+
+    /** MITE zombie rare-drop chance: (5 + looting×2) out of 200. */
+    public static float rareDropChance(int looting) {
+        return (5 + looting * 2) / 200.0F;
+    }
+
+    /** One of MITE's four zombie rare drops: copper, silver, gold or iron nugget. */
+    public static Item randomNugget(RandomSource random) {
+        Item[] nuggets = {
+            Items.COPPER_NUGGET, InfXItems.SILVER_NUGGET.get(), Items.GOLD_NUGGET, Items.IRON_NUGGET
+        };
+        return nuggets[random.nextInt(nuggets.length)];
+    }
+
+    /** MITE {@code EntityAIMoveToFoodItem}: vanilla zombies seek and eat dropped raw meat. */
+    @SubscribeEvent
+    public static void onJoinLevel(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof Zombie zombie && zombie.getType() == EntityType.ZOMBIE) {
+            zombie.goalSelector.addGoal(2, new MoveToFoodGoal(zombie));
+        }
+    }
+
+    /** MITE: a zombie holding a digging tool refuses to turn a slain villager into a zombie villager. */
+    @SubscribeEvent
+    public static void onVillagerConversionPre(LivingConversionEvent.Pre event) {
+        if (!(event.getEntity() instanceof Villager villager)
+                || event.getOutcome() != EntityType.ZOMBIE_VILLAGER) {
+            return;
+        }
+        if (villager.getKillCredit() instanceof Zombie zombie
+                && zombie.getType() == EntityType.ZOMBIE
+                && MonsterTactics.holdsDigTool(zombie.getMainHandItem())) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** MITE: a villager conversion clears the killer zombie's five equipment slots. */
+    @SubscribeEvent
+    public static void onVillagerConversionPost(LivingConversionEvent.Post event) {
+        if (!(event.getEntity() instanceof Villager villager)
+                || !(villager.getKillCredit() instanceof Zombie zombie)
+                || zombie.getType() != EntityType.ZOMBIE) {
+            return;
+        }
+        zombie.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+        zombie.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+        zombie.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+        zombie.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
+        zombie.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
     }
 
     /** MITE: a zombie that is hit once by a player becomes permanently smart. */

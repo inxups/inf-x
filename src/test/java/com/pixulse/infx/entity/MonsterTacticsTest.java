@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.item.material.InfxMaterial;
+import com.pixulse.infx.registry.InfXItems;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.item.Items;
 import org.junit.jupiter.api.Test;
 
 class MonsterTacticsTest {
@@ -50,5 +53,21 @@ class MonsterTacticsTest {
         assertEquals(0.5F, MonsterEvents.frenzyDamageBonus(true, false));
         assertEquals(0.5F, MonsterEvents.frenzyDamageBonus(false, true));
         assertEquals(1.0F, MonsterEvents.frenzyDamageBonus(true, true));
+    }
+
+    @Test
+    void zombieRareDropsMatchMite() {
+        assertEquals(0.025F, ZombieEvents.rareDropChance(0), 1.0E-6F);
+        assertEquals(0.035F, ZombieEvents.rareDropChance(1), 1.0E-6F);
+        assertEquals(0.055F, ZombieEvents.rareDropChance(3), 1.0E-6F);
+        for (int i = 0; i < 32; i++) {
+            var nugget = ZombieEvents.randomNugget(RandomSource.create(i));
+            assertTrue(
+                    nugget == Items.COPPER_NUGGET
+                            || nugget == Items.GOLD_NUGGET
+                            || nugget == Items.IRON_NUGGET
+                            || nugget == InfXItems.SILVER_NUGGET.get(),
+                    "zombie rare drops must be one of the four metal nuggets");
+        }
     }
 }

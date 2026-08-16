@@ -1,4 +1,12 @@
 # Changelog
+# 0t16
+
+### New Features
+- Completed the MITE zombie-family mechanics: ① no baby zombies — vanilla's 5% spawn-baby roll is reversed (jockey chickens are dismounted); ② rare drops — a player kill has a ~2.5% chance to drop one copper/silver/gold/iron nugget (`(5+looting×2)/200`, per MITE); ③ raw-meat seeking — vanilla zombies walk to and eat dropped raw meat (`#minecraft:meat`, undead never heal from eating, 400-tick cooldown); ④ villager-conversion refinements — a zombie holding a digging tool refuses to convert a slain villager, and a successful conversion clears the killer zombie's five equipment slots (vanilla conversion / profession inheritance / curing kept); ⑤ digging targets the target's foot column first (from the target's feet down to the digger's feet) before line-of-sight blocks.
+- Added GameTests `infx_zombie_no_baby`, `infx_zombie_food`, `infx_zombie_conversion_skip` and `infx_zombie_dig_feet_first`, and the `zombieRareDropsMatchMite` unit test.
+
+---
+
 # 0t15
 
 ### New Features
