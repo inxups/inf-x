@@ -780,6 +780,7 @@
   "message.infx.safe_owned": "This safe belongs to %s",
   "message.infx.safe_tool": "A matching metal tool is required",
   "message.infx.server_management_disabled": "This server command is disabled outside InfiniteX test mode",
+  "message.infx.testmode_mismatch": "InfiniteX test mode must be enabled on both your client and this server, or on neither",
   "message.infx.underworld_bed_unsafe": "It is not safe to sleep in the Underworld",
   "message.infx.workbench_obstructed": "The workbench needs clear space above it",
   "quality.infx.excellent": "Excellent Quality",
