@@ -31,7 +31,8 @@ class BasicSystemsTest {
         assertFalse(MoonPhase.isOverworld(Level.NETHER));
         assertFalse(MoonPhase.isNightTime(12_999));
         assertTrue(MoonPhase.isNightTime(13_000));
-        assertTrue(MoonPhase.isNightTime(23_000));
+        assertTrue(MoonPhase.isNightTime(22_999));
+        assertFalse(MoonPhase.isNightTime(23_000));
         assertFalse(MoonPhase.isNightTime(23_001));
     }
 

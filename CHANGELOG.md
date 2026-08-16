@@ -1,4 +1,18 @@
 # Changelog
+# 0t21
+
+### New Features
+- Halloween zombie pumpkins: on October 31 a helmetless naturally-spawned zombie has a 25% chance to wear a pumpkin (10% of those a jack-o'-lantern) that never drops (matching MITE `EntityZombie.onSpawnWithEgg`:410-416).
+- Ghast 48-block spacing: ghasts never naturally spawn within 48 blocks of a player — source-verified as player distance, not the doc's "other ghasts" (matching MITE `SpawnerAnimals`:307).
+- Phase-spider spawn weight 5→40: approximates MITE's 64-attempt phase-spider spawn reliability (the modern spawner fixes attempt count before the entity type is known, so weight is used instead).
+- Stronghold spawn density: the near-player hostile ceiling is multiplied by `1 + stronghold proximity` (`findNearestMapStructure` cached 200 ticks per player, matching MITE `WorldServer.getStrongholdProximity`:2498).
+- MITE 14h/10h day window: the moon night window is now exactly [13000,23000) (14h day / 10h night, matching MITE adjusted sunrise 5000 / sunset 19000); undead sunlight burning gains the MITE daytime hard gate (`Mob.isSunBurnTick`).
+- Sniper achievement: verified as a false gap — vanilla `adventure/sniper_duel` (skeleton killed by projectile from horizontal ≥50) already matches MITE `snipeSkeleton` and infx keeps it; not implemented.
+- Zombie reinforcements: verified as a false gap — MITE's `spawnReinforcements` attribute has zero reads (dead code), the mechanic does not exist at runtime; not implemented.
+- New GameTest: `infx_ghast_spacing`.
+
+---
+
 # 0t20
 
 ### New Features

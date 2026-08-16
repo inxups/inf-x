@@ -130,6 +130,7 @@ public final class ModMonsterGameTests {
     private static final String DEPTH_SPAWN_SCALE = "infx_depth_spawn_scale";
     private static final String SPAWN_RATE_MODIFIER = "infx_spawn_rate_modifier";
     private static final String SPAWN_CADENCE = "infx_spawn_cadence";
+    private static final String GHAST_SPACING = "infx_ghast_spacing";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -177,6 +178,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(DEPTH_SPAWN_SCALE, () -> ModMonsterGameTests::depthSpawnScale);
         FUNCTIONS.register(SPAWN_RATE_MODIFIER, () -> ModMonsterGameTests::spawnRateModifier);
         FUNCTIONS.register(SPAWN_CADENCE, () -> ModMonsterGameTests::spawnCadence);
+        FUNCTIONS.register(GHAST_SPACING, () -> ModMonsterGameTests::ghastSpacing);
     }
 
     private ModMonsterGameTests() {}
@@ -233,7 +235,8 @@ public final class ModMonsterGameTests {
                 BLOOD_MOON_SPAWN_FACTOR,
                 DEPTH_SPAWN_SCALE,
                 SPAWN_RATE_MODIFIER,
-                SPAWN_CADENCE)) {
+                SPAWN_CADENCE,
+                GHAST_SPACING)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2347,6 +2350,24 @@ public final class ModMonsterGameTests {
         helper.assertTrue(SpawnDensity.cadenceChance(60, 1.0F) == 0.17F, "surface columns roll a 0.17 cadence");
         helper.assertTrue(SpawnDensity.cadenceChance(59, 2.0F) == 0.2F, "an increased day scales the deep cadence");
         helper.assertTrue(SpawnDensity.cadenceChance(60, 0.5F) == 0.085F, "a decreased day scales the surface cadence");
+        helper.succeed();
+    }
+
+    /** MITE ghast spacing (SpawnerAnimals.java:307): a ghast never spawns within 48 blocks of a player. */
+    private static void ghastSpacing(GameTestHelper helper) {
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        var level = helper.getLevel();
+        BlockPos base = player.blockPosition();
+        RandomSource random = level.getRandom();
+        helper.assertTrue(
+                !MonsterEvents.checkGhastSpacing(EntityType.GHAST, level, EntitySpawnReason.NATURAL,
+                        base.offset(10, 0, 0), random),
+                "a ghast must not spawn within 48 blocks of a player");
+        helper.assertTrue(
+                MonsterEvents.checkGhastSpacing(EntityType.GHAST, level, EntitySpawnReason.NATURAL,
+                        base.offset(60, 0, 0), random),
+                "a ghast may spawn beyond 48 blocks of a player");
+        ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 

@@ -127,7 +127,7 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
         add(spawns, InfXEntityTypes.OOZE.get(), 20, 1, 4);
         add(spawns, InfXEntityTypes.PUDDING.get(), 30, 1, 4);
         add(spawns, InfXEntityTypes.BONE_LORD.get(), 5, 1, 1);
-        add(spawns, InfXEntityTypes.PHASE_SPIDER.get(), 5, 1, 4);
+        add(spawns, InfXEntityTypes.PHASE_SPIDER.get(), 40, 1, 4);
         if (isAny(biome, JUNGLES)) add(spawns, InfXEntityTypes.BLACK_WIDOW_SPIDER.get(), 10, 1, 1);
         if (biome.is(Biomes.SWAMP) || biome.is(Biomes.MANGROVE_SWAMP)) {
             add(spawns, EntityType.SLIME, 10, 1, 1);

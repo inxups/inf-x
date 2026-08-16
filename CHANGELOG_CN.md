@@ -1,4 +1,17 @@
 # Changelog
+## 0t21
+### 新功能
+- 万圣节僵尸南瓜头：10 月 31 日生成的无头盔僵尸 25% 概率戴南瓜头（其中 10% 为南瓜灯），掉落率为 0（对齐 MITE `EntityZombie.onSpawnWithEgg`：410-416）。
+- 恶魂 48 格间距：恶魂不会在玩家 48 格内自然生成（源码核实为**距玩家**而非文档所写"距其他恶魂"，对齐 MITE `SpawnerAnimals`：307）。
+- 相位蜘蛛刷怪权重 5→40：近似 MITE 相位蜘蛛"64 次生成尝试"的可靠性提升（现代刷怪器尝试次数在类型确定前决定，无法忠实移植，取权重近似）。
+- 强地牢附近刷怪密度提升：近玩家敌对上限乘 `1 + 强地牢近距因子`（`findNearestMapStructure` 每玩家 200 tick 缓存，对齐 MITE `WorldServer.getStrongholdProximity`：2498）。
+- 昼夜窗口对齐 MITE：月相夜间窗口改为 [13000,23000)（白天 14h/夜 10h，精确对齐 MITE adjusted 5000/19000）；不死族日光燃烧加 MITE 白天硬门（`Mob.isSunBurnTick`，仅 MITE 白天可烧）。
+- 爆头成就：核实为误报——vanilla `adventure/sniper_duel`（射杀骷髅+水平≥50+弹射物）与 MITE `snipeSkeleton` 完全一致且 infx 保留，未实现。
+- 僵尸召唤援军：核实为误报——MITE 中 `spawnReinforcements` 属性零读取（死代码），运行时无此机制，未实现。
+- 新增 GameTest：`infx_ghast_spacing`。
+
+---
+
 ## 0t20
 ### 新功能
 - 血月刷怪密度 ×1.5：血月夜近玩家敌对怪上限提升 1.5×（全局+局部 mob cap，对齐 MITE `SpawnerAnimals` 血月半径 8→12 区块——MITE 的"生成半径"实为近玩家怪密度阈值，搜索区恒 17×17）。

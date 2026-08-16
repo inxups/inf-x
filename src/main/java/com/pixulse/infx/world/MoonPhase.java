@@ -22,7 +22,7 @@ public enum MoonPhase {
     public static final int BASE_CYCLE_DAYS = 8;
     /** InfX daytime ends at 13:00 and begins again just after 23:00. */
     public static final long NIGHT_START_TICK = 13_000L;
-    public static final long NIGHT_END_TICK_EXCLUSIVE = 23_001L;
+    public static final long NIGHT_END_TICK_EXCLUSIVE = 23_000L;
 
     public static MoonPhase at(Level level) {
         return atTime(level.getOverworldClockTime());
