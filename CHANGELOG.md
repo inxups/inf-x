@@ -1,4 +1,11 @@
 # Changelog
+# 0t22
+
+### Removed
+- Halloween zombie pumpkins: verified as a vanilla 26.2 native mechanic (`Zombie.finalizeSpawn` + `AbstractSkeleton.finalizeSpawn`: `SpecialDates.isHalloween()` + empty helmet + 25% → pumpkin, 10% jack-o'-lantern, zero drop chance) that 0t21's port duplicated verbatim — natively covering skeletons too — so the duplicate code and `halloweenPumpkin` config were removed.
+
+---
+
 # 0t21
 
 ### New Features

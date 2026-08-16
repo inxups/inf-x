@@ -1,4 +1,10 @@
 # Changelog
+## 0t22
+### 移除
+- 万圣节僵尸南瓜头：核实为 vanilla 26.2 原生机制（`Zombie.finalizeSpawn` + `AbstractSkeleton.finalizeSpawn`：`SpecialDates.isHalloween()` + 头盔空 + 25% → 南瓜头 10% 南瓜灯 + drop0），与 0t21 移植逐字相同且原生覆盖骷髅更广，移除重复代码与 `halloweenPumpkin` 配置。
+
+---
+
 ## 0t21
 ### 新功能
 - 万圣节僵尸南瓜头：10 月 31 日生成的无头盔僵尸 25% 概率戴南瓜头（其中 10% 为南瓜灯），掉落率为 0（对齐 MITE `EntityZombie.onSpawnWithEgg`：410-416）。
