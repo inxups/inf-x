@@ -37,6 +37,7 @@ import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -103,6 +104,7 @@ public final class ModMonsterGameTests {
     private static final String SKELETON_BONE_REPAIR = "infx_skeleton_bone_repair";
     private static final String SKELETON_CACTUS_IMMUNE = "infx_skeleton_cactus_immune";
     private static final String SKELETON_GUARDIAN_SWITCH = "infx_skeleton_guardian_switch";
+    private static final String FRENZY_SPEED = "infx_frenzy_speed";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -134,6 +136,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(SKELETON_BONE_REPAIR, () -> ModMonsterGameTests::skeletonBoneRepair);
         FUNCTIONS.register(SKELETON_CACTUS_IMMUNE, () -> ModMonsterGameTests::skeletonCactusImmune);
         FUNCTIONS.register(SKELETON_GUARDIAN_SWITCH, () -> ModMonsterGameTests::skeletonGuardianSwitch);
+        FUNCTIONS.register(FRENZY_SPEED, () -> ModMonsterGameTests::frenzySpeed);
     }
 
     private ModMonsterGameTests() {}
@@ -174,7 +177,8 @@ public final class ModMonsterGameTests {
                 TENSION_CURVE,
                 SKELETON_BONE_REPAIR,
                 SKELETON_CACTUS_IMMUNE,
-                SKELETON_GUARDIAN_SWITCH)) {
+                SKELETON_GUARDIAN_SWITCH,
+                FRENZY_SPEED)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -2106,6 +2110,24 @@ public final class ModMonsterGameTests {
                 guardian.getMainHandItem().is(bow),
                 "a guardian beyond 6 blocks must swap back to its bow; held=" + guardian.getMainHandItem());
         ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    /** MITE frenzy: hostile mobs move 1.2× faster on blood-moon nights. */
+    private static void frenzySpeed(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
+        zombie.setSpeed(1.0F);
+        helper.assertTrue(
+                Math.abs(zombie.getSpeed() - 1.2F) < 1.0E-5F,
+                "a hostile mob must move 1.2× faster on a blood-moon night; got " + zombie.getSpeed());
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary night, day 31
+        zombie.setSpeed(1.0F);
+        helper.assertTrue(
+                Math.abs(zombie.getSpeed() - 1.0F) < 1.0E-5F,
+                "a hostile mob must move at base speed on an ordinary night; got " + zombie.getSpeed());
         helper.succeed();
     }
 }

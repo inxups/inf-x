@@ -548,7 +548,10 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             return;
         }
         if (bowGoal != null) {
-            bowGoal.setAttackInterval(isInspired() ? 40 : 60);
+            // MITE frenzy: blood-moon and bone-lord inspiration each cut the ranged cooldown by 1.5×.
+            int interval = (int) (60 / (MonsterEvents.isBloodMoonFrenzied(level) ? 1.5F : 1.0F)
+                    / (isInspired() ? 1.5F : 1.0F));
+            bowGoal.setAttackInterval(interval);
         }
         if (!isBoneLord()) {
             return;

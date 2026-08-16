@@ -43,4 +43,12 @@ class MonsterTacticsTest {
         assertEquals(4.0, MonsterTactics.flankOffset(0, 4.0).x, 1.0E-6);
         assertEquals(4.0, MonsterTactics.flankOffset(2, 4.0).z, 1.0E-6);
     }
+
+    @Test
+    void frenzyDamageBonusStacksPerSource() {
+        assertEquals(0.0F, MonsterEvents.frenzyDamageBonus(false, false));
+        assertEquals(0.5F, MonsterEvents.frenzyDamageBonus(true, false));
+        assertEquals(0.5F, MonsterEvents.frenzyDamageBonus(false, true));
+        assertEquals(1.0F, MonsterEvents.frenzyDamageBonus(true, true));
+    }
 }

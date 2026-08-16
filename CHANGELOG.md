@@ -1,4 +1,12 @@
 # Changelog
+# 0t15
+
+### New Features
+- Completed the MITE blood-moon frenzy: ① bone-lord inspiration now stacks with the blood-moon frenzy (an inspired skeleton deals +100% base attack on a blood-moon night, was an either-or +50%); ② hostile mobs move 1.2× faster on blood-moon nights (`LivingEntity.getSpeed`); ③ ranged cooldowns drop to 0.67× — skeleton bows and witch throws go from 60 to 40 ticks on a blood-moon night (bone-lord inspiration stacks to 26); ④ door breaking is twice as fast on blood-moon nights (`BreakDoorGoal.getDoorBreakTime` halved, covering ghouls, invisible stalkers and hard-mode vanilla zombies).
+- Added the `infx_frenzy_speed` GameTest and the `frenzyDamageBonusStacksPerSource` unit test.
+
+---
+
 # 0t14
 
 ### New Features
