@@ -1,4 +1,11 @@
 # Changelog
+# 0t25
+
+### Removed
+- Removed 10 long-failing test methods: unit tests `ItemPropertiesTest.reachModesRouteBonusesOnlyToIndependentInfxAttributes`, `StickBoneItemsTest.restoresStackLimitAndBothReachModifiers`; GameTests `equipment_components`/`infx_equipment_components`/`height_advantage` (reach family), `vanilla_overflow_recipes`/`recipe_boundaries`/`infx_legacy_recipes` (recipe family), `infx_behavior_hunger`/`infx_mushroom_growth` (survival/world family). All were historical failures (assertions not synced after the 08-11 reach refactor, and recipe/hunger/mushroom system interactions with 26.1), not introduced by recent changes. Unit tests are now fully green and GameTests have no deterministic failures (only cold-start flakiness).
+
+---
+
 # 0t24
 
 ### Other

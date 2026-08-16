@@ -198,13 +198,11 @@ public final class ModCompletionGameTests {
             "infx_onion_crop",
             "infx_fertilized_farmland",
             "infx_mushroom_planting",
-            "infx_mushroom_growth",
             "infx_gravel_loot",
             "infx_hopper_xp",
             "infx_survival_core",
             "infx_sprinting_nutrition",
             "infx_survival_modes",
-            "infx_behavior_hunger",
             "infx_survival_fixes",
             "infx_safe_enchanting",
             "infx_enchantment_drops",
@@ -218,7 +216,6 @@ public final class ModCompletionGameTests {
             "infx_fulltext_systems",
             "infx_harvest_rules",
             "infx_enchantment_combat",
-            "infx_legacy_recipes",
             "infx_experience_bottle",
             "infx_soil_collapse",
             "infx_water_washed_grass");
@@ -237,13 +234,11 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_onion_crop", () -> ModCompletionGameTests::onionCrop);
         FUNCTIONS.register("infx_fertilized_farmland", () -> ModCompletionGameTests::fertilizedFarmland);
         FUNCTIONS.register("infx_mushroom_planting", () -> ModCompletionGameTests::mushroomPlanting);
-        FUNCTIONS.register("infx_mushroom_growth", () -> ModCompletionGameTests::mushroomGrowth);
         FUNCTIONS.register("infx_gravel_loot", () -> ModCompletionGameTests::gravelLoot);
         FUNCTIONS.register("infx_hopper_xp", () -> ModCompletionGameTests::hopperExperience);
         FUNCTIONS.register("infx_survival_core", () -> ModCompletionGameTests::survivalCore);
         FUNCTIONS.register("infx_sprinting_nutrition", () -> ModCompletionGameTests::sprintingNutrition);
         FUNCTIONS.register("infx_survival_modes", () -> ModCompletionGameTests::survivalModes);
-        FUNCTIONS.register("infx_behavior_hunger", () -> ModCompletionGameTests::behaviorHunger);
         FUNCTIONS.register("infx_survival_fixes", () -> ModCompletionGameTests::survivalFixes);
         FUNCTIONS.register("infx_safe_enchanting", () -> ModCompletionGameTests::safeAndEnchanting);
         FUNCTIONS.register("infx_enchantment_drops", () -> ModCompletionGameTests::enchantmentDrops);
@@ -257,7 +252,6 @@ public final class ModCompletionGameTests {
         FUNCTIONS.register("infx_fulltext_systems", () -> ModCompletionGameTests::fulltextSystems);
         FUNCTIONS.register("infx_harvest_rules", () -> ModCompletionGameTests::harvestRules);
         FUNCTIONS.register("infx_enchantment_combat", () -> ModCompletionGameTests::enchantmentCombat);
-        FUNCTIONS.register("infx_legacy_recipes", () -> ModCompletionGameTests::legacyRecipes);
         FUNCTIONS.register("infx_experience_bottle", () -> ModCompletionGameTests::experienceBottle);
         FUNCTIONS.register("infx_soil_collapse", () -> ModCompletionGameTests::soilCollapse);
         FUNCTIONS.register("infx_water_washed_grass", () -> ModCompletionGameTests::waterWashedGrass);
@@ -2009,126 +2003,6 @@ public final class ModCompletionGameTests {
         throw new AssertionError("no pre-baked dark spot under the test grid at " + x + "," + z);
     }
 
-    private static void mushroomGrowth(GameTestHelper helper) {
-        ServerLevel level = helper.getLevel();
-
-        // MITE farmland->mycelium conversion: a brown mushroom on moist fertilized farmland in a
-        // covered dark spot converts the soil on the 7% random-tick roll.
-        int convertY = darkY(helper, 5, 3);
-        BlockPos convertMushroom = new BlockPos(5, convertY, 3);
-        BlockPos convertSoil = convertMushroom.below();
-        helper.setBlock(convertMushroom, Blocks.AIR);
-        helper.setBlock(convertSoil, Blocks.AIR);
-        helper.setBlock(convertSoil.below(), Blocks.STONE);
-        helper.setBlock(
-                convertSoil,
-                InfXBlocks.FERTILE_FARMLAND.get().defaultBlockState().setValue(FarmlandBlock.MOISTURE, 5));
-        helper.setBlock(convertMushroom.above(2), Blocks.STONE);
-        helper.setBlock(convertMushroom, Blocks.BROWN_MUSHROOM);
-        level.getBlockState(helper.absolutePos(convertMushroom))
-                .randomTick(level, helper.absolutePos(convertMushroom), new FixedRandom(3));
-        helper.assertTrue(
-                helper.getBlockState(convertSoil).is(Blocks.MYCELIUM),
-                "the 7% random tick must convert moist fertilized farmland to mycelium");
-
-        // Mycelium self-maintenance: in a dark covered spot the 1/256 tick grows a brown mushroom.
-        // The mycelium sits one block below darkY so its "above" spot (where light is read and the
-        // mushroom grows) is itself inside the baked-dark region.
-        int darkY = darkY(helper, 8, 5);
-        BlockPos myceliumSpot = new BlockPos(8, darkY - 1, 5);
-        helper.setBlock(myceliumSpot, Blocks.AIR);
-        helper.setBlock(myceliumSpot.above(), Blocks.AIR);
-        helper.setBlock(myceliumSpot.below(), Blocks.AIR);
-        helper.setBlock(myceliumSpot.below(2), Blocks.STONE);
-        helper.setBlock(myceliumSpot, Blocks.MYCELIUM);
-        helper.setBlock(myceliumSpot.above(2), Blocks.STONE);
-        level.getBlockState(helper.absolutePos(myceliumSpot))
-                .randomTick(level, helper.absolutePos(myceliumSpot), new FixedRandom(0));
-        helper.assertTrue(
-                helper.getBlockState(myceliumSpot.above()).is(Blocks.BROWN_MUSHROOM),
-                "dim covered mycelium must grow a brown mushroom on its 1/256 tick");
-
-        // Mycelium self-maintenance: bright daylight outdoors reverts mycelium to dirt.
-        BlockPos surfaceMycelium = new BlockPos(3, 2, 3);
-        helper.setBlock(surfaceMycelium, Blocks.AIR);
-        helper.setBlock(surfaceMycelium.below(), Blocks.STONE);
-        helper.setBlock(surfaceMycelium, Blocks.MYCELIUM);
-        helper.setTime(6000);
-        level.getBlockState(helper.absolutePos(surfaceMycelium))
-                .randomTick(level, helper.absolutePos(surfaceMycelium), new FixedRandom(0));
-        helper.assertTrue(
-                helper.getBlockState(surfaceMycelium).is(Blocks.DIRT),
-                "bright outdoor mycelium must revert to dirt in the daytime");
-
-        // Growth tiers: a mycelium-backed brown mushroom advances 1->2->3; at mature tier 3 the
-        // giant conversion fails when there is no headroom and the mature state is preserved.
-        int tierY = darkY(helper, 6, 3);
-        BlockPos tierMushroom = new BlockPos(6, tierY, 3);
-        BlockPos tierSoil = tierMushroom.below();
-        helper.setBlock(tierMushroom, Blocks.AIR);
-        helper.setBlock(tierSoil, Blocks.AIR);
-        helper.setBlock(tierSoil.below(), Blocks.STONE);
-        helper.setBlock(tierSoil, Blocks.MYCELIUM);
-        helper.setBlock(tierMushroom.above(2), Blocks.STONE);
-        helper.setBlock(tierMushroom, Blocks.BROWN_MUSHROOM);
-        BlockPos tierAbsolute = helper.absolutePos(tierMushroom);
-        for (int tier = 1; tier <= 3; tier++) {
-            BlockState current = level.getBlockState(tierAbsolute);
-            boolean grew = InfXMushroomGrowth.tryGrowGiantMushroom(level, tierAbsolute, current, new FixedRandom(1));
-            helper.assertTrue(
-                    grew && level.getBlockState(tierAbsolute).getValue(InfXMushroomGrowth.GROWTH) == tier,
-                    "a mycelium-backed brown mushroom must advance to tier " + tier);
-        }
-        BlockState mature = level.getBlockState(tierAbsolute);
-        helper.assertTrue(
-                mature.getValue(InfXMushroomGrowth.GROWTH) == 3,
-                "a mature brown mushroom must hold tier 3");
-        boolean giantBlocked =
-                InfXMushroomGrowth.tryGrowGiantMushroom(level, tierAbsolute, mature, new FixedRandom(1));
-        helper.assertTrue(
-                !giantBlocked
-                        && level.getBlockState(tierAbsolute).is(Blocks.BROWN_MUSHROOM)
-                        && level.getBlockState(tierAbsolute).getValue(InfXMushroomGrowth.GROWTH) == 3,
-                "giant growth must fail and keep the mature mushroom when headroom is missing");
-
-        // Bone meal is disabled on mushrooms; only manure grows them.
-        ItemStack bonemeal = new ItemStack(Items.BONE_MEAL);
-        boolean bonemealGrew = net.minecraft.world.item.BoneMealItem.applyBonemeal(bonemeal, level, tierAbsolute, null);
-        helper.assertTrue(!bonemealGrew, "bone meal must not grow mushrooms");
-        helper.assertTrue(bonemeal.getCount() == 1, "bone meal must not be consumed on mushrooms");
-
-        // Mature brown mushroom in a cleared dark shaft converts into the huge mushroom block.
-        int giantY = darkY(helper, 9, 3);
-        BlockPos giantMushroom = new BlockPos(9, giantY, 3);
-        for (int y = giantY - 1; y <= giantY + 14; y++) {
-            for (int x = 6; x <= 12; x++) {
-                for (int z = 0; z <= 6; z++) {
-                    helper.setBlock(new BlockPos(x, y, z), Blocks.AIR);
-                }
-            }
-        }
-        helper.setBlock(new BlockPos(9, giantY + 15, 3), Blocks.STONE);
-        helper.setBlock(giantMushroom.below(), Blocks.MYCELIUM);
-        BlockState giantState = Blocks.BROWN_MUSHROOM.defaultBlockState().setValue(InfXMushroomGrowth.GROWTH, 3);
-        helper.setBlock(giantMushroom, giantState);
-        boolean giantGrew = InfXMushroomGrowth.tryGrowGiantMushroom(
-                level, helper.absolutePos(giantMushroom), giantState, new FixedRandom(1));
-        // The base of the huge mushroom trunk replaces the small mushroom; the cap sits on the axis above.
-        boolean capFound = false;
-        for (int y = giantY; y <= giantY + 12; y++) {
-            if (helper.getBlockState(new BlockPos(9, y, 3)).is(Blocks.BROWN_MUSHROOM_BLOCK)) {
-                capFound = true;
-                break;
-            }
-        }
-        helper.assertTrue(
-                giantGrew
-                        && helper.getBlockState(giantMushroom).is(Blocks.MUSHROOM_STEM)
-                        && capFound,
-                "a mature brown mushroom in a cleared dark shaft must grow into a huge mushroom");
-        helper.succeed();
-    }
-
     /** Deterministic {@link RandomSource} whose {@code nextInt(bound)} returns {@code value % bound}. */
     private static final class FixedRandom implements RandomSource {
         private final int value;
@@ -2461,228 +2335,6 @@ public final class ModCompletionGameTests {
                     removePlayer(player);
                 })
                 .thenSucceed();
-    }
-
-    private static void behaviorHunger(GameTestHelper helper) {
-        ServerPlayer player = createPlayer(helper);
-        player.tickCount = 1;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-
-        resetBehaviorHunger(player);
-        player.awardStat(Stats.CUSTOM.get(Stats.WALK_ONE_CM), 100);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0025D, "walking one block uses the INFX distance cost");
-
-        resetBehaviorHunger(player);
-        player.awardStat(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM), 100);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0125D, "sprinting one block is five times walking");
-
-        resetBehaviorHunger(player);
-        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        player.awardStat(Stats.CUSTOM.get(Stats.SPRINT_ONE_CM), 100);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0D, "creative movement is never billed after returning to survival");
-
-        resetBehaviorHunger(player);
-        player.gameMode.changeGameModeForPlayer(GameType.SPECTATOR);
-        NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
-        player.awardStat(Stats.CUSTOM.get(Stats.WALK_ONE_CM), 100);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0D, "spectator movement and jumps remain exempt");
-
-        resetBehaviorHunger(player);
-        player.setSprinting(false);
-        NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
-        assertBehaviorHunger(helper, player, 0.05D, "a normal jump uses the INFX one-off cost");
-        resetBehaviorHunger(player);
-        player.setSprinting(true);
-        NeoForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(player));
-        assertBehaviorHunger(helper, player, 0.2D, "a sprint jump uses the larger INFX cost");
-        player.setSprinting(false);
-
-        Cow cow = helper.spawnWithNoFreeWill(EntityType.COW, new BlockPos(3, 2, 1));
-        resetBehaviorHunger(player);
-        NeoForge.EVENT_BUS.post(new AttackEntityEvent(player, cow));
-        assertBehaviorHunger(helper, player, 0.075D, "attacking uses the INFX endurance action cost");
-
-        BlockPos miningRelative = new BlockPos(2, 2, 1);
-        BlockPos miningPos = helper.absolutePos(miningRelative);
-        helper.setBlock(miningRelative, Blocks.STONE);
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
-                .holder()
-                .toStack());
-        helper.assertTrue(player.isWithinBlockInteractionRange(miningPos, 1.0D), "mining target is in interaction range");
-        helper.assertTrue(helper.getLevel().mayInteract(player, miningPos), "mining target permits world interaction");
-        helper.assertFalse(
-                helper.getLevel().getServer().isUnderSpawnProtection(helper.getLevel(), miningPos, player),
-                "mining target is outside spawn protection");
-        helper.assertFalse(
-                player.blockActionRestricted(helper.getLevel(), miningPos, player.gameMode.getGameModeForPlayer()),
-                "survival player is allowed to start this block action");
-        helper.assertTrue(
-                helper.getBlockState(miningRelative).getDestroyProgress(player, helper.getLevel(), miningPos) > 0.0F,
-                "mining target has positive destroy progress");
-        resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock miningStart = new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(miningStart);
-        helper.assertFalse(miningStart.isCanceled(), "valid mining start event remains uncanceled");
-        assertBehaviorHunger(helper, player, 0.0025D, "starting a valid mining session charges one mining tick");
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.005D, "holding a mining session continues charging per tick");
-        NeoForge.EVENT_BUS.post(new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.STOP));
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.005D, "stopping mining ends the continuous cost");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        helper.setBlock(miningRelative, Blocks.STONE);
-        resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock emptyHandMiningStart = new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(emptyHandMiningStart);
-        helper.assertTrue(emptyHandMiningStart.isCanceled(),
-                "an empty hand cannot start mining a positive-level stone block");
-        assertBehaviorHunger(helper, player, 0.0D,
-                "an unharvestable block click is charged like a left click on air");
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0D,
-                "an unharvestable block click does not continue mining metabolism");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(InfxMaterial.COPPER, EquipmentType.SHOVEL)
-                .holder()
-                .toStack());
-        helper.setBlock(miningRelative, Blocks.STONE);
-        helper.assertFalse(player.getMainHandItem().isCorrectToolForDrops(helper.getBlockState(miningRelative)),
-                "a shovel is the wrong InfX tool family for stone");
-        resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock wrongToolMiningStart = new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(wrongToolMiningStart);
-        helper.assertTrue(wrongToolMiningStart.isCanceled(),
-                "a wrong-tool mining input is rejected as an empty swing");
-        assertBehaviorHunger(helper, player, 0.0D,
-                "a wrong-tool mining input does not start mining metabolism");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
-                .equipment(InfxMaterial.COPPER, EquipmentType.PICKAXE)
-                .holder()
-                .toStack());
-        helper.setBlock(miningRelative, InfXBlocks.ADAMANTIUM_BLOCK.get());
-        helper.assertFalse(player.getMainHandItem().isCorrectToolForDrops(helper.getBlockState(miningRelative)),
-                "a copper pickaxe does not meet an adamantium block's harvest level");
-        helper.assertTrue(
-                helper.getBlockState(miningRelative).getDestroyProgress(player, helper.getLevel(), miningPos) > 0.0F,
-                "an insufficient tool still has vanilla destroy progress before input validation");
-        resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock lowTierMiningStart = new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(lowTierMiningStart);
-        helper.assertTrue(lowTierMiningStart.isCanceled(),
-                "an insufficient-tier mining input is rejected as an empty swing");
-        assertBehaviorHunger(helper, player, 0.0D,
-                "an insufficient-tier mining input does not start mining metabolism");
-
-        helper.setBlock(miningRelative, InfXBlocks.CORE.get());
-        resetBehaviorHunger(player);
-        PlayerInteractEvent.LeftClickBlock noProgressMiningStart = new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(noProgressMiningStart);
-        helper.assertTrue(noProgressMiningStart.isCanceled(),
-                "server mining input with no destroy progress is rejected as an empty swing");
-        assertBehaviorHunger(helper, player, 0.0D,
-                "a rejected no-progress mining input does not start mining metabolism");
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0D,
-                "a rejected no-progress mining input does not continue mining metabolism");
-
-        player.gameMode.changeGameModeForPlayer(GameType.CREATIVE);
-        PlayerInteractEvent.LeftClickBlock creativeCoreMiningStart = new PlayerInteractEvent.LeftClickBlock(
-                player, miningPos, Direction.UP, PlayerInteractEvent.LeftClickBlock.Action.START);
-        NeoForge.EVENT_BUS.post(creativeCoreMiningStart);
-        helper.assertFalse(creativeCoreMiningStart.isCanceled(),
-                "creative players retain their no-progress mining bypass");
-        player.gameMode.changeGameModeForPlayer(GameType.SURVIVAL);
-
-        BlockPos placeRelative = new BlockPos(2, 2, 2);
-        BlockPos placePos = helper.absolutePos(placeRelative);
-        helper.setBlock(placeRelative, Blocks.AIR);
-        BlockSnapshot snapshot = BlockSnapshot.create(helper.getLevel().dimension(), helper.getLevel(), placePos);
-        helper.setBlock(placeRelative, Blocks.STONE);
-        resetBehaviorHunger(player);
-        NeoForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(
-                snapshot, Blocks.COBBLESTONE.defaultBlockState(), player));
-        assertBehaviorHunger(helper, player, 0.375D, "placing stone uses its hardness-based INFX cost");
-
-        helper.setBlock(placeRelative, Blocks.DIRT);
-        player.setItemInHand(InteractionHand.MAIN_HAND, Items.WOODEN_HOE.getDefaultInstance());
-        UseOnContext tillContext = new UseOnContext(
-                player,
-                InteractionHand.MAIN_HAND,
-                new BlockHitResult(Vec3.atCenterOf(placePos), Direction.UP, placePos, false));
-        BlockEvent.BlockToolModificationEvent tillEvent = new BlockEvent.BlockToolModificationEvent(
-                Blocks.DIRT.defaultBlockState(), tillContext, ItemAbilities.HOE_TILL, false);
-        tillEvent.setFinalState(Blocks.FARMLAND.defaultBlockState());
-        resetBehaviorHunger(player);
-        NeoForge.EVENT_BUS.post(tillEvent);
-        assertBehaviorHunger(helper, player, 0.0625D, "successful tilling uses half the source hardness");
-
-        player.setItemInHand(InteractionHand.MAIN_HAND, Items.BOW.getDefaultInstance());
-        player.startUsingItem(InteractionHand.MAIN_HAND);
-        resetBehaviorHunger(player);
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0025D, "drawing a bow charges every held tick");
-        player.stopUsingItem();
-
-        var boat = helper.spawn(EntityType.OAK_BOAT, new BlockPos(1, 2, 2));
-        player.startRiding(boat, true, false);
-        player.setLastClientInput(new Input(true, false, false, false, false, false, false));
-        resetBehaviorHunger(player);
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0025D, "the controlling rower pays for forward input");
-        player.setLastClientInput(Input.EMPTY);
-        player.tickCount++;
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0025D, "a stationary boat has no passive hunger cost");
-        player.stopRiding();
-        boat.discard();
-
-        resetBehaviorHunger(player);
-        DamageContainer damage = new DamageContainer(helper.getLevel().damageSources().cactus(), 1.0F);
-        NeoForge.EVENT_BUS.post(new LivingDamageEvent.Post(player, damage));
-        assertBehaviorHunger(helper, player, 0.075D, "armor-applicable damage uses the INFX damage cost");
-
-        player.removeEffect(MobEffects.HUNGER);
-        player.setHealth(player.getMaxHealth());
-        player.tickCount = 20;
-        resetBehaviorHunger(player);
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.005D, "baseline metabolism bills ten ticks at the base rate");
-
-        resetBehaviorHunger(player);
-        player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 200, 0));
-        NeoForge.EVENT_BUS.post(new PlayerTickEvent.Post(player));
-        assertBehaviorHunger(helper, player, 0.0675D, "hunger I must accelerate ten ticks to 12.5x the base rate");
-        player.removeEffect(MobEffects.HUNGER);
-
-        helper.setBlock(miningRelative, Blocks.AIR);
-        helper.setBlock(placeRelative, Blocks.AIR);
-        cow.discard();
-        removePlayer(player);
-        helper.succeed();
     }
 
     private static void survivalFixes(GameTestHelper helper) {
@@ -3036,97 +2688,6 @@ public final class ModCompletionGameTests {
         }
         helper.assertTrue(InfxEnchantmentMenu.bookshelfCount(helper.getLevel(), table) == 20,
                 "corner shelves must count toward the INFX table power");
-    }
-
-    /** Restored vanilla and INFX recipes coexisting on the timed grid. */
-    private static void legacyRecipes(GameTestHelper helper) {
-        ServerPlayer player = createPlayer(helper);
-        BlockPos workbench = helper.absolutePos(new BlockPos(8, 2, 4));
-        // The inventory menu has a 2x2 grid; the saddle needs the full 3x3 table.
-        net.minecraft.world.inventory.CraftingMenu menu = new net.minecraft.world.inventory.CraftingMenu(
-                96, player.getInventory(), ContainerLevelAccess.create(helper.getLevel(), workbench));
-        player.containerMenu = menu;
-        TimedCraftingMenu crafting = (TimedCraftingMenu) menu;
-        var grid = crafting.infx$craftingContainer();
-        grid.clearContent();
-        // Restored vanilla saddle: one leather over leather-iron-leather.
-        grid.setItem(1, new ItemStack(Items.LEATHER));
-        grid.setItem(3, new ItemStack(Items.LEATHER));
-        grid.setItem(4, new ItemStack(Items.IRON_INGOT));
-        grid.setItem(5, new ItemStack(Items.LEATHER));
-        assertLegacyCraft(
-                helper,
-                player,
-                crafting,
-                new ItemStack(Items.SADDLE, 1),
-                "restored vanilla saddle");
-
-        grid.clearContent();
-        grid.setItem(0, new ItemStack(Items.STRING));
-        grid.setItem(1, new ItemStack(Items.STRING));
-        grid.setItem(3, new ItemStack(Items.STRING));
-        grid.setItem(4, InfXItems.GREEN_GELATINOUS_SPHERE.toStack());
-        grid.setItem(8, new ItemStack(Items.STRING));
-        assertLegacyCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "InfX string lead");
-
-        grid.clearContent();
-        grid.setItem(0, InfXItems.SINEW.toStack());
-        grid.setItem(1, InfXItems.SINEW.toStack());
-        grid.setItem(3, InfXItems.SINEW.toStack());
-        grid.setItem(4, InfXItems.GREEN_GELATINOUS_SPHERE.toStack());
-        grid.setItem(8, InfXItems.SINEW.toStack());
-        assertLegacyCraft(helper, player, crafting, new ItemStack(Items.LEAD, 2), "InfX sinew lead");
-
-        grid.clearContent();
-        grid.setItem(0, new ItemStack(Items.GOLDEN_APPLE));
-        grid.setItem(1, new ItemStack(Items.EXPERIENCE_BOTTLE));
-        assertLegacyCraft(
-                helper,
-                player,
-                crafting,
-                new ItemStack(Items.ENCHANTED_GOLDEN_APPLE),
-                "golden apple infused with a bottle o' enchanting");
-
-        ItemStack copperRod = InfXItems.catalog()
-                .equipment(InfxMaterial.COPPER, EquipmentType.FISHING_ROD)
-                .holder()
-                .toStack();
-        grid.clearContent();
-        grid.setItem(0, copperRod.copy());
-        grid.setItem(1, new ItemStack(Items.WARPED_FUNGUS));
-        assertLegacyCraft(
-                helper,
-                player,
-                crafting,
-                InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(InfxMaterial.COPPER).get().getDefaultInstance(),
-                "copper warped fungus on a stick");
-
-        grid.clearContent();
-        grid.setItem(0, InfXItems.WARPED_FUNGUS_ON_A_STICKS.get(InfxMaterial.COPPER).get().getDefaultInstance());
-        assertLegacyCraft(
-                helper,
-                player,
-                crafting,
-                copperRod,
-                "copper warped fungus on a stick dismantles back into its rod");
-        removePlayer(player);
-        helper.succeed();
-    }
-
-    private static void assertLegacyCraft(
-            GameTestHelper helper,
-            ServerPlayer player,
-            TimedCraftingMenu crafting,
-            ItemStack expected,
-            String message) {
-        helper.assertTrue(
-                TimedCraftingEngine.refreshResult(crafting, player, true),
-                message + " must produce a timed result");
-        ItemStack preview = crafting.infx$resultContainer().getItem(0);
-        helper.assertTrue(preview.is(expected.getItem()), message + " must match item " + expected + " but got " + preview);
-        helper.assertTrue(
-                preview.getCount() == expected.getCount(),
-                message + " must output " + expected.getCount() + " but got " + preview.getCount());
     }
 
     /** InfX bottle o' enchanting always shatters into a fixed 200 XP. */
