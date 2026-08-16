@@ -181,15 +181,15 @@ public final class InfxWitch extends Witch implements InfxMob {
     @Override
     protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
-        output.putBoolean("R196SummonedWolves", summonedWolves);
-        output.putInt("R196CurseRandomSeed", curseRandomSeed);
+        output.putBoolean("infx.summoned_wolves", summonedWolves);
+        output.putInt("infx.curse_random_seed", curseRandomSeed);
     }
 
     @Override
     protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
-        summonedWolves = input.getBooleanOr("R196SummonedWolves", false);
-        curseRandomSeed = input.getIntOr("R196CurseRandomSeed", curseRandomSeed);
+        summonedWolves = input.getBooleanOr("infx.summoned_wolves", false);
+        curseRandomSeed = input.getIntOr("infx.curse_random_seed", curseRandomSeed);
     }
 
     private static final class CurseHurtByTargetGoal extends HurtByTargetGoal {

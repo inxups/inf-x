@@ -92,6 +92,7 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry gelatinousBlockDissolving = flag("gelatinousBlockDissolving", "Enable gelatinous block dissolving", true);
         public final BooleanEntry gelatinousItemCorrosion = flag("gelatinousItemCorrosion", "Enable gelatinous item corrosion", true);
         public final BooleanEntry bloodMoonFrenzy = flag("bloodMoonFrenzy", "Enable blood moon frenzy", true);
+        public final BooleanEntry tensionEnabled = flag("tensionEnabled", "Enable chunk-residency tension difficulty", true);
 
         private MobConfig() {
             super("mobs", Component.literal("Mobs"));

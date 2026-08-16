@@ -6,13 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.pixulse.infx.entity.InfxBat;
 import com.pixulse.infx.entity.InfxCreeper;
+import net.minecraft.world.entity.EntityType;
 import com.pixulse.infx.entity.EarthElemental;
 import com.pixulse.infx.entity.InfxSilverfish;
 import com.pixulse.infx.entity.InfxSkeleton;
 import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.entity.InfxSpider;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.entity.InfxWolf;
-import com.pixulse.infx.entity.InfxZombie;
 import org.junit.jupiter.api.Test;
 
 class EntityRenderersTest {
@@ -124,19 +125,16 @@ class EntityRenderersTest {
                 InvisibleStalkerRenderer.modelTint());
         assertEquals(
                 "infx:textures/entity/ghoul.png",
-                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.GHOUL).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfXEntityTypes.GHOUL.get()).toString());
         assertEquals(
                 "infx:textures/entity/shadow.png",
-                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.SHADOW).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfXEntityTypes.SHADOW.get()).toString());
         assertEquals(
                 "infx:textures/entity/wight.png",
-                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.WIGHT).toString());
+                EntityRenderers.ZombieTexture.textureFor(InfXEntityTypes.WIGHT.get()).toString());
         assertEquals(
                 "infx:textures/entity/zombie/revenant.png",
-                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.REVENANT).toString());
-        assertEquals(
-                "infx:textures/entity/zombie/zombie_villager.png",
-                EntityRenderers.ZombieTexture.villagerTexture().toString());
+                EntityRenderers.ZombieTexture.textureFor(InfXEntityTypes.REVENANT.get()).toString());
         assertEquals(
                 "infx:textures/entity/skeleton/longdead.png",
                 EntityRenderers.SkeletonTexture.textureFor(InfxSkeleton.Variant.LONGDEAD).toString());
@@ -279,7 +277,7 @@ class EntityRenderersTest {
                 EntityRenderers.GhastTexture.texture(true).toString());
         assertEquals(
                 "minecraft:textures/entity/zombie/zombie.png",
-                EntityRenderers.ZombieTexture.textureFor(InfxZombie.Variant.ZOMBIE).toString());
+                EntityRenderers.ZombieTexture.textureFor(EntityType.ZOMBIE).toString());
         assertEquals(
                 "minecraft:textures/entity/creeper/creeper.png",
                 EntityRenderers.CreeperTexture.textureFor(InfxCreeper.Variant.CREEPER).toString());
@@ -290,18 +288,18 @@ class EntityRenderersTest {
     void zombieLineBabiesUseDerivedBabyUvSheets() {
         assertEquals(
                 "infx:textures/entity/ghoul_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.GHOUL).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfXEntityTypes.GHOUL.get()).toString());
         assertEquals(
                 "infx:textures/entity/shadow_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.SHADOW).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfXEntityTypes.SHADOW.get()).toString());
         assertEquals(
                 "infx:textures/entity/wight_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.WIGHT).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfXEntityTypes.WIGHT.get()).toString());
         assertEquals(
                 "infx:textures/entity/zombie/revenant_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.REVENANT).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(InfXEntityTypes.REVENANT.get()).toString());
         assertEquals(
                 "minecraft:textures/entity/zombie/zombie_baby.png",
-                EntityRenderers.ZombieTexture.babyTextureFor(InfxZombie.Variant.ZOMBIE).toString());
+                EntityRenderers.ZombieTexture.babyTextureFor(EntityType.ZOMBIE).toString());
     }
 }

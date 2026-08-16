@@ -10,14 +10,14 @@ import org.junit.jupiter.api.Test;
 
 class MonsterTacticsTest {
     @Test
-    void worldAgeRaisesEquipmentTierAndEnchantChance() {
-        assertEquals(InfxMaterial.COPPER, MonsterTactics.maximumGearMaterial(1));
-        assertEquals(InfxMaterial.IRON, MonsterTactics.maximumGearMaterial(32));
-        assertEquals(InfxMaterial.ANCIENT_METAL, MonsterTactics.maximumGearMaterial(64));
-        assertEquals(InfxMaterial.MITHRIL, MonsterTactics.maximumGearMaterial(128));
-        assertEquals(InfxMaterial.ADAMANTIUM, MonsterTactics.maximumGearMaterial(256));
-        assertTrue(MonsterTactics.equipmentChance(256) > MonsterTactics.equipmentChance(1));
-        assertTrue(MonsterTactics.enchantmentChance(256) > MonsterTactics.enchantmentChance(16));
+    void tensionRaisesEquipmentTierAndEnchantChance() {
+        assertEquals(InfxMaterial.COPPER, MonsterTactics.maximumGearMaterial(0.0F));
+        assertEquals(InfxMaterial.IRON, MonsterTactics.maximumGearMaterial(0.2F));
+        assertEquals(InfxMaterial.ANCIENT_METAL, MonsterTactics.maximumGearMaterial(0.4F));
+        assertEquals(InfxMaterial.MITHRIL, MonsterTactics.maximumGearMaterial(0.6F));
+        assertEquals(InfxMaterial.ADAMANTIUM, MonsterTactics.maximumGearMaterial(0.8F));
+        assertTrue(MonsterTactics.equipmentChance(1.5F) > MonsterTactics.equipmentChance(0.1F));
+        assertTrue(MonsterTactics.enchantmentChance(1.5F) > MonsterTactics.enchantmentChance(0.1F));
     }
 
     @Test

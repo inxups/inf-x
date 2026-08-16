@@ -228,14 +228,14 @@ public final class InfxBat extends Bat implements InfxMob {
     protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
         if (feedCooldown > 0) {
-            output.putInt("R196VampireBatFeedCooldown", feedCooldown);
+            output.putInt("infx.vampire_bat_feed_cooldown", feedCooldown);
         }
     }
 
     @Override
     protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
-        feedCooldown = Math.max(0, input.getIntOr("R196VampireBatFeedCooldown", 0));
+        feedCooldown = Math.max(0, input.getIntOr("infx.vampire_bat_feed_cooldown", 0));
     }
 
     static int attackCooldownTicks() {

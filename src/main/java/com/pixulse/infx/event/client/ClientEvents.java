@@ -12,7 +12,6 @@ import com.pixulse.infx.entity.InfxSkeleton;
 import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.entity.InfxSpider;
 import com.pixulse.infx.entity.InfxWolf;
-import com.pixulse.infx.entity.InfxZombie;
 import com.pixulse.infx.registry.InfXBlockEntityTypes;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXMenus;
@@ -81,22 +80,19 @@ public final class ClientEvents {
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         // World geometry only 鈥?chunk mesh is particle-only (see ModModelProvider).
         event.registerBlockEntityRenderer(InfXBlockEntityTypes.SAFE.get(), SafeRenderer::new);
-        event.registerEntityRenderer(
-                InfXEntityTypes.INFX_ZOMBIE.get(),
-                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.ZOMBIE));
         event.registerEntityRenderer(InfXEntityTypes.INVISIBLE_STALKER.get(), InvisibleStalkerRenderer::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.GHOUL.get(),
-                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.GHOUL));
+                context -> new EntityRenderers.ZombieTexture(context, InfXEntityTypes.GHOUL.get()));
         event.registerEntityRenderer(
                 InfXEntityTypes.SHADOW.get(),
-                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.SHADOW));
+                context -> new EntityRenderers.ZombieTexture(context, InfXEntityTypes.SHADOW.get()));
         event.registerEntityRenderer(
                 InfXEntityTypes.WIGHT.get(),
-                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.WIGHT));
+                context -> new EntityRenderers.ZombieTexture(context, InfXEntityTypes.WIGHT.get()));
         event.registerEntityRenderer(
                 InfXEntityTypes.REVENANT.get(),
-                context -> new EntityRenderers.ZombieTexture(context, InfxZombie.Variant.REVENANT));
+                context -> new EntityRenderers.ZombieTexture(context, InfXEntityTypes.REVENANT.get()));
 
         event.registerEntityRenderer(InfXEntityTypes.INFX_SKELETON.get(), SkeletonRenderer::new);
         event.registerEntityRenderer(

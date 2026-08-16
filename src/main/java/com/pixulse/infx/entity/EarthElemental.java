@@ -651,15 +651,15 @@ public class EarthElemental extends Monster implements InfxMob {
     @Override
     protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
-        output.putInt("R196EarthForm", form().id());
-        output.putInt("R196EarthHeat", heat);
+        output.putInt("infx.earth_form", form().id());
+        output.putInt("infx.earth_heat", heat);
     }
 
     @Override
     protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
-        setForm(Form.fromId(input.getIntOr("R196EarthForm", form().id())));
-        heat = Math.max(0, input.getIntOr("R196EarthHeat", 0));
+        setForm(Form.fromId(input.getIntOr("infx.earth_form", form().id())));
+        heat = Math.max(0, input.getIntOr("infx.earth_heat", 0));
         if (!isClayGolem() && heat >= MAGMA_THRESHOLD && !form().isMagmaForm()) {
             setForm(form().magmaForm());
         }

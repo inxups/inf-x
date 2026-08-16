@@ -57,12 +57,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
     @Override
     public void generate() {
-        // InfX zombie flesh: one piece at 50% for player kills, 25% otherwise. Rare drops
-        // are procedural because a villager zombie uses a different InfX item pool.
-        zombieDrops(InfXEntityTypes.INFX_ZOMBIE.get());
+        // The plain vanilla zombie now keeps its vanilla loot table; only the MITE mobs that are
+        // separate entity types receive InfX tables. Ghouls, stalkers and shadows drop nothing.
         zombieDrops(InfXEntityTypes.WIGHT.get());
         zombieDrops(InfXEntityTypes.REVENANT.get());
-        // InfX ghouls, stalkers and shadows drop nothing at all.
         emptyDrops(InfXEntityTypes.INVISIBLE_STALKER.get());
         emptyDrops(InfXEntityTypes.GHOUL.get());
         emptyDrops(InfXEntityTypes.SHADOW.get());

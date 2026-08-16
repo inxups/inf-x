@@ -9,6 +9,7 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,14 +33,18 @@ class MonsterProfileTest {
 
     @Test
     void combatProfilesUseMinecraft261FollowRanges() {
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.ZOMBIE), 20.0, 35.0, 0.23, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.INVISIBLE_STALKER), 20.0, 35.0, 0.23, 4.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.GHOUL), 20.0, 35.0, 0.28, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.SHADOW), 20.0, 35.0, 0.23, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.WIGHT), 20.0, 35.0, 0.25, 5.0);
-        assertStats(InfxZombie.attributes(InfxZombie.Variant.REVENANT), 30.0, 35.0, 0.26, 7.0);
-        for (InfxZombie.Variant variant : InfxZombie.Variant.values()) {
-            assertEquals(0.0, stats(InfxZombie.attributes(variant)).getBaseValue(Attributes.ARMOR), EPSILON);
+        assertStats(Ghoul.attributes(), 20.0, 35.0, 0.28, 5.0);
+        assertStats(InvisibleStalker.attributes(), 20.0, 35.0, 0.23, 4.0);
+        assertStats(Shadow.attributes(), 20.0, 35.0, 0.23, 5.0);
+        assertStats(Wight.attributes(), 20.0, 35.0, 0.25, 5.0);
+        assertStats(Revenant.attributes(), 30.0, 35.0, 0.26, 7.0);
+        for (AttributeSupplier.Builder builder : List.of(
+                Ghoul.attributes(),
+                InvisibleStalker.attributes(),
+                Shadow.attributes(),
+                Wight.attributes(),
+                Revenant.attributes())) {
+            assertEquals(0.0, stats(builder).getBaseValue(Attributes.ARMOR), EPSILON);
         }
 
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 16.0, 0.25, 4.0);
@@ -106,20 +111,20 @@ class MonsterProfileTest {
 
     @Test
     void ordinarySkeletonWeaponSplitUsesTheSharedBowAndMeleeProgressionProfile() {
-        assertOrdinarySkeletonWeapon(1L, 0.0F, InfxMaterial.WOOD, EquipmentType.CUDGEL);
-        assertOrdinarySkeletonWeapon(9L, 0.249F, InfxMaterial.WOOD, EquipmentType.CUDGEL);
-        assertOrdinarySkeletonWeapon(10L, 0.0F, InfxMaterial.WOOD, EquipmentType.CLUB);
-        assertOrdinarySkeletonWeapon(19L, 0.249F, InfxMaterial.WOOD, EquipmentType.CLUB);
-        assertOrdinarySkeletonWeapon(20L, 0.0F, InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
-        assertOrdinarySkeletonWeapon(31L, 0.249F, InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
-        assertOrdinarySkeletonWeapon(32L, 0.0F, InfxMaterial.RUSTED_IRON, EquipmentType.SWORD);
-        assertOrdinarySkeletonWeapon(1L, 0.25F, InfxMaterial.WOOD, EquipmentType.BOW);
-        assertOrdinarySkeletonWeapon(32L, 0.999F, InfxMaterial.WOOD, EquipmentType.BOW);
+        assertOrdinarySkeletonWeapon(0.0F, 0.0F, InfxMaterial.WOOD, EquipmentType.CUDGEL);
+        assertOrdinarySkeletonWeapon(0.09F, 0.249F, InfxMaterial.WOOD, EquipmentType.CUDGEL);
+        assertOrdinarySkeletonWeapon(0.1F, 0.0F, InfxMaterial.WOOD, EquipmentType.CLUB);
+        assertOrdinarySkeletonWeapon(0.19F, 0.249F, InfxMaterial.WOOD, EquipmentType.CLUB);
+        assertOrdinarySkeletonWeapon(0.2F, 0.0F, InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
+        assertOrdinarySkeletonWeapon(0.29F, 0.249F, InfxMaterial.RUSTED_IRON, EquipmentType.DAGGER);
+        assertOrdinarySkeletonWeapon(0.3F, 0.0F, InfxMaterial.RUSTED_IRON, EquipmentType.SWORD);
+        assertOrdinarySkeletonWeapon(0.0F, 0.25F, InfxMaterial.WOOD, EquipmentType.BOW);
+        assertOrdinarySkeletonWeapon(0.3F, 0.999F, InfxMaterial.WOOD, EquipmentType.BOW);
     }
 
     private static void assertOrdinarySkeletonWeapon(
-            long day, float roll, InfxMaterial material, EquipmentType type) {
-        InfxSkeleton.OrdinarySkeletonWeapon weapon = InfxSkeleton.ordinarySpawnWeapon(roll, day);
+            float tension, float roll, InfxMaterial material, EquipmentType type) {
+        InfxSkeleton.OrdinarySkeletonWeapon weapon = InfxSkeleton.ordinarySpawnWeapon(roll, tension);
         assertEquals(material, weapon.material());
         assertEquals(type, weapon.type());
     }
@@ -157,12 +162,12 @@ class MonsterProfileTest {
     }
 
     @Test
-    void invisibleStalkerDoesNotInheritZombieOnlyRules() {
-        assertTrue(InfxZombie.breaksDoors(InfxZombie.Variant.INVISIBLE_STALKER));
-        assertFalse(InfxZombie.burnsInSunlight(InfxZombie.Variant.INVISIBLE_STALKER));
-        assertFalse(InfxZombie.zombifiesVillagers(InfxZombie.Variant.INVISIBLE_STALKER));
-        assertFalse(InfxZombie.targetsAnimals(InfxZombie.Variant.INVISIBLE_STALKER));
-        assertTrue(InfxZombie.targetsAnimals(InfxZombie.Variant.ZOMBIE));
+    void newZombieMobsAreSeparateEnemyTypesThatDoNotReplaceVanillaSpawns() {
+        assertTrue(Enemy.class.isAssignableFrom(Ghoul.class));
+        assertTrue(Enemy.class.isAssignableFrom(InvisibleStalker.class));
+        assertTrue(net.minecraft.world.entity.monster.zombie.Zombie.class.isAssignableFrom(Ghoul.class));
+        assertTrue(InfxMob.class.isAssignableFrom(InvisibleStalker.class));
+        assertTrue(InfxZombieBase.class.isAssignableFrom(Revenant.class));
     }
 
     @Test
@@ -250,15 +255,6 @@ class MonsterProfileTest {
     }
 
     @Test
-    void villagerZombieRareDropsUseTheVillagerRate() {
-        assertEquals(0.025F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, false, 0), EPSILON);
-        assertEquals(0.035F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, false, 1), EPSILON);
-        assertEquals(0.10F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, true, 0), EPSILON);
-        assertEquals(0.14F, InfxZombie.rareDropChance(InfxZombie.Variant.ZOMBIE, true, 1), EPSILON);
-        assertEquals(0.14F, InfxZombie.rareDropChance(InfxZombie.Variant.REVENANT, false, 1), EPSILON);
-    }
-
-    @Test
     void grayOozeUsesCrawlGoalsAndCannotJumpFromGround() throws NoSuchMethodException {
         assertEquals(InfxSlime.class, InfxSlime.class.getDeclaredMethod("registerGoals").getDeclaringClass());
         assertEquals(InfxSlime.class, InfxSlime.class.getDeclaredMethod("jumpFromGround").getDeclaringClass());
@@ -284,7 +280,7 @@ class MonsterProfileTest {
 
         Set<String> checked = new HashSet<>();
         assertDimensions(entities, checked, 0.6F, 1.8F,
-                "infx_zombie", "infx_skeleton", "infx_creeper", "infx_witch", "infx_zombified_piglin",
+                "infx_skeleton", "infx_creeper", "infx_witch", "infx_zombified_piglin",
                 "infx_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
                 "longdead_guardian", "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
                 "clay_golem");
@@ -355,7 +351,6 @@ class MonsterProfileTest {
 
     private static Map<String, Names> expectedNames() {
         Map<String, Names> names = new HashMap<>();
-        add(names, "infx_zombie", "Zombie", "僵尸");
         add(names, "infx_skeleton", "Skeleton", "骷髅");
         add(names, "infx_spider", "Spider", "蜘蛛");
         add(names, "infx_cave_spider", "Cave Spider", "洞穴蜘蛛");

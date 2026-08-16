@@ -203,7 +203,8 @@ public final class InfxSpider extends Spider implements InfxMob {
             SpiderEffectsGroupData effects = new SpiderEffectsGroupData();
             if (variant() == Variant.SPIDER
                     && level.getDifficulty() == Difficulty.HARD
-                    && random.nextFloat() < 0.1F * difficulty.getSpecialMultiplier()) {
+                    && random.nextFloat() < 0.10F * MonsterTactics.difficultyTension(
+                            level.getLevel(), blockPosition())) {
                 // InfX buff table: speed 1/2, strength 1/4, regeneration 1/4 — never invisibility.
                 int roll = random.nextInt(4);
                 effects.effect = roll <= 1
@@ -361,18 +362,18 @@ public final class InfxSpider extends Spider implements InfxMob {
     @Override
     protected void addAdditionalSaveData(@NonNull ValueOutput output) {
         super.addAdditionalSaveData(output);
-        output.putInt("R196PhaseEvasions", phaseEvasions);
-        output.putInt("R196PhaseMaxEvasions", maxPhaseEvasions);
-        output.putInt("R196WebsRemaining", websRemaining);
+        output.putInt("infx.phase_evasions", phaseEvasions);
+        output.putInt("infx.phase_max_evasions", maxPhaseEvasions);
+        output.putInt("infx.webs_remaining", websRemaining);
     }
 
     @Override
     protected void readAdditionalSaveData(@NonNull ValueInput input) {
         super.readAdditionalSaveData(input);
-        phaseEvasions = input.getIntOr("R196PhaseEvasions", phaseEvasions);
-        maxPhaseEvasions = input.getIntOr("R196PhaseMaxEvasions", maxPhaseEvasions);
+        phaseEvasions = input.getIntOr("infx.phase_evasions", phaseEvasions);
+        maxPhaseEvasions = input.getIntOr("infx.phase_max_evasions", maxPhaseEvasions);
         websRemaining = variant() == Variant.PHASE
                 ? 0
-                : Mth.clamp(input.getIntOr("R196WebsRemaining", websRemaining), 0, 3);
+                : Mth.clamp(input.getIntOr("infx.webs_remaining", websRemaining), 0, 3);
     }
 }

@@ -6,7 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.entity.InfxSkeleton;
-import com.pixulse.infx.entity.InfxZombie;
+import com.pixulse.infx.entity.InfxZombieBase;
 import com.pixulse.infx.entity.InfxZombifiedPiglin;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
@@ -44,12 +44,11 @@ public final class RustedIronSources {
         if (event.loadedFromDisk() || !(event.getLevel() instanceof ServerLevel)) {
             return;
         }
-        // InfX only arms plain zombies this way: the zombie variants spawn bare (the revenant
+        // InfX only arms plain zombies this way: the MITE zombie mobs spawn bare (the revenant
         // brings its fixed kit) and pig zombies carry their golden weapon instead.
         if (event.getEntity() instanceof Zombie zombie
                 && !(zombie instanceof InfxZombifiedPiglin)
-                && !(zombie instanceof InfxZombie r196
-                        && r196.variant() != InfxZombie.Variant.ZOMBIE)) {
+                && !(zombie instanceof InfxZombieBase)) {
             equipZombie(zombie);
         }
     }
