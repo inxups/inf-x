@@ -1,6 +1,5 @@
 package com.pixulse.infx.mixin.server.players;
 
-import com.pixulse.infx.InfiniteXTestMode;
 import com.pixulse.infx.server.ServerTestModePolicy;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.players.PlayerList;
@@ -15,7 +14,8 @@ public abstract class PlayerListMixin {
     @Inject(method = "isOp", at = @At("HEAD"), cancellable = true)
     private void disableOperatorsOutsideTestMode(
             NameAndId nameAndId, CallbackInfoReturnable<Boolean> callback) {
-        if (!ServerTestModePolicy.allowsPlayerOperators(InfiniteXTestMode.isServerEnabled())) {
+        if (!ServerTestModePolicy.allowsPlayerOperators(
+                ServerTestModePolicy.effectiveTestMode(((PlayerList) (Object) this).getServer()))) {
             callback.setReturnValue(false);
         }
     }

@@ -4,10 +4,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.server.ServerTestModePolicy;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.gametest.framework.GameTestServer;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.GameType;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
@@ -18,9 +19,9 @@ public final class CreativeRestriction {
 
     @SubscribeEvent
     public static void onGameModeChange(PlayerEvent.PlayerChangeGameModeEvent event) {
-        if (InfiniteXTestMode.isServerEnabled()) return;
-        if (event.getNewGameMode() == GameType.CREATIVE
-                && !(event.getEntity().level().getServer() instanceof GameTestServer)) {
+        MinecraftServer server = event.getEntity().level().getServer();
+        if (ServerTestModePolicy.effectiveTestMode(server)) return;
+        if (event.getNewGameMode() == GameType.CREATIVE && !(server instanceof GameTestServer)) {
             event.setCanceled(true);
             event.getEntity().sendSystemMessage(Component.translatable("message.infx.creative_disabled"));
         }

@@ -1,7 +1,9 @@
 package com.pixulse.infx.server;
 
+import com.pixulse.infx.InfiniteXTestMode;
 import java.util.Locale;
 import java.util.Set;
+import net.minecraft.server.MinecraftServer;
 
 /** Centralizes server administration and command rules for each server mode. */
 public final class ServerTestModePolicy {
@@ -45,6 +47,20 @@ public final class ServerTestModePolicy {
             "save-all");
 
     private ServerTestModePolicy() {}
+
+    /**
+     * Effective server mode for a live server: the development config switch, or any integrated
+     * world whose commands are enabled. The LAN and world-creation locks only allow commands to be
+     * switched on in client test mode, so such worlds keep vanilla administration — every LAN
+     * player becomes an operator, and a cheated single-player owner too.
+     */
+    public static boolean effectiveTestMode(MinecraftServer server) {
+        if (InfiniteXTestMode.isServerEnabled()) return true;
+        return server != null
+                && server.isSingleplayer()
+                && (server.getPlayerList().isAllowCommandsForAllPlayers()
+                    || server.getWorldData().isAllowCommands());
+    }
 
     public static boolean allowsPlayerOperators(boolean testMode) {
         return testMode;
