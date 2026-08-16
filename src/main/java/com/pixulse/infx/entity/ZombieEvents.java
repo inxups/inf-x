@@ -8,12 +8,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.zombie.Zombie;
@@ -39,14 +37,12 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 /**
  * MITE zombie behaviour applied directly to the vanilla {@code Zombie} through NeoForge events,
- * replacing the removed {@code infx_zombie} spawn-replacement entity: smart zombies, leaders,
- * the MITE block-digging switch, attribute alignment, and the burning-zombie tree-ignition AI.
+ * replacing the removed {@code infx_zombie} spawn-replacement entity: smart zombies, the MITE
+ * block-digging switch, attribute alignment, and the burning-zombie tree-ignition AI. Leaders
+ * are left to vanilla's native {@code Zombie.handleAttributes} roll.
  */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class ZombieEvents {
-    private static final double LEADER_HEALTH_MULTIPLIER_MIN = 1.0;
-    private static final double LEADER_HEALTH_MULTIPLIER_RANGE = 3.0;
-
     private ZombieEvents() {}
 
     @SubscribeEvent
@@ -54,7 +50,7 @@ public final class ZombieEvents {
         if (event.getSpawnType() == EntitySpawnReason.LOAD
                 || !(event.getEntity() instanceof Zombie zombie)
                 || zombie.getType() != EntityType.ZOMBIE
-                || !(zombie.level() instanceof ServerLevel level)) {
+                || !(zombie.level() instanceof ServerLevel)) {
             return;
         }
         // Attribute alignment with the removed infx_zombie replacement: 5 melee, no modern armor.
@@ -69,25 +65,6 @@ public final class ZombieEvents {
         // MITE smart zombie: 1 in 8 spawns smart, unlocking bare-handed digging.
         if (zombie.getRandom().nextInt(8) == 0) {
             zombie.getPersistentData().putBoolean(MonsterTactics.SMART_KEY, true);
-        }
-        // MITE leader zombie: 5% × tension, 2-5× health and knockback resistance.
-        float tension = MonsterTactics.difficultyTension(level, zombie.blockPosition());
-        if (zombie.getRandom().nextFloat() < tension * 0.05F) {
-            var maxHealth = zombie.getAttribute(Attributes.MAX_HEALTH);
-            if (maxHealth != null) {
-                maxHealth.addPermanentModifier(new AttributeModifier(
-                        InfiniteX.id("zombie_leader_health"),
-                        LEADER_HEALTH_MULTIPLIER_MIN + zombie.getRandom().nextDouble() * LEADER_HEALTH_MULTIPLIER_RANGE,
-                        AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-            }
-            var knockback = zombie.getAttribute(Attributes.KNOCKBACK_RESISTANCE);
-            if (knockback != null) {
-                knockback.addPermanentModifier(new AttributeModifier(
-                        InfiniteX.id("zombie_leader_knockback"),
-                        0.5 + zombie.getRandom().nextDouble() * 0.25,
-                        AttributeModifier.Operation.ADD_VALUE));
-            }
-            zombie.setHealth(zombie.getMaxHealth());
         }
         // MITE has no baby zombies: force a non-baby group data before vanilla finalizeSpawn
         // rolls its 5% spawn-baby odds (and can never spawn a chicken jockey).
@@ -146,18 +123,7 @@ public final class ZombieEvents {
                 && zombie.getType() == EntityType.ZOMBIE
                 && MonsterTactics.holdsDigTool(zombie.getMainHandItem())) {
             event.setCanceled(true);
-            return;
         }
-        // MITE: at Normal difficulty a villager conversion is skipped half of the time.
-        if (villagerConversionSkippedAtNormal(
-                villager.level().getDifficulty(), villager.getRandom().nextBoolean())) {
-            event.setCanceled(true);
-        }
-    }
-
-    /** MITE conversion gate: Normal difficulty skips a villager conversion half of the time. */
-    public static boolean villagerConversionSkippedAtNormal(Difficulty difficulty, boolean coin) {
-        return difficulty == Difficulty.NORMAL && coin;
     }
 
     /** MITE: a villager conversion clears the killer zombie's five equipment slots. */

@@ -133,9 +133,11 @@ public final class MonsterEvents {
         return (bloodMoon ? 0.5F : 0.0F) + (boneLord ? 0.5F : 0.0F);
     }
 
-    /** MITE frenzy predicate: a blood-moon night in the overworld. */
+    /** MITE frenzy predicate: a blood-moon night in the overworld with frenzy enabled. */
     public static boolean isBloodMoonFrenzied(Level level) {
-        return MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        return InfXConfig.INSTANCE.mobs.enabled.getValue()
+                && InfXConfig.INSTANCE.mobs.bloodMoonFrenzy.getValue()
+                && MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
     }
 
     /**
@@ -823,9 +825,8 @@ public final class MonsterEvents {
                 level.getCurrentDifficultyAt(replacement.blockPosition()),
                 original.getSpawnType(),
                 null);
-        if (replacement instanceof Monster monster && isWorldSpawn(original.getSpawnType())) {
-            MonsterTactics.equipForWorldAge(level, monster);
-        }
+        // The FinalizeSpawnEvent fired above already ran MonsterTactics.equipForWorldAge for
+        // world spawns; equipping again here would roll the gear a second time.
         replacement.setHealth(replacement.getMaxHealth());
     }
 

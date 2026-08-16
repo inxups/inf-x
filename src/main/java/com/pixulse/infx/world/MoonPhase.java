@@ -63,6 +63,18 @@ public enum MoonPhase {
                 && Math.floorMod(overworldClockTime, DAY_TICKS) >= 6_000;
     }
 
+    /**
+     * MITE blood-moon storm countdown: the storm always ends at 19:00 (noon + 13,000 ticks),
+     * whatever the last tick was, instead of re-arming a fresh 13,000 ticks on every pass.
+     */
+    public static long bloodMoonStormRemainingTicks(long overworldClockTime) {
+        if (!isBloodMoonThunderWindow(overworldClockTime)) {
+            return 0L;
+        }
+        long time = Math.floorMod(overworldClockTime, DAY_TICKS);
+        return Math.max(0L, 13_000L - (time - 6_000L));
+    }
+
     public static long dayAt(long overworldClockTime) {
         return Math.max(1L, Math.floorDiv(overworldClockTime, DAY_TICKS) + 1L);
     }

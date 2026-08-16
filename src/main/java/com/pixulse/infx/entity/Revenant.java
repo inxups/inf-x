@@ -44,11 +44,6 @@ public final class Revenant extends InfxZombieBase {
         return true;
     }
 
-    @Override
-    protected boolean zombifiesVillagers() {
-        return true;
-    }
-
     /** Revenants are the InfX mobs that are smart from birth and dig bare-handed. */
     @Override
     protected boolean digsBareHanded() {

@@ -1,45 +1,129 @@
 # Changelog
+## 0t23
+### 修复
+- 僵尸首领叠乘：移除自掷首领判定（vanilla `Zombie.handleAttributes` 已原生按 `difficultyModifier×0.05` 掷首领：血 ×1-4、击退抗 +0.5-0.75），此前事件与原生双重判定可让同一僵尸血最高 7×（140HP）、击退抗 ≥1 完全免疫；首领现由 vanilla 原生单一承担。
+- dev 模式握手与作弊世界权限矛盾：握手对集成服务器（单机/局域网房主）跳过原始开关比对——集成服务器下客户端与服务端读同一配置文件，client dev 开 + server dev 关正是"作弊世界保留权限"的有意场景（7da3f7d8），不再误踢；专用服务器两端独立，检查照常生效。
+- 血月雷暴时长：强制雷暴改为始终于 19:00 结束（正午 + 13000 tick），不再每 200t 重置 13000 导致风暴延续到次日正午（约 24h）。
+- 僵尸转化 Normal 50% 双重叠加：移除事件层重复实现（vanilla `Zombie.killedEntity` 已在 Normal 下 50% 跳过），净转化率恢复 50% 而非 25%。
+- 替换刷怪双重装备：移除 `finalizeSpawn` 事件装备后的重复 `equipForWorldAge` 调用，装备概率不再翻倍（0.15T → 1-(1-0.15T)²）。
+- 配置门补全：`bloodMoonFrenzy` 现在同时关闭血月狂暴移速/破门/红眼/远程CD（`isBloodMoonFrenzied` 统一加门）；雷电×5、全群系降雨受 `world.moonEvents` 门控；作物枯萎新增 `world.bloodMoonBlight` 开关；怪物上限 50 受 `mobs.enabled` 门控。
+- Ghoul 减速削弱：命中减速 amplifier 5（90%）降至 2（45%），不再近乎硬控。
+- `zombifiesVillagers` 死钩子接线：基类新增 `convertVillagerToZombieVillager` 覆写按其返回值门控转化——隐形潜伏者"永不转化村民"的 javadoc 行为得以兑现，其余新怪保持默认转化。
+- 凋灵骷髅装备双重来源：移除 `VanillaMobEquipmentMixin` 中会被 `WitherSkeletonDropsMixin` POOR 铁剑立即覆盖的无品质铁剑分支。
+- 版本回退修复：a5370c15 意外将 `mod_version` 回退至 0t10 并截断 CHANGELOG_CN（丢失 0t11-0t22），本次恢复至 0t23。
 
-## 0t10
+---
+
+## 0t22
+### 移除
+- 万圣节僵尸南瓜头：核实为 vanilla 26.2 原生机制（`Zombie.finalizeSpawn` + `AbstractSkeleton.finalizeSpawn`：`SpecialDates.isHalloween()` + 头盔空 + 25% → 南瓜头 10% 南瓜灯 + drop0），与 0t21 移植逐字相同且原生覆盖骷髅更广，移除重复代码与 `halloweenPumpkin` 配置。
+
+---
+
+## 0t21
 ### 新功能
+- 万圣节僵尸南瓜头：10 月 31 日生成的无头盔僵尸 25% 概率戴南瓜头（其中 10% 为南瓜灯），掉落率为 0（对齐 MITE `EntityZombie.onSpawnWithEgg`：410-416）。
 - 恶魂 48 格间距：恶魂不会在玩家 48 格内自然生成（源码核实为**距玩家**而非文档所写"距其他恶魂"，对齐 MITE `SpawnerAnimals`：307）。
 - 相位蜘蛛刷怪权重 5→40：近似 MITE 相位蜘蛛"64 次生成尝试"的可靠性提升（现代刷怪器尝试次数在类型确定前决定，无法忠实移植，取权重近似）。
 - 强地牢附近刷怪密度提升：近玩家敌对上限乘 `1 + 强地牢近距因子`（`findNearestMapStructure` 每玩家 200 tick 缓存，对齐 MITE `WorldServer.getStrongholdProximity`：2498）。
 - 昼夜窗口对齐 MITE：月相夜间窗口改为 [13000,23000)（白天 14h/夜 10h，精确对齐 MITE adjusted 5000/19000）；不死族日光燃烧加 MITE 白天硬门（`Mob.isSunBurnTick`，仅 MITE 白天可烧）。
 - 爆头成就：核实为误报——vanilla `adventure/sniper_duel`（射杀骷髅+水平≥50+弹射物）与 MITE `snipeSkeleton` 完全一致且 infx 保留，未实现。
 - 僵尸召唤援军：核实为误报——MITE 中 `spawnReinforcements` 属性零读取（死代码），运行时无此机制，未实现。
+- 新增 GameTest：`infx_ghast_spacing`。
+
+---
+
+## 0t20
+### 新功能
 - 血月刷怪密度 ×1.5：血月夜近玩家敌对怪上限提升 1.5×（全局+局部 mob cap，对齐 MITE `SpawnerAnimals` 血月半径 8→12 区块——MITE 的"生成半径"实为近玩家怪密度阈值，搜索区恒 17×17）。
 - 深度刷怪密度：近玩家敌对怪上限随深度 `8×(1+(64-y)/32)` 放大（y=64→1×，y=32→2×，y=0→3×），越深允许越多怪聚集（对齐 MITE `SpawnerAnimals.setEligibleChunksForSpawning`：68-95）。
 - 刷怪速率每日修正：主世界每日可能随机触发 ×0.5/×2/×0 敌对刷怪速率计数（`SpawnRateTracker` SavedData 持久化），血月或雷暴强制拉回 1.0（对齐 MITE `calcEffectiveHostileMobSpawningRateModifier`：612-659）。
 - 每夜刷怪节奏：主世界敌对自然刷怪每位置按 `y<60 0.1 / y≥60 0.17` × 速率修正掷骰，复刻 MITE 的 10%/17% 每 tick 节奏（对齐 MITE `performRandomLivingEntitySpawning`：667-671）。
+- 雷暴露天光检：核实为 vanilla `Monster.isDarkEnoughToSpawn` 雷暴分支已覆盖（误报排除，未实现）。
+- 新增 GameTest：`infx_blood_moon_spawn_factor`、`infx_depth_spawn_scale`、`infx_spawn_rate_modifier`、`infx_spawn_cadence`。
+
+---
+
+## 0t19
+### 新功能
 - 燃烧怪通用传火：燃烧且主手无武器的敌对生物在近战命中时按 `难度×0.3` 概率点燃目标 `2×难度` 秒（`LivingIncomingDamageEvent`，对齐 MITE `EntityMob.attackEntityAsMob`：209-212）。
 - 僵尸转化难度门：Normal 难度下僵尸杀村民转化僵尸村民 50% 跳过（MITE `EntityZombie.onKillEntity` 难度2 掷骰；工具僵尸取消转化与清装备逻辑保留）。
 - 僵尸武器天数升级：day≥10 的僵尸武器在张力曲线上额外可选铁锈短斧（MITE `EntityZombie.addRandomWeapon` 天数门控）。
+- 新增 GameTest：`infx_burning_mob_fire_transfer`、`infx_villager_conversion_normal_gate`、`infx_zombie_hatchet_day`。
+
+---
+
+## 0t18
+### 新功能
 - 血月雷电 ×5：血月日雷电滚动频率从 1/100000 提升到 1/20000（`ServerLevel.tickThunder` 的 `nextInt` 上界改为 20000，对齐 MITE `WorldServer.java:1310`）。
 - 血月全群系降雨：`Level.precipitationAt` 在血月日绕过热群系"无降水"门控——沙漠/恶地等原本不降雨的群系也会下雨，血月日不死族白天免烧、作物获水在全群系生效（客户端雨粒子渲染读同一方法，自动跟随）。
 - 血月红眼：`EntityRenderer.extractRenderState` 在血月夜为敌对生物设置 MITE 狂暴发光色 8527390——现代 MC 的 `outlineColor` 即 1.6.4 的 glow 色字段（对齐 MITE `EntityLivingBase.java:729-733`）。
 - 作物枯萎扩展到 vanilla 作物：小麦/甜菜等 vanilla 作物在血月夜每随机刻 25% 枯萎（`BlightTracker` SavedData 追踪 + `CropBlock.randomTick` 拦截）——枯萎后停止生长、每随机刻 1/64 直接死亡并掉种子、可传染邻近 vanilla 作物；骨粉治愈枯萎而非促长；破块清除追踪。InfX 自有作物早已有此机制。
+- 新增 GameTest：`infx_blood_moon_lightning`、`infx_blood_moon_rain`、`infx_blood_moon_crop_blight`。
+
+---
+
+## 0t17
+### 新功能
 - 末影人血月狂暴完全豁免：修复血月狂暴批遗漏——`LivingEntityFrenzySpeedMixin` 现在对 InfxEnderman 不施加 ×1.2 移速（`applyFrenzyDamage` 攻豁免早已有，补齐移速豁免，符合 MITE isFrenzied=false）。
 - 爬行者爆炸方块半径 ×0.715（实体半径 1.1× 已实现）：`Creeper.explodeCreeper` 的爆炸半径参数对 InfxCreeper 乘 0.715（方块 3→2.145 / 充能 6→4.29），实体伤害半径仍走 ExplosionRanges 4.4。
 - 史莱姆燃烧不分裂：`MobSplitEvent` 对燃烧中的 Slime 取消分裂——燃烧的史莱姆死亡直接消失（MITE）。
+- 新增 GameTest `infx_slime_burning_no_split`；`infx_frenzy_speed` 增加末影人豁免断言。
+
+---
+
+## 0t16
+### 新功能
 - 僵尸系补全 MITE 机制：①无幼体僵尸——vanilla 5% 幼体出生被取消（含 jockey 骑鸡下马）；②稀有掉落——玩家击杀约 2.5% 概率掉 1 个铜/银/金/铁粒（`(5+looting×2)/200`，对齐 MITE）；③寻食生肉——vanilla 僵尸会走向并吃掉掉落的生肉（`#minecraft:meat`，亡灵进食不回血，400 tick 冷却）；④杀村民转化补充——手持挖掘工具的僵尸拒绝转化村民、转化后清空杀手僵尸 5 格装备（vanilla 原生转化/职业继承/反治愈保留）；⑤挖块目标脚下优先——僵尸先挖目标脚下一列（目标脚向下到挖者脚），再挖视线阻挡块。
+- 新增 GameTest `infx_zombie_no_baby`/`infx_zombie_food`/`infx_zombie_conversion_skip`/`infx_zombie_dig_feet_first`；新增单测 `zombieRareDropsMatchMite`。
+
+---
+
+## 0t15
+### 新功能
 - 血月狂暴完整化：①骨王狂暴与血月可叠加——被骨王灵感的骷髅在血月夜近战额外 +100% 基础攻击（原为二选一各 +50%）；②血月夜怪物移速 ×1.2（`LivingEntity.getSpeed`）；③远程CD ×0.67——骷髅弓与女巫投掷在血月夜间隔 60→40 tick（骨王灵感再叠 →26）；④血月夜破门速度 ×2（`BreakDoorGoal.getDoorBreakTime` 减半，覆盖食尸鬼/隐形潜伏者/困难 vanilla 僵尸）。
+- 新增 GameTest `infx_frenzy_speed`；新增单测 `frenzyDamageBonusStacksPerSource`。
+
+---
+
+## 0t14
+### 新功能
 - 月光亮度表按 MITE 定制：主世界区域难度月光亮度改为血月 0.6、丰收月 1.0、蓝月/月狗 1.1、其余 `月相因子×0.5+0.75`（满月 1.25/新月 0.75），覆盖原版相位表（`ServerLevel.getMoonBrightness`）。
 - 血月雷暴修复：血月日从正午（tick 6000）起强制雷暴，持续 13000 tick（对齐 MITE `World.java:8675`），取代原 6000 tick 白天触发；血月夜不死族因此不会白天燃烧。
 - 怪物上限改为 MITE 的每玩家 50 只（原版 70）：`MobCategory.MONSTER.getMaxInstancesPerChunk` 70→50。
+- 新增 GameTest：`infx_moon_brightness`、`infx_monster_cap`；新增单测 `miteMoonBrightnessAndStormWindowMatchMite`。
+
+---
+
+## 0t13
+### 新功能
 - 骷髅系补全 MITE 机制：骷髅受伤时会走向附近 16 格内掉落的骨头并吃掉，回复最大生命 50%，拾取冷却 400 tick（移植 MITE `EntityAIMoveToRepairItem`）；骷髅免疫仙人掌伤害；凋灵骷髅由原版石剑改为 InfX 铁剑（poor 品质，掉落仍走 vanilla 8.5% 装备规则）；古尸守卫近远程动态切换——持弓且目标 <5 格换远古金属匕首、持近战且 >6 格换回弓（每 10 tick 判定）。
+- 新增骷髅 GameTest：`infx_skeleton_bone_repair`、`infx_skeleton_cactus_immune`、`infx_skeleton_guardian_switch`。
+
+---
+
+## 0t12
+### 新功能
 - 重构僵尸系怪物体系：不再用"写新生物替换原版生成"的方式移植 MITE 僵尸机制。删除 `infx_zombie` 替换实体，改为直接用 NeoForge 事件驱动 vanilla 僵尸——`FinalizeSpawnEvent` 注入聪明（1/8 出生、被玩家打一次必变聪明，`infx.is_smart` 持久化）、首领（5%×张力、血 ×2~5、击退抗性 +0.5~0.75）与属性对齐（近战 5、护甲 0）；`EntityTickEvent.Post` 驱动 MITE 挖方块（300×硬度 tick/击 ×10 击，血月狂暴÷2、持工具按 `1+strVsBlock×0.5` 加速，聪明/狂暴可空手挖、软方块白名单、液体/仙人掌/脚下方块门）与烧树 AI（烧着时每 40 tick 走向 16 格内最近原木并在玩家于树冠附近时点燃）；`LivingDamageEvent` 触发被打变聪明。普通僵尸掉落恢复 vanilla 掉落表。
 - 新增 MITE 张力难度体系 `Tension`：直接读 vanilla `chunk.inhabitedTime` 与月相相位因子（`DimensionType.MOON_BRIGHTNESS_PER_PHASE`），公式对齐 MITE（`clamp(居住/3,600,000,0,1)×(困难?1:0.75)+月相×0.25`，困难封顶 1.5）；装备/附魔/首领概率全部改吃张力（装备 15%×张力、附魔 10%×张力 且等级 `5+张力×rand(18)`），新增配置 `mobs.tensionEnabled` 可关闭回退旧天数曲线。土元素挖矿冷却、蜘蛛药水概率同步接入张力。
 - 隐形潜伏者/食尸鬼/黑色食尸鬼/Wight/亡灵 由 InfxZombie 变体拆分为独立实体类（`InvisibleStalker`/`Ghoul`/`Shadow`/`Wight`/`Revenant`，均 extends Zombie），共享 `InfxZombieBase` 基建（无幼体、无水下转化、无增援），各自保留属性/音效/免疫门/行为；新怪仍作为独立实体类型注册，不替换任何原版生成。
 - 清理怪物系统 R196 前缀：实体 NBT 键改 `infx.` 命名空间（`infx.is_smart`/`infx.summoned_troops`/`infx.phase_evasions` 等），方法名去 R196（`checkR196MonsterSpawnRules`→`checkMonsterSpawnRules` 等）。
+- 新增怪物 GameTest：`infx_zombie_smart`、`infx_zombie_leader`、`infx_zombie_dig_rate`、`infx_zombie_burn_tree`、`infx_ghoul_heal`、`infx_tension_curve`。
+### 问题修复
+- 僵尸挖方块由玩家速率近似改为 MITE 精确公式，泥土约 75 秒/块、血月减半、持有效工具显著提速。
+### 平衡调整
+- 普通僵尸持械概率从天数曲线（最高 75%）改为张力曲线（15%×张力，封顶约 22.5%），更贴近 MITE；久居区块的怪仍随居住时长逐步加压。
+
+---
+
+## 0t11
+### 新功能
 - 新增客户端与服务端 dev 模式对称校验：登录配置阶段交换 `devMode` 开关，客户端与服务端不一致时（dev 客户端进普通服，或普通客户端进 dev 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。
 - dev 模式开关从 `config/infx/infx-common.json` 与 `config/infx/infx-client.json` 的 `development` 分类迁出，统一保存至独立文件 `config/infx/infx-devmode.json`（`server.devMode` 服务端 / `client.devMode` 客户端），默认关闭；原文件残留的 `development.testMode` 字段会被配置系统忽略，已在旧配置开启 dev 模式的需在新文件重新打开。
 - “test 模式”统一更名为“dev 模式”（开发模式）：类名、配置项 key、网络握手 payload 与语言键全部由 `testMode` 改为 `devMode`，配置文件路径由 `infx-testmode.json` 改为 `infx-devmode.json`；已存在的 `testMode` 配置字段会被忽略，需在新文件以 `devMode` 重新配置。
 ### 问题修复
-- 僵尸挖方块由玩家速率近似改为 MITE 精确公式，泥土约 75 秒/块、血月减半、持有效工具显著提速。
 - 修复测试模式下局域网/单机"允许作弊"世界仍无权限：LAN"允许作弊"开关由客户端 `development.testMode` 控制，而权限收紧由服务端 `development.testMode` 决定，两端开关相互独立导致带作弊发布后房主与加入者仍无命令权限、也无法切换创造。现把"开了作弊"的集成服务器世界（局域网带作弊发布，或单机创建时开启允许命令）视为有效测试模式并放行原版权限：局域网带作弊发布时全员获得 OP，单机开作弊世界房主获得 OP；正常模式仍由选项锁逐 tick 强制关闭，行为不变。
-### 平衡调整
-- 普通僵尸持械概率从天数曲线（最高 75%）改为张力曲线（15%×张力，封顶约 22.5%；久居区块的怪仍随居住时长逐步加压。
+
 
 ---
 

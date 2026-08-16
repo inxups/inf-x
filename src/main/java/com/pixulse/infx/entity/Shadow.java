@@ -49,11 +49,6 @@ public final class Shadow extends InfxZombieBase {
     }
 
     @Override
-    protected boolean zombifiesVillagers() {
-        return true;
-    }
-
-    @Override
     protected boolean isSilentType() {
         return true;
     }

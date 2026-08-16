@@ -48,6 +48,13 @@ class BasicSystemsTest {
         assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 6_000L));
         assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 23_000L));
         assertFalse(MoonPhase.isBloodMoonThunderWindow(720_000L)); // day 31, ordinary
+
+        // The storm always ends at 19:00 (noon + 13,000 ticks) instead of re-arming a fresh 13k.
+        assertEquals(13_000L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 6_000L));
+        assertEquals(1_000L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 18_000L));
+        assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 19_000L));
+        assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 23_000L));
+        assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(720_000L)); // day 31, ordinary
     }
 
     @Test

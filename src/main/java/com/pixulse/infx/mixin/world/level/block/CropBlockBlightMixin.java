@@ -1,6 +1,7 @@
 package com.pixulse.infx.mixin.world.level.block;
 
 import com.pixulse.infx.block.InfxCropBlock;
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.world.BlightTracker;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.core.BlockPos;
@@ -31,7 +32,9 @@ public abstract class CropBlockBlightMixin {
             ci.cancel();
             return;
         }
-        if (MoonPhase.BLOOD.isActiveInOverworldAtNight(level)
+        if (InfXConfig.INSTANCE.world.enabled.getValue()
+                && InfXConfig.INSTANCE.world.bloodMoonBlight.getValue()
+                && MoonPhase.BLOOD.isActiveInOverworldAtNight(level)
                 && !level.getServer().isDedicatedServer()
                 && level.canSeeSky(pos)
                 && random.nextFloat() < 0.25F) {

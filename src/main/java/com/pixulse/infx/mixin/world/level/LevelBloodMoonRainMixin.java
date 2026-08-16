@@ -1,5 +1,6 @@
 package com.pixulse.infx.mixin.world.level;
 
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -19,7 +20,9 @@ public abstract class LevelBloodMoonRainMixin {
     @Inject(method = "precipitationAt", at = @At("HEAD"), cancellable = true)
     private void infx$bloodMoonPrecipitation(BlockPos pos, CallbackInfoReturnable<Biome.Precipitation> cir) {
         Level level = (Level) (Object) this;
-        if (!MoonPhase.BLOOD.isActiveInOverworld(level)
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.moonEvents.getValue()
+                || !MoonPhase.BLOOD.isActiveInOverworld(level)
                 || !level.isRaining()
                 || !level.canSeeSky(pos)
                 || level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos).getY() > pos.getY()) {
