@@ -114,6 +114,12 @@ public final class MonsterTactics {
                             ? InfxMaterial.ANCIENT_METAL
                             : InfxMaterial.WOOD;
         }
+        // MITE: from day 10 zombies favour a rusted-iron hatchet over a sword.
+        if (mob instanceof Zombie
+                && zombieFavoursHatchet(survivalDay(level), mob.getRandom().nextBoolean())) {
+            weaponType = EquipmentType.HATCHET;
+            weaponMaterial = InfxMaterial.RUSTED_IRON;
+        }
         equip(level, mob, EquipmentSlot.MAINHAND, weaponMaterial, weaponType, tension);
 
         EquipmentType[] armor = {
@@ -128,6 +134,11 @@ public final class MonsterTactics {
                 equip(level, mob, slots[i], material, armor[i], tension);
             }
         }
+    }
+
+    /** MITE: from day 10 a zombie may carry a rusted-iron hatchet instead of a sword. */
+    public static boolean zombieFavoursHatchet(long survivalDay, boolean coin) {
+        return survivalDay >= 10 && coin;
     }
 
     /** InfX mobs drop naturally carried equipment at the default 8.5% chance. */

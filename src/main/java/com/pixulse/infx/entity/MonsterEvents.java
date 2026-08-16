@@ -102,6 +102,32 @@ public final class MonsterEvents {
         }
     }
 
+    /** MITE: a burning mob with no weapon may ignite its target on a direct melee hit. */
+    @SubscribeEvent
+    public static void transferFireFromBurningMob(LivingIncomingDamageEvent event) {
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !(event.getSource().getDirectEntity() instanceof Mob attacker)
+                || !(attacker instanceof Enemy)
+                || !attacker.isOnFire()
+                || !attacker.getMainHandItem().isEmpty()
+                || !event.getSource().isDirect()) {
+            return;
+        }
+        LivingEntity victim = event.getEntity();
+        if (victim.level().isClientSide()) {
+            return;
+        }
+        float difficulty = victim.level().getDifficulty().getId();
+        if (burningMobTransferRoll(difficulty, attacker.getRandom())) {
+            victim.igniteForSeconds(2.0F * difficulty);
+        }
+    }
+
+    /** MITE fire transfer roll: a burning bare-handed mob has difficulty×0.3 chance to ignite. */
+    public static boolean burningMobTransferRoll(float difficulty, net.minecraft.util.RandomSource random) {
+        return difficulty > 0 && random.nextFloat() < difficulty * 0.3F;
+    }
+
     /** MITE frenzy: blood-moon and bone-lord frenzy each contribute 50% of base attack, stacking. */
     public static float frenzyDamageBonus(boolean bloodMoon, boolean boneLord) {
         return (bloodMoon ? 0.5F : 0.0F) + (boneLord ? 0.5F : 0.0F);

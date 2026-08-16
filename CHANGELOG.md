@@ -1,4 +1,14 @@
 # Changelog
+# 0t19
+
+### New Features
+- Burning-mob fire transfer: a burning hostile mob with no weapon ignites its melee target with `difficulty×0.3` chance for `2×difficulty` seconds (`LivingIncomingDamageEvent`, matching MITE `EntityMob.attackEntityAsMob`:209-212).
+- Villager-conversion difficulty gate: at Normal difficulty a zombie turning a slain villager skips the conversion half of the time (MITE `EntityZombie.onKillEntity` difficulty-2 coin flip; the tool-wielding-zombie cancel and equipment wipe are retained).
+- Zombie weapon day progression: from day 10 a zombie's weapon can be a rusted-iron hatchet instead of the tension-curve sword (MITE `EntityZombie.addRandomWeapon` day gate).
+- Added the `infx_burning_mob_fire_transfer`, `infx_villager_conversion_normal_gate` and `infx_zombie_hatchet_day` GameTests.
+
+---
+
 # 0t18
 
 ### New Features

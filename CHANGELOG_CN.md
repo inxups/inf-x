@@ -1,4 +1,13 @@
 # Changelog
+## 0t19
+### 新功能
+- 燃烧怪通用传火：燃烧且主手无武器的敌对生物在近战命中时按 `难度×0.3` 概率点燃目标 `2×难度` 秒（`LivingIncomingDamageEvent`，对齐 MITE `EntityMob.attackEntityAsMob`：209-212）。
+- 僵尸转化难度门：Normal 难度下僵尸杀村民转化僵尸村民 50% 跳过（MITE `EntityZombie.onKillEntity` 难度2 掷骰；工具僵尸取消转化与清装备逻辑保留）。
+- 僵尸武器天数升级：day≥10 的僵尸武器在张力曲线上额外可选铁锈短斧（MITE `EntityZombie.addRandomWeapon` 天数门控）。
+- 新增 GameTest：`infx_burning_mob_fire_transfer`、`infx_villager_conversion_normal_gate`、`infx_zombie_hatchet_day`。
+
+---
+
 ## 0t18
 ### 新功能
 - 血月雷电 ×5：血月日雷电滚动频率从 1/100000 提升到 1/20000（`ServerLevel.tickThunder` 的 `nextInt` 上界改为 20000，对齐 MITE `WorldServer.java:1310`）。
