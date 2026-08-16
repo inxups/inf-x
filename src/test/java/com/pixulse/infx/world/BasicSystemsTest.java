@@ -36,6 +36,20 @@ class BasicSystemsTest {
     }
 
     @Test
+    void miteMoonBrightnessAndStormWindowMatchMite() {
+        assertEquals(0.6F, MoonPhase.miteMoonBrightness(744_000L));       // blood moon day 32
+        assertEquals(1.1F, MoonPhase.miteMoonBrightness(3_048_000L));     // blue moon day 128
+        assertEquals(1.0F, MoonPhase.miteMoonBrightness(552_000L));       // harvest moon day 24
+        assertEquals(1.25F, MoonPhase.miteMoonBrightness(168_000L), 1.0E-6F); // full moon day 8
+        assertEquals(0.75F, MoonPhase.miteMoonBrightness(264_000L), 1.0E-6F); // new moon day 12
+
+        assertFalse(MoonPhase.isBloodMoonThunderWindow(744_000L + 5_999L));
+        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 6_000L));
+        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 23_000L));
+        assertFalse(MoonPhase.isBloodMoonThunderWindow(720_000L)); // day 31, ordinary
+    }
+
+    @Test
     void fallCushioningAndExplosionWearAreOrdered() {
         assertTrue(PhysicsRules.fallDamageMultiplier(Blocks.SPONGE.defaultBlockState())
                 < PhysicsRules.fallDamageMultiplier(Blocks.SNOW_BLOCK.defaultBlockState()));

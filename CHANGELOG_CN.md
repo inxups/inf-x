@@ -1,4 +1,13 @@
 # Changelog
+## 0t14
+### 新功能
+- 月光亮度表按 MITE 定制：主世界区域难度月光亮度改为血月 0.6、丰收月 1.0、蓝月/月狗 1.1、其余 `月相因子×0.5+0.75`（满月 1.25/新月 0.75），覆盖原版相位表（`ServerLevel.getMoonBrightness`）。
+- 血月雷暴修复：血月日从正午（tick 6000）起强制雷暴，持续 13000 tick（对齐 MITE `World.java:8675`），取代原 6000 tick 白天触发；血月夜不死族因此不会白天燃烧。
+- 怪物上限改为 MITE 的每玩家 50 只（原版 70）：`MobCategory.MONSTER.getMaxInstancesPerChunk` 70→50。
+- 新增 GameTest：`infx_moon_brightness`、`infx_monster_cap`；新增单测 `miteMoonBrightnessAndStormWindowMatchMite`。
+
+---
+
 ## 0t13
 ### 新功能
 - 骷髅系补全 MITE 机制：骷髅受伤时会走向附近 16 格内掉落的骨头并吃掉，回复最大生命 50%，拾取冷却 400 tick（移植 MITE `EntityAIMoveToRepairItem`）；骷髅免疫仙人掌伤害；凋灵骷髅由原版石剑改为 InfX 铁剑（poor 品质，掉落仍走 vanilla 8.5% 装备规则）；古尸守卫近远程动态切换——持弓且目标 <5 格换远古金属匕首、持近战且 >6 格换回弓（每 10 tick 判定）。

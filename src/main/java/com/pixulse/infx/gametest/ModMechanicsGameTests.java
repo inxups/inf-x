@@ -26,6 +26,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.clock.WorldClocks;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -66,7 +68,9 @@ public final class ModMechanicsGameTests {
             "infx_colored_eggs",
             "infx_leaves_projectile_pass",
             "infx_leaves_item_pass",
-            "infx_sphere_sheep");
+            "infx_sphere_sheep",
+            "infx_moon_brightness",
+            "infx_monster_cap");
 
     static {
         FUNCTIONS.register("infx_explosion_drops", () -> ModMechanicsGameTests::explosionDrops);
@@ -79,6 +83,8 @@ public final class ModMechanicsGameTests {
         FUNCTIONS.register("infx_leaves_projectile_pass", () -> ModMechanicsGameTests::leavesProjectilePass);
         FUNCTIONS.register("infx_leaves_item_pass", () -> ModMechanicsGameTests::leavesItemPass);
         FUNCTIONS.register("infx_sphere_sheep", () -> ModMechanicsGameTests::sphereSheep);
+        FUNCTIONS.register("infx_moon_brightness", () -> ModMechanicsGameTests::moonBrightness);
+        FUNCTIONS.register("infx_monster_cap", () -> ModMechanicsGameTests::monsterCap);
     }
 
     private ModMechanicsGameTests() {}
@@ -460,6 +466,33 @@ public final class ModMechanicsGameTests {
                 sheep.hurtServer(level, level.damageSources().thrown(sphere, null), 1.0F),
                 "the sphere hit must damage the sheep");
         helper.assertTrue(sheep.isSheared(), "the black sphere must corrode the sheep's wool");
+        helper.succeed();
+    }
+
+    /** MITE moon brightness feeds regional difficulty: blood 0.6, ordinary full moon 1.25. */
+    private static void moonBrightness(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        BlockPos pos = helper.absolutePos(new BlockPos(2, 2, 2));
+        level.clockManager().setTotalTicks(overworldClock, 744_000L); // blood moon day 32
+        helper.assertTrue(
+                Math.abs(level.getMoonBrightness(pos) - 0.6F) < 1.0E-5F,
+                "blood moons must dim the regional-difficulty moon brightness to 0.6");
+        level.clockManager().setTotalTicks(overworldClock, 168_000L); // full moon day 8
+        helper.assertTrue(
+                Math.abs(level.getMoonBrightness(pos) - 1.25F) < 1.0E-5F,
+                "ordinary full moons must use phase factor × 0.5 + 0.75 = 1.25");
+        helper.succeed();
+    }
+
+    /** MITE caps hostile mobs at 50 per player instead of vanilla's 70. */
+    private static void monsterCap(GameTestHelper helper) {
+        helper.assertTrue(
+                MobCategory.MONSTER.getMaxInstancesPerChunk() == 50,
+                "MONSTER must cap at 50 per player");
+        helper.assertTrue(
+                MobCategory.CREATURE.getMaxInstancesPerChunk() == 10,
+                "passive categories must keep their vanilla cap");
         helper.succeed();
     }
 }

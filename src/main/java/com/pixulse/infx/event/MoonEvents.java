@@ -74,12 +74,16 @@ public final class MoonEvents {
             return;
         }
         if (MoonPhase.BLUE.isActiveInOverworld(level)) {
-            setWeather(level, false, false);
-        } else if (MoonPhase.BLOOD.isActiveInOverworld(level) && !MoonPhase.isNight(level)) {
-            // This is the existing lunar weather cue. InfX's deterministic WeatherEvent scheduler
-            // also owns forecasts, wind, and event merging, so it is intentionally out of scope here.
-            setWeather(level, true, true);
+            setWeather(level, false, false, 6_000);
+        } else if (isBloodMoonThunderWindow(level)) {
+            // MITE forces a thunderstorm from noon on blood moons, lasting 13,000 ticks.
+            setWeather(level, true, true, 13_000);
         }
+    }
+
+    /** MITE blood-moon storm window: the whole day from noon (World.java:8675-8680). */
+    public static boolean isBloodMoonThunderWindow(ServerLevel level) {
+        return MoonPhase.isBloodMoonThunderWindow(level.getOverworldClockTime());
     }
 
     @SubscribeEvent
@@ -158,11 +162,11 @@ public final class MoonEvents {
                 || MoonPhase.atDay(day) == MoonPhase.PHANTOM && MoonPhase.isNightTime(overworldClockTime);
     }
 
-    private static void setWeather(ServerLevel level, boolean raining, boolean thundering) {
+    private static void setWeather(ServerLevel level, boolean raining, boolean thundering, int duration) {
         var weather = level.getWeatherData();
-        weather.setClearWeatherTime(raining ? 0 : 6_000);
-        weather.setRainTime(6_000);
-        weather.setThunderTime(6_000);
+        weather.setClearWeatherTime(raining ? 0 : duration);
+        weather.setRainTime(duration);
+        weather.setThunderTime(duration);
         weather.setRaining(raining);
         weather.setThundering(thundering);
     }
