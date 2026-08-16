@@ -6,9 +6,9 @@ public final class ClientLanPolicy {
 
     /**
      * Returns whether the Share-to-LAN screen may offer the "Allow Commands" toggle.
-     * Normal play never publishes a LAN world with cheats; only test mode may.
+     * Normal play never publishes a LAN world with cheats; only dev mode may.
      */
-    public static boolean allowsLanCommands(boolean testMode) {
-        return testMode;
+    public static boolean allowsLanCommands(boolean devMode) {
+        return devMode;
     }
 }

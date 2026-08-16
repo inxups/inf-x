@@ -2,8 +2,9 @@
 
 # 0v5
 ### 新功能
-- 新增客户端与服务端 test 模式对称校验：登录配置阶段交换 `development.testMode` 开关，客户端与服务端不一致时（test 客户端进普通服，或普通客户端进 test 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。
-- test 模式开关从 `config/infx/infx-common.json` 与 `config/infx/infx-client.json` 的 `development` 分类迁出，统一保存至独立文件 `config/infx/infx-testmode.json`（`server.testMode` 服务端 / `client.testMode` 客户端），默认关闭；原文件残留的 `development.testMode` 字段会被配置系统忽略，已在旧配置开启 test 模式的需在新文件重新打开。
+- 新增客户端与服务端 dev 模式对称校验：登录配置阶段交换 `devMode` 开关，客户端与服务端不一致时（dev 客户端进普通服，或普通客户端进 dev 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。
+- dev 模式开关从 `config/infx/infx-common.json` 与 `config/infx/infx-client.json` 的 `development` 分类迁出，统一保存至独立文件 `config/infx/infx-devmode.json`（`server.devMode` 服务端 / `client.devMode` 客户端），默认关闭；原文件残留的 `development.testMode` 字段会被配置系统忽略，已在旧配置开启 dev 模式的需在新文件重新打开。
+- “test 模式”统一更名为“dev 模式”（开发模式）：类名、配置项 key、网络握手 payload 与语言键全部由 `testMode` 改为 `devMode`，配置文件路径由 `infx-testmode.json` 改为 `infx-devmode.json`；已存在的 `testMode` 配置字段会被忽略，需在新文件以 `devMode` 重新配置。
 - 将草土方块加入到“滑动”与“坍塌”泥土标签中。
 - 使受重力影响的泥土继承所有被设定为具有滑动/下落行为的方块特性。
 - 移除了那些硬编码了可调攻击速度及品质阈值的脆弱单元测试。
@@ -11,7 +12,7 @@
 - 将默认食物配置、熔炉燃料热值、凝胶溶解特性及怪物生成规则迁移至可重载的 `data/infx` 数据包资源中；燃料与腐蚀地面分类现已改用数据标签。
 - 移除了那些硬编码了注册表、目录及资源清单数量（基数）的脆弱测试断言。
   接入 Jupiter 配置系统：服务端公共配置保存至 `config/infx/infx-common.json`，可由 OP 在游戏内配置界面修改并同步给客户端；客户端显示偏好保存至 `config/infx/infx-client.json`。现可分别控制生存、进程、生产、世界和实体规则，以及食物提示与特殊月相渲染。
-- 开发测试模式改由 Jupiter 配置启用：服务端 `development.testMode` 控制原版服务器管理、权限和世界规则放行，客户端 `development.testMode` 控制 F3、世界创建、亮度、LAN 命令及开发提示；不再读取 JVM 的 `infx.testMode` 参数，也不再要求客户端与服务端开关一致。
+- 开发模式改由 Jupiter 配置启用：服务端 `devMode` 控制原版服务器管理、权限和世界规则放行，客户端 `devMode` 控制 F3、世界创建、亮度、LAN 命令及开发提示；不再读取 JVM 的 `infx.testMode` 参数，也不再要求客户端与服务端开关一致。
 - 新增服务器 datapack 规则重载：`food_profiles`、`fuel_heat`、`harvest_rules`、`gelatinous_dissolving` 与 `mob_spawn_rules`。规则支持精确物品/方块 ID 与标签目标，按优先级、目标精确度和规则 ID 稳定覆盖，并在缺少规则时保留现有 INFX 策略。实体生成规则在原有放置类型和基础生成检查通过后生效，可配置主世界高度、概率、顶棚与地面方块条件。
 - 新增粗银、粗秘银、粗艾德曼三种粗矿物品及对应材质。银矿/深层银矿/秘银矿/深层秘银矿/艾德曼矿/深层艾德曼矿不再掉落方块自身，改为掉落 1 个对应粗矿（受时运加成影响，精准采集仍掉落矿块）；三种矿石的烧制配方改为 粗矿→锭（经验与耗时不变：银 15 / 秘银 40 / 艾德曼 100，耗时 200），矿石块本身不再可烧制。
 - 剪刀右键丝滑收获覆盖原版"仅剪刀"掉落方块：藤蔓、发光地衣（按附着面数）、海草、短草、蕨、下界苗、垂根、滴水叶、高草/高蕨/高海草等此前掉不出本体的方块，现在右键可直接采下方块本体（高草/高蕨/高海草掉落 2 个对应矮变体）；蛛网右键采下蛛网方块、左键仍掉线（其他工具破坏不掉落）。为此掉落调用改用附精准采集的原版剪刀栈，命中原版 `match_tool items:minecraft:shears` 战利品分支。

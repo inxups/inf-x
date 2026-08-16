@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 class ClientLanPolicyTest {
     @Test
-    void onlyTestModeAllowsLanCommands() {
+    void onlyDevModeAllowsLanCommands() {
         assertTrue(ClientLanPolicy.allowsLanCommands(true));
         assertFalse(ClientLanPolicy.allowsLanCommands(false));
     }

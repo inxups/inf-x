@@ -11,15 +11,15 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
-/** Resolves the effective datapack dimensions used when a test-mode world is baked. */
+/** Resolves the effective datapack dimensions used when a dev-mode world is baked. */
 public final class WorldDimensionSelectionPolicy {
     private WorldDimensionSelectionPolicy() {}
 
     public static Registry<LevelStem> resolve(
             Registry<LevelStem> datapackDimensions,
             Map<ResourceKey<LevelStem>, LevelStem> selectedDimensions,
-            boolean testMode) {
-        if (!testMode) return datapackDimensions;
+            boolean devMode) {
+        if (!devMode) return datapackDimensions;
 
         LevelStem selectedOverworld = selectedDimensions.get(LevelStem.OVERWORLD);
         LevelStem datapackOverworld = datapackDimensions.getValue(LevelStem.OVERWORLD);

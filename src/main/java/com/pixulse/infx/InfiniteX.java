@@ -11,7 +11,7 @@ import com.pixulse.infx.gametest.ModStructureLootGameTests;
 import com.pixulse.infx.gametest.ModMechanicsGameTests;
 import com.pixulse.infx.gametest.ModJadeDisplayGameTests;
 import com.pixulse.infx.config.InfXConfig;
-import com.pixulse.infx.config.InfXTestModeConfig;
+import com.pixulse.infx.config.InfXDevModeConfig;
 import com.pixulse.infx.event.CauldronEvents;
 import com.pixulse.infx.event.ItemEvents;
 import com.pixulse.infx.item.StickBoneItems;
@@ -49,7 +49,7 @@ public final class InfiniteX {
 
     public InfiniteX(IEventBus modBus) {
         ConfigManager.getInstance().registerConfigHandler(InfXConfig.INSTANCE);
-        ConfigManager.getInstance().registerConfigHandler(InfXTestModeConfig.INSTANCE);
+        ConfigManager.getInstance().registerConfigHandler(InfXDevModeConfig.INSTANCE);
         ServerConfigManager.registerServerConfig(
                 InfXConfig.INSTANCE, ServerConfigManager.PermissionChecker.IS_OPERATOR);
         InfXSounds.register(modBus);
@@ -84,8 +84,8 @@ public final class InfiniteX {
         ModMonsterGameTests.register(modBus);
         ModMechanicsGameTests.register(modBus);
         ModJadeDisplayGameTests.register(modBus);
-        if (InfiniteXTestMode.isServerEnabled()) {
-            LOGGER.warn("InfiniteX test mode is active; development overrides and vanilla server administration are enabled");
+        if (InfiniteXDevMode.isServerEnabled()) {
+            LOGGER.warn("InfiniteX dev mode is active; development overrides and vanilla server administration are enabled");
         }
     }
 

@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.data.food.SurvivalData;
 import com.pixulse.infx.data.food.SurvivalRules;
 import com.pixulse.infx.registry.InfXAttachments;
@@ -52,8 +52,8 @@ public final class ClientControls {
 
     private static void configureDebugOverlay(Minecraft minecraft) {
         if (debugConfigured) return;
-        boolean testMode = InfiniteXTestMode.isClientEnabled();
-        if (testMode) {
+        boolean devMode = InfiniteXDevMode.isClientEnabled();
+        if (devMode) {
             if (!minecraft.debugEntries.isUsingProfile(DebugScreenProfile.DEFAULT)) {
                 minecraft.debugEntries.loadProfile(DebugScreenProfile.DEFAULT);
             }
@@ -67,8 +67,8 @@ public final class ClientControls {
         debugConfigured = true;
     }
 
-    static DebugScreenEntryStatus debugStatus(boolean testMode, Identifier id) {
-        if (testMode) {
+    static DebugScreenEntryStatus debugStatus(boolean devMode, Identifier id) {
+        if (devMode) {
             return DebugScreenEntries.PROFILES.get(DebugScreenProfile.DEFAULT)
                     .getOrDefault(id, DebugScreenEntryStatus.NEVER);
         }

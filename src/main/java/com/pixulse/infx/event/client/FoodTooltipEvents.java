@@ -1,7 +1,7 @@
 package com.pixulse.infx.event.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.config.InfXClientConfig;
 import com.pixulse.infx.data.food.FoodProfile;
 import com.pixulse.infx.data.food.FoodProfiles;
@@ -31,13 +31,13 @@ public final class FoodTooltipEvents {
     public static void addFoodGains(ItemTooltipEvent event) {
         FoodProfile food = FoodProfiles.forStack(event.getItemStack());
         if (!InfXClientConfig.INSTANCE.detailedFoodTooltips.getValue()
-                || !shouldAddFoodGains(InfiniteXTestMode.isClientEnabled(), event.getFlags().isAdvanced(), food)) return;
+                || !shouldAddFoodGains(InfiniteXDevMode.isClientEnabled(), event.getFlags().isAdvanced(), food)) return;
 
         appendFoodGains(event.getToolTip(), food);
     }
 
-    static boolean shouldAddFoodGains(boolean testMode, boolean advancedTooltips, FoodProfile food) {
-        return testMode && advancedTooltips && !food.isEmpty();
+    static boolean shouldAddFoodGains(boolean devMode, boolean advancedTooltips, FoodProfile food) {
+        return devMode && advancedTooltips && !food.isEmpty();
     }
 
     static void appendFoodGains(List<Component> tooltip, FoodProfile food) {

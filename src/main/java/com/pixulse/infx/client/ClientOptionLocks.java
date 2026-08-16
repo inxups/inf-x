@@ -1,7 +1,7 @@
 package com.pixulse.infx.client;
 
 import com.pixulse.infx.InfiniteX;
-import com.pixulse.infx.InfiniteXTestMode;
+import com.pixulse.infx.InfiniteXDevMode;
 import com.pixulse.infx.world.AllowCommandsAccess;
 import com.pixulse.infx.world.WorldCreationLockProfile;
 import net.minecraft.client.Minecraft;
@@ -21,7 +21,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 
-/** Locks survival-only client and integrated-world options outside test mode. */
+/** Locks survival-only client and integrated-world options outside dev mode. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID, value = Dist.CLIENT)
 public final class ClientOptionLocks {
     static final double DIM_BRIGHTNESS = 0.0D;
@@ -31,7 +31,7 @@ public final class ClientOptionLocks {
 
     @SubscribeEvent
     public static void enforceLockedValues(ClientTickEvent.Post event) {
-        if (InfiniteXTestMode.isClientEnabled()) return;
+        if (InfiniteXDevMode.isClientEnabled()) return;
         Minecraft minecraft = Minecraft.getInstance();
         enforceBrightness(minecraft);
         enforceAllowCommands(minecraft);
@@ -39,7 +39,7 @@ public final class ClientOptionLocks {
 
     @SubscribeEvent
     public static void lockOptionScreens(ScreenEvent.Init.Post event) {
-        if (InfiniteXTestMode.isClientEnabled()) return;
+        if (InfiniteXDevMode.isClientEnabled()) return;
         Minecraft minecraft = Minecraft.getInstance();
         if (event.getScreen() instanceof VideoSettingsScreen) {
             enforceBrightness(minecraft);
