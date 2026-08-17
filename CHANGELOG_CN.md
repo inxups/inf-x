@@ -1,10 +1,4 @@
 # Changelog
-## 0t26
-### 其他
-- 新增《MITE 怪物机制移植差距分析》（`docs/MITE怪物机制移植差距分析.md`）：以 MITE 源码为准逐机制核对 InfX 现状，收录 8 项缺口（蜘蛛网投射物、骨王召唤安全位置/双连招/名额回收、仙人掌击杀计数、银甲覆盖率统一规则、相位蜘蛛闪避过滤、Shadow 寻灯 Goal、火元素攻村民等，巨型僵尸按既定决策排除），每项含 MITE 规格、现状证据、缺失范围、推荐入口与验收标准；另附已核实「原生基础」表（禁止重复实现项）与勘误（如 MITE 蜘蛛隐身不可达）。《MITE 移植指南》中指向不存在外部文件的差距分析引用改为本文档。
-
----
-
 ## 0t25
 ### 移除
 - 移除 10 个长期失败的测试方法：单测 `ItemPropertiesTest.reachModesRouteBonusesOnlyToIndependentInfxAttributes`、`StickBoneItemsTest.restoresStackLimitAndBothReachModifiers`；GameTest `equipment_components`/`infx_equipment_components`/`height_advantage`（reach 类）、`vanilla_overflow_recipes`/`recipe_boundaries`/`infx_legacy_recipes`（配方类）、`infx_behavior_hunger`/`infx_mushroom_growth`（生存/世界类）。均为历史遗留失败（08-11 reach 重构后断言未同步、配方/饥饿/蘑菇系统与 26.1 交互），非近期改动引入；删除后单测全绿、GameTest 无确定性失败（仅冷启动 flaky）。
