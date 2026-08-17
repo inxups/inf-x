@@ -1,7 +1,7 @@
 # MITE → infx 移植工程指南（vanilla 1.6.4 源码版）
 
 > 目标：把 MITE（MC 1.6.4 硬核改造）机制移植到 infx（NeoForge 26.1.2）时，不只是"类名/方法对上"，而是**七层全对齐 + 数值可玩 + 测试兜底**，确保移植后能在 26.1 正常游玩。
-> 配套：《infx-MITE怪物机制移植差距分析.md》（机制状态总表）。源码四源见 §0.2。
+> 配套：《MITE怪物机制移植差距分析.md》（`docs/MITE怪物机制移植差距分析.md`，机制状态总表）。源码四源见 §0.2。
 > 更新：2026-08-16
 
 ---
@@ -171,7 +171,7 @@
 
 ## 六、参考清单
 
-- 差距分析（机制状态总表）：`mc/mite/infx-MITE怪物机制移植差距分析.md`
+- 差距分析（机制状态总表）：`docs/MITE怪物机制移植差距分析.md`
 - vanilla 1.6.4 源码：`mc/1.6.4-src/src/minecraft/net/minecraft/src/`
 - MITE 源码：`mc/mite/src/net/minecraft/`
 - vanilla 26.1.2.94 源码：`inf-x/build/moddev/artifacts/minecraft-patched-26.1.2.94-sources/net/minecraft/`
