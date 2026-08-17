@@ -99,6 +99,8 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry strongholdProximity = flag("strongholdProximity", "Boost spawn density near strongholds", true);
         public final BooleanEntry ghastSpacing = flag("ghastSpacing", "Ghasts never spawn within 48 blocks of a player", true);
         public final BooleanEntry miteDayNight = flag("miteDayNight", "MITE 14h/10h day window for sunlight burning", true);
+        public final BooleanEntry piglinHostility = flag("piglinHostility", "Piglins attack players and barter only by kill drops", true);
+        public final BooleanEntry phantomMoonSpawns = flag("phantomMoonSpawns", "Phantoms spawn only on blood/phantom moon nights", true);
 
         private MobConfig() {
             super("mobs", Component.literal("Mobs"));

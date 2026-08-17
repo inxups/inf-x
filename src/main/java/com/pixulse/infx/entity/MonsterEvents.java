@@ -67,6 +67,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerSpawnPhantomsEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
@@ -140,6 +141,44 @@ public final class MonsterEvents {
         return InfXConfig.INSTANCE.mobs.enabled.getValue()
                 && InfXConfig.INSTANCE.mobs.bloodMoonFrenzy.getValue()
                 && MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+    }
+
+    /** InfX hostile-piglin predicate: single config gate for target AI, barter blocks and kill drops. */
+    public static boolean isPiglinHostilityEnabled() {
+        return InfXConfig.INSTANCE.mobs.enabled.getValue()
+                && InfXConfig.INSTANCE.mobs.piglinHostility.getValue();
+    }
+
+    /**
+     * InfX phantoms are part of the blood-moon catastrophe (and its 128-day phantom-moon echo)
+     * instead of a second sleep-deprivation punishment on top of the blood-moon sleep ban.
+     * ALLOW bypasses vanilla's TimeSinceRest and difficulty rolls; DENY blocks the wave.
+     */
+    @SubscribeEvent
+    public static void controlPhantomSpawns(PlayerSpawnPhantomsEvent event) {
+        Level level = event.getEntity().level();
+        int decision = phantomSpawnDecision(level);
+        if (decision < 0) {
+            event.setResult(PlayerSpawnPhantomsEvent.Result.DENY);
+        } else if (decision > 0) {
+            event.setResult(PlayerSpawnPhantomsEvent.Result.ALLOW);
+            event.setPhantomsToSpawn(decision);
+        }
+    }
+
+    /** -1 = deny the wave, 0 = keep vanilla behavior, n = allow n phantoms per player wave. */
+    public static int phantomSpawnDecision(Level level) {
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !InfXConfig.INSTANCE.mobs.phantomMoonSpawns.getValue()) {
+            return 0;
+        }
+        if (!MoonPhase.isOverworld(level)) return -1;
+        MoonPhase phase = MoonPhase.at(level);
+        if (!MoonPhase.isNight(level)) return -1;
+        if (phase == MoonPhase.BLOOD || phase == MoonPhase.PHANTOM) {
+            return 1 + level.getRandom().nextInt(2);
+        }
+        return -1;
     }
 
     /**

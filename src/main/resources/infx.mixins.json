@@ -40,6 +40,7 @@
     "world.entity.monster.StriderFungusControlMixin",
     "world.entity.monster.VanillaMobEquipmentMixin",
     "world.entity.monster.WitherSkeletonDropsMixin",
+    "world.entity.monster.piglin.PiglinAiMixin",
     "world.entity.player.PlayerExperienceMixin",
     "world.entity.player.PlayerFoodMixin",
     "world.entity.player.PlayerReachMixin",

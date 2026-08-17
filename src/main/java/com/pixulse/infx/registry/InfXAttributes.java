@@ -49,5 +49,8 @@ public final class InfXAttributes {
         event.add(EntityType.STRAY, Attributes.MAX_HEALTH, InfxSkeleton.ORDINARY_MAX_HEALTH);
         event.add(EntityType.BOGGED, Attributes.MAX_HEALTH, InfxSkeleton.ORDINARY_MAX_HEALTH);
         event.add(EntityType.PARCHED, Attributes.MAX_HEALTH, InfxSkeleton.ORDINARY_MAX_HEALTH);
+        // MITE nether food chain: hoglins must survive the harder InfX Nether (vanilla 40/6.0).
+        event.add(EntityType.HOGLIN, Attributes.MAX_HEALTH, 50.0);
+        event.add(EntityType.HOGLIN, Attributes.ATTACK_DAMAGE, 7.0);
     }
 }

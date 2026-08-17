@@ -7,6 +7,7 @@ import com.pixulse.infx.loot.GlassShardLootModifier;
 import com.pixulse.infx.loot.ModernProgressionLootFilter;
 import com.pixulse.infx.loot.LegacyProgressionLootFilter;
 import com.pixulse.infx.loot.CreationBookLootModifier;
+import com.pixulse.infx.loot.PiglinBarterDropLootModifier;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
@@ -35,6 +36,10 @@ public final class InfXLootModifiers {
     public static final DeferredHolder<
                     MapCodec<? extends IGlobalLootModifier>, MapCodec<CreationBookLootModifier>>
             CREATION_BOOK = SERIALIZERS.register("creation_book", () -> CreationBookLootModifier.CODEC);
+    public static final DeferredHolder<
+                    MapCodec<? extends IGlobalLootModifier>, MapCodec<PiglinBarterDropLootModifier>>
+            PIGLIN_BARTER_DROPS = SERIALIZERS.register(
+                    "piglin_barter_drops", () -> PiglinBarterDropLootModifier.CODEC);
 
     private InfXLootModifiers() {}
 
