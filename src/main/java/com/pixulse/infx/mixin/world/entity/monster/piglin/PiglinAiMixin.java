@@ -1,6 +1,6 @@
 package com.pixulse.infx.mixin.world.entity.monster.piglin;
 
-import com.pixulse.infx.entity.MonsterEvents;
+import com.pixulse.infx.world.SpawnGate;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -25,7 +25,7 @@ abstract class PiglinAiMixin {
     @Inject(method = "isWearingSafeArmor", at = @At("HEAD"), cancellable = true)
     private static void infx$goldNeverPacifiesPlayers(
             LivingEntity entity, CallbackInfoReturnable<Boolean> callback) {
-        if (MonsterEvents.isPiglinHostilityEnabled() && entity instanceof Player) {
+        if (SpawnGate.isPiglinHostilityEnabled() && entity instanceof Player) {
             callback.setReturnValue(false);
         }
     }
@@ -33,14 +33,14 @@ abstract class PiglinAiMixin {
     @Inject(method = "canAdmire", at = @At("HEAD"), cancellable = true)
     private static void infx$noHandedOverBarter(
             Piglin piglin, ItemStack offered, CallbackInfoReturnable<Boolean> callback) {
-        if (MonsterEvents.isPiglinHostilityEnabled()) {
+        if (SpawnGate.isPiglinHostilityEnabled()) {
             callback.setReturnValue(false);
         }
     }
 
     @Inject(method = "admireGoldItem", at = @At("HEAD"), cancellable = true)
     private static void infx$noPickedUpBarter(LivingEntity piglin, CallbackInfo callback) {
-        if (MonsterEvents.isPiglinHostilityEnabled()) {
+        if (SpawnGate.isPiglinHostilityEnabled()) {
             callback.cancel();
         }
     }

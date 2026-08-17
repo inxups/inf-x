@@ -4,6 +4,7 @@ import com.pixulse.infx.data.curse.CurseManager;
 import com.pixulse.infx.data.curse.CurseType;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXSounds;
+import com.pixulse.infx.world.SpawnGate;
 
 import java.util.Comparator;
 import java.util.Random;
@@ -143,7 +144,7 @@ public final class InfxWitch extends Witch implements InfxMob {
         // MITE frenzy: blood moons cut the ranged cooldown by 1.5×.
         if (rangedGoal != null && tickCount % 20 == 0) {
             rangedGoal.setAttackInterval(
-                    (int) (60 / (MonsterEvents.isBloodMoonFrenzied(level) ? 1.5F : 1.0F)));
+                    (int) (60 / (SpawnGate.isBloodMoonFrenzied(level) ? 1.5F : 1.0F)));
         }
         var target = getTarget();
         if (target == null || !MonsterEvents.withinFollowRange(this, target)) {

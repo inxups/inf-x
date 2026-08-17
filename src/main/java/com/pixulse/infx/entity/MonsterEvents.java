@@ -89,7 +89,7 @@ public final class MonsterEvents {
                 || !(attacker.level() instanceof ServerLevel level)) {
             return;
         }
-        boolean bloodMoon = isBloodMoonFrenzied(level);
+        boolean bloodMoon = SpawnGate.isBloodMoonFrenzied(level);
         boolean boneLord = attacker instanceof BoneLordInspired inspired && inspired.isInspired();
         float bonus = frenzyDamageBonus(bloodMoon, boneLord);
         if (bonus == 0.0F) {
@@ -130,16 +130,6 @@ public final class MonsterEvents {
     /** MITE frenzy: blood-moon and bone-lord frenzy each contribute 50% of base attack, stacking. */
     public static float frenzyDamageBonus(boolean bloodMoon, boolean boneLord) {
         return (bloodMoon ? 0.5F : 0.0F) + (boneLord ? 0.5F : 0.0F);
-    }
-
-    /** MITE frenzy predicate: a blood-moon night in the overworld with frenzy enabled. */
-    public static boolean isBloodMoonFrenzied(Level level) {
-        return SpawnGate.isBloodMoonFrenzied(level);
-    }
-
-    /** InfX hostile-piglin predicate: single config gate for target AI, barter blocks and kill drops. */
-    public static boolean isPiglinHostilityEnabled() {
-        return SpawnGate.isPiglinHostilityEnabled();
     }
 
     /**
@@ -780,10 +770,6 @@ public final class MonsterEvents {
         Vec3 predictedVelocity = predictedAim.normalize().scale(speed);
         projectile.setDeltaMovement(
                 predictedVelocity.x, predictedVelocity.y + ballisticLift, predictedVelocity.z);
-    }
-
-    public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
-        return SpawnGate.replacementFor(original);
     }
 
     @SubscribeEvent
