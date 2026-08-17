@@ -5,6 +5,7 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.world.BoneLordSummonRegistry;
+import com.pixulse.infx.world.SpawnGate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -569,7 +570,7 @@ public final class InfxSkeleton extends Skeleton implements InfxMob, BoneRepairi
         }
         if (bowGoal != null) {
             // MITE frenzy: blood-moon and bone-lord inspiration each cut the ranged cooldown by 1.5×.
-            int interval = (int) (60 / (MonsterEvents.isBloodMoonFrenzied(level) ? 1.5F : 1.0F)
+            int interval = (int) (60 / (SpawnGate.isBloodMoonFrenzied(level) ? 1.5F : 1.0F)
                     / (isInspired() ? 1.5F : 1.0F));
             bowGoal.setAttackInterval(interval);
         }

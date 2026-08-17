@@ -2,8 +2,8 @@ package com.pixulse.infx.loot;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.pixulse.infx.entity.MonsterEvents;
 import com.pixulse.infx.registry.InfXLootModifiers;
+import com.pixulse.infx.world.SpawnGate;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -37,7 +37,7 @@ public final class PiglinBarterDropLootModifier extends LootModifier {
     @SuppressWarnings("deprecation")
     @Override
     protected @NonNull ObjectArrayList<ItemStack> doApply(@NonNull ObjectArrayList<ItemStack> loot, LootContext context) {
-        if (!MonsterEvents.isPiglinHostilityEnabled()) {
+        if (!SpawnGate.isPiglinHostilityEnabled()) {
             return loot;
         }
         ObjectArrayList<ItemStack> bartered = new ObjectArrayList<>();
