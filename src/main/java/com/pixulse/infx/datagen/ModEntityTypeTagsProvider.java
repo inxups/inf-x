@@ -25,6 +25,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
                 InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.getKey());
         tag(EntityTypeTags.SKELETONS).add(
                 InfXEntityTypes.INFX_SKELETON.getKey(),
+                InfXEntityTypes.INFX_WITHER_SKELETON.getKey(),
                 InfXEntityTypes.LONGDEAD.getKey(),
                 InfXEntityTypes.LONGDEAD_GUARDIAN.getKey(),
                 InfXEntityTypes.BONE_LORD.getKey(),

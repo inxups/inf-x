@@ -66,6 +66,7 @@ public final class InvisibleStalker extends InfxZombieBase {
     protected void addBehaviourGoals() {
         goalSelector.addGoal(3, new ZombieAttackGoal(this, 1.0, false));
         goalSelector.addGoal(4, new MoveTowardsRestrictionGoal(this, 1.0));
+        goalSelector.addGoal(1, new InfxSeekLitTorchGoal(this, 200, 1.0));
         goalSelector.addGoal(6, new WaterAvoidingRandomStrollGoal(this, 1.0));
         targetSelector.addGoal(1, new HurtByTargetGoal(this));
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));

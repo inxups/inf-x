@@ -7,6 +7,8 @@ import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.world.BoneLordSummonRegistry;
+import com.pixulse.infx.world.CactusKillTracker;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.Underworld;
@@ -56,10 +58,12 @@ import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.event.VanillaGameEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 import net.neoforged.neoforge.event.entity.living.MobSpawnEvent;
@@ -69,7 +73,6 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 /** Registration, spawn replacement and cross-family AI hooks for INFX mobs. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
 public final class MonsterEvents {
-    private static final int LIGHT_SEARCH_INTERVAL = 80;
     private static boolean sharingTarget;
 
     private MonsterEvents() {}
@@ -82,7 +85,6 @@ public final class MonsterEvents {
     @SubscribeEvent
     public static void applyFrenzyDamage(LivingIncomingDamageEvent event) {
         if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
-                || !InfXConfig.INSTANCE.mobs.bloodMoonFrenzy.getValue()
                 || !(event.getSource().getEntity() instanceof Mob attacker)
                 || !(attacker instanceof Enemy)
                 || attacker instanceof InfxEnderman
@@ -91,7 +93,7 @@ public final class MonsterEvents {
             return;
         }
         boolean bloodMoon = isBloodMoonFrenzied(level);
-        boolean boneLord = attacker instanceof InfxSkeleton skeleton && skeleton.isInspired();
+        boolean boneLord = attacker instanceof BoneLordInspired inspired && inspired.isInspired();
         float bonus = frenzyDamageBonus(bloodMoon, boneLord);
         if (bonus == 0.0F) {
             return;
@@ -198,13 +200,26 @@ public final class MonsterEvents {
     @SubscribeEvent
     public static void armCreeperFromCactus(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof InfxCreeper creeper)
-                || creeper.level().isClientSide()
+                || !(creeper.level() instanceof ServerLevel level)
                 || event.getHealthDamage() <= 0.0F
                 || !event.getSource().is(DamageTypes.CACTUS)
                 || !creeper.getRandom().nextBoolean()) {
             return;
         }
-        creeper.armCactusFuse();
+        CactusKillTracker.contactFor(creeper, level.getGameTime())
+                .filter(pos -> CactusKillTracker.get(level).countForCactus(level, pos) > 1)
+                .ifPresent(pos -> creeper.armCactusFuse());
+    }
+
+    /** MITE stores the kill tally on the supporting sand block after a lethal cactus touch. */
+    @SubscribeEvent
+    public static void recordCactusKill(LivingDeathEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)
+                || !event.getSource().is(DamageTypes.CACTUS)) {
+            return;
+        }
+        CactusKillTracker.contactFor(event.getEntity(), level.getGameTime())
+                .ifPresent(pos -> CactusKillTracker.get(level).incrementForCactus(level, pos));
     }
 
     private static void createAttributes(EntityAttributeCreationEvent event) {
@@ -215,6 +230,7 @@ public final class MonsterEvents {
         event.put(InfXEntityTypes.REVENANT.get(), Revenant.attributes().build());
 
         event.put(InfXEntityTypes.INFX_SKELETON.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON).build());
+        event.put(InfXEntityTypes.INFX_WITHER_SKELETON.get(), InfxWitherSkeleton.attributes().build());
         event.put(InfXEntityTypes.LONGDEAD.get(), InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD).build());
         event.put(
                 InfXEntityTypes.LONGDEAD_GUARDIAN.get(),
@@ -618,19 +634,6 @@ public final class MonsterEvents {
                 return;
             }
         }
-        if (shouldSearchForLight(mob.tickCount, mob.getId())) {
-            BlockPos origin = mob.blockPosition();
-            BlockPos brightest = null;
-            int brightness = 6;
-            for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-10, -4, -10), origin.offset(10, 4, 10))) {
-                int candidate = level.getBrightness(LightLayer.BLOCK, pos);
-                if (candidate > brightness) {
-                    brightness = candidate;
-                    brightest = pos.immutable();
-                }
-            }
-            if (brightest != null) mob.getNavigation().moveTo(brightest.getX() + .5, brightest.getY(), brightest.getZ() + .5, 1.0);
-        }
     }
 
     /**
@@ -650,16 +653,6 @@ public final class MonsterEvents {
         if (velocity.lengthSqr() > 0.0D) {
             arrow.setDeltaMovement(velocity.add(0.0D, InfxSkeleton.skeletonArrowGravityCompensation(), 0.0D));
         }
-    }
-
-    /**
-     * Spreads the full light search across the interval while keeping each mob's cadence intact.
-     *
-     * <p>Mobs loaded around a respawn point often begin ticking together. Their runtime IDs give
-     * the expensive 21-by-9-by-21 search a stable phase without retaining per-mob state.
-     */
-    static boolean shouldSearchForLight(int tickCount, int entityId) {
-        return Math.floorMod(tickCount + entityId, LIGHT_SEARCH_INTERVAL) == 0;
     }
 
     /**
@@ -725,6 +718,10 @@ public final class MonsterEvents {
     public static void preventObservedDespawn(MobDespawnEvent event) {
         Mob mob = event.getEntity();
         if (!(mob instanceof Enemy) || !(mob.level() instanceof ServerLevel level)) return;
+        if (BoneLordSummonRegistry.get(level).isTracked(mob.getUUID())) {
+            event.setResult(MobDespawnEvent.Result.DENY);
+            return;
+        }
         boolean hasTarget = mob.getTarget() instanceof Player;
         boolean observed = level.getEntitiesOfClass(
                         Player.class,
@@ -744,6 +741,34 @@ public final class MonsterEvents {
             }
         }
         if (hasTarget || observed || specialEquipment) event.setResult(MobDespawnEvent.Result.DENY);
+    }
+
+    /** Releases roster slots immediately for dead troops and for a bone lord that no longer exists. */
+    @SubscribeEvent
+    public static void releaseBoneLordRosterOnDeath(LivingDeathEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)) {
+            return;
+        }
+        releaseBoneLordRosterEntity(level, event.getEntity());
+    }
+
+    /** Chunk unloads preserve roster entries; only irreversible removal frees a summon slot. */
+    @SubscribeEvent
+    public static void releaseDestroyedBoneLordRoster(EntityLeaveLevelEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)
+                || event.getEntity().getRemovalReason() == null
+                || !event.getEntity().getRemovalReason().shouldDestroy()) {
+            return;
+        }
+        releaseBoneLordRosterEntity(level, event.getEntity());
+    }
+
+    private static void releaseBoneLordRosterEntity(ServerLevel level, Entity entity) {
+        BoneLordSummonRegistry registry = BoneLordSummonRegistry.get(level);
+        registry.releaseTroop(entity.getUUID());
+        if (entity instanceof InfxSkeleton skeleton && skeleton.isBoneLord()) {
+            registry.releaseLord(skeleton.getUUID());
+        }
     }
 
     @SubscribeEvent
@@ -779,6 +804,12 @@ public final class MonsterEvents {
         if (original.getType() == EntityType.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
             return InfXEntityTypes.INFX_WITCH.get();
         }
+        // Natural Nether wither-skeleton spawns intentionally retain the vanilla entity and its
+        // loot mixin. Only structures and explicit egg/dispenser creation receive the MITE type.
+        if (original.getType() == EntityType.WITHER_SKELETON
+                && shouldReplaceWitherSkeleton(original.getSpawnType())) {
+            return InfXEntityTypes.INFX_WITHER_SKELETON.get();
+        }
         if (original.getType() == InfXEntityTypes.LONGDEAD.get()
                 && shouldReplaceLongdeadWithGuardian(
                         original.getType(), level.dimension(), original.getSpawnType(), original.getRandom().nextInt(6))) {
@@ -809,6 +840,12 @@ public final class MonsterEvents {
             }
         }
         return null;
+    }
+
+    static boolean shouldReplaceWitherSkeleton(EntitySpawnReason reason) {
+        return reason == EntitySpawnReason.STRUCTURE
+                || reason == EntitySpawnReason.SPAWN_ITEM_USE
+                || reason == EntitySpawnReason.DISPENSER;
     }
 
     @SuppressWarnings("deprecation")

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0t26
+### 新功能
+- 补全 MITE 蜘蛛蛛网投射：目标 8 格内且射线可命中时按 10 tick 位移预判射出蛛网；命中实体或方块后在可替换位置放置永久蛛网，恶魔/燃烧蜘蛛发射火网并按规则点燃邻格（受 `mobGriefing` 控制）。相位蜘蛛追击改为沿未完成路径随机前进 1-4 个节点。
+- 补全骨王与凋灵骷髅：新增 `infx_wither_skeleton`（凋零近战、火/岩浆免疫、poor 铁剑、骨头修复、骨王 20 tick 灵感），结构、刷怪蛋和发射器生成会替换为该实体，地狱自然刷怪池保持原版。骨王召唤改为每维度持久化 roster，最多 6 个、9,600 tick 防自然消失，过期满血无目标时才有 5% 概率释放名额；旧存档的旧计数不再阻塞召唤。
+- 补全仙人掌与寻灯机制：仙人掌柱按底部沙块追踪 0-127 次击杀，顶部随机刻衰减、移除底部仙人掌清零；仅被击杀数大于 1 的仙人掌伤害到的爬行者才有 50% 概率获得 120 tick 引信窗口。暗影和隐形潜伏者分别每 40/200 tick 在 16x4 范围内寻路至可达光源并拆除。
+### 修复
+- 末影人末影珍珠/末影之眼拾取改为传送到具备两格头顶空间的安全落点，不再主动寻路拾取；保留随机与受伤传送。
+- 相位蜘蛛仅对非坠落、非火、非毒伤害消耗闪避次数，失败传送同样消耗；无攻击者时以自身位置作为威胁点。
+- 血月狂暴的挖掘、挖掘冷却及土元素破门/挖掘统一通过 `isBloodMoonFrenzied` 配置门控，骨王灵感不受该配置影响。
+
+---
+
 ## 0t25
 ### 移除
 - 移除 10 个长期失败的测试方法：单测 `ItemPropertiesTest.reachModesRouteBonusesOnlyToIndependentInfxAttributes`、`StickBoneItemsTest.restoresStackLimitAndBothReachModifiers`；GameTest `equipment_components`/`infx_equipment_components`/`height_advantage`（reach 类）、`vanilla_overflow_recipes`/`recipe_boundaries`/`infx_legacy_recipes`（配方类）、`infx_behavior_hunger`/`infx_mushroom_growth`（生存/世界类）。均为历史遗留失败（08-11 reach 重构后断言未同步、配方/饥饿/蘑菇系统与 26.1 交互），非近期改动引入；删除后单测全绿、GameTest 无确定性失败（仅冷启动 flaky）。

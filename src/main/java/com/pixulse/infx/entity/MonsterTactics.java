@@ -3,7 +3,6 @@ package com.pixulse.infx.entity;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXItems;
-import com.pixulse.infx.world.MoonPhase;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -215,7 +214,7 @@ public final class MonsterTactics {
         }
         boolean smart = zombie instanceof InfxZombieBase base && base.digsBareHanded()
                 || zombie.getPersistentData().getBooleanOr(SMART_KEY, false);
-        boolean frenzied = MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        boolean frenzied = MonsterEvents.isBloodMoonFrenzied(level);
         return smart || frenzied || holdsDigTool(zombie.getMainHandItem());
     }
 
@@ -279,7 +278,7 @@ public final class MonsterTactics {
         if (holdsDigTool(tool)) {
             return true;
         }
-        boolean frenzied = MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        boolean frenzied = MonsterEvents.isBloodMoonFrenzied(level);
         return frenzied && hardness <= 2.0F && !state.requiresCorrectToolForDrops();
     }
 
@@ -319,7 +318,7 @@ public final class MonsterTactics {
     public static int cooloffForBlock(Zombie zombie, ServerLevel level, BlockState state) {
         float hardness = Math.max(0.25F, state.getDestroySpeed(level, zombie.blockPosition()));
         float cooloff = 300.0F * hardness;
-        if (MoonPhase.BLOOD.isActiveInOverworldAtNight(level)) {
+        if (MonsterEvents.isBloodMoonFrenzied(level)) {
             cooloff /= 2.0F;
         }
         if (zombie instanceof Ghoul) {

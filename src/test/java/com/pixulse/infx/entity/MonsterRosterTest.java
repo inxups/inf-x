@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MonsterRosterTest {
     @Test
-    void overviewRosterContainsExactlyThirtyUniqueMonsters() {
+    void overviewRosterContainsExactlyThirtyOneUniqueMonsters() {
         Set<String> paths = InfXEntityTypes.NEW_MONSTERS.stream()
                 .map(holder -> holder.getId().getPath())
                 .collect(Collectors.toSet());
@@ -20,6 +20,7 @@ class MonsterRosterTest {
         assertEquals(
                 Set.of(
                         "invisible_stalker", "ghoul", "shadow", "wight", "revenant",
+                        "infx_wither_skeleton",
                         "longdead", "longdead_guardian", "bone_lord", "ancient_bone_lord",
                         "black_widow_spider", "demon_spider", "wood_spider", "phase_spider",
                         "infernal_creeper", "fire_elemental", "earth_elemental", "clay_golem",

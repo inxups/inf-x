@@ -16,6 +16,8 @@ import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.BlightTracker;
+import com.pixulse.infx.world.BoneLordSummonRegistry;
+import com.pixulse.infx.world.CactusKillTracker;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnDensity;
@@ -69,6 +71,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
 import net.minecraft.world.level.block.entity.SpawnerBlockEntity;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
@@ -128,6 +131,11 @@ public final class ModMonsterGameTests {
     private static final String SPAWN_RATE_MODIFIER = "infx_spawn_rate_modifier";
     private static final String SPAWN_CADENCE = "infx_spawn_cadence";
     private static final String GHAST_SPACING = "infx_ghast_spacing";
+    private static final String WEB_PROJECTILE = "infx_web_projectile";
+    private static final String CACTUS_TRIGGER = "infx_cactus_trigger";
+    private static final String BONE_LORD_ROSTER = "infx_bone_lord_roster";
+    private static final String WITHER_SKELETON = "infx_wither_skeleton";
+    private static final String TORCH_SEEK = "infx_torch_seek";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -177,6 +185,11 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(SPAWN_RATE_MODIFIER, () -> ModMonsterGameTests::spawnRateModifier);
         FUNCTIONS.register(SPAWN_CADENCE, () -> ModMonsterGameTests::spawnCadence);
         FUNCTIONS.register(GHAST_SPACING, () -> ModMonsterGameTests::ghastSpacing);
+        FUNCTIONS.register(WEB_PROJECTILE, () -> ModMonsterGameTests::webProjectile);
+        FUNCTIONS.register(CACTUS_TRIGGER, () -> ModMonsterGameTests::cactusTrigger);
+        FUNCTIONS.register(BONE_LORD_ROSTER, () -> ModMonsterGameTests::boneLordRoster);
+        FUNCTIONS.register(WITHER_SKELETON, () -> ModMonsterGameTests::witherSkeleton);
+        FUNCTIONS.register(TORCH_SEEK, () -> ModMonsterGameTests::torchSeek);
     }
 
     private ModMonsterGameTests() {}
@@ -233,7 +246,12 @@ public final class ModMonsterGameTests {
                 DEPTH_SPAWN_SCALE,
                 SPAWN_RATE_MODIFIER,
                 SPAWN_CADENCE,
-                GHAST_SPACING)) {
+                GHAST_SPACING,
+                WEB_PROJECTILE,
+                CACTUS_TRIGGER,
+                BONE_LORD_ROSTER,
+                WITHER_SKELETON,
+                TORCH_SEEK)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -1490,38 +1508,186 @@ public final class ModMonsterGameTests {
     }
 
     private static void enderman(GameTestHelper helper) {
-        var level = helper.getLevel();
+        ServerLevel level = helper.getLevel();
         BlockPos endermanPos = new BlockPos(3, 2, 3);
-        forceEntityTicking(helper, endermanPos);
-        InfxEnderman enderman = helper.spawn(InfXEntityTypes.INFX_ENDERMAN.get(), endermanPos);
+        InfxEnderman enderman = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ENDERMAN.get(), endermanPos);
         enderman.setNoAi(true);
-        // Other tests in this batch create server players. Do not let those unrelated targets
-        // suppress the item-collection goal that this test exercises.
-        enderman.targetSelector.disableControlFlag(net.minecraft.world.entity.ai.goal.Goal.Flag.TARGET);
-        enderman.setTarget(null);
+        enderman.setNoGravity(true);
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos unsafePos = new BlockPos(5, 2, 3);
+        BlockPos safePos = new BlockPos(9, 2, 3);
+        helper.setBlock(unsafePos.below(), Blocks.STONE);
+        helper.setBlock(safePos.below(), Blocks.STONE);
+        helper.setBlock(unsafePos.above(), Blocks.STONE);
+        Vec3 unsafe = helper.absoluteVec(Vec3.atBottomCenterOf(unsafePos));
+        Vec3 safe = helper.absoluteVec(Vec3.atBottomCenterOf(safePos));
+        ItemEntity unsafePearl = new ItemEntity(level, unsafe.x, unsafe.y, unsafe.z, Items.ENDER_PEARL.getDefaultInstance());
         ItemEntity pearl = new ItemEntity(
-                level, enderman.getX() + 1.0, enderman.getY(), enderman.getZ(), Items.ENDER_PEARL.getDefaultInstance());
-        // The custom goal collects directly, while a normal player must not be able to steal
-        // this probe from another test arena before the persistence assertion runs.
+                level, safe.x, safe.y, safe.z, Items.ENDER_PEARL.getDefaultInstance());
+        unsafePearl.setPickUpDelay(200);
         pearl.setPickUpDelay(200);
-        level.addFreshEntity(pearl);
-
+        helper.assertTrue(level.addFreshEntity(unsafePearl), "the unsafe pearl test item must enter the server entity list");
+        helper.assertTrue(level.addFreshEntity(pearl), "the safe pearl test item must enter the server entity list");
+        Snowball indirect = new Snowball(level, player, Items.SNOWBALL.getDefaultInstance());
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertTrue(
-                        enderman.tickCount > 0, "the enderman must join the ticking entity set"))
-                .thenExecute(() -> enderman.setNoAi(false))
-                .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.INFX_ENDERMAN.get(), new BlockPos(3, 2, 3), 2.0D))
-                .thenWaitUntil(() -> helper.assertTrue(
-                        pearl.isRemoved(),
-                        "INFX endermen must collect nearby dropped ender pearls"
-                                + "; target=" + enderman.getTarget()
-                                + ", inWaterOrRain=" + enderman.isInWaterOrRain()
-                                + ", onFire=" + enderman.isOnFire()
-                                + ", distance=" + Math.sqrt(enderman.distanceToSqr(pearl))))
-                .thenExecute(() -> helper.assertTrue(
-                        enderman.requiresCustomPersistence(),
-                        "INFX endermen carrying valuables must not despawn"))
+                        level.getEntitiesOfClass(
+                                        ItemEntity.class,
+                                        enderman.getBoundingBox().inflate(16.0D, 8.0D, 16.0D),
+                                        item -> item == pearl)
+                                .contains(pearl),
+                        "the safe pearl must be visible to the enderman item query before damage"))
+                .thenExecute(() -> {
+                    helper.assertTrue(
+                            enderman.hurtServer(level, level.damageSources().indirectMagic(indirect, player), 2.0F),
+                            "indirect damage must make an INFX enderman attempt its normal teleport priority");
+                    helper.assertTrue(pearl.isRemoved(), "the enderman must teleport to and collect a safely placed pearl");
+                    helper.assertTrue(unsafePearl.isAlive(), "a pearl lacking two head blocks must not be selected");
+                    helper.assertTrue(
+                            enderman.requiresCustomPersistence(), "stored valuables must keep the enderman persistent");
+                    ModCompletionGameTests.removePlayer(player);
+                })
                 .thenSucceed();
+    }
+
+    /** Real projectile impacts must leave a web, and demon/burning webs must ignite an entity hit. */
+    private static void webProjectile(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        level.getGameRules().set(GameRules.MOB_GRIEFING, true, level.getServer());
+        BlockPos wall = new BlockPos(3, 2, 2);
+        BlockPos webPos = wall.west();
+        helper.setBlock(wall, Blocks.STONE);
+        helper.setBlock(webPos.below(), Blocks.STONE);
+        helper.setBlock(new BlockPos(2, 1, 5), Blocks.STONE);
+        helper.setBlock(new BlockPos(4, 1, 5), Blocks.STONE);
+        Vec3 normalStart = helper.absoluteVec(new Vec3(1.5D, 2.5D, 2.5D));
+        InfxWebProjectile normal = new InfxWebProjectile(InfXEntityTypes.WEB_PROJECTILE.get(), level);
+        normal.snapTo(normalStart.x, normalStart.y, normalStart.z, 0.0F, 0.0F);
+        normal.setNoGravity(true);
+        normal.shoot(1.0D, 0.0D, 0.0D, 0.8F, 0.0F);
+        helper.assertTrue(level.addFreshEntity(normal), "the normal web projectile must enter the server entity tick list");
+        for (int tick = 0; tick < 8 && normal.isAlive(); tick++) {
+            normal.tick();
+        }
+        helper.assertTrue(
+                helper.getBlockState(webPos).is(Blocks.COBWEB), "a web projectile must place a real cobweb");
+
+        InfxSpider demon = helper.spawnWithNoFreeWill(InfXEntityTypes.DEMON_SPIDER.get(), new BlockPos(2, 2, 5));
+        var target = helper.spawnWithNoFreeWill(EntityType.SHEEP, new BlockPos(4, 2, 5));
+        InfxWebProjectile fiery = new InfxWebProjectile(level, demon, true);
+        fiery.setNoGravity(true);
+        fiery.shoot(
+                target.getX() - fiery.getX(),
+                target.getBoundingBox().getCenter().y - fiery.getY(),
+                target.getZ() - fiery.getZ(),
+                0.8F,
+                0.0F);
+        helper.assertTrue(level.addFreshEntity(fiery), "the fiery web projectile must enter the server entity tick list");
+        for (int tick = 0; tick < 8 && fiery.isAlive(); tick++) {
+            fiery.tick();
+        }
+        helper.assertTrue(target.isOnFire(), "a fiery web must ignite its entity hit");
+        helper.succeed();
+    }
+
+    /** Two cactus kills unlock the 50% creeper trigger only for that exact cactus column. */
+    private static void cactusTrigger(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        BlockPos sand = new BlockPos(2, 1, 2);
+        BlockPos cactus = sand.above();
+        BlockPos absoluteSand = helper.absolutePos(sand);
+        BlockPos absoluteCactus = helper.absolutePos(cactus);
+        helper.setBlock(sand, Blocks.SAND);
+        helper.setBlock(cactus, Blocks.CACTUS);
+        CactusKillTracker tracker = CactusKillTracker.get(level);
+        for (int index = 0; index < 2; index++) {
+            var victim = helper.spawnWithNoFreeWill(EntityType.CHICKEN, cactus);
+            CactusKillTracker.recordContact(victim, absoluteCactus, level.getGameTime());
+            victim.hurtServer(level, level.damageSources().cactus(), 100.0F);
+        }
+        helper.assertTrue(tracker.count(absoluteSand) == 2, "two lethal cactus contacts must increment the same sand tally");
+
+        InfxCreeper creeper = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_CREEPER.get(), cactus);
+        for (int attempt = 0; attempt < 20 && !creeper.hasCactusFuseTrigger(); attempt++) {
+            creeper.invulnerableTime = 0;
+            CactusKillTracker.recordContact(creeper, absoluteCactus, level.getGameTime());
+            creeper.hurtServer(level, level.damageSources().cactus(), 1.0F);
+            creeper.setHealth(creeper.getMaxHealth());
+        }
+        helper.assertTrue(
+                creeper.hasCactusFuseTrigger(),
+                "a creeper hurt by a cactus with more than one kill must eventually receive its 120-tick trigger");
+        helper.succeed();
+    }
+
+    /** Saved roster entries cap the lord at six, retain the protection window, then free a slot. */
+    private static void boneLordRoster(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        InfxSkeleton lord = helper.spawnWithNoFreeWill(InfXEntityTypes.BONE_LORD.get(), new BlockPos(2, 2, 2));
+        BoneLordSummonRegistry roster = BoneLordSummonRegistry.get(level);
+        long protectedUntil = level.getGameTime() + 9_600L;
+        InfxSkeleton first = null;
+        for (int index = 0; index < BoneLordSummonRegistry.MAX_TROOPS_PER_LORD; index++) {
+            InfxSkeleton troop = helper.spawnWithNoFreeWill(
+                    InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(4 + index, 2, 2));
+            roster.register(lord.getUUID(), troop.getUUID(), protectedUntil);
+            if (first == null) {
+                first = troop;
+            }
+        }
+        helper.assertTrue(roster.count(lord.getUUID()) == 6, "a bone lord roster must stop at six summoned troops");
+        helper.assertTrue(first != null && roster.isProtected(first.getUUID(), protectedUntil - 1), "troops need 9,600 ticks of protection");
+        helper.assertTrue(first != null && first.requiresCustomPersistence(), "protected roster troops must not naturally despawn");
+        roster.releaseTroop(first.getUUID());
+        helper.assertTrue(roster.count(lord.getUUID()) == 5 && roster.hasCapacity(lord.getUUID()), "releasing an eligible troop must free one summon slot");
+        helper.succeed();
+    }
+
+    /** The custom wither skeleton preserves vanilla wither melee while remaining immune to fire damage. */
+    private static void witherSkeleton(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        var target = helper.spawnWithNoFreeWill(EntityType.SHEEP, new BlockPos(1, 2, 2));
+        InfxWitherSkeleton skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_WITHER_SKELETON.get(), new BlockPos(3, 2, 2));
+        float beforeFire = skeleton.getHealth();
+        helper.assertFalse(
+                skeleton.hurtServer(level, level.damageSources().lava(), 4.0F),
+                "the MITE wither skeleton must retain fire and lava immunity");
+        helper.assertTrue(skeleton.getHealth() == beforeFire, "lava immunity must leave wither-skeleton health unchanged");
+        helper.assertTrue(skeleton.doHurtTarget(level, target), "the custom wither skeleton must perform normal melee damage");
+        helper.assertTrue(target.hasEffect(MobEffects.WITHER), "a custom wither-skeleton melee hit must apply wither");
+        helper.succeed();
+    }
+
+    /** Invisible stalkers must route to a named light source and retain close-range extinguish behavior. */
+    private static void torchSeek(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        level.getGameRules().set(GameRules.MOB_GRIEFING, true, level.getServer());
+        BlockPos torch = new BlockPos(10, 2, 2);
+        for (int x = 0; x <= 12; x++) {
+            for (int z = 0; z <= 4; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+                helper.setBlock(new BlockPos(x, 5, z), Blocks.STONE);
+            }
+        }
+        helper.setBlock(torch, Blocks.TORCH);
+        InvisibleStalker stalker = helper.spawn(InfXEntityTypes.INVISIBLE_STALKER.get(), new BlockPos(2, 2, 2));
+        stalker.setOnGround(true);
+        stalker.targetSelector.disableControlFlag(net.minecraft.world.entity.ai.goal.Goal.Flag.TARGET);
+        stalker.tickCount = 199;
+        var torchPath = stalker.getNavigation().createPath(helper.absolutePos(torch), 1);
+        helper.assertTrue(
+                torchPath != null && torchPath.canReach(), "the torch test enclosure must provide a reachable navigation path");
+        // Newly spawned mobs can miss the concurrent GameTest entity tick list. Advance the
+        // real mob tick here so this still covers the goal, navigation and light-removal path.
+        for (int tick = 0; tick < 100 && helper.getBlockState(torch).is(Blocks.TORCH); tick++) {
+            stalker.setOldPosAndRot();
+            stalker.tickCount++;
+            stalker.tick();
+        }
+        helper.assertFalse(
+                helper.getBlockState(torch).is(Blocks.TORCH),
+                "an invisible stalker must seek a reachable torch and extinguish it at close range");
+        helper.succeed();
     }
 
     private static void spawnerLight(GameTestHelper helper) {

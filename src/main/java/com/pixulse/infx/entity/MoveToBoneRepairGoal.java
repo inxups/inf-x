@@ -2,6 +2,7 @@ package com.pixulse.infx.entity;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Items;
@@ -12,14 +13,14 @@ import net.minecraft.world.phys.AABB;
  * and consumes it to heal half of its maximum health. Gated by the skeleton's repair
  * cooldown, a 1-in-40 per-tick roll and the default pickup range.
  */
-final class MoveToBoneRepairGoal extends Goal {
+final class MoveToBoneRepairGoal<T extends Mob & BoneRepairingSkeleton> extends Goal {
     private static final double SEARCH_RADIUS = 16.0;
     private static final double PICKUP_DISTANCE_SQR = 2.5 * 2.5;
 
-    private final InfxSkeleton skeleton;
+    private final T skeleton;
     private ItemEntity bone;
 
-    MoveToBoneRepairGoal(InfxSkeleton skeleton) {
+    MoveToBoneRepairGoal(T skeleton) {
         this.skeleton = skeleton;
         setFlags(EnumSet.of(Flag.MOVE));
     }

@@ -4,6 +4,9 @@ import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.world.BoneLordSummonRegistry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -13,6 +16,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
@@ -22,6 +26,7 @@ import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -31,14 +36,17 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.HitResult;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /** Skeleton replacement plus Longdead, Guardian and both Bone Lord variants. */
-public final class InfxSkeleton extends Skeleton implements InfxMob {
+public final class InfxSkeleton extends Skeleton implements InfxMob, BoneRepairingSkeleton, BoneLordInspired {
     public static final double ORDINARY_MAX_HEALTH = 6.0;
     private static final float ARROW_SPEED = 1.8F;
     private static final double ARROW_AIR_DRAG = 0.99F;
@@ -48,6 +56,8 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     private static final double MAX_INTERCEPT_TICKS = 60.0D;
     private static final int INTERCEPT_SEARCH_STEPS = 240;
     private static final int INTERCEPT_REFINEMENT_STEPS = 24;
+    private static final long SUMMON_PROTECTION_TICKS = 9_600L;
+    private static final int BONE_LORD_INSPIRE_TICKS = 20;
 
     public enum Variant {
         SKELETON,
@@ -60,7 +70,6 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     /** Material and weapon selected for an ordinary skeleton-family spawn. */
     public record OrdinarySkeletonWeapon(InfxMaterial material, EquipmentType type) {}
 
-    private int summonedTroops;
     private int inspiredUntil;
     private int boneRepairCooldownUntil;
     private @Nullable InfxHardCappedBowAttackGoal<InfxSkeleton> bowGoal;
@@ -497,21 +506,25 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     @Override
     public void startFreezeConversion(int time) {}
 
-    /** InfX lord inspiration: +50% base melee damage and faster shooting for a short window. */
+    /** Bone-lord frenzy is refreshed once per lord pulse, independently of blood-moon settings. */
+    @Override
     public boolean isInspired() {
         return tickCount < inspiredUntil;
     }
 
-    void inspire() {
-        inspiredUntil = tickCount + 60;
+    @Override
+    public void inspire() {
+        inspiredUntil = tickCount + BONE_LORD_INSPIRE_TICKS;
     }
 
     /** MITE repair gating: hurt and past the 400-tick pickup cooldown. */
-    boolean canRepairFromBone() {
+    @Override
+    public boolean canRepairFromBone() {
         return getHealth() < getMaxHealth() && tickCount >= boneRepairCooldownUntil;
     }
 
     /** MITE {@code onRepairItemPickup}: consumes one bone to heal 50% of maximum health. */
+    @Override
     public boolean tryRepairFromBone(ItemStack stack) {
         if (!stack.is(Items.BONE) || !canRepairFromBone()) {
             return false;
@@ -536,6 +549,13 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
     }
 
     @Override
+    public boolean requiresCustomPersistence() {
+        return super.requiresCustomPersistence()
+                || level() instanceof ServerLevel level
+                        && BoneLordSummonRegistry.get(level).isTracked(getUUID());
+    }
+
+    @Override
     public void aiStep() {
         super.aiStep();
         if (!(level() instanceof ServerLevel level)) {
@@ -557,20 +577,20 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             return;
         }
 
-        var target = getTarget();
-        if (target != null && !MonsterEvents.withinFollowRange(this, target)) {
-            target = null;
-        }
+        BoneLordSummonRegistry roster = BoneLordSummonRegistry.get(level);
+        roster.removeDestroyedLoaded(level, getUUID());
+        releaseEligibleTroops(level, roster);
+        Player target = summonTarget();
         for (AbstractSkeleton skeleton : level.getEntitiesOfClass(
                 AbstractSkeleton.class, getBoundingBox().inflate(16.0, 8.0, 16.0))) {
             if (skeleton == this
                     || distanceToSqr(skeleton) > 16.0 * 16.0
-                    || !hasLineOfSight(skeleton)) {
+                    || !skeleton.hasLineOfSight(this)) {
                 continue;
             }
             skeleton.heal(1.0F);
-            if (skeleton instanceof InfxSkeleton troop) {
-                troop.inspire();
+            if (skeleton instanceof BoneLordInspired inspired) {
+                inspired.inspire();
             }
             if (target != null
                     && skeleton.getTarget() == null
@@ -579,9 +599,13 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
             }
         }
 
-        if (target != null && summonedTroops < 6 && MonsterEvents.withinFollowRange(this, target)
-                && random.nextInt(8) < 7 - summonedTroops) {
-            summonTroop(level);
+        if (target != null
+                && roster.hasCapacity(getUUID())
+                && random.nextInt(8) < 7 - roster.count(getUUID())
+                && trySummonTroop(level, target, roster)
+                && roster.hasCapacity(getUUID())
+                && random.nextBoolean()) {
+            trySummonTroop(level, target, roster);
         }
     }
 
@@ -605,41 +629,162 @@ public final class InfxSkeleton extends Skeleton implements InfxMob {
         }
     }
 
-    private boolean isBoneLord() {
+    boolean isBoneLord() {
         return variant() == Variant.BONE_LORD || variant() == Variant.ANCIENT_BONE_LORD;
     }
 
-    private void summonTroop(ServerLevel level) {
-        EntityType<InfxSkeleton> troopType = variant() == Variant.ANCIENT_BONE_LORD
-                ? InfXEntityTypes.LONGDEAD.get()
-                : InfXEntityTypes.INFX_SKELETON.get();
-        InfxSkeleton troop = troopType.create(level, EntitySpawnReason.MOB_SUMMONED);
-        if (troop == null) {
-            return;
+    private @Nullable Player summonTarget() {
+        if (!(getTarget() instanceof Player player)
+                || !player.isAlive()
+                || distanceToSqr(player) > 16.0D * 16.0D
+                || !hasLineOfSight(player)) {
+            return null;
         }
+        return player;
+    }
 
-        double x = getX() + random.nextInt(9) - 4;
-        double z = getZ() + random.nextInt(9) - 4;
-        troop.snapTo(x, getY(), z, random.nextFloat() * 360.0F, 0.0F);
-        troop.finalizeSpawn(level, level.getCurrentDifficultyAt(troop.blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
-        LivingEntity target = getTarget();
-        if (target != null && MonsterEvents.withinFollowRange(troop, target)) {
+    private void releaseEligibleTroops(ServerLevel level, BoneLordSummonRegistry roster) {
+        long now = level.getGameTime();
+        for (BoneLordSummonRegistry.Troop entry : roster.troops(getUUID())) {
+            Entity entity = level.getEntity(entry.troop());
+            if (entity == null) {
+                continue;
+            }
+            if (!entity.isAlive() || entity.isRemoved()) {
+                roster.release(getUUID(), entry.troop());
+                continue;
+            }
+            if (entry.protectedUntil() > now
+                    || !(entity instanceof AbstractSkeleton troop)
+                    || troop.getTarget() != null
+                    || troop.getHealth() < troop.getMaxHealth()
+                    || random.nextFloat() >= 0.05F) {
+                continue;
+            }
+            troop.discard();
+            roster.release(getUUID(), entry.troop());
+        }
+    }
+
+    private boolean trySummonTroop(ServerLevel level, Player target, BoneLordSummonRegistry roster) {
+        int attempts = Math.max(0, 48 - roster.count(getUUID()) * 8);
+        EntityType<? extends AbstractSkeleton> troopType = troopType(level);
+        for (int attempt = 0; attempt < attempts; attempt++) {
+            if (!roster.hasCapacity(getUUID())) {
+                return false;
+            }
+            BlockPos spawnPos = randomTroopSpawnPosition(level);
+            if (spawnPos == null || !playersAllowTroopSpawn(level, spawnPos)) {
+                continue;
+            }
+            AbstractSkeleton troop = troopType.create(level, EntitySpawnReason.MOB_SUMMONED);
+            if (troop == null) {
+                return false;
+            }
+            troop.snapTo(
+                    spawnPos.getX() + 0.5D,
+                    spawnPos.getY(),
+                    spawnPos.getZ() + 0.5D,
+                    random.nextFloat() * 360.0F,
+                    0.0F);
+            troop.finalizeSpawn(
+                    level,
+                    level.getCurrentDifficultyAt(spawnPos),
+                    EntitySpawnReason.MOB_SUMMONED,
+                    null);
+            if (!level.noCollision(troop)
+                    || level.containsAnyLiquid(troop.getBoundingBox())
+                    || !canReachSummoner(level, troop)
+                    || variant() == Variant.BONE_LORD && !canReachTarget(troop, target)) {
+                continue;
+            }
             troop.setTarget(target);
+            if (!level.addFreshEntity(troop)) {
+                continue;
+            }
+            roster.register(getUUID(), troop.getUUID(), level.getGameTime() + SUMMON_PROTECTION_TICKS);
+            return true;
         }
-        if (level.noCollision(troop) && level.addFreshEntity(troop)) {
-            summonedTroops++;
-        }
+        return false;
     }
 
-    @Override
-    protected void addAdditionalSaveData(@NonNull ValueOutput output) {
-        super.addAdditionalSaveData(output);
-        output.putInt("infx.summoned_troops", summonedTroops);
+    private EntityType<? extends AbstractSkeleton> troopType(ServerLevel level) {
+        if (variant() == Variant.ANCIENT_BONE_LORD) {
+            return InfXEntityTypes.LONGDEAD.get();
+        }
+        return level.dimension() == Level.NETHER
+                ? InfXEntityTypes.INFX_WITHER_SKELETON.get()
+                : InfXEntityTypes.INFX_SKELETON.get();
     }
 
-    @Override
-    protected void readAdditionalSaveData(@NonNull ValueInput input) {
-        super.readAdditionalSaveData(input);
-        summonedTroops = input.getIntOr("infx.summoned_troops", 0);
+    private @Nullable BlockPos randomTroopSpawnPosition(ServerLevel level) {
+        int dx = random.nextInt(25) - 12;
+        int dz = random.nextInt(25) - 12;
+        int horizontalDistanceSqr = dx * dx + dz * dz;
+        if (horizontalDistanceSqr < 4 || horizontalDistanceSqr > 144) {
+            return null;
+        }
+        int x = blockPosition().getX() + dx;
+        int z = blockPosition().getZ() + dz;
+        int highest = Math.min(level.getMaxY() - 2, blockPosition().getY() + 8);
+        int lowest = Math.max(level.getMinY() + 1, blockPosition().getY() - 8);
+        for (int y = highest; y >= lowest; y--) {
+            BlockPos candidate = new BlockPos(x, y, z);
+            if (canStandAt(level, candidate)) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
+    private boolean canStandAt(ServerLevel level, BlockPos pos) {
+        return level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()
+                && level.getBlockState(pos).getFluidState().isEmpty()
+                && level.getBlockState(pos.above()).getCollisionShape(level, pos.above()).isEmpty()
+                && level.getBlockState(pos.above()).getFluidState().isEmpty()
+                && level.getBlockState(pos.below()).isFaceSturdy(level, pos.below(), Direction.UP);
+    }
+
+    private boolean playersAllowTroopSpawn(ServerLevel level, BlockPos pos) {
+        Vec3 spawn = Vec3.atBottomCenterOf(pos);
+        double lordDistance = spawn.distanceToSqr(position());
+        for (Player player : level.players()) {
+            if (!player.isAlive() || player.isSpectator()) {
+                continue;
+            }
+            double playerDistance = spawn.distanceToSqr(player.position());
+            if (playerDistance < 16.0D || playerDistance < lordDistance) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canReachSummoner(ServerLevel level, AbstractSkeleton troop) {
+        Vec3 troopEye = troop.getEyePosition();
+        Vec3 legs = position().add(0.0D, getBbHeight() * 0.25D, 0.0D);
+        Vec3 head = position().add(0.0D, getBbHeight() * 0.75D, 0.0D);
+        if (troopEye.distanceToSqr(legs) < 256.0D && hasClearPathRay(level, troop, troopEye, legs)
+                || troopEye.distanceToSqr(head) < 256.0D && hasClearPathRay(level, troop, troopEye, head)) {
+            return true;
+        }
+        return reaches(troop.getNavigation().createPath(this, 16), position());
+    }
+
+    private boolean canReachTarget(AbstractSkeleton troop, Player target) {
+        return reaches(troop.getNavigation().createPath(target, 16), target.position());
+    }
+
+    private boolean hasClearPathRay(ServerLevel level, Entity source, Vec3 from, Vec3 to) {
+        return level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, source))
+                        .getType()
+                != HitResult.Type.BLOCK;
+    }
+
+    private static boolean reaches(@Nullable Path path, Vec3 destination) {
+        return path != null
+                && path.canReach()
+                && path.getEndNode() != null
+                && Vec3.atBottomCenterOf(path.getEndNode().asBlockPos()).distanceToSqr(destination) <= 2.25D;
     }
 }

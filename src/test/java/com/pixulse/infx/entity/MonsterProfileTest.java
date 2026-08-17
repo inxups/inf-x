@@ -48,6 +48,7 @@ class MonsterProfileTest {
         }
 
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.SKELETON), 6.0, 16.0, 0.25, 4.0);
+        assertStats(InfxWitherSkeleton.attributes(), 20.0, 16.0, 0.25, 4.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD), 12.0, 16.0, 0.29, 6.0);
         assertStats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN), 24.0, 16.0, 0.29, 8.0);
         assertEquals(2.0, stats(InfxSkeleton.attributes(InfxSkeleton.Variant.LONGDEAD_GUARDIAN))
@@ -98,10 +99,23 @@ class MonsterProfileTest {
         assertTrue(InfxSpider.shouldThrowWebAtTick(InfxSpider.Variant.SPIDER, 0, 0));
         assertFalse(InfxSpider.shouldThrowWebAtTick(InfxSpider.Variant.SPIDER, 0, 1));
         assertTrue(InfxSpider.shouldThrowWebAtTick(InfxSpider.Variant.CAVE_SPIDER, 153, 1));
-        assertTrue(InfxSpider.canPhaseChaseAcrossVerticalDistance(2.0));
-        assertTrue(InfxSpider.canPhaseChaseAcrossVerticalDistance(-2.0));
-        assertFalse(InfxSpider.canPhaseChaseAcrossVerticalDistance(2.001));
-        assertFalse(InfxSpider.canPhaseChaseAcrossVerticalDistance(-2.001));
+        assertTrue(InfxSpider.phaseEvasionEligible(false, false, false));
+        assertFalse(InfxSpider.phaseEvasionEligible(true, false, false));
+        assertFalse(InfxSpider.phaseEvasionEligible(false, true, false));
+        assertFalse(InfxSpider.phaseEvasionEligible(false, false, true));
+        assertTrue(InfxWebProjectile.isWebReplaceable(Blocks.AIR.defaultBlockState()));
+        assertTrue(InfxWebProjectile.isWebReplaceable(Blocks.SNOW.defaultBlockState()));
+        assertFalse(InfxWebProjectile.isWebReplaceable(Blocks.STONE.defaultBlockState()));
+        assertTrue(InfxWebProjectile.canPlaceWebAfterBlockImpact(
+                Blocks.STONE.defaultBlockState(), Blocks.AIR.defaultBlockState()));
+        assertFalse(InfxWebProjectile.canPlaceWebAfterBlockImpact(
+                Blocks.WATER.defaultBlockState(), Blocks.AIR.defaultBlockState()));
+        assertFalse(InfxWebProjectile.canPlaceWebAfterBlockImpact(
+                Blocks.STONE.defaultBlockState(), Blocks.WATER.defaultBlockState()));
+        assertFalse(InfxWebProjectile.canPlaceWebAfterBlockImpact(
+                Blocks.LAVA.defaultBlockState(), Blocks.AIR.defaultBlockState()));
+        assertFalse(InfxWebProjectile.canPlaceWebAfterBlockImpact(
+                Blocks.STONE.defaultBlockState(), Blocks.FIRE.defaultBlockState()));
 
         AttributeSupplier blaze = stats(InfxBlaze.attributes());
         assertEquals(48.0, blaze.getBaseValue(Attributes.FOLLOW_RANGE), EPSILON);
@@ -284,6 +298,7 @@ class MonsterProfileTest {
                 "infx_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
                 "longdead_guardian", "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
                 "clay_golem");
+        assertDimensions(entities, checked, 0.7F, 2.4F, "infx_wither_skeleton");
         assertDimensions(entities, checked, 1.4F, 0.9F, "infx_spider", "demon_spider");
         assertDimensions(entities, checked, 0.98F, 0.63F, "infx_cave_spider");
         assertDimensions(entities, checked, 0.84F, 0.54F, "black_widow_spider", "wood_spider", "phase_spider");
@@ -352,6 +367,7 @@ class MonsterProfileTest {
     private static Map<String, Names> expectedNames() {
         Map<String, Names> names = new HashMap<>();
         add(names, "infx_skeleton", "Skeleton", "骷髅");
+        add(names, "infx_wither_skeleton", "Wither Skeleton", "凋灵骷髅");
         add(names, "infx_spider", "Spider", "蜘蛛");
         add(names, "infx_cave_spider", "Cave Spider", "洞穴蜘蛛");
         add(names, "infx_creeper", "Creeper", "苦力怕");

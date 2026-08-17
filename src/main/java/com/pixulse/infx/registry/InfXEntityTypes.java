@@ -29,6 +29,8 @@ import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.entity.InfxSpider;
 import com.pixulse.infx.entity.InfxSquid;
 import com.pixulse.infx.entity.InfxTropicalFish;
+import com.pixulse.infx.entity.InfxWebProjectile;
+import com.pixulse.infx.entity.InfxWitherSkeleton;
 import com.pixulse.infx.entity.Revenant;
 import com.pixulse.infx.entity.Shadow;
 import com.pixulse.infx.entity.VanillaWolf;
@@ -53,6 +55,8 @@ public final class InfXEntityTypes {
 
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSkeleton>> INFX_SKELETON = register(
             "infx_skeleton", "Skeleton", "骷髅", InfxSkeleton::new, 0.6F, 1.8F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<InfxWitherSkeleton>> INFX_WITHER_SKELETON = register(
+            "infx_wither_skeleton", "Wither Skeleton", "凋灵骷髅", InfxWitherSkeleton::new, 0.7F, 2.4F, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSpider>> INFX_SPIDER = register(
             "infx_spider", "Spider", "蜘蛛", InfxSpider::new, 1.4F, 0.9F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSpider>> INFX_CAVE_SPIDER = register(
@@ -155,6 +159,12 @@ public final class InfXEntityTypes {
                     InfxBrickProjectile::new,
                     MobCategory.MISC,
                     builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
+    public static final DeferredHolder<EntityType<?>, EntityType<InfxWebProjectile>> WEB_PROJECTILE =
+            ENTITIES.registerEntityType(
+                    "web_projectile",
+                    InfxWebProjectile::new,
+                    MobCategory.MISC,
+                    builder -> builder.sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10));
     public static final DeferredHolder<EntityType<?>, EntityType<InfxMagmaCube>> MAGMA_CUBE = register(
             "magma_cube", "Magma Cube", "岩浆怪", InfxMagmaCube::new, 0.5F, 0.5F, true);
 
@@ -187,6 +197,7 @@ public final class InfXEntityTypes {
             SHADOW,
             WIGHT,
             REVENANT,
+            INFX_WITHER_SKELETON,
             LONGDEAD,
             LONGDEAD_GUARDIAN,
             BONE_LORD,

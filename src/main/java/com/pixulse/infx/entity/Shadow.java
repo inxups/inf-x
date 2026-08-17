@@ -34,6 +34,12 @@ public final class Shadow extends InfxZombieBase {
     }
 
     @Override
+    protected void registerGoals() {
+        super.registerGoals();
+        goalSelector.addGoal(1, new InfxSeekLitTorchGoal(this, 40, 1.0));
+    }
+
+    @Override
     protected boolean breaksDoors() {
         return false;
     }

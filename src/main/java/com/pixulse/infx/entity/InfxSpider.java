@@ -15,6 +15,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,13 +30,18 @@ import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.gamerules.GameRules;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -43,7 +49,7 @@ import org.jspecify.annotations.Nullable;
 public final class InfxSpider extends Spider implements InfxMob {
     private static final double MODERN_SPIDER_MOVEMENT_SPEED = 0.30;
     private static final double DEMON_SPIDER_SPEED_MULTIPLIER = 1.25;
-    private static final double MAX_PHASE_CHASE_VERTICAL_DISTANCE = 2.0;
+    private static final int WEB_TARGET_LEAD_TICKS = 10;
 
     public enum Variant {
         SPIDER,
@@ -155,10 +161,6 @@ public final class InfxSpider extends Spider implements InfxMob {
         return Math.floorMod(tickCount + entityId * 47, webThrowInterval(variant)) == 0;
     }
 
-    static boolean canPhaseChaseAcrossVerticalDistance(double verticalDistance) {
-        return Math.abs(verticalDistance) <= MAX_PHASE_CHASE_VERTICAL_DISTANCE;
-    }
-
     @Override
     public boolean isWithinMeleeAttackRange(@NonNull LivingEntity target) {
         return AttackRanges.withinOldAiReach(this, target, AttackRanges.OLD_AI_REACH);
@@ -268,77 +270,146 @@ public final class InfxSpider extends Spider implements InfxMob {
         }
 
         if (variant() == Variant.PHASE && tickCount % 10 == 0 && random.nextInt(3) == 0 && distanceToSqr(target) > 9.0) {
-            teleportToward(target);
+            teleportAlongPath();
         }
 
         if (websRemaining > 0
                 && shouldThrowWebAtTick(variant(), tickCount, getId())
                 && distanceToSqr(target) <= 64.0
-                && hasLineOfSight(target)
-                && snareTarget(level, target)) {
+                && canHitTargetWithWeb(level, target)
+                && throwWeb(level, target)) {
             websRemaining--;
         }
     }
 
-    /**
-     * The complete EntityWeb projectile is not yet available in 26.2.  Keep the existing block-web
-     * approximation, but consume the same finite stock and use the source targeting cadence.
-     */
-    private boolean snareTarget(ServerLevel level, LivingEntity target) {
-        if (!level.getGameRules().get(GameRules.MOB_GRIEFING)) {
+    /** MITE first checks the eye ray, then the target's lower body when the eye ray is blocked. */
+    private boolean canHitTargetWithWeb(ServerLevel level, LivingEntity target) {
+        Vec3 origin = getEyePosition();
+        Vec3 endpoint = target.getEyePosition();
+        if (isBlocked(level, origin, endpoint)) {
+            endpoint = target.position().add(0.0D, target.getBbHeight() * 0.25D, 0.0D);
+            if (isBlocked(level, origin, endpoint)) {
+                return false;
+            }
+        }
+        AABB searchArea = getBoundingBox().expandTowards(endpoint.subtract(origin)).inflate(1.0D);
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(
+                level,
+                this,
+                origin,
+                endpoint,
+                searchArea,
+                candidate -> candidate.isAlive() && EntitySelector.CAN_BE_PICKED.test(candidate),
+                0.0F);
+        return hit != null && hit.getEntity() == target;
+    }
+
+    private boolean isBlocked(ServerLevel level, Vec3 origin, Vec3 endpoint) {
+        return level.clip(new ClipContext(origin, endpoint, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this))
+                        .getType()
+                == HitResult.Type.BLOCK;
+    }
+
+    private boolean throwWeb(ServerLevel level, LivingEntity target) {
+        InfxWebProjectile web = new InfxWebProjectile(level, this, variant() == Variant.DEMON || isOnFire());
+        Vec3 movement = target.getKnownMovement();
+        double x = target.getX() + movement.x * WEB_TARGET_LEAD_TICKS - web.getX();
+        double y = target.getEyeY() - web.getY();
+        double z = target.getZ() + movement.z * WEB_TARGET_LEAD_TICKS - web.getZ();
+        double horizontalLead = Math.sqrt(x * x + z * z) * 0.2D;
+        web.shoot(x, y + horizontalLead, z, 0.8F, 0.0F);
+        if (!level.addFreshEntity(web)) {
             return false;
         }
-        BlockPos pos = target.blockPosition();
-        if (!level.isEmptyBlock(pos)) {
-            return false;
-        }
-        level.setBlockAndUpdate(pos, Blocks.COBWEB.defaultBlockState());
-        if (variant() == Variant.DEMON) {
-            target.igniteForSeconds(6.0F);
-        }
+        playSound(SoundEvents.ARROW_SHOOT, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 0.8F));
         return true;
     }
 
-    private boolean teleportToward(LivingEntity target) {
-        if (!canPhaseChaseAcrossVerticalDistance(target.getY() - getY())) {
+    private boolean teleportAlongPath() {
+        Path path = getNavigation().getPath();
+        if (path == null || path.isDone()) {
             return false;
         }
-        double distance = Math.max(1.0, distanceTo(target));
-        double x = getX() + (target.getX() - getX()) / distance * Math.min(4.0, distance - 1.0);
-        double z = getZ() + (target.getZ() - getZ()) / distance * Math.min(4.0, distance - 1.0);
-        return randomTeleport(x, target.getY(), z, true);
+        int remaining = path.getNodeCount() - path.getNextNodeIndex();
+        int advancement = phasePathAdvancement(remaining, random.nextInt(Math.max(1, remaining)));
+        if (advancement == 0) {
+            return false;
+        }
+        int targetIndex = Math.min(path.getNodeCount() - 1, path.getNextNodeIndex() + advancement);
+        BlockPos node = path.getNodePos(targetIndex);
+        if (Vec3.atBottomCenterOf(node).distanceToSqr(position()) <= 3.0D
+                || !randomTeleport(node.getX() + 0.5D, node.getY(), node.getZ() + 0.5D, true)) {
+            return false;
+        }
+        path.setNextNodeIndex(Math.min(path.getNodeCount(), path.getNextNodeIndex() + advancement - 1));
+        return true;
+    }
+
+    static int phasePathAdvancement(int remainingNodes, int randomRoll) {
+        if (remainingNodes <= 1) {
+            return 0;
+        }
+        return Mth.clamp(randomRoll, 1, Math.min(4, remainingNodes - 1));
     }
 
     @Override
     public boolean hurtServer(@NonNull ServerLevel level, @NonNull DamageSource source, float damage) {
-        if (variant() == Variant.PHASE && phaseEvasions > 0 && source.getEntity() != null) {
-            for (int attempt = 0; attempt < 64; attempt++) {
-                int dx = random.nextInt(11) - 5;
-                int dy = random.nextInt(9) - 4;
-                int dz = random.nextInt(11) - 5;
-                if (Math.abs(dx) < 3 && Math.abs(dz) < 3) {
-                    continue;
-                }
-                double x = getX() + dx;
-                double y = getY() + dy;
-                double z = getZ() + dz;
-                if (source.getEntity().distanceToSqr(x, y, z) < 9.0) {
-                    continue;
-                }
-                if (randomTeleport(x, y, z, true)) {
-                    phaseEvasions--;
-                    double followRange = getAttributeValue(Attributes.FOLLOW_RANGE);
-                    Player nearest = level.getNearestPlayer(this, followRange);
-                    if (nearest != null && hasLineOfSight(nearest)) {
-                        setTarget(nearest);
-                    }
-                    this.level().playSound(null, this.xo, this.yo, this.zo, SoundEvents.ENDERMAN_TELEPORT, this.getSoundSource(), 1.0F, 1.0F);
-                    this.playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
-                    return false;
-                }
+        if (variant() == Variant.PHASE && phaseEvasions > 0 && consumesPhaseEvasion(source)) {
+            phaseEvasions--;
+            Entity threat = source.getDirectEntity();
+            if (threat == null) {
+                threat = source.getEntity();
+            }
+            if (threat == null) {
+                threat = this;
+            }
+            if (teleportAwayFrom(threat, level)) {
+                return false;
             }
         }
         return super.hurtServer(level, source, damage);
+    }
+
+    static boolean consumesPhaseEvasion(DamageSource source) {
+        return phaseEvasionEligible(
+                source.is(net.minecraft.tags.DamageTypeTags.IS_FALL),
+                source.is(net.minecraft.tags.DamageTypeTags.IS_FIRE),
+                source.is(net.neoforged.neoforge.common.NeoForgeMod.POISON_DAMAGE));
+    }
+
+    static boolean phaseEvasionEligible(boolean fallDamage, boolean fireDamage, boolean poisonDamage) {
+        return !fallDamage && !fireDamage && !poisonDamage;
+    }
+
+    private boolean teleportAwayFrom(Entity threat, ServerLevel level) {
+        int originX = blockPosition().getX();
+        int originY = blockPosition().getY();
+        int originZ = blockPosition().getZ();
+        for (int attempt = 0; attempt < 64; attempt++) {
+            int dx = random.nextInt(11) - 5;
+            int dy = random.nextInt(9) - 4;
+            int dz = random.nextInt(11) - 5;
+            if (Math.abs(dx) < 3 && Math.abs(dz) < 3) {
+                continue;
+            }
+            double x = originX + dx + 0.5D;
+            double y = originY + dy;
+            double z = originZ + dz + 0.5D;
+            double threatX = x - threat.getX();
+            double threatZ = z - threat.getZ();
+            if (threatX * threatX + threatZ * threatZ < 9.0D || !randomTeleport(x, y, z, true)) {
+                continue;
+            }
+            double followRange = getAttributeValue(Attributes.FOLLOW_RANGE);
+            Player nearest = level.getNearestPlayer(this, followRange);
+            if (nearest != null && hasLineOfSight(nearest)) {
+                setTarget(nearest);
+            }
+            this.level().playSound(null, xo, yo, zo, SoundEvents.ENDERMAN_TELEPORT, getSoundSource(), 1.0F, 1.0F);
+            playSound(SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+            return true;
+        }
+        return false;
     }
 
     @Override

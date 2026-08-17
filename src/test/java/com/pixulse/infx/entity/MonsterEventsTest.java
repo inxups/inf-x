@@ -6,30 +6,36 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.registry.InfXEntityTypes;
 import java.time.LocalDate;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import org.junit.jupiter.api.Test;
 
 class MonsterEventsTest {
     @Test
-    void lightSearchPhasesSpreadFreshMobsAcrossTheInterval() {
-        for (int tick = 0; tick < 80; tick++) {
-            int searches = 0;
-            for (int entityId = 0; entityId < 80; entityId++) {
-                if (MonsterEvents.shouldSearchForLight(tick, entityId)) searches++;
-            }
-            assertEquals(1, searches, "exactly one sequential fresh mob must scan on each tick");
-        }
+    void dedicatedTorchGoalsUseMiteCadencesAndLightTypes() {
+        assertFalse(InfxSeekLitTorchGoal.isSearchDue(39, 40));
+        assertTrue(InfxSeekLitTorchGoal.isSearchDue(40, 40));
+        assertTrue(InfxSeekLitTorchGoal.isSearchDue(41, 40));
+        assertFalse(InfxSeekLitTorchGoal.isSearchDue(199, 200));
+        assertTrue(InfxSeekLitTorchGoal.isSearchDue(200, 200));
+        assertTrue(InfxSeekLitTorchGoal.isSearchDue(201, 200));
+        assertFalse(InfxSeekLitTorchGoal.canCreateGroundPath(false, false));
+        assertTrue(InfxSeekLitTorchGoal.canCreateGroundPath(true, false));
+        assertTrue(InfxSeekLitTorchGoal.canCreateGroundPath(false, true));
+        assertEquals(8, InfxSeekLitTorchGoal.MAX_CANDIDATES);
+        assertTrue(InfxSeekLitTorchGoal.isLitTorch(net.minecraft.world.level.block.Blocks.TORCH.defaultBlockState()));
+        assertTrue(InfxSeekLitTorchGoal.isLitTorch(net.minecraft.world.level.block.Blocks.REDSTONE_TORCH.defaultBlockState()));
+        assertTrue(InfxSeekLitTorchGoal.isLitTorch(net.minecraft.world.level.block.Blocks.JACK_O_LANTERN.defaultBlockState()));
+        assertFalse(InfxSeekLitTorchGoal.isLitTorch(net.minecraft.world.level.block.Blocks.LANTERN.defaultBlockState()));
     }
 
     @Test
-    void lightSearchKeepsOneScanPerMobEveryInterval() {
-        for (int entityId : new int[] {0, 1, 79, 80, 12_345}) {
-            int searches = 0;
-            for (int tick = 0; tick < 80; tick++) {
-                if (MonsterEvents.shouldSearchForLight(tick, entityId)) searches++;
-            }
-            assertEquals(1, searches, "each mob must retain its original 80-tick scan cadence");
-        }
+    void onlyStructureAndExplicitCreationReplaceWitherSkeletons() {
+        assertTrue(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.STRUCTURE));
+        assertTrue(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.SPAWN_ITEM_USE));
+        assertTrue(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.DISPENSER));
+        assertFalse(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.NATURAL));
+        assertFalse(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.COMMAND));
     }
 
     @Test
