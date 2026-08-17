@@ -8,10 +8,10 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.registry.InfXItems;
+import com.pixulse.infx.world.SpawnGate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
@@ -30,37 +30,21 @@ public final class MoonEvents {
 
     @SubscribeEvent
     public static void limitHostileSpawn(FinalizeSpawnEvent event) {
-        if (!InfXConfig.INSTANCE.world.enabled.getValue()
-                || !InfXConfig.INSTANCE.world.moonEvents.getValue()
+        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
+                || !InfXConfig.INSTANCE.mobs.moonSpawnGating.getValue()
                 || !(event.getLevel().getLevel() instanceof ServerLevel level)
                 || event.getSpawnType() != EntitySpawnReason.NATURAL) {
             return;
         }
-        MobCategory category = event.getEntity().getType().getCategory();
-        if (category == MobCategory.CREATURE) {
-            if (!MoonPhase.BLUE.isActiveInOverworldAtNight(level) || level.getGameTime() % 400L != 0L) {
-                event.setSpawnCancelled(true);
-            }
-            return;
-        }
-        if (category == MobCategory.AMBIENT
-                || category == MobCategory.WATER_CREATURE
-                || category == MobCategory.WATER_AMBIENT
-                || category == MobCategory.UNDERGROUND_WATER_CREATURE) {
-            if (level.getGameTime() % 400L != 0L) event.setSpawnCancelled(true);
-            return;
-        }
-        if (!(event.getEntity() instanceof Enemy)) return;
-        if (!MoonPhase.isOverworld(level)) {
-            if (level.getRandom().nextInt(4) != 0) event.setSpawnCancelled(true);
-            return;
-        }
-        MoonPhase phase = MoonPhase.at(level);
-        if (MoonPhase.isNight(level) && level.canSeeSky(event.getEntity().blockPosition())) {
-            if (MoonPhase.BLUE.isActiveInOverworldAtNight(level)
-                    || level.getRandom().nextInt(phase.outdoorHostileSpawnDenominator()) != 0) {
-                event.setSpawnCancelled(true);
-            }
+        boolean enemy = event.getEntity() instanceof Enemy;
+        boolean skyExposed = level.canSeeSky(event.getEntity().blockPosition());
+        if (!SpawnGate.shouldSpawnNatural(
+                level,
+                event.getEntity().getType(),
+                event.getEntity().getType().getCategory(),
+                enemy,
+                skyExposed)) {
+            event.setSpawnCancelled(true);
         }
     }
 
