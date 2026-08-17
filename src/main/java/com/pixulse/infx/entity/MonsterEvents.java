@@ -50,6 +50,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
@@ -354,7 +355,7 @@ public final class MonsterEvents {
                 EntityType.SLIME,
                 null,
                 null,
-                (type, level, reason, pos, random) -> !MobSpawnRules.hasStoneAbove(level.getLevel(), pos),
+                (type, level, reason, pos, random) -> !hasStoneAbove(level.getLevel(), pos),
                 RegisterSpawnPlacementsEvent.Operation.AND);
         event.register(
                 EntityType.GHAST,
@@ -502,8 +503,6 @@ public final class MonsterEvents {
         if (path.equals("earth_elemental") && !earthElementalGround(serverLevel, pos)) return false;
         if (path.equals("clay_golem") && !clayGolemGround(serverLevel, pos)) return false;
         if (serverLevel.dimension() != Level.OVERWORLD) return true;
-        var ruleResult = MobSpawnRules.allows(type, serverLevel, pos, random);
-        if (ruleResult.isPresent()) return ruleResult.get();
         return true;
     }
 
@@ -1192,6 +1191,16 @@ public final class MonsterEvents {
         event.getAffectedBlocks().removeIf(
                 pos -> InfxSilverfish.isNetherspawnExplosionProtected(event.getLevel().getBlockState(pos)));
     }
+
+    static boolean hasStoneAbove(ServerLevel level, BlockPos pos) {
+        int maximumY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
+        for (int y = pos.getY() + 1; y <= maximumY; y++) {
+            BlockState state = level.getBlockState(new BlockPos(pos.getX(), y, pos.getZ()));
+            if (!state.isAir()) return state.is(Blocks.STONE);
+        }
+        return false;
+    }
+
     @EventBusSubscriber(modid = InfiniteX.MOD_ID)
     private static final class ModEvents {
         @SubscribeEvent
