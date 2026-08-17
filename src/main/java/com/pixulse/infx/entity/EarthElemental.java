@@ -1,7 +1,6 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.data.harvest.HarvestRequirements;
-import com.pixulse.infx.world.MoonPhase;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -585,7 +584,7 @@ public class EarthElemental extends Monster implements InfxMob {
     }
 
     boolean isBloodMoonFrenzied() {
-        return level() instanceof ServerLevel level && MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        return level() instanceof ServerLevel level && MonsterEvents.isBloodMoonFrenzied(level);
     }
 
     @Nullable BlockPos diggingPosition() {

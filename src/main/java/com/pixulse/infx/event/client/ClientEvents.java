@@ -42,6 +42,7 @@ import net.minecraft.client.renderer.entity.SquidRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.TropicalFishRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
+import net.minecraft.client.renderer.entity.WitherSkeletonRenderer;
 import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
@@ -95,6 +96,7 @@ public final class ClientEvents {
                 context -> new EntityRenderers.ZombieTexture(context, InfXEntityTypes.REVENANT.get()));
 
         event.registerEntityRenderer(InfXEntityTypes.INFX_SKELETON.get(), SkeletonRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_WITHER_SKELETON.get(), WitherSkeletonRenderer::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.LONGDEAD.get(),
                 context -> new EntityRenderers.SkeletonTexture(context, InfxSkeleton.Variant.LONGDEAD));
@@ -151,6 +153,8 @@ public final class ClientEvents {
                 InfXEntityTypes.GELATINOUS_SPHERE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
         event.registerEntityRenderer(
                 InfXEntityTypes.BRICK_PROJECTILE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
+        event.registerEntityRenderer(
+                InfXEntityTypes.WEB_PROJECTILE.get(), context -> new ThrownItemRenderer<>(context, 1.0F, false));
         event.registerEntityRenderer(InfXEntityTypes.MAGMA_CUBE.get(), EntityRenderers.MagmaCubeTexture::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.NETHERSPAWN.get(),

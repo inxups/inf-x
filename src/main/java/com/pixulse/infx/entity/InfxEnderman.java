@@ -2,7 +2,7 @@ package com.pixulse.infx.entity;
 
 import com.pixulse.infx.data.curse.CurseManager;
 import com.pixulse.infx.data.curse.CurseType;
-import java.util.EnumSet;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -14,7 +14,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.EnderMan;
@@ -23,8 +22,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -36,8 +38,6 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
     private static final double INFX_TARGET_RANGE = 64.0;
     private static final double VALUABLE_SEARCH_HORIZONTAL_RANGE = 16.0;
     private static final double VALUABLE_SEARCH_VERTICAL_RANGE = 8.0;
-    private static final double VALUABLE_PICKUP_DISTANCE_SQUARED = 4.0;
-    private static final int VALUABLE_PICKUP_COOLDOWN = 40;
     private static final int VALUABLE_TELEPORT_INTERVAL = 20;
     private static final int VALUABLE_TELEPORT_CHANCE = 10;
     private static final String STORED_PEARLS_KEY = "infx.stored_ender_pearls";
@@ -105,7 +105,6 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
                 true,
                 false,
                 (target, level) -> target instanceof Player player && isAngeredByCurseOrPearls(player)));
-        goalSelector.addGoal(6, new InfxValuableItemGoal(this));
     }
 
     private boolean isAngeredByCurseOrPearls(Player player) {
@@ -179,10 +178,10 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
 
     @Override
     protected void customServerAiStep(@NonNull ServerLevel level) {
+        super.customServerAiStep(level);
         if (tickCount % VALUABLE_TELEPORT_INTERVAL == 0 && random.nextInt(VALUABLE_TELEPORT_CHANCE) == 0) {
             teleportToValuableItem();
         }
-        super.customServerAiStep(level);
     }
 
     @Override
@@ -198,7 +197,31 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
             return false;
         }
         ItemEntity item = nearestValuableItem();
-        return item != null && randomTeleport(item.getX(), item.getY(), item.getZ(), true);
+        if (item == null) {
+            return false;
+        }
+        BlockPos destination = item.blockPosition();
+        Vec3 origin = position();
+        if (!randomTeleport(destination.getX() + 0.5D, destination.getY(), destination.getZ() + 0.5D, true)) {
+            return false;
+        }
+        level().gameEvent(GameEvent.TELEPORT, origin, GameEvent.Context.of(this));
+        if (!isSilent()) {
+            level().playSound(
+                    null,
+                    origin.x,
+                    origin.y,
+                    origin.z,
+                    net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT,
+                    getSoundSource(),
+                    1.0F,
+                    1.0F);
+            playSound(net.minecraft.sounds.SoundEvents.ENDERMAN_TELEPORT, 1.0F, 1.0F);
+        }
+        if (item.isAlive()) {
+            collectValuable(item);
+        }
+        return true;
     }
 
     private @Nullable ItemEntity nearestValuableItem() {
@@ -208,7 +231,7 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
                 ItemEntity.class,
                 getBoundingBox().inflate(VALUABLE_SEARCH_HORIZONTAL_RANGE, VALUABLE_SEARCH_VERTICAL_RANGE,
                         VALUABLE_SEARCH_HORIZONTAL_RANGE),
-                this::isValuableItem)) {
+                item -> isValuableItem(item) && hasValuableHeadroom(item.blockPosition()))) {
             double distance = distanceToSqr(item);
             if (distance < nearestDistance) {
                 nearest = item;
@@ -220,6 +243,16 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
 
     private boolean isValuableItem(ItemEntity item) {
         return item.isAlive() && !item.isInWater() && !item.isOnFire() && isPearlLike(item.getItem());
+    }
+
+    /** MITE only considers valuables with the two clear head blocks an enderman needs to arrive. */
+    private boolean hasValuableHeadroom(BlockPos itemPos) {
+        return isPassable(itemPos.above()) && isPassable(itemPos.above(2));
+    }
+
+    private boolean isPassable(BlockPos pos) {
+        BlockState state = level().getBlockState(pos);
+        return state.getCollisionShape(level(), pos).isEmpty() && state.getFluidState().isEmpty();
     }
 
     private void collectValuable(ItemEntity item) {
@@ -276,64 +309,4 @@ public final class InfxEnderman extends EnderMan implements InfxMob {
         }
     }
 
-    private static final class InfxValuableItemGoal extends Goal {
-        private final InfxEnderman enderman;
-        private @Nullable ItemEntity target;
-        private int cooldown;
-
-        private InfxValuableItemGoal(InfxEnderman enderman) {
-            this.enderman = enderman;
-            setFlags(EnumSet.of(Flag.MOVE));
-        }
-
-        @Override
-        public boolean canUse() {
-            if (cooldown > 0) {
-                cooldown--;
-                return false;
-            }
-            if (enderman.getTarget() != null || enderman.isInWaterOrRain() || enderman.isOnFire()) {
-                return false;
-            }
-            target = enderman.nearestValuableItem();
-            return target != null;
-        }
-
-        @Override
-        public boolean canContinueToUse() {
-            return target != null && enderman.getTarget() == null && enderman.isValuableItem(target);
-        }
-
-        @Override
-        public void start() {
-            moveToTarget();
-        }
-
-        @Override
-        public void tick() {
-            if (target == null) {
-                return;
-            }
-            if (enderman.distanceToSqr(target) <= VALUABLE_PICKUP_DISTANCE_SQUARED) {
-                enderman.collectValuable(target);
-                cooldown = VALUABLE_PICKUP_COOLDOWN;
-                target = null;
-                enderman.getNavigation().stop();
-                return;
-            }
-            moveToTarget();
-        }
-
-        @Override
-        public void stop() {
-            target = null;
-            enderman.getNavigation().stop();
-        }
-
-        private void moveToTarget() {
-            if (target != null) {
-                enderman.getNavigation().moveTo(target.getX(), target.getY(), target.getZ(), 1.0);
-            }
-        }
-    }
 }

@@ -67,6 +67,7 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
         for (var type : java.util.List.of(
                 InfXEntityTypes.INFX_SKELETON,
+                InfXEntityTypes.INFX_WITHER_SKELETON,
                 InfXEntityTypes.LONGDEAD,
                 InfXEntityTypes.LONGDEAD_GUARDIAN,
                 InfXEntityTypes.BONE_LORD,

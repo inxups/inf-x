@@ -125,7 +125,7 @@ public final class InfxCreeper extends Creeper implements InfxMob {
         cactusFuseTicks = CACTUS_FUSE_WINDOW_TICKS;
     }
 
-    boolean hasCactusFuseTrigger() {
+    public boolean hasCactusFuseTrigger() {
         if (cactusFuseTicks <= 0) {
             return false;
         }

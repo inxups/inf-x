@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "infx:item/infx_wither_skeleton_spawn_egg"
+  }
+}
