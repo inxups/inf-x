@@ -2,7 +2,7 @@
 
 ## 适用范围
 
-- 本文件适用于整个仓库；子目录中的 `AGENTS.md` 可对其作用域追加或覆盖规则。
+- 本文件适用于整个仓库；子目录中的 `CLAUDE.md` 可对其作用域追加或覆盖规则。
 - 开始工作前检查 `git status`，保留用户已有修改，不覆盖、不回滚无关内容。
 
 ## 命名规则
@@ -41,7 +41,7 @@
 ## MITE 移植规范
 
 - 移植 MITE（MC 1.6.4）机制前，先对照 vanilla 26.1.2.94 反编译源码（`build/moddev/artifacts/minecraft-patched-26.1.2.94-sources/net/minecraft/`）确认机制是否已原生实现，判定「新机制 / 参数调整 / 已原生」；已原生则调参或直接继承，禁止重复实现（僵尸首领 `handleAttributes`、转化 Normal 50% `killedEntity`、南瓜头 `finalizeSpawn` 均为已原生误移植的先例）。
-- 完整移植方法遵循《MITE 移植工程指南》：`/Users/inxups/IdeaProjects/mc/mite/MITE移植指南.md`（vanilla 1.6.4 源码四源对照 + 七层对齐 + 可玩性校验 + 测试策略）。
+- 完整移植方法遵循《MITE 移植工程指南》：`./docs/MITE移植指南.md`（vanilla 1.6.4 源码四源对照 + 七层对齐 + 可玩性校验 + 测试策略）。
 - 禁止双入口实现同一机制：`Mob.finalizeSpawn` 会连带触发 `FinalizeSpawnEvent`，事件内已做的逻辑勿再显式调用；同一机制只从一个事件/mixin 入口实现。
 - 一个机制的多个消费方（伤害/移速/破门/红眼/远程CD 等）必须走统一配置谓词（如 `MonsterEvents.isBloodMoonFrenzied`）；每个机制都有关闭开关，且能真正关停全部子效果。
 - 数值从 MITE/1.6.4 照搬前先换算：old-AI 移动速度 ×0.375（new-AI 直接抄）；减速每级 15%（amplifier 5 = 90% 近似硬控）；护甲减伤 1.6.4 线性 vs 现代非线性、难度乘数 1.6.4 整数档 vs 现代 `specialMultiplier`——相对强度以现代公式校准。
