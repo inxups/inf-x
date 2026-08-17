@@ -1,7 +1,6 @@
 package com.pixulse.infx.mixin.world.level;
 
-import com.pixulse.infx.config.InfXConfig;
-import com.pixulse.infx.world.SpawnDensity;
+import com.pixulse.infx.world.SpawnGate;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,6 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  * per player with {@code max(1+(64-y)/32, blood-moon factor)} instead of a flat chunk cap, so deeper
  * or blood-moon-night players tolerate more hostile mobs around them. Stronghold proximity
  * ({@code WorldServer.getStrongholdProximity}) raises the ceiling further near far-out strongholds.
+ * The scale math lives in {@link SpawnGate#depthCapScale}; this mixin only keeps the per-player
+ * count walk because {@code LocalMobCapCalculator.MobCounts.counts} is private and needs the accessor.
  */
 @Mixin(LocalMobCapCalculator.class)
 public abstract class LocalMobCapCalculatorSpawnMixin {
@@ -32,19 +33,12 @@ public abstract class LocalMobCapCalculatorSpawnMixin {
 
     @Inject(method = "canSpawn", at = @At("HEAD"), cancellable = true)
     private void infx$depthSpawnCap(MobCategory category, ChunkPos pos, CallbackInfoReturnable<Boolean> cir) {
-        boolean depth = InfXConfig.INSTANCE.mobs.depthSpawn.getValue();
-        boolean stronghold = InfXConfig.INSTANCE.mobs.strongholdProximity.getValue();
-        if (category != MobCategory.MONSTER
-                || !InfXConfig.INSTANCE.mobs.enabled.getValue()
-                || !depth && !stronghold) {
+        if (!SpawnGate.depthCapActive(category)) {
             return;
         }
         for (ServerPlayer player : this.getPlayersNear(pos)) {
             LocalMobCapCalculator.MobCounts counts = this.playerMobCounts.get(player);
-            float scale = depth ? SpawnDensity.densityCapScale(player.level(), player.getBlockY()) : 1.0F;
-            if (stronghold) {
-                scale *= 1.0F + SpawnDensity.strongholdProximity(player);
-            }
+            float scale = SpawnGate.depthCapScale((net.minecraft.server.level.ServerLevel) player.level(), player);
             int cap = (int) Math.ceil(category.getMaxInstancesPerChunk() * scale);
             if (counts == null
                     || ((LocalMobCapCalculatorMobCountsAccessor) (Object) counts).counts().getInt(category) < cap) {

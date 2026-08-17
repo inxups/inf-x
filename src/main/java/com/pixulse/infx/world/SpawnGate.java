@@ -99,6 +99,9 @@ public final class SpawnGate {
         if (!enabled() || !InfXConfig.INSTANCE.mobs.spawnCadence.getValue()) {
             return true;
         }
+        if (!MoonPhase.isOverworld(level)) {
+            return true;
+        }
         float modifier = SpawnRateTracker.get(level).modifier(level);
         return level.getRandom().nextFloat() < SpawnDensity.cadenceChance(y, modifier);
     }
