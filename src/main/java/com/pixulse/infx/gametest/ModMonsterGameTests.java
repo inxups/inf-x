@@ -22,6 +22,7 @@ import com.pixulse.infx.world.CactusKillTracker;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnDensity;
+import com.pixulse.infx.world.SpawnGate;
 import com.pixulse.infx.world.SpawnRateTracker;
 import com.pixulse.infx.world.Tension;
 import com.pixulse.infx.world.Underworld;
@@ -2506,11 +2507,11 @@ public final class ModMonsterGameTests {
         BlockPos base = player.blockPosition();
         RandomSource random = level.getRandom();
         helper.assertTrue(
-                !MonsterEvents.checkGhastSpacing(EntityType.GHAST, level, EntitySpawnReason.NATURAL,
+                !SpawnGate.checkGhastSpacing(EntityType.GHAST, level, EntitySpawnReason.NATURAL,
                         base.offset(10, 0, 0), random),
                 "a ghast must not spawn within 48 blocks of a player");
         helper.assertTrue(
-                MonsterEvents.checkGhastSpacing(EntityType.GHAST, level, EntitySpawnReason.NATURAL,
+                SpawnGate.checkGhastSpacing(EntityType.GHAST, level, EntitySpawnReason.NATURAL,
                         base.offset(60, 0, 0), random),
                 "a ghast may spawn beyond 48 blocks of a player");
         ModCompletionGameTests.removePlayer(player);
@@ -2635,22 +2636,22 @@ public final class ModMonsterGameTests {
         var level = helper.getLevel();
         var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
         level.clockManager().setTotalTicks(overworldClock, 2_869_000L); // phantom-moon night, day 120
-        int phantomNight = MonsterEvents.phantomSpawnDecision(level);
+        int phantomNight = SpawnGate.phantomWaveCount(level);
         helper.assertTrue(
                 phantomNight >= 1 && phantomNight <= 2,
                 "phantom-moon nights must allow a 1-2 phantom wave; got " + phantomNight);
         level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
-        int bloodNight = MonsterEvents.phantomSpawnDecision(level);
+        int bloodNight = SpawnGate.phantomWaveCount(level);
         helper.assertTrue(
                 bloodNight >= 1 && bloodNight <= 2,
                 "blood-moon nights must allow a 1-2 phantom wave; got " + bloodNight);
         level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary night, day 31
         helper.assertTrue(
-                MonsterEvents.phantomSpawnDecision(level) == -1,
+                SpawnGate.phantomWaveCount(level) == -1,
                 "ordinary nights must deny phantom waves");
         level.clockManager().setTotalTicks(overworldClock, 750_000L); // blood-moon noon, day 32
         helper.assertTrue(
-                MonsterEvents.phantomSpawnDecision(level) == -1,
+                SpawnGate.phantomWaveCount(level) == -1,
                 "phantom waves must stay denied outside the night window");
         helper.succeed();
     }

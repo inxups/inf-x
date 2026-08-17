@@ -9,15 +9,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacementTypes;
-import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -209,12 +206,48 @@ public final class SpawnGate {
     /** MITE ghast spacing (SpawnerAnimals.java:307): a ghast never spawns within 48 blocks of a player. */
     public static boolean checkGhastSpacing(
             EntityType<? extends Mob> type,
-            Level level,
+            net.minecraft.world.level.LevelAccessor level,
             EntitySpawnReason reason,
             BlockPos pos,
             RandomSource random) {
         return !InfXConfig.INSTANCE.mobs.ghastSpacing.getValue()
                 || level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 48.0, null) == null;
+    }
+
+    /** Vanilla creepers stay out of sky-lit Overworld nights unless 1-in-4. */
+    public static boolean checkCreeperNightSky(
+            EntityType<?> type,
+            ServerLevelAccessor level,
+            EntitySpawnReason reason,
+            BlockPos pos,
+            RandomSource random) {
+        ServerLevel serverLevel = level.getLevel();
+        return serverLevel.dimension() != Level.OVERWORLD
+                || !MoonPhase.isNight(serverLevel)
+                || random.nextInt(4) == 0
+                || !serverLevel.canSeeSky(pos);
+    }
+
+    /** Vanilla spiders only slip through sky-lit Overworld nights 1-in-4. */
+    public static boolean checkSpiderNightSky(
+            EntityType<?> type,
+            ServerLevelAccessor level,
+            EntitySpawnReason reason,
+            BlockPos pos,
+            RandomSource random) {
+        return level.getLevel().dimension() != Level.OVERWORLD
+                || random.nextInt(4) != 0
+                || !level.getLevel().canSeeSky(pos);
+    }
+
+    /** Vanilla slime natural spawns require a stone ceiling above. */
+    public static boolean checkSlimeStoneAbove(
+            EntityType<?> type,
+            ServerLevelAccessor level,
+            EntitySpawnReason reason,
+            BlockPos pos,
+            RandomSource random) {
+        return !hasStoneAbove(level.getLevel(), pos);
     }
 
     /** Slime natural spawns require a stone ceiling above ({@code MobSpawnRules.hasStoneAbove}). */
@@ -265,6 +298,67 @@ public final class SpawnGate {
         EntityType<?> firstCanonical = firstReplacement == null ? first : firstReplacement;
         EntityType<?> secondCanonical = secondReplacement == null ? second : secondReplacement;
         return firstCanonical == secondCanonical;
+    }
+
+    /**
+     * InfX spawn-type replacement decision for an entity joining the world, or {@code null} to keep
+     * the vanilla entity. Special cases (witch, nether wither skeleton, longdead guardian, infernal
+     * creeper, vampire bat, silverfish) plus the generic {@link #replacementFor} table.
+     */
+    public static EntityType<? extends Mob> replacementForSpawn(ServerLevel level, Mob original) {
+        // InfX has a single witch implementation. Unlike the other replacements, a manually
+        // summoned or spawn-egg witch must not retain the modern vanilla class, because that
+        // class has no INFX curse lifecycle. Leave loaded entities alone to avoid silently
+        // replacing persisted vanilla-witch state in existing worlds.
+        if (original.getType() == EntityType.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
+            return InfXEntityTypes.INFX_WITCH.get();
+        }
+        // Natural Nether wither-skeleton spawns intentionally retain the vanilla entity and its
+        // loot mixin. Only structures and explicit egg/dispenser creation receive the MITE type.
+        if (original.getType() == EntityType.WITHER_SKELETON
+                && shouldReplaceWitherSkeleton(original.getSpawnType())) {
+            return InfXEntityTypes.INFX_WITHER_SKELETON.get();
+        }
+        if (original.getType() == InfXEntityTypes.LONGDEAD.get()
+                && shouldReplaceLongdeadWithGuardian(
+                        original.getType(), level.dimension(), original.getSpawnType(), original.getRandom().nextInt(6))) {
+            return InfXEntityTypes.LONGDEAD_GUARDIAN.get();
+        }
+        if (isWorldSpawn(original.getSpawnType())) {
+            if (original.getType() == EntityType.CREEPER) {
+                int y = original.blockPosition().getY();
+                // InfX caps the infernal replacement odds at 50% even far below y=0.
+                if (y < 40 && original.getRandom().nextFloat() < Math.min(0.5F, Math.max(0, 40 - y) / 80.0F)) {
+                    return InfXEntityTypes.INFERNAL_CREEPER.get();
+                }
+            }
+            EntityType<? extends Mob> vanillaReplacement = replacementFor(original.getType());
+            if (vanillaReplacement != null) return vanillaReplacement;
+            if (original.getType() == InfXEntityTypes.VAMPIRE_BAT.get()
+                    && level.dimension() == Underworld.LEVEL
+                    && original.getRandom().nextInt(6) == 0) {
+                return InfXEntityTypes.GIANT_VAMPIRE_BAT.get();
+            }
+        }
+        if (original.getType() == EntityType.SILVERFISH
+                && original.getSpawnType() == EntitySpawnReason.TRIGGERED) {
+            if (level.dimension() == Level.NETHER) return InfXEntityTypes.NETHERSPAWN.get();
+            if (level.dimension() == Underworld.LEVEL) return InfXEntityTypes.HOARY_SILVERFISH.get();
+            if (level.dimension() == Level.OVERWORLD && copperNear(level, original.blockPosition())) {
+                return InfXEntityTypes.COPPERSPINE.get();
+            }
+        }
+        return null;
+    }
+
+    private static boolean copperNear(ServerLevel level, BlockPos origin) {
+        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-3, -3, -3), origin.offset(3, 3, 3))) {
+            if (level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.COPPER_ORE)
+                    || level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.DEEPSLATE_COPPER_ORE)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** World/spawner-driven spawn reasons that InfX replaces. */
@@ -411,7 +505,7 @@ public final class SpawnGate {
         return level.getBlockState(pos.below()).is(Blocks.CLAY);
     }
 
-    static boolean isBatHalloweenWindow(LocalDate date) {
+    public static boolean isBatHalloweenWindow(LocalDate date) {
         return (date.getMonthValue() == 10 && date.getDayOfMonth() >= 20)
                 || (date.getMonthValue() == 11 && date.getDayOfMonth() <= 3);
     }

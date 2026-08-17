@@ -11,11 +11,10 @@ import com.pixulse.infx.world.BoneLordSummonRegistry;
 import com.pixulse.infx.world.CactusKillTracker;
 import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
+import com.pixulse.infx.world.SpawnGate;
 import com.pixulse.infx.world.Underworld;
-import java.time.LocalDate;
 import java.util.List;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.DamageTypeTags;
@@ -28,7 +27,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.feline.Ocelot;
@@ -48,11 +46,8 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.util.RandomSource;
@@ -139,15 +134,12 @@ public final class MonsterEvents {
 
     /** MITE frenzy predicate: a blood-moon night in the overworld with frenzy enabled. */
     public static boolean isBloodMoonFrenzied(Level level) {
-        return InfXConfig.INSTANCE.mobs.enabled.getValue()
-                && InfXConfig.INSTANCE.mobs.bloodMoonFrenzy.getValue()
-                && MoonPhase.BLOOD.isActiveInOverworldAtNight(level);
+        return SpawnGate.isBloodMoonFrenzied(level);
     }
 
     /** InfX hostile-piglin predicate: single config gate for target AI, barter blocks and kill drops. */
     public static boolean isPiglinHostilityEnabled() {
-        return InfXConfig.INSTANCE.mobs.enabled.getValue()
-                && InfXConfig.INSTANCE.mobs.piglinHostility.getValue();
+        return SpawnGate.isPiglinHostilityEnabled();
     }
 
     /**
@@ -158,28 +150,13 @@ public final class MonsterEvents {
     @SubscribeEvent
     public static void controlPhantomSpawns(PlayerSpawnPhantomsEvent event) {
         Level level = event.getEntity().level();
-        int decision = phantomSpawnDecision(level);
+        int decision = SpawnGate.phantomWaveCount(level);
         if (decision < 0) {
             event.setResult(PlayerSpawnPhantomsEvent.Result.DENY);
         } else if (decision > 0) {
             event.setResult(PlayerSpawnPhantomsEvent.Result.ALLOW);
             event.setPhantomsToSpawn(decision);
         }
-    }
-
-    /** -1 = deny the wave, 0 = keep vanilla behavior, n = allow n phantoms per player wave. */
-    public static int phantomSpawnDecision(Level level) {
-        if (!InfXConfig.INSTANCE.mobs.enabled.getValue()
-                || !InfXConfig.INSTANCE.mobs.phantomMoonSpawns.getValue()) {
-            return 0;
-        }
-        if (!MoonPhase.isOverworld(level)) return -1;
-        MoonPhase phase = MoonPhase.at(level);
-        if (!MoonPhase.isNight(level)) return -1;
-        if (phase == MoonPhase.BLOOD || phase == MoonPhase.PHANTOM) {
-            return 1 + level.getRandom().nextInt(2);
-        }
-        return -1;
     }
 
     /**
@@ -335,33 +312,25 @@ public final class MonsterEvents {
                 EntityType.CREEPER,
                 null,
                 null,
-                (type, level, reason, pos, random) -> {
-                    ServerLevel serverLevel = level.getLevel();
-                    return serverLevel.dimension() != Level.OVERWORLD
-                            || !MoonPhase.isNight(serverLevel)
-                            || random.nextInt(4) == 0
-                            || !serverLevel.canSeeSky(pos);
-                },
+                SpawnGate::checkCreeperNightSky,
                 RegisterSpawnPlacementsEvent.Operation.AND);
         event.register(
                 EntityType.SPIDER,
                 null,
                 null,
-                (type, level, reason, pos, random) -> level.getLevel().dimension() != Level.OVERWORLD
-                        || random.nextInt(4) != 0
-                        || !level.getLevel().canSeeSky(pos),
+                SpawnGate::checkSpiderNightSky,
                 RegisterSpawnPlacementsEvent.Operation.AND);
         event.register(
                 EntityType.SLIME,
                 null,
                 null,
-                (type, level, reason, pos, random) -> !hasStoneAbove(level.getLevel(), pos),
+                SpawnGate::checkSlimeStoneAbove,
                 RegisterSpawnPlacementsEvent.Operation.AND);
         event.register(
                 EntityType.GHAST,
                 null,
                 null,
-                MonsterEvents::checkGhastSpacing,
+                SpawnGate::checkGhastSpacing,
                 RegisterSpawnPlacementsEvent.Operation.AND);
         for (var type : List.of(
                 InfXEntityTypes.INVISIBLE_STALKER,
@@ -370,7 +339,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.WIGHT,
                 InfXEntityTypes.REVENANT)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    SpawnGate::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
                 InfXEntityTypes.LONGDEAD,
@@ -378,7 +347,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.BONE_LORD,
                 InfXEntityTypes.ANCIENT_BONE_LORD)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    SpawnGate::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
                 InfXEntityTypes.INFX_SPIDER,
@@ -387,7 +356,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.INFX_SLIME,
                 InfXEntityTypes.INFX_ENDERMAN)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    SpawnGate::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         for (var type : List.of(
                 InfXEntityTypes.BLACK_WIDOW_SPIDER,
@@ -395,16 +364,16 @@ public final class MonsterEvents {
                 InfXEntityTypes.WOOD_SPIDER,
                 InfXEntityTypes.PHASE_SPIDER)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    SpawnGate::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.INFERNAL_CREEPER.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 (type, level, reason, pos, random) -> pos.getY() < 40
-                        && Monster.checkMonsterSpawnRules(type, level, reason, pos, random),
+                        && SpawnGate.checkMonsterSpawnRules(type, level, reason, pos, random),
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         for (var type : List.of(InfXEntityTypes.JELLY, InfXEntityTypes.BLOB, InfXEntityTypes.OOZE, InfXEntityTypes.PUDDING)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                    SpawnGate::checkMonsterSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.MAGMA_CUBE.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -421,12 +390,12 @@ public final class MonsterEvents {
                 InfXEntityTypes.NIGHTWING,
                 InfXEntityTypes.GIANT_VAMPIRE_BAT)) {
             event.register(type.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    MonsterEvents::checkBatSpawnRules,
+                    SpawnGate::checkBatSpawnRules,
                     RegisterSpawnPlacementsEvent.Operation.REPLACE);
         }
         event.register(InfXEntityTypes.HELLHOUND.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MonsterEvents::checkMonsterSpawnRules,
+                SpawnGate::checkMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.DIRE_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
@@ -439,11 +408,11 @@ public final class MonsterEvents {
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.EARTH_ELEMENTAL.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MonsterEvents::checkMonsterSpawnRules,
+                SpawnGate::checkMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(InfXEntityTypes.CLAY_GOLEM.get(), SpawnPlacementTypes.ON_GROUND,
                 Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                MonsterEvents::checkMonsterSpawnRules,
+                SpawnGate::checkMonsterSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         registerAnimalSpawnPlacement(event, InfXEntityTypes.INFX_COW.get());
@@ -486,97 +455,6 @@ public final class MonsterEvents {
                 WaterAnimal::checkSurfaceWaterAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 
-    static boolean checkMonsterSpawnRules(
-            EntityType<? extends Mob> type,
-            ServerLevelAccessor level,
-            EntitySpawnReason reason,
-            BlockPos pos,
-            RandomSource random) {
-        ServerLevel serverLevel = level.getLevel();
-        String path = BuiltInRegistries.ENTITY_TYPE.getKey(type).getPath();
-        boolean bypassNetherLight = path.equals("earth_elemental") && serverLevel.dimension() == Level.NETHER;
-        if (!(bypassNetherLight
-                ? Mob.checkMobSpawnRules(type, level, reason, pos, random)
-                : Monster.checkMonsterSpawnRules(type, level, reason, pos, random))) {
-            return false;
-        }
-        if (path.equals("earth_elemental") && !earthElementalGround(serverLevel, pos)) return false;
-        if (path.equals("clay_golem") && !clayGolemGround(serverLevel, pos)) return false;
-        if (serverLevel.dimension() != Level.OVERWORLD) return true;
-        return true;
-    }
-
-    /**
-     * InfX bats spawn in empty cave air, not on the modern {@code BATS_SPAWNABLE_ON} ground tag.
-     * Their light check walks downward to the first opaque block, exactly as INFX did.
-     */
-    static boolean checkBatSpawnRules(
-            EntityType<? extends Mob> type,
-            ServerLevelAccessor level,
-            EntitySpawnReason reason,
-            BlockPos pos,
-            RandomSource random) {
-        ServerLevel serverLevel = level.getLevel();
-        if (!serverLevel.isEmptyBlock(pos)
-                || serverLevel.dimension() == Level.OVERWORLD && pos.getY() >= 63
-                || !checkBatDepth(type, level, pos)) {
-            return false;
-        }
-        boolean halloween = isBatHalloweenWindow(LocalDate.now());
-        if (!halloween && random.nextBoolean()) {
-            return false;
-        }
-        int lightBound = halloween ? 7 : 4;
-        return maximumBatBlockLight(serverLevel, pos) <= random.nextInt(lightBound);
-    }
-
-    static boolean isBatHalloweenWindow(LocalDate date) {
-        return (date.getMonthValue() == 10 && date.getDayOfMonth() >= 20)
-                || (date.getMonthValue() == 11 && date.getDayOfMonth() <= 3);
-    }
-
-    /** MITE ghast spacing (SpawnerAnimals.java:307): a ghast never spawns within 48 blocks of a player. */
-    public static boolean checkGhastSpacing(
-            EntityType<? extends Mob> type,
-            net.minecraft.world.level.LevelAccessor level,
-            EntitySpawnReason reason,
-            BlockPos pos,
-            net.minecraft.util.RandomSource random) {
-        return !InfXConfig.INSTANCE.mobs.ghastSpacing.getValue()
-                || level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 48.0, null) == null;
-    }
-
-    private static int maximumBatBlockLight(ServerLevel level, BlockPos pos) {
-        int maximum = level.getBrightness(LightLayer.BLOCK, pos);
-        for (BlockPos sample = pos.below(); sample.getY() >= level.getMinY(); sample = sample.below()) {
-            if (level.getBlockState(sample).isSolidRender()) {
-                break;
-            }
-            maximum = Math.max(maximum, level.getBrightness(LightLayer.BLOCK, sample));
-        }
-        return maximum;
-    }
-
-    private static boolean checkBatDepth(
-            EntityType<? extends Mob> type, ServerLevelAccessor level, BlockPos pos) {
-        ServerLevel serverLevel = level.getLevel();
-        if (type == InfXEntityTypes.INFX_BAT.get()) {
-            return true;
-        }
-        int maximumY = type == InfXEntityTypes.NIGHTWING.get() ? 32 : 48;
-        return serverLevel.dimension() != Level.OVERWORLD
-                || pos.getY() <= maximumY
-                || MoonPhase.BLOOD.isActiveInOverworldAtNight(serverLevel);
-    }
-
-    private static boolean earthElementalGround(ServerLevel level, BlockPos pos) {
-        return EarthElemental.isValidGround(level.getBlockState(pos.below()));
-    }
-
-    private static boolean clayGolemGround(ServerLevel level, BlockPos pos) {
-        return level.getBlockState(pos.below()).is(Blocks.CLAY);
-    }
-
     /**
      * The vanilla spawn predicates are declared against the vanilla entity type, while this mod
      * registers subclasses with their own entity types. Keep passing the actual mod type at
@@ -596,15 +474,11 @@ public final class MonsterEvents {
         }
         if (event.getEntity() instanceof Monster monster
                 && monster.level() instanceof ServerLevel level
-                && isWorldSpawn(event.getSpawnType())) {
+                && SpawnGate.isWorldSpawn(event.getSpawnType())) {
             MonsterTactics.equipForWorldAge(level, monster);
         }
         if (event.getEntity().getType() == EntityType.WITCH
-                && event.getSpawnType() != EntitySpawnReason.STRUCTURE
-                && event.getSpawnType() != EntitySpawnReason.COMMAND
-                && event.getSpawnType() != EntitySpawnReason.SPAWN_ITEM_USE
-                && event.getSpawnType() != EntitySpawnReason.DISPENSER
-                && event.getSpawnType() != EntitySpawnReason.LOAD) {
+                && SpawnGate.shouldCancelVanillaWitch(event.getSpawnType())) {
             event.setSpawnCancelled(true);
         }
     }
@@ -714,19 +588,14 @@ public final class MonsterEvents {
         boolean burnsInDirectSunlight = BuiltInRegistries.ENTITY_TYPE
                         .wrapAsHolder(event.getEntityType())
                         .is(EntityTypeTags.BURN_IN_DAYLIGHT)
-                && isExposedToSunlight(level, event.getPos());
-        if (MonsterTactics.allowsSpawnerLightBypass(
+                && SpawnGate.isExposedToSunlight(level, event.getPos());
+        if (SpawnGate.allowSpawnerLight(
                 event.getSpawnType(),
                 event.getDefaultResult(),
                 allowedIgnoringModernLight,
                 burnsInDirectSunlight)) {
             event.setResult(MobSpawnEvent.SpawnPlacementCheck.Result.SUCCEED);
         }
-    }
-
-    private static boolean isExposedToSunlight(ServerLevel level, BlockPos pos) {
-        BlockPos head = pos.above();
-        return level.isBrightOutside() && !level.isRainingAt(head) && level.canSeeSky(head);
     }
 
     @SubscribeEvent
@@ -739,46 +608,20 @@ public final class MonsterEvents {
         int nearby = level.getEntitiesOfClass(
                         Mob.class,
                         spawning.getBoundingBox().inflate(16.0),
-                        mob -> mob.isAlive() && sameSpawnFamily(mob.getType(), spawning.getType()))
+                        mob -> mob.isAlive() && SpawnGate.sameSpawnFamily(mob.getType(), spawning.getType()))
                 .size();
-        if (MonsterTactics.spawnerAtCap(nearby)) event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
-    }
-
-    static boolean sameSpawnFamily(EntityType<?> first, EntityType<?> second) {
-        EntityType<? extends Mob> firstReplacement = replacementFor(first);
-        EntityType<? extends Mob> secondReplacement = replacementFor(second);
-        EntityType<?> firstCanonical = firstReplacement == null ? first : firstReplacement;
-        EntityType<?> secondCanonical = secondReplacement == null ? second : secondReplacement;
-        return firstCanonical == secondCanonical;
+        if (SpawnGate.limitSpawnerPopulation(nearby)) {
+            event.setResult(MobSpawnEvent.PositionCheck.Result.FAIL);
+        }
     }
 
     @SubscribeEvent
     public static void preventObservedDespawn(MobDespawnEvent event) {
         Mob mob = event.getEntity();
-        if (!(mob instanceof Enemy) || !(mob.level() instanceof ServerLevel level)) return;
-        if (BoneLordSummonRegistry.get(level).isTracked(mob.getUUID())) {
+        if (mob instanceof Enemy && mob.level() instanceof ServerLevel level
+                && SpawnGate.preventDespawn(mob, level)) {
             event.setResult(MobDespawnEvent.Result.DENY);
-            return;
         }
-        boolean hasTarget = mob.getTarget() instanceof Player;
-        boolean observed = level.getEntitiesOfClass(
-                        Player.class,
-                        mob.getBoundingBox().inflate(48.0),
-                        player -> !player.isSpectator() && (mob.hasLineOfSight(player) || player.hasLineOfSight(mob)))
-                .stream()
-                .findAny()
-                .isPresent();
-        boolean specialEquipment = false;
-        for (EquipmentSlot slot : EquipmentSlot.values()) {
-            var stack = mob.getItemBySlot(slot);
-            if (!stack.isEmpty()
-                    && (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals("infx")
-                            || EnchantmentHelper.hasAnyEnchantments(stack))) {
-                specialEquipment = true;
-                break;
-            }
-        }
-        if (hasTarget || observed || specialEquipment) event.setResult(MobDespawnEvent.Result.DENY);
     }
 
     /** Releases roster slots immediately for dead troops and for a bone lord that no longer exists. */
@@ -816,7 +659,7 @@ public final class MonsterEvents {
                 || !(event.getEntity() instanceof Mob original)) {
             return;
         }
-        EntityType<? extends Mob> replacementType = replacementForSpawn(level, original);
+        EntityType<? extends Mob> replacementType = SpawnGate.replacementForSpawn(level, original);
         if (replacementType == null) {
             return;
         }
@@ -832,58 +675,6 @@ public final class MonsterEvents {
                 level.addFreshEntityWithPassengers(replacement);
             }
         });
-    }
-
-    private static EntityType<? extends Mob> replacementForSpawn(ServerLevel level, Mob original) {
-        // InfX has a single witch implementation. Unlike the other replacements, a manually
-        // summoned or spawn-egg witch must not retain the modern vanilla class, because that
-        // class has no INFX curse lifecycle. Leave loaded entities alone to avoid silently
-        // replacing persisted vanilla-witch state in existing worlds.
-        if (original.getType() == EntityType.WITCH && original.getSpawnType() != EntitySpawnReason.LOAD) {
-            return InfXEntityTypes.INFX_WITCH.get();
-        }
-        // Natural Nether wither-skeleton spawns intentionally retain the vanilla entity and its
-        // loot mixin. Only structures and explicit egg/dispenser creation receive the MITE type.
-        if (original.getType() == EntityType.WITHER_SKELETON
-                && shouldReplaceWitherSkeleton(original.getSpawnType())) {
-            return InfXEntityTypes.INFX_WITHER_SKELETON.get();
-        }
-        if (original.getType() == InfXEntityTypes.LONGDEAD.get()
-                && shouldReplaceLongdeadWithGuardian(
-                        original.getType(), level.dimension(), original.getSpawnType(), original.getRandom().nextInt(6))) {
-            return InfXEntityTypes.LONGDEAD_GUARDIAN.get();
-        }
-        if (isWorldSpawn(original.getSpawnType())) {
-            if (original.getType() == EntityType.CREEPER) {
-                int y = original.blockPosition().getY();
-                // InfX caps the infernal replacement odds at 50% even far below y=0.
-                if (y < 40 && original.getRandom().nextFloat() < Math.min(0.5F, Math.max(0, 40 - y) / 80.0F)) {
-                    return InfXEntityTypes.INFERNAL_CREEPER.get();
-                }
-            }
-            EntityType<? extends Mob> vanillaReplacement = replacementFor(original.getType());
-            if (vanillaReplacement != null) return vanillaReplacement;
-            if (original.getType() == InfXEntityTypes.VAMPIRE_BAT.get()
-                    && level.dimension() == Underworld.LEVEL
-                    && original.getRandom().nextInt(6) == 0) {
-                return InfXEntityTypes.GIANT_VAMPIRE_BAT.get();
-            }
-        }
-        if (original.getType() == EntityType.SILVERFISH
-                && original.getSpawnType() == EntitySpawnReason.TRIGGERED) {
-            if (level.dimension() == Level.NETHER) return InfXEntityTypes.NETHERSPAWN.get();
-            if (level.dimension() == Underworld.LEVEL) return InfXEntityTypes.HOARY_SILVERFISH.get();
-            if (level.dimension() == Level.OVERWORLD && copperNear(level, original.blockPosition())) {
-                return InfXEntityTypes.COPPERSPINE.get();
-            }
-        }
-        return null;
-    }
-
-    static boolean shouldReplaceWitherSkeleton(EntitySpawnReason reason) {
-        return reason == EntitySpawnReason.STRUCTURE
-                || reason == EntitySpawnReason.SPAWN_ITEM_USE
-                || reason == EntitySpawnReason.DISPENSER;
     }
 
     @SuppressWarnings("deprecation")
@@ -903,16 +694,6 @@ public final class MonsterEvents {
         // The FinalizeSpawnEvent fired above already ran MonsterTactics.equipForWorldAge for
         // world spawns; equipping again here would roll the gear a second time.
         replacement.setHealth(replacement.getMaxHealth());
-    }
-
-    private static boolean copperNear(ServerLevel level, BlockPos origin) {
-        for (BlockPos pos : BlockPos.betweenClosed(origin.offset(-3, -3, -3), origin.offset(3, 3, 3))) {
-            if (level.getBlockState(pos).is(Blocks.COPPER_ORE)
-                    || level.getBlockState(pos).is(Blocks.DEEPSLATE_COPPER_ORE)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static boolean trySpawnFireElemental(
@@ -1002,55 +783,7 @@ public final class MonsterEvents {
     }
 
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
-        if (original == EntityType.BAT) return InfXEntityTypes.INFX_BAT.get();
-        if (original == EntityType.SKELETON) return InfXEntityTypes.INFX_SKELETON.get();
-        if (original == EntityType.SPIDER) return InfXEntityTypes.INFX_SPIDER.get();
-        if (original == EntityType.CAVE_SPIDER) return InfXEntityTypes.INFX_CAVE_SPIDER.get();
-        if (original == EntityType.CREEPER) return InfXEntityTypes.INFX_CREEPER.get();
-        if (original == EntityType.SLIME) return InfXEntityTypes.INFX_SLIME.get();
-        if (original == EntityType.ENDERMAN) return InfXEntityTypes.INFX_ENDERMAN.get();
-        if (original == EntityType.SQUID) return InfXEntityTypes.INFX_SQUID.get();
-        if (original == EntityType.COD) return InfXEntityTypes.INFX_COD.get();
-        if (original == EntityType.SALMON) return InfXEntityTypes.INFX_SALMON.get();
-        if (original == EntityType.PUFFERFISH) return InfXEntityTypes.INFX_PUFFERFISH.get();
-        if (original == EntityType.TROPICAL_FISH) return InfXEntityTypes.INFX_TROPICAL_FISH.get();
-        if (original == EntityType.WITCH) return InfXEntityTypes.INFX_WITCH.get();
-        if (original == EntityType.ZOMBIFIED_PIGLIN) return InfXEntityTypes.INFX_ZOMBIFIED_PIGLIN.get();
-        if (original == EntityType.BLAZE) return InfXEntityTypes.INFX_BLAZE.get();
-        if (original == EntityType.GHAST) return InfXEntityTypes.INFX_GHAST.get();
-        if (original == EntityType.MAGMA_CUBE) return InfXEntityTypes.MAGMA_CUBE.get();
-        if (original == EntityType.COW) return InfXEntityTypes.INFX_COW.get();
-        if (original == EntityType.CHICKEN) return InfXEntityTypes.INFX_CHICKEN.get();
-        if (original == EntityType.SHEEP) return InfXEntityTypes.INFX_SHEEP.get();
-        if (original == EntityType.PIG) return InfXEntityTypes.INFX_PIG.get();
-        if (original == EntityType.HORSE) return InfXEntityTypes.INFX_HORSE.get();
-        if (original == EntityType.OCELOT) return InfXEntityTypes.INFX_OCELOT.get();
-        if (original == EntityType.WOLF) return InfXEntityTypes.INFX_WOLF.get();
-        return null;
-    }
-
-    static boolean isWorldSpawn(EntitySpawnReason reason) {
-        return reason == EntitySpawnReason.NATURAL
-                || reason == EntitySpawnReason.CHUNK_GENERATION
-                || reason == EntitySpawnReason.SPAWNER
-                || reason == EntitySpawnReason.STRUCTURE
-                || reason == EntitySpawnReason.REINFORCEMENT
-                || reason == EntitySpawnReason.PATROL
-                || reason == EntitySpawnReason.TRIAL_SPAWNER;
-    }
-
-    static boolean shouldReplaceLongdeadWithGuardian(
-            EntityType<?> originalType,
-            ResourceKey<Level> dimension,
-            EntitySpawnReason reason,
-            int roll) {
-        if (roll < 0 || roll >= 6) {
-            throw new IllegalArgumentException("Longdead Guardian roll must be in [0, 6): " + roll);
-        }
-        return originalType == InfXEntityTypes.LONGDEAD.get()
-                && dimension == Underworld.LEVEL
-                && reason == EntitySpawnReason.NATURAL
-                && roll == 0;
+        return SpawnGate.replacementFor(original);
     }
 
     @SubscribeEvent
@@ -1190,15 +923,6 @@ public final class MonsterEvents {
         }
         event.getAffectedBlocks().removeIf(
                 pos -> InfxSilverfish.isNetherspawnExplosionProtected(event.getLevel().getBlockState(pos)));
-    }
-
-    static boolean hasStoneAbove(ServerLevel level, BlockPos pos) {
-        int maximumY = level.getHeight(Heightmap.Types.MOTION_BLOCKING, pos.getX(), pos.getZ());
-        for (int y = pos.getY() + 1; y <= maximumY; y++) {
-            BlockState state = level.getBlockState(new BlockPos(pos.getX(), y, pos.getZ()));
-            if (!state.isAir()) return state.is(Blocks.STONE);
-        }
-        return false;
     }
 
     @EventBusSubscriber(modid = InfiniteX.MOD_ID)
