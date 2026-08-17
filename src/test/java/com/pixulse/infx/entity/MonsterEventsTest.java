@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.world.SpawnGate;
 import java.time.LocalDate;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -31,30 +32,30 @@ class MonsterEventsTest {
 
     @Test
     void onlyStructureAndExplicitCreationReplaceWitherSkeletons() {
-        assertTrue(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.STRUCTURE));
-        assertTrue(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.SPAWN_ITEM_USE));
-        assertTrue(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.DISPENSER));
-        assertFalse(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.NATURAL));
-        assertFalse(MonsterEvents.shouldReplaceWitherSkeleton(EntitySpawnReason.COMMAND));
+        assertTrue(SpawnGate.shouldReplaceWitherSkeleton(EntitySpawnReason.STRUCTURE));
+        assertTrue(SpawnGate.shouldReplaceWitherSkeleton(EntitySpawnReason.SPAWN_ITEM_USE));
+        assertTrue(SpawnGate.shouldReplaceWitherSkeleton(EntitySpawnReason.DISPENSER));
+        assertFalse(SpawnGate.shouldReplaceWitherSkeleton(EntitySpawnReason.NATURAL));
+        assertFalse(SpawnGate.shouldReplaceWitherSkeleton(EntitySpawnReason.COMMAND));
     }
 
     @Test
     void worldSpawnReplacementMapsEveryVanillaFishToItsR196Entity() {
-        assertEquals(InfXEntityTypes.INFX_BAT.get(), MonsterEvents.replacementFor(EntityType.BAT));
-        assertEquals(InfXEntityTypes.INFX_COD.get(), MonsterEvents.replacementFor(EntityType.COD));
-        assertEquals(InfXEntityTypes.INFX_SALMON.get(), MonsterEvents.replacementFor(EntityType.SALMON));
-        assertEquals(InfXEntityTypes.INFX_PUFFERFISH.get(), MonsterEvents.replacementFor(EntityType.PUFFERFISH));
+        assertEquals(InfXEntityTypes.INFX_BAT.get(), SpawnGate.replacementFor(EntityType.BAT));
+        assertEquals(InfXEntityTypes.INFX_COD.get(), SpawnGate.replacementFor(EntityType.COD));
+        assertEquals(InfXEntityTypes.INFX_SALMON.get(), SpawnGate.replacementFor(EntityType.SALMON));
+        assertEquals(InfXEntityTypes.INFX_PUFFERFISH.get(), SpawnGate.replacementFor(EntityType.PUFFERFISH));
         assertEquals(
                 InfXEntityTypes.INFX_TROPICAL_FISH.get(),
-                MonsterEvents.replacementFor(EntityType.TROPICAL_FISH));
+                SpawnGate.replacementFor(EntityType.TROPICAL_FISH));
     }
 
     @Test
     void batHalloweenWindowMatchesR196CalendarDates() {
-        assertTrue(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 10, 20)));
-        assertTrue(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 11, 3)));
-        assertFalse(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 10, 19)));
-        assertFalse(MonsterEvents.isBatHalloweenWindow(LocalDate.of(2026, 11, 4)));
+        assertTrue(SpawnGate.isBatHalloweenWindow(LocalDate.of(2026, 10, 20)));
+        assertTrue(SpawnGate.isBatHalloweenWindow(LocalDate.of(2026, 11, 3)));
+        assertFalse(SpawnGate.isBatHalloweenWindow(LocalDate.of(2026, 10, 19)));
+        assertFalse(SpawnGate.isBatHalloweenWindow(LocalDate.of(2026, 11, 4)));
     }
 
     @Test

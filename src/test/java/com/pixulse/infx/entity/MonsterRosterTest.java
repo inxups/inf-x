@@ -1,6 +1,7 @@
 package com.pixulse.infx.entity;
 
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.world.SpawnGate;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -48,41 +49,41 @@ class MonsterRosterTest {
 
     @Test
     void onlyWorldDrivenSpawnReasonsAreReplacementEligible() {
-        assertTrue(MonsterEvents.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.NATURAL));
-        assertTrue(MonsterEvents.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.SPAWNER));
-        assertFalse(MonsterEvents.isWorldSpawn(EntitySpawnReason.COMMAND));
-        assertFalse(MonsterEvents.isWorldSpawn(null));
+        assertTrue(SpawnGate.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.NATURAL));
+        assertTrue(SpawnGate.isWorldSpawn(net.minecraft.world.entity.EntitySpawnReason.SPAWNER));
+        assertFalse(SpawnGate.isWorldSpawn(EntitySpawnReason.COMMAND));
+        assertFalse(SpawnGate.isWorldSpawn(null));
     }
 
     @Test
     void longdeadGuardianReplacementUsesOnlyNaturalUnderworldRollZero() {
         for (int roll = 0; roll < 6; roll++) {
-            assertFalse(MonsterEvents.shouldReplaceLongdeadWithGuardian(
+            assertFalse(SpawnGate.shouldReplaceLongdeadWithGuardian(
                     InfXEntityTypes.LONGDEAD.get(), Level.OVERWORLD, EntitySpawnReason.NATURAL, roll));
             assertEquals(
                     roll == 0,
-                    MonsterEvents.shouldReplaceLongdeadWithGuardian(
+                    SpawnGate.shouldReplaceLongdeadWithGuardian(
                             InfXEntityTypes.LONGDEAD.get(),
                             com.pixulse.infx.world.Underworld.LEVEL,
                             EntitySpawnReason.NATURAL,
                             roll));
-            assertFalse(MonsterEvents.shouldReplaceLongdeadWithGuardian(
+            assertFalse(SpawnGate.shouldReplaceLongdeadWithGuardian(
                     InfXEntityTypes.LONGDEAD.get(),
                     com.pixulse.infx.world.Underworld.LEVEL,
                     EntitySpawnReason.SPAWNER,
                     roll));
-            assertFalse(MonsterEvents.shouldReplaceLongdeadWithGuardian(
+            assertFalse(SpawnGate.shouldReplaceLongdeadWithGuardian(
                     InfXEntityTypes.LONGDEAD_GUARDIAN.get(),
                     com.pixulse.infx.world.Underworld.LEVEL,
                     EntitySpawnReason.NATURAL,
                     roll));
         }
-        assertThrows(IllegalArgumentException.class, () -> MonsterEvents.shouldReplaceLongdeadWithGuardian(
+        assertThrows(IllegalArgumentException.class, () -> SpawnGate.shouldReplaceLongdeadWithGuardian(
                 InfXEntityTypes.LONGDEAD.get(),
                 com.pixulse.infx.world.Underworld.LEVEL,
                 EntitySpawnReason.NATURAL,
                 -1));
-        assertThrows(IllegalArgumentException.class, () -> MonsterEvents.shouldReplaceLongdeadWithGuardian(
+        assertThrows(IllegalArgumentException.class, () -> SpawnGate.shouldReplaceLongdeadWithGuardian(
                 InfXEntityTypes.LONGDEAD.get(),
                 com.pixulse.infx.world.Underworld.LEVEL,
                 EntitySpawnReason.NATURAL,
