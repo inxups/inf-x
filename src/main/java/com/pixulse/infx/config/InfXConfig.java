@@ -89,7 +89,6 @@ public final class InfXConfig extends AutoInitConfigContainer {
 
     public static final class MobConfig extends AutoInitConfigCategoryBase {
         public final BooleanEntry enabled = flag("enabled", "Enable mob rules", true);
-        public final BooleanEntry datapackSpawnRules = flag("datapackSpawnRules", "Enable datapack spawn rules", true);
         public final BooleanEntry gelatinousBlockDissolving = flag("gelatinousBlockDissolving", "Enable gelatinous block dissolving", true);
         public final BooleanEntry gelatinousItemCorrosion = flag("gelatinousItemCorrosion", "Enable gelatinous item corrosion", true);
         public final BooleanEntry bloodMoonFrenzy = flag("bloodMoonFrenzy", "Enable blood moon frenzy", true);

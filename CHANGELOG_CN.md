@@ -12,6 +12,8 @@
 - 末影人末影珍珠/末影之眼拾取改为传送到具备两格头顶空间的安全落点，不再主动寻路拾取；保留随机与受伤传送。
 - 相位蜘蛛仅对非坠落、非火、非毒伤害消耗闪避次数，失败传送同样消耗；无攻击者时以自身位置作为威胁点。
 - 血月狂暴的挖掘、挖掘冷却及土元素破门/挖掘统一通过 `isBloodMoonFrenzied` 配置门控，骨王灵感不受该配置影响。
+### 移除
+- 移除 `MobSpawnRules` 数据包生成规则系统：删除 `MobSpawnRules.java` 及 17 个 `data/infx/mob_spawn_rules/*.json`，移除 `mobs.datapackSpawnRules` 配置项；`hasStoneAbove` 工具方法迁移至 `MonsterEvents` 供史莱姆生成谓词继续使用。其他生成机制（SpawnDensity、SpawnRateTracker、Mixin 容量缩放、月相因子、SpawnsBiomeModifier、实体替换等）全部保留。
 
 ---
 
