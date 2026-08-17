@@ -12,6 +12,7 @@ import com.pixulse.infx.item.EquipmentKey;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.item.EquipmentType;
+import com.pixulse.infx.loot.PiglinBarterDropLootModifier;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
@@ -24,6 +25,7 @@ import com.pixulse.infx.world.SpawnDensity;
 import com.pixulse.infx.world.SpawnRateTracker;
 import com.pixulse.infx.world.Tension;
 import com.pixulse.infx.world.Underworld;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -51,6 +54,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.animal.equine.SkeletonHorse;
@@ -136,6 +141,9 @@ public final class ModMonsterGameTests {
     private static final String BONE_LORD_ROSTER = "infx_bone_lord_roster";
     private static final String WITHER_SKELETON = "infx_wither_skeleton";
     private static final String TORCH_SEEK = "infx_torch_seek";
+    private static final String PIGLIN_HOSTILITY = "infx_piglin_hostility";
+    private static final String PHANTOM_MOON_SPAWNS = "infx_phantom_moon_spawns";
+    private static final String PIGLIN_BARTER_DROPS = "infx_piglin_barter_drops";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -190,6 +198,9 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(BONE_LORD_ROSTER, () -> ModMonsterGameTests::boneLordRoster);
         FUNCTIONS.register(WITHER_SKELETON, () -> ModMonsterGameTests::witherSkeleton);
         FUNCTIONS.register(TORCH_SEEK, () -> ModMonsterGameTests::torchSeek);
+        FUNCTIONS.register(PIGLIN_HOSTILITY, () -> ModMonsterGameTests::piglinHostility);
+        FUNCTIONS.register(PHANTOM_MOON_SPAWNS, () -> ModMonsterGameTests::phantomMoonSpawns);
+        FUNCTIONS.register(PIGLIN_BARTER_DROPS, () -> ModMonsterGameTests::piglinBarterDrops);
     }
 
     private ModMonsterGameTests() {}
@@ -251,7 +262,10 @@ public final class ModMonsterGameTests {
                 CACTUS_TRIGGER,
                 BONE_LORD_ROSTER,
                 WITHER_SKELETON,
-                TORCH_SEEK)) {
+                TORCH_SEEK,
+                PIGLIN_HOSTILITY,
+                PHANTOM_MOON_SPAWNS,
+                PIGLIN_BARTER_DROPS)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(
@@ -441,6 +455,14 @@ public final class ModMonsterGameTests {
                     type + " must share the ordinary skeleton's maximum health");
             variant.discard();
         }
+        var hoglin = helper.spawn(EntityType.HOGLIN, new BlockPos(3, 2, 1));
+        helper.assertTrue(
+                hoglin.getAttributeBaseValue(Attributes.MAX_HEALTH) == 50.0D,
+                "hoglins must use the MITE 50 maximum health");
+        helper.assertTrue(
+                hoglin.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 7.0D,
+                "hoglins must use the MITE 7 attack damage");
+        hoglin.discard();
 
         int spiderX = 1;
         for (var type : List.of(
@@ -2580,6 +2602,78 @@ public final class ModMonsterGameTests {
                 new AABB(new BlockPos(2, 2, 2)).inflate(8.0),
                 child -> child.getSize() == 1 && child != slime);
         helper.assertTrue(children.isEmpty(), "burning slimes must not split into smaller cubes");
+        helper.succeed();
+    }
+
+    /** MITE: gold armor never pacifies piglins and gold handovers never start a barter. */
+    private static void piglinHostility(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        player.setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.GOLDEN_HELMET));
+        player.setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.GOLDEN_CHESTPLATE));
+        player.setItemSlot(EquipmentSlot.LEGS, new ItemStack(Items.GOLDEN_LEGGINGS));
+        player.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.GOLDEN_BOOTS));
+        helper.assertTrue(
+                !PiglinAi.isWearingSafeArmor(player),
+                "InfX piglins must never be pacified by a full gold armor set");
+        Piglin piglin = helper.spawn(EntityType.PIGLIN, new BlockPos(2, 2, 2));
+        player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.GOLD_INGOT));
+        helper.assertTrue(
+                PiglinAi.mobInteract(level, piglin, player, InteractionHand.MAIN_HAND)
+                        == InteractionResult.PASS,
+                "hostile piglins must refuse gold handovers instead of starting a barter");
+        helper.assertTrue(
+                player.getMainHandItem().is(Items.GOLD_INGOT) && player.getMainHandItem().getCount() == 1,
+                "the refused gold ingot must stay in the player's hand");
+        piglin.discard();
+        ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
+    /** MITE: phantom waves answer to the moon calendar, not to sleep deprivation. */
+    private static void phantomMoonSpawns(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 2_869_000L); // phantom-moon night, day 120
+        int phantomNight = MonsterEvents.phantomSpawnDecision(level);
+        helper.assertTrue(
+                phantomNight >= 1 && phantomNight <= 2,
+                "phantom-moon nights must allow a 1-2 phantom wave; got " + phantomNight);
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
+        int bloodNight = MonsterEvents.phantomSpawnDecision(level);
+        helper.assertTrue(
+                bloodNight >= 1 && bloodNight <= 2,
+                "blood-moon nights must allow a 1-2 phantom wave; got " + bloodNight);
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary night, day 31
+        helper.assertTrue(
+                MonsterEvents.phantomSpawnDecision(level) == -1,
+                "ordinary nights must deny phantom waves");
+        level.clockManager().setTotalTicks(overworldClock, 750_000L); // blood-moon noon, day 32
+        helper.assertTrue(
+                MonsterEvents.phantomSpawnDecision(level) == -1,
+                "phantom waves must stay denied outside the night window");
+        helper.succeed();
+    }
+
+    /** InfX piglins barter by the kill: rolled payouts pass the shared progression filter. */
+    private static void piglinBarterDrops(GameTestHelper helper) {
+        ObjectArrayList<ItemStack> rolled = new ObjectArrayList<>();
+        rolled.add(new ItemStack(Items.IRON_SWORD));
+        rolled.add(new ItemStack(Items.GOLDEN_BOOTS));
+        rolled.add(new ItemStack(Items.ENDER_PEARL));
+        rolled.add(new ItemStack(Items.IRON_NUGGET));
+        PiglinBarterDropLootModifier.filterProgression(rolled);
+        helper.assertTrue(
+                rolled.size() == 2, "the barter filter must keep exactly the pearl and the converted sword");
+        boolean pearlKept = false;
+        boolean swordConverted = false;
+        for (ItemStack stack : rolled) {
+            pearlKept |= stack.is(Items.ENDER_PEARL);
+            swordConverted |= !stack.is(Items.IRON_SWORD)
+                    && BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(InfiniteX.MOD_ID);
+        }
+        helper.assertTrue(pearlKept, "ender pearls must survive the barter filter");
+        helper.assertTrue(swordConverted, "vanilla iron swords must convert to the INFX iron sword");
         helper.succeed();
     }
 

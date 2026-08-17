@@ -10,6 +10,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemKilledByPlayerCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
 import net.neoforged.neoforge.common.loot.AddTableLootModifier;
 import net.neoforged.neoforge.common.loot.LootTableIdCondition;
@@ -39,6 +41,17 @@ final class ModGlobalLootModifierProvider extends GlobalLootModifierProvider {
             addStructure(structure);
         }
         add("progression_filter", new LegacyProgressionLootFilter(new LootItemCondition[0], 900));
+        addPiglinBarterDrops();
+    }
+
+    /** InfX piglins barter through player kills: 25% chance of one barter payout per kill. */
+    private void addPiglinBarterDrops() {
+        LootItemCondition[] conditions = {
+            LootTableIdCondition.builder(Identifier.withDefaultNamespace("entities/piglin")).build(),
+            LootItemKilledByPlayerCondition.killedByPlayer().build(),
+            LootItemRandomChanceCondition.randomChance(0.25F).build()
+        };
+        add("piglin_barter_drops", new com.pixulse.infx.loot.PiglinBarterDropLootModifier(conditions, 800));
     }
 
     private void addHorseArmor(String structure) {
