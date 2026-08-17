@@ -1,11 +1,5 @@
 # Changelog
 
-## 0t26
-### 其他
-- 新增《MITE 怪物机制移植差距分析》（`docs/MITE怪物机制移植差距分析.md`）：以 MITE 1.6.4 源码为准复核三份怪物分析文档与 InfX 现状，收录未实现及部分实现差异的机制、推荐入口、配置/持久化边界和测试验收；巨型僵尸明确排除，并记录普通蜘蛛隐身等误报的源码勘误。
-
----
-
 ## 0t25
 ### 移除
 - 移除 10 个长期失败的测试方法：单测 `ItemPropertiesTest.reachModesRouteBonusesOnlyToIndependentInfxAttributes`、`StickBoneItemsTest.restoresStackLimitAndBothReachModifiers`；GameTest `equipment_components`/`infx_equipment_components`/`height_advantage`（reach 类）、`vanilla_overflow_recipes`/`recipe_boundaries`/`infx_legacy_recipes`（配方类）、`infx_behavior_hunger`/`infx_mushroom_growth`（生存/世界类）。均为历史遗留失败（08-11 reach 重构后断言未同步、配方/饥饿/蘑菇系统与 26.1 交互），非近期改动引入；删除后单测全绿、GameTest 无确定性失败（仅冷启动 flaky）。
