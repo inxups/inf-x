@@ -2245,6 +2245,9 @@ public final class ModMonsterGameTests {
     /** MITE dig rates: dirt is 300×0.5 = 150 ticks per hit, a shovel speeds up, ten hits break it. */
     private static void zombieDigRate(GameTestHelper helper) {
         var level = helper.getLevel();
+        // Pin an ordinary night so earlier blood-moon tests cannot leave the world in a frenzy state.
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 733_000L);
         var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
         BlockPos dirtPos = new BlockPos(3, 3, 2);
         helper.setBlock(dirtPos, Blocks.DIRT);
