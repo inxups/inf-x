@@ -25,7 +25,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Shared zombie-family infrastructure for the InfX MITE mobs that live as separate entity types:
- * no babies, no water conversion, no vanilla reinforcement spawns, and the tuned melee reach.
+ * no babies, no vanilla reinforcement spawns, and the tuned melee reach. Water conversion back to
+ * vanilla behavior is inherited (submerged InfX zombies still become drowned).
  */
 public abstract class InfxZombieBase extends Zombie implements InfxMob {
     protected InfxZombieBase(EntityType<? extends Zombie> type, Level level) {
@@ -64,11 +65,6 @@ public abstract class InfxZombieBase extends Zombie implements InfxMob {
     @Override
     public final void setBaby(boolean baby) {
         super.setBaby(false);
-    }
-
-    @Override
-    protected final boolean convertsInWater() {
-        return false;
     }
 
     @Override
