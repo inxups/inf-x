@@ -1,6 +1,7 @@
 package com.pixulse.infx.registry;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.world.InfXSeagrassFeature;
 import com.pixulse.infx.world.InfXUnderworldBrownMushroomFeature;
 import com.pixulse.infx.world.InfXUnderworldDungeonFeature;
 import com.pixulse.infx.world.InfXUnderworldLiquidSourceFeature;
@@ -10,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -39,6 +41,10 @@ public final class InfXFeatures {
             FEATURES.register(
                     "underworld_supported_gravel",
                     () -> new InfXUnderworldSupportedGravelFeature(OreConfiguration.CODEC));
+    public static final DeferredHolder<Feature<?>, InfXSeagrassFeature> RIVER_SEAGRASS =
+            FEATURES.register(
+                    "river_seagrass",
+                    () -> new InfXSeagrassFeature(ProbabilityFeatureConfiguration.CODEC));
 
     private InfXFeatures() {}
 

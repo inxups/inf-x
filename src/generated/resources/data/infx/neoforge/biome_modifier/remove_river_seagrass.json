@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:remove_features",
+  "biomes": [
+    "infx:desert_river",
+    "infx:jungle_river",
+    "infx:swamp_river"
+  ],
+  "features": "minecraft:seagrass_river",
+  "steps": "vegetal_decoration"
+}
