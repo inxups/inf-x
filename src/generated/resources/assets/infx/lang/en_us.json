@@ -810,6 +810,7 @@
   "tooltip.infx.protection": "Fixed protection: %s",
   "tooltip.infx.recipe_heat": "Required heat: %s",
   "tooltip.infx.repair": "Repair with %s nuggets",
+  "tooltip.infx.sick": "Sick",
   "tooltip.infx.silver_armor_resistance": "Each silver piece shortens negative effects by 15%",
   "tooltip.infx.silver_undead_bonus": "+25% damage to undead",
   "tooltip.infx.skeleton_bane": "+2 damage to skeletons",
