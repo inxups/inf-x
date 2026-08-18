@@ -5,7 +5,8 @@
   },
   "exclusive_set": [
     "minecraft:silk_touch",
-    "infx:fortune"
+    "infx:fortune",
+    "minecraft:looting"
   ],
   "max_cost": {
     "base": 10,

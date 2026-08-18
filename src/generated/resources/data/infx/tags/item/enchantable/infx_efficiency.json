@@ -62,6 +62,7 @@
     "infx:adamantium_axe",
     "infx:adamantium_hoe",
     "infx:adamantium_mattock",
-    "infx:adamantium_battle_axe"
+    "infx:adamantium_battle_axe",
+    "#minecraft:enchantable/mining"
   ]
 }

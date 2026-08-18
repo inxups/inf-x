@@ -19,8 +19,12 @@ final class ModEnchantmentTagsProvider extends KeyTagsProvider<Enchantment> {
 
     @Override
     protected void addTags(HolderLookup.@NonNull Provider registries) {
+        // The enchanting table excludes treasure/barter-only enchantments (curses, soul speed,
+        // frost walker); all other sources (mob equipment, loot, trades) may surface the full
+        // set so those enchantments remain acquirable without being table-rolled.
+        tag(EnchantmentTags.IN_ENCHANTING_TABLE, true)
+                .add(InfXEnchantments.TABLE.toArray(net.minecraft.resources.ResourceKey[]::new));
         for (TagKey<Enchantment> source : List.of(
-                EnchantmentTags.IN_ENCHANTING_TABLE,
                 EnchantmentTags.ON_MOB_SPAWN_EQUIPMENT,
                 EnchantmentTags.ON_TRADED_EQUIPMENT,
                 EnchantmentTags.ON_RANDOM_LOOT,

@@ -7,6 +7,7 @@
     "infx:iron_war_hammer",
     "infx:ancient_metal_war_hammer",
     "infx:mithril_war_hammer",
-    "infx:adamantium_war_hammer"
+    "infx:adamantium_war_hammer",
+    "#minecraft:swords"
   ]
 }

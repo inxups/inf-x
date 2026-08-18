@@ -6,6 +6,7 @@ import com.pixulse.infx.registry.tag.InfXItemTags;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 import net.minecraft.advancements.criterion.DamageSourcePredicate;
 import net.minecraft.advancements.criterion.EntityPredicate;
@@ -36,8 +37,9 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 
 /**
- * The 22 INFX enchantments, the 17 vanilla-derived enchantments re-registered under their
- * {@code minecraft:} ids with legacy profiles, and the crafting-only clumsiness curse.
+ * The 22 INFX enchantments, the 20 vanilla-derived R196 enchantments re-registered under their
+ * {@code minecraft:} ids with legacy profiles, 8 modern enchantments whose vanilla definitions
+ * are retained, 2 curses, and the crafting-only clumsiness curse.
  */
 public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> DURABILITY = key("durability");
@@ -89,6 +91,25 @@ public final class InfXEnchantments {
     public static final ResourceKey<Enchantment> VANILLA_SWEEPING_EDGE = vanillaKey("sweeping_edge");
     public static final ResourceKey<Enchantment> VANILLA_SWIFT_SNEAK = vanillaKey("swift_sneak");
 
+    /**
+     * Modern enchantments with no MITE counterpart. Their definitions are not overridden by
+     * InfX; vanilla's own registration (targets, effects, exclusivity) stands. They are listed
+     * here only so the InfX source tags and {@link EnchantmentSelector} expose them, since the
+     * {@code replace: true} source tags would otherwise wipe vanilla's defaults.
+     */
+    public static final ResourceKey<Enchantment> VANILLA_LUCK_OF_THE_SEA = vanillaKey("luck_of_the_sea");
+    public static final ResourceKey<Enchantment> VANILLA_LURE = vanillaKey("lure");
+    public static final ResourceKey<Enchantment> VANILLA_DEPTH_STRIDER = vanillaKey("depth_strider");
+    public static final ResourceKey<Enchantment> VANILLA_FROST_WALKER = vanillaKey("frost_walker");
+    public static final ResourceKey<Enchantment> VANILLA_SOUL_SPEED = vanillaKey("soul_speed");
+    public static final ResourceKey<Enchantment> VANILLA_MULTISHOT = vanillaKey("multishot");
+    public static final ResourceKey<Enchantment> VANILLA_QUICK_CHARGE = vanillaKey("quick_charge");
+    public static final ResourceKey<Enchantment> VANILLA_PIERCING = vanillaKey("piercing");
+
+    /** Curses re-registered under their vanilla ids so InfX controls their acquisition. */
+    public static final ResourceKey<Enchantment> VANILLA_VANISHING_CURSE = vanillaKey("vanishing_curse");
+    public static final ResourceKey<Enchantment> VANILLA_BINDING_CURSE = vanillaKey("binding_curse");
+
     public static final List<ResourceKey<Enchantment>> INFX = List.of(
             DURABILITY, DISARMING, QUICKNESS, PRECISION, POISONING, BUTCHERING, STUNNING,
             VAMPIRISM, RECOVERY, SLAUGHTER, CLEAVING, HARVESTING, PENETRATION, BAITING,
@@ -103,9 +124,32 @@ public final class InfXEnchantments {
             VANILLA_POWER, VANILLA_PUNCH, VANILLA_FLAME, VANILLA_SHARPNESS,
             VANILLA_SWEEPING_EDGE, VANILLA_SWIFT_SNEAK);
 
+    /** Modern enchantments whose vanilla definitions are retained (see field docs). */
+    public static final List<ResourceKey<Enchantment>> VANILLA_MODERN = List.of(
+            VANILLA_LUCK_OF_THE_SEA, VANILLA_LURE, VANILLA_DEPTH_STRIDER,
+            VANILLA_FROST_WALKER, VANILLA_SOUL_SPEED, VANILLA_MULTISHOT,
+            VANILLA_QUICK_CHARGE, VANILLA_PIERCING);
+
+    /** Curses re-registered by InfX; kept separate so source pools can exclude treasure-only. */
+    public static final List<ResourceKey<Enchantment>> VANILLA_CURSES = List.of(
+            VANILLA_VANISHING_CURSE, VANILLA_BINDING_CURSE);
+
     /** Every enchantment served by the INFX tables, trades, loot and mob equipment. */
-    public static final List<ResourceKey<Enchantment>> ALL =
-            Stream.concat(INFX.stream(), VANILLA_R196.stream()).toList();
+    public static final List<ResourceKey<Enchantment>> ALL = Stream.of(
+            INFX.stream(), VANILLA_R196.stream(), VANILLA_MODERN.stream(), VANILLA_CURSES.stream())
+            .flatMap(s -> s).toList();
+
+    /**
+     * Enchantments that are treasure- or barter-only in vanilla and therefore excluded from the
+     * enchanting table while still appearing as loot, mob equipment or trades.
+     */
+    private static final Set<ResourceKey<Enchantment>> TREASURE_ONLY = Set.of(
+            VANILLA_VANISHING_CURSE, VANILLA_BINDING_CURSE,
+            VANILLA_SOUL_SPEED, VANILLA_FROST_WALKER);
+
+    /** Enchantments offered at the InfX enchanting table (everything except treasure-only). */
+    public static final List<ResourceKey<Enchantment>> TABLE = ALL.stream()
+            .filter(key -> !TREASURE_ONLY.contains(key)).toList();
 
     private static final Map<ResourceKey<Enchantment>, EnchantmentProfile> INFX_PROFILES = Map.ofEntries(
             Map.entry(DURABILITY, profile(Rarity.UNCOMMON, 10)),
@@ -151,7 +195,10 @@ public final class InfXEnchantments {
             Map.entry(VANILLA_FLAME, profile(Rarity.RARE, 20)),
             Map.entry(VANILLA_SHARPNESS, profile(Rarity.COMMON, 10)),
             Map.entry(VANILLA_SWEEPING_EDGE, profile(Rarity.RARE, 10)),
-            Map.entry(VANILLA_SWIFT_SNEAK, profile(Rarity.RARE, 10)));
+            Map.entry(VANILLA_SWIFT_SNEAK, profile(Rarity.RARE, 10)),
+            // Curses are treasure-grade: weight 1, acquired via loot/trade rather than the table.
+            Map.entry(VANILLA_VANISHING_CURSE, profile(Rarity.EPIC, 25)),
+            Map.entry(VANILLA_BINDING_CURSE, profile(Rarity.EPIC, 25)));
 
     private InfXEnchantments() {}
 
@@ -283,13 +330,23 @@ public final class InfXEnchantments {
                         EnchantmentEffectComponents.POST_ATTACK,
                         EnchantmentTarget.ATTACKER,
                         EnchantmentTarget.VICTIM,
-                        // InfX ignites for a fixed second regardless of level; the level only
-                        // marks the damage as fire-aspect for mob immunity checks.
-                        new Ignite(LevelBasedValue.constant(1.0F)),
+                        // MITE ignites for fire_aspect * 4 seconds (I=4s, II=8s), matching
+                        // vanilla 26.1's perLevel(4.0F); the level also marks the damage as
+                        // fire-aspect for mob immunity checks.
+                        new Ignite(LevelBasedValue.perLevel(4.0F)),
                         net.minecraft.world.level.storage.loot.predicates.DamageSourceCondition.hasDamageSource(
                                 DamageSourcePredicate.Builder.damageType().isDirect(true))));
         register(context, items, enchantments, VANILLA_LOOTING, InfXItemTags.INFX_LOOTING_ENCHANTABLE,
-                EnchantmentRules.LOOTING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND);
+                EnchantmentRules.LOOTING_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
+                builder -> builder.withEffect(
+                        EnchantmentEffectComponents.EQUIPMENT_DROPS,
+                        EnchantmentTarget.ATTACKER,
+                        EnchantmentTarget.VICTIM,
+                        new AddValue(LevelBasedValue.perLevel(0.01F)),
+                        LootItemEntityPropertyCondition.hasProperties(
+                                LootContext.EntityTarget.ATTACKER,
+                                EntityPredicate.Builder.entity().entityType(
+                                        EntityTypePredicate.of(entityTypes, EntityType.PLAYER)))));
         register(context, items, enchantments, VANILLA_EFFICIENCY, InfXItemTags.INFX_EFFICIENCY_ENCHANTABLE,
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
@@ -326,12 +383,15 @@ public final class InfXEnchantments {
                 EnchantmentRules.STANDARD_MAX_LEVEL, EquipmentSlotGroup.MAINHAND,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.DAMAGE,
-                        new AddValue(LevelBasedValue.perLevel(1.0F, 0.5F))));
+                        // MITE Sharpness adds +1 damage per level (V = +5), not the modern
+                        // linear curve (V = +3).
+                        new AddValue(LevelBasedValue.perLevel(1.0F, 1.0F))));
         // Sweeping edge is implemented by the INFX sweep event, which reads the level directly.
         register(context, items, enchantments, VANILLA_SWEEPING_EDGE,
                 InfXItemTags.INFX_SWEEPING_ENCHANTABLE, 3, EquipmentSlotGroup.MAINHAND);
-        register(context, items, enchantments, VANILLA_SWIFT_SNEAK, ItemTags.FOOT_ARMOR_ENCHANTABLE,
-                3, EquipmentSlotGroup.FEET,
+        // Swift Sneak belongs on leggings (MITE/vanilla 26.1 leg-armor slot), not boots.
+        register(context, items, enchantments, VANILLA_SWIFT_SNEAK, ItemTags.LEG_ARMOR_ENCHANTABLE,
+                3, EquipmentSlotGroup.LEGS,
                 builder -> builder.withEffect(
                         EnchantmentEffectComponents.ATTRIBUTES,
                         new EnchantmentAttributeEffect(
@@ -339,6 +399,12 @@ public final class InfXEnchantments {
                                 Attributes.SNEAKING_SPEED,
                                 LevelBasedValue.perLevel(0.15F),
                                 AttributeModifier.Operation.ADD_VALUE)));
+        // Curses: vanilla applies the vanish-on-death / prevent-unequip behaviour at runtime by
+        // checking for the enchantment key, so no data-component effect is needed here.
+        register(context, items, enchantments, VANILLA_VANISHING_CURSE,
+                ItemTags.VANISHING_ENCHANTABLE, 1, EquipmentSlotGroup.ANY);
+        register(context, items, enchantments, VANILLA_BINDING_CURSE,
+                ItemTags.EQUIPPABLE_ENCHANTABLE, 1, EquipmentSlotGroup.ARMOR);
     }
 
     public static EnchantmentProfile profile(ResourceKey<Enchantment> key) {
@@ -413,9 +479,15 @@ public final class InfXEnchantments {
             return HolderSet.direct(
                     enchantments.getOrThrow(key), enchantments.getOrThrow(VANILLA_SILK_TOUCH));
         }
+        if (key.equals(VANILLA_LOOTING)) {
+            return HolderSet.direct(
+                    enchantments.getOrThrow(key), enchantments.getOrThrow(VANILLA_SILK_TOUCH));
+        }
         if (key.equals(VANILLA_SILK_TOUCH)) {
             return HolderSet.direct(
-                    enchantments.getOrThrow(key), enchantments.getOrThrow(FORTUNE));
+                    enchantments.getOrThrow(key),
+                    enchantments.getOrThrow(FORTUNE),
+                    enchantments.getOrThrow(VANILLA_LOOTING));
         }
         if (key.equals(PROTECTION)
                 || key.equals(VANILLA_FIRE_PROTECTION)

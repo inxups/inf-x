@@ -17,6 +17,7 @@
     "infx:mithril_axe",
     "infx:mithril_battle_axe",
     "infx:adamantium_axe",
-    "infx:adamantium_battle_axe"
+    "infx:adamantium_battle_axe",
+    "#minecraft:axes"
   ]
 }

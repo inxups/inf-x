@@ -7,6 +7,7 @@
     "infx:iron_pickaxe",
     "infx:ancient_metal_pickaxe",
     "infx:mithril_pickaxe",
-    "infx:adamantium_pickaxe"
+    "infx:adamantium_pickaxe",
+    "#minecraft:pickaxes"
   ]
 }

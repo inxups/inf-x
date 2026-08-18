@@ -16,6 +16,7 @@
     "infx:mithril_chestplate",
     "infx:mithril_chainmail_chestplate",
     "infx:adamantium_chestplate",
-    "infx:adamantium_chainmail_chestplate"
+    "infx:adamantium_chainmail_chestplate",
+    "#minecraft:enchantable/chest_armor"
   ]
 }

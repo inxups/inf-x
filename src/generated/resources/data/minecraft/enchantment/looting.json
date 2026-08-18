@@ -3,7 +3,32 @@
   "description": {
     "translate": "enchantment.minecraft.looting"
   },
-  "exclusive_set": "minecraft:looting",
+  "effects": {
+    "minecraft:equipment_drops": [
+      {
+        "effect": {
+          "type": "minecraft:add",
+          "value": {
+            "type": "minecraft:linear",
+            "base": 0.01,
+            "per_level_above_first": 0.01
+          }
+        },
+        "enchanted": "attacker",
+        "requirements": {
+          "condition": "minecraft:entity_properties",
+          "entity": "attacker",
+          "predicate": {
+            "type": "minecraft:player"
+          }
+        }
+      }
+    ]
+  },
+  "exclusive_set": [
+    "minecraft:looting",
+    "minecraft:silk_touch"
+  ],
   "max_cost": {
     "base": 10,
     "per_level_above_first": 10

@@ -35,6 +35,7 @@ import com.pixulse.infx.screen.menu.MetalAnvilMenu;
 import com.pixulse.infx.screen.menu.InfxEnchantmentMenu;
 import com.pixulse.infx.screen.menu.TimedWorkbenchMenu;
 import com.pixulse.infx.registry.InfXBlocks;
+import com.pixulse.infx.registry.tag.InfXItemTags;
 import com.pixulse.infx.registry.InfXCreativeTabs;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXEnchantments;
@@ -511,6 +512,10 @@ public final class ModCompletionGameTests {
                 .equipment(InfxMaterial.COPPER, EquipmentType.BOOTS)
                 .holder()
                 .toStack();
+        ItemStack leggings = InfXItems.catalog()
+                .equipment(InfxMaterial.COPPER, EquipmentType.LEGGINGS)
+                .holder()
+                .toStack();
         var sharpness = registry.getOrThrow(InfXEnchantments.VANILLA_SHARPNESS);
         var slaughter = registry.getOrThrow(InfXEnchantments.SLAUGHTER);
         var sweeping = registry.getOrThrow(InfXEnchantments.VANILLA_SWEEPING_EDGE);
@@ -536,7 +541,9 @@ public final class ModCompletionGameTests {
         helper.assertFalse(
                 knife.canPerformAction(ItemAbilities.SWORD_SWEEP),
                 "knives must not advertise the native sweep action");
-        helper.assertTrue(swiftSneak.value().isSupportedItem(boots), "boots must support swift sneak");
+        // Swift Sneak belongs on leggings (MITE/vanilla 26.1 leg slot), not boots.
+        helper.assertTrue(swiftSneak.value().isSupportedItem(leggings), "leggings must support swift sneak");
+        helper.assertFalse(swiftSneak.value().isSupportedItem(boots), "boots must not support swift sneak");
 
         ItemStack crossbow = Items.CROSSBOW.getDefaultInstance();
         ItemStack bow = InfXItems.catalog()
@@ -567,8 +574,8 @@ public final class ModCompletionGameTests {
         float before = zombie.getHealth();
         player.attack(zombie);
         helper.assertTrue(
-                Math.abs((before - zombie.getHealth()) - 12.0F) < 0.001F,
-                "sharpness V must add three damage exactly once");
+                Math.abs((before - zombie.getHealth()) - 14.0F) < 0.001F,
+                "sharpness V must add five damage exactly once");
         zombie.discard();
 
         battleAxe.enchant(slaughter, 5);
@@ -582,8 +589,8 @@ public final class ModCompletionGameTests {
         before = zombie.getHealth();
         player.attack(zombie);
         helper.assertTrue(
-                Math.abs((before - zombie.getHealth()) - 13.0F) < 0.001F,
-                "slaughter V must add four damage to a mithril battle axe");
+                Math.abs((before - zombie.getHealth()) - 14.0F) < 0.001F,
+                "slaughter V must add five damage to a mithril battle axe");
         zombie.discard();
 
         player.setItemInHand(InteractionHand.MAIN_HAND, InfXItems.catalog()
@@ -2443,6 +2450,7 @@ public final class ModCompletionGameTests {
         ServerPlayer owner = createPlayer(helper);
         ServerPlayer visitor = createPlayer(helper);
         assertR196EnchantmentRegistry(helper);
+        assertVanillaEnchantmentTargets(helper);
         BlockPos safePos = new BlockPos(4, 2, 4);
         helper.setBlock(safePos, InfXBlocks.COPPER_SAFE.get());
         SafeBlockEntity safe = helper.getBlockEntity(safePos, SafeBlockEntity.class);
@@ -2718,10 +2726,23 @@ public final class ModCompletionGameTests {
 
     private static void assertR196EnchantmentRegistry(GameTestHelper helper) {
         var enchantments = helper.getLevel().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        Set<Holder<Enchantment>> expected = Set.copyOf(
+        // Expected sets are NOT derived from InfXEnchantments.ALL here; the audit found that a
+        // self-derived expectation hides missing registrations. Counts are hardcoded.
+        Set<Holder<Enchantment>> expectedTable = Set.copyOf(
+                InfXEnchantments.TABLE.stream().map(enchantments::getOrThrow).toList());
+        Set<Holder<Enchantment>> expectedAll = Set.copyOf(
                 InfXEnchantments.ALL.stream().map(enchantments::getOrThrow).toList());
+        // INFX serves 22 own + 20 R196 + 8 modern + 2 curses = 52; the table excludes the 4
+        // treasure/barter-only enchantments (curses, soul speed, frost walker) = 48.
+        helper.assertTrue(InfXEnchantments.ALL.size() == 52, "ALL must contain 52 enchantments, got " + InfXEnchantments.ALL.size());
+        helper.assertTrue(InfXEnchantments.TABLE.size() == 48, "TABLE must contain 48 enchantments, got " + InfXEnchantments.TABLE.size());
+        // The enchanting table excludes treasure/barter-only enchantments.
+        var tableTag = enchantments.getOrThrow(EnchantmentTags.IN_ENCHANTING_TABLE);
+        helper.assertTrue(tableTag.size() == expectedTable.size(),
+                "in_enchanting_table has " + tableTag.size() + " entries, expected " + expectedTable.size());
+        helper.assertTrue(tableTag.stream().allMatch(expectedTable::contains),
+                "in_enchanting_table must only contain TABLE enchantments");
         for (var source : List.of(
-                EnchantmentTags.IN_ENCHANTING_TABLE,
                 EnchantmentTags.ON_MOB_SPAWN_EQUIPMENT,
                 EnchantmentTags.ON_TRADED_EQUIPMENT,
                 EnchantmentTags.ON_RANDOM_LOOT,
@@ -2735,11 +2756,33 @@ public final class ModCompletionGameTests {
                 EnchantmentTags.TRADES_TAIGA_COMMON)) {
             var actual = enchantments.getOrThrow(source);
             helper.assertTrue(
-                    actual.size() == expected.size(),
-                    source.location() + " has exactly 39 INFX and vanilla InfX entries");
-            helper.assertTrue(actual.stream().allMatch(expected::contains), source.location() + " excludes modern entries");
+                    actual.size() == expectedAll.size(),
+                    source.location() + " has " + actual.size() + " entries, expected " + expectedAll.size());
+            helper.assertTrue(actual.stream().allMatch(expectedAll::contains), source.location() + " excludes an ALL enchantment");
         }
-        for (ResourceKey<Enchantment> key : InfXEnchantments.ALL) {
+        // Explicit membership: modern compat enchantments are table-available (except the
+        // treasure/barter-only four); curses appear in loot but not the table.
+        for (ResourceKey<Enchantment> modern : List.of(
+                InfXEnchantments.VANILLA_LUCK_OF_THE_SEA, InfXEnchantments.VANILLA_LURE,
+                InfXEnchantments.VANILLA_DEPTH_STRIDER, InfXEnchantments.VANILLA_MULTISHOT,
+                InfXEnchantments.VANILLA_QUICK_CHARGE, InfXEnchantments.VANILLA_PIERCING)) {
+            helper.assertTrue(tableTag.contains(enchantments.getOrThrow(modern)),
+                    modern.identifier() + " must be enchanting-table-available");
+        }
+        for (ResourceKey<Enchantment> treasure : List.of(
+                InfXEnchantments.VANILLA_VANISHING_CURSE, InfXEnchantments.VANILLA_BINDING_CURSE,
+                InfXEnchantments.VANILLA_SOUL_SPEED, InfXEnchantments.VANILLA_FROST_WALKER)) {
+            helper.assertFalse(tableTag.contains(enchantments.getOrThrow(treasure)),
+                    treasure.identifier() + " must not be enchanting-table-available");
+            helper.assertTrue(enchantments.getOrThrow(EnchantmentTags.ON_RANDOM_LOOT).contains(enchantments.getOrThrow(treasure)),
+                    treasure.identifier() + " must be loot-available");
+        }
+        // Exclusivity is only asserted for InfX-bootstrapped enchantments; the modern set keeps
+        // vanilla's own exclusive-set mechanism, which vanilla is responsible for.
+        var bootstrapped = InfXEnchantments.ALL.stream()
+                .filter(k -> !InfXEnchantments.VANILLA_MODERN.contains(k))
+                .toList();
+        for (ResourceKey<Enchantment> key : bootstrapped) {
             Holder<Enchantment> enchantment = enchantments.getOrThrow(key);
             helper.assertTrue(
                     enchantment.value().exclusiveSet().contains(enchantment),
@@ -2752,6 +2795,7 @@ public final class ModCompletionGameTests {
         Holder<Enchantment> fortune = enchantments.getOrThrow(InfXEnchantments.FORTUNE);
         Holder<Enchantment> efficiency = enchantments.getOrThrow(InfXEnchantments.VANILLA_EFFICIENCY);
         Holder<Enchantment> slaughter = enchantments.getOrThrow(InfXEnchantments.SLAUGHTER);
+        Holder<Enchantment> looting = enchantments.getOrThrow(InfXEnchantments.VANILLA_LOOTING);
         for (ResourceKey<Enchantment> damageKey : List.of(
                 InfXEnchantments.VANILLA_SHARPNESS,
                 InfXEnchantments.VANILLA_SMITE,
@@ -2763,9 +2807,42 @@ public final class ModCompletionGameTests {
         helper.assertFalse(
                 Enchantment.areCompatible(silkTouch, fortune),
                 "silk touch and fortune stay mutually exclusive");
+        helper.assertFalse(
+                Enchantment.areCompatible(silkTouch, looting),
+                "silk touch and looting stay mutually exclusive (MITE)");
         helper.assertTrue(
                 Enchantment.areCompatible(silkTouch, efficiency),
                 "silk touch combines with any other enchantment");
+    }
+
+    /**
+     * Guards the P0 fix that added vanilla gear to the {@code infx:enchantable/*} target tags.
+     * Without it, vanilla pickaxes/swords/armor could display an enchantment via commands or
+     * books but never receive it at the table nor benefit from the InfX runtime effect.
+     */
+    private static void assertVanillaEnchantmentTargets(GameTestHelper helper) {
+        helper.assertTrue(Items.IRON_PICKAXE.getDefaultInstance().is(InfXItemTags.INFX_DURABILITY_ENCHANTABLE),
+                "vanilla pickaxes must be durability-enchantable");
+        helper.assertTrue(Items.IRON_PICKAXE.getDefaultInstance().is(InfXItemTags.INFX_EFFICIENCY_ENCHANTABLE),
+                "vanilla pickaxes must be efficiency-enchantable");
+        helper.assertTrue(Items.IRON_PICKAXE.getDefaultInstance().is(InfXItemTags.INFX_FORTUNE_ENCHANTABLE),
+                "vanilla pickaxes must be fortune-enchantable");
+        helper.assertTrue(Items.IRON_AXE.getDefaultInstance().is(InfXItemTags.INFX_TREE_FELLING_ENCHANTABLE),
+                "vanilla axes must be tree-felling-enchantable");
+        helper.assertTrue(Items.IRON_SWORD.getDefaultInstance().is(InfXItemTags.INFX_SWORD_FAMILY_ENCHANTABLE),
+                "vanilla swords must be sword-family-enchantable");
+        helper.assertTrue(Items.IRON_SWORD.getDefaultInstance().is(InfXItemTags.INFX_LOOTING_ENCHANTABLE),
+                "vanilla swords must be looting-enchantable");
+        helper.assertTrue(Items.IRON_SWORD.getDefaultInstance().is(InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE),
+                "vanilla swords must be vampirism-enchantable");
+        helper.assertTrue(Items.DIAMOND_LEGGINGS.getDefaultInstance().is(InfXItemTags.INFX_FREE_MOVEMENT_ENCHANTABLE),
+                "vanilla leggings must be free-movement-enchantable");
+        helper.assertTrue(Items.IRON_CHESTPLATE.getDefaultInstance().is(InfXItemTags.INFX_CHEST_ARMOR_ENCHANTABLE),
+                "vanilla chestplates must be chest-armor-enchantable");
+        helper.assertTrue(Items.IRON_CHESTPLATE.getDefaultInstance().is(InfXItemTags.INFX_THORNS_ENCHANTABLE),
+                "vanilla chestplates must be thorns-enchantable");
+        helper.assertTrue(Items.CHAINMAIL_CHESTPLATE.getDefaultInstance().is(InfXItemTags.INFX_THORNS_ENCHANTABLE),
+                "chainmail chestplates must be thorns-enchantable (MITE accepts any cuirass)");
     }
 
     private static void assertConversionOptions(

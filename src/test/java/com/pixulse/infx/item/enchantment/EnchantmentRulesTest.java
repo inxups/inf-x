@@ -106,11 +106,11 @@ class EnchantmentRulesTest {
         assertEquals(.5F, EnchantmentRules.vampirismChance(5), .0001F);
         assertEquals(0.0F, EnchantmentRules.slaughterDamageBonus(0), .0001F);
         assertEquals(1.0F, EnchantmentRules.slaughterDamageBonus(1), .0001F);
-        assertEquals(1.75F, EnchantmentRules.slaughterDamageBonus(2), .0001F);
-        assertEquals(2.5F, EnchantmentRules.slaughterDamageBonus(3), .0001F);
-        assertEquals(3.25F, EnchantmentRules.slaughterDamageBonus(4), .0001F);
-        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(5), .0001F);
-        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(6), .0001F);
+        assertEquals(2.0F, EnchantmentRules.slaughterDamageBonus(2), .0001F);
+        assertEquals(3.0F, EnchantmentRules.slaughterDamageBonus(3), .0001F);
+        assertEquals(4.0F, EnchantmentRules.slaughterDamageBonus(4), .0001F);
+        assertEquals(5.0F, EnchantmentRules.slaughterDamageBonus(5), .0001F);
+        assertEquals(5.0F, EnchantmentRules.slaughterDamageBonus(6), .0001F);
         assertEquals(1, EnchantmentRules.vampirismHealing(1.0F, 0.0F));
         assertEquals(2, EnchantmentRules.vampirismHealing(10.0F, .5F));
     }
@@ -121,8 +121,8 @@ class EnchantmentRulesTest {
         assertEquals(1.0F, EnchantmentRules.arrowRecoveryChance(.3F, 5), .0001F);
         assertEquals(.1F, EnchantmentRules.harvestingBonusChance(1), .0001F);
         assertEquals(.5F, EnchantmentRules.harvestingBonusChance(5), .0001F);
-        assertEquals(540, EnchantmentRules.baitingLureDelay(600, 1));
-        assertEquals(353, EnchantmentRules.baitingLureDelay(600, 5));
+        assertEquals(540, EnchantmentRules.baitingBiteChance(600, 1));
+        assertEquals(353, EnchantmentRules.baitingBiteChance(600, 5));
         assertEquals(1.0F, EnchantmentRules.fertilityChance(5), .0001F);
         assertEquals(5, EnchantmentRules.treeFellingExtraLogs(5));
         assertEquals(5.0F, EnchantmentRules.penetrationPoints(5), .0001F);
@@ -139,10 +139,18 @@ class EnchantmentRulesTest {
 
     @Test
     void selectorUsesOnlyTheFixedR196CandidatePool() {
-        assertSame(InfXEnchantments.ALL, EnchantmentSelector.candidateKeys());
+        assertSame(InfXEnchantments.TABLE, EnchantmentSelector.candidateKeys());
         assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.INFX));
         assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.VANILLA_R196));
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.CLUMSINESS));
+        // Treasure/barter-only enchantments are excluded from the table (still loot/trade available).
+        assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_VANISHING_CURSE));
+        assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_BINDING_CURSE));
+        assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_SOUL_SPEED));
+        assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_FROST_WALKER));
+        // Modern table-available enchantments remain selectable.
+        assertTrue(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_LUCK_OF_THE_SEA));
+        assertTrue(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_PIERCING));
     }
 
     @Test
@@ -177,7 +185,7 @@ class EnchantmentRulesTest {
     @Test
     void butcheringAndFortuneHelpersKeepTheirTargetedRanges() {
         assertEquals(0, EnchantmentRules.butcheringExtraCount(0, RandomSource.create(1L)));
-        int horseBeef = EnchantmentRules.horseButcheringBeefCount(3, RandomSource.create(1L));
+        int horseBeef = EnchantmentRules.horseButcheringBeefCount(3, RandomSource.create(1L), true);
         assertTrue(horseBeef >= 1 && horseBeef <= 5);
         assertEquals(.0F, EnchantmentRules.fortuneOreBonusChance(0), .0001F);
         assertEquals(.1F, EnchantmentRules.fortuneOreBonusChance(1), .0001F);

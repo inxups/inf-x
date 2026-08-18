@@ -1,13 +1,16 @@
 package com.pixulse.infx.world;
 
+import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.registry.InfXItems;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * InfX fishing bite timing: the base lure wait scales with the time of day (fastest at dawn and
- * dusk), halves while it rains and when the angler carries a worm as bait.
+ * InfX fishing bite timing follows MITE's {@code chance_in} model: the base bite denominator
+ * scales with the time of day (fastest at dawn and dusk), is 600 during a blue moon, halves while
+ * it rains, is then multiplied by {@code 9/10} per Fishing Fortune level, and finally halves when
+ * the angler carries a worm as bait. The vanilla lure roll (100-600) is scaled by this chance.
  */
 public final class FishingRules {
     private static final long BEST_BITE_TICKS = 5_500L;
@@ -15,7 +18,7 @@ public final class FishingRules {
 
     private FishingRules() {}
 
-    public static int lureDelay(ServerLevel level, Player player, int rolledDelay) {
+    public static int lureDelay(ServerLevel level, Player player, int rolledDelay, int baitingLevel) {
         long timeOfDay = Math.floorMod(level.getOverworldClockTime(), 24_000L);
         float timeFactor =
                 Math.min(Math.abs(timeOfDay - BEST_BITE_TICKS), Math.abs(timeOfDay - SECOND_BEST_BITE_TICKS))
@@ -27,6 +30,8 @@ public final class FishingRules {
         if (level.isRaining()) {
             chance /= 2;
         }
+        // MITE: Fishing Fortune multiplies chance_in by 9/10 per level (after weather, before worm).
+        chance = EnchantmentRules.baitingBiteChance(chance, baitingLevel);
         if (hasWormBait(player)) {
             chance /= 2;
         }

@@ -1,16 +1,25 @@
 {
   "values": [
+    "infx:flint_knife",
+    "infx:obsidian_knife",
     "infx:gold_scythe",
     "infx:gold_sword",
+    "infx:gold_dagger",
     "infx:copper_scythe",
     "infx:copper_sword",
+    "infx:copper_dagger",
     "infx:rusted_iron_scythe",
     "infx:rusted_iron_sword",
+    "infx:rusted_iron_dagger",
     "infx:iron_scythe",
     "infx:iron_sword",
+    "infx:iron_dagger",
     "infx:ancient_metal_scythe",
     "infx:ancient_metal_sword",
+    "infx:ancient_metal_dagger",
     "infx:adamantium_scythe",
-    "infx:adamantium_sword"
+    "infx:adamantium_sword",
+    "infx:adamantium_dagger",
+    "#minecraft:swords"
   ]
 }

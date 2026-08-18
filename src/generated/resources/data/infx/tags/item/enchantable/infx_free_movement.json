@@ -16,6 +16,7 @@
     "infx:mithril_leggings",
     "infx:mithril_chainmail_leggings",
     "infx:adamantium_leggings",
-    "infx:adamantium_chainmail_leggings"
+    "infx:adamantium_chainmail_leggings",
+    "#minecraft:enchantable/leg_armor"
   ]
 }

@@ -1,0 +1,21 @@
+{
+  "anvil_cost": 8,
+  "description": {
+    "translate": "enchantment.minecraft.binding_curse"
+  },
+  "exclusive_set": "minecraft:binding_curse",
+  "max_cost": {
+    "base": 40,
+    "per_level_above_first": 25
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 16,
+    "per_level_above_first": 25
+  },
+  "slots": [
+    "armor"
+  ],
+  "supported_items": "#minecraft:enchantable/equippable",
+  "weight": 1
+}

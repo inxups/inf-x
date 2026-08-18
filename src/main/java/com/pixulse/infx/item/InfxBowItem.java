@@ -49,19 +49,14 @@ public final class InfxBowItem extends BowItem {
             float uncertainty,
             float angle,
             @Nullable LivingEntity targetOverride) {
-        ItemStack bow = shooter.getMainHandItem();
-        int precision = Enchantments.level(shooter.level(), bow, InfXEnchantments.PRECISION);
-        int recovery = Enchantments.level(shooter.level(), bow, InfXEnchantments.RECOVERY);
-        int poisoning = Enchantments.level(shooter.level(), bow, InfXEnchantments.POISONING);
-        int experienceLevel = shooter instanceof Player player ? player.experienceLevel : 0;
-        if (recovery > 0) projectile.getPersistentData().putInt("infx_recovery_enchantment", recovery);
-        if (poisoning > 0) projectile.getPersistentData().putInt("infx_poisoning_enchantment", poisoning);
+        // Precision, Recovery and Poisoning are applied by BowItemProjectileMixin for every bow;
+        // InfxBowItem only adds its material velocity multiplier on top of the base power.
         super.shootProjectile(
                 shooter,
                 projectile,
                 index,
                 power * velocityMultiplier(),
-                uncertainty * EnchantmentRules.precisionUncertaintyMultiplier(experienceLevel, precision),
+                uncertainty,
                 angle,
                 targetOverride);
     }

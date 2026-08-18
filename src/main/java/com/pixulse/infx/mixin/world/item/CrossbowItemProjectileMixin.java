@@ -29,7 +29,12 @@ public abstract class CrossbowItemProjectileMixin {
         int recovery = 0;
         int experienceLevel = 0;
         if (projectile.getOwner() instanceof LivingEntity shooter) {
-            ItemStack crossbow = shooter.getMainHandItem();
+            // Read the crossbow being used (offhand-aware); releaseUsing keeps the use item set
+            // until after shootProjectile runs, so this reflects the actual firing hand.
+            ItemStack crossbow = shooter.getUseItem();
+            if (crossbow.isEmpty()) {
+                crossbow = shooter.getMainHandItem();
+            }
             Level level = shooter.level();
             precision = Enchantments.level(level, crossbow, InfXEnchantments.PRECISION);
             recovery = Enchantments.level(level, crossbow, InfXEnchantments.RECOVERY);
