@@ -1,5 +1,9 @@
 # Changelog
 
+## 0t33
+### 修复
+- **TNT 炸钻石/绿宝石原矿掉落碎片**：补全 MITE `BlockOre.dropBlockAsEntityItem` 爆炸分支的移植缺口。钻石原矿、绿宝石原矿（含深板岩变体）被任何爆炸（TNT/苦力怕/恶魂等）炸毁时，原走 vanilla 战利品表掉落整颗钻石/绿宝石；现经 `PhysicsEvents.convertExplodedBlock` 改为弹出 1 颗对应碎片（`infx:diamond_shard` / `infx:emerald_shard`），与 MITE 一致（quantity 1, chance 1.0——`Material.stone` 不触发爆炸损耗/置零）。青金石/下界石英/煤矿的爆炸分支同属未移植缺口，留待后续。
+
 ## 0t32
 ### 修复
 - **银质盔甲 tooltip 误导**：`EquipmentBehaviors.addQualityTooltip` 原对一切银质物品（含头盔/胸甲/护腿/靴子/锁链/马铠）都显示「对亡灵生物伤害+25%」，但该加成仅由主手银武器或银箭触发（`MobDamageRules.hasSilverAspect`），穿戴银甲并不提供亡灵伤害加成。现改为按 `armorForm` 互斥：非护甲（工具/武器/箭）显示亡灵加成行，护甲显示负面效果抗性行。

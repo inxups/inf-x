@@ -113,8 +113,9 @@ public final class PhysicsEvents {
     /**
      * InfX Block#dropBlockAsEntityItem exploded forms: wool->string, wood->sticks, brick->1 brick,
      * lapis block->9 blue dye at 50%, stone/end stone->cobblestone, coal block->9 coal at 50%,
-     * terracotta and netherrack->nothing. Destroys the block and pops the replacement. Returns
-     * true when the explosion entry was consumed.
+     * terracotta and netherrack->nothing. InfX BlockOre#dropBlockAsEntityItem: diamond/emerald
+     * ore (incl. deepslate)->1 shard instead of the whole gem. Destroys the block and pops the
+     * replacement. Returns true when the explosion entry was consumed.
      */
     private static boolean convertExplodedBlock(ServerLevel level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
@@ -141,6 +142,12 @@ public final class PhysicsEvents {
         }
         if (state.is(Blocks.COAL_BLOCK)) {
             return explodeInto(level, pos, dropQuantity(level, Items.COAL, 9, 0.5F));
+        }
+        if (state.is(Blocks.DIAMOND_ORE) || state.is(Blocks.DEEPSLATE_DIAMOND_ORE)) {
+            return explodeInto(level, pos, InfXItems.DIAMOND_SHARD.toStack());
+        }
+        if (state.is(Blocks.EMERALD_ORE) || state.is(Blocks.DEEPSLATE_EMERALD_ORE)) {
+            return explodeInto(level, pos, InfXItems.EMERALD_SHARD.toStack());
         }
         return false;
     }
