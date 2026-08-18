@@ -20,6 +20,7 @@
   {"items":["minecraft:rotten_flesh"],"profile":{"satiation":2,"nutrition":1,"protein":8000,"phytonutrients":0,"essential_fats":0,"sugar_content":0}},
   {"items":["minecraft:spider_eye"],"profile":{"satiation":0,"nutrition":1,"protein":8000,"phytonutrients":0,"essential_fats":0,"sugar_content":0}},
   {"items":["minecraft:carrot","minecraft:golden_carrot"],"profile":{"satiation":1,"nutrition":2,"protein":0,"phytonutrients":16000,"essential_fats":0,"sugar_content":0}},
+  {"items":["minecraft:golden_carrot"],"profile":{"satiation":1,"nutrition":12,"protein":0,"phytonutrients":1000,"essential_fats":0,"sugar_content":0}},
   {"items":["minecraft:potato"],"profile":{"satiation":3,"nutrition":1,"protein":0,"phytonutrients":0,"essential_fats":0,"sugar_content":0}},
   {"items":["minecraft:baked_potato"],"profile":{"satiation":6,"nutrition":2,"protein":0,"phytonutrients":0,"essential_fats":0,"sugar_content":0}},
   {"items":["minecraft:poisonous_potato"],"profile":{"satiation":2,"nutrition":0,"protein":0,"phytonutrients":0,"essential_fats":0,"sugar_content":0}},
@@ -56,6 +57,6 @@
   {"items":["infx:cooked_worm"],"profile":{"satiation":1,"nutrition":1,"protein":8000,"phytonutrients":0,"essential_fats":0,"sugar_content":0}},
   {"items":["minecraft:cake"],"profile":{"satiation":2,"nutrition":2,"protein":16000,"phytonutrients":0,"essential_fats":0,"sugar_content":166}},
   {"items":["minecraft:beetroot"],"profile":{"satiation":1,"nutrition":2,"protein":0,"phytonutrients":16000,"essential_fats":0,"sugar_content":1000}},
-  {"items":["minecraft:beetroot_soup"],"profile":{"satiation":2,"nutrition":4,"protein":0,"phytonutrients":0,"essential_fats":0,"sugar_content":2000}},
+  {"items":["minecraft:beetroot_soup"],"profile":{"satiation":6,"nutrition":10,"protein":0,"phytonutrients":48000,"essential_fats":0,"sugar_content":2000}},
   {"items":["minecraft:rabbit_stew"],"profile":{"satiation":8,"nutrition":12,"protein":96000,"phytonutrients":96000,"essential_fats":0,"sugar_content":0}}
 ]

@@ -526,6 +526,60 @@ final class ModRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_red_sand", has(Blocks.RED_SAND))
                 .save(output, recipeKey("red_sand_batch"));
         SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(InfXItems.SILVER_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        InfXItems.SILVER_INGOT,
+                        15.0F,
+                        200)
+                .unlockedBy("has_silver_ore", has(InfXItems.SILVER_ORE))
+                .save(output, recipeKey("silver_ingot_from_smelting_silver_ore"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(InfXItems.MITHRIL_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        InfXItems.MITHRIL_INGOT,
+                        40.0F,
+                        200)
+                .unlockedBy("has_mithril_ore", has(InfXItems.MITHRIL_ORE))
+                .save(output, recipeKey("mithril_ingot_from_smelting_mithril_ore"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(InfXItems.ADAMANTIUM_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        InfXItems.ADAMANTIUM_INGOT,
+                        100.0F,
+                        200)
+                .unlockedBy("has_adamantium_ore", has(InfXItems.ADAMANTIUM_ORE))
+                .save(output, recipeKey("adamantium_ingot_from_smelting_adamantium_ore"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(InfXItems.DEEPSLATE_SILVER_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        InfXItems.SILVER_INGOT,
+                        15.0F,
+                        200)
+                .unlockedBy("has_deepslate_silver_ore", has(InfXItems.DEEPSLATE_SILVER_ORE))
+                .save(output, recipeKey("silver_ingot_from_smelting_deepslate_silver_ore"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(InfXItems.DEEPSLATE_MITHRIL_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        InfXItems.MITHRIL_INGOT,
+                        40.0F,
+                        200)
+                .unlockedBy("has_deepslate_mithril_ore", has(InfXItems.DEEPSLATE_MITHRIL_ORE))
+                .save(output, recipeKey("mithril_ingot_from_smelting_deepslate_mithril_ore"));
+        SimpleCookingRecipeBuilder.smelting(
+                        Ingredient.of(InfXItems.DEEPSLATE_ADAMANTIUM_ORE),
+                        RecipeCategory.MISC,
+                        CookingBookCategory.MISC,
+                        InfXItems.ADAMANTIUM_INGOT,
+                        100.0F,
+                        200)
+                .unlockedBy("has_deepslate_adamantium_ore", has(InfXItems.DEEPSLATE_ADAMANTIUM_ORE))
+                .save(output, recipeKey("adamantium_ingot_from_smelting_deepslate_adamantium_ore"));
+        SimpleCookingRecipeBuilder.smelting(
                         Ingredient.of(InfXItems.RAW_SILVER),
                         RecipeCategory.MISC,
                         CookingBookCategory.MISC,

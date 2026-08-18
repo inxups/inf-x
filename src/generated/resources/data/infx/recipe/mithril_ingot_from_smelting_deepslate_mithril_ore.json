@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "cookingtime": 200,
+  "experience": 40.0,
+  "ingredient": "infx:deepslate_mithril_ore",
+  "result": {
+    "id": "infx:mithril_ingot"
+  }
+}
