@@ -15,6 +15,7 @@ import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.loot.PiglinBarterDropLootModifier;
 import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXDataComponents;
+import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.world.BlightTracker;
@@ -113,6 +114,7 @@ public final class ModMonsterGameTests {
     private static final String LONGDEAD_DROPS = "infx_longdead_drops";
     private static final String SPAWN_EQUIPMENT = "infx_spawn_equipment";
     private static final String SKELETON_DROPS = "infx_skeleton_drops";
+    private static final String MELEE_SKELETON_NO_ARROW = "infx_melee_skeleton_no_arrow";
     private static final String WEAPON_DROPS = "infx_weapon_drops";
     private static final String SKELETON_TRAP = "infx_skeleton_trap";
     private static final String ZOMBIE_SMART = "infx_zombie_smart";
@@ -131,6 +133,8 @@ public final class ModMonsterGameTests {
     private static final String ZOMBIE_DIG_FEET_FIRST = "infx_zombie_dig_feet_first";
     private static final String SLIME_BURNING_NO_SPLIT = "infx_slime_burning_no_split";
     private static final String BLOOD_MOON_LIGHTNING = "infx_blood_moon_lightning";
+    private static final String BLOOD_MOON_DAY_NO_SPIDER_CREEPER = "infx_blood_moon_day_no_spider_creeper";
+    private static final String DISARM_EXEMPTIONS = "infx_disarm_exemptions";
     private static final String BLOOD_MOON_RAIN = "infx_blood_moon_rain";
     private static final String BLOOD_MOON_CROP_BLIGHT = "infx_blood_moon_crop_blight";
     private static final String BURNING_MOB_FIRE_TRANSFER = "infx_burning_mob_fire_transfer";
@@ -169,6 +173,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(LONGDEAD_DROPS, () -> ModMonsterGameTests::longdeadDrops);
         FUNCTIONS.register(SPAWN_EQUIPMENT, () -> ModMonsterGameTests::spawnEquipment);
         FUNCTIONS.register(SKELETON_DROPS, () -> ModMonsterGameTests::skeletonDrops);
+        FUNCTIONS.register(MELEE_SKELETON_NO_ARROW, () -> ModMonsterGameTests::meleeSkeletonNoArrow);
         FUNCTIONS.register(WEAPON_DROPS, () -> ModMonsterGameTests::weaponDrops);
         FUNCTIONS.register(SKELETON_TRAP, () -> ModMonsterGameTests::skeletonTrap);
         FUNCTIONS.register(ZOMBIE_SMART, () -> ModMonsterGameTests::zombieSmart);
@@ -189,6 +194,8 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(ZOMBIE_DIG_FEET_FIRST, () -> ModMonsterGameTests::zombieDigFeetFirst);
         FUNCTIONS.register(SLIME_BURNING_NO_SPLIT, () -> ModMonsterGameTests::slimeBurningNoSplit);
         FUNCTIONS.register(BLOOD_MOON_LIGHTNING, () -> ModMonsterGameTests::bloodMoonLightning);
+        FUNCTIONS.register(BLOOD_MOON_DAY_NO_SPIDER_CREEPER, () -> ModMonsterGameTests::bloodMoonDayNoSpiderCreeper);
+        FUNCTIONS.register(DISARM_EXEMPTIONS, () -> ModMonsterGameTests::disarmExemptions);
         FUNCTIONS.register(BLOOD_MOON_RAIN, () -> ModMonsterGameTests::bloodMoonRain);
         FUNCTIONS.register(BLOOD_MOON_CROP_BLIGHT, () -> ModMonsterGameTests::bloodMoonCropBlight);
         FUNCTIONS.register(BURNING_MOB_FIRE_TRANSFER, () -> ModMonsterGameTests::burningMobFireTransfer);
@@ -237,6 +244,7 @@ public final class ModMonsterGameTests {
                 EXPLOSION_RANGES,
                 SPAWN_EQUIPMENT,
                 SKELETON_DROPS,
+                MELEE_SKELETON_NO_ARROW,
                 WEAPON_DROPS,
                 SKELETON_TRAP,
                 ZOMBIE_SMART,
@@ -255,6 +263,8 @@ public final class ModMonsterGameTests {
                 ZOMBIE_DIG_FEET_FIRST,
                 SLIME_BURNING_NO_SPLIT,
                 BLOOD_MOON_LIGHTNING,
+                BLOOD_MOON_DAY_NO_SPIDER_CREEPER,
+                DISARM_EXEMPTIONS,
                 BLOOD_MOON_RAIN,
                 BLOOD_MOON_CROP_BLIGHT,
                 BURNING_MOB_FIRE_TRANSFER,
@@ -1995,6 +2005,29 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
+    /** MITE: a melee-equipped InfX skeleton never drops arrows (bone-only loot table). */
+    private static void meleeSkeletonNoArrow(GameTestHelper helper) {
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos pos = new BlockPos(2, 2, 2);
+        InfxSkeleton skeleton = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_SKELETON.get(), pos);
+        skeleton.setItemSlot(
+                EquipmentSlot.MAINHAND,
+                InfXItems.catalog().equipment(InfxMaterial.COPPER, EquipmentType.SWORD).holder().toStack());
+        skeleton.hurtServer(helper.getLevel(), helper.getLevel().damageSources().playerAttack(player), 100.0F);
+        AABB area = new AABB(helper.absolutePos(pos)).inflate(8.0);
+        List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class, area);
+        helper.assertTrue(
+                drops.stream().noneMatch(drop -> drop.getItem().is(Items.ARROW)
+                        || drop.getItem().is(Items.TIPPED_ARROW)),
+                "a melee InfX skeleton must not drop arrows, got "
+                        + drops.stream()
+                                .map(drop -> drop.getItem().getItem().toString())
+                                .distinct()
+                                .toList());
+        ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
+    }
+
     /** Pig zombies and wither skeletons keep the vanilla 8.5% equipment roll: never guaranteed, never full durability. */
     private static void weaponDrops(GameTestHelper helper) {
         ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
@@ -2404,6 +2437,62 @@ public final class ModMonsterGameTests {
         helper.assertTrue(
                 MoonPhase.lightningRollBound(level, 100_000) == 100_000,
                 "ordinary days keep the vanilla lightning rate");
+        helper.succeed();
+    }
+
+    /** MITE: blood-moon daytime suppresses natural spider and creeper spawns. */
+    private static void bloodMoonDayNoSpiderCreeper(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        BlockPos pos = new BlockPos(4, 2, 4);
+        RandomSource random = level.getRandom();
+
+        level.clockManager().setTotalTicks(overworldClock, 756_000L); // day 32 blood-moon daytime (tick 12000)
+        helper.assertTrue(
+                !SpawnGate.checkCreeperNightSky(
+                        EntityType.CREEPER, level, EntitySpawnReason.NATURAL, pos, random),
+                "creepers must not naturally spawn during blood-moon daytime");
+        helper.assertTrue(
+                !SpawnGate.checkSpiderNightSky(
+                        EntityType.SPIDER, level, EntitySpawnReason.NATURAL, pos, random),
+                "spiders must not naturally spawn during blood-moon daytime");
+
+        level.clockManager().setTotalTicks(overworldClock, 732_000L); // day 31 ordinary daytime (tick 12000)
+        helper.assertTrue(
+                SpawnGate.checkCreeperNightSky(
+                        EntityType.CREEPER, level, EntitySpawnReason.NATURAL, pos, random),
+                "creepers may spawn on ordinary daytime");
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // restore the shared ordinary-night baseline
+        helper.succeed();
+    }
+
+    /** MITE: witch, villager, wandering trader and trident-drowned are immune to the disarm enchantment. */
+    private static void disarmExemptions(GameTestHelper helper) {
+        var level = helper.getLevel();
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        var registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+        var sword = Items.IRON_SWORD.getDefaultInstance();
+        sword.enchant(registry.getOrThrow(InfXEnchantments.DISARMING), 5);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, sword);
+
+        record Case(Mob mob, ItemStack held) {}
+        List<Case> cases = List.of(
+                new Case(helper.spawnWithNoFreeWill(EntityType.WITCH, new BlockPos(2, 2, 2)), Items.STICK.getDefaultInstance()),
+                new Case(helper.spawnWithNoFreeWill(EntityType.VILLAGER, new BlockPos(4, 2, 2)), Items.STICK.getDefaultInstance()),
+                new Case(helper.spawnWithNoFreeWill(EntityType.WANDERING_TRADER, new BlockPos(6, 2, 2)), Items.STICK.getDefaultInstance()),
+                new Case(helper.spawnWithNoFreeWill(EntityType.DROWNED, new BlockPos(8, 2, 2)), Items.TRIDENT.getDefaultInstance()));
+        for (Case c : cases) {
+            c.mob.setItemSlot(EquipmentSlot.MAINHAND, c.held);
+            c.mob.invulnerableTime = 0;
+            helper.assertTrue(
+                    c.mob.hurtServer(level, level.damageSources().playerAttack(player), 4.0F),
+                    "the hit must land on " + c.mob.getType());
+            helper.assertTrue(
+                    c.mob.isAlive() && c.mob.getMainHandItem().is(c.held.getItem()),
+                    c.mob.getType() + " must keep its held item when struck by a disarming weapon");
+            c.mob.discard();
+        }
+        ModCompletionGameTests.removePlayer(player);
         helper.succeed();
     }
 

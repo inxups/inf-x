@@ -38,7 +38,10 @@ import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.entity.animal.equine.Mule;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Witch;
 import net.minecraft.world.entity.monster.spider.Spider;
+import net.minecraft.world.entity.monster.zombie.Drowned;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.item.Item;
@@ -251,6 +254,12 @@ public final class EnchantmentEvents {
     }
 
     private static void disarm(Mob target) {
+        // MITE: witch, villager/trader and trident-drowned are never disarmed.
+        if (target instanceof Witch
+                || target instanceof AbstractVillager
+                || target instanceof Drowned && target.getMainHandItem().is(Items.TRIDENT)) {
+            return;
+        }
         if (!(target.level() instanceof ServerLevel level)) return;
         ItemStack held = target.getMainHandItem();
         if (held.isEmpty()) return;

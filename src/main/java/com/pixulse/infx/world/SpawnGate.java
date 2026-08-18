@@ -265,6 +265,9 @@ public final class SpawnGate {
             BlockPos pos,
             RandomSource random) {
         ServerLevel serverLevel = level.getLevel();
+        if (isBloodMoonDay(serverLevel)) {
+            return false;
+        }
         return serverLevel.dimension() != Level.OVERWORLD
                 || !MoonPhase.isNight(serverLevel)
                 || random.nextInt(4) == 0
@@ -278,9 +281,13 @@ public final class SpawnGate {
             EntitySpawnReason reason,
             BlockPos pos,
             RandomSource random) {
-        return level.getLevel().dimension() != Level.OVERWORLD
+        ServerLevel serverLevel = level.getLevel();
+        if (isBloodMoonDay(serverLevel)) {
+            return false;
+        }
+        return serverLevel.dimension() != Level.OVERWORLD
                 || random.nextInt(4) != 0
-                || !level.getLevel().canSeeSky(pos);
+                || !serverLevel.canSeeSky(pos);
     }
 
     /** Vanilla slime natural spawns require a stone ceiling above. */
@@ -520,6 +527,11 @@ public final class SpawnGate {
     }
 
     // ------------------------------------------------------------------ private helpers
+
+    /** Blood-moon daytime: the blood moon rules but it is not night (MITE suppresses spider/creeper spawns). */
+    private static boolean isBloodMoonDay(ServerLevel level) {
+        return MoonPhase.BLOOD.isActiveInOverworld(level) && !MoonPhase.isNight(level);
+    }
 
     /**
      * Third-party escape hatch for entity replacement: {@code mobs.replaceVanillaMobs} off, or the

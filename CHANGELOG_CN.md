@@ -1,5 +1,17 @@
 # Changelog
 
+## 0t30
+### 修复
+- **InfX 僵尸族恢复泡水转溺尸**：移除 `InfxZombieBase.convertsInWater()=false` 的抑制（原为 MITE 移植时有意加，MITE 1.6.4 无溺尸），食尸鬼/尸妖/亡魂/暗影/潜伏者泡水 600 tick 后转 vanilla 溺尸（vanilla 行为）。注意权衡：InfX 僵尸族转溺尸后失去 InfX 特性（食尸鬼回血/尸妖属性等），这是恢复原版行为的既定取舍。
+- **缴械附魔豁免 4 类目标**：`disarming` 附魔不再对女巫、村民、流浪商人、手持三叉戟的溺尸生效（`EnchantmentEvents.disarm` 加类型豁免）。
+- **血月白天不自然刷蜘蛛/苦力怕**：`checkCreeperNightSky`/`checkSpiderNightSky` 在血月白天（BLOOD 月相生效且非夜晚）返回拒绝，蜘蛛/苦力怕血月白天不再自然刷新（刷怪笼/召唤不受影响）。
+### 确认（无需改动）
+- 骷髅泡细雪不转流浪者：已由 `InfxSkeleton.startFreezeConversion` 空实现抑制。
+- 村民刷怪蛋：无抑制，vanilla 蛋正常。
+- 僵尸村民治疗：vanilla 治疗路径完整，InfX 只改村民→僵尸村民方向。
+- 近战骷髅不掉箭：InfX 骷髅 loot 表仅骨头，近战/远程均不掉箭（vanilla 变体如尸壳/流髅属 vanilla 职责，保持原样）。新增 GameTest 锁定。
+- 挖掘速度：破门 240t（血月 120t）、挖方块 300×硬度 tick×10 次 = vanilla Hard 档，确认不调。
+
 ## 0t29
 ### 新功能
 - 移植 MITE 刷怪笼机制：
