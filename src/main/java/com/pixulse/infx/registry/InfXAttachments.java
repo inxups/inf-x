@@ -60,6 +60,12 @@ public final class InfXAttachments {
                             .sync(GRASS_TRAMPLING_STREAM)
                             .build());
 
+    /** Spawner-lifetime kill count on {@link net.minecraft.world.level.block.entity.SpawnerBlockEntity}. */
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Integer>> SPAWNER_KILLS =
+            ATTACHMENTS.register(
+                    "spawner_kills",
+                    () -> AttachmentType.<Integer>builder(() -> 0).build());
+
     private InfXAttachments() {}
 
     public static void register(IEventBus modBus) {

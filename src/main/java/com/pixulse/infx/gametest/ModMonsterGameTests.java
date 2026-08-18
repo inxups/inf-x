@@ -13,6 +13,7 @@ import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.item.EquipmentType;
 import com.pixulse.infx.loot.PiglinBarterDropLootModifier;
+import com.pixulse.infx.registry.InfXAttachments;
 import com.pixulse.infx.registry.InfXDataComponents;
 import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.registry.InfXEntityTypes;
@@ -23,6 +24,7 @@ import com.pixulse.infx.world.MoonPhase;
 import com.pixulse.infx.world.RiverBiomes;
 import com.pixulse.infx.world.SpawnDensity;
 import com.pixulse.infx.world.SpawnGate;
+import com.pixulse.infx.world.SpawnerLifetime;
 import com.pixulse.infx.world.SpawnRateTracker;
 import com.pixulse.infx.world.Tension;
 import com.pixulse.infx.world.Underworld;
@@ -103,6 +105,7 @@ public final class ModMonsterGameTests {
     private static final String WITCH_CURSE = "infx_witch_curse";
     private static final String TACTICS = "infx_monster_tactics";
     private static final String SPAWNER_LIGHT = "infx_spawner_light";
+    private static final String SPAWNER_LIFETIME = "infx_spawner_lifetime";
     private static final String SPAWNS = "infx_spawn_tables";
     private static final String ATTACK_RANGES = "infx_attack_ranges";
     private static final String RANGED_ATTACK_RANGES = "infx_ranged_attack_ranges";
@@ -158,6 +161,7 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(WITCH_CURSE, () -> ModMonsterGameTests::witchCurse);
         FUNCTIONS.register(TACTICS, () -> ModMonsterGameTests::tactics);
         FUNCTIONS.register(SPAWNER_LIGHT, () -> ModMonsterGameTests::spawnerLight);
+        FUNCTIONS.register(SPAWNER_LIFETIME, () -> ModMonsterGameTests::spawnerLifetime);
         FUNCTIONS.register(SPAWNS, () -> ModMonsterGameTests::spawnTables);
         FUNCTIONS.register(ATTACK_RANGES, () -> ModMonsterGameTests::attackRanges);
         FUNCTIONS.register(RANGED_ATTACK_RANGES, () -> ModMonsterGameTests::rangedAttackRanges);
@@ -226,6 +230,7 @@ public final class ModMonsterGameTests {
                 WITCH_CURSE,
                 TACTICS,
                 SPAWNER_LIGHT,
+                SPAWNER_LIFETIME,
                 SPAWNS,
                 ATTACK_RANGES,
                 RANGED_ATTACK_RANGES,
@@ -1737,6 +1742,37 @@ public final class ModMonsterGameTests {
                 .thenWaitUntil(() -> helper.assertEntityPresent(EntityType.ZOMBIE, spawnerPos, 8.0D))
                 .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
                 .thenSucceed();
+    }
+
+    private static void spawnerLifetime(GameTestHelper helper) {
+        BlockPos spawnerPos = new BlockPos(4, 2, 4);
+        for (int x = 0; x <= 8; x++) {
+            for (int z = 0; z <= 8; z++) {
+                helper.setBlock(new BlockPos(x, 1, z), Blocks.STONE);
+                helper.setBlock(new BlockPos(x, 5, z), Blocks.STONE);
+            }
+        }
+        helper.setBlock(spawnerPos, Blocks.SPAWNER);
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        BlockPos absoluteSpawnerPos = helper.absolutePos(spawnerPos);
+        SpawnerBlockEntity spawner = (SpawnerBlockEntity) helper.getLevel().getBlockEntity(absoluteSpawnerPos);
+        helper.assertTrue(spawner != null, "the test spawner must create its block entity");
+        spawner.setEntityId(EntityType.ZOMBIE, helper.getLevel().getRandom());
+        // Exhaust the lifetime so the spawner is permanently spent.
+        spawner.setData(InfXAttachments.SPAWNER_KILLS, SpawnGate.MAX_SPAWNER_KILLS);
+        for (int tick = 0; tick <= 40; tick++) {
+            spawner.getSpawner().serverTick(helper.getLevel(), absoluteSpawnerPos);
+        }
+        helper.assertFalse(
+                helper.getLevel().getEntitiesOfClass(
+                                net.minecraft.world.entity.monster.zombie.Zombie.class,
+                                new net.minecraft.world.phys.AABB(spawnerPos).inflate(8.0),
+                                zombie -> zombie.getPersistentData().contains(SpawnerLifetime.SPAWNER_POS))
+                        .size()
+                        > 0,
+                "an exhausted spawner must not spawn a fresh mob");
+        ModCompletionGameTests.removePlayer(player);
+        helper.succeed();
     }
 
     private static void witchCurse(GameTestHelper helper) {

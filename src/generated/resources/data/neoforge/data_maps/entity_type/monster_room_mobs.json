@@ -1,0 +1,25 @@
+{
+  "values": {
+    "infx:demon_spider": {
+      "weight": 50
+    },
+    "infx:ghoul": {
+      "weight": 80
+    },
+    "infx:hellhound": {
+      "weight": 40
+    },
+    "infx:infx_skeleton": {
+      "weight": 100
+    },
+    "infx:infx_spider": {
+      "weight": 100
+    },
+    "infx:wight": {
+      "weight": 60
+    },
+    "minecraft:zombie": {
+      "weight": 200
+    }
+  }
+}

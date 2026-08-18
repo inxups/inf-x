@@ -103,6 +103,8 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry phantomMoonSpawns = flag("phantomMoonSpawns", "Phantoms spawn only on blood/phantom moon nights", true);
         public final BooleanEntry replaceVanillaMobs = flag("replaceVanillaMobs", "Replace vanilla mobs with INFX entities", true);
         public final BooleanEntry wipeOtherSpawnTables = flag("wipeOtherSpawnTables", "Wipe other mods' biome spawn tables", false);
+        public final BooleanEntry spawnerLifetime = flag("spawnerLifetime", "Spawners stop after their spawned mobs are killed 15 times", true);
+        public final BooleanEntry spawnerDepthLayering = flag("spawnerDepthLayering", "Main-world dungeon spawners pick mobs by depth (MITE danger)", true);
 
         private MobConfig() {
             super("mobs", Component.literal("Mobs"));

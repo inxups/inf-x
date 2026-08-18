@@ -1,5 +1,13 @@
 # Changelog
 
+## 0t29
+### 新功能
+- 移植 MITE 刷怪笼机制：
+  - **寿命（15 杀停刷）**：主世界/下界/末地的方块刷怪笼最多累计被击杀 15 只由它刷出的怪后永久停刷（`SpawnerLifetime` 经 `infx:spawner_kills` attachment 持久化计数，`BaseSpawnerMixin` 在 `serverTick` 门控、`SpawnerEvents` 在 `LivingDeathEvent` 记账——仅玩家击杀计 1 次，环境/磨死不计）。开关 `mobs.spawnerLifetime`（默认 true）。矿车刷怪笼不受影响（无位置标记）。
+  - **深度分层类型选择**：主世界地牢刷怪笼按生成深度选择怪（`WorldGenDungeons.pickMobSpawner`）：表层僵尸/食尸鬼/骷髅/蜘蛛，y≤32 起可出现尸妖，y≤16 起可出现恶魔蜘蛛，y≤0 才可出现地狱犬；`MonsterRoomFeatureMixin` 在生成时按 y 改写类型，同时 datamap `monster_room_mobs` 已纳入 7 种深度怪权重作为保底（任何地牢都有机会刷出）。开关 `mobs.spawnerDepthLayering`（默认 true）。
+  - 刷怪笼光照豁免已由既有 `allowSpawnerLight` 覆盖（spawner 刷怪跳过亮度但禁阳光自燃）；张力装备已由既有 `equipForWorldAge` 覆盖（FinalizeSpawnEvent 对 spawner 来源生效）——无需新增。
+- 刷怪笼挖掘：现代 vanilla 已 `requiresCorrectToolForDrops`（需正确镐），经验 15-44 与 MITE 同源，无增量。
+
 ## 0t28
 ### 兼容性
 - 刷怪表不再整体清空第三方条目：`SpawnsBiomeModifier` 对主世界改为按类型选择性移除（仅删除 InfX 会重加的 vanilla 条目：怪物六种 + 牲畜/坐骑 + 鱼 + 蝙蝠 + 鱿鱼），其他 mod 在 ADD 阶段加入的刷怪条目得以保留；下界/末地维持精确替换语义。提供 `mobs.wipeOtherSpawnTables`（默认 false）逃生舱，置 true 恢复旧的整体清空行为。纯 vanilla 下结果与原逻辑一致（全量 GameTest 通过）。
