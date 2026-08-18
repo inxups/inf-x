@@ -31,6 +31,7 @@ import net.minecraft.data.worldgen.AncientCityStructurePieces;
 import net.minecraft.data.worldgen.biome.OverworldBiomes;
 import net.minecraft.data.worldgen.features.CaveFeatures;
 import net.minecraft.data.worldgen.features.VegetationFeatures;
+import net.minecraft.data.worldgen.placement.AquaticPlacements;
 import net.minecraft.data.worldgen.placement.CavePlacements;
 import net.minecraft.data.worldgen.placement.MiscOverworldPlacements;
 import net.minecraft.data.worldgen.placement.OrePlacements;
@@ -90,6 +91,7 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.DiskConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.OreConfiguration;
+import net.minecraft.world.level.levelgen.feature.configurations.ProbabilityFeatureConfiguration;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import net.minecraft.world.level.levelgen.blockpredicates.BlockPredicate;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
@@ -213,6 +215,8 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_gravel_disk"));
     private static final ResourceKey<ConfiguredFeature<?, ?>> SHORE_RIVER_SGRAVEL_ORE_CONFIGURED =
             ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("shore_river_sgravel_ore"));
+    private static final ResourceKey<ConfiguredFeature<?, ?>> RIVER_SEAGRASS_CONFIGURED =
+            ResourceKey.create(Registries.CONFIGURED_FEATURE, InfiniteX.id("river_seagrass"));
     private static final ResourceKey<PlacedFeature> OVERWORLD_COAL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("overworld_coal_ore"));
     private static final ResourceKey<PlacedFeature> UNDERWORLD_DUNGEON_PLACED =
@@ -319,6 +323,8 @@ public final class ModWorldGen {
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("shore_river_sgravel_gravel_disk"));
     private static final ResourceKey<PlacedFeature> SHORE_RIVER_SGRAVEL_ORE_PLACED =
             ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("shore_river_sgravel_ore"));
+    private static final ResourceKey<PlacedFeature> RIVER_SEAGRASS_PLACED =
+            ResourceKey.create(Registries.PLACED_FEATURE, InfiniteX.id("river_seagrass"));
     private static final ResourceKey<BiomeModifier> ADD_SILVER_ORE =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_silver_ore"));
     private static final ResourceKey<BiomeModifier> ADD_MITHRIL_ORE =
@@ -349,6 +355,12 @@ public final class ModWorldGen {
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_jungle_melons"));
     private static final ResourceKey<BiomeModifier> INFX_SPAWNS =
             ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("infx_spawns"));
+    private static final ResourceKey<BiomeModifier> REMOVE_SURFACE_LAVA_LAKES =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_surface_lava_lakes"));
+    private static final ResourceKey<BiomeModifier> REMOVE_RIVER_SEAGRASS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("remove_river_seagrass"));
+    private static final ResourceKey<BiomeModifier> ADD_RIVER_SEAGRASS =
+            ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, InfiniteX.id("add_river_seagrass"));
 
     private ModWorldGen() {}
 
@@ -680,6 +692,11 @@ public final class ModWorldGen {
                                 2)));
         registerSgravelOre(context, MOUNTAIN_SGRAVEL_ORE_CONFIGURED);
         registerSgravelOre(context, SHORE_RIVER_SGRAVEL_ORE_CONFIGURED);
+        context.register(
+                RIVER_SEAGRASS_CONFIGURED,
+                new ConfiguredFeature<>(
+                        InfXFeatures.RIVER_SEAGRASS.get(),
+                        new ProbabilityFeatureConfiguration(0.4F)));
     }
 
     private static void registerSgravelOre(
@@ -1100,6 +1117,17 @@ public final class ModWorldGen {
                 configuredFeatures,
                 SHORE_RIVER_SGRAVEL_ORE_CONFIGURED,
                 SHORE_RIVER_SGRAVEL_ORE_PLACED);
+        // Scans down from the water surface to the riverbed (InfXSeagrassFeature) instead of
+        // trusting OCEAN_FLOOR, so the shallow MITE river variants actually grow seagrass.
+        context.register(
+                RIVER_SEAGRASS_PLACED,
+                new PlacedFeature(
+                        configuredFeatures.getOrThrow(RIVER_SEAGRASS_CONFIGURED),
+                        List.of(
+                                InSquarePlacement.spread(),
+                                PlacementUtils.HEIGHTMAP_WORLD_SURFACE,
+                                CountPlacement.of(48),
+                                BiomeFilter.biome())));
     }
 
     private static List<PlacementModifier> underworldLushCavePlacement(
@@ -1776,6 +1804,17 @@ public final class ModWorldGen {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
         HolderGetter<ConfiguredWorldCarver<?>> carvers = context.lookup(Registries.CONFIGURED_CARVER);
         registerOverworldResourceOreRemoval(context, biomes, placedFeatures);
+        // The NoiseBasedAquiferMixin only suppresses aquifer (noise-driven) lava that breaches the
+        // surface; it cannot touch the lake_lava_surface placed feature that
+        // BiomeDefaultFeatures.addDefaultCarversAndLakes bakes into every overworld biome. Strip
+        // that feature here so exposed surface lava lakes are gone for good (buried underground
+        // lake_lava_underground is kept).
+        context.register(
+                REMOVE_SURFACE_LAVA_LAKES,
+                new BiomeModifiers.RemoveFeaturesBiomeModifier(
+                        biomes.getOrThrow(BiomeTags.IS_OVERWORLD),
+                        HolderSet.direct(placedFeatures.getOrThrow(MiscOverworldPlacements.LAKE_LAVA_SURFACE)),
+                        Set.of(GenerationStep.Decoration.LAKES)));
         context.register(
                 ADD_OVERWORLD_RESOURCE_ORES,
                 new BiomeModifiers.AddFeaturesBiomeModifier(
@@ -1872,6 +1911,27 @@ public final class ModWorldGen {
                                 placedFeatures.getOrThrow(SHORE_RIVER_SGRAVEL_GRAVEL_DISK_PLACED),
                                 placedFeatures.getOrThrow(SHORE_RIVER_SGRAVEL_ORE_PLACED)),
                         GenerationStep.Decoration.UNDERGROUND_ORES));
+        // The MITE river variants reuse vanilla river generation settings, so they inherit
+        // seagrass_river — but vanilla SeagrassFeature keys its Y off the OCEAN_FLOOR heightmap,
+        // which leaves these shallow/narrow rivers bare. Swap it for InfXSeagrassFeature, which
+        // scans down from the water surface to the riverbed. Vanilla river/frozen_river keep the
+        // vanilla feature (the cell grid sends non-desert/jungle cells to Biomes.RIVER).
+        HolderSet<Biome> miteRiverBiomes = HolderSet.direct(
+                biomes.getOrThrow(RiverBiomes.DESERT_RIVER),
+                biomes.getOrThrow(RiverBiomes.JUNGLE_RIVER),
+                biomes.getOrThrow(RiverBiomes.SWAMP_RIVER));
+        context.register(
+                REMOVE_RIVER_SEAGRASS,
+                new BiomeModifiers.RemoveFeaturesBiomeModifier(
+                        miteRiverBiomes,
+                        HolderSet.direct(placedFeatures.getOrThrow(AquaticPlacements.SEAGRASS_RIVER)),
+                        Set.of(GenerationStep.Decoration.VEGETAL_DECORATION)));
+        context.register(
+                ADD_RIVER_SEAGRASS,
+                new BiomeModifiers.AddFeaturesBiomeModifier(
+                        miteRiverBiomes,
+                        HolderSet.direct(placedFeatures.getOrThrow(RIVER_SEAGRASS_PLACED)),
+                        GenerationStep.Decoration.VEGETAL_DECORATION));
         context.register(
                 REMOVE_JUNGLE_MELONS,
                 new BiomeModifiers.RemoveFeaturesBiomeModifier(

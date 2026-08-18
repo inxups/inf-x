@@ -1,5 +1,10 @@
 # Changelog
 
+## 0t31
+### 修复
+- **移除地表熔岩湖**：`remove_surface_lava_lakes` biome modifier 从所有主世界群系删除 `minecraft:lake_lava_surface`（LAKES 步）。原有的 `NoiseBasedAquiferMixin` 只压制含水层（噪声驱动）暴露地表的岩浆，碰不到 `addDefaultCarversAndLakes` 烘进每个主世界群系的 `lake_lava_surface` 放置型特征——地表小熔岩湖由此残留。现两者合力彻底移除地表熔岩湖；埋于地下的 `lake_lava_underground` 与含水层岩浆保留。
+- **MITE 河流群系海草不生长**：desert_river/jungle_river/swamp_river 虽复用 vanilla 河流生成设置（含 `seagrass_river`），但 vanilla `SeagrassFeature` 以 `OCEAN_FLOOR` 高度图取放置 Y，在这些浅/窄河流里常落不到水柱而放空。改为新增 `InfXSeagrassFeature`（从水面向下扫到河床直接定位水柱，遇地表首个非水方块即停以防装饰洞穴水体），经 `remove_river_seagrass` + `add_river_seagrass` biome modifier 把三个 MITE 河流群系的 vanilla `seagrass_river` 换成 `infx:river_seagrass`（count 48，`WORLD_SURFACE` 高度图）。vanilla 河流/冻河保留原特征。
+
 ## 0t30
 ### 修复
 - **InfX 僵尸族恢复泡水转溺尸**：移除 `InfxZombieBase.convertsInWater()=false` 的抑制（原为 MITE 移植时有意加，MITE 1.6.4 无溺尸），食尸鬼/尸妖/亡魂/暗影/潜伏者泡水 600 tick 后转 vanilla 溺尸（vanilla 行为）。注意权衡：InfX 僵尸族转溺尸后失去 InfX 特性（食尸鬼回血/尸妖属性等），这是恢复原版行为的既定取舍。

@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": [
+    "infx:desert_river",
+    "infx:jungle_river",
+    "infx:swamp_river"
+  ],
+  "features": "infx:river_seagrass",
+  "step": "vegetal_decoration"
+}
