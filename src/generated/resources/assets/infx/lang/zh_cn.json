@@ -810,6 +810,7 @@
   "tooltip.infx.protection": "固定防护：%s",
   "tooltip.infx.recipe_heat": "所需热量：%s",
   "tooltip.infx.repair": "使用%s粒修理",
+  "tooltip.infx.sick": "生病",
   "tooltip.infx.silver_armor_resistance": "每件银甲使负面效果时长缩短15%",
   "tooltip.infx.silver_undead_bonus": "对亡灵生物伤害+25%",
   "tooltip.infx.skeleton_bane": "对骷髅生物伤害+2",

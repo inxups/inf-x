@@ -6,6 +6,8 @@
 - **MITE 河流群系海草不生长**：desert_river/jungle_river/swamp_river 虽复用 vanilla 河流生成设置（含 `seagrass_river`），但 vanilla `SeagrassFeature` 以 `OCEAN_FLOOR` 高度图取放置 Y，在这些浅/窄河流里常落不到水柱而放空。改为新增 `InfXSeagrassFeature`（从水面向下扫到河床直接定位水柱，遇地表首个非水方块即停以防装饰洞穴水体），经 `remove_river_seagrass` + `add_river_seagrass` biome modifier 把三个 MITE 河流群系的 vanilla `seagrass_river` 换成 `infx:river_seagrass`（count 48，`WORLD_SURFACE` 高度图）。vanilla 河流/冻河保留原特征。
 
 ## 0t30
+### 兼容性
+- **Jade 生病状态提示**：指向生病的 InfX 牛、鸡、羊或猪时，在 Jade 实体提示框中显示“生病”（英文显示 `Sick`），并沿用牲畜客户端同步的 wellness 状态。
 ### 修复
 - **InfX 僵尸族恢复泡水转溺尸**：移除 `InfxZombieBase.convertsInWater()=false` 的抑制（原为 MITE 移植时有意加，MITE 1.6.4 无溺尸），食尸鬼/尸妖/亡魂/暗影/潜伏者泡水 600 tick 后转 vanilla 溺尸（vanilla 行为）。注意权衡：InfX 僵尸族转溺尸后失去 InfX 特性（食尸鬼回血/尸妖属性等），这是恢复原版行为的既定取舍。
 - **缴械附魔豁免 4 类目标**：`disarming` 附魔不再对女巫、村民、流浪商人、手持三叉戟的溺尸生效（`EnchantmentEvents.disarm` 加类型豁免）。

@@ -559,6 +559,7 @@ final class ModLanguageProvider extends LanguageProvider {
                     locale == Locale.EN_US ? material.englishNoun() : material.chinesePrefix());
         }
         add("tooltip.infx.material", locale == Locale.EN_US ? "Material: %s" : "材料：%s");
+        add("tooltip.infx.sick", locale == Locale.EN_US ? "Sick" : "生病");
         add("tooltip.infx.fishing_rod_hook", locale == Locale.EN_US ? "%s Hook" : "%s钓钩");
         add("tooltip.infx.crafting_experience", locale == Locale.EN_US
                 ? "Experience cost: %s XP"
