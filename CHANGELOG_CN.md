@@ -1,5 +1,10 @@
 # Changelog
 
+## 0t28
+### 兼容性
+- 刷怪表不再整体清空第三方条目：`SpawnsBiomeModifier` 对主世界改为按类型选择性移除（仅删除 InfX 会重加的 vanilla 条目：怪物六种 + 牲畜/坐骑 + 鱼 + 蝙蝠 + 鱿鱼），其他 mod 在 ADD 阶段加入的刷怪条目得以保留；下界/末地维持精确替换语义。提供 `mobs.wipeOtherSpawnTables`（默认 false）逃生舱，置 true 恢复旧的整体清空行为。纯 vanilla 下结果与原逻辑一致（全量 GameTest 通过）。
+- 实体替换豁免：第三方 mod 可将类型加入数据包标签 `infx:keep_vanilla_entity`（`data/infx/tags/entity_type/keep_vanilla_entity.json`，`"replace": false`），InfX 即不再把它替换为 `INFX_*` 类，其他 mod 对原版类的属性/AI/掉落修改恢复生效；`mobs.replaceVanillaMobs`（默认 true）可一键关闭全部 26 类替换。
+
 ## 0t27
 ### 重构
 - 统一刷怪控制：新增 `world/SpawnGate` 作为「该不该刷、刷什么、刷多少」的单一权威出口，事件与 6 个刷怪 Mixin（容量/节律/深度/巡逻/昼夜燃烧）全部改为薄代理委托 SpawnGate；实体替换、放置谓词、幻翼波次、刷怪笼光照/人口、防消失、witch 取消豁免、血月狂暴/猪灵敌对谓词一并收口。
