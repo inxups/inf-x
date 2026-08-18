@@ -101,6 +101,8 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry miteDayNight = flag("miteDayNight", "MITE 14h/10h day window for sunlight burning", true);
         public final BooleanEntry piglinHostility = flag("piglinHostility", "Piglins attack players and barter only by kill drops", true);
         public final BooleanEntry phantomMoonSpawns = flag("phantomMoonSpawns", "Phantoms spawn only on blood/phantom moon nights", true);
+        public final BooleanEntry replaceVanillaMobs = flag("replaceVanillaMobs", "Replace vanilla mobs with INFX entities", true);
+        public final BooleanEntry wipeOtherSpawnTables = flag("wipeOtherSpawnTables", "Wipe other mods' biome spawn tables", false);
 
         private MobConfig() {
             super("mobs", Component.literal("Mobs"));
