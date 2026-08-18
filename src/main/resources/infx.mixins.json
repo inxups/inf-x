@@ -71,6 +71,7 @@
     "world.level.ServerExplosionMixin",
     "world.level.ServerLevelMoonBrightnessMixin",
     "world.level.CactusKillTrackerLevelMixin",
+    "world.level.BaseSpawnerMixin",
     "world.level.block.BaseFireBlockMixin",
     "world.level.block.CakeBlockMixin",
     "world.level.block.CactusBlockKillTrackerMixin",
@@ -94,6 +95,7 @@
     "world.level.levelgen.NoiseBasedAquiferMixin",
     "world.level.levelgen.PatrolSpawnerMixin",
     "world.level.levelgen.WorldDimensionsMixin",
+    "world.level.levelgen.feature.MonsterRoomFeatureMixin",
     "world.level.material.LavaFluidMixin",
     "world.level.storage.PrimaryLevelDataMixin"
   ],

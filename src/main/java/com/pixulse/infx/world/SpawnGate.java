@@ -165,6 +165,44 @@ public final class SpawnGate {
         return MonsterTactics.spawnerAtCap(nearbyMatchingMobs);
     }
 
+    /** MITE spawner lifetime cap: 15 kills. */
+    public static final int MAX_SPAWNER_KILLS = 15;
+
+    /** MITE spawner lifetime: a block spawner stops permanently once its spawned mobs are killed 15 times. */
+    public static boolean spawnerExhausted(int spawnsKilled) {
+        return enabled()
+                && InfXConfig.INSTANCE.mobs.spawnerLifetime.getValue()
+                && spawnsKilled >= MAX_SPAWNER_KILLS;
+    }
+
+    /**
+     * MITE dungeon depth layering ({@code WorldGenDungeons.pickMobSpawner}). Half the rooms roll a
+     * flat {@code rand(4)}; the other half roll a depth term {@code (int)(max(1-y/64,0)×4)} plus a
+     * jitter, with a negative result falling back to the flat roll. The cast binds the whole product
+     * — {@code (int)(max*4)} — so danger 4 (Wight) needs y≤32, danger 5 (Demon Spider) y≤16 and
+     * danger 6+ (Hellhound) y≤0. Only {@code spawnerDepthLayering} and the mob master switch gate it.
+     */
+    public static EntityType<?> spawnerDepthType(RandomSource random, int y) {
+        int danger;
+        if (random.nextInt(2) == 0) {
+            danger = random.nextInt(4);
+        } else {
+            danger = (int) (Math.max(1.0F - (float) y / 64.0F, 0.0F) * 4) + random.nextInt(3) - random.nextInt(3);
+            if (danger < 0) {
+                danger = random.nextInt(4);
+            }
+        }
+        return switch (danger) {
+            case 0 -> EntityType.ZOMBIE;
+            case 1 -> InfXEntityTypes.GHOUL.get();
+            case 2 -> InfXEntityTypes.INFX_SKELETON.get();
+            case 3 -> InfXEntityTypes.INFX_SPIDER.get();
+            case 4 -> InfXEntityTypes.WIGHT.get();
+            case 5 -> InfXEntityTypes.DEMON_SPIDER.get();
+            default -> InfXEntityTypes.HELLHOUND.get();
+        };
+    }
+
     // ------------------------------------------------------------------ placement predicates
 
     /** InfX placement predicate for InfX monster types. */
