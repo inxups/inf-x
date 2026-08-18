@@ -60,6 +60,7 @@ public final class ModMechanicsGameTests {
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
     private static final List<String> NAMES = List.of(
             "infx_explosion_drops",
+            "infx_explosion_ore_shards",
             "infx_cauldron_vessels",
             "infx_dire_wolf_sit",
             "infx_dire_wolf_sit_mid_follow",
@@ -74,6 +75,7 @@ public final class ModMechanicsGameTests {
 
     static {
         FUNCTIONS.register("infx_explosion_drops", () -> ModMechanicsGameTests::explosionDrops);
+        FUNCTIONS.register("infx_explosion_ore_shards", () -> ModMechanicsGameTests::explosionOreShards);
         FUNCTIONS.register("infx_cauldron_vessels", () -> ModMechanicsGameTests::cauldronVessels);
         FUNCTIONS.register("infx_dire_wolf_sit", () -> ModMechanicsGameTests::direWolfSit);
         FUNCTIONS.register("infx_dire_wolf_sit_mid_follow", () -> ModMechanicsGameTests::direWolfSitMidFollow);
@@ -154,6 +156,63 @@ public final class ModMechanicsGameTests {
             helper.assertTrue(
                     stacks.stream().anyMatch(stack -> stack.is(Items.COBBLESTONE)),
                     "stone must explode into cobblestone");
+            helper.succeed();
+        });
+    }
+
+    /** InfX BlockOre#dropBlockAsEntityItem: exploded diamond/emerald ore (incl. deepslate) drop 1 shard. */
+    private static void explosionOreShards(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        BlockPos diamondOre = helper.absolutePos(new BlockPos(2, 2, 2));
+        BlockPos deepslateDiamondOre = helper.absolutePos(new BlockPos(3, 2, 2));
+        BlockPos emeraldOre = helper.absolutePos(new BlockPos(4, 2, 2));
+        BlockPos deepslateEmeraldOre = helper.absolutePos(new BlockPos(5, 2, 2));
+        level.setBlock(diamondOre, Blocks.DIAMOND_ORE.defaultBlockState(), 3);
+        level.setBlock(deepslateDiamondOre, Blocks.DEEPSLATE_DIAMOND_ORE.defaultBlockState(), 3);
+        level.setBlock(emeraldOre, Blocks.EMERALD_ORE.defaultBlockState(), 3);
+        level.setBlock(deepslateEmeraldOre, Blocks.DEEPSLATE_EMERALD_ORE.defaultBlockState(), 3);
+        List<BlockPos> affected =
+                new java.util.ArrayList<>(List.of(diamondOre, deepslateDiamondOre, emeraldOre, deepslateEmeraldOre));
+        ServerExplosion explosion = new ServerExplosion(
+                level,
+                null,
+                null,
+                null,
+                Vec3.atCenterOf(helper.absolutePos(new BlockPos(3, 2, 2))),
+                3.0F,
+                false,
+                Explosion.BlockInteraction.DESTROY);
+        NeoForge.EVENT_BUS.post(new ExplosionEvent.Detonate(level, explosion, List.of(), affected));
+        helper.runAfterDelay(20, () -> {
+            helper.assertTrue(
+                    affected.isEmpty(),
+                    "converted ore blocks must be removed from the affected list");
+            helper.assertTrue(
+                    level.getBlockState(diamondOre).isAir(), "diamond ore must be destroyed by the explosion");
+            helper.assertTrue(
+                    level.getBlockState(deepslateDiamondOre).isAir(),
+                    "deepslate diamond ore must be destroyed by the explosion");
+            helper.assertTrue(
+                    level.getBlockState(emeraldOre).isAir(), "emerald ore must be destroyed by the explosion");
+            helper.assertTrue(
+                    level.getBlockState(deepslateEmeraldOre).isAir(),
+                    "deepslate emerald ore must be destroyed by the explosion");
+            AABB search = new AABB(Vec3.atCenterOf(diamondOre), Vec3.atCenterOf(deepslateEmeraldOre)).inflate(10.0);
+            List<ItemStack> stacks = level.getEntitiesOfClass(ItemEntity.class, search).stream()
+                    .map(ItemEntity::getItem)
+                    .toList();
+            helper.assertTrue(
+                    stacks.stream().anyMatch(stack -> stack.is(InfXItems.DIAMOND_SHARD.get())),
+                    "exploded diamond ore must drop diamond shards");
+            helper.assertTrue(
+                    stacks.stream().noneMatch(stack -> stack.is(Items.DIAMOND)),
+                    "exploded diamond ore must not drop whole diamonds");
+            helper.assertTrue(
+                    stacks.stream().anyMatch(stack -> stack.is(InfXItems.EMERALD_SHARD.get())),
+                    "exploded emerald ore must drop emerald shards");
+            helper.assertTrue(
+                    stacks.stream().noneMatch(stack -> stack.is(Items.EMERALD)),
+                    "exploded emerald ore must not drop whole emeralds");
             helper.succeed();
         });
     }

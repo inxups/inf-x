@@ -310,6 +310,7 @@ public final class InfXItems {
     public static final DeferredItem<Item> FLINT_CHIP = CATALOG.raw("flint_chip").holderAs(Item.class);
     public static final DeferredItem<Item> SINEW = CATALOG.raw("sinew").holderAs(Item.class);
     public static final DeferredItem<Item> OBSIDIAN_SHARD = CATALOG.raw("obsidian_shard").holderAs(Item.class);
+    public static final DeferredItem<Item> DIAMOND_SHARD = CATALOG.raw("diamond_shard").holderAs(Item.class);
     public static final DeferredItem<Item> EMERALD_SHARD = CATALOG.raw("emerald_shard").holderAs(Item.class);
     public static final DeferredItem<Item> SILVER_NUGGET = CATALOG.raw("silver_nugget").holderAs(Item.class);
     public static final DeferredItem<Item> MITHRIL_NUGGET = CATALOG.raw("mithril_nugget").holderAs(Item.class);
