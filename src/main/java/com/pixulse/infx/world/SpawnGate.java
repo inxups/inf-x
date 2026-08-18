@@ -3,8 +3,10 @@ package com.pixulse.infx.world;
 import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.entity.MonsterTactics;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.tag.InfXEntityTypeTags;
 import java.time.LocalDate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -267,6 +269,7 @@ public final class SpawnGate {
 
     /** Canonical InfX type for a vanilla spawn, or {@code null} when the vanilla mob is kept. */
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
+        if (isKeptVanilla(original)) return null;
         if (original == EntityType.BAT) return InfXEntityTypes.INFX_BAT.get();
         if (original == EntityType.SKELETON) return InfXEntityTypes.INFX_SKELETON.get();
         if (original == EntityType.SPIDER) return InfXEntityTypes.INFX_SPIDER.get();
@@ -309,6 +312,9 @@ public final class SpawnGate {
      * creeper, vampire bat, silverfish) plus the generic {@link #replacementFor} table.
      */
     public static EntityType<? extends Mob> replacementForSpawn(ServerLevel level, Mob original) {
+        if (isKeptVanilla(original.getType())) {
+            return null;
+        }
         // InfX has a single witch implementation. Unlike the other replacements, a manually
         // summoned or spawn-egg witch must not retain the modern vanilla class, because that
         // class has no INFX curse lifecycle. Leave loaded entities alone to avoid silently
@@ -365,8 +371,7 @@ public final class SpawnGate {
     }
 
     /** World/spawner-driven spawn reasons that InfX replaces. */
-    public static boolean isWorldSpawn(EntitySpawnReason reason) {
-        return reason == EntitySpawnReason.NATURAL
+    public static boolean isWorldSpawn(EntitySpawnReason reason) {        return reason == EntitySpawnReason.NATURAL
                 || reason == EntitySpawnReason.CHUNK_GENERATION
                 || reason == EntitySpawnReason.SPAWNER
                 || reason == EntitySpawnReason.STRUCTURE
@@ -477,6 +482,27 @@ public final class SpawnGate {
     }
 
     // ------------------------------------------------------------------ private helpers
+
+    /**
+     * Third-party escape hatch for entity replacement: {@code mobs.replaceVanillaMobs} off, or the
+     * type listed in the {@code infx:keep_vanilla_entity} tag, keeps the vanilla entity. The tag
+     * query must tolerate unbound holders (unit tests never load datapack tags) and treat that as
+     * "not listed".
+     */
+    private static boolean isKeptVanilla(EntityType<?> type) {
+        if (!InfXConfig.INSTANCE.mobs.replaceVanillaMobs.getValue()) {
+            return true;
+        }
+        Holder<EntityType<?>> holder = BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type);
+        if (!(holder instanceof Holder.Reference<?> reference)) {
+            return false;
+        }
+        try {
+            return reference.tags().anyMatch(InfXEntityTypeTags.KEEP_VANILLA_ENTITY::equals);
+        } catch (IllegalStateException tagsNotBound) {
+            return false;
+        }
+    }
 
     private static int maximumBatBlockLight(ServerLevel level, BlockPos pos) {
         int maximum = level.getBrightness(LightLayer.BLOCK, pos);

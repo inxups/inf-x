@@ -2,6 +2,7 @@ package com.pixulse.infx.datagen;
 
 import com.pixulse.infx.InfiniteX;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import com.pixulse.infx.registry.tag.InfXEntityTypeTags;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -18,6 +19,9 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
 
     @Override
     protected void addTags(HolderLookup.@NonNull Provider registries) {
+        // Declared empty on purpose: third-party mods fill infx:keep_vanilla_entity to opt out of
+        // InfX's vanilla-entity replacement on a per-type basis.
+        tag(InfXEntityTypeTags.KEEP_VANILLA_ENTITY);
         tag(EntityTypeTags.ZOMBIES).add(
                 InfXEntityTypes.SHADOW.getKey(),
                 InfXEntityTypes.WIGHT.getKey(),

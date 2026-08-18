@@ -18,4 +18,10 @@ class DevelopmentConfigTest {
     void moonSpawnGatingDefaultsToEnabled() {
         assertTrue(InfXConfig.INSTANCE.mobs.moonSpawnGating.getValue());
     }
+
+    @Test
+    void replacementAndWipeConfigsDefaultToCompat() {
+        assertTrue(InfXConfig.INSTANCE.mobs.replaceVanillaMobs.getValue());
+        assertFalse(InfXConfig.INSTANCE.mobs.wipeOtherSpawnTables.getValue());
+    }
 }
