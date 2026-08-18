@@ -1,149 +1,339 @@
 # Changelog
-# 0t25
 
-### Removed
-- Removed 10 long-failing test methods: unit tests `ItemPropertiesTest.reachModesRouteBonusesOnlyToIndependentInfxAttributes`, `StickBoneItemsTest.restoresStackLimitAndBothReachModifiers`; GameTests `equipment_components`/`infx_equipment_components`/`height_advantage` (reach family), `vanilla_overflow_recipes`/`recipe_boundaries`/`infx_legacy_recipes` (recipe family), `infx_behavior_hunger`/`infx_mushroom_growth` (survival/world family). All were historical failures (assertions not synced after the 08-11 reach refactor, and recipe/hunger/mushroom system interactions with 26.1), not introduced by recent changes. Unit tests are now fully green and GameTests have no deterministic failures (only cold-start flakiness).
 
----
+## 0t11
+## New Features
 
-# 0t24
+- Ported the MITE spawner mechanics:
+  - **Lifetime (stop after 15 kills):** Block spawners in the Overworld, Nether, and End permanently stop spawning after a cumulative total of 15 mobs spawned by that spawner have been killed. `SpawnerLifetime` persists the counter through the `infx:spawner_kills` attachment. `BaseSpawnerMixin` gates spawning in `serverTick`, while `SpawnerEvents` records kills through `LivingDeathEvent`. Only player kills count; environmental deaths and deaths from wearing mobs down do not. Controlled by `mobs.spawnerLifetime` (default: `true`). Minecart spawners are unaffected because they have no position marker.
+  - **Depth-layered mob selection:** Overworld dungeon spawners select mobs based on generation depth (`WorldGenDungeons.pickMobSpawner`): surface-level zombies, ghouls, skeletons, and spiders; wights become available at y ≤ 32; demon spiders at y ≤ 16; hellhounds only at y ≤ 0. `MonsterRoomFeatureMixin` rewrites the type according to y during generation. The `monster_room_mobs` datamap also includes weighted entries for all seven depth-based mobs as a fallback, so any dungeon can potentially spawn them. Controlled by `mobs.spawnerDepthLayering` (default: `true`).
+  - Existing `allowSpawnerLight` already exempts spawner spawning from light-level checks while still preventing sunlight ignition. Existing `equipForWorldAge` already handles tension equipment through `FinalizeSpawnEvent` for spawner-origin mobs; no additional changes were needed.
+  - Spawner mining already uses modern vanilla `requiresCorrectToolForDrops` and requires a proper pickaxe. Experience drops of 15–44 already match MITE, so no increase was made.
 
-### Other
-- Bound the MITE porting rules into CLAUDE.md: the project instructions now reference the MITE porting guide (`mc/mite/MITE移植指南.md`) and enshrine the core rules — verify vanilla 26.1.2 before porting (new mechanic / parameter tweak / already native), no dual-entry implementations, unified config gates, value conversion, playability checks, and test requirements.
+- Completed MITE spider web projection:
+  - When a target is within 8 blocks and reachable by ray tracing, spiders predict the target's movement 10 ticks ahead and fire a web.
+  - After hitting an entity or block, the web is placed permanently in a replaceable position.
+  - Demon spiders and burning spiders fire flaming webs and ignite adjacent blocks according to the rules, subject to `mobGriefing`.
+  - Phase Spider pursuit now advances randomly by 1–4 nodes along the unfinished path.
 
----
+- Completed Bone King and Wither Skeleton support:
+  - Added `infx_wither_skeleton` with wither-inflicting melee attacks, fire/lava immunity, a poor-quality iron sword, bone repair, and Bone King inspiration every 20 ticks.
+  - Structure generation, spawn eggs, and dispenser spawning replace the relevant vanilla entity with this entity. The Nether's natural spawn pool remains vanilla.
+  - Bone King summoning now uses a persistent per-dimension roster, with a maximum of six entries and a 9,600-tick protection period against natural despawning. An expired entry releases its slot with a 5% chance only when the mob is at full health and has no target. Legacy counters in old saves no longer block summoning.
 
-# 0t23
+- Completed cactus and light-seeking mechanics:
+  - A cactus column tracks 0–127 kills through its bottom sand block.
+  - The top segment decays on random ticks; removing the bottom cactus resets the counter.
+  - A creeper damaged by a cactus with a kill count greater than one has a 50% chance to receive a 120-tick fuse window.
+  - Shadows and Invisible Stalkers search every 40 and 200 ticks, respectively, within a 16×4 area for reachable light sources and dismantle them.
 
-### Fixed
-- Zombie leader stacking: dropped our own leader roll (vanilla `Zombie.handleAttributes` already rolls leaders at `difficultyModifier×0.05` with ×1-4 health and +0.5-0.75 knockback resistance). The two independent rolls could hit the same zombie for up to 7× health (140 HP) and full knockback immunity; leaders are now solely vanilla's.
-- Dev-mode handshake vs. cheated-world permissions: the handshake now skips the raw-switch comparison for integrated servers (single-player / LAN host), where client and server share one config file and client-dev-on + server-dev-off is the intentional cheated-world unlock (7da3f7d8) rather than a mismatch. Dedicated-server connections still enforce the symmetric check.
-- Blood-moon storm duration: the forced storm now always ends at 19:00 (noon + 13,000 ticks) instead of re-arming 13,000 ticks every 200 ticks and dragging on until the next day's noon (~24 h).
-- Zombie villager conversion: removed the duplicate Normal 50% skip (vanilla `Zombie.killedEntity` already skips half at Normal), restoring the net 50% rate instead of 25%.
-- Spawn-replacement double equipment: dropped the explicit `equipForWorldAge` call after `finalizeSpawn` (the `FinalizeSpawnEvent` already equips), so gear is no longer rolled twice.
-- Config gates completed: `bloodMoonFrenzy` now also disables frenzy movement/door-break/red-glow/ranged cooldown (gated centrally in `isBloodMoonFrenzied`); blood-moon lightning ×5 and all-biome rain respect `world.moonEvents`; crop blight gained a `world.bloodMoonBlight` switch; the 50/player mob cap respects `mobs.enabled`.
-- Ghoul slow nerfed: hit slowness amplifier 5 (90%) reduced to 2 (45%) so it is no longer a near-stunlock.
-- `zombifiesVillagers` dead hook wired: the base class now overrides `convertVillagerToZombieVillager` and gates it on the hook, so the invisible stalker's documented "never converts villagers" behaviour actually holds; the other new mobs keep the default.
-- Wither-skeleton equipment double source: removed the quality-less iron-sword branch in `VanillaMobEquipmentMixin` that `WitherSkeletonDropsMixin` immediately overwrites with the poor-quality sword.
-- Version/changelog rollback: commit a5370c15 accidentally reverted `mod_version` to 0t10 and truncated CHANGELOG_CN (0t11-0t22); restored, now at 0t23.
+- Piglin MITE hostility:
+  - Gold armor no longer pacifies piglins. `PiglinAiMixin` gates `isWearingSafeArmor`, `canAdmire`, and `admireGoldItem`.
+  - Giving or picking up gold ingots no longer triggers bartering.
+  - When a player kills a piglin, there is a 25% chance to award one payout from the vanilla barter table, filtered through the shared progression rules, including iron-equipment conversion and prohibited-item removal.
+  - Controlled by `mobs.piglinHostility`.
 
----
+- Phantom spawning is now moon-phase based:
+  - Phantoms spawn only in waves of 1–2 during Blood Moon or Phantom Moon nights.
+  - Daytime and ordinary nights always reject spawning.
+  - Controlled by `mobs.phantomMoonSpawns`.
 
-# 0t22
+- Hoglin MITE attributes:
+  - Health increased from 40 to 50.
+  - Melee attack increased from 6 to 7.
 
-### Removed
-- Halloween zombie pumpkins: verified as a vanilla 26.2 native mechanic (`Zombie.finalizeSpawn` + `AbstractSkeleton.finalizeSpawn`: `SpecialDates.isHalloween()` + empty helmet + 25% → pumpkin, 10% jack-o'-lantern, zero drop chance) that 0t21's port duplicated verbatim — natively covering skeletons too — so the duplicate code and `halloweenPumpkin` config were removed.
+- Ghasts cannot naturally spawn within 48 blocks of a player. Source verification confirmed that the distance is measured from players, not from other ghasts.
 
----
+- Phase Spider spawn weight increased from 5 to 40. This approximates MITE's reliability from 64 spawn attempts; modern spawning determines attempt count before mob type selection, so a literal port is not possible.
 
-# 0t21
+- Hostile spawn density near strong dungeons is increased:
+  - The nearby-player hostile cap is multiplied by `1 + stronghold proximity factor`.
+  - `findNearestMapStructure` results are cached per player for 200 ticks, matching MITE's `WorldServer.getStrongholdProximity`:2498.
 
-### New Features
-- Halloween zombie pumpkins: on October 31 a helmetless naturally-spawned zombie has a 25% chance to wear a pumpkin (10% of those a jack-o'-lantern) that never drops (matching MITE `EntityZombie.onSpawnWithEgg`:410-416).
-- Ghast 48-block spacing: ghasts never naturally spawn within 48 blocks of a player — source-verified as player distance, not the doc's "other ghasts" (matching MITE `SpawnerAnimals`:307).
-- Phase-spider spawn weight 5→40: approximates MITE's 64-attempt phase-spider spawn reliability (the modern spawner fixes attempt count before the entity type is known, so weight is used instead).
-- Stronghold spawn density: the near-player hostile ceiling is multiplied by `1 + stronghold proximity` (`findNearestMapStructure` cached 200 ticks per player, matching MITE `WorldServer.getStrongholdProximity`:2498).
-- MITE 14h/10h day window: the moon night window is now exactly [13000,23000) (14h day / 10h night, matching MITE adjusted sunrise 5000 / sunset 19000); undead sunlight burning gains the MITE daytime hard gate (`Mob.isSunBurnTick`).
-- Sniper achievement: verified as a false gap — vanilla `adventure/sniper_duel` (skeleton killed by projectile from horizontal ≥50) already matches MITE `snipeSkeleton` and infx keeps it; not implemented.
-- Zombie reinforcements: verified as a false gap — MITE's `spawnReinforcements` attribute has zero reads (dead code), the mechanic does not exist at runtime; not implemented.
-- New GameTest: `infx_ghast_spacing`.
+- Day/night timing now matches MITE:
+  - The moon-phase night window is `[13000, 23000)`.
+  - This gives 14 hours of day and 10 hours of night, matching MITE's adjusted 5000/19000 values.
+  - Undead sunlight burning now has a hard MITE daytime gate in `Mob.isSunBurnTick`.
 
----
+- Blood Moon spawn density is multiplied by 1.5:
+  - The nearby-player hostile cap is increased 1.5× on Blood Moon nights, including both global and local mob caps.
+  - MITE's apparent 8→12 chunk “spawn radius” is actually a nearby-player mob-density threshold; the search area remains 17×17 chunks.
 
-# 0t20
+- Depth-based spawn density:
+  - The nearby-player hostile cap scales as `8×(1+(64-y)/32)`.
+  - y=64 gives 1×, y=32 gives 2×, and y=0 gives 3×.
+  - Deeper areas therefore allow more hostile mobs to accumulate.
 
-### New Features
-- Blood-moon spawn density ×1.5: on blood-moon nights the near-player hostile ceiling rises 1.5× (global and local mob caps, matching MITE `SpawnerAnimals` blood-moon radius 8→12 chunks — MITE's "spawn radius" is really a near-player mob-density threshold over a fixed 17×17 search area).
-- Depth spawn density: the near-player hostile ceiling grows with depth as `8×(1+(64-y)/32)` (y=64→1×, y=32→2×, y=0→3×), so deeper players tolerate more mobs crowding in (matching MITE `SpawnerAnimals.setEligibleChunksForSpawning`:68-95).
-- Daily spawn-rate modifier: each overworld day may randomly roll a ×0.5/×2/×0 hostile spawn rate for a few thousand ticks (`SpawnRateTracker` SavedData), with a blood moon or thunderstorm forcing the rate back to 1.0 (matching MITE `calcEffectiveHostileMobSpawningRateModifier`:612-659).
-- Per-night spawn cadence: every overworld hostile natural-spawn attempt rolls `(y<60 ? 0.1 : 0.17) ×` the daily rate modifier, reproducing MITE's 10%/17% per-tick cadence (matching MITE `performRandomLivingEntitySpawning`:667-671).
-- Thunderstorm light check: verified as already covered by vanilla `Monster.isDarkEnoughToSpawn`'s thunder branch — a false gap, so nothing to implement.
-- Added the `infx_blood_moon_spawn_factor`, `infx_depth_spawn_scale`, `infx_spawn_rate_modifier` and `infx_spawn_cadence` GameTests.
+- Daily spawn-rate correction:
+  - Each Overworld day can randomly set the hostile natural-spawn rate to ×0.5, ×2, or ×0.
+  - `SpawnRateTracker` persists the value as `SavedData`.
+  - Blood Moons and thunderstorms force the modifier back to 1.0.
+  - This matches MITE's `calcEffectiveHostileMobSpawningRateModifier`:612–659.
 
----
+- Nightly spawning cadence:
+  - Each position rolls for hostile natural spawning every tick using `y<60: 0.1` or `y≥60: 0.17`, multiplied by the rate modifier.
+  - This reproduces MITE's 10%/17% per-tick rhythm.
 
-# 0t19
+- Thunderstorm exposed-light checking was verified as already covered by vanilla's thunderstorm branch in `Monster.isDarkEnoughToSpawn`; this was a false positive and required no implementation.
 
-### New Features
-- Burning-mob fire transfer: a burning hostile mob with no weapon ignites its melee target with `difficulty×0.3` chance for `2×difficulty` seconds (`LivingIncomingDamageEvent`, matching MITE `EntityMob.attackEntityAsMob`:209-212).
-- Villager-conversion difficulty gate: at Normal difficulty a zombie turning a slain villager skips the conversion half of the time (MITE `EntityZombie.onKillEntity` difficulty-2 coin flip; the tool-wielding-zombie cancel and equipment wipe are retained).
-- Zombie weapon day progression: from day 10 a zombie's weapon can be a rusted-iron hatchet instead of the tension-curve sword (MITE `EntityZombie.addRandomWeapon` day gate).
-- Added the `infx_burning_mob_fire_transfer`, `infx_villager_conversion_normal_gate` and `infx_zombie_hatchet_day` GameTests.
+- Universal fire transfer:
+  - A burning hostile mob with no main-hand weapon has a difficulty×0.3 chance to ignite its melee target for `2×difficulty` seconds.
+  - This follows MITE's `EntityMob.attackEntityAsMob`:209–212.
 
----
+- Zombie villager conversion now has the correct difficulty gate:
+  - On Normal difficulty, zombie conversion is skipped 50% of the time.
+  - Tool-wielding zombie cancellation and equipment-clearing behavior remain.
 
-# 0t18
+- Zombie weapon upgrades:
+  - From day 10 onward, rusty short axes become an additional weapon option on the tension curve.
+  - This follows MITE's `EntityZombie.addRandomWeapon`.
 
-### New Features
-- Blood-moon lightning ×5: on blood-moon days the thunderstorm lightning roll drops from 1/100000 to 1/20000 per tick (`ServerLevel.tickThunder` bound, matching MITE `WorldServer.java:1310`).
-- Blood-moon rain everywhere: `Level.precipitationAt` bypasses the hot-biome no-precipitation gate on blood-moon days, so deserts and other non-raining biomes see rain — undead stay unburned and crops stay watered world-wide (the client rain renderer reads the same method, so the visual follows automatically).
-- Blood-moon red glow: `EntityRenderer.extractRenderState` sets the MITE frenzy glow colour 8527390 on hostile mobs during blood-moon nights via the modern `outlineColor` (the 1.6.4 glow-colour field, `EntityLivingBase.java:729-733`).
-- Vanilla-crop blight: vanilla `CropBlock`s (wheat, beetroot, etc.) now take MITE blood-moon blight — a 25% chance per random tick on a blood-moon night registers the crop in a `BlightTracker` (SavedData); blighted crops stop growing, have a 1/64 chance to wither away (dropping their seed) each random tick, and spread to neighbouring vanilla crops; bonemeal cures blight instead of growing, and breaking a crop clears its tracking (InfX's own crops already had this).
-- Added the `infx_blood_moon_lightning`, `infx_blood_moon_rain` and `infx_blood_moon_crop_blight` GameTests.
+- Blood Moon lightning frequency is increased fivefold:
+  - `ServerLevel.tickThunder` changes the random bound from 100,000 to 20,000.
+  - This matches MITE's `WorldServer.java:1310`.
 
----
+- Blood Moon rain now affects every biome:
+  - On Blood Moon days, `Level.precipitationAt` bypasses the hot-biome “no precipitation” gate.
+  - Deserts, badlands, and other normally dry biomes can receive rain.
+  - Undead daytime burning immunity and crop watering therefore work in every biome.
+  - Client rain particles use the same method and follow automatically.
 
-# 0t17
+- Blood Moon red eyes:
+  - `EntityRenderer.extractRenderState` assigns hostile mobs the MITE enraged glow color `8527390` during Blood Moon nights.
+  - In modern Minecraft, `outlineColor` corresponds to the glow-color field from 1.6.4.
 
-### New Features
-- Endermen are now fully exempt from the blood-moon frenzy: the speed mixin no longer applies the 1.2× movement bonus to InfxEnderman (the attack-bonus exemption already existed; MITE endermen have `isFrenzied=false`).
-- Creeper explosions destroy blocks at 0.715× their power (the 1.1× entity radius was already implemented): the `Creeper.explodeCreeper` explosion radius is scaled by 0.715 for InfX creepers (blocks 3→2.145 / powered 6→4.29) while entity damage keeps the ExplosionRanges 4.4 radius.
-- Burning slimes no longer split: `MobSplitEvent` is cancelled for a burning Slime, so it dies without spawning smaller cubes (MITE).
-- Added the `infx_slime_burning_no_split` GameTest and an enderman-exemption assertion to `infx_frenzy_speed`.
+- Crop blight expanded to vanilla crops:
+  - Wheat, beetroot, and other vanilla crops have a 25% chance to wilt on each random tick during Blood Moon nights.
+  - `BlightTracker` persists the state through `SavedData`, and `CropBlock.randomTick` intercepts growth.
+  - Wilted crops stop growing, have a 1/64 chance per random tick to die and drop seeds, and can infect adjacent vanilla crops.
+  - Bone meal cures blight instead of accelerating growth.
+  - Breaking the block clears its tracking state.
+  - InfX crops already had this mechanism.
 
----
+- Enderman Blood Moon frenzy exemption completed:
+  - `LivingEntityFrenzySpeedMixin` no longer applies the ×1.2 speed bonus to `InfxEnderman`.
+  - The attack-damage exemption was already present, matching MITE's `isFrenzied=false`.
 
-# 0t16
+- Creeper block-explosion radius reduced by ×0.715:
+  - `Creeper.explodeCreeper` multiplies the explosion-radius parameter for `InfxCreeper`.
+  - Block radius changes from 3 to 2.145, and charged radius from 6 to 4.29.
+  - Entity damage continues to use `ExplosionRanges` radius 4.4.
+  - The 1.1× entity-radius change was already implemented.
 
-### New Features
-- Completed the MITE zombie-family mechanics: ① no baby zombies — vanilla's 5% spawn-baby roll is reversed (jockey chickens are dismounted); ② rare drops — a player kill has a ~2.5% chance to drop one copper/silver/gold/iron nugget (`(5+looting×2)/200`, per MITE); ③ raw-meat seeking — vanilla zombies walk to and eat dropped raw meat (`#minecraft:meat`, undead never heal from eating, 400-tick cooldown); ④ villager-conversion refinements — a zombie holding a digging tool refuses to convert a slain villager, and a successful conversion clears the killer zombie's five equipment slots (vanilla conversion / profession inheritance / curing kept); ⑤ digging targets the target's foot column first (from the target's feet down to the digger's feet) before line-of-sight blocks.
-- Added GameTests `infx_zombie_no_baby`, `infx_zombie_food`, `infx_zombie_conversion_skip` and `infx_zombie_dig_feet_first`, and the `zombieRareDropsMatchMite` unit test.
+- Burning slimes no longer split:
+  - `MobSplitEvent` cancels splitting for burning slimes.
+  - A burning slime disappears directly when it dies.
 
----
+- Completed zombie-family MITE mechanics:
+  1. Baby zombies are disabled: vanilla's 5% baby-zombie roll is cancelled, including jockeys after dismounting.
+  2. Rare drops: a player kill has approximately a 2.5% chance to drop one copper, silver, gold, or iron nugget, using `(5+looting×2)/200`.
+  3. Food seeking: vanilla zombies walk toward dropped raw meat tagged `#minecraft:meat` and eat it. This does not heal them and has a 400-tick cooldown.
+  4. Villager conversion: zombies holding digging tools refuse to convert villagers. After conversion, the killer zombie's equipment within 5 blocks is cleared. Vanilla conversion, profession inheritance, and anti-cure behavior remain.
+  5. Block digging: zombies prioritize the column below the target's feet, down to the digger's feet, before digging blocks that obstruct line of sight.
 
-# 0t15
+- Blood Moon frenzy completed:
+  1. Bone King inspiration and Blood Moon frenzy stack. Skeletons inspired by the Bone King gain an additional +100% base melee attack on Blood Moon nights; previously the two effects were mutually exclusive at +50% each.
+  2. Monsters move at ×1.2 speed during Blood Moon nights through `LivingEntity.getSpeed`.
+  3. Ranged cooldowns are reduced by ×0.67: skeleton bows and witch projectiles go from 60 to 40 ticks, or approximately 26 ticks when Bone King inspiration also applies.
+  4. Door breaking is twice as fast: `BreakDoorGoal.getDoorBreakTime` is halved, covering ghouls, Invisible Stalkers, and hard-difficulty vanilla zombies.
 
-### New Features
-- Completed the MITE blood-moon frenzy: ① bone-lord inspiration now stacks with the blood-moon frenzy (an inspired skeleton deals +100% base attack on a blood-moon night, was an either-or +50%); ② hostile mobs move 1.2× faster on blood-moon nights (`LivingEntity.getSpeed`); ③ ranged cooldowns drop to 0.67× — skeleton bows and witch throws go from 60 to 40 ticks on a blood-moon night (bone-lord inspiration stacks to 26); ④ door breaking is twice as fast on blood-moon nights (`BreakDoorGoal.getDoorBreakTime` halved, covering ghouls, invisible stalkers and hard-mode vanilla zombies).
-- Added the `infx_frenzy_speed` GameTest and the `frenzyDamageBonusStacksPerSource` unit test.
+- Moonlight brightness table customized to MITE:
+  - Overworld regional-difficulty moonlight brightness is set to 0.6 for Blood Moon, 1.0 for Harvest Moon, and 1.1 for Blue Moon/Moon Dog.
+  - Other phases use `moon phase factor×0.5+0.75`, giving 1.25 at full moon and 0.75 at new moon.
+  - This overrides the vanilla phase table in `ServerLevel.getMoonBrightness`.
 
----
+- Blood Moon thunderstorm behavior fixed:
+  - Blood Moon days force a thunderstorm starting at noon (tick 6000) for 13,000 ticks, matching MITE's `World.java:8675`.
+  - This replaces the former 6,000-tick daytime trigger.
+  - Combined with the daytime hard gate, undead do not burn during the Blood Moon daytime window.
 
-# 0t14
+- Monster cap changed to MITE's 50 mobs per player:
+  - `MobCategory.MONSTER.getMaxInstancesPerChunk` changes from 70 to 50.
 
-### New Features
-- Customised the moon-brightness table per MITE: overworld regional-difficulty brightness is now blood moon 0.6, harvest moon 1.0, blue/phantom moon 1.1, otherwise `phase factor × 0.5 + 0.75` (full 1.25 / new 0.75), replacing the vanilla phase table in `ServerLevel.getMoonBrightness`.
-- Fixed the blood-moon thunderstorm: on blood-moon days a thunderstorm is forced from noon (tick 6000) for 13,000 ticks (MITE `World.java:8675`), replacing the old 6,000-tick daytime trigger; undead no longer burn through the blood-moon afternoon.
-- Capped hostile mobs at MITE's 50 per player (vanilla 70): `MobCategory.MONSTER.getMaxInstancesPerChunk` 70→50.
-- Added GameTests `infx_moon_brightness` and `infx_monster_cap`, and the `miteMoonBrightnessAndStormWindowMatchMite` unit test.
+- Completed skeleton-family MITE mechanics:
+  - Injured skeletons move toward dropped bones within 16 blocks and eat them, restoring 50% of maximum health.
+  - Bone pickup has a 400-tick cooldown.
+  - Skeletons are immune to cactus damage.
+  - Wither Skeletons use InfX iron swords instead of vanilla stone swords. The sword is poor quality, while equipment drops still follow vanilla's 8.5% rule.
+  - Ancient Corpse Guardians dynamically switch equipment: bow to an ancient-metal dagger when the target is closer than 5 blocks, and back to a bow when using melee weapons and the target is farther than 6 blocks. The check runs every 10 ticks.
 
----
+- Zombie-system refactor:
+  - The `infx_zombie` replacement entity was removed. Vanilla zombies now receive MITE behavior directly through NeoForge events.
+  - `FinalizeSpawnEvent` injects the smart-zombie state: 1/8 of zombies are smart at birth, and any zombie hit by a player becomes smart. The state persists as `infx.is_smart`.
+  - Vanilla attributes are aligned to melee attack 5 and armor 0.
+  - Zombie digging is driven by `EntityTickEvent.Post`: 300×block hardness ticks per hit, 10 hits per block; Blood Moon frenzy halves the time; valid tools accelerate digging by `1+strVsBlock×0.5`; smart or frenzied zombies can dig bare-handed; soft blocks use a whitelist, with liquid, cactus, and feet-block gates.
+  - Burning zombies seek the nearest log within 16 blocks every 40 ticks and ignite it when a player is near the tree canopy.
+  - `LivingDamageEvent` makes a zombie smart when it is hit.
+  - Ordinary zombie drops are restored to the vanilla loot table.
 
-# 0t13
+- Added the MITE Tension difficulty system:
+  - Tension reads vanilla `chunk.inhabitedTime` and the moon-phase factor from `DimensionType.MOON_BRIGHTNESS_PER_PHASE`.
+  - Formula: `clamp(inhabitedTime/3,600,000,0,1)×(hard?1:0.75)+moon phase×0.25`.
+  - Hard difficulty caps at 1.5.
+  - `mobs.tensionEnabled` can disable the system and fall back to the old day-based curve.
+  - Equipment, enchantment, and boss probabilities use tension.
+  - Equipment chance is `15%×tension`; enchantment chance is `10%×tension`, with level `5+tension×rand(18)`.
+  - Dirt-element mining cooldowns and spider potion probabilities also use tension.
 
-### New Features
-- Completed the MITE skeleton-family mechanics: a hurt skeleton now walks to a dropped bone within 16 blocks and consumes it to heal 50% of its maximum health on a 400-tick cooldown (port of MITE `EntityAIMoveToRepairItem`); skeletons are immune to cactus; wither skeletons swap the vanilla stone sword for an InfX iron sword at poor quality (still dropped by the vanilla 8.5% equipment rule); longdead guardians swap to an ancient-metal dagger inside 5 blocks and back to their bow beyond 6, rechecked every 10 ticks.
-- Added skeleton GameTests: `infx_skeleton_bone_repair`, `infx_skeleton_cactus_immune`, `infx_skeleton_guardian_switch`.
+- Invisible Stalkers, Ghouls, Shadows, Wights, and Revenants were split from `InfxZombie` variants into independent entity classes:
+  - `InvisibleStalker`, `Ghoul`, `Shadow`, `Wight`, and `Revenant` all extend `Zombie`.
+  - They share `InfxZombieBase`.
+  - Each retains its own attributes, sounds, immunities, and behavior.
+  - The shared base initially disabled babies, underwater conversion, and reinforcements.
 
----
+- Removed the R196 prefix from the monster system:
+  - Entity NBT keys now use the `infx.` namespace, such as `infx.is_smart`, `infx.summoned_troops`, and `infx.phase_evasions`.
+  - Method names were renamed to remove R196, for example `checkR196MonsterSpawnRules` became `checkMonsterSpawnRules`.
 
-# 0t12
+- Added symmetric client/server dev-mode validation:
+  - During login configuration, the client and server exchange the `devMode` setting.
+  - A mismatch disconnects the client before entering the world, with an explanatory message.
+  - Integrated servers and LAN worlds with cheats remain compatible because the server-side configuration switch is still off; ordinary clients can join them.
 
-### New Features
-- Reworked the zombie monster system away from "new mob that replaces the vanilla spawn": removed the `infx_zombie` replacement entity and applied MITE zombie behaviour directly to the vanilla Zombie through NeoForge events — `FinalizeSpawnEvent` (smart 1-in-8 spawn / always-smart after a player hit, leader 5%×tension with 2-5× health and knockback resistance, attack 5 / armor 0 alignment), `EntityTickEvent.Post` (MITE digging at 300×hardness ticks per hit × 10 hits, frenzy halves, tools speed up, soft-block whitelist and liquid/cactus/downward gates; burning-zombie tree ignition), and `LivingDamageEvent` (player hit makes a zombie permanently smart). Plain zombies now keep the vanilla loot table.
-- Added the MITE chunk-tension difficulty (`Tension`): reads vanilla `chunk.inhabitedTime` and the moon phase factor (`DimensionType.MOON_BRIGHTNESS_PER_PHASE`), formula aligned to MITE; equipment, enchanting and leader chances now scale with tension (15%×tension gear, 10%×tension enchant at `5+tension×rand(18)`); new `mobs.tensionEnabled` config falls back to the old day curve.
-- Split the invisible stalker / ghoul / shadow / wight / revenant out of the InfxZombie variant into independent entity classes extending Zombie, sharing `InfxZombieBase` infrastructure; they stay separate entity types and replace no vanilla spawn.
-- Cleaned the R196 prefixes in the monster system: entity NBT keys now use the `infx.` namespace and method names drop R196.
-- Added monster GameTests: `infx_zombie_smart`, `infx_zombie_leader`, `infx_zombie_dig_rate`, `infx_zombie_burn_tree`, `infx_ghoul_heal`, `infx_tension_curve`.
+- Dev mode configuration migration:
+  - The switch moved out of the `development` sections of `config/infx/infx-common.json` and `config/infx/infx-client.json`.
+  - It is now stored in `config/infx/infx-devmode.json`, using `server.devMode` and `client.devMode`, both defaulting to false.
+  - Any old `development.testMode` field is ignored. Existing configurations must be re-enabled in the new file.
 
-### Balance
-- Zombie digging switched from a player-rate approximation to the exact MITE formula (dirt ~75 s/block, half on blood moon, faster with an effective tool).
-- Ordinary zombies wear gear at MITE's 15%×tension instead of the day curve's up-to-75% rate.
+- “Test mode” was renamed to “dev mode” throughout:
+  - Class names, configuration keys, network handshake payloads, and language keys now use `testMode` → `devMode`.
+  - The configuration path changed from `infx-testmode.json` to `infx-devmode.json`.
+  - Existing `testMode` fields are ignored and must be recreated as `devMode`.
+
+## Bug Fixes
+
+- **Swift Sneak slot corrected:** `minecraft:swift_sneak` was incorrectly registered under `FOOT_ARMOR_ENCHANTABLE`/`FEET` (boots), contrary to vanilla 26.1 and MITE, which use leggings. It now uses `LEG_ARMOR_ENCHANTABLE`/`LEGS`. GameTests now assert that boots do not support it and leggings do.
+
+- **Vanishing and Binding Curse registration restored:** `minecraft:vanishing_curse` (`VANISHING_ENCHANTABLE`/`ANY`) and `minecraft:binding_curse` (`EQUIPPABLE_ENCHANTABLE`/`ARMOR`) were missing from `InfXEnchantments.ALL`. Because the source tags used `replace:true`, the vanilla definitions were erased and could not be obtained normally. Both are now registered and included in the source pool. As treasure enchantments, they remain excluded from the enchanting table but can appear in loot and trades.
+
+- **Vanilla armor protection now works:** `EquipmentBehaviors.typedProtectionPoints`, `protectionBonus`, and `mundaneArmorPoints` previously required `InfXItems.catalog().equipment(stack)` to be non-null, so vanilla armor was skipped. The new `pieceBaseProtection` helper uses `armorProtection` for InfX equipment and the vanilla ARMOR attribute value for vanilla armor. Non-player paths also convert vanilla armor using an effective coefficient of 1.0 to the 0.5× scale.
+
+- **Vanilla equipment now enters `infx:enchantable/*` target tags:** `ModItemTagsProvider` previously iterated only over InfX catalog equipment. `addVanillaEnchantmentTargets` now references vanilla item tags for pickaxes, shovels, axes, hoes, swords, and armor, covering durability, efficiency, fortune, silk touch, tree felling, harvesting, fertility, penetration, free movement, chest armor, and all sword-related tags.
+
+- **Club/Mattock/War Hammer inheritance completed:** `isDurabilityEnchantable` now includes `MATTOCK`, `WAR_HAMMER`, and `CLUB`. `addR196EnchantmentTags` now includes Club for Stun, Knockback, and Looting, matching MITE inheritance: Club extends Cudgel, Mattock extends Shovel, and War Hammer extends Pickaxe.
+
+- **Vampirism now covers knives and daggers:** The old check only accepted `SWORD || SCYTHE`, unlike MITE's `instanceof ItemSword`. `KNIFE || DAGGER` were added, while silver and mithril exclusions remain.
+
+- **Thorns now supports chainmail chestplates and uses first-match behavior:** `CHAINMAIL_CHESTPLATE` was added to `INFX_THORNS_ENCHANTABLE`, matching MITE's acceptance of all `ItemCuirass`. `applyThorns` now uses the first qualifying piece in HEAD → CHEST → LEGS → FEET order instead of the highest enchantment level.
+
+- **Feather Falling now uses first-match behavior:** The fall branch of `typedProtectionPoints` previously summed all four pieces. It now returns the first piece with Feather Falling, matching MITE. This mainly affects command/NBT-created multi-piece enchantments.
+
+- **Enchanted books no longer lose additional enchantments:** The book branch of `EnchantmentSelector.select` previously returned only one random entry and silently discarded the rest. It now returns all entries, up to three, matching MITE's `EnchantmentHelper.addRandomEnchantment`.
+
+- **Looting now affects equipment drops and has complete incompatibility rules:** `minecraft:looting` lacked an `EQUIPMENT_DROPS` component, so non-InfX custom drops received no Looting bonus. It now adds `AddValue(perLevel(0.01F))` under the attacker-is-player condition, matching vanilla 26.1. Looting and Silk Touch are now mutually exclusive.
+
+- **Vanilla bows now provide Precision/Recovery/Poisoning data:** These enchantments were previously written only by `InfxBowItem.shootProjectile`. `BowItemProjectileMixin` now redirects `BowItem.shootProjectile`'s `shootFromRotation` call, covering all bows. `InfxBowItem` now only adds its material speed multiplier.
+
+- **Off-hand bows and crossbows no longer read the main hand:** `InfxBowItem.shootProjectile` and `CrossbowItemProjectileMixin` now use `getUseItem()`, which correctly identifies the active item during `releaseUsing`. If empty, they fall back to the main-hand item.
+
+- **Baiting now follows the MITE bite-probability model:** `infx:baiting` previously redirected `timeUntilLured` and shortened the countdown by ×0.9 per level. MITE modifies the `chance_in` denominator and applies modifiers in a specific order. The ×9/10-per-level effect now lives in `FishingRules.lureDelay`'s `chance_in` path, in the order day/night → Blue Moon → rain → Baiting → bait. `baitingLureDelay` was renamed to `baitingBiteChance`. Vanilla's countdown structure differs from MITE's per-check model, but the expected bite-rate increase is equivalent.
+
+- **Butchering formulas aligned with MITE:**
+  - Horse, donkey, and mule previously shared `1+rand.nextInt(1+butchering)+rand.nextInt(2)`, which over-rewarded donkeys and mules.
+  - Only ordinary horses now receive the extra `rand.nextInt(2)`, matching MITE's `EntityHorse.dropFewItems`.
+  - Spider-eye drops now include an independent `rand.nextInt(3)==0` branch and no longer require that no spider eye has already been generated.
+  - Cow, pig, and sheep Butchering bonus meat now consistently uses `Livestock.isWell`. Unhealthy livestock produce no extra meat, independent of listener ordering.
+
+- **Exploded diamond and emerald ore now drop shards:** Diamond ore and emerald ore, including deepslate variants, previously used vanilla loot tables after explosions and dropped full gems. `PhysicsEvents.convertExplodedBlock` now emits one `infx:diamond_shard` or `infx:emerald_shard` per explosion, with quantity 1 and chance 1.0, matching MITE. Stone material does not trigger explosion loss or zeroing. Lapis, Nether quartz, and coal ore remain future work.
+
+- **Silver armor tooltip corrected:** `EquipmentBehaviors.addQualityTooltip` incorrectly displayed “+25% damage to undead” for every silver item, including armor, chainmail, and horse armor. That bonus is provided only by a silver main-hand weapon or silver arrow through `MobDamageRules.hasSilverAspect`. Non-armor tools, weapons, and arrows now show the undead-damage line; armor shows the negative-effect resistance line.
+
+- **Surface lava lakes removed:** The `remove_surface_lava_lakes` biome modifier removes `minecraft:lake_lava_surface` from every Overworld biome at the LAKES step. `NoiseBasedAquiferMixin` only suppresses exposed aquifer lava and cannot affect the placed `lake_lava_surface` feature. Together, both changes remove surface lava lakes while preserving underground lava lakes and aquifer lava.
+
+- **MITE river seagrass fixed:** `desert_river`, `jungle_river`, and `swamp_river` reused vanilla river generation settings, including `seagrass_river`, but `SeagrassFeature` used the `OCEAN_FLOOR` heightmap and often missed the water column in shallow or narrow rivers. `InfXSeagrassFeature` now scans downward from the surface until it finds the riverbed, stopping at the first non-water block to avoid decorating cave water. `remove_river_seagrass` and `add_river_seagrass` replace the feature in the three MITE river biomes with `infx:river_seagrass`, count 48, using the `WORLD_SURFACE` heightmap. Vanilla rivers and frozen rivers retain their original feature.
+
+- **Free Movement now covers cobweb slowdown:** `applyFreeMovementResistance` previously replaced only the `MOVEMENT_SPEED` attribute effects from Slowness and Paralysis. Modern `WebBlock` uses `Entity.makeStuckInBlock` and `stuckSpeedMultiplier` instead. `EntityStuckInBlockMixin`, together with `EntityAccessor`, now intercepts this method and softens each movement component toward 1.0 according to free-movement resistance: `base+(1-base)×resistance`, matching MITE's `getSpeedBoostVsSlowDown`.
+
+- **InfX zombie-family water conversion restored:** The `InfxZombieBase.convertsInWater()=false` suppression was removed. Ghoul, Wight, Revenant, Shadow, and Invisible Stalker now convert into vanilla drowned after spending 600 ticks in water. This restores vanilla behavior, at the cost of losing their InfX traits after conversion.
+
+- **Disarming exemptions added:** The `disarming` enchantment no longer affects witches, villagers, wandering traders, or drowned holding a trident. The exemptions are enforced in `EnchantmentEvents.disarm`.
+
+- **Zombie boss double-roll fixed:** The event-level boss roll was removed. Vanilla `Zombie.handleAttributes` already performs the native `difficultyModifier×0.05` boss roll, giving 2–5× health and +0.5–0.75 knockback resistance. The old double roll could produce up to 7× health (140 HP) and resistance of at least 1. Boss selection is now handled only by vanilla.
+
+- **Dev-mode handshake no longer conflicts with cheat-enabled integrated worlds:** Integrated servers, including singleplayer and LAN hosts, skip the raw configuration comparison because both sides read the same file. A client with dev mode enabled and a server switch disabled is intentional for cheat-enabled worlds. Dedicated servers still perform the normal comparison.
+
+- **Blood Moon thunderstorm duration fixed:** Forced storms now end at 19:00 (noon plus 13,000 ticks). They are no longer reset every 200 ticks to another 13,000 ticks, which previously extended the storm into the following noon.
+
+- **Normal zombie conversion no longer receives the 50% penalty twice:** The duplicate event implementation was removed. Vanilla `Zombie.killedEntity` already skips conversion 50% of the time on Normal, restoring a net 50% conversion rate instead of 25%.
+
+- **Duplicate equipment rolls removed:** The extra `equipForWorldAge` call after `FinalizeSpawnEvent` was removed. Equipment probability is no longer squared from `0.15T` to `1-(1-0.15T)^2`.
+
+- **Configuration gates completed:**
+  - `bloodMoonFrenzy` now controls Blood Moon frenzy speed, door breaking, red eyes, and ranged cooldowns through `isBloodMoonFrenzied`.
+  - Lightning ×5 and all-biome rain are gated by `world.moonEvents`.
+  - Crop blight has a new `world.bloodMoonBlight` switch.
+  - The 50-mob cap is gated by `mobs.enabled`.
+
+- **Ghoul slowdown weakened:** The hit slowdown amplifier was reduced from 5 (90%) to 2 (45%), preventing near-total immobilization.
+
+- **`zombifiesVillagers` hook connected:** The base class now overrides `convertVillagerToZombieVillager` and gates conversion according to its return value. Invisible Stalkers therefore never convert villagers, while other new mobs retain default behavior.
+
+- **Wither Skeleton duplicate equipment source removed:** The no-quality iron-sword branch in `VanillaMobEquipmentMixin` was removed because `WitherSkeletonDropsMixin` immediately replaced it with a poor-quality iron sword.
+
+- **Enderman pearl and eye pickup changed:** Endermen now teleport to safe landing spots with two blocks of headroom instead of actively pathfinding to pick up ender pearls or eyes. Random teleportation and damage-triggered teleportation remain.
+
+- **Phase Spider evasion corrected:** Only non-fall, non-fire, and non-poison damage consumes evasions. Failed teleports also consume an evasion. When there is no attacker, the spider's own position is used as the threat point.
+
+- Blood Moon frenzy mining, mining cooldowns, and Dirt Element door-breaking/mining now all use `isBloodMoonFrenzied` configuration gating. Bone King inspiration is unaffected by this setting.
+
+- Zombie block digging now uses the exact MITE formula instead of a player-speed approximation. Dirt takes approximately 75 seconds per block, Blood Moon frenzy halves the time, and valid tools provide significant acceleration.
+
+- Test-mode LAN/singleplayer cheat permissions fixed:
+  - LAN “Allow Cheats” was controlled by the client-side `development.testMode`, while server permission tightening used the independent server-side value.
+  - Integrated worlds with cheats enabled, including LAN worlds published with cheats and singleplayer worlds created with commands enabled, are now treated as valid test-mode worlds and grant operator permissions.
+  - Normal mode still forces the option lock closed every tick.
+
+## Compatibility
+
+- **Modern enchantment gaps filled:** `luck_of_the_sea`, `lure`, `depth_strider`, `multishot`, `quick_charge`, `piercing`, `frost_walker`, and `soul_speed` were missing from `InfXEnchantments.ALL` and were erased by the `replace:true` source tags. They are now included without re-bootstrapping, reusing vanilla definitions and effects.
+  - Non-treasure entries can appear at the enchanting table.
+  - `frost_walker`, `soul_speed`, and both curses retain vanilla treasure behavior and are available only through loot, trades, or mob equipment.
+
+- **Jade sick-state display:** Pointing Jade at a sick InfX cow, chicken, sheep, or pig now shows “Sick” in the entity tooltip. It uses the livestock wellness state already synchronized to clients.
+
+- **Spawn tables no longer wipe third-party entries wholesale:**
+  - In the Overworld, `SpawnsBiomeModifier` selectively removes only the vanilla entries that InfX re-adds: six monster types, livestock/mounts, fish, bats, and squids.
+  - Entries added by other mods during the ADD stage are preserved.
+  - Nether and End behavior retains exact replacement semantics.
+  - `mobs.wipeOtherSpawnTables` (default: `false`) restores the old wholesale-wipe behavior.
+  - Pure vanilla results remain unchanged, and all GameTests pass.
+
+- **Vanilla entity replacement exemptions:**
+  - Third-party mods can add an entity type to the datapack tag `infx:keep_vanilla_entity` (`data/infx/tags/entity_type/keep_vanilla_entity.json`, with `"replace": false`).
+  - InfX will then leave that entity as vanilla, allowing other mods' changes to vanilla attributes, AI, and drops to work again.
+  - `mobs.replaceVanillaMobs` (default: `true`) can disable all 26 vanilla replacements at once.
+
+- **Source-pool split:**
+  - `InfXEnchantments` now defines `TABLE` as `ALL` minus the four treasure-only entries, plus a `TREASURE_ONLY` collection.
+  - `IN_ENCHANTING_TABLE` writes `TABLE`; all other source tags write `ALL`.
+  - `EnchantmentSelector.candidateKeys` now uses `TABLE`.
+  - The enchanting table can no longer roll curses, Soul Speed, or Frost Walker.
+
+## Balance
+
+- **Fire Aspect aligned with MITE:** `Ignite(LevelBasedValue.constant(1.0F))` was replaced with `perLevel(4.0F)`, giving 4 seconds at level I and 8 seconds at level II, matching MITE's `setFire(fire_aspect*4)` and vanilla 26.1.
+
+- **Sharpness and Slaughter now add +1 damage per level:** Vanilla Sharpness changed from `perLevel(1.0F, 0.5F)` (level V = +3) to `perLevel(1.0F, 1.0F)` (level V = +5). `SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL` changed from 0.75 to 1.0, also giving +5 at level V and matching MITE.
+
+## Balance Adjustments
+
+- Unified spawning control:
+  - Added `world/SpawnGate` as the single authority for whether spawning occurs, what spawns, and how many can spawn.
+  - Events and six spawning mixins for capacity, cadence, depth, patrols, and daytime burning now act as thin delegates.
+  - Entity replacement, placement predicates, phantom waves, spawner light/population limits, despawn prevention, witch-cancellation exemptions, Blood Moon frenzy, and piglin-hostility predicates are also routed through `SpawnGate`.
+
+- Moon-phase spawn-gating configuration migrated:
+  - Added `mobs.moonSpawnGating` (default: `true`) for moon-phase spawn gates.
+  - `world.moonEvents` now controls weather only.
+  - Disabling `world.enabled` no longer disables spawn gates; the main switch is now `mobs.enabled`.
+
+- Ordinary zombie weapon probability now follows tension instead of the day curve:
+  - It uses `15%×tension`, capped at approximately 22.5%.
+  - Long-inhabited chunks still progressively increase monster pressure through tension.
 
 ---
 
 # 0v5
-
 ### New Features
 - Added dirt blocks to the "Sliding" and "Collapse" dirt tags.
 - Gravity-affected dirt now inherits all block behaviors set to slide/fall.
