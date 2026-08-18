@@ -18,6 +18,8 @@
     "infx:mithril_pickaxe",
     "infx:mithril_shovel",
     "infx:adamantium_pickaxe",
-    "infx:adamantium_shovel"
+    "infx:adamantium_shovel",
+    "#minecraft:pickaxes",
+    "#minecraft:shovels"
   ]
 }

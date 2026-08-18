@@ -1,6 +1,5 @@
 package com.pixulse.infx.mixin.world.entity.projectile;
 
-import com.pixulse.infx.item.enchantment.EnchantmentRules;
 import com.pixulse.infx.item.enchantment.Enchantments;
 import com.pixulse.infx.registry.InfXEnchantments;
 import com.pixulse.infx.world.FishingRules;
@@ -14,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 /**
- * FishingHook exposes no event before its lure timer is chosen. INFX baiting changes that timer
- * by 10% per level and the InfX bite timing scales it with the time of day, rain and worm bait,
- * so this scoped redirect changes only the lure-delay random roll.
+ * FishingHook exposes no event before its lure timer is chosen. INFX replaces the lure roll with
+ * MITE's {@code chance_in} bite model (time of day, weather, Fishing Fortune and worm bait), so
+ * this scoped redirect changes only the lure-delay random roll.
  */
 @Mixin(FishingHook.class)
 abstract class FishingHookMixin {
@@ -32,12 +31,12 @@ abstract class FishingHookMixin {
         Player player = hook.getPlayerOwner();
         if (player == null) return delay;
         if (player.level() instanceof ServerLevel level) {
-            delay = FishingRules.lureDelay(level, player, delay);
+            int baiting = Enchantments.level(player.level(), player.getMainHandItem(), InfXEnchantments.BAITING);
+            if (baiting == 0) {
+                baiting = Enchantments.level(player.level(), player.getOffhandItem(), InfXEnchantments.BAITING);
+            }
+            return FishingRules.lureDelay(level, player, delay, baiting);
         }
-        int baiting = Enchantments.level(player.level(), player.getMainHandItem(), InfXEnchantments.BAITING);
-        if (baiting == 0) {
-            baiting = Enchantments.level(player.level(), player.getOffhandItem(), InfXEnchantments.BAITING);
-        }
-        return EnchantmentRules.baitingLureDelay(delay, baiting);
+        return delay;
     }
 }

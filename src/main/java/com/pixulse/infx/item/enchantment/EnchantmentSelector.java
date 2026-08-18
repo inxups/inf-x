@@ -60,9 +60,9 @@ public final class EnchantmentSelector {
         }
 
         shuffle(random, selected);
-        return book && !selected.isEmpty()
-                ? List.of(selected.get(random.nextInt(selected.size())))
-                : List.copyOf(selected);
+        // MITE's EnchantmentHelper.addRandomEnchantment writes every rolled enchantment onto a
+        // book (up to three); do not silently discard the rest.
+        return List.copyOf(selected);
     }
 
     private static List<EnchantmentInstance> availableEnchantments(
@@ -82,7 +82,7 @@ public final class EnchantmentSelector {
     }
 
     static List<ResourceKey<Enchantment>> candidateKeys() {
-        return InfXEnchantments.ALL;
+        return InfXEnchantments.TABLE;
     }
 
     private static void shuffle(RandomSource random, List<EnchantmentInstance> enchantments) {

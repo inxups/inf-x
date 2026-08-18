@@ -252,19 +252,23 @@ public final class EquipmentBehaviors {
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = entity.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
-            if (entry == null || entry.key().type().armorForm() == EquipmentType.ArmorForm.NONE) {
+            if (stack.isEmpty()) {
                 continue;
             }
             float durabilityFactor = armorDamageFactor(entity, stack);
+            float pieceProtection = pieceBaseProtection(stack, slot) * durabilityFactor;
             if (fall) {
-                total += EnchantmentRules.featherFallingPoints(
-                        Enchantments.level(
-                                entity.level(), stack, InfXEnchantments.VANILLA_FEATHER_FALLING),
-                        durabilityFactor);
+                // MITE returns the first piece wearing Feather Falling, not the sum of all.
+                int ffLevel = Enchantments.level(
+                        entity.level(), stack, InfXEnchantments.VANILLA_FEATHER_FALLING);
+                if (ffLevel > 0 && pieceProtection > 0.0F) {
+                    return EnchantmentRules.featherFallingPoints(ffLevel, durabilityFactor);
+                }
                 continue;
             }
-            float pieceProtection = entry.key().armorProtection() * durabilityFactor;
+            if (pieceProtection <= 0.0F) {
+                continue;
+            }
             if (fire) {
                 total += EnchantmentRules.typedProtectionPoints(pieceProtection,
                         Enchantments.level(
@@ -289,19 +293,24 @@ public final class EquipmentBehaviors {
         if (entity instanceof Player) {
             return armor;
         }
-        // InfX gives non-player armor a fixed 0.5 damage factor. The item attribute still uses
-        // the player's durability curve, so replace that contribution before the fixed armor step.
+        // InfX gives non-player armor a fixed 0.5 damage factor. InfX armor's ARMOR attribute is
+        // durability-scaled (applyArmorDecay); vanilla armor's attribute is fixed at full, so
+        // its effective factor is 1.0. Bring both to the 0.5× mob factor.
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = entity.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
-            if (entry == null
-                    || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
-                            && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)) {
+            if (stack.isEmpty()) {
                 continue;
             }
-            armor += entry.key().armorProtection()
-                    * (0.5F - armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage()));
+            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
+            float base = pieceBaseProtection(stack, slot);
+            if (base <= 0.0F) {
+                continue;
+            }
+            float effectiveFactor = entry != null
+                    ? armorDurabilityFactor(stack.getDamageValue(), stack.getMaxDamage())
+                    : 1.0F;
+            armor += base * (0.5F - effectiveFactor);
         }
         return armor;
     }
@@ -312,19 +321,35 @@ public final class EquipmentBehaviors {
                 : 0.5F;
     }
 
+    /**
+     * Base fixed-point armor of a piece: InfX equipment uses its catalog {@code armorProtection},
+     * vanilla armor derives from the stack's ARMOR attribute for the slot (vanilla armor does not
+     * decay with durability until it breaks, unlike InfX's durability curve). Returns 0 for
+     * non-armor items, so callers can use it as the "is this armor?" gate.
+     */
+    private static float pieceBaseProtection(ItemStack stack, EquipmentSlot slot) {
+        Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
+        if (entry != null) {
+            return entry.key().armorProtection();
+        }
+        return (float) stack.getAttributeModifiers()
+                .compute(Attributes.ARMOR, 0.0, slot);
+    }
+
     private static float protectionBonus(LivingEntity entity) {
         float bonus = 0.0F;
         for (EquipmentSlot slot : List.of(
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET)) {
             ItemStack stack = entity.getItemBySlot(slot);
-            Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
-            if (entry == null
-                    || (entry.key().type().armorForm() != EquipmentType.ArmorForm.PLATE
-                            && entry.key().type().armorForm() != EquipmentType.ArmorForm.CHAIN)) {
+            if (stack.isEmpty()) {
+                continue;
+            }
+            float base = pieceBaseProtection(stack, slot);
+            if (base <= 0.0F) {
                 continue;
             }
             int level = Enchantments.level(entity.level(), stack, InfXEnchantments.PROTECTION);
-            bonus += EnchantmentRules.protectionBonus(entry.key().armorProtection(), level);
+            bonus += EnchantmentRules.protectionBonus(base, level);
         }
         return bonus;
     }

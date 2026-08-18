@@ -1,6 +1,7 @@
 {
   "values": [
     "infx:wood_cudgel",
+    "infx:wood_club",
     "infx:flint_knife",
     "infx:obsidian_knife",
     "infx:gold_sword",
@@ -18,6 +19,7 @@
     "infx:mithril_sword",
     "infx:mithril_dagger",
     "infx:adamantium_sword",
-    "infx:adamantium_dagger"
+    "infx:adamantium_dagger",
+    "#minecraft:swords"
   ]
 }

@@ -1,5 +1,29 @@
 # Changelog
 
+## 0t34
+### 修复
+- **Swift Sneak 改附护腿**：`minecraft:swift_sneak` 原注册到 `FOOT_ARMOR_ENCHANTABLE`/`FEET`（靴子），与 vanilla 26.1 及 MITE 护腿槽位矛盾。改为 `LEG_ARMOR_ENCHANTABLE`/`LEGS`，GameTest 同步断言靴子不再支持、护腿支持。
+- **注册消失/绑定诅咒**：`minecraft:vanishing_curse`（`VANISHING_ENCHANTABLE`/`ANY`）与 `minecraft:binding_curse`（`EQUIPPABLE_ENCHANTABLE`/`ARMOR`）此前完全不在 `InfXEnchantments.ALL`，原版注册定义被来源标签 `replace:true` 抹除，正常途径不可获得。现已注册并进入来源池；按 treasure 性质从附魔台排除，仍可经战利品/交易获得。
+- **原版盔甲保护类附魔不生效**：`EquipmentBehaviors` 的 `typedProtectionPoints`/`protectionBonus`/`mundaneArmorPoints` 原要求 `InfXItems.catalog().equipment(stack)` 非空，原版盔甲被跳过，导致手工/命令附上的 `infx:protection`/火/爆/弹射物保护不参与固定护甲计算（显示有附魔但不生效）。新增 `pieceBaseProtection` helper：InfX 装备取 `armorProtection`，原版盔甲取其 ARMOR 属性值；非玩家路径按 1.0 有效系数把原版盔甲也折算到 0.5×。
+- **原版装备进入 infx:enchantable/* 目标标签**：`ModItemTagsProvider` 原只遍历 InfX catalog 装备，原版镐/锹/斧/锄/剑/护甲不进任何 `infx:enchantable/*`，原版装备无法在附魔台获得 MITE 附魔。新增 `addVanillaEnchantmentTargets` 用 vanilla item tag 引用填充各目标标签（durability/efficiency/fortune/silk_touch/tree_felling/harvesting/fertility/penetration/free_movement/chest_armor 及全部剑系标签）。
+- **Club/Mattock/War Hammer 补 MITE 继承**：`isDurabilityEnchantable` 漏 `MATTOCK`/`WAR_HAMMER`/`CLUB`；`addR196EnchantmentTags` 漏 Club 的 Stun/Knockback/Looting。按 MITE 继承关系（Club extends Cudgel、Mattock extends Shovel、War Hammer extends Pickaxe）补齐。
+- **Vampirism 漏刀/匕首**：原仅 `SWORD||SCYTHE`，与 MITE `instanceof ItemSword` 不一致（InfX 刀/匕首在别处已归 swordFamily）。补 `KNIFE||DAGGER`，银/秘银排除保留。
+- **Thorns 漏链甲胸甲 + 取最高件改为取第一件**：原仅 `CHESTPLATE` 进 `INFX_THORNS_ENCHANTABLE`，补 `CHAINMAIL_CHESTPLATE`（MITE 接受所有 `ItemCuirass`）；`applyThorns` 原取等级最高件，改为 MITE 的 first-match（HEAD→CHEST→LEGS→FEET 首件带荆棘者）。
+- **Feather Falling 多部位改为 first-match**：`typedProtectionPoints` fall 分支原累加四件，改为 MITE 取首件带 FF 者即返回（仅命令/NBT 多部位附魔时生效）。
+- **附魔书丢失多附魔**：`EnchantmentSelector.select` 的 book 分支原只随机返回一项，静默丢弃其余。改为返回全部（至多 3 项），与 MITE `EnchantmentHelper.addRandomEnchantment` 一致。
+- **Looting 缺装备掉落组件 + 互斥不全**：`minecraft:looting` 原注册无 `EQUIPMENT_DROPS` 组件，非 InfX 自定义掉落的实体不享受抢夺加成；补 `AddValue(perLevel(0.01F))`（attacker 为玩家条件），对齐 vanilla 26.1。`exclusiveSet` 原漏 Looting↔Silk Touch 互斥（MITE `EnchantmentLootBonus` 对二者都拒绝），现已补。
+- **原版弓无 Precision/Recovery/Poisoning 入口**：原仅 `InfxBowItem.shootProjectile` 写入这些附魔数据，原版弓发射的箭不携带。新增 `BowItemProjectileMixin` 重定向 `BowItem.shootProjectile` 的 `shootFromRotation`，对所有弓统一写入 Precision/Recovery/Poisoning；`InfxBowItem` 简化为只叠加材质速度倍率。
+- **副手弓/弩误读主手**：`InfxBowItem.shootProjectile` 与 `CrossbowItemProjectileMixin` 原固定 `getMainHandItem()`，副手使用时读不到附魔或误读主手。改读 `getUseItem()`（`releaseUsing` 期间尚未 `stopUsingItem`，正确反映实际手），空时回退主手。
+- **Baiting 对齐 MITE 咬钩概率模型**：`infx:baiting` 原重定向 `timeUntilLured` 并每级 ×0.9 缩短等待计时，与 MITE 改 `chance_in` 咬钩概率分母的模型/叠加顺序不同。现把 ×9/10 每级移入 `FishingRules.lureDelay` 的 `chance_in` 路径，按 MITE 顺序应用（昼夜→蓝月→降雨→baiting→虫饵），`baitingLureDelay` 更名为 `baitingBiteChance`。vanilla 倒计时模型与 MITE 每检概率模型结构不同，但 ×9/10 每级的期望咬钩率提升一致。
+- **Butchering 公式对齐 MITE**：马/驴/骡原共用 `1+rand.nextInt(1+butchering)+rand.nextInt(2)`，驴/骡偏高。按 MITE `EntityHorse.dropFewItems` 拆分：仅普通马加 `rand.nextInt(2)`。蜘蛛眼原只有 `rand.nextInt(1+butchering)>0` 分支且要求「无已有蜘蛛眼」；补 MITE 的 `rand.nextInt(3)==0 ||` 独立第一分支并移除前置。Cow/Pig/Sheep 的 Butchering 额外肉原无健康门槛，现统一走 `Livestock.isWell` 谓词，不健康家畜不产出额外肉（不再依赖监听器顺序）。
+- **Free Movement 覆盖蛛网减速**：`applyFreeMovementResistance` 原只替换 Slowness/Paralysis 的 `MOVEMENT_SPEED` 属性，现代 `WebBlock` 经 `Entity.makeStuckInBlock` 写 `stuckSpeedMultiplier` 不经属性。新增 `EntityStuckInBlockMixin`（+`EntityAccessor`）在 `makeStuckInBlock` HEAD 拦截，按 free-movement 抗性把各分量向 1.0 软化（`base+(1-base)×resistance`，即 MITE `getSpeedBoostVsSlowDown`）。
+### 兼容性
+- **补齐现代附魔缺口**：`luck_of_the_sea`、`lure`、`depth_strider`、`multishot`、`quick_charge`、`piercing`（弩）、`frost_walker`、`soul_speed` 此前不在 `InfXEnchantments.ALL`，被 `replace:true` 来源标签抹除。现加入 `ALL`（不重 bootstrap，沿用 vanilla 定义与效果），其中非 treasure 项进附魔台；`frost_walker`/`soul_speed`/两诅咒按 vanilla treasure/barter 性质仅进战利品/交易/怪物装备，不进附魔台。
+- **来源池拆分**：`ModEnchantmentTagsProvider` 原把 `ALL` 写入全部 12 个来源标签，无法独立调整。`InfXEnchantments` 新增 `TABLE`（ALL 减 4 项 treasure-only）与 `TREASURE_ONLY` 集合；`IN_ENCHANTING_TABLE` 写 `TABLE`，其余来源写 `ALL`。`EnchantmentSelector.candidateKeys` 改用 `TABLE`，附魔台不再 roll 出诅咒/灵魂疾行/冰霜行者。
+### 平衡
+- **Fire Aspect 对齐 MITE**：原 `Ignite(LevelBasedValue.constant(1.0F))`（I/II 都 1 秒），改为 `perLevel(4.0F)`（I=4s、II=8s），与 MITE `setFire(fire_aspect*4)` 及 vanilla 26.1 一致。
+- **Sharpness/Slaughter 对齐 MITE 每级 +1**：剑上 `minecraft:sharpness` 原 `perLevel(1.0F, 0.5F)`（V=+3），改 `perLevel(1.0F, 1.0F)`（V=+5）；`infx:slaughter` 的 `SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL` 由 0.75 改 1.0（V=+5），与 MITE 每级 +1 一致。
+
 ## 0t33
 ### 修复
 - **TNT 炸钻石/绿宝石原矿掉落碎片**：补全 MITE `BlockOre.dropBlockAsEntityItem` 爆炸分支的移植缺口。钻石原矿、绿宝石原矿（含深板岩变体）被任何爆炸（TNT/苦力怕/恶魂等）炸毁时，原走 vanilla 战利品表掉落整颗钻石/绿宝石；现经 `PhysicsEvents.convertExplodedBlock` 改为弹出 1 颗对应碎片（`infx:diamond_shard` / `infx:emerald_shard`），与 MITE 一致（quantity 1, chance 1.0——`Material.stone` 不触发爆炸损耗/置零）。青金石/下界石英/煤矿的爆炸分支同属未移植缺口，留待后续。

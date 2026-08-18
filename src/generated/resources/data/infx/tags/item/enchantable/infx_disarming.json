@@ -7,6 +7,7 @@
     "infx:iron_sword",
     "infx:ancient_metal_sword",
     "infx:mithril_sword",
-    "infx:adamantium_sword"
+    "infx:adamantium_sword",
+    "#minecraft:swords"
   ]
 }

@@ -4,6 +4,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.entity.Livestock;
 import com.pixulse.infx.registry.tag.InfXItemTags;
 import com.pixulse.infx.event.AgricultureEvents;
 import com.pixulse.infx.block.InfxCropBlock;
@@ -33,7 +34,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.sheep.Sheep;
-import net.minecraft.world.entity.animal.equine.AbstractHorse;
 import net.minecraft.world.entity.animal.equine.Donkey;
 import net.minecraft.world.entity.animal.equine.Horse;
 import net.minecraft.world.entity.animal.equine.Mule;
@@ -198,10 +198,12 @@ public final class EnchantmentEvents {
                 EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
             ItemStack stack = target.getItemBySlot(slot);
             int stackLevel = Enchantments.level(level, stack, InfXEnchantments.VANILLA_THORNS);
-            if (stackLevel > thorns) {
+            if (stackLevel > 0) {
+                // MITE returns the first piece wearing Thorns, not the highest-level one.
                 thorns = stackLevel;
                 thornsPiece = stack;
                 thornsSlot = slot;
+                break;
             }
         }
         if (thorns == 0) return;
@@ -282,17 +284,29 @@ public final class EnchantmentEvents {
 
         LivingEntity target = event.getEntity();
         switch (target) {
-            case Cow cow -> addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF, level);
-            case Pig pig ->
+            // MITE wraps the cow/pig/sheep meat drops in isWell(); unwell livestock must not
+            // gain butchering bonus meat regardless of event-listener ordering.
+            case Cow cow when Livestock.isWell(cow) ->
+                    addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF, level);
+            case Pig pig when Livestock.isWell(pig) ->
                     addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_PORKCHOP : Items.PORKCHOP, level);
-            case Sheep sheep ->
+            case Sheep sheep when Livestock.isWell(sheep) ->
                     addButcheringMeat(event, target, target.isOnFire() ? Items.COOKED_MUTTON : Items.MUTTON, level);
-            case AbstractHorse equine
-                    when equine instanceof Horse || equine instanceof Donkey || equine instanceof Mule ->
+            // MITE: normal horses roll an extra rand.nextInt(2) beef; donkeys and mules do not.
+            case Horse horse ->
                     addEntityDrop(event, new ItemStack(
                             target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
-                            EnchantmentRules.horseButcheringBeefCount(level, target.getRandom())));
-            case Spider spider when event.getDrops().stream().noneMatch(drop -> drop.getItem().is(Items.SPIDER_EYE)) && EnchantmentRules.butcheringAddsSpiderEye(level, target.getRandom()) ->
+                            EnchantmentRules.horseButcheringBeefCount(level, target.getRandom(), true)));
+            case Donkey donkey ->
+                    addEntityDrop(event, new ItemStack(
+                            target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
+                            EnchantmentRules.horseButcheringBeefCount(level, target.getRandom(), false)));
+            case Mule mule ->
+                    addEntityDrop(event, new ItemStack(
+                            target.isOnFire() ? Items.COOKED_BEEF : Items.BEEF,
+                            EnchantmentRules.horseButcheringBeefCount(level, target.getRandom(), false)));
+            // MITE judges the spider-eye roll independently of any vanilla base drop.
+            case Spider spider when EnchantmentRules.butcheringAddsSpiderEye(level, target.getRandom()) ->
                     addEntityDrop(event, new ItemStack(Items.SPIDER_EYE));
             default -> {
             }

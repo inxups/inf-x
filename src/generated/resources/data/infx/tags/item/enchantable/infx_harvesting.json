@@ -23,6 +23,7 @@
     "infx:mithril_scythe",
     "infx:adamantium_hoe",
     "infx:adamantium_mattock",
-    "infx:adamantium_scythe"
+    "infx:adamantium_scythe",
+    "#minecraft:hoes"
   ]
 }

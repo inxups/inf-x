@@ -17,6 +17,7 @@
     "infx:mithril_sword",
     "infx:mithril_dagger",
     "infx:adamantium_sword",
-    "infx:adamantium_dagger"
+    "infx:adamantium_dagger",
+    "#minecraft:swords"
   ]
 }

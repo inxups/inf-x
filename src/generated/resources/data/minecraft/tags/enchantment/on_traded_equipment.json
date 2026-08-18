@@ -42,6 +42,16 @@
     "minecraft:flame",
     "minecraft:sharpness",
     "minecraft:sweeping_edge",
-    "minecraft:swift_sneak"
+    "minecraft:swift_sneak",
+    "minecraft:luck_of_the_sea",
+    "minecraft:lure",
+    "minecraft:depth_strider",
+    "minecraft:frost_walker",
+    "minecraft:soul_speed",
+    "minecraft:multishot",
+    "minecraft:quick_charge",
+    "minecraft:piercing",
+    "minecraft:vanishing_curse",
+    "minecraft:binding_curse"
   ]
 }

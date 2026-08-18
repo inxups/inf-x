@@ -37,6 +37,8 @@
     "infx:adamantium_pickaxe",
     "infx:adamantium_shovel",
     "infx:adamantium_shears",
-    "infx:adamantium_dagger"
+    "infx:adamantium_dagger",
+    "#minecraft:pickaxes",
+    "#minecraft:shovels"
   ]
 }

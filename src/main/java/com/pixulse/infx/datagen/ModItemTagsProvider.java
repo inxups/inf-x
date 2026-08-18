@@ -97,6 +97,7 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
             addR196EnchantmentTags(entry);
             addHarvestTierTag(entry);
         }
+        addVanillaEnchantmentTargets();
 
         // Dyed InfX leather armor can be washed in a water cauldron, like vanilla leather armor.
         var cauldronWashable = tag(ItemTags.CAULDRON_CAN_REMOVE_DYE);
@@ -290,10 +291,17 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         if (type == EquipmentType.KNIFE || type == EquipmentType.DAGGER) {
             add(InfXItemTags.INFX_BUTCHERING_ENCHANTABLE, entry);
         }
-        if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
+        // MITE: ItemClub extends ItemCudgel, so Club inherits Stun, Knockback and Looting.
+        if (type == EquipmentType.CUDGEL || type == EquipmentType.CLUB
+                || type == EquipmentType.WAR_HAMMER) {
             add(InfXItemTags.INFX_STUNNING_ENCHANTABLE, entry);
         }
-        if ((type == EquipmentType.SWORD || type == EquipmentType.SCYTHE)
+        // MITE: EnchantmentVampiric accepts instanceof ItemSword || ItemScythe. InfX knives and
+        // daggers extend ItemSword, so they belong here too; silver/mithril stay excluded.
+        if ((type == EquipmentType.SWORD
+                    || type == EquipmentType.KNIFE
+                    || type == EquipmentType.DAGGER
+                    || type == EquipmentType.SCYTHE)
                 && material != InfxMaterial.SILVER
                 && material != InfxMaterial.MITHRIL) {
             add(InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE, entry);
@@ -346,13 +354,14 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         if (swordFamily) {
             add(InfXItemTags.INFX_SWORD_FAMILY_ENCHANTABLE, entry);
         }
-        if (swordFamily || type == EquipmentType.CUDGEL) {
+        if (swordFamily || type == EquipmentType.CUDGEL || type == EquipmentType.CLUB) {
             add(InfXItemTags.INFX_LOOTING_ENCHANTABLE, entry);
         }
         if (type == EquipmentType.WAR_HAMMER) {
             add(InfXItemTags.INFX_SMITE_ENCHANTABLE, entry);
         }
-        if (type == EquipmentType.CUDGEL || type == EquipmentType.WAR_HAMMER) {
+        if (type == EquipmentType.CUDGEL || type == EquipmentType.CLUB
+                || type == EquipmentType.WAR_HAMMER) {
             add(InfXItemTags.INFX_KNOCKBACK_ENCHANTABLE, entry);
         }
         // InfX efficiency: pickaxe class (war hammers excluded), the axe family, shovels
@@ -374,7 +383,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                 || type == EquipmentType.DAGGER) {
             add(InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE, entry);
         }
-        if (type == EquipmentType.CHESTPLATE) {
+        // MITE: EnchantmentThorns accepts any ItemCuirass, including chainmail chestplates.
+        if (type == EquipmentType.CHESTPLATE || type == EquipmentType.CHAINMAIL_CHESTPLATE) {
             add(InfXItemTags.INFX_THORNS_ENCHANTABLE, entry);
         }
         if ((type == EquipmentType.CHESTPLATE || type == EquipmentType.LEGGINGS)
@@ -383,13 +393,60 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
         }
     }
 
+    /**
+     * Adds vanilla equipment to the InfX enchantable target tags so vanilla pickaxes, swords,
+     * armor, etc. can receive MITE-ported enchantments through normal channels. Without this
+     * the {@code infx:enchantable/*} tags only contain InfX catalog entries, so vanilla gear
+     * could display an enchantment (via commands/books) but never receive it at the table and
+     * never benefit from the InfX runtime effect (e.g. fixed-point protection).
+     */
+    private void addVanillaEnchantmentTargets() {
+        // Tools.
+        tag(InfXItemTags.INFX_DURABILITY_ENCHANTABLE).addTag(ItemTags.DURABILITY_ENCHANTABLE);
+        tag(InfXItemTags.INFX_EFFICIENCY_ENCHANTABLE).addTag(ItemTags.MINING_ENCHANTABLE);
+        tag(InfXItemTags.INFX_FORTUNE_ENCHANTABLE)
+                .addTag(ItemTags.PICKAXES).addTag(ItemTags.SHOVELS);
+        tag(InfXItemTags.INFX_SILK_TOUCH_ENCHANTABLE)
+                .addTag(ItemTags.PICKAXES).addTag(ItemTags.SHOVELS);
+        tag(InfXItemTags.INFX_TREE_FELLING_ENCHANTABLE).addTag(ItemTags.AXES);
+        tag(InfXItemTags.INFX_HARVESTING_ENCHANTABLE).addTag(ItemTags.HOES);
+        tag(InfXItemTags.INFX_FERTILITY_ENCHANTABLE).addTag(ItemTags.HOES);
+        tag(InfXItemTags.INFX_PENETRATION_ENCHANTABLE).addTag(ItemTags.PICKAXES);
+        // Armor slots.
+        tag(InfXItemTags.INFX_FREE_MOVEMENT_ENCHANTABLE).addTag(ItemTags.LEG_ARMOR_ENCHANTABLE);
+        tag(InfXItemTags.INFX_CHEST_ARMOR_ENCHANTABLE).addTag(ItemTags.CHEST_ARMOR_ENCHANTABLE);
+        // MITE Thorns accepts any cuirass, including vanilla chestplates.
+        tag(InfXItemTags.INFX_THORNS_ENCHANTABLE).addTag(ItemTags.CHEST_ARMOR_ENCHANTABLE);
+        // Sword-family enchantments (INFX_SHARPNESS already references ItemTags.SWORDS).
+        tag(InfXItemTags.INFX_SWORD_FAMILY_ENCHANTABLE).addTag(ItemTags.SWORDS);
+        tag(InfXItemTags.INFX_DISARMING_ENCHANTABLE).addTag(ItemTags.SWORDS);
+        // Vanilla swords are added explicitly rather than via #minecraft:swords or
+        // #minecraft:enchantable/sweeping, both of which InfX daggers/knives also join —
+        // daggers must stay non-sweeping.
+        tag(InfXItemTags.INFX_SWEEPING_ENCHANTABLE)
+                .add(itemKey(Items.WOODEN_SWORD))
+                .add(itemKey(Items.STONE_SWORD))
+                .add(itemKey(Items.IRON_SWORD))
+                .add(itemKey(Items.GOLDEN_SWORD))
+                .add(itemKey(Items.DIAMOND_SWORD))
+                .add(itemKey(Items.NETHERITE_SWORD));
+        tag(InfXItemTags.INFX_LOOTING_ENCHANTABLE).addTag(ItemTags.SWORDS);
+        tag(InfXItemTags.INFX_SMITE_ENCHANTABLE).addTag(ItemTags.SWORDS);
+        tag(InfXItemTags.INFX_KNOCKBACK_ENCHANTABLE).addTag(ItemTags.SWORDS);
+        // Vanilla swords are never silver/mithril, so the Vampirism material exclusion is moot.
+        tag(InfXItemTags.INFX_VAMPIRISM_ENCHANTABLE).addTag(ItemTags.SWORDS);
+    }
+
     private static boolean isDurabilityEnchantable(EquipmentType type, InfxMaterial material) {
         if (type.armorForm() == EquipmentType.ArmorForm.PLATE
                 && material.has(InfxMaterial.Flag.METAL)) {
             return true;
         }
         return switch (type) {
-            case CUDGEL, PICKAXE, SHOVEL, HATCHET, AXE, HOE, BATTLE_AXE, FISHING_ROD, BOW -> true;
+            // MITE: ItemClub extends ItemCudgel, ItemMattock extends ItemShovel,
+            // ItemWarHammer extends ItemPickaxe — all inherit Durability.
+            case CUDGEL, CLUB, PICKAXE, SHOVEL, HATCHET, AXE, HOE, BATTLE_AXE,
+                    MATTOCK, WAR_HAMMER, FISHING_ROD, BOW -> true;
             default -> false;
         };
     }

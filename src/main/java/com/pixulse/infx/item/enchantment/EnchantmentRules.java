@@ -33,7 +33,8 @@ public final class EnchantmentRules {
     /** InfX smite and bane of arthropods both add two damage per level against their targets. */
     public static final float SMITE_DAMAGE_PER_LEVEL = 2.0F;
     public static final float SLAUGHTER_FIRST_LEVEL_DAMAGE = 1.0F;
-    public static final float SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL = 0.75F;
+    /** MITE Sharpness adds +1 damage per level, so the battle-axe mapping matches (V = +5). */
+    public static final float SLAUGHTER_DAMAGE_PER_EXTRA_LEVEL = 1.0F;
     private static final float FEATHER_FALLING_FULL_PROTECTION = 15.0F;
 
     private EnchantmentRules() {}
@@ -173,15 +174,28 @@ public final class EnchantmentRules {
         return cappedLevel == 0 ? 0 : random.nextInt(cappedLevel + 1);
     }
 
-    /** Horses do not have vanilla meat drops, so retain InfX's complete horse-beef roll. */
-    public static int horseButcheringBeefCount(int level, RandomSource random) {
+    /**
+     * MITE horse beef: {@code 1 + rand.nextInt(1 + butchering)} for all equines, plus an extra
+     * {@code rand.nextInt(2)} only for normal horses (EntityHorse horseType 0). Donkeys and
+     * mules (types 1 and 2) skip the extra roll.
+     */
+    public static int horseButcheringBeefCount(int level, RandomSource random, boolean isHorse) {
         int cappedLevel = Math.clamp(level, 0, BUTCHERING_MAX_LEVEL);
-        return 1 + random.nextInt(cappedLevel + 1) + random.nextInt(2);
+        int count = 1 + random.nextInt(cappedLevel + 1);
+        if (isHorse) {
+            count += random.nextInt(2);
+        }
+        return count;
     }
 
+    /**
+     * MITE spider eye: {@code rand.nextInt(3) == 0 || rand.nextInt(1 + butchering) > 0}, judged
+     * independently of any vanilla base spider-eye drop.
+     */
     public static boolean butcheringAddsSpiderEye(int level, RandomSource random) {
         int cappedLevel = Math.clamp(level, 0, BUTCHERING_MAX_LEVEL);
-        return cappedLevel > 0 && random.nextInt(cappedLevel + 1) > 0;
+        return random.nextInt(3) == 0
+                || (cappedLevel > 0 && random.nextInt(cappedLevel + 1) > 0);
     }
 
     public static int fortuneOreBonusCount(int existingCount, int level, RandomSource random) {
@@ -212,8 +226,13 @@ public final class EnchantmentRules {
         return cappedLevel == 0 ? 0 : random.nextInt(cappedLevel + 1);
     }
 
-    public static int baitingLureDelay(int delay, int level) {
-        int adjusted = Math.max(1, delay);
+    /**
+     * MITE Fishing Fortune: each level multiplies the bite denominator {@code chance_in} by
+     * {@code 9/10} (integer), increasing the per-check bite probability. Applied after the
+     * time-of-day/weather adjustments and before the worm-bait halving, matching MITE's order.
+     */
+    public static int baitingBiteChance(int chanceIn, int level) {
+        int adjusted = Math.max(1, chanceIn);
         for (int index = 0; index < Math.clamp(level, 0, STANDARD_MAX_LEVEL); index++) {
             adjusted = Math.max(1, adjusted * 9 / 10);
         }
