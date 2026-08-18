@@ -1,5 +1,9 @@
 # Changelog
 
+## 0t32
+### 修复
+- **银质盔甲 tooltip 误导**：`EquipmentBehaviors.addQualityTooltip` 原对一切银质物品（含头盔/胸甲/护腿/靴子/锁链/马铠）都显示「对亡灵生物伤害+25%」，但该加成仅由主手银武器或银箭触发（`MobDamageRules.hasSilverAspect`），穿戴银甲并不提供亡灵伤害加成。现改为按 `armorForm` 互斥：非护甲（工具/武器/箭）显示亡灵加成行，护甲显示负面效果抗性行。
+
 ## 0t31
 ### 修复
 - **移除地表熔岩湖**：`remove_surface_lava_lakes` biome modifier 从所有主世界群系删除 `minecraft:lake_lava_surface`（LAKES 步）。原有的 `NoiseBasedAquiferMixin` 只压制含水层（噪声驱动）暴露地表的岩浆，碰不到 `addDefaultCarversAndLakes` 烘进每个主世界群系的 `lake_lava_surface` 放置型特征——地表小熔岩湖由此残留。现两者合力彻底移除地表熔岩湖；埋于地下的 `lake_lava_underground` 与含水层岩浆保留。

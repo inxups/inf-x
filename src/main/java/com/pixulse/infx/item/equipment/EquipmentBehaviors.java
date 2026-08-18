@@ -491,11 +491,15 @@ public final class EquipmentBehaviors {
         Catalog.EquipmentEntry entry = InfXItems.catalog().equipment(stack);
         if (entry != null) {
             EquipmentKey key = entry.key();
+            // The +25% undead bonus only fires from a main-hand silver weapon or silver arrow
+            // (MobDamageRules.hasSilverAspect); worn silver armor grants effect resistance instead,
+            // so the two tooltips are mutually exclusive.
             if (key.material() == InfxMaterial.SILVER) {
-                event.getToolTip()
-                        .add(Component.translatable("tooltip.infx.silver_undead_bonus")
-                                .withStyle(net.minecraft.ChatFormatting.GRAY));
-                if (key.type().armorForm() != EquipmentType.ArmorForm.NONE) {
+                if (key.type().armorForm() == EquipmentType.ArmorForm.NONE) {
+                    event.getToolTip()
+                            .add(Component.translatable("tooltip.infx.silver_undead_bonus")
+                                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+                } else {
                     event.getToolTip()
                             .add(Component.translatable("tooltip.infx.silver_armor_resistance")
                                     .withStyle(net.minecraft.ChatFormatting.GRAY));
