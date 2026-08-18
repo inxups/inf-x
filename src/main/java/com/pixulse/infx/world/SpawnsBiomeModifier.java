@@ -1,6 +1,7 @@
 package com.pixulse.infx.world;
 
 import com.mojang.serialization.MapCodec;
+import com.pixulse.infx.config.InfXConfig;
 import com.pixulse.infx.registry.InfXBiomeModifiers;
 import com.pixulse.infx.registry.InfXEntityTypes;
 import java.util.List;
@@ -80,12 +81,47 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
             MobCategory.WATER_CREATURE,
             MobCategory.WATER_AMBIENT);
 
+    /**
+     * Vanilla Overworld spawn entries InfX re-adds with its own weights. These are the only entries
+     * removed (instead of wiping the whole table) so third-party spawn-table entries survive; every
+     * InfX-owned type is {@code INFX_*} and never collides.
+     */
+    private static final Set<EntityType<?>> OVERWORLD_MONSTER_REMOVED = Set.of(
+            EntityType.SPIDER, EntityType.ZOMBIE, EntityType.SKELETON,
+            EntityType.CREEPER, EntityType.SLIME, EntityType.ENDERMAN);
+
+    /**
+     * Vanilla farm/companion animals InfX replaces with {@code INFX_*} equivalents, plus donkey
+     * which is dropped by the horse rewrite and the mushroom-field mooshroom the ecology clears.
+     * Their vanilla CREATURE entries must go or the herd (or mushroom-isle wildlife) would double.
+     */
+    private static final Set<EntityType<?>> OVERWORLD_CREATURE_REMOVED = Set.of(
+            EntityType.SHEEP, EntityType.PIG, EntityType.CHICKEN, EntityType.COW,
+            EntityType.HORSE, EntityType.DONKEY, EntityType.WOLF, EntityType.OCELOT,
+            EntityType.MOOSHROOM);
+
+    /** Vanilla fish InfX replaces with {@code INFX_*} equivalents per biome habitat. */
+    private static final Set<EntityType<?>> OVERWORLD_WATER_AMBIENT_REMOVED = Set.of(
+            EntityType.COD, EntityType.SALMON, EntityType.PUFFERFISH, EntityType.TROPICAL_FISH);
+
+    /** Vanilla cave bat InfX replaces with the INFX bat family. */
+    private static final Set<EntityType<?>> OVERWORLD_AMBIENT_REMOVED = Set.of(EntityType.BAT);
+
     @Override
     public void modify(@NonNull Holder<Biome> biome, @NonNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NonNull Builder builder) {
         if (phase != Phase.MODIFY) return;
         MobSpawnSettingsBuilder spawns = builder.getMobSpawnSettings();
+        boolean wipe = InfXConfig.INSTANCE.mobs.wipeOtherSpawnTables.getValue();
         if (biome.is(BiomeTags.IS_OVERWORLD)) {
-            clearNaturalSpawns(spawns);
+            if (wipe) {
+                clearNaturalSpawns(spawns);
+            } else {
+                removeSpawnTypes(spawns, MobCategory.MONSTER, OVERWORLD_MONSTER_REMOVED);
+                removeSpawnTypes(spawns, MobCategory.CREATURE, OVERWORLD_CREATURE_REMOVED);
+                removeSpawnTypes(spawns, MobCategory.WATER_AMBIENT, OVERWORLD_WATER_AMBIENT_REMOVED);
+                removeSpawnTypes(spawns, MobCategory.WATER_CREATURE, Set.of(EntityType.SQUID));
+                removeSpawnTypes(spawns, MobCategory.AMBIENT, OVERWORLD_AMBIENT_REMOVED);
+            }
             addOverworldSpawns(biome, spawns);
         } else if (biome.is(BiomeTags.IS_NETHER)) {
             clearNaturalSpawns(spawns);
@@ -197,6 +233,37 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
         for (MobCategory category : NATURAL_CATEGORIES) {
             spawns.getSpawner(category).removeIf(entry -> true);
         }
+    }
+
+    /**
+     * Removes only the given entity types from one category, preserving every other entry —
+     * including third-party mods' spawn-table additions. Used on the Overworld where InfX re-adds
+     * a known vanilla subset instead of atomically replacing the ecology.
+     */
+    private static void removeSpawnTypes(
+            MobSpawnSettingsBuilder spawns, MobCategory category, Set<EntityType<?>> removed) {
+        spawns.getSpawner(category)
+                .removeIf(entry -> removed.contains(entry.value().type()));
+    }
+
+    /**
+     * Whether an Overworld spawn-table entry of the given type is one InfX re-adds and therefore
+     * removes (when not wiping). Third-party types and vanilla animal/fish/ambient entries survive.
+     */
+    static boolean isOverworldReplacedType(MobCategory category, EntityType<?> type) {
+        if (category == MobCategory.MONSTER) {
+            return OVERWORLD_MONSTER_REMOVED.contains(type);
+        }
+        if (category == MobCategory.CREATURE) {
+            return OVERWORLD_CREATURE_REMOVED.contains(type);
+        }
+        if (category == MobCategory.WATER_AMBIENT) {
+            return OVERWORLD_WATER_AMBIENT_REMOVED.contains(type);
+        }
+        if (category == MobCategory.AMBIENT) {
+            return OVERWORLD_AMBIENT_REMOVED.contains(type);
+        }
+        return category == MobCategory.WATER_CREATURE && type == EntityType.SQUID;
     }
 
     private static void add(
