@@ -50,29 +50,33 @@ public enum MoonPhase {
         return switch (atTime(overworldClockTime)) {
             case BLOOD -> 0.6F;
             case YELLOW -> 1.0F;
-            case BLUE, PHANTOM -> 1.1F;
+            case BLUE -> 1.1F;
             default -> DimensionType.MOON_BRIGHTNESS_PER_PHASE[
                             visualPhaseAtTime(overworldClockTime).index()]
                     * 0.5F + 0.75F;
         };
     }
 
-    /** MITE blood-moon storm window: the whole day from noon (World.java:8675-8680). */
+    /**
+     * MITE blood-moon storm: 6:00 (dawn) to 19:00 (sunset), raw time-of-day [0, 13_000).
+     * {@code World.java:8675-8680} generates {@code WeatherEvent(first_tick_of_day + 6_000, 13_000)};
+     * {@code first_tick_of_day + 6_000} lands on the unadjusted day start = raw 0 = dawn (not noon).
+     */
     public static boolean isBloodMoonThunderWindow(long overworldClockTime) {
         return atTime(overworldClockTime) == BLOOD
-                && Math.floorMod(overworldClockTime, DAY_TICKS) >= 6_000;
+                && Math.floorMod(overworldClockTime, DAY_TICKS) < 13_000L;
     }
 
     /**
-     * MITE blood-moon storm countdown: the storm always ends at 19:00 (noon + 13,000 ticks),
-     * whatever the last tick was, instead of re-arming a fresh 13,000 ticks on every pass.
+     * MITE blood-moon storm countdown: the storm lasts 13,000 ticks from dawn, ending at
+     * 19:00 (raw 13_000 = sunset), instead of re-arming a fresh 13,000 ticks on every pass.
      */
     public static long bloodMoonStormRemainingTicks(long overworldClockTime) {
         if (!isBloodMoonThunderWindow(overworldClockTime)) {
             return 0L;
         }
         long time = Math.floorMod(overworldClockTime, DAY_TICKS);
-        return Math.max(0L, 13_000L - (time - 6_000L));
+        return 13_000L - time;
     }
 
     public static long dayAt(long overworldClockTime) {

@@ -43,16 +43,22 @@ class BasicSystemsTest {
         assertEquals(1.0F, MoonPhase.miteMoonBrightness(552_000L));       // harvest moon day 24
         assertEquals(1.25F, MoonPhase.miteMoonBrightness(168_000L), 1.0E-6F); // full moon day 8
         assertEquals(0.75F, MoonPhase.miteMoonBrightness(264_000L), 1.0E-6F); // new moon day 12
+        // MITE gives the moondog (PHANTOM) the default formula, not blue-moon's 1.1.
+        assertEquals(1.25F, MoonPhase.miteMoonBrightness(2_856_000L), 1.0E-6F); // phantom moon day 120
 
-        assertFalse(MoonPhase.isBloodMoonThunderWindow(744_000L + 5_999L));
-        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 6_000L));
-        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 23_000L));
-        assertFalse(MoonPhase.isBloodMoonThunderWindow(720_000L)); // day 31, ordinary
+        // MITE blood-moon storm: raw [0, 13_000) = 6:00 (dawn) to 19:00 (sunset).
+        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L));              // dawn, raw 0
+        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 5_999L));     // raw 5999
+        assertTrue(MoonPhase.isBloodMoonThunderWindow(744_000L + 12_999L));    // raw 12999
+        assertFalse(MoonPhase.isBloodMoonThunderWindow(744_000L + 13_000L));  // raw 13000 = 19:00 sunset
+        assertFalse(MoonPhase.isBloodMoonThunderWindow(744_000L + 23_000L));   // raw 23000 night
+        assertFalse(MoonPhase.isBloodMoonThunderWindow(720_000L));             // day 31 ordinary
 
-        // The storm always ends at 19:00 (noon + 13,000 ticks) instead of re-arming a fresh 13k.
-        assertEquals(13_000L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 6_000L));
-        assertEquals(1_000L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 18_000L));
-        assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 19_000L));
+        // The storm lasts 13,000 ticks from dawn, ending at 19:00 (sunset).
+        assertEquals(13_000L, MoonPhase.bloodMoonStormRemainingTicks(744_000L));
+        assertEquals(7_001L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 5_999L));
+        assertEquals(1L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 12_999L));
+        assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 13_000L));
         assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(744_000L + 23_000L));
         assertEquals(0L, MoonPhase.bloodMoonStormRemainingTicks(720_000L)); // day 31, ordinary
     }

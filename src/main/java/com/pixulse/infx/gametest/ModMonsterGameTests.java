@@ -2783,15 +2783,15 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
-    /** MITE: phantom waves answer to the moon calendar, not to sleep deprivation. */
+    /** MITE: phantom waves answer to the blood moon, not the phantom moon (moondog is visual-only). */
     private static void phantomMoonSpawns(GameTestHelper helper) {
         var level = helper.getLevel();
         var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
         level.clockManager().setTotalTicks(overworldClock, 2_869_000L); // phantom-moon night, day 120
         int phantomNight = SpawnGate.phantomWaveCount(level);
         helper.assertTrue(
-                phantomNight >= 1 && phantomNight <= 2,
-                "phantom-moon nights must allow a 1-2 phantom wave; got " + phantomNight);
+                phantomNight == -1,
+                "phantom-moon (moondog) nights must deny phantom waves (MITE moondog is visual-only); got " + phantomNight);
         level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
         int bloodNight = SpawnGate.phantomWaveCount(level);
         helper.assertTrue(

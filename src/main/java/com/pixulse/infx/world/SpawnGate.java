@@ -450,7 +450,7 @@ public final class SpawnGate {
         if (!MoonPhase.isOverworld(level)) return -1;
         MoonPhase phase = MoonPhase.at(level);
         if (!MoonPhase.isNight(level)) return -1;
-        if (phase == MoonPhase.BLOOD || phase == MoonPhase.PHANTOM) {
+        if (phase == MoonPhase.BLOOD) {
             return 1 + level.getRandom().nextInt(2);
         }
         return -1;
