@@ -1,5 +1,6 @@
 package com.pixulse.infx.player;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
@@ -14,8 +15,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.clock.WorldClock;
+import net.minecraft.world.clock.WorldClocks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -32,8 +37,18 @@ public final class InfxCommands {
     public static void registerCommands(RegisterCommandsEvent event) {
         CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
         dispatcher.register(Commands.literal(ROOT)
-                .then(Commands.literal("day").executes(context -> reply(
-                        context, "Survival day: " + InfxMonsterDay.day(player(context)))))
+                .then(Commands.literal("day")
+                        .executes(context -> reply(
+                                context, "Survival day: " + InfxMonsterDay.day(player(context))))
+                        .then(Commands.argument("day", IntegerArgumentType.integer(1))
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(context -> {
+                                    int target = IntegerArgumentType.getInteger(context, "day");
+                                    InfxMonsterDay.setDay(player(context), target);
+                                    context.getSource().sendSuccess(
+                                            () -> Component.literal("Survival day set to " + target), true);
+                                    return target;
+                                })))
                 .then(Commands.literal("structure")
                         .executes(context -> reply(context, structureListMessage(
                                 StructureGenerationGates.progress(player(context).level()))))
@@ -101,9 +116,25 @@ public final class InfxCommands {
                 + "; progress " + Math.round(progress * 100.0F) + "%";
     }
 
-    private static final class InfxMonsterDay {
+    static final class InfxMonsterDay {
+        static final long TICKS_PER_DAY = 24_000L;
+
         static long day(ServerPlayer player) {
-            return Math.max(1L, player.level().getOverworldClockTime() / 24_000L + 1L);
+            return dayFromTicks(player.level().getOverworldClockTime());
+        }
+
+        static long dayFromTicks(long ticks) {
+            return Math.max(1L, ticks / TICKS_PER_DAY + 1L);
+        }
+
+        static void setDay(ServerPlayer player, long targetDay) {
+            MinecraftServer server = player.level().getServer();
+            Holder<WorldClock> overworld = server.registryAccess().getOrThrow(WorldClocks.OVERWORLD);
+            server.clockManager().setTotalTicks(overworld, ticksForDay(targetDay));
+        }
+
+        static long ticksForDay(long day) {
+            return Math.max(0L, day - 1L) * TICKS_PER_DAY;
         }
     }
 }
