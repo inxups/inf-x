@@ -35,9 +35,9 @@ public final class ShieldSpec {
 
     private static Stats stats(InfxMaterial material) {
         return switch (material) {
-            case WOOD -> new Stats(0.60F, 0.30F, 1.25F, 1.00F);
-            case ANCIENT_METAL -> new Stats(0.85F, 0.18F, 0.85F, 0.65F);
-            case ADAMANTIUM -> new Stats(1.00F, 0.10F, 0.45F, 0.30F);
+            case WOOD -> new Stats(0.30F, 1.0F, 2F, 1.0F);
+            case ANCIENT_METAL -> new Stats(0.50F, 0.75F, 2.5F, 1.5F);
+            case ADAMANTIUM -> new Stats(0.75F, 0.50F, 3F, 2F);
             default -> throw new IllegalArgumentException("No shield spec for " + material);
         };
     }
