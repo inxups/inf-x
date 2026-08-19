@@ -63,7 +63,7 @@ public final class MoonEvents {
         if (MoonPhase.BLUE.isActiveInOverworld(level)) {
             setWeather(level, false, false, 6_000);
         } else if (isBloodMoonThunderWindow(level)) {
-            // MITE forces a thunderstorm from noon, lasting 13,000 ticks (noon→19:00).
+            // MITE forces a thunderstorm from dawn (6:00), lasting 13,000 ticks until sunset (19:00).
             long remaining = MoonPhase.bloodMoonStormRemainingTicks(level.getOverworldClockTime());
             if (remaining > 0) {
                 setWeather(level, true, true, (int) remaining);
@@ -71,7 +71,7 @@ public final class MoonEvents {
         }
     }
 
-    /** MITE blood-moon storm window: the whole day from noon (World.java:8675-8680). */
+    /** MITE blood-moon storm window: dawn to sunset, raw [0, 13_000) (World.java:8675-8680). */
     public static boolean isBloodMoonThunderWindow(ServerLevel level) {
         return MoonPhase.isBloodMoonThunderWindow(level.getOverworldClockTime());
     }
