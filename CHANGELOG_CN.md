@@ -1,12 +1,22 @@
 # Changelog
 
-## 0t11
+## 0v7
 ### 新功能
 - 管理员指令 `/infx day <天数>`：直接设置主世界生存天数。`/infx day`（读取）保持全员可用；写入需 OP 2（`LEVEL_GAMEMASTERS`，与 vanilla `/time set` 同级），经 `ServerClockManager.setTotalTicks` 设置主世界时钟总 tick（等价 vanilla `/time set` 对主世界时钟的设置），广播给全员并标记存盘——血月/月相/刷怪密度/结构解锁门等天数派生机制自动跟随。设置后回到该天黎明（tick=0 对应 06:00）。
+- 血月/蓝月玩家运势 buff：血月日在线玩家获得霉运（Bad Luck）、蓝月日获得幸运（Luck），相位日结束后随剩余时长自动消失（`MoonEvents.applyLunarBuffs` 经 `PlayerTickEvent.Post` 每 100 tick 把效果剩余时长刷新至当日末尾，自然到期，不显式移除以免误删其它来源效果）。开关 `world.lunarBuffs`（默认 true）。
 - 僵尸改为新建 InfX 实体替换生成：vanilla `Zombie` 不再被保留，与骷髅/蜘蛛/苦力怕等一致，改为新建 `infx_zombie` 实体（`InfxZombie extends Zombie`）替换生成。原 `ZombieEvents` 的 7 个事件逻辑折入实体 override：属性对齐（近战 5、护甲 0）、1/8 聪明、无幼体、烧树 AI、寻食生肉、村民转化门（持挖掘工具拒绝转化 + 转化后清空 5 装备槽）、被玩家打一次变聪明、稀有金属粒掉落。首领仍由 vanilla `Zombie.handleAttributes` 原生承担；张力装备（`equipForWorldAge`）与锈铁装备（`RustedIronSources`）路径因直接继承 `Zombie`（非 `InfxZombieBase`）无需改动守卫即生效。
   - 地牢刷怪笼（`spawnerDepthType` danger 0 与 datamap `monster_room_mobs`）及床伏击改为直接生成 `infx_zombie`——`initializeReplacement` 不复制刷怪笼来源标记，靠运行时替换会丢来源导致 15 杀寿命失效，故刷怪笼必须直接刷 InfxZombie。
   - 仅 `isWorldSpawn` 来源（自然/区块生成/刷怪笼/结构/增援/巡逻/试炼刷怪笼）的 vanilla 僵尸被替换；COMMAND/SPAWN_ITEM_USE/DISPENSER/LOAD 不替换（沿用现有替换怪模式；vanilla 僵尸蛋仍出 vanilla，`infx_zombie_spawn_egg` 自动生成出 InfxZombie）。已存档的 vanilla 僵尸（LOAD）不替换（沿用女巫先例）。
   - `infx_zombie` loot 表照搬 vanilla 僵尸（腐肉 0-2+抢夺、铁/胡萝卜/土豆稀有池 2.5%+抢夺），金属粒稀有掉落保留在 `dropCustomDeathLoot`。加入 `zombies`/`burn_in_daylight` tag（白天燃烧受 `MobSunBurnMixin` 的 MITE 昼夜门控）。
+### 问题修复
+- **动物地面进食对齐 MITE 并扩展到所有可繁殖动物**：`Livestock.consumeNearbyFood` 只消耗物品并回 wellness，从不触发 `setInLove`——动物吃了地上的繁殖食物却不进求爱；且进食无任何门控，求爱中/繁殖冷却中照吃。改为统一 `eatDroppedFood`：进食前过 MITE `canEat` 门（`!isInLove() && getAge()==0`，排除幼崽与冷却），进食后在动物 well 时 `setInLove`（牲畜需 `isWell`；非牲畜 `isWell` 恒真，故进食即繁殖——InfX 未移植 MITE 进食回血子系统，故不取满血门以免受伤动物永不能繁殖）。新增 `MoveToFoodItemGoal`（MITE `EntityAIMoveToFoodItem` 现代移植）经 `EntityJoinLevelEvent` 装到所有可繁殖 `Animal`（除马——保留其交互式 4000-tick 喂食门；除 InfX 牲畜——已有 `NeedsGoal` 负责寻路进食，避免重复 goal）。兔子/乌龟等原版可繁殖动物现可吃地上繁殖食物并繁殖。
+- **worldgen 死锁卡死**：`Tension.forBlock` 原用 `level.getChunkAt(pos)` 同步加载区块；`finalizeSpawn` 在区块生成期可于 worldgen 线程触发（结构/地牢刷怪笼替换生成 `InfxZombie` 等），同步加载会排区块任务并在 `CompletableFuture.join` 自死锁，连带服务器停 tick 致整局冻死（打开选项/对局域网界面时表现最明显）。改为非阻塞 `getChunk(x, z, ChunkStatus.FULL, false)`（与 vanilla `ServerLevel#getCurrentDifficultyAt` 同范式），取不到按新区块 inhabitedTime=0 处理。一次性覆盖所有经 `difficultyTension → Tension.forBlock` 的调用方（`MonsterEvents`/`Revenant`/`InfxSkeleton`/`VanillaMobEquipmentMixin`/`InfxSpider`）。
+
+
+---
+
+## 0t11
+### 新功能
 - 移植 MITE 刷怪笼机制：
   - **寿命（15 杀停刷）**：主世界/下界/末地的方块刷怪笼最多累计被击杀 15 只由它刷出的怪后永久停刷（`SpawnerLifetime` 经 `infx:spawner_kills` attachment 持久化计数，`BaseSpawnerMixin` 在 `serverTick` 门控、`SpawnerEvents` 在 `LivingDeathEvent` 记账——仅玩家击杀计 1 次，环境/磨死不计）。开关 `mobs.spawnerLifetime`（默认 true）。矿车刷怪笼不受影响（无位置标记）。
   - **深度分层类型选择**：主世界地牢刷怪笼按生成深度选择怪（`WorldGenDungeons.pickMobSpawner`）：表层僵尸/食尸鬼/骷髅/蜘蛛，y≤32 起可出现尸妖，y≤16 起可出现恶魔蜘蛛，y≤0 才可出现地狱犬；`MonsterRoomFeatureMixin` 在生成时按 y 改写类型，同时 datamap `monster_room_mobs` 已纳入 7 种深度怪权重作为保底（任何地牢都有机会刷出）。开关 `mobs.spawnerDepthLayering`（默认 true）。
@@ -50,10 +60,7 @@
 - 新增客户端与服务端 dev 模式对称校验：登录配置阶段交换 `devMode` 开关，客户端与服务端不一致时（dev 客户端进普通服，或普通客户端进 dev 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。
 - dev 模式开关从 `config/infx/infx-common.json` 与 `config/infx/infx-client.json` 的 `development` 分类迁出，统一保存至独立文件 `config/infx/infx-devmode.json`（`server.devMode` 服务端 / `client.devMode` 客户端），默认关闭；原文件残留的 `development.testMode` 字段会被配置系统忽略，已在旧配置开启 dev 模式的需在新文件重新打开。
 - “test 模式”统一更名为“dev 模式”（开发模式）：类名、配置项 key、网络握手 payload 与语言键全部由 `testMode` 改为 `devMode`，配置文件路径由 `infx-testmode.json` 改为 `infx-devmode.json`；已存在的 `testMode` 配置字段会被忽略，需在新文件以 `devMode` 重新配置。
-- 血月/蓝月玩家运势 buff：血月日在线玩家获得霉运（Bad Luck）、蓝月日获得幸运（Luck），相位日结束后随剩余时长自动消失（`MoonEvents.applyLunarBuffs` 经 `PlayerTickEvent.Post` 每 100 tick 把效果剩余时长刷新至当日末尾，自然到期，不显式移除以免误删其它来源效果）。开关 `world.lunarBuffs`（默认 true）。
 ### 问题修复
-- **动物地面进食对齐 MITE 并扩展到所有可繁殖动物**：`Livestock.consumeNearbyFood` 只消耗物品并回 wellness，从不触发 `setInLove`——动物吃了地上的繁殖食物却不进求爱；且进食无任何门控，求爱中/繁殖冷却中照吃。改为统一 `eatDroppedFood`：进食前过 MITE `canEat` 门（`!isInLove() && getAge()==0`，排除幼崽与冷却），进食后在动物 well 时 `setInLove`（牲畜需 `isWell`；非牲畜 `isWell` 恒真，故进食即繁殖——InfX 未移植 MITE 进食回血子系统，故不取满血门以免受伤动物永不能繁殖）。新增 `MoveToFoodItemGoal`（MITE `EntityAIMoveToFoodItem` 现代移植）经 `EntityJoinLevelEvent` 装到所有可繁殖 `Animal`（除马——保留其交互式 4000-tick 喂食门；除 InfX 牲畜——已有 `NeedsGoal` 负责寻路进食，避免重复 goal）。兔子/乌龟等原版可繁殖动物现可吃地上繁殖食物并繁殖。
-- **worldgen 死锁卡死**：`Tension.forBlock` 原用 `level.getChunkAt(pos)` 同步加载区块；`finalizeSpawn` 在区块生成期可于 worldgen 线程触发（结构/地牢刷怪笼替换生成 `InfxZombie` 等），同步加载会排区块任务并在 `CompletableFuture.join` 自死锁，连带服务器停 tick 致整局冻死（打开选项/对局域网界面时表现最明显）。改为非阻塞 `getChunk(x, z, ChunkStatus.FULL, false)`（与 vanilla `ServerLevel#getCurrentDifficultyAt` 同范式），取不到按新区块 inhabitedTime=0 处理。一次性覆盖所有经 `difficultyTension → Tension.forBlock` 的调用方（`MonsterEvents`/`Revenant`/`InfxSkeleton`/`VanillaMobEquipmentMixin`/`InfxSpider`）。
 - **Swift Sneak 改附护腿**：`minecraft:swift_sneak` 原注册到 `FOOT_ARMOR_ENCHANTABLE`/`FEET`（靴子），与 vanilla 26.1 及 MITE 护腿槽位矛盾。改为 `LEG_ARMOR_ENCHANTABLE`/`LEGS`，GameTest 同步断言靴子不再支持、护腿支持。
 - **注册消失/绑定诅咒**：`minecraft:vanishing_curse`（`VANISHING_ENCHANTABLE`/`ANY`）与 `minecraft:binding_curse`（`EQUIPPABLE_ENCHANTABLE`/`ARMOR`）此前完全不在 `InfXEnchantments.ALL`，原版注册定义被来源标签 `replace:true` 抹除，正常途径不可获得。现已注册并进入来源池；按 treasure 性质从附魔台排除，仍可经战利品/交易获得。
 - **原版盔甲保护类附魔不生效**：`EquipmentBehaviors` 的 `typedProtectionPoints`/`protectionBonus`/`mundaneArmorPoints` 原要求 `InfXItems.catalog().equipment(stack)` 非空，原版盔甲被跳过，导致手工/命令附上的 `infx:protection`/火/爆/弹射物保护不参与固定护甲计算（显示有附魔但不生效）。新增 `pieceBaseProtection` helper：InfX 装备取 `armorProtection`，原版盔甲取其 ARMOR 属性值；非玩家路径按 1.0 有效系数把原版盔甲也折算到 0.5×。
