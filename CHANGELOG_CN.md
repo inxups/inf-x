@@ -45,6 +45,7 @@
 - 新增客户端与服务端 dev 模式对称校验：登录配置阶段交换 `devMode` 开关，客户端与服务端不一致时（dev 客户端进普通服，或普通客户端进 dev 服务端）在进世界前断开并提示；LAN 带作弊世界因服务端配置开关仍为关，普通客户端照常可进。
 - dev 模式开关从 `config/infx/infx-common.json` 与 `config/infx/infx-client.json` 的 `development` 分类迁出，统一保存至独立文件 `config/infx/infx-devmode.json`（`server.devMode` 服务端 / `client.devMode` 客户端），默认关闭；原文件残留的 `development.testMode` 字段会被配置系统忽略，已在旧配置开启 dev 模式的需在新文件重新打开。
 - “test 模式”统一更名为“dev 模式”（开发模式）：类名、配置项 key、网络握手 payload 与语言键全部由 `testMode` 改为 `devMode`，配置文件路径由 `infx-testmode.json` 改为 `infx-devmode.json`；已存在的 `testMode` 配置字段会被忽略，需在新文件以 `devMode` 重新配置。
+- 血月/蓝月玩家运势 buff：血月日在线玩家获得霉运（Bad Luck）、蓝月日获得幸运（Luck），相位日结束后随剩余时长自动消失（`MoonEvents.applyLunarBuffs` 经 `PlayerTickEvent.Post` 每 100 tick 把效果剩余时长刷新至当日末尾，自然到期，不显式移除以免误删其它来源效果）。开关 `world.lunarBuffs`（默认 true）。
 ### 问题修复
 - **Swift Sneak 改附护腿**：`minecraft:swift_sneak` 原注册到 `FOOT_ARMOR_ENCHANTABLE`/`FEET`（靴子），与 vanilla 26.1 及 MITE 护腿槽位矛盾。改为 `LEG_ARMOR_ENCHANTABLE`/`LEGS`，GameTest 同步断言靴子不再支持、护腿支持。
 - **注册消失/绑定诅咒**：`minecraft:vanishing_curse`（`VANISHING_ENCHANTABLE`/`ANY`）与 `minecraft:binding_curse`（`EQUIPPABLE_ENCHANTABLE`/`ARMOR`）此前完全不在 `InfXEnchantments.ALL`，原版注册定义被来源标签 `replace:true` 抹除，正常途径不可获得。现已注册并进入来源池；按 treasure 性质从附魔台排除，仍可经战利品/交易获得。
