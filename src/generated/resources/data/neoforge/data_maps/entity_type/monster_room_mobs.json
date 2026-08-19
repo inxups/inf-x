@@ -15,11 +15,11 @@
     "infx:infx_spider": {
       "weight": 100
     },
+    "infx:infx_zombie": {
+      "weight": 200
+    },
     "infx:wight": {
       "weight": 60
-    },
-    "minecraft:zombie": {
-      "weight": 200
     }
   }
 }

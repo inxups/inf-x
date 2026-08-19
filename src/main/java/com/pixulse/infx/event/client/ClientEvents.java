@@ -43,6 +43,7 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.TropicalFishRenderer;
 import net.minecraft.client.renderer.entity.WitchRenderer;
 import net.minecraft.client.renderer.entity.WitherSkeletonRenderer;
+import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.ZombifiedPiglinRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
@@ -96,6 +97,7 @@ public final class ClientEvents {
                 context -> new EntityRenderers.ZombieTexture(context, InfXEntityTypes.REVENANT.get()));
 
         event.registerEntityRenderer(InfXEntityTypes.INFX_SKELETON.get(), SkeletonRenderer::new);
+        event.registerEntityRenderer(InfXEntityTypes.INFX_ZOMBIE.get(), ZombieRenderer::new);
         event.registerEntityRenderer(InfXEntityTypes.INFX_WITHER_SKELETON.get(), WitherSkeletonRenderer::new);
         event.registerEntityRenderer(
                 InfXEntityTypes.LONGDEAD.get(),

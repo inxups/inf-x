@@ -316,7 +316,7 @@ public final class ModMonsterGameTests {
         }
         helper.assertTrue(
                 BuiltInRegistries.ENTITY_TYPE
-                        .wrapAsHolder(EntityType.ZOMBIE)
+                        .wrapAsHolder(InfXEntityTypes.INFX_ZOMBIE.get())
                         .is(EntityTypeTags.UNDEAD),
                 "replacement zombies must retain vanilla undead semantics");
         helper.assertTrue(
@@ -396,11 +396,11 @@ public final class ModMonsterGameTests {
 
     private static void attributes(GameTestHelper helper) {
         int zombieX = 1;
-        // The vanilla zombie zeroes its modern armor through the FinalizeSpawnEvent profile.
-        Mob vanilla = spawnWithFinalize(helper, EntityType.ZOMBIE);
+        // The InfX zombie zeroes its modern armor and sets melee to 5 via its attribute supplier.
+        Mob vanilla = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
         helper.assertTrue(
                 vanilla.getAttributeBaseValue(Attributes.ARMOR) == 0.0D,
-                "minecraft:zombie must not inherit modern zombie armor");
+                "infx:zombie must not inherit modern zombie armor");
         for (var type : List.of(
                 InfXEntityTypes.INVISIBLE_STALKER,
                 InfXEntityTypes.GHOUL,
@@ -585,7 +585,7 @@ public final class ModMonsterGameTests {
         explicitWitch.snapTo(
                 explicitWitchLocation.x, explicitWitchLocation.y, explicitWitchLocation.z, 0.0F, 0.0F);
         helper.getLevel().addFreshEntity(explicitWitch);
-        var converter = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, convertedVillagerPos.south());
+        var converter = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), convertedVillagerPos.south());
         converter.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         var villager = helper.spawn(EntityType.VILLAGER, convertedVillagerPos);
         helper.assertTrue(
@@ -596,8 +596,9 @@ public final class ModMonsterGameTests {
                 // vanilla join event, so the test must not inspect tick-zero's
                 // pre-transaction entity index.
                 .thenWaitUntil(() -> {
-                    // The vanilla zombie is no longer spawn-replaced; only the silverfish and witch keep InfX replacements.
-                    helper.assertEntityPresent(EntityType.ZOMBIE, naturalPos, 2.0D);
+                    // A natural zombie spawn is replaced with infx:zombie; an explicit COMMAND
+                    // zombie is not. Only the silverfish and witch keep their other InfX replacements.
+                    helper.assertEntityPresent(InfXEntityTypes.INFX_ZOMBIE.get(), naturalPos, 2.0D);
                     helper.assertEntityPresent(EntityType.ZOMBIE, explicitPos);
                     helper.assertEntityPresent(InfXEntityTypes.COPPERSPINE.get(), triggeredPos, 2.0D);
                     helper.assertEntityPresent(InfXEntityTypes.INFX_WITCH.get(), explicitWitchPos, 2.0D);
@@ -606,11 +607,11 @@ public final class ModMonsterGameTests {
                 .thenExecute(() -> {
                     helper.assertEntityNotPresent(EntityType.SILVERFISH, triggeredPos);
                     helper.assertEntityNotPresent(EntityType.WITCH, explicitWitchPos);
-                    // The vanilla zombie keeps the InfX attack alignment through the spawn event.
-                    Mob profiled = spawnWithFinalize(helper, EntityType.ZOMBIE);
+                    // The InfX zombie's attribute supplier sets melee to 5.
+                    Mob profiled = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
                     helper.assertTrue(
                             profiled.getAttributeBaseValue(Attributes.ATTACK_DAMAGE) == 5.0D,
-                            "the zombie spawn profile must apply the InfX attack alignment; actual="
+                            "infx:zombie must apply the MITE attack alignment; actual="
                                     + profiled.getAttributeBaseValue(Attributes.ATTACK_DAMAGE));
                 })
                 .thenSucceed();
@@ -1092,7 +1093,7 @@ public final class ModMonsterGameTests {
                 enderman.getTarget() == null && enderman.getLastHurtByMob() == null,
                 "non-projectile indirect damage must make INFX endermen blink and drop aggression");
 
-        var sharingSource = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(14, 2, 12));
+        var sharingSource = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(14, 2, 12));
         var neutralEnderman = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ENDERMAN.get(), new BlockPos(12, 2, 12));
         MonsterEvents.propagateTarget(level, sharingSource, player);
         helper.assertTrue(
@@ -1740,13 +1741,13 @@ public final class ModMonsterGameTests {
         BlockPos absoluteSpawnerPos = helper.absolutePos(spawnerPos);
         SpawnerBlockEntity spawner = (SpawnerBlockEntity) helper.getLevel().getBlockEntity(absoluteSpawnerPos);
         helper.assertTrue(spawner != null, "the test spawner must create its block entity");
-        spawner.setEntityId(EntityType.ZOMBIE, helper.getLevel().getRandom());
+        spawner.setEntityId(InfXEntityTypes.INFX_ZOMBIE.get(), helper.getLevel().getRandom());
         for (int tick = 0; tick <= 20; tick++) {
             spawner.getSpawner().serverTick(helper.getLevel(), absoluteSpawnerPos);
         }
 
         helper.startSequence()
-                .thenWaitUntil(() -> helper.assertEntityPresent(EntityType.ZOMBIE, spawnerPos, 8.0D))
+                .thenWaitUntil(() -> helper.assertEntityPresent(InfXEntityTypes.INFX_ZOMBIE.get(), spawnerPos, 8.0D))
                 .thenExecute(() -> ModCompletionGameTests.removePlayer(player))
                 .thenSucceed();
     }
@@ -1764,7 +1765,7 @@ public final class ModMonsterGameTests {
         BlockPos absoluteSpawnerPos = helper.absolutePos(spawnerPos);
         SpawnerBlockEntity spawner = (SpawnerBlockEntity) helper.getLevel().getBlockEntity(absoluteSpawnerPos);
         helper.assertTrue(spawner != null, "the test spawner must create its block entity");
-        spawner.setEntityId(EntityType.ZOMBIE, helper.getLevel().getRandom());
+        spawner.setEntityId(InfXEntityTypes.INFX_ZOMBIE.get(), helper.getLevel().getRandom());
         // Exhaust the lifetime so the spawner is permanently spent.
         spawner.setData(InfXAttachments.SPAWNER_KILLS, SpawnGate.MAX_SPAWNER_KILLS);
         for (int tick = 0; tick <= 40; tick++) {
@@ -1864,7 +1865,7 @@ public final class ModMonsterGameTests {
         player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
 
         var leader = helper.spawn(
-                EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+                InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         var ally = helper.spawn(
                 InfXEntityTypes.INFX_SKELETON.get(), new BlockPos(3, 2, 2));
         var piglin = helper.spawnWithNoFreeWill(
@@ -1885,7 +1886,7 @@ public final class ModMonsterGameTests {
                 "player activity must not bypass INFX zombified-piglin awareness range");
 
         var digger = helper.spawnWithNoFreeWill(
-                EntityType.ZOMBIE, new BlockPos(2, 2, 7));
+                InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 7));
         digger.setItemSlot(
                 net.minecraft.world.entity.EquipmentSlot.MAINHAND,
                 InfXItems.catalog()
@@ -1935,7 +1936,7 @@ public final class ModMonsterGameTests {
      * wither skeletons retain their InfX iron sword.
      */
     private static void spawnEquipment(GameTestHelper helper) {
-        var zombie = spawnWithFinalize(helper, EntityType.ZOMBIE);
+        var zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
         assertNoVanillaEquipment(helper, zombie, "replacement zombie");
 
         var skeleton = spawnWithFinalize(helper, InfXEntityTypes.INFX_SKELETON.get());
@@ -2226,7 +2227,7 @@ public final class ModMonsterGameTests {
     private static void zombieSmart(GameTestHelper helper) {
         var level = helper.getLevel();
         var player = ModCompletionGameTests.createPlayer(helper);
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         zombie.getPersistentData().putBoolean(MonsterTactics.SMART_KEY, false);
         helper.assertTrue(
                 !MonsterTactics.diggingEnabled(zombie, level),
@@ -2248,7 +2249,7 @@ public final class ModMonsterGameTests {
         // Pin an ordinary night so earlier blood-moon tests cannot leave the world in a frenzy state.
         var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
         level.clockManager().setTotalTicks(overworldClock, 733_000L);
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         BlockPos dirtPos = new BlockPos(3, 3, 2);
         helper.setBlock(dirtPos, Blocks.DIRT);
         int bareDirt = MonsterTactics.cooloffForBlock(zombie, level, helper.getBlockState(dirtPos));
@@ -2292,9 +2293,9 @@ public final class ModMonsterGameTests {
         player.snapTo(playerPos.x, playerPos.y, playerPos.z, 0.0F, 0.0F);
         // Keep the player hovering at the canopy so the MITE y+2..y+9 tree check passes.
         player.setNoGravity(true);
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         helper.assertTrue(
-                ZombieEvents.igniteNearestTree(level, zombie),
+                InfxZombie.igniteNearestTree(level, zombie),
                 "a burning zombie near a player-lit tree must set fire to the log");
         helper.assertTrue(
                 helper.getBlockState(logPos.above()).is(Blocks.FIRE),
@@ -2405,7 +2406,7 @@ public final class ModMonsterGameTests {
     private static void frenzySpeed(GameTestHelper helper) {
         var level = helper.getLevel();
         var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon night, day 32
         zombie.setSpeed(1.0F);
         helper.assertTrue(
@@ -2617,16 +2618,16 @@ public final class ModMonsterGameTests {
         helper.succeed();
     }
 
-    /** MITE has no baby zombies: vanilla's 5% spawn-baby roll is reversed by the spawn event. */
+    /** MITE has no baby zombies: the InfX zombie forces non-baby spawn group data. */
     private static void zombieNoBaby(GameTestHelper helper) {
-        Mob zombie = spawnWithFinalize(helper, EntityType.ZOMBIE);
+        Mob zombie = spawnWithFinalize(helper, InfXEntityTypes.INFX_ZOMBIE.get());
         helper.assertTrue(!zombie.isBaby(), "MITE has no baby zombies");
         helper.succeed();
     }
 
     /** MITE: a zombie walks to dropped raw meat and eats it; undead zombies never heal from it. */
     private static void zombieFood(GameTestHelper helper) {
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         ItemStack meat = new ItemStack(Items.ROTTEN_FLESH, 3);
         helper.assertTrue(MoveToFoodGoal.tryEatFood(zombie, meat), "a zombie must eat dropped meat");
         helper.assertTrue(meat.getCount() == 2, "one meat must be consumed");
@@ -2642,19 +2643,17 @@ public final class ModMonsterGameTests {
     /** MITE: a zombie holding a digging tool refuses to convert a slain villager. */
     private static void zombieConversionSkip(GameTestHelper helper) {
         var level = helper.getLevel();
-        var bare = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
-        var tool = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var bare = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
+        var tool = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         tool.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SHOVEL));
         var villager1 = helper.spawn(EntityType.VILLAGER, new BlockPos(4, 2, 2));
-        bare.doHurtTarget(level, villager1);
-        var allow = new LivingConversionEvent.Pre(villager1, EntityType.ZOMBIE_VILLAGER, timer -> {});
-        NeoForge.EVENT_BUS.post(allow);
-        helper.assertTrue(!allow.isCanceled(), "a bare zombie must allow villager conversion");
+        helper.assertTrue(
+                bare.convertVillagerToZombieVillager(level, villager1),
+                "a bare zombie must allow villager conversion");
         var villager2 = helper.spawn(EntityType.VILLAGER, new BlockPos(5, 2, 2));
-        tool.doHurtTarget(level, villager2);
-        var deny = new LivingConversionEvent.Pre(villager2, EntityType.ZOMBIE_VILLAGER, timer -> {});
-        NeoForge.EVENT_BUS.post(deny);
-        helper.assertTrue(deny.isCanceled(), "a tool-wielding zombie must skip villager conversion");
+        helper.assertFalse(
+                tool.convertVillagerToZombieVillager(level, villager2),
+                "a tool-wielding zombie must skip villager conversion");
         helper.succeed();
     }
 
@@ -2674,7 +2673,7 @@ public final class ModMonsterGameTests {
     /** MITE digs the target's foot column first: a block under an elevated target. */
     private static void zombieDigFeetFirst(GameTestHelper helper) {
         var level = helper.getLevel();
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         var player = ModCompletionGameTests.createPlayer(helper);
         BlockPos dirtPos = new BlockPos(4, 2, 2);
         helper.setBlock(dirtPos, Blocks.DIRT);

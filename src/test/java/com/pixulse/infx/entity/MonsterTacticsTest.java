@@ -57,11 +57,11 @@ class MonsterTacticsTest {
 
     @Test
     void zombieRareDropsMatchMite() {
-        assertEquals(0.025F, ZombieEvents.rareDropChance(0), 1.0E-6F);
-        assertEquals(0.035F, ZombieEvents.rareDropChance(1), 1.0E-6F);
-        assertEquals(0.055F, ZombieEvents.rareDropChance(3), 1.0E-6F);
+        assertEquals(0.025F, InfxZombie.rareDropChance(0), 1.0E-6F);
+        assertEquals(0.035F, InfxZombie.rareDropChance(1), 1.0E-6F);
+        assertEquals(0.055F, InfxZombie.rareDropChance(3), 1.0E-6F);
         for (int i = 0; i < 32; i++) {
-            var nugget = ZombieEvents.randomNugget(RandomSource.create(i));
+            var nugget = InfxZombie.randomNugget(RandomSource.create(i));
             assertTrue(
                     nugget == Items.COPPER_NUGGET
                             || nugget == Items.GOLD_NUGGET

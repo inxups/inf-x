@@ -57,8 +57,10 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
     @Override
     public void generate() {
-        // The plain vanilla zombie now keeps its vanilla loot table; only the MITE mobs that are
-        // separate entity types receive InfX tables. Ghouls, stalkers and shadows drop nothing.
+        // The base InfX zombie mirrors the vanilla zombie loot (flesh + rare iron/carrot/potato);
+        // the MITE zombie mobs that are separate entity types receive their own tables. Ghouls,
+        // stalkers and shadows drop nothing.
+        infxZombieDrops(InfXEntityTypes.INFX_ZOMBIE.get());
         zombieDrops(InfXEntityTypes.WIGHT.get());
         zombieDrops(InfXEntityTypes.REVENANT.get());
         emptyDrops(InfXEntityTypes.INVISIBLE_STALKER.get());
@@ -324,6 +326,29 @@ final class ModEntityLootSubProvider extends EntityLootSubProvider {
 
     private void zombieDrops(EntityType<?> custom) {
         add(custom, LootTable.lootTable().withPool(fleshPool()));
+    }
+
+    /**
+     * InfX zombie mirrors the vanilla zombie: rotten flesh 0-2 (+looting) and a rare player-kill
+     * iron/carrot/potato roll (2.5% + 0.01/level). The procedural metal-nugget drop stays on the
+     * entity ({@link InfxZombie#dropCustomDeathLoot}).
+     */
+    private void infxZombieDrops(EntityType<?> custom) {
+        add(custom, LootTable.lootTable()
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(Items.ROTTEN_FLESH)
+                                .apply(SetItemCountFunction.setCount(UniformGenerator.between(0.0F, 2.0F)))
+                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(
+                                        lookup, UniformGenerator.between(0.0F, 1.0F)))))
+                .withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .when(LootItemKilledByPlayerCondition.killedByPlayer())
+                        .when(LootItemRandomChanceWithEnchantedBonusCondition.randomChanceAndLootingBoost(
+                                lookup, 0.025F, 0.01F))
+                        .add(LootItem.lootTableItem(Items.IRON_INGOT))
+                        .add(LootItem.lootTableItem(Items.CARROT))
+                        .add(LootItem.lootTableItem(Items.POTATO))));
     }
 
     /** One rotten flesh at 50% for player kills, 25% for everything else. */

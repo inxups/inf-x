@@ -37,6 +37,7 @@ import com.pixulse.infx.entity.VanillaWolf;
 import com.pixulse.infx.entity.Wight;
 import com.pixulse.infx.entity.InfxWitch;
 import com.pixulse.infx.entity.InfxWolf;
+import com.pixulse.infx.entity.InfxZombie;
 import com.pixulse.infx.entity.InfxZombifiedPiglin;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,6 +68,8 @@ public final class InfXEntityTypes {
             "infx_slime", "Slime", "史莱姆", InfxSlime::new, 0.5F, 0.5F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxEnderman>> INFX_ENDERMAN = register(
             "infx_enderman", "Enderman", "末影人", InfxEnderman::new, 0.6F, 2.9F, false);
+    public static final DeferredHolder<EntityType<?>, EntityType<InfxZombie>> INFX_ZOMBIE = register(
+            "infx_zombie", "Zombie", "僵尸", InfxZombie::new, 0.6F, 1.8F, false);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxSquid>> INFX_SQUID = register(
             "infx_squid", "Squid", "鱿鱼", InfxSquid::new, MobCategory.WATER_CREATURE, 0.95F, 0.95F, false, true);
     public static final DeferredHolder<EntityType<?>, EntityType<InfxCod>> INFX_COD = registerWaterAmbient(
@@ -229,6 +232,7 @@ public final class InfXEntityTypes {
             INFX_SPIDER,
             INFX_CAVE_SPIDER,
             INFX_CREEPER,
+            INFX_ZOMBIE,
             INFX_SLIME,
             INFX_ENDERMAN,
             INFX_SQUID,

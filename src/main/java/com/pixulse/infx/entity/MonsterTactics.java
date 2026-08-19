@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 
 /** Deterministic policy and runtime helpers for INFX monster coordination. */
 public final class MonsterTactics {
-    /** Smart-flag persistent-data key shared with {@link ZombieEvents}. */
+    /** Smart-flag persistent-data key shared with {@link InfxZombie}. */
     public static final String SMART_KEY = "infx.is_smart";
     /** Dig state-machine persistent-data keys. */
     public static final String DIG_POS = "infx_monster_dig_pos";
@@ -172,8 +172,9 @@ public final class MonsterTactics {
             return false;
         }
         if (mob instanceof InfxZombieBase) {
-            // InfX MITE zombie mobs arm themselves (the revenant) or spawn bare; the vanilla
-            // zombie is the only zombie-family member that receives world-age gear.
+            // InfX MITE zombie mobs arm themselves (the revenant) or spawn bare; the base InfX
+            // zombie (extends Zombie, not this base) is the only zombie-family member that
+            // receives world-age gear.
             return false;
         }
         if (mob instanceof InfxSkeleton skeleton) {

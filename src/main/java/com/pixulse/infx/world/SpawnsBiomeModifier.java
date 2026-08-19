@@ -143,7 +143,7 @@ public final class SpawnsBiomeModifier implements BiomeModifier {
         if (biome.is(Biomes.MUSHROOM_FIELDS)) return;
 
         add(spawns, EntityType.SPIDER, 80, 1, 2);
-        add(spawns, EntityType.ZOMBIE, 100, 1, 4);
+        add(spawns, InfXEntityTypes.INFX_ZOMBIE.get(), 100, 1, 4);
         add(spawns, EntityType.SKELETON, 100, 1, 4);
         add(spawns, EntityType.CREEPER, 100, 1, 2);
         add(spawns, EntityType.SLIME, 100, 1, 4);

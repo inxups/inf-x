@@ -254,6 +254,7 @@ public final class MonsterEvents {
 
         event.put(InfXEntityTypes.INFX_CREEPER.get(), InfxCreeper.attributes(InfxCreeper.Variant.CREEPER).build());
         event.put(InfXEntityTypes.INFERNAL_CREEPER.get(), InfxCreeper.attributes(InfxCreeper.Variant.INFERNAL).build());
+        event.put(InfXEntityTypes.INFX_ZOMBIE.get(), InfxZombie.attributes().build());
 
         event.put(InfXEntityTypes.INFX_SLIME.get(), InfxSlime.attributes(InfxSlime.Variant.SLIME).build());
         event.put(InfXEntityTypes.JELLY.get(), InfxSlime.attributes(InfxSlime.Variant.JELLY).build());
@@ -343,6 +344,7 @@ public final class MonsterEvents {
                 InfXEntityTypes.INFX_SPIDER,
                 InfXEntityTypes.INFX_CAVE_SPIDER,
                 InfXEntityTypes.INFX_CREEPER,
+                InfXEntityTypes.INFX_ZOMBIE,
                 InfXEntityTypes.INFX_SLIME,
                 InfXEntityTypes.INFX_ENDERMAN)) {
             event.register(type.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,

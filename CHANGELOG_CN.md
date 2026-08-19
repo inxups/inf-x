@@ -2,6 +2,10 @@
 
 ## 0t11
 ### 新功能
+- 僵尸改为新建 InfX 实体替换生成：vanilla `Zombie` 不再被保留，与骷髅/蜘蛛/苦力怕等一致，改为新建 `infx_zombie` 实体（`InfxZombie extends Zombie`）替换生成。原 `ZombieEvents` 的 7 个事件逻辑折入实体 override：属性对齐（近战 5、护甲 0）、1/8 聪明、无幼体、烧树 AI、寻食生肉、村民转化门（持挖掘工具拒绝转化 + 转化后清空 5 装备槽）、被玩家打一次变聪明、稀有金属粒掉落。首领仍由 vanilla `Zombie.handleAttributes` 原生承担；张力装备（`equipForWorldAge`）与锈铁装备（`RustedIronSources`）路径因直接继承 `Zombie`（非 `InfxZombieBase`）无需改动守卫即生效。
+  - 地牢刷怪笼（`spawnerDepthType` danger 0 与 datamap `monster_room_mobs`）及床伏击改为直接生成 `infx_zombie`——`initializeReplacement` 不复制刷怪笼来源标记，靠运行时替换会丢来源导致 15 杀寿命失效，故刷怪笼必须直接刷 InfxZombie。
+  - 仅 `isWorldSpawn` 来源（自然/区块生成/刷怪笼/结构/增援/巡逻/试炼刷怪笼）的 vanilla 僵尸被替换；COMMAND/SPAWN_ITEM_USE/DISPENSER/LOAD 不替换（沿用现有替换怪模式；vanilla 僵尸蛋仍出 vanilla，`infx_zombie_spawn_egg` 自动生成出 InfxZombie）。已存档的 vanilla 僵尸（LOAD）不替换（沿用女巫先例）。
+  - `infx_zombie` loot 表照搬 vanilla 僵尸（腐肉 0-2+抢夺、铁/胡萝卜/土豆稀有池 2.5%+抢夺），金属粒稀有掉落保留在 `dropCustomDeathLoot`。加入 `zombies`/`burn_in_daylight` tag（白天燃烧受 `MobSunBurnMixin` 的 MITE 昼夜门控）。
 - 移植 MITE 刷怪笼机制：
   - **寿命（15 杀停刷）**：主世界/下界/末地的方块刷怪笼最多累计被击杀 15 只由它刷出的怪后永久停刷（`SpawnerLifetime` 经 `infx:spawner_kills` attachment 持久化计数，`BaseSpawnerMixin` 在 `serverTick` 门控、`SpawnerEvents` 在 `LivingDeathEvent` 记账——仅玩家击杀计 1 次，环境/磨死不计）。开关 `mobs.spawnerLifetime`（默认 true）。矿车刷怪笼不受影响（无位置标记）。
   - **深度分层类型选择**：主世界地牢刷怪笼按生成深度选择怪（`WorldGenDungeons.pickMobSpawner`）：表层僵尸/食尸鬼/骷髅/蜘蛛，y≤32 起可出现尸妖，y≤16 起可出现恶魔蜘蛛，y≤0 才可出现地狱犬；`MonsterRoomFeatureMixin` 在生成时按 y 改写类型，同时 datamap `monster_room_mobs` 已纳入 7 种深度怪权重作为保底（任何地牢都有机会刷出）。开关 `mobs.spawnerDepthLayering`（默认 true）。

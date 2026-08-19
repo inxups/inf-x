@@ -84,7 +84,7 @@ class SpawnGateTest {
         assertEquals(InfXEntityTypes.INFX_ENDERMAN.get(), SpawnGate.replacementFor(EntityType.ENDERMAN));
         assertEquals(InfXEntityTypes.INFX_WITCH.get(), SpawnGate.replacementFor(EntityType.WITCH));
         assertEquals(InfXEntityTypes.INFX_WOLF.get(), SpawnGate.replacementFor(EntityType.WOLF));
-        assertNull(SpawnGate.replacementFor(EntityType.ZOMBIE), "zombies keep the vanilla entity and MITE events");
+        assertEquals(InfXEntityTypes.INFX_ZOMBIE.get(), SpawnGate.replacementFor(EntityType.ZOMBIE));
     }
 
     @Test
