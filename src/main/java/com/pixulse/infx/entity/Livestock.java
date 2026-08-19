@@ -244,7 +244,7 @@ public final class Livestock {
     /** Advance one InfX wellness cycle. This is intentionally not called by navigation goals. */
     public static Wellness update(ServerLevel level, Animal animal) {
         ensureWellness(animal);
-        consumeNearbyFood(level, animal);
+        eatDroppedFood(level, animal);
 
         float food = adjustNeed(food(animal), isNearFoodSource(level, animal));
         boolean nearWater = isNearWaterSource(level, animal);
@@ -521,7 +521,23 @@ public final class Livestock {
         return true;
     }
 
-    private static void consumeNearbyFood(ServerLevel level, Animal animal) {
+    /**
+     * InfX canEat: an animal only eats dropped breeding food when it is adult, out of love and out
+     * of breeding cooldown — the MITE {@code EntityAnimal.canEat()} gate. {@code getAge() == 0}
+     * already excludes babies (negative age) and the post-breeding cooldown (positive age).
+     */
+    public static boolean canEat(Animal animal) {
+        return animal.isAlive() && !animal.isInLove() && animal.getAge() == 0;
+    }
+
+    /**
+     * Eats the nearest dropped breeding-food item within pickup range. Single eat routine shared
+     * by the passive {@link #update} wellness cycle, the livestock {@link NeedsGoal#tick}, and the
+     * {@link MoveToFoodItemGoal} that extends ground-eating to non-livestock breedables. Applies the
+     * MITE canEat gate, consumes one item, then runs {@link #onFoodEaten}.
+     */
+    public static void eatDroppedFood(ServerLevel level, Animal animal) {
+        if (!canEat(animal)) return;
         ItemEntity food = level.getEntitiesOfClass(
                         ItemEntity.class,
                         animal.getBoundingBox().inflate(2.5),
@@ -532,7 +548,22 @@ public final class Livestock {
         if (food == null) return;
         food.getItem().shrink(1);
         if (food.getItem().isEmpty()) food.discard();
-        markFed(animal, 0L);
+        onFoodEaten(animal);
+    }
+
+    /**
+     * MITE {@code onFoodEaten}: livestock gain 0.5 food wellness; an animal that is well falls in
+     * love. Non-livestock animals carry no wellness meter, so {@link #isWell} is always true for
+     * them and eating breeding food puts them straight into love mode (MITE's base full-health
+     * gate is not ported, because InfX does not port the eat-to-heal subsystem it depends on).
+     */
+    private static void onFoodEaten(Animal animal) {
+        if (hasSickSkin(animal)) {
+            markFed(animal, 0L);
+        }
+        if (isWell(animal) && animal.canFallInLove()) {
+            animal.setInLove(null);
+        }
     }
 
     public record Wellness(float food, float water, float freedom, boolean crowded, boolean well) {}
@@ -701,7 +732,7 @@ public final class Livestock {
         public void tick() {
             if (!(animal.level() instanceof ServerLevel level)) return;
             if (food != null && food.isAlive() && animal.distanceToSqr(food) <= 2.25) {
-                consumeNearbyFood(level, animal);
+                eatDroppedFood(level, animal);
             }
         }
 
