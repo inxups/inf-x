@@ -5,14 +5,18 @@
       "type": "minecraft:special",
       "base": "minecraft:item/shield",
       "model": {
-        "type": "minecraft:shield"
+        "type": "infx:shield",
+        "base": "infx:adamantium_shield_base",
+        "no_pattern": "infx:adamantium_shield_base_nopattern"
       }
     },
     "on_true": {
       "type": "minecraft:special",
       "base": "minecraft:item/shield_blocking",
       "model": {
-        "type": "minecraft:shield"
+        "type": "infx:shield",
+        "base": "infx:adamantium_shield_base",
+        "no_pattern": "infx:adamantium_shield_base_nopattern"
       }
     },
     "property": "minecraft:using_item",

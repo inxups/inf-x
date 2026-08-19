@@ -76,6 +76,7 @@ public final class ClientEvents {
     @SubscribeEvent
     public static void registerSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
         event.register(InfiniteX.id("safe"), SafeSpecialRenderer.MAP_CODEC);
+        event.register(InfiniteX.id("shield"), InfXShieldSpecialRenderer.MAP_CODEC);
     }
 
     @SubscribeEvent

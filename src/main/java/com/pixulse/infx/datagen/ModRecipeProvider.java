@@ -1606,12 +1606,7 @@ final class ModRecipeProvider extends RecipeProvider {
     /** Material-tiered shields; blocking replaces the old tool-blocking component. */
     private void addShields() {
         addWoodShield();
-        addShield(InfxMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
-        addShield(InfxMaterial.SILVER, BenchTier.COPPER, 400.0F, InfXItems.SILVER_INGOT);
-        addShield(InfxMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
-        addShield(InfxMaterial.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
         addShield(InfxMaterial.ANCIENT_METAL, BenchTier.ANCIENT_METAL, 1600.0F, InfXItems.ANCIENT_METAL_INGOT);
-        addShield(InfxMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfXItems.MITHRIL_INGOT);
         addShield(InfxMaterial.ADAMANTIUM, BenchTier.ADAMANTIUM, 25600.0F, InfXItems.ADAMANTIUM_INGOT);
     }
 

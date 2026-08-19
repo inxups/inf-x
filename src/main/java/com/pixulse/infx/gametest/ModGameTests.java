@@ -2556,12 +2556,7 @@ public final class ModGameTests {
     private static float expectedBlockFactor(InfxMaterial material) {
         return switch (material) {
             case WOOD -> 0.60F;
-            case COPPER -> 0.70F;
-            case SILVER -> 0.72F;
-            case GOLD -> 0.65F;
-            case IRON -> 0.80F;
             case ANCIENT_METAL -> 0.85F;
-            case MITHRIL -> 0.95F;
             case ADAMANTIUM -> 1.00F;
             default -> throw new IllegalArgumentException("No expected shield factor for " + material);
         };
