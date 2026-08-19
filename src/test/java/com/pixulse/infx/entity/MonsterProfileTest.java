@@ -294,7 +294,7 @@ class MonsterProfileTest {
 
         Set<String> checked = new HashSet<>();
         assertDimensions(entities, checked, 0.6F, 1.8F,
-                "infx_skeleton", "infx_creeper", "infx_witch", "infx_zombified_piglin",
+                "infx_skeleton", "infx_creeper", "infx_zombie", "infx_witch", "infx_zombified_piglin",
                 "infx_blaze", "invisible_stalker", "ghoul", "shadow", "wight", "revenant", "longdead",
                 "longdead_guardian", "bone_lord", "ancient_bone_lord", "infernal_creeper", "fire_elemental", "earth_elemental",
                 "clay_golem");
@@ -371,6 +371,7 @@ class MonsterProfileTest {
         add(names, "infx_spider", "Spider", "蜘蛛");
         add(names, "infx_cave_spider", "Cave Spider", "洞穴蜘蛛");
         add(names, "infx_creeper", "Creeper", "苦力怕");
+        add(names, "infx_zombie", "Zombie", "僵尸");
         add(names, "infx_slime", "Slime", "史莱姆");
         add(names, "infx_enderman", "Enderman", "末影人");
         add(names, "infx_squid", "Squid", "鱿鱼");

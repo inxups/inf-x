@@ -193,7 +193,7 @@ public final class SpawnGate {
             }
         }
         return switch (danger) {
-            case 0 -> EntityType.ZOMBIE;
+            case 0 -> InfXEntityTypes.INFX_ZOMBIE.get();
             case 1 -> InfXEntityTypes.GHOUL.get();
             case 2 -> InfXEntityTypes.INFX_SKELETON.get();
             case 3 -> InfXEntityTypes.INFX_SPIDER.get();
@@ -309,6 +309,7 @@ public final class SpawnGate {
     public static EntityType<? extends Mob> replacementFor(EntityType<?> original) {
         if (isKeptVanilla(original)) return null;
         if (original == EntityType.BAT) return InfXEntityTypes.INFX_BAT.get();
+        if (original == EntityType.ZOMBIE) return InfXEntityTypes.INFX_ZOMBIE.get();
         if (original == EntityType.SKELETON) return InfXEntityTypes.INFX_SKELETON.get();
         if (original == EntityType.SPIDER) return InfXEntityTypes.INFX_SPIDER.get();
         if (original == EntityType.CAVE_SPIDER) return InfXEntityTypes.INFX_CAVE_SPIDER.get();

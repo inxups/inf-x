@@ -31,7 +31,7 @@ public final class ModDataMapProvider extends DataMapProvider {
         // MITE dungeon depth roster. Vanilla keeps skeleton/spider/zombie weights; the InfX depth
         // mobs join the shared weighted table so any dungeon can host them, with the depth mixin
         // on top applying the per-y tiers.
-        addMonsterRoomMob(EntityType.ZOMBIE, 200);
+        addMonsterRoomMob(InfXEntityTypes.INFX_ZOMBIE.get(), 200);
         addMonsterRoomMob(InfXEntityTypes.INFX_SKELETON.get(), 100);
         addMonsterRoomMob(InfXEntityTypes.INFX_SPIDER.get(), 100);
         addMonsterRoomMob(InfXEntityTypes.GHOUL.get(), 80);

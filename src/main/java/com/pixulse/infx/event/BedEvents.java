@@ -9,6 +9,7 @@ import com.pixulse.infx.InfiniteX;
 
 import com.pixulse.infx.entity.MonsterTactics;
 import com.pixulse.infx.registry.InfXAttachments;
+import com.pixulse.infx.registry.InfXEntityTypes;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -235,7 +236,7 @@ public final class BedEvents {
             for (int y = minimumY; y <= maximumY; y++) {
                 BlockPos pos = new BlockPos(x, y, z);
                 if (!isAmbushSpawnPosition(level, pos)) continue;
-                var zombie = EntityType.ZOMBIE.create(level, EntitySpawnReason.EVENT);
+                var zombie = InfXEntityTypes.INFX_ZOMBIE.get().create(level, EntitySpawnReason.EVENT);
                 if (zombie == null) return null;
                 zombie.snapTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, level.getRandom().nextFloat() * 360.0F, 0.0F);
                 zombie.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), EntitySpawnReason.EVENT, null);

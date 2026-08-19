@@ -303,7 +303,7 @@ public final class ModEquipmentGameTests {
                 "shearing a sheep must cost 50 durability (MITE)");
         sheep.discard();
 
-        var shearTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 2));
+        var shearTarget = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(6, 1, 2));
         for (int tick = 0; tick < 20; tick++) {
             player.doTick();
         }
@@ -319,7 +319,7 @@ public final class ModEquipmentGameTests {
                                 + new EquipmentKey(InfxMaterial.COPPER, EquipmentType.SHEARS).attackWear(),
                 "material shears must apply INFX hit wear on left-click");
 
-        var rightClickTarget = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 1, 3));
+        var rightClickTarget = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(6, 1, 3));
         float rightClickHealth = rightClickTarget.getHealth();
         int rightClickWear = shears.getDamageValue();
         helper.assertTrue(
@@ -340,7 +340,7 @@ public final class ModEquipmentGameTests {
                 .value()
                 .getDefaultInstance();
 
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(7, 1, 1));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(7, 1, 1));
         setMainHandAndUpdate(player, sword);
         float healthBefore = zombie.getHealth();
         player.attack(zombie);

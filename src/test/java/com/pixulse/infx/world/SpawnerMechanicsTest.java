@@ -36,7 +36,7 @@ class SpawnerMechanicsTest {
         for (int i = 0; i < 2000; i++) {
             surfaceTypes.add(SpawnGate.spawnerDepthType(random, 63));
         }
-        assertTrue(surfaceTypes.contains(EntityType.ZOMBIE));
+        assertTrue(surfaceTypes.contains(InfXEntityTypes.INFX_ZOMBIE.get()));
         assertTrue(surfaceTypes.contains(InfXEntityTypes.GHOUL.get()));
         assertTrue(surfaceTypes.contains(InfXEntityTypes.INFX_SKELETON.get()));
         assertTrue(surfaceTypes.contains(InfXEntityTypes.INFX_SPIDER.get()));

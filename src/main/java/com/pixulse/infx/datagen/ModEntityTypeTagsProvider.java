@@ -23,6 +23,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
         // InfX's vanilla-entity replacement on a per-type basis.
         tag(InfXEntityTypeTags.KEEP_VANILLA_ENTITY);
         tag(EntityTypeTags.ZOMBIES).add(
+                InfXEntityTypes.INFX_ZOMBIE.getKey(),
                 InfXEntityTypes.SHADOW.getKey(),
                 InfXEntityTypes.WIGHT.getKey(),
                 InfXEntityTypes.REVENANT.getKey(),
@@ -37,6 +38,7 @@ final class ModEntityTypeTagsProvider extends KeyTagsProvider<EntityType<?>> {
         // InfX nightwings are undead bats; the zombie/skeleton families join UNDEAD through their family tags.
         tag(EntityTypeTags.UNDEAD).add(InfXEntityTypes.NIGHTWING.getKey());
         tag(EntityTypeTags.BURN_IN_DAYLIGHT).add(
+                InfXEntityTypes.INFX_ZOMBIE.getKey(),
                 InfXEntityTypes.GHOUL.getKey(),
                 InfXEntityTypes.WIGHT.getKey(),
                 InfXEntityTypes.REVENANT.getKey(),

@@ -6,6 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 
 import com.mojang.authlib.GameProfile;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.registry.InfXEntityTypes;
 import com.pixulse.infx.block.TieredWorkbenchBlock;
 import com.pixulse.infx.block.entity.InfxFurnaceBlockEntity;
 import com.pixulse.infx.recipe.BenchTier;
@@ -343,7 +344,7 @@ public final class ModGameTests {
                 .getRoot()
                 .getChild("difficulty");
         ServerPlayer player = createPlayer(helper);
-        var attacker = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 3));
+        var attacker = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(3, 2, 3));
         float scaledMobDamage = IScalingFunction.DEFAULT.scaleDamage(
                 helper.getLevel().damageSources().mobAttack(attacker), player, 4.0F, extreme);
         float scaledExplosionDamage = IScalingFunction.DEFAULT.scaleDamage(

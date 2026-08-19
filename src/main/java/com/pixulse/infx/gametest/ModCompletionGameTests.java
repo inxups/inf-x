@@ -294,7 +294,7 @@ public final class ModCompletionGameTests {
                 .toStack();
         player.setItemInHand(InteractionHand.MAIN_HAND, silverSword);
 
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(4, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(4, 2, 2));
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         float before = zombie.getHealth();
         zombie.hurtServer(level, level.damageSources().playerAttack(player), 4.0F);
@@ -310,7 +310,7 @@ public final class ModCompletionGameTests {
                 .holder()
                 .get();
         AbstractArrow projectile = silverArrow.createArrow(level, silverArrow.getDefaultInstance(), player, null);
-        var secondZombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(6, 2, 2));
+        var secondZombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(6, 2, 2));
         secondZombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         before = secondZombie.getHealth();
         secondZombie.hurtServer(level, level.damageSources().arrow(projectile, player), 4.0F);
@@ -565,7 +565,7 @@ public final class ModCompletionGameTests {
                 .toStack();
         sharpSword.enchant(sharpness, 5);
         player.setItemInHand(InteractionHand.MAIN_HAND, sharpSword);
-        var zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        var zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         zombie.invulnerableTime = 0;
         for (int tick = 0; tick < 30; tick++) {
@@ -580,7 +580,7 @@ public final class ModCompletionGameTests {
 
         battleAxe.enchant(slaughter, 5);
         player.setItemInHand(InteractionHand.MAIN_HAND, battleAxe);
-        zombie = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
+        zombie = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
         zombie.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         zombie.invulnerableTime = 0;
         for (int tick = 0; tick < 30; tick++) {
@@ -597,8 +597,8 @@ public final class ModCompletionGameTests {
                 .equipment(InfxMaterial.COPPER, EquipmentType.SWORD)
                 .holder()
                 .toStack());
-        var target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
-        var bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        var target = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
+        var bystander = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(3, 2, 2));
         target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
@@ -621,8 +621,8 @@ public final class ModCompletionGameTests {
         for (int tick = 0; tick < 20; tick++) {
             player.doTick();
         }
-        target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
-        bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
+        bystander = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(3, 2, 2));
         target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
@@ -645,8 +645,8 @@ public final class ModCompletionGameTests {
             player.doTick();
         }
         player.setItemInHand(InteractionHand.MAIN_HAND, scythe);
-        target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
-        bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
+        bystander = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(3, 2, 2));
         target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
@@ -671,8 +671,8 @@ public final class ModCompletionGameTests {
                 .toStack();
         sweepSword.enchant(sweeping, 1);
         player.setItemInHand(InteractionHand.MAIN_HAND, sweepSword);
-        target = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(2, 2, 2));
-        bystander = helper.spawnWithNoFreeWill(EntityType.ZOMBIE, new BlockPos(3, 2, 2));
+        target = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(2, 2, 2));
+        bystander = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_ZOMBIE.get(), new BlockPos(3, 2, 2));
         target.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         bystander.getAttribute(Attributes.ARMOR).setBaseValue(0.0);
         target.invulnerableTime = 0;
