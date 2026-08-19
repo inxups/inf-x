@@ -302,12 +302,9 @@ public enum EquipmentType {
         return materials;
     }
 
+    // Three-tier shield line: wood (vanilla look) → ancient_metal → adamantium.
     private static EnumSet<InfxMaterial> shieldMaterials() {
-        EnumSet<InfxMaterial> materials = metals();
-        // Rusted iron is a degraded POOR material; shields skip it.
-        materials.remove(InfxMaterial.RUSTED_IRON);
-        materials.add(InfxMaterial.WOOD);
-        return materials;
+        return materials(InfxMaterial.WOOD, InfxMaterial.ANCIENT_METAL, InfxMaterial.ADAMANTIUM);
     }
 
     private static EnumSet<InfxMaterial> fishingMaterials() {

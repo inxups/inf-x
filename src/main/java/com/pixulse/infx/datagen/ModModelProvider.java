@@ -41,6 +41,7 @@ import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
 import com.pixulse.infx.client.SafeSpecialRenderer;
+import com.pixulse.infx.client.InfXShieldSpecialRenderer;
 import net.minecraft.client.renderer.special.ShieldSpecialRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
@@ -605,15 +606,47 @@ final class ModModelProvider extends ModelProvider {
     }
 
     /**
-     * Reuses the vanilla shield special model + {@code entity/shield/shield_base} textures for
-     * every InfX shield, so all tiers render like the vanilla shield (distinguished by name).
-     * Per-material art is a follow-up pending owner-supplied textures.
+     * Wood shields reuse the vanilla shield special model + {@code entity/shield/shield_base}
+     * textures (the vanilla shield is already wood/iron-themed). Ancient-metal and adamantium
+     * shields use {@link InfXShieldSpecialRenderer} with their per-material base textures under
+     * {@code infx:entity/shield/}.
      */
     private static void generateShield(ItemModelGenerators itemModels, Catalog.EquipmentEntry entry) {
+        InfxMaterial material = entry.key().material();
+        if (material == InfxMaterial.ANCIENT_METAL || material == InfxMaterial.ADAMANTIUM) {
+            generateMaterialShield(
+                    itemModels,
+                    entry,
+                    InfiniteX.id(material.path() + "_shield_base"),
+                    InfiniteX.id(material.path() + "_shield_base_nopattern"));
+        } else {
+            generateVanillaShield(itemModels, entry);
+        }
+    }
+
+    private static void generateVanillaShield(ItemModelGenerators itemModels, Catalog.EquipmentEntry entry) {
         ItemModel.Unbaked normal = ItemModelUtils.specialModel(
                 Identifier.withDefaultNamespace("item/shield"), new ShieldSpecialRenderer.Unbaked());
         ItemModel.Unbaked blocking = ItemModelUtils.specialModel(
                 Identifier.withDefaultNamespace("item/shield_blocking"), new ShieldSpecialRenderer.Unbaked());
+        itemModels.itemModelOutput.accept(
+                entry.holder().value(),
+                ItemModelUtils.conditional(
+                        ShieldSpecialRenderer.DEFAULT_TRANSFORMATION,
+                        ItemModelUtils.isUsingItem(),
+                        blocking,
+                        normal));
+    }
+
+    private static void generateMaterialShield(
+            ItemModelGenerators itemModels, Catalog.EquipmentEntry entry,
+            Identifier baseTexture, Identifier noPatternTexture) {
+        ItemModel.Unbaked normal = ItemModelUtils.specialModel(
+                Identifier.withDefaultNamespace("item/shield"),
+                new InfXShieldSpecialRenderer.Unbaked(baseTexture, noPatternTexture));
+        ItemModel.Unbaked blocking = ItemModelUtils.specialModel(
+                Identifier.withDefaultNamespace("item/shield_blocking"),
+                new InfXShieldSpecialRenderer.Unbaked(baseTexture, noPatternTexture));
         itemModels.itemModelOutput.accept(
                 entry.holder().value(),
                 ItemModelUtils.conditional(
