@@ -27,6 +27,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import java.util.List;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -162,6 +163,32 @@ public final class AnimalEvents {
         } else if (event.getEntityMounting() instanceof Player) {
             Livestock.markHorseDismount(horse, level.getGameTime());
         }
+    }
+
+    /**
+     * Install the shared MITE {@link MoveToFoodItemGoal} on every breedable animal except horses
+     * and InfX livestock. Horses keep their interaction-gated 4000-tick feeding (ground food would
+     * bypass it); InfX livestock already seek and eat dropped food through their {@link
+     * Livestock.NeedsGoal} + the passive {@link Livestock#eatDroppedFood} entry, so they must not
+     * get a second seeking goal. This is what lets vanilla breedables (rabbits, turtles, cats,
+     * wolves, ...) eat dropped breeding food the same way InfX livestock do. The goal
+     * self-deduplicates so chunk reloads never stack extra copies.
+     */
+    @SubscribeEvent
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
+        if (!(event.getEntity() instanceof Animal animal)
+                || animal instanceof AbstractHorse
+                || Livestock.hasSickSkin(animal)) {
+            return;
+        }
+        if (event.getLevel().isClientSide()) {
+            return;
+        }
+        if (animal.goalSelector.getAvailableGoals().stream()
+                .anyMatch(wrapped -> wrapped.getGoal() instanceof MoveToFoodItemGoal)) {
+            return;
+        }
+        animal.goalSelector.addGoal(3, new MoveToFoodItemGoal(animal));
     }
 
     @SubscribeEvent

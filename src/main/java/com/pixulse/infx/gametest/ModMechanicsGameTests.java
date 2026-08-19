@@ -7,6 +7,8 @@ import com.pixulse.infx.entity.GelatinousSphere;
 import com.pixulse.infx.entity.InfxBrickProjectile;
 import com.pixulse.infx.entity.InfxSheep;
 import com.pixulse.infx.entity.InfxWolf;
+import com.pixulse.infx.entity.Livestock;
+import com.pixulse.infx.entity.MoveToFoodItemGoal;
 import com.pixulse.infx.item.InfxBucketItem;
 import com.pixulse.infx.item.material.InfxMaterial;
 import com.pixulse.infx.registry.InfXEntityTypes;
@@ -27,6 +29,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.clock.WorldClocks;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -71,7 +74,11 @@ public final class ModMechanicsGameTests {
             "infx_leaves_item_pass",
             "infx_sphere_sheep",
             "infx_moon_brightness",
-            "infx_monster_cap");
+            "infx_monster_cap",
+            "infx_ground_food_triggers_love",
+            "infx_ground_food_no_eat_while_in_love",
+            "infx_ground_food_no_eat_during_cooldown",
+            "infx_breedable_animal_eats_ground_food");
 
     static {
         FUNCTIONS.register("infx_explosion_drops", () -> ModMechanicsGameTests::explosionDrops);
@@ -87,6 +94,10 @@ public final class ModMechanicsGameTests {
         FUNCTIONS.register("infx_sphere_sheep", () -> ModMechanicsGameTests::sphereSheep);
         FUNCTIONS.register("infx_moon_brightness", () -> ModMechanicsGameTests::moonBrightness);
         FUNCTIONS.register("infx_monster_cap", () -> ModMechanicsGameTests::monsterCap);
+        FUNCTIONS.register("infx_ground_food_triggers_love", () -> ModMechanicsGameTests::groundFoodTriggersLove);
+        FUNCTIONS.register("infx_ground_food_no_eat_while_in_love", () -> ModMechanicsGameTests::groundFoodNoEatWhileInLove);
+        FUNCTIONS.register("infx_ground_food_no_eat_during_cooldown", () -> ModMechanicsGameTests::groundFoodNoEatDuringCooldown);
+        FUNCTIONS.register("infx_breedable_animal_eats_ground_food", () -> ModMechanicsGameTests::breedableAnimalEatsGroundFood);
     }
 
     private ModMechanicsGameTests() {}
@@ -553,5 +564,86 @@ public final class ModMechanicsGameTests {
                 MobCategory.CREATURE.getMaxInstancesPerChunk() == 10,
                 "passive categories must keep their vanilla cap");
         helper.succeed();
+    }
+
+    /** InfX livestock ground-eating: a well cow eating dropped wheat enters love mode (MITE onFoodEaten). */
+    private static void groundFoodTriggersLove(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_COW.get(), new BlockPos(2, 2, 2));
+        helper.assertTrue(cow.getAge() == 0, "fresh cow must be adult and out of cooldown");
+        helper.assertTrue(!cow.isInLove(), "fresh cow must not be in love");
+        ItemEntity wheat = new ItemEntity(level, 0, 0, 0, new ItemStack(Items.WHEAT, 1));
+        Vec3 at = cow.position();
+        wheat.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+        level.addFreshEntity(wheat);
+        Livestock.eatDroppedFood(level, cow);
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(cow.isInLove(), "a well cow eating wheat must enter love mode");
+            helper.assertTrue(wheat.getItem().isEmpty(), "the wheat must be consumed");
+            helper.succeed();
+        });
+    }
+
+    /** InfX canEat gate: an animal already in love must not eat (or reset) ground food. */
+    private static void groundFoodNoEatWhileInLove(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_COW.get(), new BlockPos(2, 2, 2));
+        cow.setInLove(null);
+        ItemEntity wheat = new ItemEntity(level, 0, 0, 0, new ItemStack(Items.WHEAT, 1));
+        Vec3 at = cow.position();
+        wheat.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+        level.addFreshEntity(wheat);
+        Livestock.eatDroppedFood(level, cow);
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(cow.isInLove(), "a cow already in love must keep its love state");
+            helper.assertTrue(!wheat.getItem().isEmpty(), "a cow in love must not eat dropped food");
+            helper.succeed();
+        });
+    }
+
+    /** InfX canEat gate: an animal in breeding cooldown (age > 0) must not eat ground food. */
+    private static void groundFoodNoEatDuringCooldown(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        var cow = helper.spawnWithNoFreeWill(InfXEntityTypes.INFX_COW.get(), new BlockPos(2, 2, 2));
+        cow.setAge(6000);
+        ItemEntity wheat = new ItemEntity(level, 0, 0, 0, new ItemStack(Items.WHEAT, 1));
+        Vec3 at = cow.position();
+        wheat.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+        level.addFreshEntity(wheat);
+        Livestock.eatDroppedFood(level, cow);
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(!cow.isInLove(), "a cow in breeding cooldown must not enter love");
+            helper.assertTrue(!wheat.getItem().isEmpty(), "a cow in cooldown must not eat dropped food");
+            helper.succeed();
+        });
+    }
+
+    /**
+     * InfX extends ground-eating to all breedable animals: a vanilla rabbit (no wellness skin)
+     * receives the shared food goal and enters love after eating a dropped carrot. Horses are
+     * excluded so their interaction-gated feeding is not bypassed.
+     */
+    private static void breedableAnimalEatsGroundFood(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        var rabbit = helper.spawn(EntityType.RABBIT, new BlockPos(2, 2, 2));
+        helper.assertTrue(
+                rabbit.goalSelector.getAvailableGoals().stream()
+                        .anyMatch(wrapped -> wrapped.getGoal() instanceof MoveToFoodItemGoal),
+                "a vanilla rabbit must receive the shared food goal");
+        ItemEntity carrot = new ItemEntity(level, 0, 0, 0, new ItemStack(Items.CARROT, 1));
+        Vec3 at = rabbit.position();
+        carrot.snapTo(at.x, at.y, at.z, 0.0F, 0.0F);
+        level.addFreshEntity(carrot);
+        Livestock.eatDroppedFood(level, rabbit);
+        var horse = helper.spawn(EntityType.HORSE, new BlockPos(4, 2, 2));
+        helper.assertTrue(
+                horse.goalSelector.getAvailableGoals().stream()
+                        .noneMatch(wrapped -> wrapped.getGoal() instanceof MoveToFoodItemGoal),
+                "a horse must not receive the shared food goal (interaction-gated feeding)");
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(rabbit.isInLove(), "a rabbit eating a carrot must enter love mode");
+            helper.assertTrue(carrot.getItem().isEmpty(), "the carrot must be consumed");
+            helper.succeed();
+        });
     }
 }
