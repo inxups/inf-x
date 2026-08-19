@@ -141,13 +141,17 @@ class EnchantmentRulesTest {
     void selectorUsesOnlyTheFixedR196CandidatePool() {
         assertSame(InfXEnchantments.TABLE, EnchantmentSelector.candidateKeys());
         assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.INFX));
-        assertTrue(EnchantmentSelector.candidateKeys().containsAll(InfXEnchantments.VANILLA_R196));
+        // Every R196 enchantment is table-selectable except swift_sneak, which is vanilla #treasure.
+        assertTrue(InfXEnchantments.VANILLA_R196.stream()
+                .filter(k -> !k.equals(InfXEnchantments.VANILLA_SWIFT_SNEAK))
+                .allMatch(k -> EnchantmentSelector.candidateKeys().contains(k)));
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.CLUMSINESS));
         // Treasure/barter-only enchantments are excluded from the table (still loot/trade available).
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_VANISHING_CURSE));
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_BINDING_CURSE));
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_SOUL_SPEED));
         assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_FROST_WALKER));
+        assertFalse(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_SWIFT_SNEAK));
         // Modern table-available enchantments remain selectable.
         assertTrue(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_LUCK_OF_THE_SEA));
         assertTrue(EnchantmentSelector.candidateKeys().contains(InfXEnchantments.VANILLA_PIERCING));
