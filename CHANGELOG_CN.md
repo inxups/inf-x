@@ -2,6 +2,7 @@
 
 ## 0t11
 ### 新功能
+- 管理员指令 `/infx day <天数>`：直接设置主世界生存天数。`/infx day`（读取）保持全员可用；写入需 OP 2（`LEVEL_GAMEMASTERS`，与 vanilla `/time set` 同级），经 `ServerClockManager.setTotalTicks` 设置主世界时钟总 tick（等价 vanilla `/time set` 对主世界时钟的设置），广播给全员并标记存盘——血月/月相/刷怪密度/结构解锁门等天数派生机制自动跟随。设置后回到该天黎明（tick=0 对应 06:00）。
 - 僵尸改为新建 InfX 实体替换生成：vanilla `Zombie` 不再被保留，与骷髅/蜘蛛/苦力怕等一致，改为新建 `infx_zombie` 实体（`InfxZombie extends Zombie`）替换生成。原 `ZombieEvents` 的 7 个事件逻辑折入实体 override：属性对齐（近战 5、护甲 0）、1/8 聪明、无幼体、烧树 AI、寻食生肉、村民转化门（持挖掘工具拒绝转化 + 转化后清空 5 装备槽）、被玩家打一次变聪明、稀有金属粒掉落。首领仍由 vanilla `Zombie.handleAttributes` 原生承担；张力装备（`equipForWorldAge`）与锈铁装备（`RustedIronSources`）路径因直接继承 `Zombie`（非 `InfxZombieBase`）无需改动守卫即生效。
   - 地牢刷怪笼（`spawnerDepthType` danger 0 与 datamap `monster_room_mobs`）及床伏击改为直接生成 `infx_zombie`——`initializeReplacement` 不复制刷怪笼来源标记，靠运行时替换会丢来源导致 15 杀寿命失效，故刷怪笼必须直接刷 InfxZombie。
   - 仅 `isWorldSpawn` 来源（自然/区块生成/刷怪笼/结构/增援/巡逻/试炼刷怪笼）的 vanilla 僵尸被替换；COMMAND/SPAWN_ITEM_USE/DISPENSER/LOAD 不替换（沿用现有替换怪模式；vanilla 僵尸蛋仍出 vanilla，`infx_zombie_spawn_egg` 自动生成出 InfxZombie）。已存档的 vanilla 僵尸（LOAD）不替换（沿用女巫先例）。
