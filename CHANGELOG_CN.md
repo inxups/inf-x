@@ -2,6 +2,7 @@
 
 ## 0v7
 ### 新功能
+- **精英怪发光红眼（地狱犬 / 亡魂 / 骷髅领主）**：三只精英怪身体贴图本就画有红眼像素，但画在受世界光照的身体层上、不会发光；新增 `EliteEyesLayer`（继承 vanilla `EyesLayer`，以 `RenderTypes.eyes()` 全亮 emissive 渲染）挂到 `WolfTexture`(HELLHOUND 变体)/`ZombieTexture`(REVENANT)/`SkeletonTexture`(BONE_LORD 变体)，叠加透明底 + 红色眼部的眼部贴图（由现有授权身体贴图派生，红色眼像素落在身体贴图原有红眼的同一 UV，保证对齐），使眼睛永亮——不分昼夜/月相/维度，地狱犬在下界亦亮。开关 `client.eliteEyeGlow`（默认 true，关闭即真正关停全部发光）。
 - 管理员指令 `/infx day <天数>`：直接设置主世界生存天数。`/infx day`（读取）保持全员可用；写入需 OP 2（`LEVEL_GAMEMASTERS`，与 vanilla `/time set` 同级），经 `ServerClockManager.setTotalTicks` 设置主世界时钟总 tick（等价 vanilla `/time set` 对主世界时钟的设置），广播给全员并标记存盘——血月/月相/刷怪密度/结构解锁门等天数派生机制自动跟随。设置后回到该天黎明（tick=0 对应 06:00）。
 - 血月/蓝月玩家运势 buff：血月日在线玩家获得霉运（Bad Luck）、蓝月日获得幸运（Luck），相位日结束后随剩余时长自动消失（`MoonEvents.applyLunarBuffs` 经 `PlayerTickEvent.Post` 每 100 tick 把效果剩余时长刷新至当日末尾，自然到期，不显式移除以免误删其它来源效果）。开关 `world.lunarBuffs`（默认 true）。
 - 僵尸改为新建 InfX 实体替换生成：vanilla `Zombie` 不再被保留，与骷髅/蜘蛛/苦力怕等一致，改为新建 `infx_zombie` 实体（`InfxZombie extends Zombie`）替换生成。原 `ZombieEvents` 的 7 个事件逻辑折入实体 override：属性对齐（近战 5、护甲 0）、1/8 聪明、无幼体、烧树 AI、寻食生肉、村民转化门（持挖掘工具拒绝转化 + 转化后清空 5 装备槽）、被玩家打一次变聪明、稀有金属粒掉落。首领仍由 vanilla `Zombie.handleAttributes` 原生承担；张力装备（`equipForWorldAge`）与锈铁装备（`RustedIronSources`）路径因直接继承 `Zombie`（非 `InfxZombieBase`）无需改动守卫即生效。

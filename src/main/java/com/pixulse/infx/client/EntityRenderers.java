@@ -2,6 +2,7 @@ package com.pixulse.infx.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.pixulse.infx.InfiniteX;
+import com.pixulse.infx.config.InfXClientConfig;
 import com.pixulse.infx.entity.InfxBat;
 import com.pixulse.infx.entity.InfxCreeper;
 import com.pixulse.infx.entity.Livestock;
@@ -11,6 +12,7 @@ import com.pixulse.infx.entity.InfxSlime;
 import com.pixulse.infx.entity.InfxSpider;
 import com.pixulse.infx.entity.InfxWolf;
 import com.pixulse.infx.registry.InfXEntityTypes;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.monster.slime.SlimeModel;
@@ -34,6 +36,7 @@ import net.minecraft.client.renderer.entity.SkeletonRenderer;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
 import net.minecraft.client.renderer.entity.WolfRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
+import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.layers.SpiderEyesLayer;
 import net.minecraft.client.renderer.entity.state.BatRenderState;
@@ -217,6 +220,9 @@ public final class EntityRenderers {
             super(context);
             this.texture = textureFor(type);
             this.babyTexture = babyTextureFor(type);
+            if (type == InfXEntityTypes.REVENANT.get()) {
+                this.addLayer(new EliteEyesLayer<>(this, of("textures/entity/zombie/revenant_eyes.png")));
+            }
         }
 
         @Override
@@ -250,6 +256,9 @@ public final class EntityRenderers {
         public SkeletonTexture(EntityRendererProvider.Context context, InfxSkeleton.Variant variant) {
             super(context);
             this.texture = textureFor(variant);
+            if (variant == InfxSkeleton.Variant.BONE_LORD) {
+                this.addLayer(new EliteEyesLayer<>(this, of("textures/entity/skeleton/bone_lord_eyes.png")));
+            }
         }
 
         @Override
@@ -280,6 +289,36 @@ public final class EntityRenderers {
         @Override
         public RenderType renderType() {
             return GREEN_EYES;
+        }
+    }
+
+    /**
+     * Emissive eye overlay for elite mobs (hellhound / revenant / bone lord): a transparent
+     * canvas with bright red at the body sheet's eye UVs, drawn with {@link RenderTypes#eyes}
+     * so the eyes glow fullbright regardless of light, moon phase, or dimension. Gated by the
+     * client {@code eliteEyeGlow} switch so the whole effect can be turned off.
+     */
+    public static final class EliteEyesLayer<S extends LivingEntityRenderState, M extends EntityModel<S>>
+            extends EyesLayer<S, M> {
+        private final RenderType eyeRenderType;
+
+        public EliteEyesLayer(RenderLayerParent<S, M> renderer, Identifier eyeTexture) {
+            super(renderer);
+            this.eyeRenderType = RenderTypes.eyes(eyeTexture);
+        }
+
+        @Override
+        public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
+                           int lightCoords, S state, float yRot, float xRot) {
+            if (!InfXClientConfig.INSTANCE.eliteEyeGlow.getValue()) {
+                return;
+            }
+            super.submit(poseStack, submitNodeCollector, lightCoords, state, yRot, xRot);
+        }
+
+        @Override
+        public RenderType renderType() {
+            return eyeRenderType;
         }
     }
 
@@ -537,6 +576,9 @@ public final class EntityRenderers {
             this.wild = textureFor(variant, false, false);
             this.tame = textureFor(variant, true, false);
             this.angry = textureFor(variant, false, true);
+            if (variant == InfxWolf.Variant.HELLHOUND) {
+                this.addLayer(new EliteEyesLayer<>(this, of("textures/entity/hellhound/hellhound_eyes.png")));
+            }
         }
 
         @Override

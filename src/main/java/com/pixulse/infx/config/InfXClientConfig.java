@@ -13,6 +13,8 @@ public final class InfXClientConfig extends FileConfigContainer {
             .key("detailedFoodTooltips").build();
     public final BooleanEntry specialMoonRendering = BooleanEntry.builder(Component.literal("Special moon rendering"), true)
             .key("specialMoonRendering").build();
+    public final BooleanEntry eliteEyeGlow = BooleanEntry.builder(Component.literal("Elite glowing eyes"), true)
+            .key("eliteEyeGlow").build();
 
     private InfXClientConfig() {
         super(InfiniteX.id("client"), Component.literal("InfiniteX Client"), "./config/infx/infx-client.json");
@@ -22,6 +24,7 @@ public final class InfXClientConfig extends FileConfigContainer {
     public void init() {
         createTab("client", Component.literal("Client"))
                 .addEntry(detailedFoodTooltips)
-                .addEntry(specialMoonRendering);
+                .addEntry(specialMoonRendering)
+                .addEntry(eliteEyeGlow);
     }
 }
