@@ -74,6 +74,7 @@ public final class InfXConfig extends AutoInitConfigContainer {
         public final BooleanEntry moonEvents = flag("moonEvents", "Enable moon events", true);
         public final BooleanEntry lunarFishing = flag("lunarFishing", "Enable lunar fishing modifiers", true);
         public final BooleanEntry lunarTaming = flag("lunarTaming", "Enable lunar taming modifiers", true);
+        public final BooleanEntry lunarBuffs = flag("lunarBuffs", "Enable lunar luck buffs (bad luck on blood moon, luck on blue moon)", true);
         public final BooleanEntry bloodMoonBlight = flag("bloodMoonBlight", "Enable blood moon crop blight", true);
         public final BooleanEntry underworldPortals = flag("underworldPortals", "Enable underworld portals", true);
         public final BooleanEntry soilCollapse = flag("soilCollapse", "Enable unstable soil collapse", true);

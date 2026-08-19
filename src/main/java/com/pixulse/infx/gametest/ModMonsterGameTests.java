@@ -151,6 +151,9 @@ public final class ModMonsterGameTests {
     private static final String PIGLIN_HOSTILITY = "infx_piglin_hostility";
     private static final String PHANTOM_MOON_SPAWNS = "infx_phantom_moon_spawns";
     private static final String PIGLIN_BARTER_DROPS = "infx_piglin_barter_drops";
+    private static final String LUNAR_BUFFS_BLOOD = "infx_lunar_buffs_blood";
+    private static final String LUNAR_BUFFS_BLUE = "infx_lunar_buffs_blue";
+    private static final String LUNAR_BUFFS_NONE = "infx_lunar_buffs_none";
     private static final DeferredRegister<Consumer<GameTestHelper>> FUNCTIONS =
             DeferredRegister.create(Registries.TEST_FUNCTION, InfiniteX.MOD_ID);
 
@@ -211,12 +214,60 @@ public final class ModMonsterGameTests {
         FUNCTIONS.register(PIGLIN_HOSTILITY, () -> ModMonsterGameTests::piglinHostility);
         FUNCTIONS.register(PHANTOM_MOON_SPAWNS, () -> ModMonsterGameTests::phantomMoonSpawns);
         FUNCTIONS.register(PIGLIN_BARTER_DROPS, () -> ModMonsterGameTests::piglinBarterDrops);
+        FUNCTIONS.register(LUNAR_BUFFS_BLOOD, () -> ModMonsterGameTests::lunarBuffsBloodMoon);
+        FUNCTIONS.register(LUNAR_BUFFS_BLUE, () -> ModMonsterGameTests::lunarBuffsBlueMoon);
+        FUNCTIONS.register(LUNAR_BUFFS_NONE, () -> ModMonsterGameTests::lunarBuffsNone);
     }
 
     private ModMonsterGameTests() {}
 
     public static void register(IEventBus modBus) {
         FUNCTIONS.register(modBus);
+    }
+
+    private static void lunarBuffsBloodMoon(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 757_000L); // blood-moon day, day 32
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        helper.onEachTick(player::doTick); // ServerPlayer#doTick fires PlayerTickEvent.Post (NeoForge docs)
+        helper.startSequence()
+                .thenExecuteAfter(110, () -> {
+                    helper.assertTrue(player.hasEffect(MobEffects.UNLUCK), "blood moon must grant unluck");
+                    helper.assertFalse(player.hasEffect(MobEffects.LUCK), "blood moon must not grant luck");
+                    ModCompletionGameTests.removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void lunarBuffsBlueMoon(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 3_061_000L); // blue-moon day, day 128
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        helper.startSequence()
+                .thenExecuteAfter(110, () -> {
+                    helper.assertTrue(player.hasEffect(MobEffects.LUCK), "blue moon must grant luck");
+                    helper.assertFalse(player.hasEffect(MobEffects.UNLUCK), "blue moon must not grant unluck");
+                    ModCompletionGameTests.removePlayer(player);
+                })
+                .thenSucceed();
+    }
+
+    private static void lunarBuffsNone(GameTestHelper helper) {
+        var level = helper.getLevel();
+        var overworldClock = level.registryAccess().get(WorldClocks.OVERWORLD).orElseThrow();
+        level.clockManager().setTotalTicks(overworldClock, 733_000L); // ordinary day, day 31
+        ServerPlayer player = ModCompletionGameTests.createPlayer(helper);
+        helper.onEachTick(player::doTick);
+        helper.startSequence()
+                .thenExecuteAfter(110, () -> {
+                    helper.assertFalse(player.hasEffect(MobEffects.UNLUCK), "ordinary day must not grant unluck");
+                    helper.assertFalse(player.hasEffect(MobEffects.LUCK), "ordinary day must not grant luck");
+                    ModCompletionGameTests.removePlayer(player);
+                })
+                .thenSucceed();
     }
 
     @SubscribeEvent
@@ -278,7 +329,10 @@ public final class ModMonsterGameTests {
                 TORCH_SEEK,
                 PIGLIN_HOSTILITY,
                 PHANTOM_MOON_SPAWNS,
-                PIGLIN_BARTER_DROPS)) {
+                PIGLIN_BARTER_DROPS,
+                LUNAR_BUFFS_BLOOD,
+                LUNAR_BUFFS_BLUE,
+                LUNAR_BUFFS_NONE)) {
             ResourceKey<Consumer<GameTestHelper>> function =
                     ResourceKey.create(Registries.TEST_FUNCTION, InfiniteX.id(name));
             event.registerTest(

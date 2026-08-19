@@ -11,6 +11,8 @@ import com.pixulse.infx.registry.InfXItems;
 import com.pixulse.infx.world.SpawnGate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.monster.Enemy;
@@ -22,6 +24,7 @@ import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.player.ItemFishedEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 /** Server-side INFX lunar spawn, weather, sleep, fishing and taming rules. */
 @EventBusSubscriber(modid = InfiniteX.MOD_ID)
@@ -117,6 +120,28 @@ public final class MoonEvents {
             event.setCanceled(true);
         } else if (!blueMoonNight && level.getRandom().nextFloat() < 0.25F) {
             event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void applyLunarBuffs(PlayerTickEvent.Post event) {
+        if (!InfXConfig.INSTANCE.world.enabled.getValue()
+                || !InfXConfig.INSTANCE.world.lunarBuffs.getValue()
+                || !(event.getEntity() instanceof ServerPlayer player)
+                || player.tickCount % 100 != 0) {
+            return;
+        }
+        long time = player.level().getOverworldClockTime();
+        MoonPhase phase = MoonPhase.atTime(time);
+        // Refresh the effect's remaining duration to the end of the current lunar day so it
+        // lapses on its own at the phase boundary — no removeEffect that could cull an
+        // externally granted luck/unluck. addEffect's merge keeps the longer (equal-expiry)
+        // instance, so re-application never shortens the live duration.
+        int remaining = (int) Math.max(1L, MoonPhase.DAY_TICKS - Math.floorMod(time, MoonPhase.DAY_TICKS));
+        if (phase == MoonPhase.BLOOD) {
+            player.addEffect(new MobEffectInstance(MobEffects.UNLUCK, remaining, 0, false, true, true));
+        } else if (phase == MoonPhase.BLUE) {
+            player.addEffect(new MobEffectInstance(MobEffects.LUCK, remaining, 0, false, true, true));
         }
     }
 
