@@ -82,6 +82,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlocksAttacks;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.crafting.CraftingRecipe;
@@ -237,6 +238,8 @@ public final class ModGameTests {
             functionKey("hot_floor");
     private static final ResourceKey<Consumer<GameTestHelper>> BLOCK_HARDNESS =
             functionKey("block_hardness");
+    private static final ResourceKey<Consumer<GameTestHelper>> SHIELDS =
+            functionKey("shields");
 
     static {
         TEST_FUNCTIONS.register("bench_hierarchy", () -> ModGameTests::benchHierarchy);
@@ -266,6 +269,7 @@ public final class ModGameTests {
         TEST_FUNCTIONS.register("extreme_difficulty", () -> ModGameTests::extremeDifficulty);
         TEST_FUNCTIONS.register("hot_floor", () -> ModGameTests::hotFloor);
         TEST_FUNCTIONS.register("block_hardness", () -> ModGameTests::blockHardness);
+        TEST_FUNCTIONS.register("shields", () -> ModGameTests::shields);
     }
 
     private ModGameTests() {}
@@ -303,6 +307,7 @@ public final class ModGameTests {
         registerTest(event, EXTREME_DIFFICULTY, environment, 40);
         registerTest(event, HOT_FLOOR, environment, 40);
         registerTest(event, BLOCK_HARDNESS, environment, 40);
+        registerTest(event, SHIELDS, environment, 120);
     }
 
     private static void registerTest(
@@ -2501,5 +2506,64 @@ public final class ModGameTests {
 
     private static ResourceKey<Recipe<?>> recipeKey(String namespace, String path) {
         return ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(namespace, path));
+    }
+
+    /**
+     * Verifies the material-tiered shield family: every tier is registered, carries a
+     * {@link BlocksAttacks} with the expected block factor, has a loaded crafting recipe, and —
+     * because blocking is now the shield's exclusive role — tools no longer carry the component.
+     * The block-factor table is duplicated here (independent of {@code ShieldSpec}) so the test
+     * fails if the spec drifts.
+     */
+    private static void shields(GameTestHelper helper) {
+        for (InfxMaterial material : InfxMaterial.values()) {
+            if (!EquipmentType.SHIELD.allows(material)) {
+                continue;
+            }
+            Item shield = InfXItems.catalog()
+                    .equipment(material, EquipmentType.SHIELD)
+                    .holder()
+                    .value();
+            ItemStack stack = shield.getDefaultInstance();
+            BlocksAttacks blocks = stack.get(DataComponents.BLOCKS_ATTACKS);
+            helper.assertTrue(
+                    blocks != null, material.path() + "_shield must carry BLOCKS_ATTACKS");
+            if (blocks != null) {
+                float factor = blocks.damageReductions().get(0).factor();
+                helper.assertTrue(
+                        Math.abs(factor - expectedBlockFactor(material)) < 0.001F,
+                        material.path() + "_shield block factor " + factor
+                                + " != expected " + expectedBlockFactor(material));
+            }
+            String recipeName = material.path() + "_shield";
+            helper.assertTrue(
+                    helper.getLevel().recipeAccess().recipeMap().byKey(recipeKey("infx", recipeName))
+                            != null,
+                    recipeName + " recipe must be loaded");
+        }
+        // Tools no longer block: blocking migrated to the shield item family.
+        ItemStack sword = InfXItems.catalog()
+                .equipment(InfxMaterial.IRON, EquipmentType.SWORD)
+                .holder()
+                .value()
+                .getDefaultInstance();
+        helper.assertTrue(
+                sword.get(DataComponents.BLOCKS_ATTACKS) == null,
+                "tools must no longer carry BLOCKS_ATTACKS after the shield migration");
+        helper.succeed();
+    }
+
+    private static float expectedBlockFactor(InfxMaterial material) {
+        return switch (material) {
+            case WOOD -> 0.60F;
+            case COPPER -> 0.70F;
+            case SILVER -> 0.72F;
+            case GOLD -> 0.65F;
+            case IRON -> 0.80F;
+            case ANCIENT_METAL -> 0.85F;
+            case MITHRIL -> 0.95F;
+            case ADAMANTIUM -> 1.00F;
+            default -> throw new IllegalArgumentException("No expected shield factor for " + material);
+        };
     }
 }

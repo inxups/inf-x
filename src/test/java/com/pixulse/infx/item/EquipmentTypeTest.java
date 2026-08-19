@@ -109,6 +109,7 @@ class EquipmentTypeTest {
                         EquipmentType.FISHING_ROD,
                         EquipmentType.BOW,
                         EquipmentType.ARROW,
+                        EquipmentType.SHIELD,
                         EquipmentType.HELMET,
                         EquipmentType.CHESTPLATE,
                         EquipmentType.LEGGINGS,

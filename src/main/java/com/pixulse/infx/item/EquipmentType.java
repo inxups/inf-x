@@ -86,6 +86,10 @@ public enum EquipmentType {
             0, 0, 0.0F, 0.0F, Float.NaN, 0.0F, 0.0F,
             MiningFamily.NONE, InfxUseAction.NONE, ModelFamily.GENERATED, ArmorForm.NONE, null,
             FactoryKind.ARROW),
+    SHIELD("shield", "Shield", "盾", EquipmentCategory.WEAPON, shieldMaterials(),
+            2, 0, 0.0F, 0.0F, Float.NaN, 0.0F, 0.0F,
+            MiningFamily.NONE, InfxUseAction.NONE, ModelFamily.SHIELD, ArmorForm.NONE, null,
+            FactoryKind.SHIELD),
     HELMET("helmet", "Helmet", "头盔", EquipmentCategory.PLATE_ARMOR, plateMaterials(),
             5, 0, 0.0F, 0.0F, Float.NaN, 0.0F, 0.0F,
             MiningFamily.NONE, InfxUseAction.NONE, ModelFamily.GENERATED, ArmorForm.PLATE, ArmorType.HELMET,
@@ -208,6 +212,7 @@ public enum EquipmentType {
             case FISHING_ROD,
                     BOW,
                     ARROW,
+                    SHIELD,
                     HELMET,
                     CHESTPLATE,
                     LEGGINGS,
@@ -297,6 +302,14 @@ public enum EquipmentType {
         return materials;
     }
 
+    private static EnumSet<InfxMaterial> shieldMaterials() {
+        EnumSet<InfxMaterial> materials = metals();
+        // Rusted iron is a degraded POOR material; shields skip it.
+        materials.remove(InfxMaterial.RUSTED_IRON);
+        materials.add(InfxMaterial.WOOD);
+        return materials;
+    }
+
     private static EnumSet<InfxMaterial> fishingMaterials() {
         return materials(
                 InfxMaterial.FLINT,
@@ -331,7 +344,8 @@ public enum EquipmentType {
         GENERATED,
         HANDHELD,
         FISHING_ROD,
-        BOW
+        BOW,
+        SHIELD
     }
 
     public enum ArmorForm {
@@ -347,6 +361,7 @@ public enum EquipmentType {
         FISHING_ROD,
         BOW,
         ARROW,
-        PLAIN
+        PLAIN,
+        SHIELD
     }
 }

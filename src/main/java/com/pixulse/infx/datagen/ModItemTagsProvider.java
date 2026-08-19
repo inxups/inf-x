@@ -259,7 +259,8 @@ final class ModItemTagsProvider extends KeyTagsProvider<Item> {
                         || type.category() == EquipmentCategory.WEAPON)
                 && type != EquipmentType.FISHING_ROD
                 && type != EquipmentType.BOW
-                && type != EquipmentType.ARROW;
+                && type != EquipmentType.ARROW
+                && type != EquipmentType.SHIELD;
         if (melee) {
             add(ItemTags.MELEE_WEAPON_ENCHANTABLE, entry);
             add(ItemTags.WEAPON_ENCHANTABLE, entry);

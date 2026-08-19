@@ -999,6 +999,7 @@ final class ModRecipeProvider extends RecipeProvider {
                 BenchTier.ADAMANTIUM,
                 25600.0F,
                 InfXItems.ADAMANTIUM_INGOT);
+        addShields();
         addMetalDagger("copper", InfxMaterial.COPPER, BenchTier.COPPER, 425.0F, Items.COPPER_INGOT);
         addMetalDagger("silver", InfxMaterial.SILVER, BenchTier.COPPER, 425.0F, InfXItems.SILVER_INGOT);
         addMetalDagger("gold", InfxMaterial.GOLD, BenchTier.COPPER, 425.0F, Items.GOLD_INGOT);
@@ -1600,6 +1601,48 @@ final class ModRecipeProvider extends RecipeProvider {
                 equipment(equipmentMaterial, EquipmentType.AXE),
                 equipment(equipmentMaterial, EquipmentType.HOE),
                 equipment(equipmentMaterial, EquipmentType.SWORD));
+    }
+
+    /** Material-tiered shields; blocking replaces the old tool-blocking component. */
+    private void addShields() {
+        addWoodShield();
+        addShield(InfxMaterial.COPPER, BenchTier.COPPER, 400.0F, Items.COPPER_INGOT);
+        addShield(InfxMaterial.SILVER, BenchTier.COPPER, 400.0F, InfXItems.SILVER_INGOT);
+        addShield(InfxMaterial.GOLD, BenchTier.COPPER, 400.0F, Items.GOLD_INGOT);
+        addShield(InfxMaterial.IRON, BenchTier.IRON, 800.0F, Items.IRON_INGOT);
+        addShield(InfxMaterial.ANCIENT_METAL, BenchTier.ANCIENT_METAL, 1600.0F, InfXItems.ANCIENT_METAL_INGOT);
+        addShield(InfxMaterial.MITHRIL, BenchTier.MITHRIL, 6400.0F, InfXItems.MITHRIL_INGOT);
+        addShield(InfxMaterial.ADAMANTIUM, BenchTier.ADAMANTIUM, 25600.0F, InfXItems.ADAMANTIUM_INGOT);
+    }
+
+    private void addShield(InfxMaterial material, BenchTier bench, float ingotDifficulty, ItemLike ingot) {
+        addShaped(
+                material.path() + "_shield",
+                bench,
+                ingotDifficulty * 6.0F + STICK_DIFFICULTY,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(material, EquipmentType.SHIELD),
+                1,
+                Map.of(
+                        'I', Ingredient.of(ingot),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("ISI", "III", " I "));
+    }
+
+    private void addWoodShield() {
+        addShaped(
+                "wood_shield",
+                BenchTier.HAND,
+                505.0F,
+                CraftingBookCategory.EQUIPMENT,
+                "",
+                equipment(InfxMaterial.WOOD, EquipmentType.SHIELD),
+                1,
+                Map.of(
+                        'P', ingredient(ItemTags.PLANKS),
+                        'S', Ingredient.of(Items.STICK)),
+                List.of("PSP", "PPP", " P "));
     }
 
     private void addCatalogSpecialMetalTools(
