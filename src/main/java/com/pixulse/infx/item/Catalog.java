@@ -136,6 +136,13 @@ public final class Catalog {
                         properties -> ItemProperties.forEquipment(key, properties));
                 yield new EquipmentEntry(key, holder, ToolItem.class);
             }
+            case SHIELD -> {
+                DeferredItem<InfxShieldItem> holder = items.registerItem(
+                        key.path(),
+                        properties -> new InfxShieldItem(key, properties),
+                        properties -> ItemProperties.forEquipment(key, properties));
+                yield new EquipmentEntry(key, holder, InfxShieldItem.class);
+            }
         };
     }
 

@@ -19,9 +19,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Weapon;
-import net.minecraft.world.item.component.BlocksAttacks;
-import java.util.List;
-import java.util.Optional;
 import net.minecraft.world.item.equipment.Equippable;
 import com.pixulse.infx.item.material.Quality;
 import com.pixulse.infx.registry.InfXDataComponents;
@@ -42,6 +39,7 @@ public final class ItemProperties {
             case NONE -> switch (key.type()) {
                 case BOW, FISHING_ROD -> commonDamageable(key, properties);
                 case ARROW -> properties.stacksTo(16);
+                case SHIELD -> shield(key, properties);
                 default -> tool(key, properties);
             };
         };
@@ -53,23 +51,16 @@ public final class ItemProperties {
                 .attributes(toolAttributes(key))
                 .component(DataComponents.WEAPON,
                         new Weapon(key.attackWear(), key.type().disablesBlockingSeconds()));
-
-        if (key.type() != EquipmentType.SHEARS && key.type() != EquipmentType.HOE) {
-            p.component(DataComponents.BLOCKS_ATTACKS, toolBlocking());
-        }
-
+        // Tools no longer carry BLOCKS_ATTACKS: blocking is now the shield's exclusive role.
         return p;
     }
 
-    private static BlocksAttacks toolBlocking() {
-        return new BlocksAttacks(
-                0.1F,
-                1.0F,
-                List.of(new BlocksAttacks.DamageReduction(100.0F, Optional.empty(), 0.0F, 0.5F)),
-                new BlocksAttacks.ItemDamageFunction(0.0F, 0.0F, 0.5F),
-                Optional.empty(),
-                Optional.of(SoundEvents.SHIELD_BLOCK),
-                Optional.of(SoundEvents.SHIELD_BREAK));
+    private static Item.Properties shield(EquipmentKey key, Item.Properties properties) {
+        return commonDamageable(key, properties)
+                .delayedComponent(DataComponents.BLOCKS_ATTACKS,
+                        context -> ShieldSpec.blocksAttacks(key.material(), context))
+                .component(DataComponents.BREAK_SOUND, SoundEvents.SHIELD_BREAK)
+                .equippableUnswappable(EquipmentSlot.OFFHAND);
     }
 
     static ItemAttributeModifiers toolAttributes(EquipmentKey key) {

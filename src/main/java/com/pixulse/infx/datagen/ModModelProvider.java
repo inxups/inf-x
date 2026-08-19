@@ -41,6 +41,7 @@ import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.numeric.UseDuration;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
 import com.pixulse.infx.client.SafeSpecialRenderer;
+import net.minecraft.client.renderer.special.ShieldSpecialRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Direction;
@@ -271,6 +272,7 @@ final class ModModelProvider extends ModelProvider {
                     itemModels.generateFlatItem(entry.holder().value(), ModelTemplates.FLAT_HANDHELD_ITEM);
                 case FISHING_ROD -> generateFishingRod(itemModels, entry);
                 case BOW -> generateMaterialBow(itemModels, entry);
+                case SHIELD -> generateShield(itemModels, entry);
             }
         }
     }
@@ -600,6 +602,25 @@ final class ModModelProvider extends ModelProvider {
 
     private static void generateSpawnEggModel(ItemModelGenerators itemModels, Item egg) {
         itemModels.generateFlatItem(egg, ModelTemplates.FLAT_ITEM);
+    }
+
+    /**
+     * Reuses the vanilla shield special model + {@code entity/shield/shield_base} textures for
+     * every InfX shield, so all tiers render like the vanilla shield (distinguished by name).
+     * Per-material art is a follow-up pending owner-supplied textures.
+     */
+    private static void generateShield(ItemModelGenerators itemModels, Catalog.EquipmentEntry entry) {
+        ItemModel.Unbaked normal = ItemModelUtils.specialModel(
+                Identifier.withDefaultNamespace("item/shield"), new ShieldSpecialRenderer.Unbaked());
+        ItemModel.Unbaked blocking = ItemModelUtils.specialModel(
+                Identifier.withDefaultNamespace("item/shield_blocking"), new ShieldSpecialRenderer.Unbaked());
+        itemModels.itemModelOutput.accept(
+                entry.holder().value(),
+                ItemModelUtils.conditional(
+                        ShieldSpecialRenderer.DEFAULT_TRANSFORMATION,
+                        ItemModelUtils.isUsingItem(),
+                        blocking,
+                        normal));
     }
 
     private static void generateMaterialBow(

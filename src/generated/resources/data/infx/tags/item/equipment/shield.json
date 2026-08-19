@@ -1,0 +1,12 @@
+{
+  "values": [
+    "infx:wood_shield",
+    "infx:gold_shield",
+    "infx:copper_shield",
+    "infx:silver_shield",
+    "infx:iron_shield",
+    "infx:ancient_metal_shield",
+    "infx:mithril_shield",
+    "infx:adamantium_shield"
+  ]
+}
