@@ -141,11 +141,13 @@ public final class InfXEnchantments {
 
     /**
      * Enchantments that are treasure- or barter-only in vanilla and therefore excluded from the
-     * enchanting table while still appearing as loot, mob equipment or trades.
+     * enchanting table while still appearing as loot, mob equipment or trades. Matches vanilla
+     * 26.1's {@code #treasure}/barter set as applied to the InfX pool: curses, soul speed,
+     * frost walker, and swift sneak (ancient-city loot only in vanilla).
      */
     private static final Set<ResourceKey<Enchantment>> TREASURE_ONLY = Set.of(
             VANILLA_VANISHING_CURSE, VANILLA_BINDING_CURSE,
-            VANILLA_SOUL_SPEED, VANILLA_FROST_WALKER);
+            VANILLA_SOUL_SPEED, VANILLA_FROST_WALKER, VANILLA_SWIFT_SNEAK);
 
     /** Enchantments offered at the InfX enchanting table (everything except treasure-only). */
     public static final List<ResourceKey<Enchantment>> TABLE = ALL.stream()

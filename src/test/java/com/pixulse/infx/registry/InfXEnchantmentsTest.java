@@ -1,7 +1,9 @@
 package com.pixulse.infx.registry;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Map;
 import net.minecraft.resources.ResourceKey;
@@ -99,6 +101,15 @@ class InfXEnchantmentsTest {
         assertEquals(
                 InfXEnchantments.profile(InfXEnchantments.PENETRATION),
                 InfXEnchantments.profile(InfXEnchantments.CLEAVING));
+    }
+
+    /** Swift sneak is vanilla #treasure, so it stays out of the table but remains acquirable. */
+    @Test
+    void treasureOnlyExcludesSwiftSneakFromTableButKeepsAcquirable() {
+        assertFalse(InfXEnchantments.TABLE.contains(InfXEnchantments.VANILLA_SWIFT_SNEAK),
+                "swift sneak must not roll at the enchanting table (vanilla #treasure)");
+        assertTrue(InfXEnchantments.ALL.contains(InfXEnchantments.VANILLA_SWIFT_SNEAK),
+                "swift sneak must remain acquirable via loot/trades/mob equipment");
     }
 
     private static ExpectedProfile expected(InfXEnchantments.Rarity rarity, int difficulty) {

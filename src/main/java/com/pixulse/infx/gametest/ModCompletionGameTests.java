@@ -2732,10 +2732,10 @@ public final class ModCompletionGameTests {
                 InfXEnchantments.TABLE.stream().map(enchantments::getOrThrow).toList());
         Set<Holder<Enchantment>> expectedAll = Set.copyOf(
                 InfXEnchantments.ALL.stream().map(enchantments::getOrThrow).toList());
-        // INFX serves 22 own + 20 R196 + 8 modern + 2 curses = 52; the table excludes the 4
-        // treasure/barter-only enchantments (curses, soul speed, frost walker) = 48.
+        // INFX serves 22 own + 20 R196 + 8 modern + 2 curses = 52; the table excludes the 5
+        // treasure/barter-only enchantments (curses, soul speed, frost walker, swift sneak) = 47.
         helper.assertTrue(InfXEnchantments.ALL.size() == 52, "ALL must contain 52 enchantments, got " + InfXEnchantments.ALL.size());
-        helper.assertTrue(InfXEnchantments.TABLE.size() == 48, "TABLE must contain 48 enchantments, got " + InfXEnchantments.TABLE.size());
+        helper.assertTrue(InfXEnchantments.TABLE.size() == 47, "TABLE must contain 47 enchantments, got " + InfXEnchantments.TABLE.size());
         // The enchanting table excludes treasure/barter-only enchantments.
         var tableTag = enchantments.getOrThrow(EnchantmentTags.IN_ENCHANTING_TABLE);
         helper.assertTrue(tableTag.size() == expectedTable.size(),
